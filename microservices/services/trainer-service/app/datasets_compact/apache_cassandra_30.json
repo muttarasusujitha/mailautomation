@@ -1,16 +1,1016 @@
-{"domain":"Apache Cassandra","name":"Apache Cassandra NoSQL","icon":"database","program_title":"Apache Cassandra - Distributed NoSQL Database Development, Administration and Performance","level":"Intermediate to Advanced","mode":"Online","aliases":["Apache Cassandra","Cassandra","Cassandra NoSQL"],"tools":["Apache Cassandra","CQL Shell","DataStax Studio","DataStax Astra DB","Docker","nodetool","Git"],"certifications":["DataStax Apache Cassandra Learning Paths","DataStax Cassandra Developer and Administrator Training"],"days":[
-{"day":1,"topic":"Cassandra Introduction and Setup","subtopics":["NoSQL","CAP theorem","distributed concepts","Cassandra architecture","install","cqlsh","Docker"],"tools":["Apache Cassandra","CQL Shell"],"lab_task":"Install Cassandra and connect with cqlsh"},
-{"day":2,"topic":"Cassandra Architecture and Data Distribution","subtopics":["ring","nodes","partitions","tokens","consistent hashing","gossip","replication","coordinators"],"tools":["Apache Cassandra","nodetool"],"lab_task":"Inspect cluster topology and data distribution"},
-{"day":3,"topic":"CQL Fundamentals","subtopics":["keyspaces","tables","data types","CREATE/ALTER/DROP","INSERT/UPDATE/DELETE","SELECT"],"tools":["CQL Shell"],"lab_task":"Create keyspaces, tables and CRUD queries"},
-{"day":4,"topic":"Cassandra Data Modeling","subtopics":["query-driven modeling","partition/clustering keys","primary keys","denormalization","wide rows","anti-patterns"],"tools":["DataStax Studio"],"lab_task":"Model data for application queries"},
-{"day":5,"topic":"CQL Queries and Indexing","subtopics":["WHERE restrictions","filtering","ALLOW FILTERING risks","secondary indexes","SAI","materialized views","query design"],"tools":["CQL Shell"],"lab_task":"Optimize queries and indexes"},
-{"day":6,"topic":"Consistency and Replication","subtopics":["replication strategies","consistency levels","quorum","read/write paths","tunable consistency","availability tradeoffs"],"tools":["Apache Cassandra"],"lab_task":"Configure replication and test consistency"},
-{"day":7,"topic":"Cluster Administration","subtopics":["nodetool","status/ring/info","node lifecycle","bootstrap/decommission","repair","cleanup","compaction"],"tools":["nodetool"],"lab_task":"Operate and maintain a Cassandra cluster"},
-{"day":8,"topic":"Performance Tuning","subtopics":["read/write performance","compaction","caching","JVM/memory","GC","tombstones","partition size","profiling"],"tools":["Apache Cassandra","nodetool"],"lab_task":"Diagnose and tune workload performance"},
-{"day":9,"topic":"Backup, Restore and Disaster Recovery","subtopics":["snapshots","sstables","backup/restore","incremental backups","repair","DR planning","data recovery"],"tools":["Apache Cassandra"],"lab_task":"Perform backup and restore drill"},
-{"day":10,"topic":"Security and Access Control","subtopics":["authentication","authorization","roles","permissions","TLS","encryption","auditing","secrets"],"tools":["Apache Cassandra"],"lab_task":"Secure Cassandra users and traffic"},
-{"day":11,"topic":"Monitoring and Observability","subtopics":["metrics","logs","nodetool monitoring","JMX","alerts","capacity planning","health checks"],"tools":["nodetool","DataStax Studio"],"lab_task":"Create monitoring and health-check plan"},
-{"day":12,"topic":"Application Integration","subtopics":["drivers","prepared statements","connection pooling","paging","async queries","error handling","Java/Python awareness"],"tools":["CQL Shell","Git"],"lab_task":"Connect an application to Cassandra"},
-{"day":13,"topic":"DataStax Astra DB and Cloud","subtopics":["Astra DB","cloud deployment","serverless concepts","secure connect","cloud operations","cost awareness"],"tools":["DataStax Astra DB"],"lab_task":"Deploy and connect to cloud Cassandra"},
-{"day":14,"topic":"Cassandra Operations Automation","subtopics":["Docker","configuration automation","maintenance scripts","upgrade awareness","runbooks","incident response"],"tools":["Docker","Git"],"lab_task":"Automate cluster maintenance tasks"},
-{"day":15,"topic":"Cassandra Capstone","subtopics":["requirements","data model","CQL","replication/consistency","security","monitoring","backup","performance","documentation"],"tools":["Apache Cassandra","Docker","Git"],"lab_task":"Deliver a production-style Cassandra solution"}]}
+{
+  "domain": "Apache Cassandra",
+  "name": "Apache Cassandra NoSQL",
+  "icon": "database",
+  "program_title": "Apache Cassandra - Distributed NoSQL Database Development, Administration and Performance",
+  "level": "Intermediate to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "Apache Cassandra",
+    "Cassandra",
+    "Cassandra NoSQL"
+  ],
+  "tools": [
+    "Apache Cassandra",
+    "CQL Shell",
+    "DataStax Studio",
+    "DataStax Astra DB",
+    "Docker",
+    "nodetool",
+    "Git"
+  ],
+  "certifications": [
+    "DataStax Apache Cassandra Learning Paths",
+    "DataStax Cassandra Developer and Administrator Training"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Cassandra Introduction and Setup",
+      "subtopics": [
+        "NoSQL",
+        "CAP theorem",
+        "distributed concepts",
+        "Cassandra architecture",
+        "install",
+        "cqlsh",
+        "Docker"
+      ],
+      "tools": [
+        "Apache Cassandra",
+        "CQL Shell"
+      ],
+      "lab_task": "Install Cassandra and connect with cqlsh",
+      "deliverable": "Participant submission for 'Cassandra Introduction and Setup': Install Cassandra and connect with cqlsh. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Install Cassandra and connect with cqlsh. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NoSQL; CAP theorem; distributed concepts; Cassandra architecture; install; cqlsh; Docker). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Install Cassandra and connect with cqlsh.",
+        "Explain how the lab applies Cassandra Introduction and Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cassandra Introduction and Setup' on a prepared training sample through this task: Install Cassandra and connect with cqlsh.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Install Cassandra and connect with cqlsh",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (NoSQL; CAP theorem; distributed concepts; Cassandra architecture; install; cqlsh; Docker) and demonstrate the starting sample for: Install Cassandra and connect with cqlsh",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Install Cassandra and connect with cqlsh",
+          "evidence": "Participant submission for 'Cassandra Introduction and Setup': Install Cassandra and connect with cqlsh. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Install Cassandra and connect with cqlsh' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Install Cassandra and connect with cqlsh. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NoSQL; CAP theorem; distributed concepts; Cassandra architecture; install; cqlsh; Docker). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Cassandra Architecture and Data Distribution",
+      "subtopics": [
+        "ring",
+        "nodes",
+        "partitions",
+        "tokens",
+        "consistent hashing",
+        "gossip",
+        "replication",
+        "coordinators"
+      ],
+      "tools": [
+        "Apache Cassandra",
+        "nodetool"
+      ],
+      "lab_task": "Inspect cluster topology and data distribution",
+      "deliverable": "Participant submission for 'Cassandra Architecture and Data Distribution': Inspect cluster topology and data distribution. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Inspect cluster topology and data distribution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ring; nodes; partitions; tokens; consistent hashing; gossip; replication; coordinators). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Inspect cluster topology and data distribution.",
+        "Explain how the lab applies Cassandra Architecture and Data Distribution and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cassandra Architecture and Data Distribution' on a prepared training sample through this task: Inspect cluster topology and data distribution.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Inspect cluster topology and data distribution",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ring; nodes; partitions; tokens; consistent hashing; gossip; replication; coordinators) and demonstrate the starting sample for: Inspect cluster topology and data distribution",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Inspect cluster topology and data distribution",
+          "evidence": "Participant submission for 'Cassandra Architecture and Data Distribution': Inspect cluster topology and data distribution. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Inspect cluster topology and data distribution' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Inspect cluster topology and data distribution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ring; nodes; partitions; tokens; consistent hashing; gossip; replication; coordinators). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "CQL Fundamentals",
+      "subtopics": [
+        "keyspaces",
+        "tables",
+        "data types",
+        "CREATE/ALTER/DROP",
+        "INSERT/UPDATE/DELETE",
+        "SELECT"
+      ],
+      "tools": [
+        "CQL Shell"
+      ],
+      "lab_task": "Create keyspaces, tables and CRUD queries",
+      "deliverable": "Participant submission for 'CQL Fundamentals': Create keyspaces, tables and CRUD queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create keyspaces, tables and CRUD queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (keyspaces; tables; data types; CREATE/ALTER/DROP; INSERT/UPDATE/DELETE; SELECT). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create keyspaces, tables and CRUD queries.",
+        "Explain how the lab applies CQL Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CQL Fundamentals' on a prepared training sample through this task: Create keyspaces, tables and CRUD queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create keyspaces, tables and CRUD queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (keyspaces; tables; data types; CREATE/ALTER/DROP; INSERT/UPDATE/DELETE; SELECT) and demonstrate the starting sample for: Create keyspaces, tables and CRUD queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create keyspaces, tables and CRUD queries",
+          "evidence": "Participant submission for 'CQL Fundamentals': Create keyspaces, tables and CRUD queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create keyspaces, tables and CRUD queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create keyspaces, tables and CRUD queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (keyspaces; tables; data types; CREATE/ALTER/DROP; INSERT/UPDATE/DELETE; SELECT). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Cassandra Data Modeling",
+      "subtopics": [
+        "query-driven modeling",
+        "partition/clustering keys",
+        "primary keys",
+        "denormalization",
+        "wide rows",
+        "anti-patterns"
+      ],
+      "tools": [
+        "DataStax Studio"
+      ],
+      "lab_task": "Model data for application queries",
+      "deliverable": "Participant submission for 'Cassandra Data Modeling': Model data for application queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model data for application queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (query-driven modeling; partition/clustering keys; primary keys; denormalization; wide rows; anti-patterns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model data for application queries.",
+        "Explain how the lab applies Cassandra Data Modeling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cassandra Data Modeling' on a prepared training sample through this task: Model data for application queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model data for application queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (query-driven modeling; partition/clustering keys; primary keys; denormalization; wide rows; anti-patterns) and demonstrate the starting sample for: Model data for application queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model data for application queries",
+          "evidence": "Participant submission for 'Cassandra Data Modeling': Model data for application queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model data for application queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model data for application queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (query-driven modeling; partition/clustering keys; primary keys; denormalization; wide rows; anti-patterns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "CQL Queries and Indexing",
+      "subtopics": [
+        "WHERE restrictions",
+        "filtering",
+        "ALLOW FILTERING risks",
+        "secondary indexes",
+        "SAI",
+        "materialized views",
+        "query design"
+      ],
+      "tools": [
+        "CQL Shell"
+      ],
+      "lab_task": "Optimize queries and indexes",
+      "deliverable": "Participant submission for 'CQL Queries and Indexing': Optimize queries and indexes. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Optimize queries and indexes. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WHERE restrictions; filtering; ALLOW FILTERING risks; secondary indexes; SAI; materialized views; query design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Optimize queries and indexes.",
+        "Explain how the lab applies CQL Queries and Indexing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CQL Queries and Indexing' on a prepared training sample through this task: Optimize queries and indexes.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Optimize queries and indexes",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WHERE restrictions; filtering; ALLOW FILTERING risks; secondary indexes; SAI; materialized views; query design) and demonstrate the starting sample for: Optimize queries and indexes",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Optimize queries and indexes",
+          "evidence": "Participant submission for 'CQL Queries and Indexing': Optimize queries and indexes. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Optimize queries and indexes' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Optimize queries and indexes. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WHERE restrictions; filtering; ALLOW FILTERING risks; secondary indexes; SAI; materialized views; query design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Consistency and Replication",
+      "subtopics": [
+        "replication strategies",
+        "consistency levels",
+        "quorum",
+        "read/write paths",
+        "tunable consistency",
+        "availability tradeoffs"
+      ],
+      "tools": [
+        "Apache Cassandra"
+      ],
+      "lab_task": "Configure replication and test consistency",
+      "deliverable": "Participant submission for 'Consistency and Replication': Configure replication and test consistency. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure replication and test consistency. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (replication strategies; consistency levels; quorum; read/write paths; tunable consistency; availability tradeoffs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure replication and test consistency.",
+        "Explain how the lab applies Consistency and Replication and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Consistency and Replication' on a prepared training sample through this task: Configure replication and test consistency.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure replication and test consistency",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (replication strategies; consistency levels; quorum; read/write paths; tunable consistency; availability tradeoffs) and demonstrate the starting sample for: Configure replication and test consistency",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure replication and test consistency",
+          "evidence": "Participant submission for 'Consistency and Replication': Configure replication and test consistency. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure replication and test consistency' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure replication and test consistency. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (replication strategies; consistency levels; quorum; read/write paths; tunable consistency; availability tradeoffs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Cluster Administration",
+      "subtopics": [
+        "nodetool",
+        "status/ring/info",
+        "node lifecycle",
+        "bootstrap/decommission",
+        "repair",
+        "cleanup",
+        "compaction"
+      ],
+      "tools": [
+        "nodetool"
+      ],
+      "lab_task": "Operate and maintain a Cassandra cluster",
+      "deliverable": "Participant submission for 'Cluster Administration': Operate and maintain a Cassandra cluster. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Operate and maintain a Cassandra cluster. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (nodetool; status/ring/info; node lifecycle; bootstrap/decommission; repair; cleanup; compaction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Operate and maintain a Cassandra cluster.",
+        "Explain how the lab applies Cluster Administration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cluster Administration' on a prepared training sample through this task: Operate and maintain a Cassandra cluster.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Operate and maintain a Cassandra cluster",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (nodetool; status/ring/info; node lifecycle; bootstrap/decommission; repair; cleanup; compaction) and demonstrate the starting sample for: Operate and maintain a Cassandra cluster",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Operate and maintain a Cassandra cluster",
+          "evidence": "Participant submission for 'Cluster Administration': Operate and maintain a Cassandra cluster. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Operate and maintain a Cassandra cluster' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Operate and maintain a Cassandra cluster. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (nodetool; status/ring/info; node lifecycle; bootstrap/decommission; repair; cleanup; compaction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Performance Tuning",
+      "subtopics": [
+        "read/write performance",
+        "compaction",
+        "caching",
+        "JVM/memory",
+        "GC",
+        "tombstones",
+        "partition size",
+        "profiling"
+      ],
+      "tools": [
+        "Apache Cassandra",
+        "nodetool"
+      ],
+      "lab_task": "Diagnose and tune workload performance",
+      "deliverable": "Participant submission for 'Performance Tuning': Diagnose and tune workload performance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Diagnose and tune workload performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (read/write performance; compaction; caching; JVM/memory; GC; tombstones; partition size; profiling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Diagnose and tune workload performance.",
+        "Explain how the lab applies Performance Tuning and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Tuning' on a prepared training sample through this task: Diagnose and tune workload performance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Diagnose and tune workload performance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (read/write performance; compaction; caching; JVM/memory; GC; tombstones; partition size; profiling) and demonstrate the starting sample for: Diagnose and tune workload performance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Diagnose and tune workload performance",
+          "evidence": "Participant submission for 'Performance Tuning': Diagnose and tune workload performance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Diagnose and tune workload performance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Diagnose and tune workload performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (read/write performance; compaction; caching; JVM/memory; GC; tombstones; partition size; profiling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Backup, Restore and Disaster Recovery",
+      "subtopics": [
+        "snapshots",
+        "sstables",
+        "backup/restore",
+        "incremental backups",
+        "repair",
+        "DR planning",
+        "data recovery"
+      ],
+      "tools": [
+        "Apache Cassandra"
+      ],
+      "lab_task": "Perform backup and restore drill",
+      "deliverable": "Participant submission for 'Backup, Restore and Disaster Recovery': Perform backup and restore drill. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Perform backup and restore drill. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (snapshots; sstables; backup/restore; incremental backups; repair; DR planning; data recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Perform backup and restore drill.",
+        "Explain how the lab applies Backup, Restore and Disaster Recovery and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backup, Restore and Disaster Recovery' on a prepared training sample through this task: Perform backup and restore drill.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Perform backup and restore drill",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (snapshots; sstables; backup/restore; incremental backups; repair; DR planning; data recovery) and demonstrate the starting sample for: Perform backup and restore drill",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Perform backup and restore drill",
+          "evidence": "Participant submission for 'Backup, Restore and Disaster Recovery': Perform backup and restore drill. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Perform backup and restore drill' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Perform backup and restore drill. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (snapshots; sstables; backup/restore; incremental backups; repair; DR planning; data recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Security and Access Control",
+      "subtopics": [
+        "authentication",
+        "authorization",
+        "roles",
+        "permissions",
+        "TLS",
+        "encryption",
+        "auditing",
+        "secrets"
+      ],
+      "tools": [
+        "Apache Cassandra"
+      ],
+      "lab_task": "Secure Cassandra users and traffic",
+      "deliverable": "Participant submission for 'Security and Access Control': Secure Cassandra users and traffic. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Secure Cassandra users and traffic. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (authentication; authorization; roles; permissions; TLS; encryption; auditing; secrets). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Secure Cassandra users and traffic.",
+        "Explain how the lab applies Security and Access Control and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security and Access Control' on a prepared training sample through this task: Secure Cassandra users and traffic.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Secure Cassandra users and traffic",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (authentication; authorization; roles; permissions; TLS; encryption; auditing; secrets) and demonstrate the starting sample for: Secure Cassandra users and traffic",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Secure Cassandra users and traffic",
+          "evidence": "Participant submission for 'Security and Access Control': Secure Cassandra users and traffic. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Secure Cassandra users and traffic' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Secure Cassandra users and traffic. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (authentication; authorization; roles; permissions; TLS; encryption; auditing; secrets). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Monitoring and Observability",
+      "subtopics": [
+        "metrics",
+        "logs",
+        "nodetool monitoring",
+        "JMX",
+        "alerts",
+        "capacity planning",
+        "health checks"
+      ],
+      "tools": [
+        "nodetool",
+        "DataStax Studio"
+      ],
+      "lab_task": "Create monitoring and health-check plan",
+      "deliverable": "Participant submission for 'Monitoring and Observability': Create monitoring and health-check plan. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create monitoring and health-check plan. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (metrics; logs; nodetool monitoring; JMX; alerts; capacity planning; health checks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create monitoring and health-check plan.",
+        "Explain how the lab applies Monitoring and Observability and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Monitoring and Observability' on a prepared training sample through this task: Create monitoring and health-check plan.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create monitoring and health-check plan",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (metrics; logs; nodetool monitoring; JMX; alerts; capacity planning; health checks) and demonstrate the starting sample for: Create monitoring and health-check plan",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create monitoring and health-check plan",
+          "evidence": "Participant submission for 'Monitoring and Observability': Create monitoring and health-check plan. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create monitoring and health-check plan' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create monitoring and health-check plan. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (metrics; logs; nodetool monitoring; JMX; alerts; capacity planning; health checks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Application Integration",
+      "subtopics": [
+        "drivers",
+        "prepared statements",
+        "connection pooling",
+        "paging",
+        "async queries",
+        "error handling",
+        "Java/Python awareness"
+      ],
+      "tools": [
+        "CQL Shell",
+        "Git"
+      ],
+      "lab_task": "Connect an application to Cassandra",
+      "deliverable": "Participant submission for 'Application Integration': Connect an application to Cassandra. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Connect an application to Cassandra. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (drivers; prepared statements; connection pooling; paging; async queries; error handling; Java/Python awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Connect an application to Cassandra.",
+        "Explain how the lab applies Application Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Application Integration' on a prepared training sample through this task: Connect an application to Cassandra.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Connect an application to Cassandra",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (drivers; prepared statements; connection pooling; paging; async queries; error handling; Java/Python awareness) and demonstrate the starting sample for: Connect an application to Cassandra",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Connect an application to Cassandra",
+          "evidence": "Participant submission for 'Application Integration': Connect an application to Cassandra. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Connect an application to Cassandra' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Connect an application to Cassandra. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (drivers; prepared statements; connection pooling; paging; async queries; error handling; Java/Python awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "DataStax Astra DB and Cloud",
+      "subtopics": [
+        "Astra DB",
+        "cloud deployment",
+        "serverless concepts",
+        "secure connect",
+        "cloud operations",
+        "cost awareness"
+      ],
+      "tools": [
+        "DataStax Astra DB"
+      ],
+      "lab_task": "Deploy and connect to cloud Cassandra",
+      "deliverable": "Participant submission for 'DataStax Astra DB and Cloud': Deploy and connect to cloud Cassandra. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deploy and connect to cloud Cassandra. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Astra DB; cloud deployment; serverless concepts; secure connect; cloud operations; cost awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deploy and connect to cloud Cassandra.",
+        "Explain how the lab applies DataStax Astra DB and Cloud and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DataStax Astra DB and Cloud' on a prepared training sample through this task: Deploy and connect to cloud Cassandra.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deploy and connect to cloud Cassandra",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Astra DB; cloud deployment; serverless concepts; secure connect; cloud operations; cost awareness) and demonstrate the starting sample for: Deploy and connect to cloud Cassandra",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deploy and connect to cloud Cassandra",
+          "evidence": "Participant submission for 'DataStax Astra DB and Cloud': Deploy and connect to cloud Cassandra. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deploy and connect to cloud Cassandra' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deploy and connect to cloud Cassandra. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Astra DB; cloud deployment; serverless concepts; secure connect; cloud operations; cost awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Cassandra Operations Automation",
+      "subtopics": [
+        "Docker",
+        "configuration automation",
+        "maintenance scripts",
+        "upgrade awareness",
+        "runbooks",
+        "incident response"
+      ],
+      "tools": [
+        "Docker",
+        "Git"
+      ],
+      "lab_task": "Automate cluster maintenance tasks",
+      "deliverable": "Participant submission for 'Cassandra Operations Automation': Automate cluster maintenance tasks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate cluster maintenance tasks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker; configuration automation; maintenance scripts; upgrade awareness; runbooks; incident response). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Automate cluster maintenance tasks.",
+        "Explain how the lab applies Cassandra Operations Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cassandra Operations Automation' on a prepared training sample through this task: Automate cluster maintenance tasks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate cluster maintenance tasks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Docker; configuration automation; maintenance scripts; upgrade awareness; runbooks; incident response) and demonstrate the starting sample for: Automate cluster maintenance tasks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate cluster maintenance tasks",
+          "evidence": "Participant submission for 'Cassandra Operations Automation': Automate cluster maintenance tasks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate cluster maintenance tasks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate cluster maintenance tasks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker; configuration automation; maintenance scripts; upgrade awareness; runbooks; incident response). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Cassandra Capstone",
+      "subtopics": [
+        "requirements",
+        "data model",
+        "CQL",
+        "replication/consistency",
+        "security",
+        "monitoring",
+        "backup",
+        "performance",
+        "documentation"
+      ],
+      "tools": [
+        "Apache Cassandra",
+        "Docker",
+        "Git"
+      ],
+      "lab_task": "Deliver a production-style Cassandra solution",
+      "deliverable": "Participant submission for 'Cassandra Capstone': Deliver a production-style Cassandra solution. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a production-style Cassandra solution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; data model; CQL; replication/consistency; security; monitoring; backup; performance; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a production-style Cassandra solution.",
+        "Explain how the lab applies Cassandra Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cassandra Capstone' on a prepared training sample through this task: Deliver a production-style Cassandra solution.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a production-style Cassandra solution",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements; data model; CQL; replication/consistency; security; monitoring; backup; performance; documentation) and demonstrate the starting sample for: Deliver a production-style Cassandra solution",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a production-style Cassandra solution",
+          "evidence": "Participant submission for 'Cassandra Capstone': Deliver a production-style Cassandra solution. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a production-style Cassandra solution' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a production-style Cassandra solution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; data model; CQL; replication/consistency; security; monitoring; backup; performance; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
+}

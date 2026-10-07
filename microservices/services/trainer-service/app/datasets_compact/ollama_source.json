@@ -1,461 +1,896 @@
 {
-    "domain":  "Ollama",
-    "name":  "Ollama â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Ollama Local LLM Runtime",
-                    "Local Model Serving"
-                ],
-    "tools":  [
-                  "Ollama",
-                  "Modelfile",
-                  "REST API"
-              ],
-    "certifications":  [
-                           "Ollama official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Foundations and Setup",
-                     "subtopics":  [
-                                       "Core concepts",
-                                       "Architecture",
-                                       "Use cases",
-                                       "Terminology",
-                                       "Environment setup",
-                                       "SDK/runtime setup",
-                                       "First example",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Set up Ollama and run a first working example.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Foundations and Setup concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Foundations and Setup practically using Ollama.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Core Data and Representations",
-                     "subtopics":  [
-                                       "Inputs",
-                                       "Outputs",
-                                       "Token/embedding/model concepts as applicable",
-                                       "Data preparation",
-                                       "Schemas",
-                                       "Metadata",
-                                       "Validation",
-                                       "Preprocessing",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Prepare representative data for Ollama.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Core Data and Representations concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core Data and Representations practically using Ollama.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Core APIs or Algorithms",
-                     "subtopics":  [
-                                       "Primary API/algorithm",
-                                       "Parameters",
-                                       "Configuration",
-                                       "Batching",
-                                       "Error handling",
-                                       "Reproducibility",
-                                       "Result interpretation",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Implement the core workflow for Ollama.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Core APIs or Algorithms concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using Ollama.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Advanced Techniques",
-                     "subtopics":  [
-                                       "Advanced features",
-                                       "Optimization",
-                                       "Caching",
-                                       "Streaming",
-                                       "Structured outputs",
-                                       "Hybrid techniques",
-                                       "Performance trade-offs",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Implement an advanced Ollama workflow.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Techniques concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Techniques practically using Ollama.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Evaluation",
-                     "subtopics":  [
-                                       "Quality metrics",
-                                       "Offline evaluation",
-                                       "Online evaluation concepts",
-                                       "Test sets",
-                                       "Failure analysis",
-                                       "Regression testing",
-                                       "Human review",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Create an evaluation harness for Ollama.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Evaluation concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Evaluation practically using Ollama.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Safety and Security",
-                     "subtopics":  [
-                                       "Prompt/input security where relevant",
-                                       "Data privacy",
-                                       "Secrets",
-                                       "Access control",
-                                       "Abuse prevention",
-                                       "Policy controls",
-                                       "Auditability",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Add safety and security controls.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Safety and Security concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Safety and Security practically using Ollama.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Production Architecture",
-                     "subtopics":  [
-                                       "Service architecture",
-                                       "Scalability",
-                                       "Latency",
-                                       "Cost",
-                                       "Caching",
-                                       "Fallbacks",
-                                       "Observability",
-                                       "Reliability",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Design a production architecture.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Production Architecture concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Production Architecture practically using Ollama.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Integration",
-                     "subtopics":  [
-                                       "APIs",
-                                       "Databases/vector stores",
-                                       "Tools/functions",
-                                       "Agents or workflows",
-                                       "Web/backend integration",
-                                       "Streaming",
-                                       "Testing",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Integrate Ollama into an application.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Integration concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Integration practically using Ollama.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "Operations and Optimization",
-                     "subtopics":  [
-                                       "Monitoring",
-                                       "Tracing",
-                                       "Cost tracking",
-                                       "Versioning",
-                                       "Rollbacks",
-                                       "Performance tuning",
-                                       "Incident handling",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Monitor and optimize a production-style workload.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Operations and Optimization concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Operations and Optimization practically using Ollama.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  10,
-                     "topic":  "Capstone AI Project",
-                     "subtopics":  [
-                                       "Requirements",
-                                       "Data",
-                                       "Implementation",
-                                       "Evaluation",
-                                       "Safety",
-                                       "Observability",
-                                       "Deployment",
-                                       "Documentation",
-                                       "Ollama terminology and feature mapping for this topic",
-                                       "Ollama configuration and implementation considerations",
-                                       "Ollama best practices and common mistakes for this topic",
-                                       "model library",
-                                       "pull",
-                                       "run",
-                                       "serve",
-                                       "Modelfile",
-                                       "parameters",
-                                       "system prompts",
-                                       "templates",
-                                       "REST API",
-                                       "embeddings concepts",
-                                       "local inference",
-                                       "GPU/CPU usage"
-                                   ],
-                     "tools":  [
-                                   "Ollama",
-                                   "Modelfile",
-                                   "REST API"
-                               ],
-                     "lab_task":  "Build an end-to-end production-style project using Ollama.",
-                     "technology":  "Ollama",
-                     "technology_id":  "ollama",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone AI Project concepts in the context of Ollama.",
-                                                 "Configure or implement the key Ollama features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone AI Project practically using Ollama.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "ollama"
+  "domain": "Ollama",
+  "name": "Ollama â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Ollama Local LLM Runtime",
+    "Local Model Serving"
+  ],
+  "tools": [
+    "Ollama",
+    "Modelfile",
+    "REST API"
+  ],
+  "certifications": [
+    "Ollama official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Foundations and Setup",
+      "subtopics": [
+        "Core concepts",
+        "Architecture",
+        "Use cases",
+        "Terminology",
+        "Environment setup",
+        "SDK/runtime setup",
+        "First example",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Set up Ollama and run a first working example.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Foundations and Setup concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Foundations and Setup practically using Ollama.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Foundations and Setup': Set up Ollama and run a first working example.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Ollama and run a first working example.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Use cases; Terminology; Environment setup; SDK/runtime setup; First example; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Foundations and Setup' on a prepared training sample through this task: Set up Ollama and run a first working example..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Ollama and run a first working example.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core concepts; Architecture; Use cases; Terminology; Environment setup; SDK/runtime setup; First example; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Set up Ollama and run a first working example.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Ollama and run a first working example.",
+          "evidence": "Participant submission for 'Foundations and Setup': Set up Ollama and run a first working example.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Ollama and run a first working example.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Ollama and run a first working example.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Use cases; Terminology; Environment setup; SDK/runtime setup; First example; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Core Data and Representations",
+      "subtopics": [
+        "Inputs",
+        "Outputs",
+        "Token/embedding/model concepts as applicable",
+        "Data preparation",
+        "Schemas",
+        "Metadata",
+        "Validation",
+        "Preprocessing",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Prepare representative data for Ollama.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Core Data and Representations concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core Data and Representations practically using Ollama.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Core Data and Representations': Prepare representative data for Ollama.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Prepare representative data for Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Inputs; Outputs; Token/embedding/model concepts as applicable; Data preparation; Schemas; Metadata; Validation; Preprocessing; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core Data and Representations' on a prepared training sample through this task: Prepare representative data for Ollama..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Prepare representative data for Ollama.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Inputs; Outputs; Token/embedding/model concepts as applicable; Data preparation; Schemas; Metadata; Validation; Preprocessing; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Prepare representative data for Ollama.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Prepare representative data for Ollama.",
+          "evidence": "Participant submission for 'Core Data and Representations': Prepare representative data for Ollama.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Prepare representative data for Ollama.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Prepare representative data for Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Inputs; Outputs; Token/embedding/model concepts as applicable; Data preparation; Schemas; Metadata; Validation; Preprocessing; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Core APIs or Algorithms",
+      "subtopics": [
+        "Primary API/algorithm",
+        "Parameters",
+        "Configuration",
+        "Batching",
+        "Error handling",
+        "Reproducibility",
+        "Result interpretation",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Implement the core workflow for Ollama.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Core APIs or Algorithms concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core APIs or Algorithms practically using Ollama.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Core APIs or Algorithms': Implement the core workflow for Ollama.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement the core workflow for Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Primary API/algorithm; Parameters; Configuration; Batching; Error handling; Reproducibility; Result interpretation; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core APIs or Algorithms' on a prepared training sample through this task: Implement the core workflow for Ollama..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement the core workflow for Ollama.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Primary API/algorithm; Parameters; Configuration; Batching; Error handling; Reproducibility; Result interpretation; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Implement the core workflow for Ollama.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement the core workflow for Ollama.",
+          "evidence": "Participant submission for 'Core APIs or Algorithms': Implement the core workflow for Ollama.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement the core workflow for Ollama.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement the core workflow for Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Primary API/algorithm; Parameters; Configuration; Batching; Error handling; Reproducibility; Result interpretation; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Advanced Techniques",
+      "subtopics": [
+        "Advanced features",
+        "Optimization",
+        "Caching",
+        "Streaming",
+        "Structured outputs",
+        "Hybrid techniques",
+        "Performance trade-offs",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Implement an advanced Ollama workflow.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Advanced Techniques concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Techniques practically using Ollama.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Advanced Techniques': Implement an advanced Ollama workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement an advanced Ollama workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Advanced features; Optimization; Caching; Streaming; Structured outputs; Hybrid techniques; Performance trade-offs; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Techniques' on a prepared training sample through this task: Implement an advanced Ollama workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement an advanced Ollama workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Advanced features; Optimization; Caching; Streaming; Structured outputs; Hybrid techniques; Performance trade-offs; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Implement an advanced Ollama workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement an advanced Ollama workflow.",
+          "evidence": "Participant submission for 'Advanced Techniques': Implement an advanced Ollama workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement an advanced Ollama workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement an advanced Ollama workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Advanced features; Optimization; Caching; Streaming; Structured outputs; Hybrid techniques; Performance trade-offs; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Evaluation",
+      "subtopics": [
+        "Quality metrics",
+        "Offline evaluation",
+        "Online evaluation concepts",
+        "Test sets",
+        "Failure analysis",
+        "Regression testing",
+        "Human review",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Create an evaluation harness for Ollama.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Evaluation concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Evaluation practically using Ollama.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Evaluation': Create an evaluation harness for Ollama.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create an evaluation harness for Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Quality metrics; Offline evaluation; Online evaluation concepts; Test sets; Failure analysis; Regression testing; Human review; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Evaluation' on a prepared training sample through this task: Create an evaluation harness for Ollama..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create an evaluation harness for Ollama.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Quality metrics; Offline evaluation; Online evaluation concepts; Test sets; Failure analysis; Regression testing; Human review; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Create an evaluation harness for Ollama.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create an evaluation harness for Ollama.",
+          "evidence": "Participant submission for 'Evaluation': Create an evaluation harness for Ollama.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create an evaluation harness for Ollama.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create an evaluation harness for Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Quality metrics; Offline evaluation; Online evaluation concepts; Test sets; Failure analysis; Regression testing; Human review; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Safety and Security",
+      "subtopics": [
+        "Prompt/input security where relevant",
+        "Data privacy",
+        "Secrets",
+        "Access control",
+        "Abuse prevention",
+        "Policy controls",
+        "Auditability",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Add safety and security controls.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Safety and Security concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Safety and Security practically using Ollama.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Safety and Security': Add safety and security controls.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add safety and security controls.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Prompt/input security where relevant; Data privacy; Secrets; Access control; Abuse prevention; Policy controls; Auditability; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Safety and Security' on a prepared training sample through this task: Add safety and security controls..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add safety and security controls.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Prompt/input security where relevant; Data privacy; Secrets; Access control; Abuse prevention; Policy controls; Auditability; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Add safety and security controls.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add safety and security controls.",
+          "evidence": "Participant submission for 'Safety and Security': Add safety and security controls.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add safety and security controls.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add safety and security controls.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Prompt/input security where relevant; Data privacy; Secrets; Access control; Abuse prevention; Policy controls; Auditability; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Production Architecture",
+      "subtopics": [
+        "Service architecture",
+        "Scalability",
+        "Latency",
+        "Cost",
+        "Caching",
+        "Fallbacks",
+        "Observability",
+        "Reliability",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Design a production architecture.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Production Architecture concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Production Architecture practically using Ollama.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Production Architecture': Design a production architecture.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a production architecture.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Service architecture; Scalability; Latency; Cost; Caching; Fallbacks; Observability; Reliability; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Production Architecture' on a prepared training sample through this task: Design a production architecture..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a production architecture.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Service architecture; Scalability; Latency; Cost; Caching; Fallbacks; Observability; Reliability; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Design a production architecture.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a production architecture.",
+          "evidence": "Participant submission for 'Production Architecture': Design a production architecture.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a production architecture.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a production architecture.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Service architecture; Scalability; Latency; Cost; Caching; Fallbacks; Observability; Reliability; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Integration",
+      "subtopics": [
+        "APIs",
+        "Databases/vector stores",
+        "Tools/functions",
+        "Agents or workflows",
+        "Web/backend integration",
+        "Streaming",
+        "Testing",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Integrate Ollama into an application.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Integration concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Integration practically using Ollama.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Integration': Integrate Ollama into an application.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate Ollama into an application.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (APIs; Databases/vector stores; Tools/functions; Agents or workflows; Web/backend integration; Streaming; Testing; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Integration' on a prepared training sample through this task: Integrate Ollama into an application..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate Ollama into an application.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (APIs; Databases/vector stores; Tools/functions; Agents or workflows; Web/backend integration; Streaming; Testing; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Integrate Ollama into an application.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate Ollama into an application.",
+          "evidence": "Participant submission for 'Integration': Integrate Ollama into an application.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate Ollama into an application.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate Ollama into an application.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (APIs; Databases/vector stores; Tools/functions; Agents or workflows; Web/backend integration; Streaming; Testing; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Operations and Optimization",
+      "subtopics": [
+        "Monitoring",
+        "Tracing",
+        "Cost tracking",
+        "Versioning",
+        "Rollbacks",
+        "Performance tuning",
+        "Incident handling",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Monitor and optimize a production-style workload.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Operations and Optimization concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Operations and Optimization practically using Ollama.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Operations and Optimization': Monitor and optimize a production-style workload.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Monitor and optimize a production-style workload.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Monitoring; Tracing; Cost tracking; Versioning; Rollbacks; Performance tuning; Incident handling; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Operations and Optimization' on a prepared training sample through this task: Monitor and optimize a production-style workload..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Monitor and optimize a production-style workload.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Monitoring; Tracing; Cost tracking; Versioning; Rollbacks; Performance tuning; Incident handling; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Monitor and optimize a production-style workload.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Monitor and optimize a production-style workload.",
+          "evidence": "Participant submission for 'Operations and Optimization': Monitor and optimize a production-style workload.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Monitor and optimize a production-style workload.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Monitor and optimize a production-style workload.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Monitoring; Tracing; Cost tracking; Versioning; Rollbacks; Performance tuning; Incident handling; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Capstone AI Project",
+      "subtopics": [
+        "Requirements",
+        "Data",
+        "Implementation",
+        "Evaluation",
+        "Safety",
+        "Observability",
+        "Deployment",
+        "Documentation",
+        "Ollama terminology and feature mapping for this topic",
+        "Ollama configuration and implementation considerations",
+        "Ollama best practices and common mistakes for this topic",
+        "model library",
+        "pull",
+        "run",
+        "serve",
+        "Modelfile",
+        "parameters",
+        "system prompts",
+        "templates",
+        "REST API",
+        "embeddings concepts",
+        "local inference",
+        "GPU/CPU usage"
+      ],
+      "tools": [
+        "Ollama",
+        "Modelfile",
+        "REST API"
+      ],
+      "lab_task": "Build an end-to-end production-style project using Ollama.",
+      "technology": "Ollama",
+      "technology_id": "ollama",
+      "learning_objectives": [
+        "Explain the Capstone AI Project concepts in the context of Ollama.",
+        "Configure or implement the key Ollama features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone AI Project practically using Ollama.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone AI Project': Build an end-to-end production-style project using Ollama.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an end-to-end production-style project using Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirements; Data; Implementation; Evaluation; Safety; Observability; Deployment; Documentation; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone AI Project' on a prepared training sample through this task: Build an end-to-end production-style project using Ollama..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an end-to-end production-style project using Ollama.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Requirements; Data; Implementation; Evaluation; Safety; Observability; Deployment; Documentation; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage) and demonstrate the starting sample for: Build an end-to-end production-style project using Ollama.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an end-to-end production-style project using Ollama.",
+          "evidence": "Participant submission for 'Capstone AI Project': Build an end-to-end production-style project using Ollama.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an end-to-end production-style project using Ollama.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an end-to-end production-style project using Ollama.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirements; Data; Implementation; Evaluation; Safety; Observability; Deployment; Documentation; Ollama terminology and feature mapping for this topic; Ollama configuration and implementation considerations; Ollama best practices and common mistakes for this topic; model library; pull; run; serve; Modelfile; parameters; system prompts; templates; REST API; embeddings concepts; local inference; GPU/CPU usage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "ollama",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

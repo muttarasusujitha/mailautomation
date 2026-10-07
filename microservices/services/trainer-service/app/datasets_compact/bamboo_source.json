@@ -1,416 +1,808 @@
 {
-    "domain":  "Bamboo",
-    "name":  "Bamboo â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Atlassian Bamboo",
-                    "Bamboo CI/CD"
-                ],
-    "tools":  [
-                  "Bamboo",
-                  "Bitbucket",
-                  "Jira",
-                  "Docker"
-              ],
-    "certifications":  [
-                           "Bamboo official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Introduction and Setup",
-                     "subtopics":  [
-                                       "Core purpose",
-                                       "Architecture",
-                                       "Installation/setup",
-                                       "Configuration files",
-                                       "CLI/UI",
-                                       "Typical workflows",
-                                       "Terminology",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira"
-                               ],
-                     "lab_task":  "Set up Bamboo and run a basic workflow.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Introduction and Setup concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Bamboo.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Core Configuration",
-                     "subtopics":  [
-                                       "Configuration syntax",
-                                       "Resources/components",
-                                       "Variables",
-                                       "Parameters",
-                                       "Secrets",
-                                       "Environment-specific configuration",
-                                       "Validation",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira"
-                               ],
-                     "lab_task":  "Create reusable Bamboo configuration for development.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Core Configuration concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core Configuration practically using Bamboo.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Automation Workflow",
-                     "subtopics":  [
-                                       "Triggers",
-                                       "Stages/steps",
-                                       "Dependencies",
-                                       "Artifacts",
-                                       "Caching",
-                                       "Retries",
-                                       "Failure handling",
-                                       "Notifications",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "deployment projects",
-                                       "environments",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira"
-                               ],
-                     "lab_task":  "Build an automated workflow using Bamboo.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Automation Workflow concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation Workflow practically using Bamboo.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Integration",
-                     "subtopics":  [
-                                       "Git integration",
-                                       "Container integration",
-                                       "Cloud integration",
-                                       "API/webhook integration",
-                                       "Credential management",
-                                       "Third-party plugins",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira",
-                                   "Docker"
-                               ],
-                     "lab_task":  "Integrate Bamboo with source control and external services.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Integration concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Integration practically using Bamboo.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Security",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Secrets",
-                                       "Least privilege",
-                                       "Supply-chain concerns",
-                                       "Audit logs",
-                                       "Policy controls",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira"
-                               ],
-                     "lab_task":  "Harden a Bamboo setup.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Security concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security practically using Bamboo.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Scaling and Reliability",
-                     "subtopics":  [
-                                       "Agents/runners/nodes",
-                                       "Parallel execution",
-                                       "High availability",
-                                       "State management",
-                                       "Backups",
-                                       "Failure recovery",
-                                       "Capacity planning",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira"
-                               ],
-                     "lab_task":  "Design a scalable and resilient Bamboo setup.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Scaling and Reliability concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Bamboo.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Observability and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Debugging",
-                                       "Failure diagnosis",
-                                       "Performance bottlenecks",
-                                       "Alerting",
-                                       "Operational runbooks",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira"
-                               ],
-                     "lab_task":  "Troubleshoot an intentionally failing Bamboo workflow.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Observability and Troubleshooting concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Bamboo.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Advanced Patterns",
-                     "subtopics":  [
-                                       "Reusable modules/templates",
-                                       "Multi-environment strategy",
-                                       "Promotion strategy",
-                                       "Policy as code concepts",
-                                       "GitOps/IaC patterns",
-                                       "Best practices",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira",
-                                   "Docker"
-                               ],
-                     "lab_task":  "Create reusable production-grade patterns.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Patterns concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Bamboo.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "CI/CD or Deployment Project",
-                     "subtopics":  [
-                                       "Source control",
-                                       "Build",
-                                       "Test",
-                                       "Artifact",
-                                       "Deploy",
-                                       "Rollback",
-                                       "Approval gates",
-                                       "Documentation",
-                                       "Bamboo terminology and feature mapping for this topic",
-                                       "Bamboo configuration and implementation considerations",
-                                       "Bamboo best practices and common mistakes for this topic",
-                                       "plans",
-                                       "stages",
-                                       "jobs",
-                                       "tasks",
-                                       "agents",
-                                       "artifacts",
-                                       "deployment projects",
-                                       "environments",
-                                       "triggers",
-                                       "variables",
-                                       "Bitbucket integration",
-                                       "Jira integration"
-                                   ],
-                     "tools":  [
-                                   "Bamboo",
-                                   "Bitbucket",
-                                   "Jira",
-                                   "Docker"
-                               ],
-                     "lab_task":  "Implement a complete delivery workflow with Bamboo.",
-                     "technology":  "Bamboo",
-                     "technology_id":  "bamboo",
-                     "learning_objectives":  [
-                                                 "Explain the CI/CD or Deployment Project concepts in the context of Bamboo.",
-                                                 "Configure or implement the key Bamboo features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Bamboo.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "bamboo"
+  "domain": "Bamboo",
+  "name": "Bamboo â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Atlassian Bamboo",
+    "Bamboo CI/CD"
+  ],
+  "tools": [
+    "Bamboo",
+    "Bitbucket",
+    "Jira",
+    "Docker"
+  ],
+  "certifications": [
+    "Bamboo official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Introduction and Setup",
+      "subtopics": [
+        "Core purpose",
+        "Architecture",
+        "Installation/setup",
+        "Configuration files",
+        "CLI/UI",
+        "Typical workflows",
+        "Terminology",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira"
+      ],
+      "lab_task": "Set up Bamboo and run a basic workflow.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Introduction and Setup concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Introduction and Setup practically using Bamboo.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Introduction and Setup': Set up Bamboo and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Bamboo and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Introduction and Setup' on a prepared training sample through this task: Set up Bamboo and run a basic workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Bamboo and run a basic workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Set up Bamboo and run a basic workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Bamboo and run a basic workflow.",
+          "evidence": "Participant submission for 'Introduction and Setup': Set up Bamboo and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Bamboo and run a basic workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Bamboo and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Core Configuration",
+      "subtopics": [
+        "Configuration syntax",
+        "Resources/components",
+        "Variables",
+        "Parameters",
+        "Secrets",
+        "Environment-specific configuration",
+        "Validation",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira"
+      ],
+      "lab_task": "Create reusable Bamboo configuration for development.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Core Configuration concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core Configuration practically using Bamboo.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Core Configuration': Create reusable Bamboo configuration for development.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable Bamboo configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core Configuration' on a prepared training sample through this task: Create reusable Bamboo configuration for development..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable Bamboo configuration for development.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Create reusable Bamboo configuration for development.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable Bamboo configuration for development.",
+          "evidence": "Participant submission for 'Core Configuration': Create reusable Bamboo configuration for development.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable Bamboo configuration for development.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable Bamboo configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Automation Workflow",
+      "subtopics": [
+        "Triggers",
+        "Stages/steps",
+        "Dependencies",
+        "Artifacts",
+        "Caching",
+        "Retries",
+        "Failure handling",
+        "Notifications",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "deployment projects",
+        "environments",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira"
+      ],
+      "lab_task": "Build an automated workflow using Bamboo.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Automation Workflow concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation Workflow practically using Bamboo.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Automation Workflow': Build an automated workflow using Bamboo.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an automated workflow using Bamboo.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; deployment projects; environments; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation Workflow' on a prepared training sample through this task: Build an automated workflow using Bamboo..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an automated workflow using Bamboo.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; deployment projects; environments; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Build an automated workflow using Bamboo.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an automated workflow using Bamboo.",
+          "evidence": "Participant submission for 'Automation Workflow': Build an automated workflow using Bamboo.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an automated workflow using Bamboo.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an automated workflow using Bamboo.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; deployment projects; environments; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Integration",
+      "subtopics": [
+        "Git integration",
+        "Container integration",
+        "Cloud integration",
+        "API/webhook integration",
+        "Credential management",
+        "Third-party plugins",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira",
+        "Docker"
+      ],
+      "lab_task": "Integrate Bamboo with source control and external services.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Integration concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Integration practically using Bamboo.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Integration': Integrate Bamboo with source control and external services.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate Bamboo with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Integration' on a prepared training sample through this task: Integrate Bamboo with source control and external services..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate Bamboo with source control and external services.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Integrate Bamboo with source control and external services.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate Bamboo with source control and external services.",
+          "evidence": "Participant submission for 'Integration': Integrate Bamboo with source control and external services.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate Bamboo with source control and external services.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate Bamboo with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Security",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Secrets",
+        "Least privilege",
+        "Supply-chain concerns",
+        "Audit logs",
+        "Policy controls",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira"
+      ],
+      "lab_task": "Harden a Bamboo setup.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Security concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security practically using Bamboo.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Security': Harden a Bamboo setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden a Bamboo setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security' on a prepared training sample through this task: Harden a Bamboo setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden a Bamboo setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Harden a Bamboo setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden a Bamboo setup.",
+          "evidence": "Participant submission for 'Security': Harden a Bamboo setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden a Bamboo setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden a Bamboo setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Scaling and Reliability",
+      "subtopics": [
+        "Agents/runners/nodes",
+        "Parallel execution",
+        "High availability",
+        "State management",
+        "Backups",
+        "Failure recovery",
+        "Capacity planning",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira"
+      ],
+      "lab_task": "Design a scalable and resilient Bamboo setup.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Scaling and Reliability concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Scaling and Reliability practically using Bamboo.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Bamboo setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a scalable and resilient Bamboo setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Scaling and Reliability' on a prepared training sample through this task: Design a scalable and resilient Bamboo setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a scalable and resilient Bamboo setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Design a scalable and resilient Bamboo setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a scalable and resilient Bamboo setup.",
+          "evidence": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Bamboo setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a scalable and resilient Bamboo setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a scalable and resilient Bamboo setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Observability and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Debugging",
+        "Failure diagnosis",
+        "Performance bottlenecks",
+        "Alerting",
+        "Operational runbooks",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira"
+      ],
+      "lab_task": "Troubleshoot an intentionally failing Bamboo workflow.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Observability and Troubleshooting concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Observability and Troubleshooting practically using Bamboo.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Bamboo workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot an intentionally failing Bamboo workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Observability and Troubleshooting' on a prepared training sample through this task: Troubleshoot an intentionally failing Bamboo workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot an intentionally failing Bamboo workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Troubleshoot an intentionally failing Bamboo workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot an intentionally failing Bamboo workflow.",
+          "evidence": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Bamboo workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot an intentionally failing Bamboo workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot an intentionally failing Bamboo workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Reusable modules/templates",
+        "Multi-environment strategy",
+        "Promotion strategy",
+        "Policy as code concepts",
+        "GitOps/IaC patterns",
+        "Best practices",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira",
+        "Docker"
+      ],
+      "lab_task": "Create reusable production-grade patterns.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the Advanced Patterns concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Patterns practically using Bamboo.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Patterns' on a prepared training sample through this task: Create reusable production-grade patterns..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable production-grade patterns.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Create reusable production-grade patterns.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable production-grade patterns.",
+          "evidence": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable production-grade patterns.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CI/CD or Deployment Project",
+      "subtopics": [
+        "Source control",
+        "Build",
+        "Test",
+        "Artifact",
+        "Deploy",
+        "Rollback",
+        "Approval gates",
+        "Documentation",
+        "Bamboo terminology and feature mapping for this topic",
+        "Bamboo configuration and implementation considerations",
+        "Bamboo best practices and common mistakes for this topic",
+        "plans",
+        "stages",
+        "jobs",
+        "tasks",
+        "agents",
+        "artifacts",
+        "deployment projects",
+        "environments",
+        "triggers",
+        "variables",
+        "Bitbucket integration",
+        "Jira integration"
+      ],
+      "tools": [
+        "Bamboo",
+        "Bitbucket",
+        "Jira",
+        "Docker"
+      ],
+      "lab_task": "Implement a complete delivery workflow with Bamboo.",
+      "technology": "Bamboo",
+      "technology_id": "bamboo",
+      "learning_objectives": [
+        "Explain the CI/CD or Deployment Project concepts in the context of Bamboo.",
+        "Configure or implement the key Bamboo features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply CI/CD or Deployment Project practically using Bamboo.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Bamboo.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement a complete delivery workflow with Bamboo.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'CI/CD or Deployment Project' on a prepared training sample through this task: Implement a complete delivery workflow with Bamboo..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement a complete delivery workflow with Bamboo.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration) and demonstrate the starting sample for: Implement a complete delivery workflow with Bamboo.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement a complete delivery workflow with Bamboo.",
+          "evidence": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Bamboo.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement a complete delivery workflow with Bamboo.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement a complete delivery workflow with Bamboo.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Bamboo terminology and feature mapping for this topic; Bamboo configuration and implementation considerations; Bamboo best practices and common mistakes for this topic; plans; stages; jobs; tasks; agents; artifacts; deployment projects; environments; triggers; variables; Bitbucket integration; Jira integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "bamboo",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

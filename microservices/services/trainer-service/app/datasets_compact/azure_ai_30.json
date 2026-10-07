@@ -26,7 +26,55 @@
         "Azure"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Azure basics"
+      "lab_task": "Azure basics",
+      "deliverable": "Participant submission for 'Azure Fundamentals': Azure basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Subscriptions; Resource Groups; Portal; CLI). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure basics.",
+        "Explain how the lab applies Azure Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Fundamentals' on a prepared training sample through this task: Azure basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Subscriptions; Resource Groups; Portal; CLI) and demonstrate the starting sample for: Azure basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure basics",
+          "evidence": "Participant submission for 'Azure Fundamentals': Azure basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Subscriptions; Resource Groups; Portal; CLI). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -41,7 +89,55 @@
         "Azure"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Azure basics"
+      "lab_task": "Part 2 hands-on: Azure basics",
+      "deliverable": "Participant submission for 'Azure Fundamentals - Part 2': Part 2 hands-on: Azure basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Subscriptions; Part 2: Resource Groups; Part 2: Portal; Part 2: CLI). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure basics.",
+        "Explain how the lab applies Azure Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Subscriptions; Part 2: Resource Groups; Part 2: Portal; Part 2: CLI) and demonstrate the starting sample for: Part 2 hands-on: Azure basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure basics",
+          "evidence": "Participant submission for 'Azure Fundamentals - Part 2': Part 2 hands-on: Azure basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Subscriptions; Part 2: Resource Groups; Part 2: Portal; Part 2: CLI). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -55,7 +151,55 @@
         "Azure"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Azure AI overview"
+      "lab_task": "Azure AI overview",
+      "deliverable": "Participant submission for 'Azure AI Services Overview': Azure AI overview. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cognitive Services; OpenAI Service; Bot Service). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure AI overview.",
+        "Explain how the lab applies Azure AI Services Overview and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure AI Services Overview' on a prepared training sample through this task: Azure AI overview.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure AI overview",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cognitive Services; OpenAI Service; Bot Service) and demonstrate the starting sample for: Azure AI overview",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure AI overview",
+          "evidence": "Participant submission for 'Azure AI Services Overview': Azure AI overview. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure AI overview' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cognitive Services; OpenAI Service; Bot Service). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -69,7 +213,55 @@
         "Azure"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Azure AI overview"
+      "lab_task": "Part 2 hands-on: Azure AI overview",
+      "deliverable": "Participant submission for 'Azure AI Services Overview - Part 2': Part 2 hands-on: Azure AI overview. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Cognitive Services; Part 2: OpenAI Service; Part 2: Bot Service). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure AI overview.",
+        "Explain how the lab applies Azure AI Services Overview - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure AI Services Overview - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure AI overview.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure AI overview",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Cognitive Services; Part 2: OpenAI Service; Part 2: Bot Service) and demonstrate the starting sample for: Part 2 hands-on: Azure AI overview",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure AI overview",
+          "evidence": "Participant submission for 'Azure AI Services Overview - Part 2': Part 2 hands-on: Azure AI overview. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure AI overview' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Cognitive Services; Part 2: OpenAI Service; Part 2: Bot Service). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -84,7 +276,55 @@
         "Azure Cognitive Services"
       ],
       "jira_focus": "Sprint planning; review progress for Azure Cognitive Services",
-      "lab_task": "Cognitive services"
+      "lab_task": "Cognitive services",
+      "deliverable": "Participant submission for 'Azure Cognitive Services': Cognitive services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cognitive services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Vision; Speech; Language; Search). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Cognitive services.",
+        "Explain how the lab applies Azure Cognitive Services and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Cognitive Services' on a prepared training sample through this task: Cognitive services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cognitive services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Vision; Speech; Language; Search) and demonstrate the starting sample for: Cognitive services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cognitive services",
+          "evidence": "Participant submission for 'Azure Cognitive Services': Cognitive services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cognitive services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cognitive services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Vision; Speech; Language; Search). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -99,7 +339,55 @@
         "Azure Cognitive Services"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Cognitive services"
+      "lab_task": "Part 2 hands-on: Cognitive services",
+      "deliverable": "Participant submission for 'Azure Cognitive Services - Part 2': Part 2 hands-on: Cognitive services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Cognitive services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Vision; Part 2: Speech; Part 2: Language; Part 2: Search). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Cognitive services.",
+        "Explain how the lab applies Azure Cognitive Services - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Cognitive Services - Part 2' on a prepared training sample through this task: Part 2 hands-on: Cognitive services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Cognitive services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Vision; Part 2: Speech; Part 2: Language; Part 2: Search) and demonstrate the starting sample for: Part 2 hands-on: Cognitive services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Cognitive services",
+          "evidence": "Participant submission for 'Azure Cognitive Services - Part 2': Part 2 hands-on: Cognitive services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Cognitive services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Cognitive services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Vision; Part 2: Speech; Part 2: Language; Part 2: Search). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -114,7 +402,55 @@
         "Azure OpenAI"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Azure OpenAI setup"
+      "lab_task": "Azure OpenAI setup",
+      "deliverable": "Participant submission for 'Azure OpenAI Service': Azure OpenAI setup. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure OpenAI setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Models; Deployments; API; Playground). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure OpenAI setup.",
+        "Explain how the lab applies Azure OpenAI Service and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure OpenAI Service' on a prepared training sample through this task: Azure OpenAI setup.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure OpenAI setup",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Models; Deployments; API; Playground) and demonstrate the starting sample for: Azure OpenAI setup",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure OpenAI setup",
+          "evidence": "Participant submission for 'Azure OpenAI Service': Azure OpenAI setup. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure OpenAI setup' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure OpenAI setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Models; Deployments; API; Playground). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -129,7 +465,55 @@
         "Azure OpenAI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Azure OpenAI setup"
+      "lab_task": "Part 2 hands-on: Azure OpenAI setup",
+      "deliverable": "Participant submission for 'Azure OpenAI Service - Part 2': Part 2 hands-on: Azure OpenAI setup. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure OpenAI setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Models; Part 2: Deployments; Part 2: API; Part 2: Playground). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure OpenAI setup.",
+        "Explain how the lab applies Azure OpenAI Service - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure OpenAI Service - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure OpenAI setup.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure OpenAI setup",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Models; Part 2: Deployments; Part 2: API; Part 2: Playground) and demonstrate the starting sample for: Part 2 hands-on: Azure OpenAI setup",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure OpenAI setup",
+          "evidence": "Participant submission for 'Azure OpenAI Service - Part 2': Part 2 hands-on: Azure OpenAI setup. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure OpenAI setup' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure OpenAI setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Models; Part 2: Deployments; Part 2: API; Part 2: Playground). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -143,7 +527,55 @@
         "Azure OpenAI"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Chat applications"
+      "lab_task": "Chat applications",
+      "deliverable": "Participant submission for 'Building Chat Applications': Chat applications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Chat applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ChatGPT Integration; Prompt Engineering; Conversation Flow). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Chat applications.",
+        "Explain how the lab applies Building Chat Applications and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Building Chat Applications' on a prepared training sample through this task: Chat applications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Chat applications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ChatGPT Integration; Prompt Engineering; Conversation Flow) and demonstrate the starting sample for: Chat applications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Chat applications",
+          "evidence": "Participant submission for 'Building Chat Applications': Chat applications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Chat applications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Chat applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ChatGPT Integration; Prompt Engineering; Conversation Flow). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -157,7 +589,55 @@
         "Azure OpenAI"
       ],
       "jira_focus": "Sprint planning; review progress for Building Chat Applications",
-      "lab_task": "Part 2 hands-on: Chat applications"
+      "lab_task": "Part 2 hands-on: Chat applications",
+      "deliverable": "Participant submission for 'Building Chat Applications - Part 2': Part 2 hands-on: Chat applications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Chat applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: ChatGPT Integration; Part 2: Prompt Engineering; Part 2: Conversation Flow). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Chat applications.",
+        "Explain how the lab applies Building Chat Applications - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Building Chat Applications - Part 2' on a prepared training sample through this task: Part 2 hands-on: Chat applications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Chat applications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: ChatGPT Integration; Part 2: Prompt Engineering; Part 2: Conversation Flow) and demonstrate the starting sample for: Part 2 hands-on: Chat applications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Chat applications",
+          "evidence": "Participant submission for 'Building Chat Applications - Part 2': Part 2 hands-on: Chat applications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Chat applications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Chat applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: ChatGPT Integration; Part 2: Prompt Engineering; Part 2: Conversation Flow). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -172,7 +652,55 @@
         "Azure ML"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Azure ML workspace"
+      "lab_task": "Azure ML workspace",
+      "deliverable": "Participant submission for 'Azure Machine Learning': Azure ML workspace. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure ML workspace. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Workspace; Compute; Datasets; Experiments). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure ML workspace.",
+        "Explain how the lab applies Azure Machine Learning and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Machine Learning' on a prepared training sample through this task: Azure ML workspace.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure ML workspace",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Workspace; Compute; Datasets; Experiments) and demonstrate the starting sample for: Azure ML workspace",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure ML workspace",
+          "evidence": "Participant submission for 'Azure Machine Learning': Azure ML workspace. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure ML workspace' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure ML workspace. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Workspace; Compute; Datasets; Experiments). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -187,7 +715,55 @@
         "Azure ML"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Azure ML workspace"
+      "lab_task": "Part 2 hands-on: Azure ML workspace",
+      "deliverable": "Participant submission for 'Azure Machine Learning - Part 2': Part 2 hands-on: Azure ML workspace. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure ML workspace. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Workspace; Part 2: Compute; Part 2: Datasets; Part 2: Experiments). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure ML workspace.",
+        "Explain how the lab applies Azure Machine Learning - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Machine Learning - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure ML workspace.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure ML workspace",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Workspace; Part 2: Compute; Part 2: Datasets; Part 2: Experiments) and demonstrate the starting sample for: Part 2 hands-on: Azure ML workspace",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure ML workspace",
+          "evidence": "Participant submission for 'Azure Machine Learning - Part 2': Part 2 hands-on: Azure ML workspace. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure ML workspace' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure ML workspace. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Workspace; Part 2: Compute; Part 2: Datasets; Part 2: Experiments). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -202,7 +778,55 @@
         "Azure ML"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Model training"
+      "lab_task": "Model training",
+      "deliverable": "Participant submission for 'Azure ML - Model Training': Model training. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model training. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AutoML; Designer; Pipelines; Training). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model training.",
+        "Explain how the lab applies Azure ML - Model Training and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure ML - Model Training' on a prepared training sample through this task: Model training.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model training",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (AutoML; Designer; Pipelines; Training) and demonstrate the starting sample for: Model training",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model training",
+          "evidence": "Participant submission for 'Azure ML - Model Training': Model training. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model training' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model training. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AutoML; Designer; Pipelines; Training). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -217,7 +841,55 @@
         "Azure ML"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Model training"
+      "lab_task": "Part 2 hands-on: Model training",
+      "deliverable": "Participant submission for 'Azure ML - Model Training - Part 2': Part 2 hands-on: Model training. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Model training. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: AutoML; Part 2: Designer; Part 2: Pipelines; Part 2: Training). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Model training.",
+        "Explain how the lab applies Azure ML - Model Training - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure ML - Model Training - Part 2' on a prepared training sample through this task: Part 2 hands-on: Model training.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Model training",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: AutoML; Part 2: Designer; Part 2: Pipelines; Part 2: Training) and demonstrate the starting sample for: Part 2 hands-on: Model training",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Model training",
+          "evidence": "Participant submission for 'Azure ML - Model Training - Part 2': Part 2 hands-on: Model training. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Model training' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Model training. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: AutoML; Part 2: Designer; Part 2: Pipelines; Part 2: Training). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -232,7 +904,55 @@
         "Azure ML"
       ],
       "jira_focus": "Sprint planning; review progress for Azure ML - Deployment",
-      "lab_task": "Model deployment"
+      "lab_task": "Model deployment",
+      "deliverable": "Participant submission for 'Azure ML - Deployment': Model deployment. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Endpoints; Inference; Container; Batch). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model deployment.",
+        "Explain how the lab applies Azure ML - Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure ML - Deployment' on a prepared training sample through this task: Model deployment.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model deployment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Endpoints; Inference; Container; Batch) and demonstrate the starting sample for: Model deployment",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model deployment",
+          "evidence": "Participant submission for 'Azure ML - Deployment': Model deployment. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model deployment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Endpoints; Inference; Container; Batch). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -247,7 +967,55 @@
         "Azure ML"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Model deployment"
+      "lab_task": "Part 2 hands-on: Model deployment",
+      "deliverable": "Participant submission for 'Azure ML - Deployment - Part 2': Part 2 hands-on: Model deployment. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Endpoints; Part 2: Inference; Part 2: Container; Part 2: Batch). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Model deployment.",
+        "Explain how the lab applies Azure ML - Deployment - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure ML - Deployment - Part 2' on a prepared training sample through this task: Part 2 hands-on: Model deployment.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Model deployment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Endpoints; Part 2: Inference; Part 2: Container; Part 2: Batch) and demonstrate the starting sample for: Part 2 hands-on: Model deployment",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Model deployment",
+          "evidence": "Participant submission for 'Azure ML - Deployment - Part 2': Part 2 hands-on: Model deployment. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Model deployment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Endpoints; Part 2: Inference; Part 2: Container; Part 2: Batch). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -261,7 +1029,55 @@
         "Databricks"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Databricks on Azure"
+      "lab_task": "Databricks on Azure",
+      "deliverable": "Participant submission for 'Azure Databricks': Databricks on Azure. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Databricks on Azure. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Clusters; Notebooks; Spark Jobs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Databricks on Azure.",
+        "Explain how the lab applies Azure Databricks and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Databricks' on a prepared training sample through this task: Databricks on Azure.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Databricks on Azure",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Clusters; Notebooks; Spark Jobs) and demonstrate the starting sample for: Databricks on Azure",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Databricks on Azure",
+          "evidence": "Participant submission for 'Azure Databricks': Databricks on Azure. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Databricks on Azure' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Databricks on Azure. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Clusters; Notebooks; Spark Jobs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -275,7 +1091,55 @@
         "Databricks"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Databricks on Azure"
+      "lab_task": "Part 2 hands-on: Databricks on Azure",
+      "deliverable": "Participant submission for 'Azure Databricks - Part 2': Part 2 hands-on: Databricks on Azure. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Databricks on Azure. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Clusters; Part 2: Notebooks; Part 2: Spark Jobs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Databricks on Azure.",
+        "Explain how the lab applies Azure Databricks - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Databricks - Part 2' on a prepared training sample through this task: Part 2 hands-on: Databricks on Azure.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Databricks on Azure",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Clusters; Part 2: Notebooks; Part 2: Spark Jobs) and demonstrate the starting sample for: Part 2 hands-on: Databricks on Azure",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Databricks on Azure",
+          "evidence": "Participant submission for 'Azure Databricks - Part 2': Part 2 hands-on: Databricks on Azure. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Databricks on Azure' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Databricks on Azure. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Clusters; Part 2: Notebooks; Part 2: Spark Jobs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -289,7 +1153,55 @@
         "Azure Data Services"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Data processing"
+      "lab_task": "Data processing",
+      "deliverable": "Participant submission for 'Data Processing': Data processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Data Factory; Data Lake Storage; Synapse Analytics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Data processing.",
+        "Explain how the lab applies Data Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Processing' on a prepared training sample through this task: Data processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Data processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Data Factory; Data Lake Storage; Synapse Analytics) and demonstrate the starting sample for: Data processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Data processing",
+          "evidence": "Participant submission for 'Data Processing': Data processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Data processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Data Factory; Data Lake Storage; Synapse Analytics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -303,7 +1215,55 @@
         "Azure Data Services"
       ],
       "jira_focus": "Sprint planning; review progress for Data Processing",
-      "lab_task": "Part 2 hands-on: Data processing"
+      "lab_task": "Part 2 hands-on: Data processing",
+      "deliverable": "Participant submission for 'Data Processing - Part 2': Part 2 hands-on: Data processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Data Factory; Part 2: Data Lake Storage; Part 2: Synapse Analytics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Data processing.",
+        "Explain how the lab applies Data Processing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Processing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Data processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Data processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Data Factory; Part 2: Data Lake Storage; Part 2: Synapse Analytics) and demonstrate the starting sample for: Part 2 hands-on: Data processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Data processing",
+          "evidence": "Participant submission for 'Data Processing - Part 2': Part 2 hands-on: Data processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Data processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Data Factory; Part 2: Data Lake Storage; Part 2: Synapse Analytics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -317,7 +1277,55 @@
         "Cognitive Search"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Azure search services"
+      "lab_task": "Azure search services",
+      "deliverable": "Participant submission for 'Search & Retrieval': Azure search services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure search services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Azure Cognitive Search; Vector Search; Indexing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure search services.",
+        "Explain how the lab applies Search & Retrieval and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Search & Retrieval' on a prepared training sample through this task: Azure search services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure search services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Azure Cognitive Search; Vector Search; Indexing) and demonstrate the starting sample for: Azure search services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure search services",
+          "evidence": "Participant submission for 'Search & Retrieval': Azure search services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure search services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure search services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Azure Cognitive Search; Vector Search; Indexing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -331,7 +1339,55 @@
         "Cognitive Search"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Azure search services"
+      "lab_task": "Part 2 hands-on: Azure search services",
+      "deliverable": "Participant submission for 'Search & Retrieval - Part 2': Part 2 hands-on: Azure search services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure search services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Azure Cognitive Search; Part 2: Vector Search; Part 2: Indexing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure search services.",
+        "Explain how the lab applies Search & Retrieval - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Search & Retrieval - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure search services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure search services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Azure Cognitive Search; Part 2: Vector Search; Part 2: Indexing) and demonstrate the starting sample for: Part 2 hands-on: Azure search services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure search services",
+          "evidence": "Participant submission for 'Search & Retrieval - Part 2': Part 2 hands-on: Azure search services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure search services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure search services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Azure Cognitive Search; Part 2: Vector Search; Part 2: Indexing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -345,7 +1401,55 @@
         "Azure Vision"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Vision AI"
+      "lab_task": "Vision AI",
+      "deliverable": "Participant submission for 'Computer Vision': Vision AI. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Vision AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Image Analysis; OCR; Face Recognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Vision AI.",
+        "Explain how the lab applies Computer Vision and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Computer Vision' on a prepared training sample through this task: Vision AI.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Vision AI",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Image Analysis; OCR; Face Recognition) and demonstrate the starting sample for: Vision AI",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Vision AI",
+          "evidence": "Participant submission for 'Computer Vision': Vision AI. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Vision AI' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Vision AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Image Analysis; OCR; Face Recognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -359,7 +1463,55 @@
         "Azure Vision"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Vision AI"
+      "lab_task": "Part 2 hands-on: Vision AI",
+      "deliverable": "Participant submission for 'Computer Vision - Part 2': Part 2 hands-on: Vision AI. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Vision AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Image Analysis; Part 2: OCR; Part 2: Face Recognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Vision AI.",
+        "Explain how the lab applies Computer Vision - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Computer Vision - Part 2' on a prepared training sample through this task: Part 2 hands-on: Vision AI.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Vision AI",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Image Analysis; Part 2: OCR; Part 2: Face Recognition) and demonstrate the starting sample for: Part 2 hands-on: Vision AI",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Vision AI",
+          "evidence": "Participant submission for 'Computer Vision - Part 2': Part 2 hands-on: Vision AI. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Vision AI' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Vision AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Image Analysis; Part 2: OCR; Part 2: Face Recognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -373,7 +1525,55 @@
         "Azure Language"
       ],
       "jira_focus": "Sprint planning; review progress for Natural Language Processing",
-      "lab_task": "Language AI"
+      "lab_task": "Language AI",
+      "deliverable": "Participant submission for 'Natural Language Processing': Language AI. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Language AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Text Analysis; Sentiment; Entity Recognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Language AI.",
+        "Explain how the lab applies Natural Language Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Natural Language Processing' on a prepared training sample through this task: Language AI.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Language AI",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Text Analysis; Sentiment; Entity Recognition) and demonstrate the starting sample for: Language AI",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Language AI",
+          "evidence": "Participant submission for 'Natural Language Processing': Language AI. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Language AI' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Language AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Text Analysis; Sentiment; Entity Recognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -387,7 +1587,55 @@
         "Azure Language"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Language AI"
+      "lab_task": "Part 2 hands-on: Language AI",
+      "deliverable": "Participant submission for 'Natural Language Processing - Part 2': Part 2 hands-on: Language AI. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Language AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Text Analysis; Part 2: Sentiment; Part 2: Entity Recognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Language AI.",
+        "Explain how the lab applies Natural Language Processing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Natural Language Processing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Language AI.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Language AI",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Text Analysis; Part 2: Sentiment; Part 2: Entity Recognition) and demonstrate the starting sample for: Part 2 hands-on: Language AI",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Language AI",
+          "evidence": "Participant submission for 'Natural Language Processing - Part 2': Part 2 hands-on: Language AI. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Language AI' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Language AI. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Text Analysis; Part 2: Sentiment; Part 2: Entity Recognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -401,7 +1649,55 @@
         "Responsible AI"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Responsible AI practices"
+      "lab_task": "Responsible AI practices",
+      "deliverable": "Participant submission for 'Responsible AI': Responsible AI practices. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Responsible AI practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Fairness; Transparency; Accountability). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Responsible AI practices.",
+        "Explain how the lab applies Responsible AI and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Responsible AI' on a prepared training sample through this task: Responsible AI practices.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Responsible AI practices",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Fairness; Transparency; Accountability) and demonstrate the starting sample for: Responsible AI practices",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Responsible AI practices",
+          "evidence": "Participant submission for 'Responsible AI': Responsible AI practices. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Responsible AI practices' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Responsible AI practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Fairness; Transparency; Accountability). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -415,7 +1711,55 @@
         "Responsible AI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Responsible AI practices"
+      "lab_task": "Part 2 hands-on: Responsible AI practices",
+      "deliverable": "Participant submission for 'Responsible AI - Part 2': Part 2 hands-on: Responsible AI practices. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Responsible AI practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Fairness; Part 2: Transparency; Part 2: Accountability). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Responsible AI practices.",
+        "Explain how the lab applies Responsible AI - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Responsible AI - Part 2' on a prepared training sample through this task: Part 2 hands-on: Responsible AI practices.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Responsible AI practices",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Fairness; Part 2: Transparency; Part 2: Accountability) and demonstrate the starting sample for: Part 2 hands-on: Responsible AI practices",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Responsible AI practices",
+          "evidence": "Participant submission for 'Responsible AI - Part 2': Part 2 hands-on: Responsible AI practices. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Responsible AI practices' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Responsible AI practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Fairness; Part 2: Transparency; Part 2: Accountability). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -429,7 +1773,55 @@
         "Azure"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Production deployment"
+      "lab_task": "Production deployment",
+      "deliverable": "Participant submission for 'Production & Governance': Production deployment. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Production deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (MLOps; Monitoring; Cost Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Production deployment.",
+        "Explain how the lab applies Production & Governance and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Production & Governance' on a prepared training sample through this task: Production deployment.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Production deployment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (MLOps; Monitoring; Cost Management) and demonstrate the starting sample for: Production deployment",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Production deployment",
+          "evidence": "Participant submission for 'Production & Governance': Production deployment. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Production deployment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Production deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (MLOps; Monitoring; Cost Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -443,7 +1835,55 @@
         "Azure"
       ],
       "jira_focus": "Sprint planning; review progress for Production & Governance",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (MLOps; Monitoring; Cost Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (MLOps; Monitoring; Cost Management) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (MLOps; Monitoring; Cost Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -457,5 +1897,10 @@
   "official_sources": [
     "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

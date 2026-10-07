@@ -8,6 +8,16 @@ import tempfile
 import openpyxl
 
 
+def final_estimated_cost(content):
+    """Read the calculated client total after the workbook formulas have run."""
+    values = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
+    sheet = values["Client Estimate"]
+    for row in sheet.iter_rows(max_col=2, values_only=True):
+        if row[0] == "Final estimated cost" and isinstance(row[1], (int, float)):
+            return float(row[1])
+    return None
+
+
 def recalculate_lab_workbook(content):
     executable = shutil.which('libreoffice') or shutil.which('soffice')
     if not executable:

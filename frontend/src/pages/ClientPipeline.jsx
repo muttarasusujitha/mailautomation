@@ -80,18 +80,6 @@ function trainerMailStats(item = {}) {
   }
 }
 
-function clientReplyStats(item = {}) {
-  const automation = item.mail_automation || item.client_email_doc?.mail_automation || {}
-  const reply = automation.client_reply || {}
-  return {
-    sent: Boolean(reply.sent || item.reply_sent || item.client_email_doc?.reply_sent || item.reply_status === 'auto_sent'),
-    to: reply.to || item.from_email || item.client_email || item.client_email_doc?.from_email || '',
-    subject: reply.subject || item.subject || '',
-    error: reply.error || item.reply_error || item.auto_send_error || '',
-    at: item.reply_sent_at || item.auto_sent_at || item.client_email_doc?.reply_sent_at || item.client_email_doc?.auto_sent_at || '',
-  }
-}
-
 function shortlistTrainers(item = {}) {
   return item.shortlist?.top_trainers || item.top_trainers || []
 }

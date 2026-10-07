@@ -158,19 +158,33 @@ def _due_notice_query(now: datetime) -> dict:
     }
 
 
-async def _send_start_notices():
+async def _send_start_notices(*, dry_run: bool = False):
     db = get_db()
     now = datetime.utcnow()
     # Beat runs every minute. Select five-minute notices and bounded retries.
     query = _due_notice_query(now)
 
-    sent = failed = skipped = 0
+    sent = failed = skipped = would_send = 0
+    planned = []
     cursor = db["email_logs"].find(query).limit(100)
     async for log in cursor:
         email_id = _clean(log.get("email_id"))
         if not email_id:
             skipped += 1
             continue
+        requirement_id = _clean(log.get("requirement_id"))
+        technology = _clean(log.get("technology")) or "Training"
+        interview_link = _clean(log.get("interview_link") or log.get("meet_link"))
+        interview_date = _clean(log.get("interview_date") or log.get("date_time_text") or log.get("interview_at"))
+        recipients = _notice_recipients(log)
+        if dry_run:
+            if not recipients or not interview_link:
+                skipped += 1
+                continue
+            would_send += len(recipients)
+            planned.append({"email_id": email_id, "recipients": [item["email"] for item in recipients]})
+            continue
+
         claimed = await db["email_logs"].find_one_and_update(
             {
                 "email_id": email_id,
@@ -183,11 +197,6 @@ async def _send_start_notices():
             skipped += 1
             continue
 
-        requirement_id = _clean(log.get("requirement_id"))
-        technology = _clean(log.get("technology")) or "Training"
-        interview_link = _clean(log.get("interview_link") or log.get("meet_link"))
-        interview_date = _clean(log.get("interview_date") or log.get("date_time_text") or log.get("interview_at"))
-        recipients = _notice_recipients(log)
         if not recipients or not interview_link:
             await db["email_logs"].update_one(
                 {"email_id": email_id},
@@ -274,13 +283,16 @@ async def _send_start_notices():
         sent += log_sent
         failed += log_failed
 
-    return {"sent": sent, "failed": failed, "skipped": skipped}
+    result = {"sent": sent, "failed": failed, "skipped": skipped}
+    if dry_run:
+        result.update({"dry_run": True, "would_send": would_send, "planned": planned})
+    return result
 
 
 @celery_app.task(name="app.tasks.meet_start_notices.send_due_start_notices", bind=True, max_retries=2)
-def send_due_start_notices(self):
+def send_due_start_notices(self, dry_run: bool = False):
     try:
-        result = run_async(_send_start_notices())
+        result = run_async(_send_start_notices(dry_run=dry_run))
         logger.info("Meet start notices: %s", result)
         return result
     except Exception as exc:

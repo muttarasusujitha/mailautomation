@@ -12,6 +12,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import api from '../utils/api'
+import LeadBot from '../components/LeadBot'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
 const STATUS_LABELS = {
@@ -44,12 +45,13 @@ function relativeTime(value) {
 }
 
 function leadDomain(lead) {
-  return String(lead?.domain || lead?.company_name || 'Unknown').trim()
+  return String(lead?.matched_domains?.join(', ') || lead?.domain || lead?.company_name || 'Unknown').trim()
 }
 
 function leadSearchText(lead) {
   return [
     lead?.domain,
+    lead?.matched_domains?.join(' '),
     lead?.company_name,
     lead?.contact_name,
     lead?.post_text,
@@ -74,9 +76,17 @@ export default function LinkedInClientPipeline() {
   const loadLeads = async () => {
     setLoading(true)
     try {
-      const params = { status: filter === 'all' ? 'all' : filter, q, limit: 200 }
-      const res = await api.get('/client-leads', { params })
-      setLeads(res.data.leads || [])
+      const records = new Map()
+      let page = 1
+      let pages = 1
+      do {
+        const params = { status: filter, page, page_size: 100 }
+        const res = await api.get('/client-leads', { params })
+        for (const lead of res.data.leads || []) records.set(lead.lead_id, lead)
+        pages = res.data.pages || 1
+        page += 1
+      } while (page <= pages)
+      setLeads([...records.values()])
     } catch (e) {
       toast.error(e.message || 'Failed to load client leads')
     } finally {
@@ -119,13 +129,18 @@ export default function LinkedInClientPipeline() {
     setSearching(true)
     try {
       const res = await api.post('/linkedin-leads/search', {
+        search_provider: 'auto',
         mode: 'client',
         source: 'linkedin',
         domains,
-        max_results: 30,
+        max_results: 50,
         max_queries: 3,
         save: true,
       })
+      if (res.data.success === false) throw new Error(res.data.error || res.data.search_error || 'LinkedIn fetch unavailable')
+      for (const outcome of res.data.domain_outcomes || []) {
+        if (!outcome.target_met) toast(`${outcome.domain}: ${outcome.matched}/${outcome.target} matches. ${outcome.warnings?.[0]?.error || 'Search coverage exhausted.'}`, { duration: 10000 })
+      }
       const saved = res.data.saved_count || 0
       const found = res.data.found || 0
       const sent = res.data.auto_sent_count || 0
@@ -170,12 +185,13 @@ export default function LinkedInClientPipeline() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <LeadBot mode="client" onRefresh={loadLeads} />
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="page-title flex items-center gap-2">
             <Mail className="h-6 w-6 text-blue-600" /> LinkedIn Client Pipeline
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Manage LinkedIn client posts, send the first outreach mail, and track contact status.</p>
+          <p className="mt-1 text-sm text-slate-500">All collected training requirements across every domain, including non-IT and unclassified requests.</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">

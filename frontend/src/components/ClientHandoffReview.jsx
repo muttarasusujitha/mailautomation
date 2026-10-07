@@ -20,7 +20,7 @@ function downloadAttachment(attachment) {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-export default function ClientHandoffReview({ requirementId, trainer, onDelivered }) {
+export default function ClientHandoffReview({ requirementId, trainer }) {
   const [review, setReview] = useState(null)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
@@ -47,26 +47,6 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
     } catch (error) {
       setActionError(errorText(error))
       toast.error(errorText(error))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function act(action) {
-    setBusy(true)
-    try {
-      const { data } = await api.post(`${path}/${action}`, { package_id: review.package_id }, { timeout: 300000 })
-      if (action === 'approve') {
-        toast.success(data.success ? 'Client package sent' : 'Approved; delivery is queued')
-        if (data.success) onDelivered?.(data)
-      } else {
-        toast.success('Package rebuilt. Review this version before approving.')
-      }
-      await loadReview()
-    } catch (error) {
-      toast.error(errorText(error))
-      // Approval persists even if the first send fails; show the saved status.
-      try { await loadReview() } catch { setReview(null) }
     } finally {
       setBusy(false)
     }

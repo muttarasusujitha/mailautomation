@@ -79,66 +79,6 @@ function InterviewModal({ email, onClose, onSuccess }) {
 }
 
 /* ── Thread Bubble ──────────────────────────────────────────── */
-function ClientEmailModal({ title = 'Send Slots to Client', onClose, onSubmit, loading }) {
-  const [clientEmail, setClientEmail] = useState('')
-  const [clientName, setClientName] = useState('')
-
-  const submit = () => {
-    const email = clientEmail.trim()
-    if (!email) {
-      toast.error('Client email is required')
-      return
-    }
-    onSubmit({ client_email: email, client_name: clientName.trim() })
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card-lg">
-        <div className="mb-5 flex items-start justify-between gap-3">
-          <div>
-            <h3 className="font-jakarta text-lg font-bold text-slate-900">{title}</h3>
-            <p className="mt-1 text-sm text-slate-500">
-              This requirement has no client email saved. Add it once and the trainer slots will be sent.
-            </p>
-          </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="label">Client Email</label>
-            <input
-              className="input"
-              type="email"
-              placeholder="client@company.com"
-              value={clientEmail}
-              onChange={e => setClientEmail(e.target.value)}
-              autoFocus
-            />
-          </div>
-          <div>
-            <label className="label">Client Name <span className="font-normal text-slate-400">(optional)</span></label>
-            <input
-              className="input"
-              placeholder="Client name or company"
-              value={clientName}
-              onChange={e => setClientName(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="mt-6 flex gap-3">
-          <button onClick={submit} disabled={loading} className="btn-primary flex-1 justify-center">
-            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</> : <><Send className="h-4 w-4" /> Save & Send</>}
-          </button>
-          <button onClick={onClose} disabled={loading} className="btn-secondary">Cancel</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function ThreadBubble({ msg }) {
   const isSent = msg.direction === 'sent'
   const LABELS = {
@@ -175,6 +115,19 @@ function ThreadBubble({ msg }) {
           </p>
         )}
         <pre className="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed">{msg.body}</pre>
+        {msg.reply_analysis?.sender_intent && (
+          <details className="mt-2 border-t border-slate-200 pt-2 text-[10px] text-slate-600">
+            <summary className="cursor-pointer font-semibold text-violet-700">Why this reply</summary>
+            <div className="mt-2 space-y-1">
+              <p><strong>Intent:</strong> {msg.reply_analysis.sender_intent}</p>
+              <p><strong>Observed tone:</strong> {msg.reply_analysis.observed_tone}</p>
+              <p><strong>Strategy:</strong> {msg.reply_analysis.reply_strategy}</p>
+              {msg.reply_analysis.verified_facts?.length > 0 && <p><strong>Facts checked:</strong> {msg.reply_analysis.verified_facts.join('; ')}</p>}
+              {msg.reply_analysis.unresolved_questions?.length > 0 && <p><strong>Needs confirmation:</strong> {msg.reply_analysis.unresolved_questions.join('; ')}</p>}
+              {msg.reply_analysis.needs_human_review && <p className="font-semibold text-amber-800">Manual review: {msg.reply_analysis.human_review_reason}</p>}
+            </div>
+          </details>
+        )}
       </div>
     </div>
   )

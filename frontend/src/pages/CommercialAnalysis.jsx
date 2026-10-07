@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDownUp, BadgeIndianRupee, CheckCircle2, Search, TrendingUp, Users, X } from 'lucide-react'
 import { getCommercialAnalysis, getCommercialAnalyses } from '../utils/api'
 
-const money = value => `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+const money = value => `â‚¹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 const pct = value => `${Number(value || 0).toFixed(1)}%`
 const clean = value => String(value || '').trim()
 const div = (a, b) => Number(b || 0) ? Number(a || 0) / Number(b || 1) : 0
-const daysText = value => Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
-const commercialText = option => option?.missing_trainer_commercial ? money(Number(option?.client_revenue || 0) * 0.70) : money(option?.trainer_cost)
 const profitText = option => option?.missing_trainer_commercial ? money(Number(option?.client_revenue || 0) * 0.30) : money(option?.clahan_gross_profit)
 const marginText = option => option?.missing_trainer_commercial ? '30.0%' : pct(option?.profit_margin_percent)
 
@@ -109,7 +107,7 @@ function DateBudgetBreakdown({ active }) {
   const isTotalCommercial = fullPerDay < 10000
   const rows = [
     {
-      title: isTotalCommercial ? 'Total Commercial (below ₹10,000/day)' : 'Day-wise Commercial (Sunday excluded)',
+      title: isTotalCommercial ? 'Total Commercial (below â‚¹10,000/day)' : 'Day-wise Commercial (Sunday excluded)',
       days: range.workingDays,
       revenue: budget,
       perDay: fullPerDay,
@@ -359,7 +357,7 @@ function RequirementDetail({ active, onClose }) {
             <p className="text-xs font-bold uppercase text-slate-400">Clahan Recommendation</p>
             <h2 className="mt-1 text-xl font-bold text-slate-900">{requirementTitle(active)}</h2>
             <p className="mt-1 text-sm text-slate-500">
-              {clean(activeReq.client_name || activeReq.client_company) || 'Client'} · {clean(activeReq.mode || activeReq.delivery_mode) || 'Mode pending'} · {clean(activeReq.location || activeReq.preferred_location) || 'Location pending'}
+              {clean(activeReq.client_name || activeReq.client_company) || 'Client'} Â· {clean(activeReq.mode || activeReq.delivery_mode) || 'Mode pending'} Â· {clean(activeReq.location || activeReq.preferred_location) || 'Location pending'}
             </p>
             <p className="mt-1 text-sm font-semibold text-slate-700">
               {requirementMetaLine(activeReq, active.recommended_commercial)}
@@ -465,8 +463,6 @@ export default function CommercialAnalysis() {
   }, [filter, items, query, sort])
 
   const active = detail || items.find(item => item.requirement?.requirement_id === selectedId)
-  const activeReq = active?.requirement || {}
-  const activeTrainer = active?.recommended_trainer || {}
 
   return (
     <div className="space-y-5">
@@ -495,52 +491,6 @@ export default function CommercialAnalysis() {
           ))}
         </div>
 
-        {false && active && (
-          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase text-slate-400">Clahan Recommendation</p>
-                <h2 className="mt-1 text-xl font-bold text-slate-900">{requirementTitle(active)}</h2>
-                <p className="mt-1 text-sm text-slate-500">{clean(activeReq.client_name || activeReq.client_company) || 'Client'} · {clean(activeReq.mode || activeReq.delivery_mode) || 'Mode pending'} · {clean(activeReq.location || activeReq.preferred_location) || 'Location pending'}</p>
-              </div>
-              <StatusBadge tone={needsTrainerCommercial(active) ? 'amber' : active.negotiation_required ? 'amber' : 'green'}>
-                {needsTrainerCommercial(active) ? 'Confirm Rate' : active.negotiation_required ? 'Negotiate' : 'Proceed'}
-              </StatusBadge>
-            </div>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-4">
-              <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Trainer</p><p className="font-bold text-slate-900">{activeTrainer.qtr || '-'} {activeTrainer.trainer_name || ''}</p></div>
-              <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Commercial</p><p className="font-bold text-blue-700">{active.recommended_commercial?.model || '-'}</p></div>
-              <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Profit</p><p className="font-bold text-green-700">{money(active.recommended_commercial?.clahan_gross_profit)}</p></div>
-              <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Margin</p><p className="font-bold text-slate-900">{pct(active.recommended_commercial?.profit_margin_percent)}</p></div>
-            </div>
-
-            <p className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm leading-6 text-blue-900">{active.explanation}</p>
-
-            <div className="mt-5">
-              <div className="mb-2 flex items-center gap-2"><ArrowDownUp className="h-4 w-4 text-slate-500" /><h3 className="font-bold text-slate-900">Commercial Comparison</h3></div>
-              <CommercialTable options={activeTrainer.commercial_options || []} active={active} />
-            </div>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {(active.qtr_trainers || []).map(trainer => (
-                <div key={trainer.qtr} className="rounded-lg border border-slate-200 p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-bold text-slate-900">{trainer.qtr} - {trainer.trainer_name}</p>
-                    {trainer.qtr === activeTrainer.qtr && <CheckCircle2 className="h-4 w-4 text-green-600" />}
-                  </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-600">
-                    <p>Skill: <strong>{pct(trainer.skill_match)}</strong></p>
-                    <p>Exp: <strong>{trainer.experience_years || 0} yrs</strong></p>
-                    <p>Rate: <strong>{money(trainer.trainer_day_rate)}/day</strong></p>
-                    <p>Best: <strong>{trainer.recommended_option?.model || '-'}</strong></p>
-                  </div>
-                  <BestOptionSummary trainer={trainer} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
         {active && <RequirementDetail active={active} onClose={() => { setSelectedId(''); setDetail(null) }} />}
       </div>
     </div>

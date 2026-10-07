@@ -1,19 +1,26 @@
 import asyncio
 import hashlib
 import json
+import logging
 import math
+import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+import httpx
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, Field
 from pymongo.errors import DuplicateKeyError
 
 from shared.database.service import get_db
+from app.config import get_settings
 
 router = APIRouter()
+settings = get_settings()
+logger = logging.getLogger(__name__)
 
 AGENT_ROLES = {
     "client_requirement_agent": "Understands client emails and requirement completeness.",
@@ -32,6 +39,8 @@ SAFE_AUTO_ACTIONS = {
     "send_reminder",
     "sync_inbox",
 }
+
+AGENTIC_LLM_ROLES = set(AGENT_ROLES)
 
 
 class AgentDecisionCreate(BaseModel):
@@ -96,6 +105,12 @@ async def _log_decision(db: AsyncIOMotorDatabase, payload: AgentDecisionCreate, 
     except DuplicateKeyError:
         if not deduplicate:
             raise
+        find_one = getattr(db["agent_decisions"], "find_one", None)
+        existing = await find_one({"_id": doc["_id"]}, {"_id": 0}) if find_one else None
+        # A failed dispatch remains retryable; a queued/completed decision is
+        # never enqueued twice by repeated orchestrator runs.
+        if existing and existing.get("status") == "execution_failed":
+            return existing
         return None
     doc.pop("_id", None)
     return doc
@@ -237,7 +252,19 @@ def _interview_decision(log: Dict[str, Any]) -> Optional[AgentDecisionCreate]:
     if not email_id:
         return None
     link = _clean(log.get("interview_link") or log.get("meet_link"))
-    if not link:
+    raw_interview_at = log.get("interview_at")
+    if not link or not raw_interview_at:
+        return None
+    parsed_link = urlparse(link)
+    if parsed_link.scheme != "https" or parsed_link.hostname != "meet.google.com":
+        return None
+    try:
+        interview_at = raw_interview_at if isinstance(raw_interview_at, datetime) else datetime.fromisoformat(str(raw_interview_at).replace("Z", "+00:00"))
+        if interview_at.tzinfo is None:
+            interview_at = interview_at.replace(tzinfo=timezone.utc)
+        if interview_at <= datetime.now(timezone.utc):
+            return None
+    except (TypeError, ValueError):
         return None
     return AgentDecisionCreate(
         agent_role="interview_scheduling_agent",
@@ -250,7 +277,7 @@ def _interview_decision(log: Dict[str, Any]) -> Optional[AgentDecisionCreate]:
         reason="Scheduled interview has start time and meeting link.",
         metadata={
             "requirement_id": log.get("requirement_id"),
-            "interview_at": str(log.get("interview_at") or ""),
+            "interview_at": interview_at.isoformat(),
             "client_email": log.get("client_email"),
             "trainer_email": log.get("trainer_email") or log.get("to_email") or log.get("recipient"),
         },
@@ -292,6 +319,7 @@ async def list_agent_decisions(
 @router.post("/run")
 async def run_agent_orchestrator(
     limit: int = Query(25, ge=1, le=100),
+    dry_run: bool = Query(False),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     decisions: List[Dict[str, Any]] = []
@@ -325,11 +353,175 @@ async def run_agent_orchestrator(
     for candidate in candidates:
         if not candidate:
             continue
+        if dry_run:
+            decision = candidate.model_dump()
+            decision["requires_human"] = _requires_human(candidate.action, candidate.confidence, candidate.requires_human)
+            decision["status"] = "planned"
+            if candidate.action == "send_reminder" and not decision["requires_human"]:
+                decision["action_execution"] = {"success": True, "dry_run": True, "status": "would_queue"}
+            decisions.append(decision)
+            continue
         decision = await _log_decision(db, candidate, deduplicate=True)
         if decision:
+            if candidate.action == "send_reminder" and not decision.get("requires_human"):
+                decision["action_execution"] = await _queue_interview_notice(candidate)
+                decision["status"] = "queued" if decision["action_execution"].get("success") else "execution_failed"
+                decision["updated_at"] = _now()
+                await db["agent_decisions"].update_one(
+                    {"decision_id": decision["decision_id"]},
+                    {"$set": {
+                        "status": decision["status"],
+                        "action_execution": decision["action_execution"],
+                        "updated_at": decision["updated_at"],
+                    }},
+                )
             decisions.append(decision)
 
-    return {"success": True, "created": len(decisions), "decisions": decisions}
+    await _attach_agentic_wording(db, decisions, dry_run)
+
+    return {
+        "success": True,
+        "dry_run": dry_run,
+        "generation_mode": await _generation_mode(db),
+        "created": len(decisions) if not dry_run else 0,
+        "previewed": len(decisions) if dry_run else 0,
+        "would_queue": sum(
+            decision.get("action_execution", {}).get("status") == "would_queue"
+            for decision in decisions
+        ) if dry_run else 0,
+        "decisions": decisions,
+    }
+
+
+async def _generation_mode(db: AsyncIOMotorDatabase) -> str:
+    try:
+        setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    except Exception:
+        return "template"
+    mode = _clean(setting.get("value")).lower()
+    return mode if mode in {"ai", "template"} else "template"
+
+
+async def _pending_llm_decisions(db: AsyncIOMotorDatabase) -> List[Dict[str, Any]]:
+    try:
+        cursor = db["agent_decisions"].find(
+            {"agent_role": {"$in": list(AGENTIC_LLM_ROLES)}, "metadata.llm": {"$exists": False}},
+            {"_id": 0},
+        ).sort("created_at", -1).limit(8)
+        return await cursor.to_list(8)
+    except Exception:
+        logger.warning("Could not load agent decisions that still need AI wording")
+        return []
+
+
+async def _fetch_agentic_wording(decisions: List[Dict[str, Any]]) -> Dict[tuple, Dict[str, str]]:
+    """Ask the application LLM for client, shortlist, and TOC notes."""
+    compact = []
+    for item in decisions[:8]:
+        compact.append({
+            "agent_role": item.get("agent_role"),
+            "entity_id": item.get("entity_id"),
+            "observation": item.get("observation"),
+            "decision": item.get("decision"),
+            "reason": item.get("reason"),
+            "metadata": item.get("metadata") or {},
+        })
+    prompt = (
+        "For each decision, write short operational notes from the supplied facts only. "
+        "This covers every application agent: client requirements, trainer matching, outreach, "
+        "commercials, interview scheduling, and exception review. "
+        "Return a JSON array. Each item must include agent_role, entity_id, client_text, "
+        "shortlist_note, and toc_note. client_text is one client-facing sentence. "
+        "shortlist_note explains the trainer shortlist or the operational next step. "
+        "toc_note says whether a table of contents should be drafted from the known scope. "
+        "Repeat only prices, dates, slots, and names that are already in the decision. "
+        "Do not invent prices, dates, trainer names, selections, or attachments. "
+        "Use an empty string when a note does not apply.\n"
+        + json.dumps(compact, default=str)
+    )
+    url = settings.INTELLIGENCE_SERVICE_URL.rstrip("/") + "/api/v1/assistant/chat"
+    try:
+        async with httpx.AsyncClient(timeout=40) as client:
+            response = await client.post(url, json={
+                "messages": [{"role": "user", "content": prompt}],
+                "system_prompt": "You draft grounded training-workflow notes. Return JSON only.",
+                "max_tokens": 900,
+                "temperature": 0.2,
+            })
+            response.raise_for_status()
+            payload = response.json()
+    except Exception as exc:
+        logger.warning("Agentic AI wording unavailable: %s", exc)
+        return {}
+    if not payload.get("success"):
+        return {}
+    reply = str(payload.get("reply") or "")
+    match = re.search(r"\[[\s\S]*\]", reply)
+    if not match:
+        return {}
+    try:
+        rows = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return {}
+    mapped: Dict[tuple, Dict[str, str]] = {}
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        mapped[(_clean(row.get("agent_role")), _clean(row.get("entity_id")))] = {
+            "client_text": _clean(row.get("client_text"))[:1200],
+            "shortlist_note": _clean(row.get("shortlist_note"))[:1200],
+            "toc_note": _clean(row.get("toc_note"))[:1200],
+            "provider": "llm",
+        }
+    return mapped
+
+
+async def _attach_agentic_wording(db: AsyncIOMotorDatabase, decisions: List[Dict[str, Any]], dry_run: bool) -> None:
+    """Use the LLM for client, shortlist, and TOC notes only when AI generation is on."""
+    if await _generation_mode(db) != "ai":
+        return
+    targets = [item for item in decisions if item.get("agent_role") in AGENTIC_LLM_ROLES and not (item.get("metadata") or {}).get("llm")]
+    if not dry_run:
+        seen = {(item.get("agent_role"), item.get("entity_id"), item.get("decision_id")) for item in targets}
+        for item in await _pending_llm_decisions(db):
+            key = (item.get("agent_role"), item.get("entity_id"), item.get("decision_id"))
+            if key not in seen and not (item.get("metadata") or {}).get("llm"):
+                targets.append(item)
+                seen.add(key)
+    targets = targets[:8]
+    if not targets:
+        return
+    wording = await _fetch_agentic_wording(targets)
+    for item in targets:
+        note = wording.get((_clean(item.get("agent_role")), _clean(item.get("entity_id"))))
+        metadata = dict(item.get("metadata") or {})
+        if note:
+            metadata["llm"] = note
+            item["metadata"] = metadata
+            if not dry_run and item.get("decision_id"):
+                await db["agent_decisions"].update_one(
+                    {"decision_id": item["decision_id"]},
+                    {"$set": {"metadata": metadata, "updated_at": _now()}},
+                )
+        else:
+            metadata["llm_status"] = "unavailable"
+            item["metadata"] = metadata
+
+
+async def _queue_interview_notice(candidate: AgentDecisionCreate) -> Dict[str, Any]:
+    """Queue the existing due-only, idempotent scheduler task for safe reminders."""
+    if not settings.INTERNAL_SERVICE_TOKEN:
+        return {"success": False, "error": "internal_service_token_not_configured"}
+    url = settings.SCHEDULER_SERVICE_URL.rstrip("/") + "/api/v1/scheduler/tasks/agent-interview-notices"
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(url, headers={"X-Internal-Service-Token": settings.INTERNAL_SERVICE_TOKEN})
+            response.raise_for_status()
+            data = response.json()
+        return {"success": True, "task_id": data.get("task_id"), "task_name": data.get("task_name")}
+    except Exception as exc:
+        logger.warning("Could not queue interview notice: %s", exc)
+        return {"success": False, "error": "scheduler_unavailable"}
 
 
 @router.get("/summary")

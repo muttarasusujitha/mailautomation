@@ -85,11 +85,12 @@ def test_confirmed_batch_still_generates_without_action(monkeypatch, flow):
     assert "proposed ToC/course agenda is attached" not in mail["body"]
 
 
-def test_proposal_without_generation_instruction_keeps_existing_behavior(monkeypatch):
-    result, calls, generate = setup_delivery(monkeypatch, requirement(toc_action=""))
+def test_proposal_without_generation_instruction_still_attaches_generated_toc(monkeypatch):
+    result, calls, generate = setup_delivery(monkeypatch, requirement(toc_action=""), toc={"title": "DevOps"})
     assert result["sent"] == 1
-    generate.assert_not_awaited()
-    assert "attachments" not in calls[-1][1]
+    generate.assert_awaited_once()
+    assert calls[-1][1]["attachments"]
+    assert calls[-1][1]["attachments"][0]["filename"].endswith(" - Proposed TOC.xlsx")
 
 
 def test_existing_client_toc_is_forwarded_without_regeneration(monkeypatch):

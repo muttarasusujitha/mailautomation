@@ -74,6 +74,7 @@
   .app-shell {
     display: flex;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: var(--c-bg);
   }
@@ -194,14 +195,23 @@
   /* Page content */
   .page-content {
     flex: 1;
+    min-width: 0;
+    min-height: 0;
     overflow-y: scroll;
     overscroll-behavior-y: contain;
     scrollbar-gutter: stable;
     padding: clamp(16px, 2vw, 28px);
   }
   @media (max-width: 768px) {
-    .page-content { padding: 16px; }
+    .page-content { padding: 12px; padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+    .app-header { padding: 0 12px; gap: 8px; }
+    .dashboard-shell { margin: -12px; padding: 12px; }
+    input:not([type='checkbox']):not([type='radio']), textarea, select { font-size: 16px; }
   }
+  .mobile-drawer { width: min(var(--sidebar-w), calc(100vw - 56px)); }
+  .mobile-drawer .sidebar { width: 100%; }
+  .sidebar-body, .overflow-x-auto { overscroll-behavior: contain; }
+  .sidebar-footer { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
 
   /* ─── Cards ───────────────────────────────────────────────── */
   .card {
@@ -896,3 +906,19 @@ body,
 .sidebar-item-inactive{ @apply nav-item; }
 .dashboard-panel      { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); }
 .score-ring           { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:13px; }
+
+@media (pointer: coarse) {
+  button, .nav-item, .btn-primary, .btn-secondary { min-height: 44px; }
+  button { touch-action: manipulation; }
+}
+/* Keep phone inputs readable even when a field uses a text-sm utility. */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']), textarea, select { font-size: 16px; }
+  .page-content { scroll-padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (min-width: 768px) {
+  .page-content { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

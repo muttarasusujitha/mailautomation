@@ -23,6 +23,10 @@ const emptyDomain = () => ({
   aliasesText: '',
   officialSourcesText: '',
   officialAlignmentNote: '',
+  review_status: 'unreviewed',
+  reviewed_by: '',
+  reviewed_at: '',
+  version: '',
   active: true,
   level_map: Object.fromEntries(LEVELS.map(level => [level, []])),
   jiraDailyText: 'Update sprint board\nLog time\nMove cards',
@@ -66,6 +70,10 @@ function toPayload(form) {
     official_sources: lines(form.officialSourcesText),
     official_alignment_note: form.officialAlignmentNote,
     active: form.active,
+    review_status: form.review_status,
+    reviewed_by: form.reviewed_by,
+    reviewed_at: form.reviewed_at,
+    version: form.version,
     level_map: form.level_map,
     jira_practice: {
       daily: lines(form.jiraDailyText),
@@ -329,6 +337,15 @@ export default function TocKnowledge() {
               </Field>
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <Field label="Curriculum review status">
+                <select className="h-10 w-full rounded-lg border border-slate-200 px-3" value={form.review_status} onChange={event => updateForm({ review_status: event.target.value })}>
+                  <option value="unreviewed">Needs subject-matter review</option>
+                  <option value="approved">Reviewed against listed sources</option>
+                </select>
+              </Field>
+              <Field label="Reviewed by"><Input value={form.reviewed_by} onChange={event => updateForm({ reviewed_by: event.target.value })} /></Field>
+              <Field label="Review date"><Input type="date" value={form.reviewed_at} onChange={event => updateForm({ reviewed_at: event.target.value })} /></Field>
+              <Field label="Curriculum version"><Input value={form.version} onChange={event => updateForm({ version: event.target.value })} placeholder="Version or release covered" /></Field>
               <Field label="Official Sources">
                 <Textarea
                   value={form.officialSourcesText}

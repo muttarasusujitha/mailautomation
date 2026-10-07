@@ -369,10 +369,11 @@ export default function Inbox() {
         return
       }
       if (!connected || !gmailStatus?.calendar_connected) {
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
-        const res = await api.get('/gmail/oauth-url', { params: { redirect_uri: redirectUri } })
+        const res = await api.get('/gmail/oauth-url')
+        const authUrl = res.data.auth_url || res.data.url
+        if (!authUrl) throw new Error('Google OAuth service returned no authorization URL')
         saveGmailOAuthPkce(res.data)
-        window.location.href = res.data.auth_url || res.data.url
+        window.location.href = authUrl
         return
       }
 

@@ -1,377 +1,726 @@
 {
-    "domain":  "Shell Automation",
-    "name":  "Shell Automation â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Shell Scripting Automation",
-                    "Command-Line Automation"
-                ],
-    "tools":  [
-                  "Bash",
-                  "grep",
-                  "sed",
-                  "awk",
-                  "cron"
-              ],
-    "certifications":  [
-                           "Shell Automation official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Fundamentals",
-                     "subtopics":  [
-                                       "Core concepts",
-                                       "Architecture",
-                                       "Terminology",
-                                       "Common protocols",
-                                       "Use cases",
-                                       "Threats or failure modes",
-                                       "Lab setup",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed"
-                               ],
-                     "lab_task":  "Set up a safe lab and demonstrate Shell Automation fundamentals.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Fundamentals concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Fundamentals practically using Shell Automation.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Protocols and Components",
-                     "subtopics":  [
-                                       "Core components",
-                                       "Packet/message flow",
-                                       "Ports and protocols",
-                                       "Addressing/identity concepts",
-                                       "State",
-                                       "Control plane/data plane",
-                                       "Common configurations",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed"
-                               ],
-                     "lab_task":  "Inspect and configure core Shell Automation components.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Protocols and Components concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Protocols and Components practically using Shell Automation.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Design and Architecture",
-                     "subtopics":  [
-                                       "Enterprise design patterns",
-                                       "Segmentation",
-                                       "Redundancy",
-                                       "Scalability",
-                                       "Trust boundaries",
-                                       "Failure domains",
-                                       "Cloud considerations",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed"
-                               ],
-                     "lab_task":  "Design an enterprise architecture for Shell Automation.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Design and Architecture concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Design and Architecture practically using Shell Automation.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Security Controls",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Encryption",
-                                       "Certificates/keys",
-                                       "Hardening",
-                                       "Least privilege",
-                                       "Logging and auditing",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed"
-                               ],
-                     "lab_task":  "Apply secure configuration and hardening.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Security Controls concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security Controls practically using Shell Automation.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Monitoring and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Packet or request inspection",
-                                       "Common faults",
-                                       "Diagnostic commands",
-                                       "Alerting",
-                                       "Incident workflow",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed",
-                                   "awk"
-                               ],
-                     "lab_task":  "Diagnose and resolve a simulated Shell Automation issue.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Shell Automation.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Automation and Operations",
-                     "subtopics":  [
-                                       "Configuration automation",
-                                       "Policy management",
-                                       "Backups",
-                                       "Change control",
-                                       "Versioning",
-                                       "Testing",
-                                       "Operational runbooks",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed"
-                               ],
-                     "lab_task":  "Automate a repeatable Shell Automation configuration task.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Automation and Operations concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation and Operations practically using Shell Automation.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Advanced and Cloud Patterns",
-                     "subtopics":  [
-                                       "Cloud-native services",
-                                       "Hybrid connectivity",
-                                       "Zero-trust considerations",
-                                       "Performance",
-                                       "High availability",
-                                       "Disaster recovery",
-                                       "Cost considerations",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed",
-                                   "awk"
-                               ],
-                     "lab_task":  "Design a cloud/hybrid implementation.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Shell Automation.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Capstone",
-                     "subtopics":  [
-                                       "Requirement analysis",
-                                       "Architecture",
-                                       "Security",
-                                       "Configuration",
-                                       "Testing",
-                                       "Monitoring",
-                                       "Troubleshooting",
-                                       "Documentation",
-                                       "Shell Automation terminology and feature mapping for this topic",
-                                       "Shell Automation configuration and implementation considerations",
-                                       "Shell Automation best practices and common mistakes for this topic",
-                                       "Bash",
-                                       "variables",
-                                       "functions",
-                                       "conditionals",
-                                       "loops",
-                                       "pipes",
-                                       "redirection",
-                                       "grep",
-                                       "sed",
-                                       "awk",
-                                       "cron",
-                                       "exit codes"
-                                   ],
-                     "tools":  [
-                                   "Bash",
-                                   "grep",
-                                   "sed",
-                                   "awk"
-                               ],
-                     "lab_task":  "Build and document an end-to-end Shell Automation solution.",
-                     "technology":  "Shell Automation",
-                     "technology_id":  "shell-automation",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone concepts in the context of Shell Automation.",
-                                                 "Configure or implement the key Shell Automation features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone practically using Shell Automation.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "shell-automation"
+  "domain": "Shell Automation",
+  "name": "Shell Automation â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Shell Scripting Automation",
+    "Command-Line Automation"
+  ],
+  "tools": [
+    "Bash",
+    "grep",
+    "sed",
+    "awk",
+    "cron"
+  ],
+  "certifications": [
+    "Shell Automation official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Fundamentals",
+      "subtopics": [
+        "Core concepts",
+        "Architecture",
+        "Terminology",
+        "Common protocols",
+        "Use cases",
+        "Threats or failure modes",
+        "Lab setup",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed"
+      ],
+      "lab_task": "Set up a safe lab and demonstrate Shell Automation fundamentals.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Fundamentals concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Fundamentals practically using Shell Automation.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Fundamentals': Set up a safe lab and demonstrate Shell Automation fundamentals.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up a safe lab and demonstrate Shell Automation fundamentals.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Fundamentals' on a prepared training sample through this task: Set up a safe lab and demonstrate Shell Automation fundamentals..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up a safe lab and demonstrate Shell Automation fundamentals.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Set up a safe lab and demonstrate Shell Automation fundamentals.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up a safe lab and demonstrate Shell Automation fundamentals.",
+          "evidence": "Participant submission for 'Fundamentals': Set up a safe lab and demonstrate Shell Automation fundamentals.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up a safe lab and demonstrate Shell Automation fundamentals.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up a safe lab and demonstrate Shell Automation fundamentals.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Protocols and Components",
+      "subtopics": [
+        "Core components",
+        "Packet/message flow",
+        "Ports and protocols",
+        "Addressing/identity concepts",
+        "State",
+        "Control plane/data plane",
+        "Common configurations",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed"
+      ],
+      "lab_task": "Inspect and configure core Shell Automation components.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Protocols and Components concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Protocols and Components practically using Shell Automation.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Protocols and Components': Inspect and configure core Shell Automation components.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Inspect and configure core Shell Automation components.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Protocols and Components' on a prepared training sample through this task: Inspect and configure core Shell Automation components..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Inspect and configure core Shell Automation components.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Inspect and configure core Shell Automation components.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Inspect and configure core Shell Automation components.",
+          "evidence": "Participant submission for 'Protocols and Components': Inspect and configure core Shell Automation components.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Inspect and configure core Shell Automation components.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Inspect and configure core Shell Automation components.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Design and Architecture",
+      "subtopics": [
+        "Enterprise design patterns",
+        "Segmentation",
+        "Redundancy",
+        "Scalability",
+        "Trust boundaries",
+        "Failure domains",
+        "Cloud considerations",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed"
+      ],
+      "lab_task": "Design an enterprise architecture for Shell Automation.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Design and Architecture concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Design and Architecture practically using Shell Automation.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Design and Architecture': Design an enterprise architecture for Shell Automation.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design an enterprise architecture for Shell Automation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Design and Architecture' on a prepared training sample through this task: Design an enterprise architecture for Shell Automation..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design an enterprise architecture for Shell Automation.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Design an enterprise architecture for Shell Automation.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design an enterprise architecture for Shell Automation.",
+          "evidence": "Participant submission for 'Design and Architecture': Design an enterprise architecture for Shell Automation.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design an enterprise architecture for Shell Automation.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design an enterprise architecture for Shell Automation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Security Controls",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Encryption",
+        "Certificates/keys",
+        "Hardening",
+        "Least privilege",
+        "Logging and auditing",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed"
+      ],
+      "lab_task": "Apply secure configuration and hardening.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Security Controls concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security Controls practically using Shell Automation.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Security Controls': Apply secure configuration and hardening.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Apply secure configuration and hardening.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security Controls' on a prepared training sample through this task: Apply secure configuration and hardening..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Apply secure configuration and hardening.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Apply secure configuration and hardening.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Apply secure configuration and hardening.",
+          "evidence": "Participant submission for 'Security Controls': Apply secure configuration and hardening.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Apply secure configuration and hardening.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Apply secure configuration and hardening.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Monitoring and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Packet or request inspection",
+        "Common faults",
+        "Diagnostic commands",
+        "Alerting",
+        "Incident workflow",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed",
+        "awk"
+      ],
+      "lab_task": "Diagnose and resolve a simulated Shell Automation issue.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Monitoring and Troubleshooting concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Monitoring and Troubleshooting practically using Shell Automation.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Monitoring and Troubleshooting': Diagnose and resolve a simulated Shell Automation issue.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Diagnose and resolve a simulated Shell Automation issue.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Monitoring and Troubleshooting' on a prepared training sample through this task: Diagnose and resolve a simulated Shell Automation issue..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Diagnose and resolve a simulated Shell Automation issue.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Diagnose and resolve a simulated Shell Automation issue.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Diagnose and resolve a simulated Shell Automation issue.",
+          "evidence": "Participant submission for 'Monitoring and Troubleshooting': Diagnose and resolve a simulated Shell Automation issue.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Diagnose and resolve a simulated Shell Automation issue.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Diagnose and resolve a simulated Shell Automation issue.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Automation and Operations",
+      "subtopics": [
+        "Configuration automation",
+        "Policy management",
+        "Backups",
+        "Change control",
+        "Versioning",
+        "Testing",
+        "Operational runbooks",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed"
+      ],
+      "lab_task": "Automate a repeatable Shell Automation configuration task.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Automation and Operations concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation and Operations practically using Shell Automation.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Automation and Operations': Automate a repeatable Shell Automation configuration task.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate a repeatable Shell Automation configuration task.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation and Operations' on a prepared training sample through this task: Automate a repeatable Shell Automation configuration task..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate a repeatable Shell Automation configuration task.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Automate a repeatable Shell Automation configuration task.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate a repeatable Shell Automation configuration task.",
+          "evidence": "Participant submission for 'Automation and Operations': Automate a repeatable Shell Automation configuration task.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate a repeatable Shell Automation configuration task.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate a repeatable Shell Automation configuration task.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Advanced and Cloud Patterns",
+      "subtopics": [
+        "Cloud-native services",
+        "Hybrid connectivity",
+        "Zero-trust considerations",
+        "Performance",
+        "High availability",
+        "Disaster recovery",
+        "Cost considerations",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed",
+        "awk"
+      ],
+      "lab_task": "Design a cloud/hybrid implementation.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Advanced and Cloud Patterns concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced and Cloud Patterns practically using Shell Automation.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced and Cloud Patterns': Design a cloud/hybrid implementation.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a cloud/hybrid implementation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced and Cloud Patterns' on a prepared training sample through this task: Design a cloud/hybrid implementation..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a cloud/hybrid implementation.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Design a cloud/hybrid implementation.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a cloud/hybrid implementation.",
+          "evidence": "Participant submission for 'Advanced and Cloud Patterns': Design a cloud/hybrid implementation.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a cloud/hybrid implementation.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a cloud/hybrid implementation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Capstone",
+      "subtopics": [
+        "Requirement analysis",
+        "Architecture",
+        "Security",
+        "Configuration",
+        "Testing",
+        "Monitoring",
+        "Troubleshooting",
+        "Documentation",
+        "Shell Automation terminology and feature mapping for this topic",
+        "Shell Automation configuration and implementation considerations",
+        "Shell Automation best practices and common mistakes for this topic",
+        "Bash",
+        "variables",
+        "functions",
+        "conditionals",
+        "loops",
+        "pipes",
+        "redirection",
+        "grep",
+        "sed",
+        "awk",
+        "cron",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "grep",
+        "sed",
+        "awk"
+      ],
+      "lab_task": "Build and document an end-to-end Shell Automation solution.",
+      "technology": "Shell Automation",
+      "technology_id": "shell-automation",
+      "learning_objectives": [
+        "Explain the Capstone concepts in the context of Shell Automation.",
+        "Configure or implement the key Shell Automation features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone practically using Shell Automation.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone': Build and document an end-to-end Shell Automation solution.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and document an end-to-end Shell Automation solution.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone' on a prepared training sample through this task: Build and document an end-to-end Shell Automation solution..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and document an end-to-end Shell Automation solution.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes) and demonstrate the starting sample for: Build and document an end-to-end Shell Automation solution.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and document an end-to-end Shell Automation solution.",
+          "evidence": "Participant submission for 'Capstone': Build and document an end-to-end Shell Automation solution.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and document an end-to-end Shell Automation solution.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and document an end-to-end Shell Automation solution.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; Shell Automation terminology and feature mapping for this topic; Shell Automation configuration and implementation considerations; Shell Automation best practices and common mistakes for this topic; Bash; variables; functions; conditionals; loops; pipes; redirection; grep; sed; awk; cron; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "shell-automation",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

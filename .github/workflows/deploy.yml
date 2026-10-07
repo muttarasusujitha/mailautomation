@@ -77,6 +77,11 @@ jobs:
             echo "No tests found"
           fi
 
+      - name: Check Shared Commercial and Identity Rules
+        if: matrix.service == 'trainer-service'
+        working-directory: microservices
+        run: python -m pytest shared/test_commercial_policy.py shared/test_requirement_duration.py shared/test_trainer_identity.py -q
+
   frontend-build:
     name: Stage 2 - Frontend Build
     needs: source-code
@@ -107,6 +112,10 @@ jobs:
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci --legacy-peer-deps
+
+      - name: Run Frontend Tests
+        working-directory: frontend
+        run: npm test
 
       - name: Build Frontend Application
         working-directory: frontend

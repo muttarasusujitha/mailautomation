@@ -26,7 +26,55 @@
         "Cloud"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Cloud basics"
+      "lab_task": "Cloud basics",
+      "deliverable": "Participant submission for 'Cloud Fundamentals': Cloud basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cloud basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IaaS/PaaS/SaaS; Deployment Models; Benefits; Risks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Cloud basics.",
+        "Explain how the lab applies Cloud Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Fundamentals' on a prepared training sample through this task: Cloud basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cloud basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (IaaS/PaaS/SaaS; Deployment Models; Benefits; Risks) and demonstrate the starting sample for: Cloud basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cloud basics",
+          "evidence": "Participant submission for 'Cloud Fundamentals': Cloud basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cloud basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cloud basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IaaS/PaaS/SaaS; Deployment Models; Benefits; Risks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -41,7 +89,55 @@
         "Cloud"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Cloud basics"
+      "lab_task": "Part 2 hands-on: Cloud basics",
+      "deliverable": "Participant submission for 'Cloud Fundamentals - Part 2': Part 2 hands-on: Cloud basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Cloud basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: IaaS/PaaS/SaaS; Part 2: Deployment Models; Part 2: Benefits; Part 2: Risks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Cloud basics.",
+        "Explain how the lab applies Cloud Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: Cloud basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Cloud basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: IaaS/PaaS/SaaS; Part 2: Deployment Models; Part 2: Benefits; Part 2: Risks) and demonstrate the starting sample for: Part 2 hands-on: Cloud basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Cloud basics",
+          "evidence": "Participant submission for 'Cloud Fundamentals - Part 2': Part 2 hands-on: Cloud basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Cloud basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Cloud basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: IaaS/PaaS/SaaS; Part 2: Deployment Models; Part 2: Benefits; Part 2: Risks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -56,7 +152,55 @@
         "AWS"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "AWS core services"
+      "lab_task": "AWS core services",
+      "deliverable": "Participant submission for 'AWS Fundamentals': AWS core services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: AWS core services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Services; EC2; S3; VPC). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: AWS core services.",
+        "Explain how the lab applies AWS Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS Fundamentals' on a prepared training sample through this task: AWS core services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: AWS core services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Services; EC2; S3; VPC) and demonstrate the starting sample for: AWS core services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "AWS core services",
+          "evidence": "Participant submission for 'AWS Fundamentals': AWS core services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'AWS core services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: AWS core services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Services; EC2; S3; VPC). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -71,7 +215,55 @@
         "AWS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: AWS core services"
+      "lab_task": "Part 2 hands-on: AWS core services",
+      "deliverable": "Participant submission for 'AWS Fundamentals - Part 2': Part 2 hands-on: AWS core services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: AWS core services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Services; Part 2: EC2; Part 2: S3; Part 2: VPC). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: AWS core services.",
+        "Explain how the lab applies AWS Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: AWS core services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: AWS core services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Services; Part 2: EC2; Part 2: S3; Part 2: VPC) and demonstrate the starting sample for: Part 2 hands-on: AWS core services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: AWS core services",
+          "evidence": "Participant submission for 'AWS Fundamentals - Part 2': Part 2 hands-on: AWS core services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: AWS core services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: AWS core services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Services; Part 2: EC2; Part 2: S3; Part 2: VPC). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -86,7 +278,55 @@
         "AWS"
       ],
       "jira_focus": "Sprint planning; review progress for AWS Advanced",
-      "lab_task": "AWS advanced services"
+      "lab_task": "AWS advanced services",
+      "deliverable": "Participant submission for 'AWS Advanced': AWS advanced services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: AWS advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Auto Scaling; Load Balancers; RDS; Lambda). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: AWS advanced services.",
+        "Explain how the lab applies AWS Advanced and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS Advanced' on a prepared training sample through this task: AWS advanced services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: AWS advanced services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Auto Scaling; Load Balancers; RDS; Lambda) and demonstrate the starting sample for: AWS advanced services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "AWS advanced services",
+          "evidence": "Participant submission for 'AWS Advanced': AWS advanced services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'AWS advanced services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: AWS advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Auto Scaling; Load Balancers; RDS; Lambda). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -101,7 +341,55 @@
         "AWS"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: AWS advanced services"
+      "lab_task": "Part 2 hands-on: AWS advanced services",
+      "deliverable": "Participant submission for 'AWS Advanced - Part 2': Part 2 hands-on: AWS advanced services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: AWS advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Auto Scaling; Part 2: Load Balancers; Part 2: RDS; Part 2: Lambda). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: AWS advanced services.",
+        "Explain how the lab applies AWS Advanced - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS Advanced - Part 2' on a prepared training sample through this task: Part 2 hands-on: AWS advanced services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: AWS advanced services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Auto Scaling; Part 2: Load Balancers; Part 2: RDS; Part 2: Lambda) and demonstrate the starting sample for: Part 2 hands-on: AWS advanced services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: AWS advanced services",
+          "evidence": "Participant submission for 'AWS Advanced - Part 2': Part 2 hands-on: AWS advanced services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: AWS advanced services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: AWS advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Auto Scaling; Part 2: Load Balancers; Part 2: RDS; Part 2: Lambda). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -115,7 +403,55 @@
         "GCP"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "GCP services"
+      "lab_task": "GCP services",
+      "deliverable": "Participant submission for 'Google Cloud Fundamentals': GCP services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: GCP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Compute; Storage; Networking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: GCP services.",
+        "Explain how the lab applies Google Cloud Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Google Cloud Fundamentals' on a prepared training sample through this task: GCP services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: GCP services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Compute; Storage; Networking) and demonstrate the starting sample for: GCP services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "GCP services",
+          "evidence": "Participant submission for 'Google Cloud Fundamentals': GCP services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'GCP services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: GCP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Compute; Storage; Networking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -129,7 +465,55 @@
         "GCP"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: GCP services"
+      "lab_task": "Part 2 hands-on: GCP services",
+      "deliverable": "Participant submission for 'Google Cloud Fundamentals - Part 2': Part 2 hands-on: GCP services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: GCP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Compute; Part 2: Storage; Part 2: Networking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: GCP services.",
+        "Explain how the lab applies Google Cloud Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Google Cloud Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: GCP services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: GCP services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Compute; Part 2: Storage; Part 2: Networking) and demonstrate the starting sample for: Part 2 hands-on: GCP services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: GCP services",
+          "evidence": "Participant submission for 'Google Cloud Fundamentals - Part 2': Part 2 hands-on: GCP services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: GCP services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: GCP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Compute; Part 2: Storage; Part 2: Networking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -143,7 +527,55 @@
         "GCP"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "GCP advanced services"
+      "lab_task": "GCP advanced services",
+      "deliverable": "Participant submission for 'Google Cloud Advanced': GCP advanced services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: GCP advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BigQuery; Dataflow; Cloud Run). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: GCP advanced services.",
+        "Explain how the lab applies Google Cloud Advanced and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Google Cloud Advanced' on a prepared training sample through this task: GCP advanced services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: GCP advanced services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (BigQuery; Dataflow; Cloud Run) and demonstrate the starting sample for: GCP advanced services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "GCP advanced services",
+          "evidence": "Participant submission for 'Google Cloud Advanced': GCP advanced services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'GCP advanced services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: GCP advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BigQuery; Dataflow; Cloud Run). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -157,7 +589,55 @@
         "GCP"
       ],
       "jira_focus": "Sprint planning; review progress for Google Cloud Advanced",
-      "lab_task": "Part 2 hands-on: GCP advanced services"
+      "lab_task": "Part 2 hands-on: GCP advanced services",
+      "deliverable": "Participant submission for 'Google Cloud Advanced - Part 2': Part 2 hands-on: GCP advanced services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: GCP advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: BigQuery; Part 2: Dataflow; Part 2: Cloud Run). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: GCP advanced services.",
+        "Explain how the lab applies Google Cloud Advanced - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Google Cloud Advanced - Part 2' on a prepared training sample through this task: Part 2 hands-on: GCP advanced services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: GCP advanced services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: BigQuery; Part 2: Dataflow; Part 2: Cloud Run) and demonstrate the starting sample for: Part 2 hands-on: GCP advanced services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: GCP advanced services",
+          "evidence": "Participant submission for 'Google Cloud Advanced - Part 2': Part 2 hands-on: GCP advanced services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: GCP advanced services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: GCP advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: BigQuery; Part 2: Dataflow; Part 2: Cloud Run). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -171,7 +651,55 @@
         "Azure"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Azure services"
+      "lab_task": "Azure services",
+      "deliverable": "Participant submission for 'Azure Fundamentals': Azure services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Virtual Machines; Storage; Networking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure services.",
+        "Explain how the lab applies Azure Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Fundamentals' on a prepared training sample through this task: Azure services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Virtual Machines; Storage; Networking) and demonstrate the starting sample for: Azure services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure services",
+          "evidence": "Participant submission for 'Azure Fundamentals': Azure services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Virtual Machines; Storage; Networking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -185,7 +713,55 @@
         "Azure"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Azure services"
+      "lab_task": "Part 2 hands-on: Azure services",
+      "deliverable": "Participant submission for 'Azure Fundamentals - Part 2': Part 2 hands-on: Azure services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Virtual Machines; Part 2: Storage; Part 2: Networking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure services.",
+        "Explain how the lab applies Azure Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Virtual Machines; Part 2: Storage; Part 2: Networking) and demonstrate the starting sample for: Part 2 hands-on: Azure services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure services",
+          "evidence": "Participant submission for 'Azure Fundamentals - Part 2': Part 2 hands-on: Azure services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Virtual Machines; Part 2: Storage; Part 2: Networking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -199,7 +775,55 @@
         "Azure"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Azure advanced services"
+      "lab_task": "Azure advanced services",
+      "deliverable": "Participant submission for 'Azure Advanced': Azure advanced services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Azure advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (App Service; Functions; Containers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Azure advanced services.",
+        "Explain how the lab applies Azure Advanced and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Advanced' on a prepared training sample through this task: Azure advanced services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Azure advanced services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (App Service; Functions; Containers) and demonstrate the starting sample for: Azure advanced services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Azure advanced services",
+          "evidence": "Participant submission for 'Azure Advanced': Azure advanced services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Azure advanced services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Azure advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (App Service; Functions; Containers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -213,7 +837,55 @@
         "Azure"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Azure advanced services"
+      "lab_task": "Part 2 hands-on: Azure advanced services",
+      "deliverable": "Participant submission for 'Azure Advanced - Part 2': Part 2 hands-on: Azure advanced services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Azure advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: App Service; Part 2: Functions; Part 2: Containers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Azure advanced services.",
+        "Explain how the lab applies Azure Advanced - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure Advanced - Part 2' on a prepared training sample through this task: Part 2 hands-on: Azure advanced services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Azure advanced services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: App Service; Part 2: Functions; Part 2: Containers) and demonstrate the starting sample for: Part 2 hands-on: Azure advanced services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Azure advanced services",
+          "evidence": "Participant submission for 'Azure Advanced - Part 2': Part 2 hands-on: Azure advanced services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Azure advanced services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Azure advanced services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: App Service; Part 2: Functions; Part 2: Containers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -228,7 +900,55 @@
         "Cloud"
       ],
       "jira_focus": "Sprint planning; review progress for Networking in Cloud",
-      "lab_task": "Cloud networking"
+      "lab_task": "Cloud networking",
+      "deliverable": "Participant submission for 'Networking in Cloud': Cloud networking. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cloud networking. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (VPC/Virtual Networks; Subnets; Routing; Security Groups). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Cloud networking.",
+        "Explain how the lab applies Networking in Cloud and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Networking in Cloud' on a prepared training sample through this task: Cloud networking.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cloud networking",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (VPC/Virtual Networks; Subnets; Routing; Security Groups) and demonstrate the starting sample for: Cloud networking",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cloud networking",
+          "evidence": "Participant submission for 'Networking in Cloud': Cloud networking. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cloud networking' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cloud networking. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (VPC/Virtual Networks; Subnets; Routing; Security Groups). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -243,7 +963,55 @@
         "Cloud"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Cloud networking"
+      "lab_task": "Part 2 hands-on: Cloud networking",
+      "deliverable": "Participant submission for 'Networking in Cloud - Part 2': Part 2 hands-on: Cloud networking. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Cloud networking. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: VPC/Virtual Networks; Part 2: Subnets; Part 2: Routing; Part 2: Security Groups). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Cloud networking.",
+        "Explain how the lab applies Networking in Cloud - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Networking in Cloud - Part 2' on a prepared training sample through this task: Part 2 hands-on: Cloud networking.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Cloud networking",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: VPC/Virtual Networks; Part 2: Subnets; Part 2: Routing; Part 2: Security Groups) and demonstrate the starting sample for: Part 2 hands-on: Cloud networking",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Cloud networking",
+          "evidence": "Participant submission for 'Networking in Cloud - Part 2': Part 2 hands-on: Cloud networking. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Cloud networking' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Cloud networking. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: VPC/Virtual Networks; Part 2: Subnets; Part 2: Routing; Part 2: Security Groups). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -257,7 +1025,55 @@
         "Cloud Storage"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Storage options"
+      "lab_task": "Storage options",
+      "deliverable": "Participant submission for 'Storage Solutions': Storage options. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Storage options. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Object Storage; Block Storage; File Storage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Storage options.",
+        "Explain how the lab applies Storage Solutions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Storage Solutions' on a prepared training sample through this task: Storage options.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Storage options",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Object Storage; Block Storage; File Storage) and demonstrate the starting sample for: Storage options",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Storage options",
+          "evidence": "Participant submission for 'Storage Solutions': Storage options. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Storage options' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Storage options. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Object Storage; Block Storage; File Storage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -271,7 +1087,55 @@
         "Cloud Storage"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Storage options"
+      "lab_task": "Part 2 hands-on: Storage options",
+      "deliverable": "Participant submission for 'Storage Solutions - Part 2': Part 2 hands-on: Storage options. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Storage options. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Object Storage; Part 2: Block Storage; Part 2: File Storage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Storage options.",
+        "Explain how the lab applies Storage Solutions - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Storage Solutions - Part 2' on a prepared training sample through this task: Part 2 hands-on: Storage options.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Storage options",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Object Storage; Part 2: Block Storage; Part 2: File Storage) and demonstrate the starting sample for: Part 2 hands-on: Storage options",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Storage options",
+          "evidence": "Participant submission for 'Storage Solutions - Part 2': Part 2 hands-on: Storage options. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Storage options' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Storage options. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Object Storage; Part 2: Block Storage; Part 2: File Storage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -285,7 +1149,55 @@
         "Cloud Databases"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Database services"
+      "lab_task": "Database services",
+      "deliverable": "Participant submission for 'Databases in Cloud': Database services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Database services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL/NoSQL; Managed Services; Replication). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Database services.",
+        "Explain how the lab applies Databases in Cloud and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Databases in Cloud' on a prepared training sample through this task: Database services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Database services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL/NoSQL; Managed Services; Replication) and demonstrate the starting sample for: Database services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Database services",
+          "evidence": "Participant submission for 'Databases in Cloud': Database services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Database services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Database services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL/NoSQL; Managed Services; Replication). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -299,7 +1211,55 @@
         "Cloud Databases"
       ],
       "jira_focus": "Sprint planning; review progress for Databases in Cloud",
-      "lab_task": "Part 2 hands-on: Database services"
+      "lab_task": "Part 2 hands-on: Database services",
+      "deliverable": "Participant submission for 'Databases in Cloud - Part 2': Part 2 hands-on: Database services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Database services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: SQL/NoSQL; Part 2: Managed Services; Part 2: Replication). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Database services.",
+        "Explain how the lab applies Databases in Cloud - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Databases in Cloud - Part 2' on a prepared training sample through this task: Part 2 hands-on: Database services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Database services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: SQL/NoSQL; Part 2: Managed Services; Part 2: Replication) and demonstrate the starting sample for: Part 2 hands-on: Database services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Database services",
+          "evidence": "Participant submission for 'Databases in Cloud - Part 2': Part 2 hands-on: Database services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Database services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Database services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: SQL/NoSQL; Part 2: Managed Services; Part 2: Replication). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -313,7 +1273,55 @@
         "K8s"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Container orchestration"
+      "lab_task": "Container orchestration",
+      "deliverable": "Participant submission for 'Container Orchestration': Container orchestration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Container orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Kubernetes; Container Services; Cluster Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Container orchestration.",
+        "Explain how the lab applies Container Orchestration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Container Orchestration' on a prepared training sample through this task: Container orchestration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Container orchestration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Kubernetes; Container Services; Cluster Management) and demonstrate the starting sample for: Container orchestration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Container orchestration",
+          "evidence": "Participant submission for 'Container Orchestration': Container orchestration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Container orchestration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Container orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Kubernetes; Container Services; Cluster Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -327,7 +1335,55 @@
         "K8s"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Container orchestration"
+      "lab_task": "Part 2 hands-on: Container orchestration",
+      "deliverable": "Participant submission for 'Container Orchestration - Part 2': Part 2 hands-on: Container orchestration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Container orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Kubernetes; Part 2: Container Services; Part 2: Cluster Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Container orchestration.",
+        "Explain how the lab applies Container Orchestration - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Container Orchestration - Part 2' on a prepared training sample through this task: Part 2 hands-on: Container orchestration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Container orchestration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Kubernetes; Part 2: Container Services; Part 2: Cluster Management) and demonstrate the starting sample for: Part 2 hands-on: Container orchestration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Container orchestration",
+          "evidence": "Participant submission for 'Container Orchestration - Part 2': Part 2 hands-on: Container orchestration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Container orchestration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Container orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Kubernetes; Part 2: Container Services; Part 2: Cluster Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -341,7 +1397,55 @@
         "Serverless"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Serverless platforms"
+      "lab_task": "Serverless platforms",
+      "deliverable": "Participant submission for 'Serverless Computing': Serverless platforms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Serverless platforms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Functions; Event-driven; Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Serverless platforms.",
+        "Explain how the lab applies Serverless Computing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Serverless Computing' on a prepared training sample through this task: Serverless platforms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Serverless platforms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Functions; Event-driven; Scaling) and demonstrate the starting sample for: Serverless platforms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Serverless platforms",
+          "evidence": "Participant submission for 'Serverless Computing': Serverless platforms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Serverless platforms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Serverless platforms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Functions; Event-driven; Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -355,7 +1459,55 @@
         "Serverless"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Serverless platforms"
+      "lab_task": "Part 2 hands-on: Serverless platforms",
+      "deliverable": "Participant submission for 'Serverless Computing - Part 2': Part 2 hands-on: Serverless platforms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Serverless platforms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Functions; Part 2: Event-driven; Part 2: Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Serverless platforms.",
+        "Explain how the lab applies Serverless Computing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Serverless Computing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Serverless platforms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Serverless platforms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Functions; Part 2: Event-driven; Part 2: Scaling) and demonstrate the starting sample for: Part 2 hands-on: Serverless platforms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Serverless platforms",
+          "evidence": "Participant submission for 'Serverless Computing - Part 2': Part 2 hands-on: Serverless platforms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Serverless platforms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Serverless platforms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Functions; Part 2: Event-driven; Part 2: Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -369,7 +1521,55 @@
         "IaC Tools"
       ],
       "jira_focus": "Sprint planning; review progress for Infrastructure as Code",
-      "lab_task": "Infrastructure automation"
+      "lab_task": "Infrastructure automation",
+      "deliverable": "Participant submission for 'Infrastructure as Code': Infrastructure automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Infrastructure automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Terraform; CloudFormation; Ansible). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Infrastructure automation.",
+        "Explain how the lab applies Infrastructure as Code and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Infrastructure as Code' on a prepared training sample through this task: Infrastructure automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Infrastructure automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Terraform; CloudFormation; Ansible) and demonstrate the starting sample for: Infrastructure automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Infrastructure automation",
+          "evidence": "Participant submission for 'Infrastructure as Code': Infrastructure automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Infrastructure automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Infrastructure automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Terraform; CloudFormation; Ansible). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -383,7 +1583,55 @@
         "IaC Tools"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Infrastructure automation"
+      "lab_task": "Part 2 hands-on: Infrastructure automation",
+      "deliverable": "Participant submission for 'Infrastructure as Code - Part 2': Part 2 hands-on: Infrastructure automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Infrastructure automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Terraform; Part 2: CloudFormation; Part 2: Ansible). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Infrastructure automation.",
+        "Explain how the lab applies Infrastructure as Code - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Infrastructure as Code - Part 2' on a prepared training sample through this task: Part 2 hands-on: Infrastructure automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Infrastructure automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Terraform; Part 2: CloudFormation; Part 2: Ansible) and demonstrate the starting sample for: Part 2 hands-on: Infrastructure automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Infrastructure automation",
+          "evidence": "Participant submission for 'Infrastructure as Code - Part 2': Part 2 hands-on: Infrastructure automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Infrastructure automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Infrastructure automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Terraform; Part 2: CloudFormation; Part 2: Ansible). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -398,7 +1646,55 @@
         "Cloud Security"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Cloud security"
+      "lab_task": "Cloud security",
+      "deliverable": "Participant submission for 'Cloud Security': Cloud security. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cloud security. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IAM; Encryption; Compliance; Best Practices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Cloud security.",
+        "Explain how the lab applies Cloud Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Security' on a prepared training sample through this task: Cloud security.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cloud security",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (IAM; Encryption; Compliance; Best Practices) and demonstrate the starting sample for: Cloud security",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cloud security",
+          "evidence": "Participant submission for 'Cloud Security': Cloud security. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cloud security' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cloud security. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IAM; Encryption; Compliance; Best Practices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -413,7 +1709,55 @@
         "Cloud Security"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Cloud security"
+      "lab_task": "Part 2 hands-on: Cloud security",
+      "deliverable": "Participant submission for 'Cloud Security - Part 2': Part 2 hands-on: Cloud security. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Cloud security. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: IAM; Part 2: Encryption; Part 2: Compliance; Part 2: Best Practices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Cloud security.",
+        "Explain how the lab applies Cloud Security - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Security - Part 2' on a prepared training sample through this task: Part 2 hands-on: Cloud security.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Cloud security",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: IAM; Part 2: Encryption; Part 2: Compliance; Part 2: Best Practices) and demonstrate the starting sample for: Part 2 hands-on: Cloud security",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Cloud security",
+          "evidence": "Participant submission for 'Cloud Security - Part 2': Part 2 hands-on: Cloud security. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Cloud security' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Cloud security. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: IAM; Part 2: Encryption; Part 2: Compliance; Part 2: Best Practices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -427,7 +1771,55 @@
         "Cost Management"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Cost and governance"
+      "lab_task": "Cost and governance",
+      "deliverable": "Participant submission for 'Cost Optimization & Governance': Cost and governance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cost and governance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cost Analysis; Resource Optimization; Governance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Cost and governance.",
+        "Explain how the lab applies Cost Optimization & Governance and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cost Optimization & Governance' on a prepared training sample through this task: Cost and governance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cost and governance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cost Analysis; Resource Optimization; Governance) and demonstrate the starting sample for: Cost and governance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cost and governance",
+          "evidence": "Participant submission for 'Cost Optimization & Governance': Cost and governance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cost and governance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cost and governance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cost Analysis; Resource Optimization; Governance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -441,7 +1833,55 @@
         "Cost Management"
       ],
       "jira_focus": "Sprint planning; review progress for Cost Optimization & Governance",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cost Analysis; Resource Optimization; Governance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cost Analysis; Resource Optimization; Governance) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cost Analysis; Resource Optimization; Governance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -460,5 +1900,10 @@
     "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/",
     "https://developer.hashicorp.com/terraform/language/block/provider"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

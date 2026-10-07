@@ -29,7 +29,55 @@
         "MySQL"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Build complex queries"
+      "lab_task": "Build complex queries",
+      "deliverable": "Participant submission for 'SQL & Databases': Build complex queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build complex queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Database Design; SQL Basics; Indexing; Query Optimization; Transactions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build complex queries.",
+        "Explain how the lab applies SQL & Databases and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SQL & Databases' on a prepared training sample through this task: Build complex queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build complex queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Database Design; SQL Basics; Indexing; Query Optimization; Transactions) and demonstrate the starting sample for: Build complex queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build complex queries",
+          "evidence": "Participant submission for 'SQL & Databases': Build complex queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build complex queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build complex queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Database Design; SQL Basics; Indexing; Query Optimization; Transactions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -46,7 +94,55 @@
         "MySQL"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Build complex queries"
+      "lab_task": "Part 2 hands-on: Build complex queries",
+      "deliverable": "Participant submission for 'SQL & Databases - Part 2': Part 2 hands-on: Build complex queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Build complex queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Database Design; Part 2: SQL Basics; Part 2: Indexing; Part 2: Query Optimization; Part 2: Transactions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Build complex queries.",
+        "Explain how the lab applies SQL & Databases - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SQL & Databases - Part 2' on a prepared training sample through this task: Part 2 hands-on: Build complex queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Build complex queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Database Design; Part 2: SQL Basics; Part 2: Indexing; Part 2: Query Optimization; Part 2: Transactions) and demonstrate the starting sample for: Part 2 hands-on: Build complex queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Build complex queries",
+          "evidence": "Participant submission for 'SQL & Databases - Part 2': Part 2 hands-on: Build complex queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Build complex queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Build complex queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Database Design; Part 2: SQL Basics; Part 2: Indexing; Part 2: Query Optimization; Part 2: Transactions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -62,7 +158,55 @@
         "BigQuery"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Design data warehouse"
+      "lab_task": "Design data warehouse",
+      "deliverable": "Participant submission for 'Data Warehousing': Design data warehouse. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design data warehouse. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Schema Design; ETL; Fact/Dimension Tables; Slowly Changing Dimensions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design data warehouse.",
+        "Explain how the lab applies Data Warehousing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Warehousing' on a prepared training sample through this task: Design data warehouse.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design data warehouse",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Schema Design; ETL; Fact/Dimension Tables; Slowly Changing Dimensions) and demonstrate the starting sample for: Design data warehouse",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design data warehouse",
+          "evidence": "Participant submission for 'Data Warehousing': Design data warehouse. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design data warehouse' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design data warehouse. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Schema Design; ETL; Fact/Dimension Tables; Slowly Changing Dimensions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -78,7 +222,55 @@
         "BigQuery"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Design data warehouse"
+      "lab_task": "Part 2 hands-on: Design data warehouse",
+      "deliverable": "Participant submission for 'Data Warehousing - Part 2': Part 2 hands-on: Design data warehouse. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Design data warehouse. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Schema Design; Part 2: ETL; Part 2: Fact/Dimension Tables; Part 2: Slowly Changing Dimensions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Design data warehouse.",
+        "Explain how the lab applies Data Warehousing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Warehousing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Design data warehouse.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Design data warehouse",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Schema Design; Part 2: ETL; Part 2: Fact/Dimension Tables; Part 2: Slowly Changing Dimensions) and demonstrate the starting sample for: Part 2 hands-on: Design data warehouse",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Design data warehouse",
+          "evidence": "Participant submission for 'Data Warehousing - Part 2': Part 2 hands-on: Design data warehouse. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Design data warehouse' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Design data warehouse. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Schema Design; Part 2: ETL; Part 2: Fact/Dimension Tables; Part 2: Slowly Changing Dimensions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -95,7 +287,55 @@
         "Talend"
       ],
       "jira_focus": "Sprint planning; review progress for ETL Fundamentals",
-      "lab_task": "Build ETL pipeline"
+      "lab_task": "Build ETL pipeline",
+      "deliverable": "Participant submission for 'ETL Fundamentals': Build ETL pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build ETL pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Extract; Transform; Load; Validation; Error Handling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build ETL pipeline.",
+        "Explain how the lab applies ETL Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ETL Fundamentals' on a prepared training sample through this task: Build ETL pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build ETL pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Extract; Transform; Load; Validation; Error Handling) and demonstrate the starting sample for: Build ETL pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build ETL pipeline",
+          "evidence": "Participant submission for 'ETL Fundamentals': Build ETL pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build ETL pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build ETL pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Extract; Transform; Load; Validation; Error Handling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -112,7 +352,55 @@
         "Talend"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Build ETL pipeline"
+      "lab_task": "Part 2 hands-on: Build ETL pipeline",
+      "deliverable": "Participant submission for 'ETL Fundamentals - Part 2': Part 2 hands-on: Build ETL pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Build ETL pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Extract; Part 2: Transform; Part 2: Load; Part 2: Validation; Part 2: Error Handling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Build ETL pipeline.",
+        "Explain how the lab applies ETL Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ETL Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: Build ETL pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Build ETL pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Extract; Part 2: Transform; Part 2: Load; Part 2: Validation; Part 2: Error Handling) and demonstrate the starting sample for: Part 2 hands-on: Build ETL pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Build ETL pipeline",
+          "evidence": "Participant submission for 'ETL Fundamentals - Part 2': Part 2 hands-on: Build ETL pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Build ETL pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Build ETL pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Extract; Part 2: Transform; Part 2: Load; Part 2: Validation; Part 2: Error Handling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -129,7 +417,55 @@
         "Jupyter"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Data processing with pandas"
+      "lab_task": "Data processing with pandas",
+      "deliverable": "Participant submission for 'Python for Data': Data processing with pandas. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Data processing with pandas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NumPy; Pandas; Polars; Data Cleaning; Processing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Data processing with pandas.",
+        "Explain how the lab applies Python for Data and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Python for Data' on a prepared training sample through this task: Data processing with pandas.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Data processing with pandas",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (NumPy; Pandas; Polars; Data Cleaning; Processing) and demonstrate the starting sample for: Data processing with pandas",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Data processing with pandas",
+          "evidence": "Participant submission for 'Python for Data': Data processing with pandas. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Data processing with pandas' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Data processing with pandas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NumPy; Pandas; Polars; Data Cleaning; Processing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -146,7 +482,55 @@
         "Jupyter"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Data processing with pandas"
+      "lab_task": "Part 2 hands-on: Data processing with pandas",
+      "deliverable": "Participant submission for 'Python for Data - Part 2': Part 2 hands-on: Data processing with pandas. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Data processing with pandas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: NumPy; Part 2: Pandas; Part 2: Polars; Part 2: Data Cleaning; Part 2: Processing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Data processing with pandas.",
+        "Explain how the lab applies Python for Data - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Python for Data - Part 2' on a prepared training sample through this task: Part 2 hands-on: Data processing with pandas.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Data processing with pandas",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: NumPy; Part 2: Pandas; Part 2: Polars; Part 2: Data Cleaning; Part 2: Processing) and demonstrate the starting sample for: Part 2 hands-on: Data processing with pandas",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Data processing with pandas",
+          "evidence": "Participant submission for 'Python for Data - Part 2': Part 2 hands-on: Data processing with pandas. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Data processing with pandas' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Data processing with pandas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: NumPy; Part 2: Pandas; Part 2: Polars; Part 2: Data Cleaning; Part 2: Processing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -162,7 +546,55 @@
         "Apache Spark"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Distributed data processing"
+      "lab_task": "Distributed data processing",
+      "deliverable": "Participant submission for 'Apache Spark': Distributed data processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Distributed data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RDD; DataFrames; SQL; Streaming; Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Distributed data processing.",
+        "Explain how the lab applies Apache Spark and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Apache Spark' on a prepared training sample through this task: Distributed data processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Distributed data processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (RDD; DataFrames; SQL; Streaming; Optimization) and demonstrate the starting sample for: Distributed data processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Distributed data processing",
+          "evidence": "Participant submission for 'Apache Spark': Distributed data processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Distributed data processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Distributed data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RDD; DataFrames; SQL; Streaming; Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -178,7 +610,55 @@
         "Apache Spark"
       ],
       "jira_focus": "Sprint planning; review progress for Apache Spark",
-      "lab_task": "Part 2 hands-on: Distributed data processing"
+      "lab_task": "Part 2 hands-on: Distributed data processing",
+      "deliverable": "Participant submission for 'Apache Spark - Part 2': Part 2 hands-on: Distributed data processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Distributed data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: RDD; Part 2: DataFrames; Part 2: SQL; Part 2: Streaming; Part 2: Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Distributed data processing.",
+        "Explain how the lab applies Apache Spark - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Apache Spark - Part 2' on a prepared training sample through this task: Part 2 hands-on: Distributed data processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Distributed data processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: RDD; Part 2: DataFrames; Part 2: SQL; Part 2: Streaming; Part 2: Optimization) and demonstrate the starting sample for: Part 2 hands-on: Distributed data processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Distributed data processing",
+          "evidence": "Participant submission for 'Apache Spark - Part 2': Part 2 hands-on: Distributed data processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Distributed data processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Distributed data processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: RDD; Part 2: DataFrames; Part 2: SQL; Part 2: Streaming; Part 2: Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -195,7 +675,55 @@
         "Spark Streaming"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Build streaming pipeline"
+      "lab_task": "Build streaming pipeline",
+      "deliverable": "Participant submission for 'Kafka & Streaming': Build streaming pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build streaming pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Topics; Producers; Consumers; Streams; Real-time). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build streaming pipeline.",
+        "Explain how the lab applies Kafka & Streaming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kafka & Streaming' on a prepared training sample through this task: Build streaming pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build streaming pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Topics; Producers; Consumers; Streams; Real-time) and demonstrate the starting sample for: Build streaming pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build streaming pipeline",
+          "evidence": "Participant submission for 'Kafka & Streaming': Build streaming pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build streaming pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build streaming pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Topics; Producers; Consumers; Streams; Real-time). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -212,7 +740,55 @@
         "Spark Streaming"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Build streaming pipeline"
+      "lab_task": "Part 2 hands-on: Build streaming pipeline",
+      "deliverable": "Participant submission for 'Kafka & Streaming - Part 2': Part 2 hands-on: Build streaming pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Build streaming pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Topics; Part 2: Producers; Part 2: Consumers; Part 2: Streams; Part 2: Real-time). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Build streaming pipeline.",
+        "Explain how the lab applies Kafka & Streaming - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kafka & Streaming - Part 2' on a prepared training sample through this task: Part 2 hands-on: Build streaming pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Build streaming pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Topics; Part 2: Producers; Part 2: Consumers; Part 2: Streams; Part 2: Real-time) and demonstrate the starting sample for: Part 2 hands-on: Build streaming pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Build streaming pipeline",
+          "evidence": "Participant submission for 'Kafka & Streaming - Part 2': Part 2 hands-on: Build streaming pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Build streaming pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Build streaming pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Topics; Part 2: Producers; Part 2: Consumers; Part 2: Streams; Part 2: Real-time). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -229,7 +805,55 @@
         "Delta Lake"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Design data lake"
+      "lab_task": "Design data lake",
+      "deliverable": "Participant submission for 'Data Lakes': Design data lake. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design data lake. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Architecture; Delta Lake; Partition; Versioning; Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design data lake.",
+        "Explain how the lab applies Data Lakes and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Lakes' on a prepared training sample through this task: Design data lake.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design data lake",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Architecture; Delta Lake; Partition; Versioning; Optimization) and demonstrate the starting sample for: Design data lake",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design data lake",
+          "evidence": "Participant submission for 'Data Lakes': Design data lake. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design data lake' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design data lake. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Architecture; Delta Lake; Partition; Versioning; Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -246,7 +870,55 @@
         "Delta Lake"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Design data lake"
+      "lab_task": "Part 2 hands-on: Design data lake",
+      "deliverable": "Participant submission for 'Data Lakes - Part 2': Part 2 hands-on: Design data lake. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Design data lake. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Architecture; Part 2: Delta Lake; Part 2: Partition; Part 2: Versioning; Part 2: Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Design data lake.",
+        "Explain how the lab applies Data Lakes - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Lakes - Part 2' on a prepared training sample through this task: Part 2 hands-on: Design data lake.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Design data lake",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Architecture; Part 2: Delta Lake; Part 2: Partition; Part 2: Versioning; Part 2: Optimization) and demonstrate the starting sample for: Part 2 hands-on: Design data lake",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Design data lake",
+          "evidence": "Participant submission for 'Data Lakes - Part 2': Part 2 hands-on: Design data lake. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Design data lake' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Design data lake. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Architecture; Part 2: Delta Lake; Part 2: Partition; Part 2: Versioning; Part 2: Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -262,7 +934,55 @@
         "AWS"
       ],
       "jira_focus": "Sprint planning; review progress for Cloud Platforms - AWS",
-      "lab_task": "AWS data engineering"
+      "lab_task": "AWS data engineering",
+      "deliverable": "Participant submission for 'Cloud Platforms - AWS': AWS data engineering. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: AWS data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (S3; Glue; EMR; Lambda; Data Pipeline). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: AWS data engineering.",
+        "Explain how the lab applies Cloud Platforms - AWS and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Platforms - AWS' on a prepared training sample through this task: AWS data engineering.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: AWS data engineering",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (S3; Glue; EMR; Lambda; Data Pipeline) and demonstrate the starting sample for: AWS data engineering",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "AWS data engineering",
+          "evidence": "Participant submission for 'Cloud Platforms - AWS': AWS data engineering. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'AWS data engineering' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: AWS data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (S3; Glue; EMR; Lambda; Data Pipeline). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -278,7 +998,55 @@
         "AWS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: AWS data engineering"
+      "lab_task": "Part 2 hands-on: AWS data engineering",
+      "deliverable": "Participant submission for 'Cloud Platforms - AWS - Part 2': Part 2 hands-on: AWS data engineering. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: AWS data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: S3; Part 2: Glue; Part 2: EMR; Part 2: Lambda; Part 2: Data Pipeline). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: AWS data engineering.",
+        "Explain how the lab applies Cloud Platforms - AWS - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Platforms - AWS - Part 2' on a prepared training sample through this task: Part 2 hands-on: AWS data engineering.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: AWS data engineering",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: S3; Part 2: Glue; Part 2: EMR; Part 2: Lambda; Part 2: Data Pipeline) and demonstrate the starting sample for: Part 2 hands-on: AWS data engineering",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: AWS data engineering",
+          "evidence": "Participant submission for 'Cloud Platforms - AWS - Part 2': Part 2 hands-on: AWS data engineering. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: AWS data engineering' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: AWS data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: S3; Part 2: Glue; Part 2: EMR; Part 2: Lambda; Part 2: Data Pipeline). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -293,7 +1061,55 @@
         "GCP"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "GCP data engineering"
+      "lab_task": "GCP data engineering",
+      "deliverable": "Participant submission for 'Cloud Platforms - GCP': GCP data engineering. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: GCP data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BigQuery; Dataflow; Pub/Sub; Cloud Storage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: GCP data engineering.",
+        "Explain how the lab applies Cloud Platforms - GCP and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Platforms - GCP' on a prepared training sample through this task: GCP data engineering.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: GCP data engineering",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (BigQuery; Dataflow; Pub/Sub; Cloud Storage) and demonstrate the starting sample for: GCP data engineering",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "GCP data engineering",
+          "evidence": "Participant submission for 'Cloud Platforms - GCP': GCP data engineering. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'GCP data engineering' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: GCP data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BigQuery; Dataflow; Pub/Sub; Cloud Storage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -308,7 +1124,55 @@
         "GCP"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: GCP data engineering"
+      "lab_task": "Part 2 hands-on: GCP data engineering",
+      "deliverable": "Participant submission for 'Cloud Platforms - GCP - Part 2': Part 2 hands-on: GCP data engineering. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: GCP data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: BigQuery; Part 2: Dataflow; Part 2: Pub/Sub; Part 2: Cloud Storage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: GCP data engineering.",
+        "Explain how the lab applies Cloud Platforms - GCP - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cloud Platforms - GCP - Part 2' on a prepared training sample through this task: Part 2 hands-on: GCP data engineering.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: GCP data engineering",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: BigQuery; Part 2: Dataflow; Part 2: Pub/Sub; Part 2: Cloud Storage) and demonstrate the starting sample for: Part 2 hands-on: GCP data engineering",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: GCP data engineering",
+          "evidence": "Participant submission for 'Cloud Platforms - GCP - Part 2': Part 2 hands-on: GCP data engineering. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: GCP data engineering' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: GCP data engineering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: BigQuery; Part 2: Dataflow; Part 2: Pub/Sub; Part 2: Cloud Storage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -323,7 +1187,55 @@
         "Apache Airflow"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Production orchestration"
+      "lab_task": "Production orchestration",
+      "deliverable": "Participant submission for 'Orchestration': Production orchestration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Production orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Airflow DAGs; Scheduling; Monitoring; Error Recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Production orchestration.",
+        "Explain how the lab applies Orchestration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Orchestration' on a prepared training sample through this task: Production orchestration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Production orchestration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Airflow DAGs; Scheduling; Monitoring; Error Recovery) and demonstrate the starting sample for: Production orchestration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Production orchestration",
+          "evidence": "Participant submission for 'Orchestration': Production orchestration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Production orchestration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Production orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Airflow DAGs; Scheduling; Monitoring; Error Recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -338,7 +1250,55 @@
         "Apache Airflow"
       ],
       "jira_focus": "Sprint planning; review progress for Orchestration",
-      "lab_task": "Part 2 hands-on: Production orchestration"
+      "lab_task": "Part 2 hands-on: Production orchestration",
+      "deliverable": "Participant submission for 'Orchestration - Part 2': Part 2 hands-on: Production orchestration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Production orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Airflow DAGs; Part 2: Scheduling; Part 2: Monitoring; Part 2: Error Recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Production orchestration.",
+        "Explain how the lab applies Orchestration - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Orchestration - Part 2' on a prepared training sample through this task: Part 2 hands-on: Production orchestration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Production orchestration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Airflow DAGs; Part 2: Scheduling; Part 2: Monitoring; Part 2: Error Recovery) and demonstrate the starting sample for: Part 2 hands-on: Production orchestration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Production orchestration",
+          "evidence": "Participant submission for 'Orchestration - Part 2': Part 2 hands-on: Production orchestration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Production orchestration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Production orchestration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Airflow DAGs; Part 2: Scheduling; Part 2: Monitoring; Part 2: Error Recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -354,7 +1314,55 @@
         "Great Expectations"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Implement data quality"
+      "lab_task": "Implement data quality",
+      "deliverable": "Participant submission for 'Data Quality': Implement data quality. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement data quality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Validation; Testing; Monitoring; Profiling; Alerting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement data quality.",
+        "Explain how the lab applies Data Quality and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Quality' on a prepared training sample through this task: Implement data quality.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement data quality",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Validation; Testing; Monitoring; Profiling; Alerting) and demonstrate the starting sample for: Implement data quality",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement data quality",
+          "evidence": "Participant submission for 'Data Quality': Implement data quality. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement data quality' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement data quality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Validation; Testing; Monitoring; Profiling; Alerting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -370,7 +1378,55 @@
         "Great Expectations"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Implement data quality"
+      "lab_task": "Part 2 hands-on: Implement data quality",
+      "deliverable": "Participant submission for 'Data Quality - Part 2': Part 2 hands-on: Implement data quality. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Implement data quality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Validation; Part 2: Testing; Part 2: Monitoring; Part 2: Profiling; Part 2: Alerting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Implement data quality.",
+        "Explain how the lab applies Data Quality - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Quality - Part 2' on a prepared training sample through this task: Part 2 hands-on: Implement data quality.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Implement data quality",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Validation; Part 2: Testing; Part 2: Monitoring; Part 2: Profiling; Part 2: Alerting) and demonstrate the starting sample for: Part 2 hands-on: Implement data quality",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Implement data quality",
+          "evidence": "Participant submission for 'Data Quality - Part 2': Part 2 hands-on: Implement data quality. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Implement data quality' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Implement data quality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Validation; Part 2: Testing; Part 2: Monitoring; Part 2: Profiling; Part 2: Alerting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -385,7 +1441,55 @@
         "Spark"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Performance optimization"
+      "lab_task": "Performance optimization",
+      "deliverable": "Participant submission for 'Advanced Spark': Performance optimization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Performance optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tuning; Partitioning; Caching; Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Performance optimization.",
+        "Explain how the lab applies Advanced Spark and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Spark' on a prepared training sample through this task: Performance optimization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Performance optimization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Tuning; Partitioning; Caching; Optimization) and demonstrate the starting sample for: Performance optimization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Performance optimization",
+          "evidence": "Participant submission for 'Advanced Spark': Performance optimization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Performance optimization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Performance optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tuning; Partitioning; Caching; Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -400,7 +1504,55 @@
         "Spark"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Performance optimization"
+      "lab_task": "Part 2 hands-on: Performance optimization",
+      "deliverable": "Participant submission for 'Advanced Spark - Part 2': Part 2 hands-on: Performance optimization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Performance optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Tuning; Part 2: Partitioning; Part 2: Caching; Part 2: Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Performance optimization.",
+        "Explain how the lab applies Advanced Spark - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Spark - Part 2' on a prepared training sample through this task: Part 2 hands-on: Performance optimization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Performance optimization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Tuning; Part 2: Partitioning; Part 2: Caching; Part 2: Optimization) and demonstrate the starting sample for: Part 2 hands-on: Performance optimization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Performance optimization",
+          "evidence": "Participant submission for 'Advanced Spark - Part 2': Part 2 hands-on: Performance optimization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Performance optimization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Performance optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Tuning; Part 2: Partitioning; Part 2: Caching; Part 2: Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -415,7 +1567,55 @@
         "Apache Iceberg"
       ],
       "jira_focus": "Sprint planning; review progress for Iceberg & Delta",
-      "lab_task": "Modern table formats"
+      "lab_task": "Modern table formats",
+      "deliverable": "Participant submission for 'Iceberg & Delta': Modern table formats. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Modern table formats. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Table Format; ACID Compliance; Time Travel; Schema Evolution). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Modern table formats.",
+        "Explain how the lab applies Iceberg & Delta and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Iceberg & Delta' on a prepared training sample through this task: Modern table formats.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Modern table formats",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Table Format; ACID Compliance; Time Travel; Schema Evolution) and demonstrate the starting sample for: Modern table formats",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Modern table formats",
+          "evidence": "Participant submission for 'Iceberg & Delta': Modern table formats. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Modern table formats' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Modern table formats. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Table Format; ACID Compliance; Time Travel; Schema Evolution). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -430,7 +1630,55 @@
         "Apache Iceberg"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Modern table formats"
+      "lab_task": "Part 2 hands-on: Modern table formats",
+      "deliverable": "Participant submission for 'Iceberg & Delta - Part 2': Part 2 hands-on: Modern table formats. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Modern table formats. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Table Format; Part 2: ACID Compliance; Part 2: Time Travel; Part 2: Schema Evolution). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Modern table formats.",
+        "Explain how the lab applies Iceberg & Delta - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Iceberg & Delta - Part 2' on a prepared training sample through this task: Part 2 hands-on: Modern table formats.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Modern table formats",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Table Format; Part 2: ACID Compliance; Part 2: Time Travel; Part 2: Schema Evolution) and demonstrate the starting sample for: Part 2 hands-on: Modern table formats",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Modern table formats",
+          "evidence": "Participant submission for 'Iceberg & Delta - Part 2': Part 2 hands-on: Modern table formats. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Modern table formats' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Modern table formats. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Table Format; Part 2: ACID Compliance; Part 2: Time Travel; Part 2: Schema Evolution). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -445,7 +1693,55 @@
         "dbt"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "dbt workflow"
+      "lab_task": "dbt workflow",
+      "deliverable": "Participant submission for 'dbt (Data Build Tool)': dbt workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: dbt workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Models; Tests; Documentation; Deployment). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: dbt workflow.",
+        "Explain how the lab applies dbt (Data Build Tool) and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'dbt (Data Build Tool)' on a prepared training sample through this task: dbt workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: dbt workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Models; Tests; Documentation; Deployment) and demonstrate the starting sample for: dbt workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "dbt workflow",
+          "evidence": "Participant submission for 'dbt (Data Build Tool)': dbt workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'dbt workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: dbt workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Models; Tests; Documentation; Deployment). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -460,7 +1756,55 @@
         "dbt"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: dbt workflow"
+      "lab_task": "Part 2 hands-on: dbt workflow",
+      "deliverable": "Participant submission for 'dbt (Data Build Tool) - Part 2': Part 2 hands-on: dbt workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: dbt workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Models; Part 2: Tests; Part 2: Documentation; Part 2: Deployment). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: dbt workflow.",
+        "Explain how the lab applies dbt (Data Build Tool) - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'dbt (Data Build Tool) - Part 2' on a prepared training sample through this task: Part 2 hands-on: dbt workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: dbt workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Models; Part 2: Tests; Part 2: Documentation; Part 2: Deployment) and demonstrate the starting sample for: Part 2 hands-on: dbt workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: dbt workflow",
+          "evidence": "Participant submission for 'dbt (Data Build Tool) - Part 2': Part 2 hands-on: dbt workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: dbt workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: dbt workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Models; Part 2: Tests; Part 2: Documentation; Part 2: Deployment). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -476,7 +1820,55 @@
         "Prometheus"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Production monitoring"
+      "lab_task": "Production monitoring",
+      "deliverable": "Participant submission for 'Monitoring & Logging': Production monitoring. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Production monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pipeline Monitoring; Error Tracking; Logging; Alerting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Production monitoring.",
+        "Explain how the lab applies Monitoring & Logging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Monitoring & Logging' on a prepared training sample through this task: Production monitoring.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Production monitoring",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Pipeline Monitoring; Error Tracking; Logging; Alerting) and demonstrate the starting sample for: Production monitoring",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Production monitoring",
+          "evidence": "Participant submission for 'Monitoring & Logging': Production monitoring. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Production monitoring' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Production monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pipeline Monitoring; Error Tracking; Logging; Alerting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -492,7 +1884,55 @@
         "Prometheus"
       ],
       "jira_focus": "Sprint planning; review progress for Monitoring & Logging",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pipeline Monitoring; Error Tracking; Logging; Alerting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Pipeline Monitoring; Error Tracking; Logging; Alerting) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pipeline Monitoring; Error Tracking; Logging; Alerting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -517,5 +1957,10 @@
     "https://docs.snowflake.com/en/user-guide/data-pipelines-intro",
     "https://pandas.pydata.org/docs/user_guide/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

@@ -899,18 +899,19 @@ const CSS = `
 
 // ─── Utility Components ───────────────────────────────────────
 function Card({ children, style, className = '', onClick }) {
+  const Element = onClick ? 'button' : 'div'
   return (
-    <button
-      onClick={onClick}
+    <Element
+      {...(onClick ? { type: 'button', onClick } : {})}
       className={`card-hover ${className}`}
       style={{
         background: T.surface, border: `1px solid ${T.border}`,
         borderRadius: 12, overflow: 'hidden',
-        boxShadow: T.shadow, ...style, cursor: 'pointer'
+        boxShadow: T.shadow, ...style, cursor: onClick ? 'pointer' : 'default'
       }}
     >
       {children}
-    </button>
+    </Element>
   )
 }
 

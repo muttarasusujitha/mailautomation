@@ -6,15 +6,14 @@ from app.routes import toc as toc_route
 from app.routes import toc_extended
 
 
-def test_ai_failure_uses_approved_curriculum_baseline(monkeypatch):
+def test_ai_failure_falls_back_to_template(monkeypatch):
     async def unavailable(payload):
         return None
     monkeypatch.setattr(toc_route, '_generate_ai_toc', unavailable)
     db = _Db()
     result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(domain='Python', generation_mode='ai'), db))
-    assert result['toc_data']['generation_mode'] == 'template_ai_unavailable'
-    assert 'AI generation was unavailable' in result['toc_data']['generation_warning']
-    assert len(db['toc_generations'].inserted) == 1
+    assert result['toc_data']['generation_mode'] == 'template_fallback'
+    assert db['toc_generations'].inserted
 
 
 class _Collection:
@@ -64,6 +63,53 @@ def _generated(domain="New Platform"):
             "afternoon_session": {"topics": [{}, {}, {}]},
         }],
     }
+
+
+def test_saved_ai_switch_uses_the_model_even_if_the_request_says_template(monkeypatch):
+    db = _Db()
+
+    class Settings:
+        async def find_one(self, *args, **kwargs):
+            return {"value": "ai"}
+
+    db.collections["automation_settings"] = Settings()
+
+    async def generate_ai(payload):
+        return _generated("AI Platform")
+
+    def manual_generator(*args, **kwargs):
+        raise AssertionError("The saved AI switch must call the model")
+
+    monkeypatch.setattr(toc_route, "_generate_ai_toc", generate_ai)
+    monkeypatch.setattr(toc_route, "generate_toc_from_dataset", manual_generator)
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(
+        domain="New Platform", duration_days=1, generation_mode="template",
+    ), db))
+    assert result["toc_data"]["generation_mode"] == "ai"
+
+
+def test_saved_template_switch_stays_offline(monkeypatch):
+    db = _Db()
+
+    class Settings:
+        async def find_one(self, *args, **kwargs):
+            return {"value": "template"}
+
+    db.collections["automation_settings"] = Settings()
+    called = {}
+
+    async def generate_ai(payload):
+        called["yes"] = True
+        return None
+
+    monkeypatch.setattr(toc_route, "_generate_ai_toc", generate_ai)
+    monkeypatch.setattr(toc_route, "generate_toc_from_dataset", lambda *args, **kwargs: _generated())
+    monkeypatch.setattr(toc_route, "validate_toc", lambda value, days: value)
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(
+        domain="New Platform", duration_days=1, generation_mode="ai",
+    ), db))
+    assert "yes" not in called
+    assert result["toc_data"]["generation_mode"] == "template"
 
 
 def test_template_mode_uses_saved_toc_knowledge(monkeypatch):
@@ -174,3 +220,20 @@ def test_new_post_deployment_technology_can_be_saved_then_used_by_manual_generat
     assert captured["override"]["name"] == "Future Quantum SDK"
     assert captured["override"]["level_map"]["foundation"][0]["topic"] == "Quantum SDK Foundations"
     assert result["toc_data"]["generation_mode"] == "template_knowledge"
+
+
+def test_audience_level_selects_the_curriculum_level(monkeypatch):
+    captured = {}
+
+    def generate(*args, **kwargs):
+        captured["level"] = kwargs.get("level")
+        return _generated("Python")
+
+    monkeypatch.setattr(toc_route, "generate_toc_from_dataset", generate)
+    monkeypatch.setattr(toc_route, "validate_toc", lambda value, days: value)
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(
+        domain="Python", duration_days=3, audience_level="beginner", generation_mode="template",
+    ), _Db()))
+
+    assert captured["level"] == "beginner"
+    assert result["toc_data"]["level"] == "beginner"

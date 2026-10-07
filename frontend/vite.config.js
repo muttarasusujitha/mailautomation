@@ -13,13 +13,8 @@ const apiProxyConfig = (target, rewriteApiToV1) => ({
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const coreApiTarget =
-    env.VITE_CORE_API_PROXY_TARGET ||
-    env.VITE_API_PROXY_TARGET ||
-    'http://ts-gateway:80'
-  const intelligenceServiceTarget = env.VITE_INTELLIGENCE_SERVICE_PROXY_TARGET || 'http://ts-gateway:80'
-  const emailServiceTarget = env.VITE_EMAIL_SERVICE_PROXY_TARGET || 'http://ts-gateway:80'
-  const trainerServiceTarget = env.VITE_TRAINER_SERVICE_PROXY_TARGET || 'http://ts-gateway:80'
+  // Browser traffic must never bypass the session-checking gateway.
+  const coreApiTarget = env.VITE_API_PROXY_TARGET || 'http://ts-gateway:80'
   const rewriteApiToV1 = env.VITE_API_PROXY_REWRITE_TO_V1 !== 'false'
   const devHost = env.VITE_DEV_HOST || '0.0.0.0'
   const devPort = Number(env.VITE_DEV_PORT || 5174)
@@ -39,24 +34,6 @@ export default defineConfig(({ mode }) => {
       port: devPort,
       strictPort: false,
       proxy: {
-        '/api/client-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
-        '/api/linkedin-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
-        '/api/trainer-profile-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
-        '/api/gmail': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/email': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/emails': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/inbox': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/client-conversations': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/business-excel': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/client-updates': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
-        '/api/toc': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/trainers': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/voice-ai': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/resume-data': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/resume-uploads': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/shortlists': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/interview-schedules': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
-        '/api/interview-reminders': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
         '/api': apiProxyConfig(coreApiTarget, rewriteApiToV1),
       }
     }

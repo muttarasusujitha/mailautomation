@@ -1,43 +1,2437 @@
 {
-  "domain":"Ruby on Rails","name":"Ruby on Rails Full Stack","icon":"code","program_title":"Ruby on Rails - Full-Stack Web Application Development","level":"Intermediate to Advanced","mode":"Online",
-  "aliases":["Ruby on Rails","Rails","RoR","Ruby on Rails Framework","Rails Full Stack"],
-  "tools":["Ruby","Ruby on Rails","Bundler","PostgreSQL","SQLite","Redis","Git","GitHub","Postman","RSpec","Sidekiq","Docker"],
-  "certifications":["Ruby Association Certified Ruby Programmer","Ruby on Rails Learning Paths and Professional Training Programs"],
-  "days":[
-    {"day":1,"topic":"Rails Introduction and Environment Setup","subtopics":["Rails philosophy","Convention over Configuration","DRY","MVC","request lifecycle","Ruby/Rails installation","Bundler","Rails CLI","project structure","server/console","environments"],"tools":["Ruby","Ruby on Rails","Bundler","Visual Studio Code"],"lab_task":"Set up Rails, create a project, and run the development server"},
-    {"day":2,"topic":"Rails MVC Architecture","subtopics":["models/views/controllers","MVC responsibilities","autoloading","ApplicationController","ApplicationRecord","templates/helpers","routes","request flow","responses","separation of concerns"],"tools":["Ruby on Rails"],"lab_task":"Create an MVC feature and trace its complete request flow"},
-    {"day":3,"topic":"Routing","subtopics":["routes.rb","HTTP verbs","parameters","named routes","resources/resource","nested resources","namespaces/scopes","constraints","root/redirect routes","route inspection"],"tools":["Ruby on Rails"],"lab_task":"Create resourceful, nested, and namespaced routes"},
-    {"day":4,"topic":"Controllers and Request Handling","subtopics":["actions","params","strong parameters","render/redirect/head","flash","sessions/cookies","before/after/around actions","formats","HTML/JSON responses","errors"],"tools":["Ruby on Rails"],"lab_task":"Build controllers handling forms, safe params, HTML, and JSON"},
-    {"day":5,"topic":"Views, Templates and Layouts","subtopics":["ERB","layouts","partials","locals","helpers","link/URL helpers","content blocks/yield","asset inclusion","conditional/list rendering","view organization"],"tools":["ERB","Ruby on Rails"],"lab_task":"Build reusable layouts and partials"},
-    {"day":6,"topic":"Active Record Fundamentals","subtopics":["ORM","models/tables","migrations/schema","conventions","attributes","CRUD","find/find_by/where/order/limit/pluck/exists"],"tools":["Active Record","SQLite","PostgreSQL"],"lab_task":"Create models and perform Active Record CRUD"},
-    {"day":7,"topic":"Migrations and Schema Management","subtopics":["migration files","tables/columns","indexes","foreign keys/references","rollback/redo/reset","schema versioning","seeds","constraints","data migrations"],"tools":["Active Record","PostgreSQL"],"lab_task":"Design and migrate a constrained relational schema with seed data"},
-    {"day":8,"topic":"Active Record Associations","subtopics":["has_one/has_many/belongs_to","through associations","polymorphic associations","self joins","dependent behavior","scopes","eager loading","includes/preload/joins","N+1"],"tools":["Active Record","PostgreSQL"],"lab_task":"Implement one-to-one, one-to-many, and many-to-many relationships"},
-    {"day":9,"topic":"Validations and Callbacks","subtopics":["presence/uniqueness/length/numericality/format","custom/conditional validation","errors","validation callbacks","save/create/destroy callbacks","transaction callbacks","best practices"],"tools":["Active Record"],"lab_task":"Implement robust validation and lifecycle behavior"},
-    {"day":10,"topic":"Forms and CRUD Applications","subtopics":["form_with","model forms","strong parameters","field helpers","files","validation errors","nested forms awareness","create/edit/update/destroy","form partials","feedback"],"tools":["Ruby on Rails"],"lab_task":"Build a complete validated CRUD module"},
-    {"day":11,"topic":"Authentication","subtopics":["password hashing","has_secure_password/bcrypt","registration/login/logout","sessions/current user","filters","password reset/verification awareness","Devise","remember-me","security"],"tools":["Devise","bcrypt"],"lab_task":"Implement registration, login, logout, and protected pages"},
-    {"day":12,"topic":"Authorization","subtopics":["roles/permissions","RBAC","policy objects","Pundit","policy scopes","controller/view authorization","ownership","admin access","least privilege"],"tools":["Pundit","Ruby on Rails"],"lab_task":"Create user, manager, and admin policies"},
-    {"day":13,"topic":"Rails API Development","subtopics":["API-only apps","REST design","JSON","API controllers/namespaces","versioning","status/errors","pagination/filtering/sorting","Bearer/JWT","CORS","documentation"],"tools":["Ruby on Rails","Postman"],"lab_task":"Build a versioned authenticated REST API"},
-    {"day":14,"topic":"JSON Serialization and API Response Design","subtopics":["as_json/to_json","custom structures","serializers","JSON API conventions","nested resources","envelopes/metadata","pagination metadata","error structure","field selection","sensitive data"],"tools":["Ruby on Rails","Postman"],"lab_task":"Create consistent custom API serializers and responses"},
-    {"day":15,"topic":"Active Record Queries and Performance","subtopics":["scopes","query chaining","joins/left_joins/includes","group/having/aggregations","SQL inspection","indexes","N+1 detection","batch processing/find_each"],"tools":["Active Record","PostgreSQL"],"lab_task":"Optimize slow queries and remove N+1 behavior"},
-    {"day":16,"topic":"Transactions and Data Integrity","subtopics":["transactions/rollback","atomicity","constraints","optimistic/pessimistic locking","races","unique/foreign-key constraints","validation versus database constraints","consistency"],"tools":["Active Record","PostgreSQL"],"lab_task":"Implement transaction-safe concurrent business logic"},
-    {"day":17,"topic":"Background Jobs","subtopics":["Active Job","job classes/adapters","perform_later","delays/retries/failures","idempotency","Sidekiq","Redis","queues","scheduled jobs","email jobs","monitoring"],"tools":["Active Job","Sidekiq","Redis"],"lab_task":"Create asynchronous email and data-processing jobs"},
-    {"day":18,"topic":"Caching","subtopics":["fragment/Russian doll/low-level cache","Rails.cache","keys/expiration","Redis","query/HTTP cache","ETags/Conditional GET","invalidation","strategy"],"tools":["Redis","Ruby on Rails"],"lab_task":"Implement caching and measure response improvements"},
-    {"day":19,"topic":"Mailers","subtopics":["Action Mailer","mailer classes/templates/layouts","HTML/plain text","dynamic data","attachments","SMTP","environment config","previews","background delivery","email tests"],"tools":["Action Mailer","SMTP","Sidekiq"],"lab_task":"Build registration and notification mail with background delivery"},
-    {"day":20,"topic":"File Uploads and Active Storage","subtopics":["Active Storage","blobs/attachments","has_one/has_many_attached","direct upload","variants","validation awareness","local/cloud/S3","secure downloads","metadata","purge"],"tools":["Active Storage","Amazon S3"],"lab_task":"Implement profile image and document uploads"},
-    {"day":21,"topic":"Hotwire, Turbo and Stimulus","subtopics":["Hotwire","Turbo Drive/Frames/Streams","server-rendered interactivity","stream actions","real-time UI","Stimulus controllers/targets/actions/values","progressive enhancement"],"tools":["Hotwire","Turbo","Stimulus"],"lab_task":"Create dynamic CRUD UI with Turbo and Stimulus"},
-    {"day":22,"topic":"Real-Time Applications with Action Cable","subtopics":["WebSockets","Action Cable connections/channels","subscriptions/broadcasts","streams","authentication","notifications/chat","Redis adapter","scaling awareness"],"tools":["Action Cable","Redis"],"lab_task":"Build real-time notification or chat functionality"},
-    {"day":23,"topic":"Testing with RSpec","subtopics":["RSpec setup","model/request/system specs","FactoryBot","fixtures awareness","doubles/mocks/stubs","shared examples","auth/API tests","database cleaning","coverage"],"tools":["RSpec","FactoryBot"],"lab_task":"Write model, request, and system specs"},
-    {"day":24,"topic":"Rails Security","subtopics":["SQL injection/XSS/CSRF","strong parameters","session/cookie security","CSP/headers","redirect/command/upload risks","credentials/secrets","dependency vulnerabilities","Brakeman"],"tools":["Brakeman","Rails Credentials","Bundler Audit"],"lab_task":"Scan and remediate Rails security findings"},
-    {"day":25,"topic":"Rails Configuration and Environments","subtopics":["development/test/production","environment variables","credentials/secret key base","initializers","application/database/logging config","time zone/locale","feature flags","external services"],"tools":["Ruby on Rails"],"lab_task":"Configure secure dev, test, and production environments"},
-    {"day":26,"topic":"Logging, Monitoring and Debugging","subtopics":["Rails logger/log levels","request/SQL logs","console/debugger/breakpoints","exception debugging","performance logs","monitoring/metrics","error tracking","health checks"],"tools":["Rails Logger","Ruby Debugger","New Relic"],"lab_task":"Add logging, health checks, and production diagnostics"},
-    {"day":27,"topic":"Rails Performance Optimization","subtopics":["profiling","database bottlenecks","indexes/cache/jobs","memory/allocations","response optimization","pagination/batches","pooling","assets/HTTP cache","slow queries","application servers"],"tools":["Rails","PostgreSQL","Redis","New Relic"],"lab_task":"Profile and optimize a Rails endpoint"},
-    {"day":28,"topic":"Service Objects and Application Architecture","subtopics":["fat model/controller","service/query/form/policy objects","presenters/decorators","repository awareness","domain separation","dependency injection","SOLID","modular apps/bounded contexts"],"tools":["Ruby on Rails"],"lab_task":"Refactor complex behavior into service and query objects"},
-    {"day":29,"topic":"Rails Engines and Modular Applications","subtopics":["engines","mountable/isolated engines","engine routes/models/controllers/migrations","shared functionality","gem modularity","monolith modularization","engine tests"],"tools":["Ruby on Rails","RubyGems"],"lab_task":"Create and mount a reusable Rails Engine"},
-    {"day":30,"topic":"Docker and Containerization","subtopics":["containers/images","Dockerfile","Rails/Bundler in Docker","PostgreSQL/Redis containers","Docker Compose","variables/volumes/networks","dev setup","production images","security"],"tools":["Docker","Docker Compose","PostgreSQL","Redis"],"lab_task":"Containerize Rails with PostgreSQL and Redis"},
-    {"day":31,"topic":"CI/CD","subtopics":["CI/CD","GitHub Actions","Bundler cache","automated RSpec","security scans/linting","database in CI","secrets","deployment pipelines","rollback","branch protection"],"tools":["GitHub Actions","Git","GitHub","RSpec","Brakeman"],"lab_task":"Build a Rails test and security CI pipeline"},
-    {"day":32,"topic":"Production Deployment","subtopics":["Puma","Nginx awareness","migrations/assets","variables/SSL","workers/Redis","health checks","zero-downtime/cloud/backups/rollback"],"tools":["Puma","Nginx","Docker","PostgreSQL","Redis"],"lab_task":"Prepare a production Rails deployment architecture"},
-    {"day":33,"topic":"Advanced API Architecture","subtopics":["versioning","JWT/OAuth awareness","rate limiting/throttling","caching/idempotency","pagination/filter/search","error standards","observability","webhooks","third-party APIs","security"],"tools":["Ruby on Rails","Redis","Postman"],"lab_task":"Build a versioned API with rate limits and webhook support"},
-    {"day":34,"topic":"Advanced Rails Concepts","subtopics":["Active Support","concerns","custom middleware","Rack","middleware stack","generators awareness","Zeitwerk","custom validators/types","connection pools","multiple databases/read replicas/sharding awareness"],"tools":["Ruby on Rails","Rack"],"lab_task":"Create custom middleware and reusable Rails concerns"},
-    {"day":35,"topic":"Ruby on Rails Capstone Project","subtopics":["requirements/architecture/database","models/associations","auth/authz","CRUD/API","Hotwire/jobs/Redis","uploads/mail/cache/realtime","tests/security/performance","Docker/CI-CD","deployment/documentation"],"tools":["Ruby on Rails","PostgreSQL","Redis","Sidekiq","Hotwire","RSpec","Docker","GitHub Actions"],"lab_task":"Design, build, secure, test, and deploy a production-style Rails application"}
-  ]
+  "domain": "Ruby on Rails",
+  "name": "Ruby on Rails Full Stack",
+  "icon": "code",
+  "program_title": "Ruby on Rails - Full-Stack Web Application Development",
+  "level": "Intermediate to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "Ruby on Rails",
+    "Rails",
+    "RoR",
+    "Ruby on Rails Framework",
+    "Rails Full Stack"
+  ],
+  "tools": [
+    "Ruby",
+    "Ruby on Rails",
+    "Bundler",
+    "PostgreSQL",
+    "SQLite",
+    "Redis",
+    "Git",
+    "GitHub",
+    "Postman",
+    "RSpec",
+    "Sidekiq",
+    "Docker"
+  ],
+  "certifications": [
+    "Ruby Association Certified Ruby Programmer",
+    "Ruby on Rails Learning Paths and Professional Training Programs"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Rails Introduction and Environment Setup",
+      "subtopics": [
+        "Rails philosophy",
+        "Convention over Configuration",
+        "DRY",
+        "MVC",
+        "request lifecycle",
+        "Ruby/Rails installation",
+        "Bundler",
+        "Rails CLI",
+        "project structure",
+        "server/console",
+        "environments"
+      ],
+      "tools": [
+        "Ruby",
+        "Ruby on Rails",
+        "Bundler",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Set up Rails, create a project, and run the development server",
+      "deliverable": "Participant submission for 'Rails Introduction and Environment Setup': Set up Rails, create a project, and run the development server. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Rails, create a project, and run the development server. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rails philosophy; Convention over Configuration; DRY; MVC; request lifecycle; Ruby/Rails installation; Bundler; Rails CLI; project structure; server/console; environments). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up Rails, create a project, and run the development server.",
+        "Explain how the lab applies Rails Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails Introduction and Environment Setup' on a prepared training sample through this task: Set up Rails, create a project, and run the development server.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Rails, create a project, and run the development server",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Rails philosophy; Convention over Configuration; DRY; MVC; request lifecycle; Ruby/Rails installation; Bundler; Rails CLI; project structure; server/console; environments) and demonstrate the starting sample for: Set up Rails, create a project, and run the development server",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Rails, create a project, and run the development server",
+          "evidence": "Participant submission for 'Rails Introduction and Environment Setup': Set up Rails, create a project, and run the development server. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Rails, create a project, and run the development server' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Rails, create a project, and run the development server. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rails philosophy; Convention over Configuration; DRY; MVC; request lifecycle; Ruby/Rails installation; Bundler; Rails CLI; project structure; server/console; environments). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Rails MVC Architecture",
+      "subtopics": [
+        "models/views/controllers",
+        "MVC responsibilities",
+        "autoloading",
+        "ApplicationController",
+        "ApplicationRecord",
+        "templates/helpers",
+        "routes",
+        "request flow",
+        "responses",
+        "separation of concerns"
+      ],
+      "tools": [
+        "Ruby on Rails"
+      ],
+      "lab_task": "Create an MVC feature and trace its complete request flow",
+      "deliverable": "Participant submission for 'Rails MVC Architecture': Create an MVC feature and trace its complete request flow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create an MVC feature and trace its complete request flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (models/views/controllers; MVC responsibilities; autoloading; ApplicationController; ApplicationRecord; templates/helpers; routes; request flow; responses; separation of concerns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create an MVC feature and trace its complete request flow.",
+        "Explain how the lab applies Rails MVC Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails MVC Architecture' on a prepared training sample through this task: Create an MVC feature and trace its complete request flow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create an MVC feature and trace its complete request flow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (models/views/controllers; MVC responsibilities; autoloading; ApplicationController; ApplicationRecord; templates/helpers; routes; request flow; responses; separation of concerns) and demonstrate the starting sample for: Create an MVC feature and trace its complete request flow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create an MVC feature and trace its complete request flow",
+          "evidence": "Participant submission for 'Rails MVC Architecture': Create an MVC feature and trace its complete request flow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create an MVC feature and trace its complete request flow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create an MVC feature and trace its complete request flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (models/views/controllers; MVC responsibilities; autoloading; ApplicationController; ApplicationRecord; templates/helpers; routes; request flow; responses; separation of concerns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Routing",
+      "subtopics": [
+        "routes.rb",
+        "HTTP verbs",
+        "parameters",
+        "named routes",
+        "resources/resource",
+        "nested resources",
+        "namespaces/scopes",
+        "constraints",
+        "root/redirect routes",
+        "route inspection"
+      ],
+      "tools": [
+        "Ruby on Rails"
+      ],
+      "lab_task": "Create resourceful, nested, and namespaced routes",
+      "deliverable": "Participant submission for 'Routing': Create resourceful, nested, and namespaced routes. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create resourceful, nested, and namespaced routes. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (routes.rb; HTTP verbs; parameters; named routes; resources/resource; nested resources; namespaces/scopes; constraints; root/redirect routes; route inspection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create resourceful, nested, and namespaced routes.",
+        "Explain how the lab applies Routing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Routing' on a prepared training sample through this task: Create resourceful, nested, and namespaced routes.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create resourceful, nested, and namespaced routes",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (routes.rb; HTTP verbs; parameters; named routes; resources/resource; nested resources; namespaces/scopes; constraints; root/redirect routes; route inspection) and demonstrate the starting sample for: Create resourceful, nested, and namespaced routes",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create resourceful, nested, and namespaced routes",
+          "evidence": "Participant submission for 'Routing': Create resourceful, nested, and namespaced routes. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create resourceful, nested, and namespaced routes' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create resourceful, nested, and namespaced routes. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (routes.rb; HTTP verbs; parameters; named routes; resources/resource; nested resources; namespaces/scopes; constraints; root/redirect routes; route inspection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Controllers and Request Handling",
+      "subtopics": [
+        "actions",
+        "params",
+        "strong parameters",
+        "render/redirect/head",
+        "flash",
+        "sessions/cookies",
+        "before/after/around actions",
+        "formats",
+        "HTML/JSON responses",
+        "errors"
+      ],
+      "tools": [
+        "Ruby on Rails"
+      ],
+      "lab_task": "Build controllers handling forms, safe params, HTML, and JSON",
+      "deliverable": "Participant submission for 'Controllers and Request Handling': Build controllers handling forms, safe params, HTML, and JSON. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build controllers handling forms, safe params, HTML, and JSON. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (actions; params; strong parameters; render/redirect/head; flash; sessions/cookies; before/after/around actions; formats; HTML/JSON responses; errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build controllers handling forms, safe params, HTML, and JSON.",
+        "Explain how the lab applies Controllers and Request Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Controllers and Request Handling' on a prepared training sample through this task: Build controllers handling forms, safe params, HTML, and JSON.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build controllers handling forms, safe params, HTML, and JSON",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (actions; params; strong parameters; render/redirect/head; flash; sessions/cookies; before/after/around actions; formats; HTML/JSON responses; errors) and demonstrate the starting sample for: Build controllers handling forms, safe params, HTML, and JSON",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build controllers handling forms, safe params, HTML, and JSON",
+          "evidence": "Participant submission for 'Controllers and Request Handling': Build controllers handling forms, safe params, HTML, and JSON. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build controllers handling forms, safe params, HTML, and JSON' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build controllers handling forms, safe params, HTML, and JSON. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (actions; params; strong parameters; render/redirect/head; flash; sessions/cookies; before/after/around actions; formats; HTML/JSON responses; errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Views, Templates and Layouts",
+      "subtopics": [
+        "ERB",
+        "layouts",
+        "partials",
+        "locals",
+        "helpers",
+        "link/URL helpers",
+        "content blocks/yield",
+        "asset inclusion",
+        "conditional/list rendering",
+        "view organization"
+      ],
+      "tools": [
+        "ERB",
+        "Ruby on Rails"
+      ],
+      "lab_task": "Build reusable layouts and partials",
+      "deliverable": "Participant submission for 'Views, Templates and Layouts': Build reusable layouts and partials. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable layouts and partials. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ERB; layouts; partials; locals; helpers; link/URL helpers; content blocks/yield; asset inclusion; conditional/list rendering; view organization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable layouts and partials.",
+        "Explain how the lab applies Views, Templates and Layouts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Views, Templates and Layouts' on a prepared training sample through this task: Build reusable layouts and partials.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable layouts and partials",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ERB; layouts; partials; locals; helpers; link/URL helpers; content blocks/yield; asset inclusion; conditional/list rendering; view organization) and demonstrate the starting sample for: Build reusable layouts and partials",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable layouts and partials",
+          "evidence": "Participant submission for 'Views, Templates and Layouts': Build reusable layouts and partials. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable layouts and partials' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable layouts and partials. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ERB; layouts; partials; locals; helpers; link/URL helpers; content blocks/yield; asset inclusion; conditional/list rendering; view organization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Active Record Fundamentals",
+      "subtopics": [
+        "ORM",
+        "models/tables",
+        "migrations/schema",
+        "conventions",
+        "attributes",
+        "CRUD",
+        "find/find_by/where/order/limit/pluck/exists"
+      ],
+      "tools": [
+        "Active Record",
+        "SQLite",
+        "PostgreSQL"
+      ],
+      "lab_task": "Create models and perform Active Record CRUD",
+      "deliverable": "Participant submission for 'Active Record Fundamentals': Create models and perform Active Record CRUD. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create models and perform Active Record CRUD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ORM; models/tables; migrations/schema; conventions; attributes; CRUD; find/find_by/where/order/limit/pluck/exists). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create models and perform Active Record CRUD.",
+        "Explain how the lab applies Active Record Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Active Record Fundamentals' on a prepared training sample through this task: Create models and perform Active Record CRUD.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create models and perform Active Record CRUD",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ORM; models/tables; migrations/schema; conventions; attributes; CRUD; find/find_by/where/order/limit/pluck/exists) and demonstrate the starting sample for: Create models and perform Active Record CRUD",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create models and perform Active Record CRUD",
+          "evidence": "Participant submission for 'Active Record Fundamentals': Create models and perform Active Record CRUD. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create models and perform Active Record CRUD' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create models and perform Active Record CRUD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ORM; models/tables; migrations/schema; conventions; attributes; CRUD; find/find_by/where/order/limit/pluck/exists). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Migrations and Schema Management",
+      "subtopics": [
+        "migration files",
+        "tables/columns",
+        "indexes",
+        "foreign keys/references",
+        "rollback/redo/reset",
+        "schema versioning",
+        "seeds",
+        "constraints",
+        "data migrations"
+      ],
+      "tools": [
+        "Active Record",
+        "PostgreSQL"
+      ],
+      "lab_task": "Design and migrate a constrained relational schema with seed data",
+      "deliverable": "Participant submission for 'Migrations and Schema Management': Design and migrate a constrained relational schema with seed data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design and migrate a constrained relational schema with seed data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (migration files; tables/columns; indexes; foreign keys/references; rollback/redo/reset; schema versioning; seeds; constraints; data migrations). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design and migrate a constrained relational schema with seed data.",
+        "Explain how the lab applies Migrations and Schema Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Migrations and Schema Management' on a prepared training sample through this task: Design and migrate a constrained relational schema with seed data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design and migrate a constrained relational schema with seed data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (migration files; tables/columns; indexes; foreign keys/references; rollback/redo/reset; schema versioning; seeds; constraints; data migrations) and demonstrate the starting sample for: Design and migrate a constrained relational schema with seed data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design and migrate a constrained relational schema with seed data",
+          "evidence": "Participant submission for 'Migrations and Schema Management': Design and migrate a constrained relational schema with seed data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design and migrate a constrained relational schema with seed data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design and migrate a constrained relational schema with seed data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (migration files; tables/columns; indexes; foreign keys/references; rollback/redo/reset; schema versioning; seeds; constraints; data migrations). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Active Record Associations",
+      "subtopics": [
+        "has_one/has_many/belongs_to",
+        "through associations",
+        "polymorphic associations",
+        "self joins",
+        "dependent behavior",
+        "scopes",
+        "eager loading",
+        "includes/preload/joins",
+        "N+1"
+      ],
+      "tools": [
+        "Active Record",
+        "PostgreSQL"
+      ],
+      "lab_task": "Implement one-to-one, one-to-many, and many-to-many relationships",
+      "deliverable": "Participant submission for 'Active Record Associations': Implement one-to-one, one-to-many, and many-to-many relationships. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement one-to-one, one-to-many, and many-to-many relationships. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (has_one/has_many/belongs_to; through associations; polymorphic associations; self joins; dependent behavior; scopes; eager loading; includes/preload/joins; N+1). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement one-to-one, one-to-many, and many-to-many relationships.",
+        "Explain how the lab applies Active Record Associations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Active Record Associations' on a prepared training sample through this task: Implement one-to-one, one-to-many, and many-to-many relationships.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement one-to-one, one-to-many, and many-to-many relationships",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (has_one/has_many/belongs_to; through associations; polymorphic associations; self joins; dependent behavior; scopes; eager loading; includes/preload/joins; N+1) and demonstrate the starting sample for: Implement one-to-one, one-to-many, and many-to-many relationships",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement one-to-one, one-to-many, and many-to-many relationships",
+          "evidence": "Participant submission for 'Active Record Associations': Implement one-to-one, one-to-many, and many-to-many relationships. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement one-to-one, one-to-many, and many-to-many relationships' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement one-to-one, one-to-many, and many-to-many relationships. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (has_one/has_many/belongs_to; through associations; polymorphic associations; self joins; dependent behavior; scopes; eager loading; includes/preload/joins; N+1). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Validations and Callbacks",
+      "subtopics": [
+        "presence/uniqueness/length/numericality/format",
+        "custom/conditional validation",
+        "errors",
+        "validation callbacks",
+        "save/create/destroy callbacks",
+        "transaction callbacks",
+        "best practices"
+      ],
+      "tools": [
+        "Active Record"
+      ],
+      "lab_task": "Implement robust validation and lifecycle behavior",
+      "deliverable": "Participant submission for 'Validations and Callbacks': Implement robust validation and lifecycle behavior. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement robust validation and lifecycle behavior. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (presence/uniqueness/length/numericality/format; custom/conditional validation; errors; validation callbacks; save/create/destroy callbacks; transaction callbacks; best practices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement robust validation and lifecycle behavior.",
+        "Explain how the lab applies Validations and Callbacks and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Validations and Callbacks' on a prepared training sample through this task: Implement robust validation and lifecycle behavior.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement robust validation and lifecycle behavior",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (presence/uniqueness/length/numericality/format; custom/conditional validation; errors; validation callbacks; save/create/destroy callbacks; transaction callbacks; best practices) and demonstrate the starting sample for: Implement robust validation and lifecycle behavior",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement robust validation and lifecycle behavior",
+          "evidence": "Participant submission for 'Validations and Callbacks': Implement robust validation and lifecycle behavior. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement robust validation and lifecycle behavior' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement robust validation and lifecycle behavior. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (presence/uniqueness/length/numericality/format; custom/conditional validation; errors; validation callbacks; save/create/destroy callbacks; transaction callbacks; best practices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Forms and CRUD Applications",
+      "subtopics": [
+        "form_with",
+        "model forms",
+        "strong parameters",
+        "field helpers",
+        "files",
+        "validation errors",
+        "nested forms awareness",
+        "create/edit/update/destroy",
+        "form partials",
+        "feedback"
+      ],
+      "tools": [
+        "Ruby on Rails"
+      ],
+      "lab_task": "Build a complete validated CRUD module",
+      "deliverable": "Participant submission for 'Forms and CRUD Applications': Build a complete validated CRUD module. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a complete validated CRUD module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (form_with; model forms; strong parameters; field helpers; files; validation errors; nested forms awareness; create/edit/update/destroy; form partials; feedback). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a complete validated CRUD module.",
+        "Explain how the lab applies Forms and CRUD Applications and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Forms and CRUD Applications' on a prepared training sample through this task: Build a complete validated CRUD module.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a complete validated CRUD module",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (form_with; model forms; strong parameters; field helpers; files; validation errors; nested forms awareness; create/edit/update/destroy; form partials; feedback) and demonstrate the starting sample for: Build a complete validated CRUD module",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a complete validated CRUD module",
+          "evidence": "Participant submission for 'Forms and CRUD Applications': Build a complete validated CRUD module. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a complete validated CRUD module' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a complete validated CRUD module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (form_with; model forms; strong parameters; field helpers; files; validation errors; nested forms awareness; create/edit/update/destroy; form partials; feedback). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Authentication",
+      "subtopics": [
+        "password hashing",
+        "has_secure_password/bcrypt",
+        "registration/login/logout",
+        "sessions/current user",
+        "filters",
+        "password reset/verification awareness",
+        "Devise",
+        "remember-me",
+        "security"
+      ],
+      "tools": [
+        "Devise",
+        "bcrypt"
+      ],
+      "lab_task": "Implement registration, login, logout, and protected pages",
+      "deliverable": "Participant submission for 'Authentication': Implement registration, login, logout, and protected pages. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement registration, login, logout, and protected pages. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (password hashing; has_secure_password/bcrypt; registration/login/logout; sessions/current user; filters; password reset/verification awareness; Devise; remember-me; security). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement registration, login, logout, and protected pages.",
+        "Explain how the lab applies Authentication and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Authentication' on a prepared training sample through this task: Implement registration, login, logout, and protected pages.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement registration, login, logout, and protected pages",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (password hashing; has_secure_password/bcrypt; registration/login/logout; sessions/current user; filters; password reset/verification awareness; Devise; remember-me; security) and demonstrate the starting sample for: Implement registration, login, logout, and protected pages",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement registration, login, logout, and protected pages",
+          "evidence": "Participant submission for 'Authentication': Implement registration, login, logout, and protected pages. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement registration, login, logout, and protected pages' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement registration, login, logout, and protected pages. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (password hashing; has_secure_password/bcrypt; registration/login/logout; sessions/current user; filters; password reset/verification awareness; Devise; remember-me; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Authorization",
+      "subtopics": [
+        "roles/permissions",
+        "RBAC",
+        "policy objects",
+        "Pundit",
+        "policy scopes",
+        "controller/view authorization",
+        "ownership",
+        "admin access",
+        "least privilege"
+      ],
+      "tools": [
+        "Pundit",
+        "Ruby on Rails"
+      ],
+      "lab_task": "Create user, manager, and admin policies",
+      "deliverable": "Participant submission for 'Authorization': Create user, manager, and admin policies. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create user, manager, and admin policies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (roles/permissions; RBAC; policy objects; Pundit; policy scopes; controller/view authorization; ownership; admin access; least privilege). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create user, manager, and admin policies.",
+        "Explain how the lab applies Authorization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Authorization' on a prepared training sample through this task: Create user, manager, and admin policies.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create user, manager, and admin policies",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (roles/permissions; RBAC; policy objects; Pundit; policy scopes; controller/view authorization; ownership; admin access; least privilege) and demonstrate the starting sample for: Create user, manager, and admin policies",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create user, manager, and admin policies",
+          "evidence": "Participant submission for 'Authorization': Create user, manager, and admin policies. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create user, manager, and admin policies' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create user, manager, and admin policies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (roles/permissions; RBAC; policy objects; Pundit; policy scopes; controller/view authorization; ownership; admin access; least privilege). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Rails API Development",
+      "subtopics": [
+        "API-only apps",
+        "REST design",
+        "JSON",
+        "API controllers/namespaces",
+        "versioning",
+        "status/errors",
+        "pagination/filtering/sorting",
+        "Bearer/JWT",
+        "CORS",
+        "documentation"
+      ],
+      "tools": [
+        "Ruby on Rails",
+        "Postman"
+      ],
+      "lab_task": "Build a versioned authenticated REST API",
+      "deliverable": "Participant submission for 'Rails API Development': Build a versioned authenticated REST API. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a versioned authenticated REST API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (API-only apps; REST design; JSON; API controllers/namespaces; versioning; status/errors; pagination/filtering/sorting; Bearer/JWT; CORS; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a versioned authenticated REST API.",
+        "Explain how the lab applies Rails API Development and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails API Development' on a prepared training sample through this task: Build a versioned authenticated REST API.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a versioned authenticated REST API",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (API-only apps; REST design; JSON; API controllers/namespaces; versioning; status/errors; pagination/filtering/sorting; Bearer/JWT; CORS; documentation) and demonstrate the starting sample for: Build a versioned authenticated REST API",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a versioned authenticated REST API",
+          "evidence": "Participant submission for 'Rails API Development': Build a versioned authenticated REST API. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a versioned authenticated REST API' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a versioned authenticated REST API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (API-only apps; REST design; JSON; API controllers/namespaces; versioning; status/errors; pagination/filtering/sorting; Bearer/JWT; CORS; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "JSON Serialization and API Response Design",
+      "subtopics": [
+        "as_json/to_json",
+        "custom structures",
+        "serializers",
+        "JSON API conventions",
+        "nested resources",
+        "envelopes/metadata",
+        "pagination metadata",
+        "error structure",
+        "field selection",
+        "sensitive data"
+      ],
+      "tools": [
+        "Ruby on Rails",
+        "Postman"
+      ],
+      "lab_task": "Create consistent custom API serializers and responses",
+      "deliverable": "Participant submission for 'JSON Serialization and API Response Design': Create consistent custom API serializers and responses. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create consistent custom API serializers and responses. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (as_json/to_json; custom structures; serializers; JSON API conventions; nested resources; envelopes/metadata; pagination metadata; error structure; field selection; sensitive data). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create consistent custom API serializers and responses.",
+        "Explain how the lab applies JSON Serialization and API Response Design and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'JSON Serialization and API Response Design' on a prepared training sample through this task: Create consistent custom API serializers and responses.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create consistent custom API serializers and responses",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (as_json/to_json; custom structures; serializers; JSON API conventions; nested resources; envelopes/metadata; pagination metadata; error structure; field selection; sensitive data) and demonstrate the starting sample for: Create consistent custom API serializers and responses",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create consistent custom API serializers and responses",
+          "evidence": "Participant submission for 'JSON Serialization and API Response Design': Create consistent custom API serializers and responses. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create consistent custom API serializers and responses' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create consistent custom API serializers and responses. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (as_json/to_json; custom structures; serializers; JSON API conventions; nested resources; envelopes/metadata; pagination metadata; error structure; field selection; sensitive data). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Active Record Queries and Performance",
+      "subtopics": [
+        "scopes",
+        "query chaining",
+        "joins/left_joins/includes",
+        "group/having/aggregations",
+        "SQL inspection",
+        "indexes",
+        "N+1 detection",
+        "batch processing/find_each"
+      ],
+      "tools": [
+        "Active Record",
+        "PostgreSQL"
+      ],
+      "lab_task": "Optimize slow queries and remove N+1 behavior",
+      "deliverable": "Participant submission for 'Active Record Queries and Performance': Optimize slow queries and remove N+1 behavior. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Optimize slow queries and remove N+1 behavior. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (scopes; query chaining; joins/left_joins/includes; group/having/aggregations; SQL inspection; indexes; N+1 detection; batch processing/find_each). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Optimize slow queries and remove N+1 behavior.",
+        "Explain how the lab applies Active Record Queries and Performance and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Active Record Queries and Performance' on a prepared training sample through this task: Optimize slow queries and remove N+1 behavior.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Optimize slow queries and remove N+1 behavior",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (scopes; query chaining; joins/left_joins/includes; group/having/aggregations; SQL inspection; indexes; N+1 detection; batch processing/find_each) and demonstrate the starting sample for: Optimize slow queries and remove N+1 behavior",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Optimize slow queries and remove N+1 behavior",
+          "evidence": "Participant submission for 'Active Record Queries and Performance': Optimize slow queries and remove N+1 behavior. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Optimize slow queries and remove N+1 behavior' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Optimize slow queries and remove N+1 behavior. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (scopes; query chaining; joins/left_joins/includes; group/having/aggregations; SQL inspection; indexes; N+1 detection; batch processing/find_each). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Transactions and Data Integrity",
+      "subtopics": [
+        "transactions/rollback",
+        "atomicity",
+        "constraints",
+        "optimistic/pessimistic locking",
+        "races",
+        "unique/foreign-key constraints",
+        "validation versus database constraints",
+        "consistency"
+      ],
+      "tools": [
+        "Active Record",
+        "PostgreSQL"
+      ],
+      "lab_task": "Implement transaction-safe concurrent business logic",
+      "deliverable": "Participant submission for 'Transactions and Data Integrity': Implement transaction-safe concurrent business logic. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement transaction-safe concurrent business logic. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (transactions/rollback; atomicity; constraints; optimistic/pessimistic locking; races; unique/foreign-key constraints; validation versus database constraints; consistency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement transaction-safe concurrent business logic.",
+        "Explain how the lab applies Transactions and Data Integrity and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Transactions and Data Integrity' on a prepared training sample through this task: Implement transaction-safe concurrent business logic.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement transaction-safe concurrent business logic",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (transactions/rollback; atomicity; constraints; optimistic/pessimistic locking; races; unique/foreign-key constraints; validation versus database constraints; consistency) and demonstrate the starting sample for: Implement transaction-safe concurrent business logic",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement transaction-safe concurrent business logic",
+          "evidence": "Participant submission for 'Transactions and Data Integrity': Implement transaction-safe concurrent business logic. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement transaction-safe concurrent business logic' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement transaction-safe concurrent business logic. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (transactions/rollback; atomicity; constraints; optimistic/pessimistic locking; races; unique/foreign-key constraints; validation versus database constraints; consistency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Background Jobs",
+      "subtopics": [
+        "Active Job",
+        "job classes/adapters",
+        "perform_later",
+        "delays/retries/failures",
+        "idempotency",
+        "Sidekiq",
+        "Redis",
+        "queues",
+        "scheduled jobs",
+        "email jobs",
+        "monitoring"
+      ],
+      "tools": [
+        "Active Job",
+        "Sidekiq",
+        "Redis"
+      ],
+      "lab_task": "Create asynchronous email and data-processing jobs",
+      "deliverable": "Participant submission for 'Background Jobs': Create asynchronous email and data-processing jobs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create asynchronous email and data-processing jobs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Active Job; job classes/adapters; perform_later; delays/retries/failures; idempotency; Sidekiq; Redis; queues; scheduled jobs; email jobs; monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create asynchronous email and data-processing jobs.",
+        "Explain how the lab applies Background Jobs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Background Jobs' on a prepared training sample through this task: Create asynchronous email and data-processing jobs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create asynchronous email and data-processing jobs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Active Job; job classes/adapters; perform_later; delays/retries/failures; idempotency; Sidekiq; Redis; queues; scheduled jobs; email jobs; monitoring) and demonstrate the starting sample for: Create asynchronous email and data-processing jobs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create asynchronous email and data-processing jobs",
+          "evidence": "Participant submission for 'Background Jobs': Create asynchronous email and data-processing jobs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create asynchronous email and data-processing jobs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create asynchronous email and data-processing jobs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Active Job; job classes/adapters; perform_later; delays/retries/failures; idempotency; Sidekiq; Redis; queues; scheduled jobs; email jobs; monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Caching",
+      "subtopics": [
+        "fragment/Russian doll/low-level cache",
+        "Rails.cache",
+        "keys/expiration",
+        "Redis",
+        "query/HTTP cache",
+        "ETags/Conditional GET",
+        "invalidation",
+        "strategy"
+      ],
+      "tools": [
+        "Redis",
+        "Ruby on Rails"
+      ],
+      "lab_task": "Implement caching and measure response improvements",
+      "deliverable": "Participant submission for 'Caching': Implement caching and measure response improvements. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement caching and measure response improvements. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (fragment/Russian doll/low-level cache; Rails.cache; keys/expiration; Redis; query/HTTP cache; ETags/Conditional GET; invalidation; strategy). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement caching and measure response improvements.",
+        "Explain how the lab applies Caching and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Caching' on a prepared training sample through this task: Implement caching and measure response improvements.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement caching and measure response improvements",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (fragment/Russian doll/low-level cache; Rails.cache; keys/expiration; Redis; query/HTTP cache; ETags/Conditional GET; invalidation; strategy) and demonstrate the starting sample for: Implement caching and measure response improvements",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement caching and measure response improvements",
+          "evidence": "Participant submission for 'Caching': Implement caching and measure response improvements. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement caching and measure response improvements' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement caching and measure response improvements. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (fragment/Russian doll/low-level cache; Rails.cache; keys/expiration; Redis; query/HTTP cache; ETags/Conditional GET; invalidation; strategy). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Mailers",
+      "subtopics": [
+        "Action Mailer",
+        "mailer classes/templates/layouts",
+        "HTML/plain text",
+        "dynamic data",
+        "attachments",
+        "SMTP",
+        "environment config",
+        "previews",
+        "background delivery",
+        "email tests"
+      ],
+      "tools": [
+        "Action Mailer",
+        "SMTP",
+        "Sidekiq"
+      ],
+      "lab_task": "Build registration and notification mail with background delivery",
+      "deliverable": "Participant submission for 'Mailers': Build registration and notification mail with background delivery. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build registration and notification mail with background delivery. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Action Mailer; mailer classes/templates/layouts; HTML/plain text; dynamic data; attachments; SMTP; environment config; previews; background delivery; email tests). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build registration and notification mail with background delivery.",
+        "Explain how the lab applies Mailers and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Mailers' on a prepared training sample through this task: Build registration and notification mail with background delivery.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build registration and notification mail with background delivery",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Action Mailer; mailer classes/templates/layouts; HTML/plain text; dynamic data; attachments; SMTP; environment config; previews; background delivery; email tests) and demonstrate the starting sample for: Build registration and notification mail with background delivery",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build registration and notification mail with background delivery",
+          "evidence": "Participant submission for 'Mailers': Build registration and notification mail with background delivery. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build registration and notification mail with background delivery' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build registration and notification mail with background delivery. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Action Mailer; mailer classes/templates/layouts; HTML/plain text; dynamic data; attachments; SMTP; environment config; previews; background delivery; email tests). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "File Uploads and Active Storage",
+      "subtopics": [
+        "Active Storage",
+        "blobs/attachments",
+        "has_one/has_many_attached",
+        "direct upload",
+        "variants",
+        "validation awareness",
+        "local/cloud/S3",
+        "secure downloads",
+        "metadata",
+        "purge"
+      ],
+      "tools": [
+        "Active Storage",
+        "Amazon S3"
+      ],
+      "lab_task": "Implement profile image and document uploads",
+      "deliverable": "Participant submission for 'File Uploads and Active Storage': Implement profile image and document uploads. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement profile image and document uploads. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Active Storage; blobs/attachments; has_one/has_many_attached; direct upload; variants; validation awareness; local/cloud/S3; secure downloads; metadata; purge). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement profile image and document uploads.",
+        "Explain how the lab applies File Uploads and Active Storage and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'File Uploads and Active Storage' on a prepared training sample through this task: Implement profile image and document uploads.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement profile image and document uploads",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Active Storage; blobs/attachments; has_one/has_many_attached; direct upload; variants; validation awareness; local/cloud/S3; secure downloads; metadata; purge) and demonstrate the starting sample for: Implement profile image and document uploads",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement profile image and document uploads",
+          "evidence": "Participant submission for 'File Uploads and Active Storage': Implement profile image and document uploads. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement profile image and document uploads' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement profile image and document uploads. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Active Storage; blobs/attachments; has_one/has_many_attached; direct upload; variants; validation awareness; local/cloud/S3; secure downloads; metadata; purge). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Hotwire, Turbo and Stimulus",
+      "subtopics": [
+        "Hotwire",
+        "Turbo Drive/Frames/Streams",
+        "server-rendered interactivity",
+        "stream actions",
+        "real-time UI",
+        "Stimulus controllers/targets/actions/values",
+        "progressive enhancement"
+      ],
+      "tools": [
+        "Hotwire",
+        "Turbo",
+        "Stimulus"
+      ],
+      "lab_task": "Create dynamic CRUD UI with Turbo and Stimulus",
+      "deliverable": "Participant submission for 'Hotwire, Turbo and Stimulus': Create dynamic CRUD UI with Turbo and Stimulus. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create dynamic CRUD UI with Turbo and Stimulus. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Hotwire; Turbo Drive/Frames/Streams; server-rendered interactivity; stream actions; real-time UI; Stimulus controllers/targets/actions/values; progressive enhancement). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create dynamic CRUD UI with Turbo and Stimulus.",
+        "Explain how the lab applies Hotwire, Turbo and Stimulus and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Hotwire, Turbo and Stimulus' on a prepared training sample through this task: Create dynamic CRUD UI with Turbo and Stimulus.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create dynamic CRUD UI with Turbo and Stimulus",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Hotwire; Turbo Drive/Frames/Streams; server-rendered interactivity; stream actions; real-time UI; Stimulus controllers/targets/actions/values; progressive enhancement) and demonstrate the starting sample for: Create dynamic CRUD UI with Turbo and Stimulus",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create dynamic CRUD UI with Turbo and Stimulus",
+          "evidence": "Participant submission for 'Hotwire, Turbo and Stimulus': Create dynamic CRUD UI with Turbo and Stimulus. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create dynamic CRUD UI with Turbo and Stimulus' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create dynamic CRUD UI with Turbo and Stimulus. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Hotwire; Turbo Drive/Frames/Streams; server-rendered interactivity; stream actions; real-time UI; Stimulus controllers/targets/actions/values; progressive enhancement). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Real-Time Applications with Action Cable",
+      "subtopics": [
+        "WebSockets",
+        "Action Cable connections/channels",
+        "subscriptions/broadcasts",
+        "streams",
+        "authentication",
+        "notifications/chat",
+        "Redis adapter",
+        "scaling awareness"
+      ],
+      "tools": [
+        "Action Cable",
+        "Redis"
+      ],
+      "lab_task": "Build real-time notification or chat functionality",
+      "deliverable": "Participant submission for 'Real-Time Applications with Action Cable': Build real-time notification or chat functionality. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build real-time notification or chat functionality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WebSockets; Action Cable connections/channels; subscriptions/broadcasts; streams; authentication; notifications/chat; Redis adapter; scaling awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build real-time notification or chat functionality.",
+        "Explain how the lab applies Real-Time Applications with Action Cable and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Real-Time Applications with Action Cable' on a prepared training sample through this task: Build real-time notification or chat functionality.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build real-time notification or chat functionality",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WebSockets; Action Cable connections/channels; subscriptions/broadcasts; streams; authentication; notifications/chat; Redis adapter; scaling awareness) and demonstrate the starting sample for: Build real-time notification or chat functionality",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build real-time notification or chat functionality",
+          "evidence": "Participant submission for 'Real-Time Applications with Action Cable': Build real-time notification or chat functionality. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build real-time notification or chat functionality' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build real-time notification or chat functionality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WebSockets; Action Cable connections/channels; subscriptions/broadcasts; streams; authentication; notifications/chat; Redis adapter; scaling awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "Testing with RSpec",
+      "subtopics": [
+        "RSpec setup",
+        "model/request/system specs",
+        "FactoryBot",
+        "fixtures awareness",
+        "doubles/mocks/stubs",
+        "shared examples",
+        "auth/API tests",
+        "database cleaning",
+        "coverage"
+      ],
+      "tools": [
+        "RSpec",
+        "FactoryBot"
+      ],
+      "lab_task": "Write model, request, and system specs",
+      "deliverable": "Participant submission for 'Testing with RSpec': Write model, request, and system specs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write model, request, and system specs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RSpec setup; model/request/system specs; FactoryBot; fixtures awareness; doubles/mocks/stubs; shared examples; auth/API tests; database cleaning; coverage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write model, request, and system specs.",
+        "Explain how the lab applies Testing with RSpec and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing with RSpec' on a prepared training sample through this task: Write model, request, and system specs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write model, request, and system specs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (RSpec setup; model/request/system specs; FactoryBot; fixtures awareness; doubles/mocks/stubs; shared examples; auth/API tests; database cleaning; coverage) and demonstrate the starting sample for: Write model, request, and system specs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write model, request, and system specs",
+          "evidence": "Participant submission for 'Testing with RSpec': Write model, request, and system specs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write model, request, and system specs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write model, request, and system specs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RSpec setup; model/request/system specs; FactoryBot; fixtures awareness; doubles/mocks/stubs; shared examples; auth/API tests; database cleaning; coverage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "Rails Security",
+      "subtopics": [
+        "SQL injection/XSS/CSRF",
+        "strong parameters",
+        "session/cookie security",
+        "CSP/headers",
+        "redirect/command/upload risks",
+        "credentials/secrets",
+        "dependency vulnerabilities",
+        "Brakeman"
+      ],
+      "tools": [
+        "Brakeman",
+        "Rails Credentials",
+        "Bundler Audit"
+      ],
+      "lab_task": "Scan and remediate Rails security findings",
+      "deliverable": "Participant submission for 'Rails Security': Scan and remediate Rails security findings. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Scan and remediate Rails security findings. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL injection/XSS/CSRF; strong parameters; session/cookie security; CSP/headers; redirect/command/upload risks; credentials/secrets; dependency vulnerabilities; Brakeman). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Scan and remediate Rails security findings.",
+        "Explain how the lab applies Rails Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails Security' on a prepared training sample through this task: Scan and remediate Rails security findings.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Scan and remediate Rails security findings",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL injection/XSS/CSRF; strong parameters; session/cookie security; CSP/headers; redirect/command/upload risks; credentials/secrets; dependency vulnerabilities; Brakeman) and demonstrate the starting sample for: Scan and remediate Rails security findings",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Scan and remediate Rails security findings",
+          "evidence": "Participant submission for 'Rails Security': Scan and remediate Rails security findings. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Scan and remediate Rails security findings' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Scan and remediate Rails security findings. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL injection/XSS/CSRF; strong parameters; session/cookie security; CSP/headers; redirect/command/upload risks; credentials/secrets; dependency vulnerabilities; Brakeman). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "Rails Configuration and Environments",
+      "subtopics": [
+        "development/test/production",
+        "environment variables",
+        "credentials/secret key base",
+        "initializers",
+        "application/database/logging config",
+        "time zone/locale",
+        "feature flags",
+        "external services"
+      ],
+      "tools": [
+        "Ruby on Rails"
+      ],
+      "lab_task": "Configure secure dev, test, and production environments",
+      "deliverable": "Participant submission for 'Rails Configuration and Environments': Configure secure dev, test, and production environments. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure secure dev, test, and production environments. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (development/test/production; environment variables; credentials/secret key base; initializers; application/database/logging config; time zone/locale; feature flags; external services). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure secure dev, test, and production environments.",
+        "Explain how the lab applies Rails Configuration and Environments and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails Configuration and Environments' on a prepared training sample through this task: Configure secure dev, test, and production environments.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure secure dev, test, and production environments",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (development/test/production; environment variables; credentials/secret key base; initializers; application/database/logging config; time zone/locale; feature flags; external services) and demonstrate the starting sample for: Configure secure dev, test, and production environments",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure secure dev, test, and production environments",
+          "evidence": "Participant submission for 'Rails Configuration and Environments': Configure secure dev, test, and production environments. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure secure dev, test, and production environments' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure secure dev, test, and production environments. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (development/test/production; environment variables; credentials/secret key base; initializers; application/database/logging config; time zone/locale; feature flags; external services). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "Logging, Monitoring and Debugging",
+      "subtopics": [
+        "Rails logger/log levels",
+        "request/SQL logs",
+        "console/debugger/breakpoints",
+        "exception debugging",
+        "performance logs",
+        "monitoring/metrics",
+        "error tracking",
+        "health checks"
+      ],
+      "tools": [
+        "Rails Logger",
+        "Ruby Debugger",
+        "New Relic"
+      ],
+      "lab_task": "Add logging, health checks, and production diagnostics",
+      "deliverable": "Participant submission for 'Logging, Monitoring and Debugging': Add logging, health checks, and production diagnostics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add logging, health checks, and production diagnostics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rails logger/log levels; request/SQL logs; console/debugger/breakpoints; exception debugging; performance logs; monitoring/metrics; error tracking; health checks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Add logging, health checks, and production diagnostics.",
+        "Explain how the lab applies Logging, Monitoring and Debugging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Logging, Monitoring and Debugging' on a prepared training sample through this task: Add logging, health checks, and production diagnostics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add logging, health checks, and production diagnostics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Rails logger/log levels; request/SQL logs; console/debugger/breakpoints; exception debugging; performance logs; monitoring/metrics; error tracking; health checks) and demonstrate the starting sample for: Add logging, health checks, and production diagnostics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add logging, health checks, and production diagnostics",
+          "evidence": "Participant submission for 'Logging, Monitoring and Debugging': Add logging, health checks, and production diagnostics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add logging, health checks, and production diagnostics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add logging, health checks, and production diagnostics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rails logger/log levels; request/SQL logs; console/debugger/breakpoints; exception debugging; performance logs; monitoring/metrics; error tracking; health checks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Rails Performance Optimization",
+      "subtopics": [
+        "profiling",
+        "database bottlenecks",
+        "indexes/cache/jobs",
+        "memory/allocations",
+        "response optimization",
+        "pagination/batches",
+        "pooling",
+        "assets/HTTP cache",
+        "slow queries",
+        "application servers"
+      ],
+      "tools": [
+        "Rails",
+        "PostgreSQL",
+        "Redis",
+        "New Relic"
+      ],
+      "lab_task": "Profile and optimize a Rails endpoint",
+      "deliverable": "Participant submission for 'Rails Performance Optimization': Profile and optimize a Rails endpoint. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize a Rails endpoint. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (profiling; database bottlenecks; indexes/cache/jobs; memory/allocations; response optimization; pagination/batches; pooling; assets/HTTP cache; slow queries; application servers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize a Rails endpoint.",
+        "Explain how the lab applies Rails Performance Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails Performance Optimization' on a prepared training sample through this task: Profile and optimize a Rails endpoint.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize a Rails endpoint",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (profiling; database bottlenecks; indexes/cache/jobs; memory/allocations; response optimization; pagination/batches; pooling; assets/HTTP cache; slow queries; application servers) and demonstrate the starting sample for: Profile and optimize a Rails endpoint",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize a Rails endpoint",
+          "evidence": "Participant submission for 'Rails Performance Optimization': Profile and optimize a Rails endpoint. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize a Rails endpoint' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize a Rails endpoint. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (profiling; database bottlenecks; indexes/cache/jobs; memory/allocations; response optimization; pagination/batches; pooling; assets/HTTP cache; slow queries; application servers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "Service Objects and Application Architecture",
+      "subtopics": [
+        "fat model/controller",
+        "service/query/form/policy objects",
+        "presenters/decorators",
+        "repository awareness",
+        "domain separation",
+        "dependency injection",
+        "SOLID",
+        "modular apps/bounded contexts"
+      ],
+      "tools": [
+        "Ruby on Rails"
+      ],
+      "lab_task": "Refactor complex behavior into service and query objects",
+      "deliverable": "Participant submission for 'Service Objects and Application Architecture': Refactor complex behavior into service and query objects. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Refactor complex behavior into service and query objects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (fat model/controller; service/query/form/policy objects; presenters/decorators; repository awareness; domain separation; dependency injection; SOLID; modular apps/bounded contexts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Refactor complex behavior into service and query objects.",
+        "Explain how the lab applies Service Objects and Application Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Service Objects and Application Architecture' on a prepared training sample through this task: Refactor complex behavior into service and query objects.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Refactor complex behavior into service and query objects",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (fat model/controller; service/query/form/policy objects; presenters/decorators; repository awareness; domain separation; dependency injection; SOLID; modular apps/bounded contexts) and demonstrate the starting sample for: Refactor complex behavior into service and query objects",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Refactor complex behavior into service and query objects",
+          "evidence": "Participant submission for 'Service Objects and Application Architecture': Refactor complex behavior into service and query objects. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Refactor complex behavior into service and query objects' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Refactor complex behavior into service and query objects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (fat model/controller; service/query/form/policy objects; presenters/decorators; repository awareness; domain separation; dependency injection; SOLID; modular apps/bounded contexts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 29,
+      "topic": "Rails Engines and Modular Applications",
+      "subtopics": [
+        "engines",
+        "mountable/isolated engines",
+        "engine routes/models/controllers/migrations",
+        "shared functionality",
+        "gem modularity",
+        "monolith modularization",
+        "engine tests"
+      ],
+      "tools": [
+        "Ruby on Rails",
+        "RubyGems"
+      ],
+      "lab_task": "Create and mount a reusable Rails Engine",
+      "deliverable": "Participant submission for 'Rails Engines and Modular Applications': Create and mount a reusable Rails Engine. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create and mount a reusable Rails Engine. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (engines; mountable/isolated engines; engine routes/models/controllers/migrations; shared functionality; gem modularity; monolith modularization; engine tests). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create and mount a reusable Rails Engine.",
+        "Explain how the lab applies Rails Engines and Modular Applications and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rails Engines and Modular Applications' on a prepared training sample through this task: Create and mount a reusable Rails Engine.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create and mount a reusable Rails Engine",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (engines; mountable/isolated engines; engine routes/models/controllers/migrations; shared functionality; gem modularity; monolith modularization; engine tests) and demonstrate the starting sample for: Create and mount a reusable Rails Engine",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create and mount a reusable Rails Engine",
+          "evidence": "Participant submission for 'Rails Engines and Modular Applications': Create and mount a reusable Rails Engine. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create and mount a reusable Rails Engine' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create and mount a reusable Rails Engine. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (engines; mountable/isolated engines; engine routes/models/controllers/migrations; shared functionality; gem modularity; monolith modularization; engine tests). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 30,
+      "topic": "Docker and Containerization",
+      "subtopics": [
+        "containers/images",
+        "Dockerfile",
+        "Rails/Bundler in Docker",
+        "PostgreSQL/Redis containers",
+        "Docker Compose",
+        "variables/volumes/networks",
+        "dev setup",
+        "production images",
+        "security"
+      ],
+      "tools": [
+        "Docker",
+        "Docker Compose",
+        "PostgreSQL",
+        "Redis"
+      ],
+      "lab_task": "Containerize Rails with PostgreSQL and Redis",
+      "deliverable": "Participant submission for 'Docker and Containerization': Containerize Rails with PostgreSQL and Redis. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Containerize Rails with PostgreSQL and Redis. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (containers/images; Dockerfile; Rails/Bundler in Docker; PostgreSQL/Redis containers; Docker Compose; variables/volumes/networks; dev setup; production images; security). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Containerize Rails with PostgreSQL and Redis.",
+        "Explain how the lab applies Docker and Containerization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Docker and Containerization' on a prepared training sample through this task: Containerize Rails with PostgreSQL and Redis.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Containerize Rails with PostgreSQL and Redis",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (containers/images; Dockerfile; Rails/Bundler in Docker; PostgreSQL/Redis containers; Docker Compose; variables/volumes/networks; dev setup; production images; security) and demonstrate the starting sample for: Containerize Rails with PostgreSQL and Redis",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Containerize Rails with PostgreSQL and Redis",
+          "evidence": "Participant submission for 'Docker and Containerization': Containerize Rails with PostgreSQL and Redis. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Containerize Rails with PostgreSQL and Redis' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Containerize Rails with PostgreSQL and Redis. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (containers/images; Dockerfile; Rails/Bundler in Docker; PostgreSQL/Redis containers; Docker Compose; variables/volumes/networks; dev setup; production images; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 31,
+      "topic": "CI/CD",
+      "subtopics": [
+        "CI/CD",
+        "GitHub Actions",
+        "Bundler cache",
+        "automated RSpec",
+        "security scans/linting",
+        "database in CI",
+        "secrets",
+        "deployment pipelines",
+        "rollback",
+        "branch protection"
+      ],
+      "tools": [
+        "GitHub Actions",
+        "Git",
+        "GitHub",
+        "RSpec",
+        "Brakeman"
+      ],
+      "lab_task": "Build a Rails test and security CI pipeline",
+      "deliverable": "Participant submission for 'CI/CD': Build a Rails test and security CI pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a Rails test and security CI pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CI/CD; GitHub Actions; Bundler cache; automated RSpec; security scans/linting; database in CI; secrets; deployment pipelines; rollback; branch protection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a Rails test and security CI pipeline.",
+        "Explain how the lab applies CI/CD and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CI/CD' on a prepared training sample through this task: Build a Rails test and security CI pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a Rails test and security CI pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CI/CD; GitHub Actions; Bundler cache; automated RSpec; security scans/linting; database in CI; secrets; deployment pipelines; rollback; branch protection) and demonstrate the starting sample for: Build a Rails test and security CI pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a Rails test and security CI pipeline",
+          "evidence": "Participant submission for 'CI/CD': Build a Rails test and security CI pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a Rails test and security CI pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a Rails test and security CI pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CI/CD; GitHub Actions; Bundler cache; automated RSpec; security scans/linting; database in CI; secrets; deployment pipelines; rollback; branch protection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 32,
+      "topic": "Production Deployment",
+      "subtopics": [
+        "Puma",
+        "Nginx awareness",
+        "migrations/assets",
+        "variables/SSL",
+        "workers/Redis",
+        "health checks",
+        "zero-downtime/cloud/backups/rollback"
+      ],
+      "tools": [
+        "Puma",
+        "Nginx",
+        "Docker",
+        "PostgreSQL",
+        "Redis"
+      ],
+      "lab_task": "Prepare a production Rails deployment architecture",
+      "deliverable": "Participant submission for 'Production Deployment': Prepare a production Rails deployment architecture. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Prepare a production Rails deployment architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Puma; Nginx awareness; migrations/assets; variables/SSL; workers/Redis; health checks; zero-downtime/cloud/backups/rollback). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Prepare a production Rails deployment architecture.",
+        "Explain how the lab applies Production Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Production Deployment' on a prepared training sample through this task: Prepare a production Rails deployment architecture.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Prepare a production Rails deployment architecture",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Puma; Nginx awareness; migrations/assets; variables/SSL; workers/Redis; health checks; zero-downtime/cloud/backups/rollback) and demonstrate the starting sample for: Prepare a production Rails deployment architecture",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Prepare a production Rails deployment architecture",
+          "evidence": "Participant submission for 'Production Deployment': Prepare a production Rails deployment architecture. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Prepare a production Rails deployment architecture' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Prepare a production Rails deployment architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Puma; Nginx awareness; migrations/assets; variables/SSL; workers/Redis; health checks; zero-downtime/cloud/backups/rollback). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 33,
+      "topic": "Advanced API Architecture",
+      "subtopics": [
+        "versioning",
+        "JWT/OAuth awareness",
+        "rate limiting/throttling",
+        "caching/idempotency",
+        "pagination/filter/search",
+        "error standards",
+        "observability",
+        "webhooks",
+        "third-party APIs",
+        "security"
+      ],
+      "tools": [
+        "Ruby on Rails",
+        "Redis",
+        "Postman"
+      ],
+      "lab_task": "Build a versioned API with rate limits and webhook support",
+      "deliverable": "Participant submission for 'Advanced API Architecture': Build a versioned API with rate limits and webhook support. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a versioned API with rate limits and webhook support. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (versioning; JWT/OAuth awareness; rate limiting/throttling; caching/idempotency; pagination/filter/search; error standards; observability; webhooks; third-party APIs; security). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a versioned API with rate limits and webhook support.",
+        "Explain how the lab applies Advanced API Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced API Architecture' on a prepared training sample through this task: Build a versioned API with rate limits and webhook support.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a versioned API with rate limits and webhook support",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (versioning; JWT/OAuth awareness; rate limiting/throttling; caching/idempotency; pagination/filter/search; error standards; observability; webhooks; third-party APIs; security) and demonstrate the starting sample for: Build a versioned API with rate limits and webhook support",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a versioned API with rate limits and webhook support",
+          "evidence": "Participant submission for 'Advanced API Architecture': Build a versioned API with rate limits and webhook support. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a versioned API with rate limits and webhook support' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a versioned API with rate limits and webhook support. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (versioning; JWT/OAuth awareness; rate limiting/throttling; caching/idempotency; pagination/filter/search; error standards; observability; webhooks; third-party APIs; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 34,
+      "topic": "Advanced Rails Concepts",
+      "subtopics": [
+        "Active Support",
+        "concerns",
+        "custom middleware",
+        "Rack",
+        "middleware stack",
+        "generators awareness",
+        "Zeitwerk",
+        "custom validators/types",
+        "connection pools",
+        "multiple databases/read replicas/sharding awareness"
+      ],
+      "tools": [
+        "Ruby on Rails",
+        "Rack"
+      ],
+      "lab_task": "Create custom middleware and reusable Rails concerns",
+      "deliverable": "Participant submission for 'Advanced Rails Concepts': Create custom middleware and reusable Rails concerns. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create custom middleware and reusable Rails concerns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Active Support; concerns; custom middleware; Rack; middleware stack; generators awareness; Zeitwerk; custom validators/types; connection pools; multiple databases/read replicas/sharding awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create custom middleware and reusable Rails concerns.",
+        "Explain how the lab applies Advanced Rails Concepts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Rails Concepts' on a prepared training sample through this task: Create custom middleware and reusable Rails concerns.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create custom middleware and reusable Rails concerns",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Active Support; concerns; custom middleware; Rack; middleware stack; generators awareness; Zeitwerk; custom validators/types; connection pools; multiple databases/read replicas/sharding awareness) and demonstrate the starting sample for: Create custom middleware and reusable Rails concerns",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create custom middleware and reusable Rails concerns",
+          "evidence": "Participant submission for 'Advanced Rails Concepts': Create custom middleware and reusable Rails concerns. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create custom middleware and reusable Rails concerns' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create custom middleware and reusable Rails concerns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Active Support; concerns; custom middleware; Rack; middleware stack; generators awareness; Zeitwerk; custom validators/types; connection pools; multiple databases/read replicas/sharding awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 35,
+      "topic": "Ruby on Rails Capstone Project",
+      "subtopics": [
+        "requirements/architecture/database",
+        "models/associations",
+        "auth/authz",
+        "CRUD/API",
+        "Hotwire/jobs/Redis",
+        "uploads/mail/cache/realtime",
+        "tests/security/performance",
+        "Docker/CI-CD",
+        "deployment/documentation"
+      ],
+      "tools": [
+        "Ruby on Rails",
+        "PostgreSQL",
+        "Redis",
+        "Sidekiq",
+        "Hotwire",
+        "RSpec",
+        "Docker",
+        "GitHub Actions"
+      ],
+      "lab_task": "Design, build, secure, test, and deploy a production-style Rails application",
+      "deliverable": "Participant submission for 'Ruby on Rails Capstone Project': Design, build, secure, test, and deploy a production-style Rails application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design, build, secure, test, and deploy a production-style Rails application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements/architecture/database; models/associations; auth/authz; CRUD/API; Hotwire/jobs/Redis; uploads/mail/cache/realtime; tests/security/performance; Docker/CI-CD; deployment/documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design, build, secure, test, and deploy a production-style Rails application.",
+        "Explain how the lab applies Ruby on Rails Capstone Project and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Ruby on Rails Capstone Project' on a prepared training sample through this task: Design, build, secure, test, and deploy a production-style Rails application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design, build, secure, test, and deploy a production-style Rails application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements/architecture/database; models/associations; auth/authz; CRUD/API; Hotwire/jobs/Redis; uploads/mail/cache/realtime; tests/security/performance; Docker/CI-CD; deployment/documentation) and demonstrate the starting sample for: Design, build, secure, test, and deploy a production-style Rails application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design, build, secure, test, and deploy a production-style Rails application",
+          "evidence": "Participant submission for 'Ruby on Rails Capstone Project': Design, build, secure, test, and deploy a production-style Rails application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design, build, secure, test, and deploy a production-style Rails application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design, build, secure, test, and deploy a production-style Rails application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements/architecture/database; models/associations; auth/authz; CRUD/API; Hotwire/jobs/Redis; uploads/mail/cache/realtime; tests/security/performance; Docker/CI-CD; deployment/documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

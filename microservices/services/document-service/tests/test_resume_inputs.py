@@ -6,6 +6,13 @@ from app.routes import resume
 from app.routes.resume import _detected_skills_from_text, _regex_profile
 
 
+def test_provider_score_cannot_inflate_profile_rank():
+    normal = resume._normalise_profile({'name': 'Asha Rao'}, 'Asha Rao\nPython trainer')
+    inflated = resume._normalise_profile({'name': 'Asha Rao', 'profile_score': 100000}, 'Asha Rao\nPython trainer')
+    assert normal['resume_rank_score'] == inflated['resume_rank_score']
+    assert 0 <= inflated['trainer_rating'] <= 5
+
+
 def test_ai_invented_linkedin_is_removed():
     result = resume._normalise_profile({
         'name': 'Asha Rao', 'linkedin': 'https://linkedin.com/in/invented-asha',

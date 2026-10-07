@@ -354,6 +354,27 @@ async def dashboard_analytics(
         async for r in db["email_logs"].aggregate(pipeline_email)
     ]
 
+    pipeline_replies: List[Dict[str, Any]] = [
+        {"$match": _outbound_email_query({"reply_received": True, **_event_date_query("reply_received_at", start, end)})},
+        {"$addFields": {"bucket_date": {"$ifNull": ["$reply_received_at", "$created_at"]}}},
+        {"$group": {
+            "_id": {
+                "year": {"$year": "$bucket_date"},
+                "month": {"$month": "$bucket_date"},
+                "day": {"$dayOfMonth": "$bucket_date"},
+            },
+            "count": {"$sum": 1},
+        }},
+        {"$sort": {"_id.year": 1, "_id.month": 1, "_id.day": 1}},
+    ]
+    reply_series = [
+        {
+            "date": f"{r['_id']['year']}-{r['_id']['month']:02d}-{r['_id']['day']:02d}",
+            "replies": r["count"],
+        }
+        async for r in db["email_logs"].aggregate(pipeline_replies)
+    ]
+
     # Requirements by status
     status_pipeline: List[Dict[str, Any]] = [
         {"$group": {"_id": "$status", "count": {"$sum": 1}}},
@@ -549,6 +570,7 @@ async def dashboard_analytics(
         "expenses": expenses,
         "requirements_over_time": req_series,
         "emails_over_time": email_series,
+        "email_replies_over_time": reply_series,
         "requirements_by_status": req_by_status,
         "trainer_pipeline_stages": trainer_stages,
     }

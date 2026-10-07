@@ -1,5 +1,7 @@
 """REST endpoints to inspect and manually trigger Celery tasks."""
-from fastapi import APIRouter
+import hmac
+
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
 
@@ -10,6 +12,22 @@ class TriggerResponse(BaseModel):
     task_id: str
     task_name: str
     status: str
+    dry_run: Optional[bool] = None
+
+
+@router.post("/agent-interview-notices", response_model=TriggerResponse)
+async def trigger_agent_interview_notices(request: Request):
+    """Internal-only trigger for the Core API's validated reminder decisions."""
+    from app.config import get_settings
+    token = get_settings().INTERNAL_SERVICE_TOKEN
+    supplied = request.headers.get("X-Internal-Service-Token", "")
+    if not token:
+        raise HTTPException(503, "Internal service authentication is not configured")
+    if not hmac.compare_digest(supplied, token):
+        raise HTTPException(403, "Invalid internal service token")
+    from app.tasks.meet_start_notices import send_due_start_notices
+    task = send_due_start_notices.delay()
+    return TriggerResponse(task_id=task.id, task_name="send_due_start_notices", status="queued")
 
 
 @router.post("/inbox-poll", response_model=TriggerResponse)
@@ -17,6 +35,13 @@ async def trigger_inbox_poll():
     from app.tasks.inbox_poll import poll_inbox
     task = poll_inbox.delay()
     return TriggerResponse(task_id=task.id, task_name="poll_inbox", status="queued")
+
+
+@router.post("/agent-orchestrator-dry-run", response_model=TriggerResponse)
+async def trigger_agent_orchestrator_dry_run():
+    from app.tasks.agent_orchestrator import run_agent_orchestrator
+    task = run_agent_orchestrator.delay(dry_run=True)
+    return TriggerResponse(task_id=task.id, task_name="run_agent_orchestrator", status="queued", dry_run=True)
 
 
 @router.post("/interview-reminders", response_model=TriggerResponse)
@@ -27,10 +52,10 @@ async def trigger_interview_reminders():
 
 
 @router.post("/meet-start-notices", response_model=TriggerResponse)
-async def trigger_meet_start_notices():
+async def trigger_meet_start_notices(dry_run: bool = False):
     from app.tasks.meet_start_notices import send_due_start_notices
-    task = send_due_start_notices.delay()
-    return TriggerResponse(task_id=task.id, task_name="send_due_start_notices", status="queued")
+    task = send_due_start_notices.delay(dry_run=dry_run)
+    return TriggerResponse(task_id=task.id, task_name="send_due_start_notices", status="queued", dry_run=dry_run)
 
 
 @router.post("/interview-no-show-checks", response_model=TriggerResponse)

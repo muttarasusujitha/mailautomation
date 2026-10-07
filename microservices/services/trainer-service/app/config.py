@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+    TOC_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    AI_PROVIDER: str = "openai"
+    OLLAMA_URL: str = "http://localhost:11434/api/generate"
+    OLLAMA_MODEL: str = "qwen3:8b"
+    OLLAMA_TOC_TIMEOUT_SECONDS: int = 300
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 

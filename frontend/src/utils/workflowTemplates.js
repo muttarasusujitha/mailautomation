@@ -123,7 +123,7 @@ export function mailTrainingConfirmedTemplate(trainer, req, contactName, contact
     'Please acknowledge the arrangements and report any outstanding prerequisites before delivery.',
   ])
 }
-export function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
+export function trainerCommercialNegotiationTemplate(trainer, req, _quote, _target) {
   return compose(trainer, `Commercial Discussion - ${domain(req)}`, [
     'Thank you for your response. Clahan would like to offer the following engagement amount:',
     trainerOffer(req, trainer) || 'Commercial amount awaiting confirmation.',

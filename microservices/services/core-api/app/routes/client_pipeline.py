@@ -229,6 +229,7 @@ async def get_client_pipeline(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     limit: Optional[int] = Query(None, ge=1, le=200),
+    include_timeline: bool = True,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """
@@ -293,7 +294,10 @@ async def get_client_pipeline(
         invoice = await db["invoices"].find_one(
             {"requirement_id": req_id}, {"_id": 0}, sort=[("created_at", -1)]
         ) or {}
-        timeline = await _client_timeline(db, req_id, req, client_po, invoice)
+        timeline = (
+            await _client_timeline(db, req_id, req, client_po, invoice)
+            if include_timeline else {"messages": [], "last_preview": ""}
+        )
 
         # Summarise pipeline stage counts
         stage_counts: Dict[str, int] = {}

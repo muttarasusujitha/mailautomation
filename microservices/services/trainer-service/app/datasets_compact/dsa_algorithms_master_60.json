@@ -5,39 +5,1918 @@
   "program_title": "Data Structures, Algorithms and Coding Interview Mastery",
   "level": "Beginner to Advanced",
   "mode": "Online",
-  "aliases": ["DSA", "Data Structures and Algorithms", "Algorithms", "DSA and Algorithms", "Coding Interview Preparation", "Problem Solving"],
-  "tools": ["VS Code", "Git", "Online Judge", "Jira"],
-  "certifications": ["DSA and Algorithms Completion Certificate"],
+  "aliases": [
+    "DSA",
+    "Data Structures and Algorithms",
+    "Algorithms",
+    "DSA and Algorithms",
+    "Coding Interview Preparation",
+    "Problem Solving"
+  ],
+  "tools": [
+    "VS Code",
+    "Git",
+    "Online Judge",
+    "Jira"
+  ],
+  "certifications": [
+    "DSA and Algorithms Completion Certificate"
+  ],
   "days": [
-    {"day": 1, "topic": "Algorithm Fundamentals and Complexity Analysis", "subtopics": ["algorithms", "pseudocode", "flowcharts", "algorithm correctness", "time complexity", "space complexity", "Big-O, Big-Theta and Big-Omega", "best, average and worst case"], "lab_task": "Write pseudocode and analyze the complexity of foundational algorithms"},
-    {"day": 2, "topic": "Arrays and Array Operations", "subtopics": ["array traversal", "insertion", "deletion", "updating", "rotation", "reversal", "duplicates", "maximum/minimum"], "lab_task": "Implement array operations and solve rotation, reverse, duplicate, and min/max problems"},
-    {"day": 3, "topic": "Array Patterns, Matrices and Strings", "subtopics": ["subarrays", "two-dimensional arrays", "matrix traversal", "string traversal", "palindrome", "anagram", "substring", "frequency problems"], "lab_task": "Solve matrix, palindrome, anagram, and subarray exercises"},
-    {"day": 4, "topic": "Searching Algorithms", "subtopics": ["linear search", "binary search", "first occurrence", "last occurrence", "lower bound", "upper bound", "binary search on answer", "search complexity"], "lab_task": "Implement binary-search variations and solve sorted-data problems"},
-    {"day": 5, "topic": "Sorting Fundamentals and Elementary Sorts", "subtopics": ["stability", "in-place/out-of-place", "comparison/non-comparison sorting", "bubble sort", "selection sort", "insertion sort", "sorting use cases", "complexity comparison"], "lab_task": "Implement and compare elementary sorting algorithms"},
-    {"day": 6, "topic": "Divide and Conquer Sorting", "subtopics": ["divide and conquer", "merge sort", "quick sort", "partitioning", "recursion trees", "heap sort", "sorting tradeoffs", "sort optimization"], "lab_task": "Implement merge, quick, and heap sort with complexity analysis"},
-    {"day": 7, "topic": "Non-Comparison Sorting and Recursion", "subtopics": ["counting sort", "radix sort", "bucket sort", "recursion base cases", "recursive calls", "recursion trees", "tail recursion", "divide-and-conquer patterns"], "lab_task": "Implement counting/radix sort and recursive problem solutions"},
-    {"day": 8, "topic": "Hashing and Hash Tables", "subtopics": ["hash functions", "hash tables", "collisions", "chaining", "open addressing", "frequency maps", "duplicate detection", "Two Sum pattern"], "lab_task": "Build hash-table exercises and solve frequency-based interview problems"},
-    {"day": 9, "topic": "Linked Lists", "subtopics": ["linked-list fundamentals", "singly linked list", "doubly linked list", "circular linked list", "insert/delete", "reverse list", "middle node", "cycle detection"], "lab_task": "Implement all linked-list variants and solve reversal/cycle problems"},
-    {"day": 10, "topic": "Stacks, Queues and Deques", "subtopics": ["stack", "balanced parentheses", "expression evaluation", "next greater element", "queue", "circular queue", "deque", "priority queue"], "lab_task": "Implement stack/queue structures and solve expression and scheduling problems"},
-    {"day": 11, "topic": "Monotonic Structures and Problem Patterns", "subtopics": ["monotonic stack", "monotonic queue", "sliding window maximum", "histogram problems", "next greater/smaller", "two pointers", "fast and slow pointers", "prefix sum"], "lab_task": "Solve monotonic-stack, window, and pointer-pattern problems"},
-    {"day": 12, "topic": "Trees and Binary Trees", "subtopics": ["tree fundamentals", "binary trees", "node relationships", "inorder", "preorder", "postorder", "level-order traversal", "recursive and iterative traversal"], "lab_task": "Construct binary trees and implement every traversal"},
-    {"day": 13, "topic": "Binary Search Trees and Tree Problems", "subtopics": ["BST insert/search/delete", "height and depth", "diameter", "balanced trees", "lowest common ancestor", "tree views", "path sums", "advanced tree problems"], "lab_task": "Implement BST operations and solve height, diameter, and LCA questions"},
-    {"day": 14, "topic": "Heaps, Priority Queues and Tries", "subtopics": ["heap", "min heap", "max heap", "heapify", "Priority Queue", "top K elements", "Trie/prefix tree", "autocomplete/prefix search"], "lab_task": "Build heap and trie operations and solve top-K/prefix queries"},
-    {"day": 15, "topic": "Graph Fundamentals and Representation", "subtopics": ["vertices and edges", "graph types", "directed/undirected graphs", "weighted graphs", "adjacency matrix", "adjacency list", "graph construction", "graph complexity"], "lab_task": "Model graphs using adjacency matrices and adjacency lists"},
-    {"day": 16, "topic": "Graph Traversal and Connectivity", "subtopics": ["Breadth-First Search", "Depth-First Search", "connected components", "cycle detection", "bipartite check", "topological sorting", "course schedule", "grid traversal"], "lab_task": "Solve BFS/DFS, cycle, connected-component, and dependency problems"},
-    {"day": 17, "topic": "Shortest Paths and Advanced Graphs", "subtopics": ["Dijkstra algorithm", "Bellman-Ford algorithm", "Floyd-Warshall algorithm", "negative cycles", "all-pairs paths", "state graphs", "advanced graph problems", "algorithm selection"], "lab_task": "Implement and compare shortest-path algorithms"},
-    {"day": 18, "topic": "Minimum Spanning Trees and Union-Find", "subtopics": ["minimum spanning tree", "Prim's algorithm", "Kruskal's algorithm", "Disjoint Set/Union-Find", "path compression", "union by rank", "network design", "MST complexity"], "lab_task": "Solve MST and connectivity problems with union-find"},
-    {"day": 19, "topic": "Greedy Algorithms and Intervals", "subtopics": ["greedy algorithms", "activity selection", "interval problems", "merge intervals", "meeting rooms", "fractional knapsack", "job sequencing", "greedy correctness"], "lab_task": "Solve activity, interval, scheduling, and knapsack exercises"},
-    {"day": 20, "topic": "Dynamic Programming Fundamentals", "subtopics": ["DP state design", "memoization", "tabulation", "Fibonacci using DP", "climbing stairs", "overlapping subproblems", "optimal substructure", "space optimization"], "lab_task": "Convert recursive solutions into memoized and tabulated dynamic programs"},
-    {"day": 21, "topic": "Dynamic Programming Problem Families", "subtopics": ["coin change", "0/1 knapsack", "Longest Common Subsequence", "Longest Increasing Subsequence", "grid DP", "sequence DP", "partition DP", "DP optimization"], "lab_task": "Solve coin change, knapsack, LCS, LIS, and grid DP problems"},
-    {"day": 22, "topic": "Backtracking", "subtopics": ["backtracking framework", "subsets", "permutations", "combinations", "N-Queens", "Sudoku", "maze/path finding", "pruning"], "lab_task": "Build subset, permutation, N-Queens, Sudoku, and maze solvers"},
-    {"day": 23, "topic": "Bit Manipulation", "subtopics": ["binary representation", "bitwise AND, OR, XOR and NOT", "left/right shift", "set/clear/toggle/check bits", "bit masks", "power of two", "single number", "subset masks"], "lab_task": "Solve XOR, bit-mask, and bit-counting challenges"},
-    {"day": 24, "topic": "String Pattern Matching", "subtopics": ["string pattern matching", "naive pattern matching", "KMP algorithm", "LPS array", "Rabin-Karp algorithm", "rolling hash", "substring search", "string optimization"], "lab_task": "Implement naive, KMP, and Rabin-Karp pattern search"},
-    {"day": 25, "topic": "Matrix, Interval and Optimization Algorithms", "subtopics": ["matrix algorithms", "spiral traversal", "rotate matrix", "matrix search", "interval algorithms", "sweep-line concepts", "algorithm optimization", "memory versus time tradeoffs"], "lab_task": "Solve matrix transformations, interval merging, and optimization cases"},
-    {"day": 26, "topic": "DSA Problem-Solving Patterns", "subtopics": ["two-pointer technique", "sliding window", "prefix sum", "fast/slow pointer", "monotonic patterns", "binary search on answer", "pattern recognition", "edge-case analysis"], "lab_task": "Classify and solve a mixed set of pattern-based problems"},
-    {"day": 27, "topic": "Advanced Trees and Graphs", "subtopics": ["tree serialization", "tries in practice", "advanced BST problems", "graph bridges/articulation concepts", "multi-source BFS", "shortest path variations", "network flow awareness", "advanced review"], "lab_task": "Solve advanced tree and graph interview challenges"},
-    {"day": 28, "topic": "Coding Interview Strategy", "subtopics": ["problem clarification", "brute force to optimal", "complexity narration", "writing clean code", "testing", "debugging", "communication", "common interview traps"], "lab_task": "Complete timed coding rounds and explain solution tradeoffs"},
-    {"day": 29, "topic": "DSA Coding Practice and Mock Interviews", "subtopics": ["arrays and strings review", "linked list review", "tree/graph review", "DP review", "mixed medium/hard problems", "mock interview", "code review", "performance improvement"], "lab_task": "Run a full mock interview with feedback and refactoring"},
-    {"day": 30, "topic": "DSA Capstone and Interview Readiness", "subtopics": ["algorithm portfolio", "problem-solving revision", "project/capstone", "systematic revision plan", "coding assessment", "interview questions", "career preparation", "final evaluation"], "lab_task": "Complete a DSA capstone and final coding/interview assessment"}
-  ]
+    {
+      "day": 1,
+      "topic": "Algorithm Fundamentals and Complexity Analysis",
+      "subtopics": [
+        "algorithms",
+        "pseudocode",
+        "flowcharts",
+        "algorithm correctness",
+        "time complexity",
+        "space complexity",
+        "Big-O, Big-Theta and Big-Omega",
+        "best, average and worst case"
+      ],
+      "lab_task": "Write pseudocode and analyze the complexity of foundational algorithms",
+      "deliverable": "Participant submission for 'Algorithm Fundamentals and Complexity Analysis': Write pseudocode and analyze the complexity of foundational algorithms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write pseudocode and analyze the complexity of foundational algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (algorithms; pseudocode; flowcharts; algorithm correctness; time complexity; space complexity; Big-O, Big-Theta and Big-Omega; best, average and worst case). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write pseudocode and analyze the complexity of foundational algorithms.",
+        "Explain how the lab applies Algorithm Fundamentals and Complexity Analysis and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Algorithm Fundamentals and Complexity Analysis' on a prepared training sample through this task: Write pseudocode and analyze the complexity of foundational algorithms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write pseudocode and analyze the complexity of foundational algorithms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (algorithms; pseudocode; flowcharts; algorithm correctness; time complexity; space complexity; Big-O, Big-Theta and Big-Omega; best, average and worst case) and demonstrate the starting sample for: Write pseudocode and analyze the complexity of foundational algorithms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write pseudocode and analyze the complexity of foundational algorithms",
+          "evidence": "Participant submission for 'Algorithm Fundamentals and Complexity Analysis': Write pseudocode and analyze the complexity of foundational algorithms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write pseudocode and analyze the complexity of foundational algorithms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write pseudocode and analyze the complexity of foundational algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (algorithms; pseudocode; flowcharts; algorithm correctness; time complexity; space complexity; Big-O, Big-Theta and Big-Omega; best, average and worst case). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Arrays and Array Operations",
+      "subtopics": [
+        "array traversal",
+        "insertion",
+        "deletion",
+        "updating",
+        "rotation",
+        "reversal",
+        "duplicates",
+        "maximum/minimum"
+      ],
+      "lab_task": "Implement array operations and solve rotation, reverse, duplicate, and min/max problems",
+      "deliverable": "Participant submission for 'Arrays and Array Operations': Implement array operations and solve rotation, reverse, duplicate, and min/max problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement array operations and solve rotation, reverse, duplicate, and min/max problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (array traversal; insertion; deletion; updating; rotation; reversal; duplicates; maximum/minimum). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement array operations and solve rotation, reverse, duplicate, and min/max problems.",
+        "Explain how the lab applies Arrays and Array Operations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Arrays and Array Operations' on a prepared training sample through this task: Implement array operations and solve rotation, reverse, duplicate, and min/max problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement array operations and solve rotation, reverse, duplicate, and min/max problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (array traversal; insertion; deletion; updating; rotation; reversal; duplicates; maximum/minimum) and demonstrate the starting sample for: Implement array operations and solve rotation, reverse, duplicate, and min/max problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement array operations and solve rotation, reverse, duplicate, and min/max problems",
+          "evidence": "Participant submission for 'Arrays and Array Operations': Implement array operations and solve rotation, reverse, duplicate, and min/max problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement array operations and solve rotation, reverse, duplicate, and min/max problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement array operations and solve rotation, reverse, duplicate, and min/max problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (array traversal; insertion; deletion; updating; rotation; reversal; duplicates; maximum/minimum). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Array Patterns, Matrices and Strings",
+      "subtopics": [
+        "subarrays",
+        "two-dimensional arrays",
+        "matrix traversal",
+        "string traversal",
+        "palindrome",
+        "anagram",
+        "substring",
+        "frequency problems"
+      ],
+      "lab_task": "Solve matrix, palindrome, anagram, and subarray exercises",
+      "deliverable": "Participant submission for 'Array Patterns, Matrices and Strings': Solve matrix, palindrome, anagram, and subarray exercises. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve matrix, palindrome, anagram, and subarray exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (subarrays; two-dimensional arrays; matrix traversal; string traversal; palindrome; anagram; substring; frequency problems). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve matrix, palindrome, anagram, and subarray exercises.",
+        "Explain how the lab applies Array Patterns, Matrices and Strings and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Array Patterns, Matrices and Strings' on a prepared training sample through this task: Solve matrix, palindrome, anagram, and subarray exercises.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve matrix, palindrome, anagram, and subarray exercises",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (subarrays; two-dimensional arrays; matrix traversal; string traversal; palindrome; anagram; substring; frequency problems) and demonstrate the starting sample for: Solve matrix, palindrome, anagram, and subarray exercises",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve matrix, palindrome, anagram, and subarray exercises",
+          "evidence": "Participant submission for 'Array Patterns, Matrices and Strings': Solve matrix, palindrome, anagram, and subarray exercises. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve matrix, palindrome, anagram, and subarray exercises' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve matrix, palindrome, anagram, and subarray exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (subarrays; two-dimensional arrays; matrix traversal; string traversal; palindrome; anagram; substring; frequency problems). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Searching Algorithms",
+      "subtopics": [
+        "linear search",
+        "binary search",
+        "first occurrence",
+        "last occurrence",
+        "lower bound",
+        "upper bound",
+        "binary search on answer",
+        "search complexity"
+      ],
+      "lab_task": "Implement binary-search variations and solve sorted-data problems",
+      "deliverable": "Participant submission for 'Searching Algorithms': Implement binary-search variations and solve sorted-data problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement binary-search variations and solve sorted-data problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (linear search; binary search; first occurrence; last occurrence; lower bound; upper bound; binary search on answer; search complexity). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement binary-search variations and solve sorted-data problems.",
+        "Explain how the lab applies Searching Algorithms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Searching Algorithms' on a prepared training sample through this task: Implement binary-search variations and solve sorted-data problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement binary-search variations and solve sorted-data problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (linear search; binary search; first occurrence; last occurrence; lower bound; upper bound; binary search on answer; search complexity) and demonstrate the starting sample for: Implement binary-search variations and solve sorted-data problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement binary-search variations and solve sorted-data problems",
+          "evidence": "Participant submission for 'Searching Algorithms': Implement binary-search variations and solve sorted-data problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement binary-search variations and solve sorted-data problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement binary-search variations and solve sorted-data problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (linear search; binary search; first occurrence; last occurrence; lower bound; upper bound; binary search on answer; search complexity). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Sorting Fundamentals and Elementary Sorts",
+      "subtopics": [
+        "stability",
+        "in-place/out-of-place",
+        "comparison/non-comparison sorting",
+        "bubble sort",
+        "selection sort",
+        "insertion sort",
+        "sorting use cases",
+        "complexity comparison"
+      ],
+      "lab_task": "Implement and compare elementary sorting algorithms",
+      "deliverable": "Participant submission for 'Sorting Fundamentals and Elementary Sorts': Implement and compare elementary sorting algorithms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement and compare elementary sorting algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stability; in-place/out-of-place; comparison/non-comparison sorting; bubble sort; selection sort; insertion sort; sorting use cases; complexity comparison). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement and compare elementary sorting algorithms.",
+        "Explain how the lab applies Sorting Fundamentals and Elementary Sorts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Sorting Fundamentals and Elementary Sorts' on a prepared training sample through this task: Implement and compare elementary sorting algorithms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement and compare elementary sorting algorithms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (stability; in-place/out-of-place; comparison/non-comparison sorting; bubble sort; selection sort; insertion sort; sorting use cases; complexity comparison) and demonstrate the starting sample for: Implement and compare elementary sorting algorithms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement and compare elementary sorting algorithms",
+          "evidence": "Participant submission for 'Sorting Fundamentals and Elementary Sorts': Implement and compare elementary sorting algorithms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement and compare elementary sorting algorithms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement and compare elementary sorting algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stability; in-place/out-of-place; comparison/non-comparison sorting; bubble sort; selection sort; insertion sort; sorting use cases; complexity comparison). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Divide and Conquer Sorting",
+      "subtopics": [
+        "divide and conquer",
+        "merge sort",
+        "quick sort",
+        "partitioning",
+        "recursion trees",
+        "heap sort",
+        "sorting tradeoffs",
+        "sort optimization"
+      ],
+      "lab_task": "Implement merge, quick, and heap sort with complexity analysis",
+      "deliverable": "Participant submission for 'Divide and Conquer Sorting': Implement merge, quick, and heap sort with complexity analysis. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement merge, quick, and heap sort with complexity analysis. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (divide and conquer; merge sort; quick sort; partitioning; recursion trees; heap sort; sorting tradeoffs; sort optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement merge, quick, and heap sort with complexity analysis.",
+        "Explain how the lab applies Divide and Conquer Sorting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Divide and Conquer Sorting' on a prepared training sample through this task: Implement merge, quick, and heap sort with complexity analysis.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement merge, quick, and heap sort with complexity analysis",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (divide and conquer; merge sort; quick sort; partitioning; recursion trees; heap sort; sorting tradeoffs; sort optimization) and demonstrate the starting sample for: Implement merge, quick, and heap sort with complexity analysis",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement merge, quick, and heap sort with complexity analysis",
+          "evidence": "Participant submission for 'Divide and Conquer Sorting': Implement merge, quick, and heap sort with complexity analysis. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement merge, quick, and heap sort with complexity analysis' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement merge, quick, and heap sort with complexity analysis. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (divide and conquer; merge sort; quick sort; partitioning; recursion trees; heap sort; sorting tradeoffs; sort optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Non-Comparison Sorting and Recursion",
+      "subtopics": [
+        "counting sort",
+        "radix sort",
+        "bucket sort",
+        "recursion base cases",
+        "recursive calls",
+        "recursion trees",
+        "tail recursion",
+        "divide-and-conquer patterns"
+      ],
+      "lab_task": "Implement counting/radix sort and recursive problem solutions",
+      "deliverable": "Participant submission for 'Non-Comparison Sorting and Recursion': Implement counting/radix sort and recursive problem solutions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement counting/radix sort and recursive problem solutions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (counting sort; radix sort; bucket sort; recursion base cases; recursive calls; recursion trees; tail recursion; divide-and-conquer patterns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement counting/radix sort and recursive problem solutions.",
+        "Explain how the lab applies Non-Comparison Sorting and Recursion and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Non-Comparison Sorting and Recursion' on a prepared training sample through this task: Implement counting/radix sort and recursive problem solutions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement counting/radix sort and recursive problem solutions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (counting sort; radix sort; bucket sort; recursion base cases; recursive calls; recursion trees; tail recursion; divide-and-conquer patterns) and demonstrate the starting sample for: Implement counting/radix sort and recursive problem solutions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement counting/radix sort and recursive problem solutions",
+          "evidence": "Participant submission for 'Non-Comparison Sorting and Recursion': Implement counting/radix sort and recursive problem solutions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement counting/radix sort and recursive problem solutions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement counting/radix sort and recursive problem solutions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (counting sort; radix sort; bucket sort; recursion base cases; recursive calls; recursion trees; tail recursion; divide-and-conquer patterns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Hashing and Hash Tables",
+      "subtopics": [
+        "hash functions",
+        "hash tables",
+        "collisions",
+        "chaining",
+        "open addressing",
+        "frequency maps",
+        "duplicate detection",
+        "Two Sum pattern"
+      ],
+      "lab_task": "Build hash-table exercises and solve frequency-based interview problems",
+      "deliverable": "Participant submission for 'Hashing and Hash Tables': Build hash-table exercises and solve frequency-based interview problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build hash-table exercises and solve frequency-based interview problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (hash functions; hash tables; collisions; chaining; open addressing; frequency maps; duplicate detection; Two Sum pattern). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build hash-table exercises and solve frequency-based interview problems.",
+        "Explain how the lab applies Hashing and Hash Tables and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Hashing and Hash Tables' on a prepared training sample through this task: Build hash-table exercises and solve frequency-based interview problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build hash-table exercises and solve frequency-based interview problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (hash functions; hash tables; collisions; chaining; open addressing; frequency maps; duplicate detection; Two Sum pattern) and demonstrate the starting sample for: Build hash-table exercises and solve frequency-based interview problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build hash-table exercises and solve frequency-based interview problems",
+          "evidence": "Participant submission for 'Hashing and Hash Tables': Build hash-table exercises and solve frequency-based interview problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build hash-table exercises and solve frequency-based interview problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build hash-table exercises and solve frequency-based interview problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (hash functions; hash tables; collisions; chaining; open addressing; frequency maps; duplicate detection; Two Sum pattern). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Linked Lists",
+      "subtopics": [
+        "linked-list fundamentals",
+        "singly linked list",
+        "doubly linked list",
+        "circular linked list",
+        "insert/delete",
+        "reverse list",
+        "middle node",
+        "cycle detection"
+      ],
+      "lab_task": "Implement all linked-list variants and solve reversal/cycle problems",
+      "deliverable": "Participant submission for 'Linked Lists': Implement all linked-list variants and solve reversal/cycle problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement all linked-list variants and solve reversal/cycle problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (linked-list fundamentals; singly linked list; doubly linked list; circular linked list; insert/delete; reverse list; middle node; cycle detection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement all linked-list variants and solve reversal/cycle problems.",
+        "Explain how the lab applies Linked Lists and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Linked Lists' on a prepared training sample through this task: Implement all linked-list variants and solve reversal/cycle problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement all linked-list variants and solve reversal/cycle problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (linked-list fundamentals; singly linked list; doubly linked list; circular linked list; insert/delete; reverse list; middle node; cycle detection) and demonstrate the starting sample for: Implement all linked-list variants and solve reversal/cycle problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement all linked-list variants and solve reversal/cycle problems",
+          "evidence": "Participant submission for 'Linked Lists': Implement all linked-list variants and solve reversal/cycle problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement all linked-list variants and solve reversal/cycle problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement all linked-list variants and solve reversal/cycle problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (linked-list fundamentals; singly linked list; doubly linked list; circular linked list; insert/delete; reverse list; middle node; cycle detection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Stacks, Queues and Deques",
+      "subtopics": [
+        "stack",
+        "balanced parentheses",
+        "expression evaluation",
+        "next greater element",
+        "queue",
+        "circular queue",
+        "deque",
+        "priority queue"
+      ],
+      "lab_task": "Implement stack/queue structures and solve expression and scheduling problems",
+      "deliverable": "Participant submission for 'Stacks, Queues and Deques': Implement stack/queue structures and solve expression and scheduling problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement stack/queue structures and solve expression and scheduling problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stack; balanced parentheses; expression evaluation; next greater element; queue; circular queue; deque; priority queue). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement stack/queue structures and solve expression and scheduling problems.",
+        "Explain how the lab applies Stacks, Queues and Deques and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Stacks, Queues and Deques' on a prepared training sample through this task: Implement stack/queue structures and solve expression and scheduling problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement stack/queue structures and solve expression and scheduling problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (stack; balanced parentheses; expression evaluation; next greater element; queue; circular queue; deque; priority queue) and demonstrate the starting sample for: Implement stack/queue structures and solve expression and scheduling problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement stack/queue structures and solve expression and scheduling problems",
+          "evidence": "Participant submission for 'Stacks, Queues and Deques': Implement stack/queue structures and solve expression and scheduling problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement stack/queue structures and solve expression and scheduling problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement stack/queue structures and solve expression and scheduling problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stack; balanced parentheses; expression evaluation; next greater element; queue; circular queue; deque; priority queue). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Monotonic Structures and Problem Patterns",
+      "subtopics": [
+        "monotonic stack",
+        "monotonic queue",
+        "sliding window maximum",
+        "histogram problems",
+        "next greater/smaller",
+        "two pointers",
+        "fast and slow pointers",
+        "prefix sum"
+      ],
+      "lab_task": "Solve monotonic-stack, window, and pointer-pattern problems",
+      "deliverable": "Participant submission for 'Monotonic Structures and Problem Patterns': Solve monotonic-stack, window, and pointer-pattern problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve monotonic-stack, window, and pointer-pattern problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (monotonic stack; monotonic queue; sliding window maximum; histogram problems; next greater/smaller; two pointers; fast and slow pointers; prefix sum). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve monotonic-stack, window, and pointer-pattern problems.",
+        "Explain how the lab applies Monotonic Structures and Problem Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Monotonic Structures and Problem Patterns' on a prepared training sample through this task: Solve monotonic-stack, window, and pointer-pattern problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve monotonic-stack, window, and pointer-pattern problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (monotonic stack; monotonic queue; sliding window maximum; histogram problems; next greater/smaller; two pointers; fast and slow pointers; prefix sum) and demonstrate the starting sample for: Solve monotonic-stack, window, and pointer-pattern problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve monotonic-stack, window, and pointer-pattern problems",
+          "evidence": "Participant submission for 'Monotonic Structures and Problem Patterns': Solve monotonic-stack, window, and pointer-pattern problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve monotonic-stack, window, and pointer-pattern problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve monotonic-stack, window, and pointer-pattern problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (monotonic stack; monotonic queue; sliding window maximum; histogram problems; next greater/smaller; two pointers; fast and slow pointers; prefix sum). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Trees and Binary Trees",
+      "subtopics": [
+        "tree fundamentals",
+        "binary trees",
+        "node relationships",
+        "inorder",
+        "preorder",
+        "postorder",
+        "level-order traversal",
+        "recursive and iterative traversal"
+      ],
+      "lab_task": "Construct binary trees and implement every traversal",
+      "deliverable": "Participant submission for 'Trees and Binary Trees': Construct binary trees and implement every traversal. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Construct binary trees and implement every traversal. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tree fundamentals; binary trees; node relationships; inorder; preorder; postorder; level-order traversal; recursive and iterative traversal). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Construct binary trees and implement every traversal.",
+        "Explain how the lab applies Trees and Binary Trees and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Trees and Binary Trees' on a prepared training sample through this task: Construct binary trees and implement every traversal.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Construct binary trees and implement every traversal",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tree fundamentals; binary trees; node relationships; inorder; preorder; postorder; level-order traversal; recursive and iterative traversal) and demonstrate the starting sample for: Construct binary trees and implement every traversal",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Construct binary trees and implement every traversal",
+          "evidence": "Participant submission for 'Trees and Binary Trees': Construct binary trees and implement every traversal. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Construct binary trees and implement every traversal' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Construct binary trees and implement every traversal. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tree fundamentals; binary trees; node relationships; inorder; preorder; postorder; level-order traversal; recursive and iterative traversal). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Binary Search Trees and Tree Problems",
+      "subtopics": [
+        "BST insert/search/delete",
+        "height and depth",
+        "diameter",
+        "balanced trees",
+        "lowest common ancestor",
+        "tree views",
+        "path sums",
+        "advanced tree problems"
+      ],
+      "lab_task": "Implement BST operations and solve height, diameter, and LCA questions",
+      "deliverable": "Participant submission for 'Binary Search Trees and Tree Problems': Implement BST operations and solve height, diameter, and LCA questions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement BST operations and solve height, diameter, and LCA questions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BST insert/search/delete; height and depth; diameter; balanced trees; lowest common ancestor; tree views; path sums; advanced tree problems). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement BST operations and solve height, diameter, and LCA questions.",
+        "Explain how the lab applies Binary Search Trees and Tree Problems and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Binary Search Trees and Tree Problems' on a prepared training sample through this task: Implement BST operations and solve height, diameter, and LCA questions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement BST operations and solve height, diameter, and LCA questions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (BST insert/search/delete; height and depth; diameter; balanced trees; lowest common ancestor; tree views; path sums; advanced tree problems) and demonstrate the starting sample for: Implement BST operations and solve height, diameter, and LCA questions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement BST operations and solve height, diameter, and LCA questions",
+          "evidence": "Participant submission for 'Binary Search Trees and Tree Problems': Implement BST operations and solve height, diameter, and LCA questions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement BST operations and solve height, diameter, and LCA questions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement BST operations and solve height, diameter, and LCA questions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BST insert/search/delete; height and depth; diameter; balanced trees; lowest common ancestor; tree views; path sums; advanced tree problems). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Heaps, Priority Queues and Tries",
+      "subtopics": [
+        "heap",
+        "min heap",
+        "max heap",
+        "heapify",
+        "Priority Queue",
+        "top K elements",
+        "Trie/prefix tree",
+        "autocomplete/prefix search"
+      ],
+      "lab_task": "Build heap and trie operations and solve top-K/prefix queries",
+      "deliverable": "Participant submission for 'Heaps, Priority Queues and Tries': Build heap and trie operations and solve top-K/prefix queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build heap and trie operations and solve top-K/prefix queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (heap; min heap; max heap; heapify; Priority Queue; top K elements; Trie/prefix tree; autocomplete/prefix search). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build heap and trie operations and solve top-K/prefix queries.",
+        "Explain how the lab applies Heaps, Priority Queues and Tries and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Heaps, Priority Queues and Tries' on a prepared training sample through this task: Build heap and trie operations and solve top-K/prefix queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build heap and trie operations and solve top-K/prefix queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (heap; min heap; max heap; heapify; Priority Queue; top K elements; Trie/prefix tree; autocomplete/prefix search) and demonstrate the starting sample for: Build heap and trie operations and solve top-K/prefix queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build heap and trie operations and solve top-K/prefix queries",
+          "evidence": "Participant submission for 'Heaps, Priority Queues and Tries': Build heap and trie operations and solve top-K/prefix queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build heap and trie operations and solve top-K/prefix queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build heap and trie operations and solve top-K/prefix queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (heap; min heap; max heap; heapify; Priority Queue; top K elements; Trie/prefix tree; autocomplete/prefix search). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Graph Fundamentals and Representation",
+      "subtopics": [
+        "vertices and edges",
+        "graph types",
+        "directed/undirected graphs",
+        "weighted graphs",
+        "adjacency matrix",
+        "adjacency list",
+        "graph construction",
+        "graph complexity"
+      ],
+      "lab_task": "Model graphs using adjacency matrices and adjacency lists",
+      "deliverable": "Participant submission for 'Graph Fundamentals and Representation': Model graphs using adjacency matrices and adjacency lists. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model graphs using adjacency matrices and adjacency lists. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (vertices and edges; graph types; directed/undirected graphs; weighted graphs; adjacency matrix; adjacency list; graph construction; graph complexity). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model graphs using adjacency matrices and adjacency lists.",
+        "Explain how the lab applies Graph Fundamentals and Representation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Graph Fundamentals and Representation' on a prepared training sample through this task: Model graphs using adjacency matrices and adjacency lists.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model graphs using adjacency matrices and adjacency lists",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (vertices and edges; graph types; directed/undirected graphs; weighted graphs; adjacency matrix; adjacency list; graph construction; graph complexity) and demonstrate the starting sample for: Model graphs using adjacency matrices and adjacency lists",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model graphs using adjacency matrices and adjacency lists",
+          "evidence": "Participant submission for 'Graph Fundamentals and Representation': Model graphs using adjacency matrices and adjacency lists. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model graphs using adjacency matrices and adjacency lists' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model graphs using adjacency matrices and adjacency lists. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (vertices and edges; graph types; directed/undirected graphs; weighted graphs; adjacency matrix; adjacency list; graph construction; graph complexity). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Graph Traversal and Connectivity",
+      "subtopics": [
+        "Breadth-First Search",
+        "Depth-First Search",
+        "connected components",
+        "cycle detection",
+        "bipartite check",
+        "topological sorting",
+        "course schedule",
+        "grid traversal"
+      ],
+      "lab_task": "Solve BFS/DFS, cycle, connected-component, and dependency problems",
+      "deliverable": "Participant submission for 'Graph Traversal and Connectivity': Solve BFS/DFS, cycle, connected-component, and dependency problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve BFS/DFS, cycle, connected-component, and dependency problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Breadth-First Search; Depth-First Search; connected components; cycle detection; bipartite check; topological sorting; course schedule; grid traversal). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve BFS/DFS, cycle, connected-component, and dependency problems.",
+        "Explain how the lab applies Graph Traversal and Connectivity and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Graph Traversal and Connectivity' on a prepared training sample through this task: Solve BFS/DFS, cycle, connected-component, and dependency problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve BFS/DFS, cycle, connected-component, and dependency problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Breadth-First Search; Depth-First Search; connected components; cycle detection; bipartite check; topological sorting; course schedule; grid traversal) and demonstrate the starting sample for: Solve BFS/DFS, cycle, connected-component, and dependency problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve BFS/DFS, cycle, connected-component, and dependency problems",
+          "evidence": "Participant submission for 'Graph Traversal and Connectivity': Solve BFS/DFS, cycle, connected-component, and dependency problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve BFS/DFS, cycle, connected-component, and dependency problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve BFS/DFS, cycle, connected-component, and dependency problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Breadth-First Search; Depth-First Search; connected components; cycle detection; bipartite check; topological sorting; course schedule; grid traversal). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Shortest Paths and Advanced Graphs",
+      "subtopics": [
+        "Dijkstra algorithm",
+        "Bellman-Ford algorithm",
+        "Floyd-Warshall algorithm",
+        "negative cycles",
+        "all-pairs paths",
+        "state graphs",
+        "advanced graph problems",
+        "algorithm selection"
+      ],
+      "lab_task": "Implement and compare shortest-path algorithms",
+      "deliverable": "Participant submission for 'Shortest Paths and Advanced Graphs': Implement and compare shortest-path algorithms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement and compare shortest-path algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dijkstra algorithm; Bellman-Ford algorithm; Floyd-Warshall algorithm; negative cycles; all-pairs paths; state graphs; advanced graph problems; algorithm selection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement and compare shortest-path algorithms.",
+        "Explain how the lab applies Shortest Paths and Advanced Graphs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Shortest Paths and Advanced Graphs' on a prepared training sample through this task: Implement and compare shortest-path algorithms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement and compare shortest-path algorithms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dijkstra algorithm; Bellman-Ford algorithm; Floyd-Warshall algorithm; negative cycles; all-pairs paths; state graphs; advanced graph problems; algorithm selection) and demonstrate the starting sample for: Implement and compare shortest-path algorithms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement and compare shortest-path algorithms",
+          "evidence": "Participant submission for 'Shortest Paths and Advanced Graphs': Implement and compare shortest-path algorithms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement and compare shortest-path algorithms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement and compare shortest-path algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dijkstra algorithm; Bellman-Ford algorithm; Floyd-Warshall algorithm; negative cycles; all-pairs paths; state graphs; advanced graph problems; algorithm selection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Minimum Spanning Trees and Union-Find",
+      "subtopics": [
+        "minimum spanning tree",
+        "Prim's algorithm",
+        "Kruskal's algorithm",
+        "Disjoint Set/Union-Find",
+        "path compression",
+        "union by rank",
+        "network design",
+        "MST complexity"
+      ],
+      "lab_task": "Solve MST and connectivity problems with union-find",
+      "deliverable": "Participant submission for 'Minimum Spanning Trees and Union-Find': Solve MST and connectivity problems with union-find. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve MST and connectivity problems with union-find. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (minimum spanning tree; Prim's algorithm; Kruskal's algorithm; Disjoint Set/Union-Find; path compression; union by rank; network design; MST complexity). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve MST and connectivity problems with union-find.",
+        "Explain how the lab applies Minimum Spanning Trees and Union-Find and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Minimum Spanning Trees and Union-Find' on a prepared training sample through this task: Solve MST and connectivity problems with union-find.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve MST and connectivity problems with union-find",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (minimum spanning tree; Prim's algorithm; Kruskal's algorithm; Disjoint Set/Union-Find; path compression; union by rank; network design; MST complexity) and demonstrate the starting sample for: Solve MST and connectivity problems with union-find",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve MST and connectivity problems with union-find",
+          "evidence": "Participant submission for 'Minimum Spanning Trees and Union-Find': Solve MST and connectivity problems with union-find. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve MST and connectivity problems with union-find' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve MST and connectivity problems with union-find. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (minimum spanning tree; Prim's algorithm; Kruskal's algorithm; Disjoint Set/Union-Find; path compression; union by rank; network design; MST complexity). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Greedy Algorithms and Intervals",
+      "subtopics": [
+        "greedy algorithms",
+        "activity selection",
+        "interval problems",
+        "merge intervals",
+        "meeting rooms",
+        "fractional knapsack",
+        "job sequencing",
+        "greedy correctness"
+      ],
+      "lab_task": "Solve activity, interval, scheduling, and knapsack exercises",
+      "deliverable": "Participant submission for 'Greedy Algorithms and Intervals': Solve activity, interval, scheduling, and knapsack exercises. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve activity, interval, scheduling, and knapsack exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (greedy algorithms; activity selection; interval problems; merge intervals; meeting rooms; fractional knapsack; job sequencing; greedy correctness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve activity, interval, scheduling, and knapsack exercises.",
+        "Explain how the lab applies Greedy Algorithms and Intervals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Greedy Algorithms and Intervals' on a prepared training sample through this task: Solve activity, interval, scheduling, and knapsack exercises.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve activity, interval, scheduling, and knapsack exercises",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (greedy algorithms; activity selection; interval problems; merge intervals; meeting rooms; fractional knapsack; job sequencing; greedy correctness) and demonstrate the starting sample for: Solve activity, interval, scheduling, and knapsack exercises",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve activity, interval, scheduling, and knapsack exercises",
+          "evidence": "Participant submission for 'Greedy Algorithms and Intervals': Solve activity, interval, scheduling, and knapsack exercises. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve activity, interval, scheduling, and knapsack exercises' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve activity, interval, scheduling, and knapsack exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (greedy algorithms; activity selection; interval problems; merge intervals; meeting rooms; fractional knapsack; job sequencing; greedy correctness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Dynamic Programming Fundamentals",
+      "subtopics": [
+        "DP state design",
+        "memoization",
+        "tabulation",
+        "Fibonacci using DP",
+        "climbing stairs",
+        "overlapping subproblems",
+        "optimal substructure",
+        "space optimization"
+      ],
+      "lab_task": "Convert recursive solutions into memoized and tabulated dynamic programs",
+      "deliverable": "Participant submission for 'Dynamic Programming Fundamentals': Convert recursive solutions into memoized and tabulated dynamic programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Convert recursive solutions into memoized and tabulated dynamic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DP state design; memoization; tabulation; Fibonacci using DP; climbing stairs; overlapping subproblems; optimal substructure; space optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Convert recursive solutions into memoized and tabulated dynamic programs.",
+        "Explain how the lab applies Dynamic Programming Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dynamic Programming Fundamentals' on a prepared training sample through this task: Convert recursive solutions into memoized and tabulated dynamic programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Convert recursive solutions into memoized and tabulated dynamic programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (DP state design; memoization; tabulation; Fibonacci using DP; climbing stairs; overlapping subproblems; optimal substructure; space optimization) and demonstrate the starting sample for: Convert recursive solutions into memoized and tabulated dynamic programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Convert recursive solutions into memoized and tabulated dynamic programs",
+          "evidence": "Participant submission for 'Dynamic Programming Fundamentals': Convert recursive solutions into memoized and tabulated dynamic programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Convert recursive solutions into memoized and tabulated dynamic programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Convert recursive solutions into memoized and tabulated dynamic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DP state design; memoization; tabulation; Fibonacci using DP; climbing stairs; overlapping subproblems; optimal substructure; space optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Dynamic Programming Problem Families",
+      "subtopics": [
+        "coin change",
+        "0/1 knapsack",
+        "Longest Common Subsequence",
+        "Longest Increasing Subsequence",
+        "grid DP",
+        "sequence DP",
+        "partition DP",
+        "DP optimization"
+      ],
+      "lab_task": "Solve coin change, knapsack, LCS, LIS, and grid DP problems",
+      "deliverable": "Participant submission for 'Dynamic Programming Problem Families': Solve coin change, knapsack, LCS, LIS, and grid DP problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve coin change, knapsack, LCS, LIS, and grid DP problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (coin change; 0/1 knapsack; Longest Common Subsequence; Longest Increasing Subsequence; grid DP; sequence DP; partition DP; DP optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve coin change, knapsack, LCS, LIS, and grid DP problems.",
+        "Explain how the lab applies Dynamic Programming Problem Families and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dynamic Programming Problem Families' on a prepared training sample through this task: Solve coin change, knapsack, LCS, LIS, and grid DP problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve coin change, knapsack, LCS, LIS, and grid DP problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (coin change; 0/1 knapsack; Longest Common Subsequence; Longest Increasing Subsequence; grid DP; sequence DP; partition DP; DP optimization) and demonstrate the starting sample for: Solve coin change, knapsack, LCS, LIS, and grid DP problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve coin change, knapsack, LCS, LIS, and grid DP problems",
+          "evidence": "Participant submission for 'Dynamic Programming Problem Families': Solve coin change, knapsack, LCS, LIS, and grid DP problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve coin change, knapsack, LCS, LIS, and grid DP problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve coin change, knapsack, LCS, LIS, and grid DP problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (coin change; 0/1 knapsack; Longest Common Subsequence; Longest Increasing Subsequence; grid DP; sequence DP; partition DP; DP optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Backtracking",
+      "subtopics": [
+        "backtracking framework",
+        "subsets",
+        "permutations",
+        "combinations",
+        "N-Queens",
+        "Sudoku",
+        "maze/path finding",
+        "pruning"
+      ],
+      "lab_task": "Build subset, permutation, N-Queens, Sudoku, and maze solvers",
+      "deliverable": "Participant submission for 'Backtracking': Build subset, permutation, N-Queens, Sudoku, and maze solvers. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build subset, permutation, N-Queens, Sudoku, and maze solvers. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (backtracking framework; subsets; permutations; combinations; N-Queens; Sudoku; maze/path finding; pruning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build subset, permutation, N-Queens, Sudoku, and maze solvers.",
+        "Explain how the lab applies Backtracking and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backtracking' on a prepared training sample through this task: Build subset, permutation, N-Queens, Sudoku, and maze solvers.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build subset, permutation, N-Queens, Sudoku, and maze solvers",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (backtracking framework; subsets; permutations; combinations; N-Queens; Sudoku; maze/path finding; pruning) and demonstrate the starting sample for: Build subset, permutation, N-Queens, Sudoku, and maze solvers",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build subset, permutation, N-Queens, Sudoku, and maze solvers",
+          "evidence": "Participant submission for 'Backtracking': Build subset, permutation, N-Queens, Sudoku, and maze solvers. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build subset, permutation, N-Queens, Sudoku, and maze solvers' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build subset, permutation, N-Queens, Sudoku, and maze solvers. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (backtracking framework; subsets; permutations; combinations; N-Queens; Sudoku; maze/path finding; pruning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "Bit Manipulation",
+      "subtopics": [
+        "binary representation",
+        "bitwise AND, OR, XOR and NOT",
+        "left/right shift",
+        "set/clear/toggle/check bits",
+        "bit masks",
+        "power of two",
+        "single number",
+        "subset masks"
+      ],
+      "lab_task": "Solve XOR, bit-mask, and bit-counting challenges",
+      "deliverable": "Participant submission for 'Bit Manipulation': Solve XOR, bit-mask, and bit-counting challenges. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve XOR, bit-mask, and bit-counting challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (binary representation; bitwise AND, OR, XOR and NOT; left/right shift; set/clear/toggle/check bits; bit masks; power of two; single number; subset masks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve XOR, bit-mask, and bit-counting challenges.",
+        "Explain how the lab applies Bit Manipulation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Bit Manipulation' on a prepared training sample through this task: Solve XOR, bit-mask, and bit-counting challenges.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve XOR, bit-mask, and bit-counting challenges",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (binary representation; bitwise AND, OR, XOR and NOT; left/right shift; set/clear/toggle/check bits; bit masks; power of two; single number; subset masks) and demonstrate the starting sample for: Solve XOR, bit-mask, and bit-counting challenges",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve XOR, bit-mask, and bit-counting challenges",
+          "evidence": "Participant submission for 'Bit Manipulation': Solve XOR, bit-mask, and bit-counting challenges. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve XOR, bit-mask, and bit-counting challenges' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve XOR, bit-mask, and bit-counting challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (binary representation; bitwise AND, OR, XOR and NOT; left/right shift; set/clear/toggle/check bits; bit masks; power of two; single number; subset masks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "String Pattern Matching",
+      "subtopics": [
+        "string pattern matching",
+        "naive pattern matching",
+        "KMP algorithm",
+        "LPS array",
+        "Rabin-Karp algorithm",
+        "rolling hash",
+        "substring search",
+        "string optimization"
+      ],
+      "lab_task": "Implement naive, KMP, and Rabin-Karp pattern search",
+      "deliverable": "Participant submission for 'String Pattern Matching': Implement naive, KMP, and Rabin-Karp pattern search. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement naive, KMP, and Rabin-Karp pattern search. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string pattern matching; naive pattern matching; KMP algorithm; LPS array; Rabin-Karp algorithm; rolling hash; substring search; string optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement naive, KMP, and Rabin-Karp pattern search.",
+        "Explain how the lab applies String Pattern Matching and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'String Pattern Matching' on a prepared training sample through this task: Implement naive, KMP, and Rabin-Karp pattern search.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement naive, KMP, and Rabin-Karp pattern search",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (string pattern matching; naive pattern matching; KMP algorithm; LPS array; Rabin-Karp algorithm; rolling hash; substring search; string optimization) and demonstrate the starting sample for: Implement naive, KMP, and Rabin-Karp pattern search",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement naive, KMP, and Rabin-Karp pattern search",
+          "evidence": "Participant submission for 'String Pattern Matching': Implement naive, KMP, and Rabin-Karp pattern search. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement naive, KMP, and Rabin-Karp pattern search' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement naive, KMP, and Rabin-Karp pattern search. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string pattern matching; naive pattern matching; KMP algorithm; LPS array; Rabin-Karp algorithm; rolling hash; substring search; string optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "Matrix, Interval and Optimization Algorithms",
+      "subtopics": [
+        "matrix algorithms",
+        "spiral traversal",
+        "rotate matrix",
+        "matrix search",
+        "interval algorithms",
+        "sweep-line concepts",
+        "algorithm optimization",
+        "memory versus time tradeoffs"
+      ],
+      "lab_task": "Solve matrix transformations, interval merging, and optimization cases",
+      "deliverable": "Participant submission for 'Matrix, Interval and Optimization Algorithms': Solve matrix transformations, interval merging, and optimization cases. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve matrix transformations, interval merging, and optimization cases. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (matrix algorithms; spiral traversal; rotate matrix; matrix search; interval algorithms; sweep-line concepts; algorithm optimization; memory versus time tradeoffs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve matrix transformations, interval merging, and optimization cases.",
+        "Explain how the lab applies Matrix, Interval and Optimization Algorithms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Matrix, Interval and Optimization Algorithms' on a prepared training sample through this task: Solve matrix transformations, interval merging, and optimization cases.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve matrix transformations, interval merging, and optimization cases",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (matrix algorithms; spiral traversal; rotate matrix; matrix search; interval algorithms; sweep-line concepts; algorithm optimization; memory versus time tradeoffs) and demonstrate the starting sample for: Solve matrix transformations, interval merging, and optimization cases",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve matrix transformations, interval merging, and optimization cases",
+          "evidence": "Participant submission for 'Matrix, Interval and Optimization Algorithms': Solve matrix transformations, interval merging, and optimization cases. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve matrix transformations, interval merging, and optimization cases' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve matrix transformations, interval merging, and optimization cases. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (matrix algorithms; spiral traversal; rotate matrix; matrix search; interval algorithms; sweep-line concepts; algorithm optimization; memory versus time tradeoffs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "DSA Problem-Solving Patterns",
+      "subtopics": [
+        "two-pointer technique",
+        "sliding window",
+        "prefix sum",
+        "fast/slow pointer",
+        "monotonic patterns",
+        "binary search on answer",
+        "pattern recognition",
+        "edge-case analysis"
+      ],
+      "lab_task": "Classify and solve a mixed set of pattern-based problems",
+      "deliverable": "Participant submission for 'DSA Problem-Solving Patterns': Classify and solve a mixed set of pattern-based problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Classify and solve a mixed set of pattern-based problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (two-pointer technique; sliding window; prefix sum; fast/slow pointer; monotonic patterns; binary search on answer; pattern recognition; edge-case analysis). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Classify and solve a mixed set of pattern-based problems.",
+        "Explain how the lab applies DSA Problem-Solving Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DSA Problem-Solving Patterns' on a prepared training sample through this task: Classify and solve a mixed set of pattern-based problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Classify and solve a mixed set of pattern-based problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (two-pointer technique; sliding window; prefix sum; fast/slow pointer; monotonic patterns; binary search on answer; pattern recognition; edge-case analysis) and demonstrate the starting sample for: Classify and solve a mixed set of pattern-based problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Classify and solve a mixed set of pattern-based problems",
+          "evidence": "Participant submission for 'DSA Problem-Solving Patterns': Classify and solve a mixed set of pattern-based problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Classify and solve a mixed set of pattern-based problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Classify and solve a mixed set of pattern-based problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (two-pointer technique; sliding window; prefix sum; fast/slow pointer; monotonic patterns; binary search on answer; pattern recognition; edge-case analysis). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Advanced Trees and Graphs",
+      "subtopics": [
+        "tree serialization",
+        "tries in practice",
+        "advanced BST problems",
+        "graph bridges/articulation concepts",
+        "multi-source BFS",
+        "shortest path variations",
+        "network flow awareness",
+        "advanced review"
+      ],
+      "lab_task": "Solve advanced tree and graph interview challenges",
+      "deliverable": "Participant submission for 'Advanced Trees and Graphs': Solve advanced tree and graph interview challenges. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve advanced tree and graph interview challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tree serialization; tries in practice; advanced BST problems; graph bridges/articulation concepts; multi-source BFS; shortest path variations; network flow awareness; advanced review). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve advanced tree and graph interview challenges.",
+        "Explain how the lab applies Advanced Trees and Graphs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Trees and Graphs' on a prepared training sample through this task: Solve advanced tree and graph interview challenges.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve advanced tree and graph interview challenges",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tree serialization; tries in practice; advanced BST problems; graph bridges/articulation concepts; multi-source BFS; shortest path variations; network flow awareness; advanced review) and demonstrate the starting sample for: Solve advanced tree and graph interview challenges",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve advanced tree and graph interview challenges",
+          "evidence": "Participant submission for 'Advanced Trees and Graphs': Solve advanced tree and graph interview challenges. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve advanced tree and graph interview challenges' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve advanced tree and graph interview challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tree serialization; tries in practice; advanced BST problems; graph bridges/articulation concepts; multi-source BFS; shortest path variations; network flow awareness; advanced review). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "Coding Interview Strategy",
+      "subtopics": [
+        "problem clarification",
+        "brute force to optimal",
+        "complexity narration",
+        "writing clean code",
+        "testing",
+        "debugging",
+        "communication",
+        "common interview traps"
+      ],
+      "lab_task": "Complete timed coding rounds and explain solution tradeoffs",
+      "deliverable": "Participant submission for 'Coding Interview Strategy': Complete timed coding rounds and explain solution tradeoffs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Complete timed coding rounds and explain solution tradeoffs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (problem clarification; brute force to optimal; complexity narration; writing clean code; testing; debugging; communication; common interview traps). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Complete timed coding rounds and explain solution tradeoffs.",
+        "Explain how the lab applies Coding Interview Strategy and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Coding Interview Strategy' on a prepared training sample through this task: Complete timed coding rounds and explain solution tradeoffs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Complete timed coding rounds and explain solution tradeoffs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (problem clarification; brute force to optimal; complexity narration; writing clean code; testing; debugging; communication; common interview traps) and demonstrate the starting sample for: Complete timed coding rounds and explain solution tradeoffs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Complete timed coding rounds and explain solution tradeoffs",
+          "evidence": "Participant submission for 'Coding Interview Strategy': Complete timed coding rounds and explain solution tradeoffs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Complete timed coding rounds and explain solution tradeoffs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Complete timed coding rounds and explain solution tradeoffs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (problem clarification; brute force to optimal; complexity narration; writing clean code; testing; debugging; communication; common interview traps). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 29,
+      "topic": "DSA Coding Practice and Mock Interviews",
+      "subtopics": [
+        "arrays and strings review",
+        "linked list review",
+        "tree/graph review",
+        "DP review",
+        "mixed medium/hard problems",
+        "mock interview",
+        "code review",
+        "performance improvement"
+      ],
+      "lab_task": "Run a full mock interview with feedback and refactoring",
+      "deliverable": "Participant submission for 'DSA Coding Practice and Mock Interviews': Run a full mock interview with feedback and refactoring. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Run a full mock interview with feedback and refactoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arrays and strings review; linked list review; tree/graph review; DP review; mixed medium/hard problems; mock interview; code review; performance improvement). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Run a full mock interview with feedback and refactoring.",
+        "Explain how the lab applies DSA Coding Practice and Mock Interviews and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DSA Coding Practice and Mock Interviews' on a prepared training sample through this task: Run a full mock interview with feedback and refactoring.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Run a full mock interview with feedback and refactoring",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (arrays and strings review; linked list review; tree/graph review; DP review; mixed medium/hard problems; mock interview; code review; performance improvement) and demonstrate the starting sample for: Run a full mock interview with feedback and refactoring",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run a full mock interview with feedback and refactoring",
+          "evidence": "Participant submission for 'DSA Coding Practice and Mock Interviews': Run a full mock interview with feedback and refactoring. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Run a full mock interview with feedback and refactoring' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Run a full mock interview with feedback and refactoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arrays and strings review; linked list review; tree/graph review; DP review; mixed medium/hard problems; mock interview; code review; performance improvement). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 30,
+      "topic": "DSA Capstone and Interview Readiness",
+      "subtopics": [
+        "algorithm portfolio",
+        "problem-solving revision",
+        "project/capstone",
+        "systematic revision plan",
+        "coding assessment",
+        "interview questions",
+        "career preparation",
+        "final evaluation"
+      ],
+      "lab_task": "Complete a DSA capstone and final coding/interview assessment",
+      "deliverable": "Participant submission for 'DSA Capstone and Interview Readiness': Complete a DSA capstone and final coding/interview assessment. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Complete a DSA capstone and final coding/interview assessment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (algorithm portfolio; problem-solving revision; project/capstone; systematic revision plan; coding assessment; interview questions; career preparation; final evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Complete a DSA capstone and final coding/interview assessment.",
+        "Explain how the lab applies DSA Capstone and Interview Readiness and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DSA Capstone and Interview Readiness' on a prepared training sample through this task: Complete a DSA capstone and final coding/interview assessment.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Complete a DSA capstone and final coding/interview assessment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (algorithm portfolio; problem-solving revision; project/capstone; systematic revision plan; coding assessment; interview questions; career preparation; final evaluation) and demonstrate the starting sample for: Complete a DSA capstone and final coding/interview assessment",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Complete a DSA capstone and final coding/interview assessment",
+          "evidence": "Participant submission for 'DSA Capstone and Interview Readiness': Complete a DSA capstone and final coding/interview assessment. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Complete a DSA capstone and final coding/interview assessment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Complete a DSA capstone and final coding/interview assessment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (algorithm portfolio; problem-solving revision; project/capstone; systematic revision plan; coding assessment; interview questions; career preparation; final evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

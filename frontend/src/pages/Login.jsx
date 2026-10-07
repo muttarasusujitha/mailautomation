@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { forgotPassword } from '../utils/api'
+import api, { acceptSession, forgotPassword } from '../utils/api'
 import {
   Mail, Lock, User, Eye, EyeOff,
   CheckCircle, Briefcase, Users, GraduationCap,
@@ -131,7 +131,6 @@ export default function Login({ onLogin }) {
   const googleEnabled = Boolean(googleClientId)
   const linkedInClientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID || ''
   const linkedInRedirectUri = import.meta.env.VITE_LINKEDIN_REDIRECT_URI || ''
-  const linkedInScopes = import.meta.env.VITE_LINKEDIN_SCOPES || 'r_liteprofile r_emailaddress'
   const linkedInEnabled = Boolean(linkedInClientId && linkedInRedirectUri)
   const navigate = useNavigate()
 
@@ -141,43 +140,19 @@ export default function Login({ onLogin }) {
   })
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
-  const decodeJwt = token => {
-    try {
-      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-        `%${('00' + c.codePointAt(0).toString(16)).slice(-2)}`
-      ).join(''))
-      return JSON.parse(jsonPayload)
-    } catch {
-      return null
-    }
-  }
-
-  const finalizeLogin = authData => {
-    sessionStorage.setItem('ts_auth', JSON.stringify(authData))
-    toast.success(`Signed in as ${authData.email}`)
-    if (onLogin) onLogin()
+  const finalizeLogin = async data => {
+    acceptSession(data)
+    if (onLogin) await onLogin()
+    toast.success(`Signed in as ${data.user.email}`)
     navigate('/dashboard')
   }
 
-  const handleGoogleCredentialResponse = response => {
-    if (!response?.credential) {
-      toast.error('Google login failed.')
-      return
-    }
-    const payload = decodeJwt(response.credential)
-    if (!payload?.email) {
-      toast.error('Google login failed.')
-      return
-    }
-
-    finalizeLogin({
-      name: payload.name || payload.email.split('@')[0],
-      email: payload.email,
-      picture: payload.picture || '',
-      provider: 'google',
-      loggedIn: true,
-    })
+  const handleGoogleCredentialResponse = async response => {
+    if (!response?.credential) { toast.error('Google login failed.'); return }
+    try {
+      const { data } = await api.post('/auth/google', { credential: response.credential })
+      await finalizeLogin(data)
+    } catch (error) { toast.error(error.message) }
   }
 
   const handleGoogleButtonClick = () => {
@@ -194,23 +169,11 @@ export default function Login({ onLogin }) {
     }
   }
 
-  const handleLinkedInButtonClick = () => {
-    if (!linkedInEnabled) {
-      toast.error('LinkedIn login is not configured.')
-      return
-    }
-
-    const state = `ts_li_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    sessionStorage.setItem('ts_linkedin_oauth_state', state)
-
-    const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization')
-    authUrl.searchParams.set('response_type', 'code')
-    authUrl.searchParams.set('client_id', linkedInClientId)
-    authUrl.searchParams.set('redirect_uri', linkedInRedirectUri)
-    authUrl.searchParams.set('state', state)
-    authUrl.searchParams.set('scope', linkedInScopes)
-
-    window.location.assign(authUrl.toString())
+  const handleLinkedInButtonClick = async () => {
+    try {
+      const { data } = await api.post('/auth/linkedin/start')
+      window.location.assign(data.url)
+    } catch (error) { toast.error(error.message) }
   }
 
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
@@ -278,7 +241,7 @@ export default function Login({ onLogin }) {
   const handleForgotPassword = async () => {
     if (!form.email.trim()) { toast.error('Enter your email address first'); return }
     setResetting(true)
-    try { await forgotPassword(form.email.trim()); toast.success(`Reset email sent to ${form.email}`) }
+    try { const { data } = await forgotPassword(form.email.trim()); toast.success(data.message || "If this account supports password recovery, you will receive instructions.") }
     catch (e) { toast.error(e.message || 'Could not send reset email') }
     finally { setResetting(false) }
   }
@@ -288,13 +251,19 @@ export default function Login({ onLogin }) {
     if (mode === 'signup' && step === 1) { setStep(2); return }
     if (mode === 'signup' && form.password !== form.confirm) { toast.error('Passwords do not match'); return }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    // SEC-009: sessionStorage clears on tab/browser close — safer than localStorage for auth tokens
-    sessionStorage.setItem('ts_auth', JSON.stringify({ name: form.name || 'User', email: form.email, role, loggedIn: true }))
-    toast.success(mode === 'login' ? `Welcome back!` : `Account created!`)
-    setLoading(false)
-    if (onLogin) onLogin()
-    navigate('/dashboard')
+    try {
+      const { data } = await api.post(mode === 'signup' ? '/auth/register' : '/auth/login', {
+        email: form.email.trim(), password: form.password,
+        ...(mode === 'signup' ? { name: form.name, role } : {}),
+      })
+      if (mode === 'signup') {
+        toast.success(data.message, { duration: 8000 })
+        setMode('login')
+        setStep(1)
+        setForm(value => ({ ...value, password: '', confirm: '' }))
+      } else await finalizeLogin(data)
+    } catch (error) { toast.error(error.message) }
+    finally { setLoading(false) }
   }
 
   return (

@@ -34,7 +34,7 @@ def _relocate_formula(formula, source_sheet, offsets):
 
 
 def combine_lab_estimates(estimates):
-    """One worksheet: cloud totals and line items first, expandable evidence below.
+    """One worksheet: concise cloud plans first, expandable evidence below.
 
     Each input retains its own assumptions and rate card. AWS and Azure are
     shown separately, never silently added as though both clouds are required.
@@ -61,10 +61,10 @@ def combine_lab_estimates(estimates):
     blocks = []
     offsets = {provider: {} for provider, _ in loaded}
     row = 5
-    # Keep only the quote and resource costs expanded. All supporting inputs
-    # remain editable on this same worksheet, with no cross-sheet references.
-    # Present the client quote before the detailed technical evidence.
-    preferred_order = ('Client Estimate', 'Resource Cost Breakdown', 'TOC Mapping',
+    # Show the concise plan when present; older workbooks retain their quote
+    # and resource-cost view. Supporting inputs remain editable below, with
+    # no cross-sheet references.
+    preferred_order = ('Lab Plan', 'Client Estimate', 'Resource Cost Breakdown', 'TOC Mapping',
                        'Assumptions', 'Rate Card')
     for detail in (False, True):
         for provider, book in loaded:
@@ -73,7 +73,8 @@ def combine_lab_estimates(estimates):
             )
             for source_name in source_order:
                 source = book[source_name]
-                is_detail = source.title not in {'Client Estimate', 'Resource Cost Breakdown'}
+                visible_sheets = {'Lab Plan'} if 'Lab Plan' in book.sheetnames else {'Client Estimate', 'Resource Cost Breakdown'}
+                is_detail = source.title not in visible_sheets
                 if is_detail != detail:
                     continue
                 offsets[provider][source.title] = row
@@ -92,6 +93,8 @@ def combine_lab_estimates(estimates):
                 if cell.data_type == 'f':
                     value = _relocate_formula(value, source.title, offsets[provider])
                 target = sheet.cell(cell.row + offset, cell.column, value)
+                if cell.data_type != 'f':
+                    target.data_type = cell.data_type
                 target.font = copy(cell.font)
                 target.fill = copy(cell.fill)
                 target.border = copy(cell.border)
@@ -115,6 +118,8 @@ def combine_lab_estimates(estimates):
             sheet.row_dimensions.group(offset + 1, offset + source.max_row, hidden=True)
     widths = {'A': 34, 'B': 18, 'C': 16, 'D': 16, 'E': 18,
               'F': 14, 'G': 38, 'H': 18, 'I': 14, 'J': 18, 'K': 12}
+    if any('Lab Plan' in book.sheetnames for _, book in loaded):
+        widths.update({'A': 19, 'B': 30, 'C': 46, 'D': 30, 'E': 22, 'F': 12, 'G': 25})
     for column, width in widths.items():
         sheet.column_dimensions[column].width = width
     sheet.row_dimensions[1].height = 30

@@ -1,0 +1,19 @@
+# Add LinkedIn support to the installed service without replacing other modules.
+FROM ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest
+RUN pip install --no-cache-dir playwright==1.55.0 \
+    && python -m playwright install --with-deps chromium
+COPY microservices/services/intelligence-service/app/clients/linkedin_browser.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/clients/linkedin_session.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/linkedin_authenticate.py /app/app/
+COPY microservices/services/intelligence-service/app/clients/lead_discovery.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/clients/client_post_scan.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/clients/client_post_identity.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/clients/public_discovery.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/clients/public_search.py /app/app/clients/
+COPY microservices/services/intelligence-service/app/routes/lead_bot.py /app/app/routes/
+COPY microservices/services/intelligence-service/app/routes/client_leads.py /app/app/routes/
+COPY microservices/services/intelligence-service/app/routes/linkedin_leads.py /app/app/routes/
+COPY microservices/services/intelligence-service/app/routes/trainer_profile_leads.py /app/app/routes/
+COPY microservices/services/intelligence-service/app/main.py /app/app/main.py
+COPY microservices/services/intelligence-service/app/clients/course_domains.py /app/app/clients/
+COPY microservices/services/trainer-service/app/datasets_compact /app/it-course-datasets

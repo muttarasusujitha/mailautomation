@@ -25,7 +25,55 @@
         "GPT-4"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Prompt basics"
+      "lab_task": "Prompt basics",
+      "deliverable": "Participant submission for 'Fundamentals of Prompting': Prompt basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Prompt basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Language Models; Tokens; Probability; Basic Prompts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Prompt basics.",
+        "Explain how the lab applies Fundamentals of Prompting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Fundamentals of Prompting' on a prepared training sample through this task: Prompt basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Prompt basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Language Models; Tokens; Probability; Basic Prompts) and demonstrate the starting sample for: Prompt basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Prompt basics",
+          "evidence": "Participant submission for 'Fundamentals of Prompting': Prompt basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Prompt basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Prompt basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Language Models; Tokens; Probability; Basic Prompts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -40,7 +88,55 @@
         "GPT-4"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Prompt basics"
+      "lab_task": "Part 2 hands-on: Prompt basics",
+      "deliverable": "Participant submission for 'Fundamentals of Prompting - Part 2': Part 2 hands-on: Prompt basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Prompt basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Language Models; Part 2: Tokens; Part 2: Probability; Part 2: Basic Prompts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Prompt basics.",
+        "Explain how the lab applies Fundamentals of Prompting - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Fundamentals of Prompting - Part 2' on a prepared training sample through this task: Part 2 hands-on: Prompt basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Prompt basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Language Models; Part 2: Tokens; Part 2: Probability; Part 2: Basic Prompts) and demonstrate the starting sample for: Part 2 hands-on: Prompt basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Prompt basics",
+          "evidence": "Participant submission for 'Fundamentals of Prompting - Part 2': Part 2 hands-on: Prompt basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Prompt basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Prompt basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Language Models; Part 2: Tokens; Part 2: Probability; Part 2: Basic Prompts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -54,7 +150,55 @@
         "ChatGPT"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Prompting techniques"
+      "lab_task": "Prompting techniques",
+      "deliverable": "Participant submission for 'Prompt Techniques': Prompting techniques. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Prompting techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Zero-shot; Few-shot; Chain of Thought). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Prompting techniques.",
+        "Explain how the lab applies Prompt Techniques and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Prompt Techniques' on a prepared training sample through this task: Prompting techniques.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Prompting techniques",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Zero-shot; Few-shot; Chain of Thought) and demonstrate the starting sample for: Prompting techniques",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Prompting techniques",
+          "evidence": "Participant submission for 'Prompt Techniques': Prompting techniques. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Prompting techniques' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Prompting techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Zero-shot; Few-shot; Chain of Thought). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -68,7 +212,55 @@
         "ChatGPT"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Prompting techniques"
+      "lab_task": "Part 2 hands-on: Prompting techniques",
+      "deliverable": "Participant submission for 'Prompt Techniques - Part 2': Part 2 hands-on: Prompting techniques. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Prompting techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Zero-shot; Part 2: Few-shot; Part 2: Chain of Thought). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Prompting techniques.",
+        "Explain how the lab applies Prompt Techniques - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Prompt Techniques - Part 2' on a prepared training sample through this task: Part 2 hands-on: Prompting techniques.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Prompting techniques",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Zero-shot; Part 2: Few-shot; Part 2: Chain of Thought) and demonstrate the starting sample for: Part 2 hands-on: Prompting techniques",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Prompting techniques",
+          "evidence": "Participant submission for 'Prompt Techniques - Part 2': Part 2 hands-on: Prompting techniques. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Prompting techniques' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Prompting techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Zero-shot; Part 2: Few-shot; Part 2: Chain of Thought). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -83,7 +275,55 @@
         "Claude"
       ],
       "jira_focus": "Sprint planning; review progress for Writing Effective Prompts",
-      "lab_task": "Effective prompts"
+      "lab_task": "Effective prompts",
+      "deliverable": "Participant submission for 'Writing Effective Prompts': Effective prompts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Effective prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Clarity; Specificity; Context; Instructions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Effective prompts.",
+        "Explain how the lab applies Writing Effective Prompts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Writing Effective Prompts' on a prepared training sample through this task: Effective prompts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Effective prompts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Clarity; Specificity; Context; Instructions) and demonstrate the starting sample for: Effective prompts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Effective prompts",
+          "evidence": "Participant submission for 'Writing Effective Prompts': Effective prompts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Effective prompts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Effective prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Clarity; Specificity; Context; Instructions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -98,7 +338,55 @@
         "Claude"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Effective prompts"
+      "lab_task": "Part 2 hands-on: Effective prompts",
+      "deliverable": "Participant submission for 'Writing Effective Prompts - Part 2': Part 2 hands-on: Effective prompts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Effective prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Clarity; Part 2: Specificity; Part 2: Context; Part 2: Instructions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Effective prompts.",
+        "Explain how the lab applies Writing Effective Prompts - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Writing Effective Prompts - Part 2' on a prepared training sample through this task: Part 2 hands-on: Effective prompts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Effective prompts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Clarity; Part 2: Specificity; Part 2: Context; Part 2: Instructions) and demonstrate the starting sample for: Part 2 hands-on: Effective prompts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Effective prompts",
+          "evidence": "Participant submission for 'Writing Effective Prompts - Part 2': Part 2 hands-on: Effective prompts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Effective prompts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Effective prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Clarity; Part 2: Specificity; Part 2: Context; Part 2: Instructions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -112,7 +400,55 @@
         "GPT-4"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "CoT reasoning"
+      "lab_task": "CoT reasoning",
+      "deliverable": "Participant submission for 'Chain of Thought Prompting': CoT reasoning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: CoT reasoning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Step-by-step; Reasoning; Complex Problems). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: CoT reasoning.",
+        "Explain how the lab applies Chain of Thought Prompting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Chain of Thought Prompting' on a prepared training sample through this task: CoT reasoning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: CoT reasoning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Step-by-step; Reasoning; Complex Problems) and demonstrate the starting sample for: CoT reasoning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "CoT reasoning",
+          "evidence": "Participant submission for 'Chain of Thought Prompting': CoT reasoning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'CoT reasoning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: CoT reasoning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Step-by-step; Reasoning; Complex Problems). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -126,7 +462,55 @@
         "GPT-4"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: CoT reasoning"
+      "lab_task": "Part 2 hands-on: CoT reasoning",
+      "deliverable": "Participant submission for 'Chain of Thought Prompting - Part 2': Part 2 hands-on: CoT reasoning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: CoT reasoning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Step-by-step; Part 2: Reasoning; Part 2: Complex Problems). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: CoT reasoning.",
+        "Explain how the lab applies Chain of Thought Prompting - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Chain of Thought Prompting - Part 2' on a prepared training sample through this task: Part 2 hands-on: CoT reasoning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: CoT reasoning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Step-by-step; Part 2: Reasoning; Part 2: Complex Problems) and demonstrate the starting sample for: Part 2 hands-on: CoT reasoning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: CoT reasoning",
+          "evidence": "Participant submission for 'Chain of Thought Prompting - Part 2': Part 2 hands-on: CoT reasoning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: CoT reasoning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: CoT reasoning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Step-by-step; Part 2: Reasoning; Part 2: Complex Problems). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -140,7 +524,55 @@
         "LLMs"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Persona prompting"
+      "lab_task": "Persona prompting",
+      "deliverable": "Participant submission for 'Role-Based Prompting': Persona prompting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Persona prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Personas; Expert Roles; Character Consistency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Persona prompting.",
+        "Explain how the lab applies Role-Based Prompting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Role-Based Prompting' on a prepared training sample through this task: Persona prompting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Persona prompting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Personas; Expert Roles; Character Consistency) and demonstrate the starting sample for: Persona prompting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Persona prompting",
+          "evidence": "Participant submission for 'Role-Based Prompting': Persona prompting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Persona prompting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Persona prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Personas; Expert Roles; Character Consistency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -154,7 +586,55 @@
         "LLMs"
       ],
       "jira_focus": "Sprint planning; review progress for Role-Based Prompting",
-      "lab_task": "Part 2 hands-on: Persona prompting"
+      "lab_task": "Part 2 hands-on: Persona prompting",
+      "deliverable": "Participant submission for 'Role-Based Prompting - Part 2': Part 2 hands-on: Persona prompting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Persona prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Personas; Part 2: Expert Roles; Part 2: Character Consistency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Persona prompting.",
+        "Explain how the lab applies Role-Based Prompting - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Role-Based Prompting - Part 2' on a prepared training sample through this task: Part 2 hands-on: Persona prompting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Persona prompting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Personas; Part 2: Expert Roles; Part 2: Character Consistency) and demonstrate the starting sample for: Part 2 hands-on: Persona prompting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Persona prompting",
+          "evidence": "Participant submission for 'Role-Based Prompting - Part 2': Part 2 hands-on: Persona prompting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Persona prompting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Persona prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Personas; Part 2: Expert Roles; Part 2: Character Consistency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -169,7 +649,55 @@
         "API Parameters"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Parameter tuning"
+      "lab_task": "Parameter tuning",
+      "deliverable": "Participant submission for 'Temperature & Parameters': Parameter tuning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Parameter tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Sampling; Top-k; Top-p; Frequency Penalty). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Parameter tuning.",
+        "Explain how the lab applies Temperature & Parameters and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Temperature & Parameters' on a prepared training sample through this task: Parameter tuning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Parameter tuning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Sampling; Top-k; Top-p; Frequency Penalty) and demonstrate the starting sample for: Parameter tuning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Parameter tuning",
+          "evidence": "Participant submission for 'Temperature & Parameters': Parameter tuning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Parameter tuning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Parameter tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Sampling; Top-k; Top-p; Frequency Penalty). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -184,7 +712,55 @@
         "API Parameters"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Parameter tuning"
+      "lab_task": "Part 2 hands-on: Parameter tuning",
+      "deliverable": "Participant submission for 'Temperature & Parameters - Part 2': Part 2 hands-on: Parameter tuning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Parameter tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Sampling; Part 2: Top-k; Part 2: Top-p; Part 2: Frequency Penalty). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Parameter tuning.",
+        "Explain how the lab applies Temperature & Parameters - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Temperature & Parameters - Part 2' on a prepared training sample through this task: Part 2 hands-on: Parameter tuning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Parameter tuning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Sampling; Part 2: Top-k; Part 2: Top-p; Part 2: Frequency Penalty) and demonstrate the starting sample for: Part 2 hands-on: Parameter tuning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Parameter tuning",
+          "evidence": "Participant submission for 'Temperature & Parameters - Part 2': Part 2 hands-on: Parameter tuning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Parameter tuning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Parameter tuning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Sampling; Part 2: Top-k; Part 2: Top-p; Part 2: Frequency Penalty). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -198,7 +774,55 @@
         "Function Calling"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Tool integration"
+      "lab_task": "Tool integration",
+      "deliverable": "Participant submission for 'Function Calling': Tool integration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Tool integration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tool Use; Structured Output; API Integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Tool integration.",
+        "Explain how the lab applies Function Calling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Function Calling' on a prepared training sample through this task: Tool integration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Tool integration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Tool Use; Structured Output; API Integration) and demonstrate the starting sample for: Tool integration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Tool integration",
+          "evidence": "Participant submission for 'Function Calling': Tool integration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Tool integration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Tool integration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Tool Use; Structured Output; API Integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -212,7 +836,55 @@
         "Function Calling"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Tool integration"
+      "lab_task": "Part 2 hands-on: Tool integration",
+      "deliverable": "Participant submission for 'Function Calling - Part 2': Part 2 hands-on: Tool integration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Tool integration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Tool Use; Part 2: Structured Output; Part 2: API Integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Tool integration.",
+        "Explain how the lab applies Function Calling - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Function Calling - Part 2' on a prepared training sample through this task: Part 2 hands-on: Tool integration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Tool integration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Tool Use; Part 2: Structured Output; Part 2: API Integration) and demonstrate the starting sample for: Part 2 hands-on: Tool integration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Tool integration",
+          "evidence": "Participant submission for 'Function Calling - Part 2': Part 2 hands-on: Tool integration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Tool integration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Tool integration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Tool Use; Part 2: Structured Output; Part 2: API Integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -227,7 +899,55 @@
         "Structured Output"
       ],
       "jira_focus": "Sprint planning; review progress for Working with Structured Data",
-      "lab_task": "Structured prompts"
+      "lab_task": "Structured prompts",
+      "deliverable": "Participant submission for 'Working with Structured Data': Structured prompts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Structured prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JSON; Parsing; Validation; Schema). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Structured prompts.",
+        "Explain how the lab applies Working with Structured Data and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Working with Structured Data' on a prepared training sample through this task: Structured prompts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Structured prompts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JSON; Parsing; Validation; Schema) and demonstrate the starting sample for: Structured prompts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Structured prompts",
+          "evidence": "Participant submission for 'Working with Structured Data': Structured prompts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Structured prompts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Structured prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JSON; Parsing; Validation; Schema). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -242,7 +962,55 @@
         "Structured Output"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Structured prompts"
+      "lab_task": "Part 2 hands-on: Structured prompts",
+      "deliverable": "Participant submission for 'Working with Structured Data - Part 2': Part 2 hands-on: Structured prompts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Structured prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: JSON; Part 2: Parsing; Part 2: Validation; Part 2: Schema). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Structured prompts.",
+        "Explain how the lab applies Working with Structured Data - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Working with Structured Data - Part 2' on a prepared training sample through this task: Part 2 hands-on: Structured prompts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Structured prompts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: JSON; Part 2: Parsing; Part 2: Validation; Part 2: Schema) and demonstrate the starting sample for: Part 2 hands-on: Structured prompts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Structured prompts",
+          "evidence": "Participant submission for 'Working with Structured Data - Part 2': Part 2 hands-on: Structured prompts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Structured prompts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Structured prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: JSON; Part 2: Parsing; Part 2: Validation; Part 2: Schema). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -256,7 +1024,55 @@
         "RAG"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "RAG prompting"
+      "lab_task": "RAG prompting",
+      "deliverable": "Participant submission for 'Retrieval-Augmented Generation': RAG prompting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: RAG prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Context Injection; Document Retrieval; Dynamic Context). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: RAG prompting.",
+        "Explain how the lab applies Retrieval-Augmented Generation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Retrieval-Augmented Generation' on a prepared training sample through this task: RAG prompting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: RAG prompting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Context Injection; Document Retrieval; Dynamic Context) and demonstrate the starting sample for: RAG prompting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "RAG prompting",
+          "evidence": "Participant submission for 'Retrieval-Augmented Generation': RAG prompting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'RAG prompting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: RAG prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Context Injection; Document Retrieval; Dynamic Context). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -270,7 +1086,55 @@
         "RAG"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: RAG prompting"
+      "lab_task": "Part 2 hands-on: RAG prompting",
+      "deliverable": "Participant submission for 'Retrieval-Augmented Generation - Part 2': Part 2 hands-on: RAG prompting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: RAG prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Context Injection; Part 2: Document Retrieval; Part 2: Dynamic Context). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: RAG prompting.",
+        "Explain how the lab applies Retrieval-Augmented Generation - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Retrieval-Augmented Generation - Part 2' on a prepared training sample through this task: Part 2 hands-on: RAG prompting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: RAG prompting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Context Injection; Part 2: Document Retrieval; Part 2: Dynamic Context) and demonstrate the starting sample for: Part 2 hands-on: RAG prompting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: RAG prompting",
+          "evidence": "Participant submission for 'Retrieval-Augmented Generation - Part 2': Part 2 hands-on: RAG prompting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: RAG prompting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: RAG prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Context Injection; Part 2: Document Retrieval; Part 2: Dynamic Context). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -284,7 +1148,55 @@
         "Conversation"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Conversation design"
+      "lab_task": "Conversation design",
+      "deliverable": "Participant submission for 'Multi-turn Conversations': Conversation design. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Conversation design. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Context Management; Memory; Continuity). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Conversation design.",
+        "Explain how the lab applies Multi-turn Conversations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Multi-turn Conversations' on a prepared training sample through this task: Conversation design.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Conversation design",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Context Management; Memory; Continuity) and demonstrate the starting sample for: Conversation design",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Conversation design",
+          "evidence": "Participant submission for 'Multi-turn Conversations': Conversation design. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Conversation design' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Conversation design. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Context Management; Memory; Continuity). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -298,7 +1210,55 @@
         "Conversation"
       ],
       "jira_focus": "Sprint planning; review progress for Multi-turn Conversations",
-      "lab_task": "Part 2 hands-on: Conversation design"
+      "lab_task": "Part 2 hands-on: Conversation design",
+      "deliverable": "Participant submission for 'Multi-turn Conversations - Part 2': Part 2 hands-on: Conversation design. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Conversation design. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Context Management; Part 2: Memory; Part 2: Continuity). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Conversation design.",
+        "Explain how the lab applies Multi-turn Conversations - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Multi-turn Conversations - Part 2' on a prepared training sample through this task: Part 2 hands-on: Conversation design.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Conversation design",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Context Management; Part 2: Memory; Part 2: Continuity) and demonstrate the starting sample for: Part 2 hands-on: Conversation design",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Conversation design",
+          "evidence": "Participant submission for 'Multi-turn Conversations - Part 2': Part 2 hands-on: Conversation design. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Conversation design' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Conversation design. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Context Management; Part 2: Memory; Part 2: Continuity). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -312,7 +1272,55 @@
         "Prompt Testing"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Optimization techniques"
+      "lab_task": "Optimization techniques",
+      "deliverable": "Participant submission for 'Prompt Optimization': Optimization techniques. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Optimization techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Iterative Refinement; Testing; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Optimization techniques.",
+        "Explain how the lab applies Prompt Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Prompt Optimization' on a prepared training sample through this task: Optimization techniques.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Optimization techniques",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Iterative Refinement; Testing; Evaluation) and demonstrate the starting sample for: Optimization techniques",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Optimization techniques",
+          "evidence": "Participant submission for 'Prompt Optimization': Optimization techniques. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Optimization techniques' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Optimization techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Iterative Refinement; Testing; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -326,7 +1334,55 @@
         "Prompt Testing"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Optimization techniques"
+      "lab_task": "Part 2 hands-on: Optimization techniques",
+      "deliverable": "Participant submission for 'Prompt Optimization - Part 2': Part 2 hands-on: Optimization techniques. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Optimization techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Iterative Refinement; Part 2: Testing; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Optimization techniques.",
+        "Explain how the lab applies Prompt Optimization - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Prompt Optimization - Part 2' on a prepared training sample through this task: Part 2 hands-on: Optimization techniques.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Optimization techniques",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Iterative Refinement; Part 2: Testing; Part 2: Evaluation) and demonstrate the starting sample for: Part 2 hands-on: Optimization techniques",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Optimization techniques",
+          "evidence": "Participant submission for 'Prompt Optimization - Part 2': Part 2 hands-on: Optimization techniques. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Optimization techniques' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Optimization techniques. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Iterative Refinement; Part 2: Testing; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -340,7 +1396,55 @@
         "Error Handling"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Robust prompts"
+      "lab_task": "Robust prompts",
+      "deliverable": "Participant submission for 'Error Handling & Robustness': Robust prompts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Robust prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Fallbacks; Validation; Recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Robust prompts.",
+        "Explain how the lab applies Error Handling & Robustness and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Error Handling & Robustness' on a prepared training sample through this task: Robust prompts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Robust prompts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Fallbacks; Validation; Recovery) and demonstrate the starting sample for: Robust prompts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Robust prompts",
+          "evidence": "Participant submission for 'Error Handling & Robustness': Robust prompts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Robust prompts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Robust prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Fallbacks; Validation; Recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -354,7 +1458,55 @@
         "Error Handling"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Robust prompts"
+      "lab_task": "Part 2 hands-on: Robust prompts",
+      "deliverable": "Participant submission for 'Error Handling & Robustness - Part 2': Part 2 hands-on: Robust prompts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Robust prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Fallbacks; Part 2: Validation; Part 2: Recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Robust prompts.",
+        "Explain how the lab applies Error Handling & Robustness - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Error Handling & Robustness - Part 2' on a prepared training sample through this task: Part 2 hands-on: Robust prompts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Robust prompts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Fallbacks; Part 2: Validation; Part 2: Recovery) and demonstrate the starting sample for: Part 2 hands-on: Robust prompts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Robust prompts",
+          "evidence": "Participant submission for 'Error Handling & Robustness - Part 2': Part 2 hands-on: Robust prompts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Robust prompts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Robust prompts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Fallbacks; Part 2: Validation; Part 2: Recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -368,7 +1520,55 @@
         "Cost Analysis"
       ],
       "jira_focus": "Sprint planning; review progress for Cost Optimization",
-      "lab_task": "Cost optimization"
+      "lab_task": "Cost optimization",
+      "deliverable": "Participant submission for 'Cost Optimization': Cost optimization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cost optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Token Counting; Model Selection; Efficiency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Cost optimization.",
+        "Explain how the lab applies Cost Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cost Optimization' on a prepared training sample through this task: Cost optimization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cost optimization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Token Counting; Model Selection; Efficiency) and demonstrate the starting sample for: Cost optimization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cost optimization",
+          "evidence": "Participant submission for 'Cost Optimization': Cost optimization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cost optimization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cost optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Token Counting; Model Selection; Efficiency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -382,7 +1582,55 @@
         "Cost Analysis"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Cost optimization"
+      "lab_task": "Part 2 hands-on: Cost optimization",
+      "deliverable": "Participant submission for 'Cost Optimization - Part 2': Part 2 hands-on: Cost optimization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Cost optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Token Counting; Part 2: Model Selection; Part 2: Efficiency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Cost optimization.",
+        "Explain how the lab applies Cost Optimization - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cost Optimization - Part 2' on a prepared training sample through this task: Part 2 hands-on: Cost optimization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Cost optimization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Token Counting; Part 2: Model Selection; Part 2: Efficiency) and demonstrate the starting sample for: Part 2 hands-on: Cost optimization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Cost optimization",
+          "evidence": "Participant submission for 'Cost Optimization - Part 2': Part 2 hands-on: Cost optimization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Cost optimization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Cost optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Token Counting; Part 2: Model Selection; Part 2: Efficiency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -396,7 +1644,55 @@
         "Creative Uses"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Creative applications"
+      "lab_task": "Creative applications",
+      "deliverable": "Participant submission for 'Creative Prompting': Creative applications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Creative applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Storytelling; Code Generation; Content Creation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Creative applications.",
+        "Explain how the lab applies Creative Prompting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Creative Prompting' on a prepared training sample through this task: Creative applications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Creative applications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Storytelling; Code Generation; Content Creation) and demonstrate the starting sample for: Creative applications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Creative applications",
+          "evidence": "Participant submission for 'Creative Prompting': Creative applications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Creative applications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Creative applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Storytelling; Code Generation; Content Creation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -410,7 +1706,55 @@
         "Creative Uses"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Creative applications"
+      "lab_task": "Part 2 hands-on: Creative applications",
+      "deliverable": "Participant submission for 'Creative Prompting - Part 2': Part 2 hands-on: Creative applications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Creative applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Storytelling; Part 2: Code Generation; Part 2: Content Creation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Creative applications.",
+        "Explain how the lab applies Creative Prompting - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Creative Prompting - Part 2' on a prepared training sample through this task: Part 2 hands-on: Creative applications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Creative applications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Storytelling; Part 2: Code Generation; Part 2: Content Creation) and demonstrate the starting sample for: Part 2 hands-on: Creative applications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Creative applications",
+          "evidence": "Participant submission for 'Creative Prompting - Part 2': Part 2 hands-on: Creative applications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Creative applications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Creative applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Storytelling; Part 2: Code Generation; Part 2: Content Creation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -424,7 +1768,55 @@
         "Advanced"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Advanced prompting"
+      "lab_task": "Advanced prompting",
+      "deliverable": "Participant submission for 'Advanced Patterns': Advanced prompting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Advanced prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agent Prompts; Self-improving Prompts; Meta-prompting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Advanced prompting.",
+        "Explain how the lab applies Advanced Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Patterns' on a prepared training sample through this task: Advanced prompting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Advanced prompting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agent Prompts; Self-improving Prompts; Meta-prompting) and demonstrate the starting sample for: Advanced prompting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Advanced prompting",
+          "evidence": "Participant submission for 'Advanced Patterns': Advanced prompting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Advanced prompting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Advanced prompting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agent Prompts; Self-improving Prompts; Meta-prompting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -438,7 +1830,55 @@
         "Advanced"
       ],
       "jira_focus": "Sprint planning; review progress for Advanced Patterns",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agent Prompts; Self-improving Prompts; Meta-prompting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agent Prompts; Self-improving Prompts; Meta-prompting) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agent Prompts; Self-improving Prompts; Meta-prompting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -457,5 +1897,10 @@
     "https://openai.github.io/openai-agents-python/",
     "https://openai.github.io/openai-agents-python/agents/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

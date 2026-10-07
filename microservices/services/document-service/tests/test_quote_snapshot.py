@@ -11,6 +11,8 @@ from shared import live_lab_pricing
 def setup(monkeypatch):
     monkeypatch.setattr('shared.toc_quality.toc_delivery_error', lambda toc: '')
     monkeypatch.setattr('app.lab_recalculation.recalculate_lab_workbook', lambda raw: raw)
+    # The workbook bytes in this test are a stand-in, not a real xlsx.
+    monkeypatch.setattr('app.lab_recalculation.final_estimated_cost', lambda content: None)
     monkeypatch.setattr(excel, '_lab_cost_to_excel', lambda toc, values: b'calculated workbook')
     db = {'lab_pricing_catalogs': SimpleNamespace(find_one=AsyncMock(return_value=None)),
           'lab_cost_rate_snapshots': SimpleNamespace(find_one=AsyncMock(return_value=None), insert_one=AsyncMock())}
@@ -28,6 +30,8 @@ def test_quote_refreshes_fx_and_saves_exact_snapshot(monkeypatch):
         assert values['participant_count'] == 29
         assert values['hours_per_day'] == 3
         assert values['lab_day_mapping'][0]['vm_qty'] == 29
+        assert 'VM' in values['pricing_selections']
+        assert 'VM Light' in values['pricing_selections']
         return dict(values, rate_snapshot_id='QUOTE-TEST', rate_checked_at='2026-09-16T09:00:00+00:00',
                     quote_valid_until='2026-09-23T09:00:00+00:00',
                     rate_card_overrides={}, pricing_status='provider_api_verified_public_retail')

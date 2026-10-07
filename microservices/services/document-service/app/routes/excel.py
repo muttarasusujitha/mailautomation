@@ -144,6 +144,10 @@ def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> b
 
 def _toc_to_excel(toc: Dict[str, Any]) -> bytes:
     """Export AI and manual ToCs in their respective user-approved templates."""
+    from shared.toc_layouts import REFERENCE_LAYOUTS
+    if toc.get("excel_layout") in REFERENCE_LAYOUTS:
+        from app.toc_reference_excel import render_reference_toc
+        return render_reference_toc(toc)
     if str(toc.get("generation_mode") or "").strip().lower() == "ai":
         return _toc_to_eight_column_template(toc, TOC_GREEN_TEMPLATE_PATH)
     # Manual / dataset content intentionally uses the separate orange
@@ -561,7 +565,7 @@ HEAVY_WORKLOAD_KEYWORDS = (
 
 
 def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[str, Any]] = None) -> bytes:
-    """Populate the approved five-sheet Lab Cost template without changing its design."""
+    """Populate lab-cost calculations and the concise day-wise client view."""
     import openpyxl
     from copy import copy
 
@@ -602,18 +606,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         return max(1, int(round(as_number(key, default, 1))))
 
     def day_text(day: Dict[str, Any]) -> str:
-        parts: List[Any] = [
-            day.get("category"), day.get("module"), day.get("focus_area"), day.get("title"),
-            day.get("topic"), day.get("tools"), day.get("lab"), day.get("lab_task"), day.get("subtopics"),
-        ]
-        for session_name in ("morning_session", "afternoon_session"):
-            session = day.get(session_name) or {}
-            parts.extend([session.get("title"), session.get("time")])
-            parts.extend(
-                item.get("topic") if isinstance(item, dict) else item
-                for item in (session.get("topics") or [])
-            )
-        return " ".join(str(part) for part in parts if part).lower()
+        from shared.lab_curriculum import cloud_lab_text
+        return cloud_lab_text(day)
 
     def day_title(day: Dict[str, Any], index: int) -> str:
         return str(
@@ -628,6 +622,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         max(1, int(float(day.get("duration_days") or day.get("days") or 1)))
         for day in days
     )
+    if not 1 <= duration_days <= 30:
+        raise ValueError("Lab cost estimates support training durations from 1 to 30 days")
     title = str(toc.get("title") or toc.get("domain") or toc.get("technology") or "Training").strip()
 
     workbook = openpyxl.load_workbook(LAB_COST_TEMPLATE_PATH)
@@ -639,9 +635,9 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     assumptions_ws["B8"] = duration_days
     assumptions_ws["B9"] = as_positive_int("participant_count", 1)
     assumptions_ws["B10"] = as_number("storage_gb", 10, 0)
-    assumptions_ws["B11"] = as_number("egress_gb", 1, 0)
-    assumptions_ws["B12"] = as_number("build_minutes", 60, 0)
-    assumptions_ws["B13"] = as_number("monitoring_gb", 1, 0)
+    assumptions_ws["B11"] = as_number("egress_gb", 0, 0)
+    assumptions_ws["B12"] = as_number("build_minutes", 0, 0)
+    assumptions_ws["B13"] = as_number("monitoring_gb", 0, 0)
     assumptions_ws["B14"] = as_positive_int("k8s_worker_nodes", 1)
     assumptions_ws["B15"] = as_number("fx_rate", 84, 0.01)
     assumptions_ws["B16"] = as_number("contingency_percent", 10, 0) / 100
@@ -651,12 +647,18 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     package = str(values.get("lab_package") or "standard").strip().lower()
     assumptions_ws["B18"] = package.title() if package in {"basic", "standard", "advanced"} else "Standard"
     assumptions_ws["B19"] = as_positive_int("quote_validity_days", 7)
+    # Lab workbooks are client quotations. Apply Clahan's standard service
+    # uplift to the final client amount; raw provider cost remains part of
+    # the calculation/audit trail, not the amount offered to the client.
+    client_lab_markup_percent = values["clahan_margin_percent"]
+    if client_lab_markup_percent > 100:
+        raise ValueError("client_lab_markup_percent cannot exceed 100")
 
     # The supplied template owns the entire visual structure.  Replace only
     # its example mapping rows with one accurately mapped row per ToC day.
     mapping_ws = workbook["TOC Mapping"]
-    body_styles = [copy(mapping_ws.cell(4, min(column, 8))._style) for column in range(1, 10)]
-    body_alignments = [copy(mapping_ws.cell(4, min(column, 8)).alignment) for column in range(1, 10)]
+    body_styles = [copy(mapping_ws.cell(4, min(column, 8))._style) for column in range(1, 12)]
+    body_alignments = [copy(mapping_ws.cell(4, min(column, 8)).alignment) for column in range(1, 12)]
     body_row_height = mapping_ws.row_dimensions[4].height
     note_title_style = copy(mapping_ws["A10"]._style)
     note_title_alignment = copy(mapping_ws["A10"].alignment)
@@ -671,6 +673,13 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     mapping_ws.cell(3, 9)._style = copy(mapping_ws.cell(3, 8)._style)
     mapping_ws.cell(3, 9).alignment = copy(mapping_ws.cell(3, 8).alignment)
     mapping_ws.column_dimensions["I"].width = 13
+    mapping_ws.cell(3, 10, "Storage PUT requests / day")
+    mapping_ws.cell(3, 11, "Storage GET requests / day")
+    for column in (10, 11):
+        mapping_ws.cell(3, column)._style = copy(mapping_ws.cell(3, 8)._style)
+        mapping_ws.cell(3, column).alignment = copy(mapping_ws.cell(3, 8).alignment)
+    mapping_ws.column_dimensions["J"].width = 24
+    mapping_ws.column_dimensions["K"].width = 24
 
     # `lab_day_mapping` is the auditable hand-off from a trainer/client lab
     # template. It may be keyed by 1-based day number or provided as a list.
@@ -718,6 +727,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
             mapped_quantity(template, "managed_db", 1 if database_needed else 0),
             mapped_quantity(template, "object_storage_gb", "=Assumptions!$B$10" if storage_needed else 0),
             mapped_quantity(template, "active_days", max(1, int(float(day.get("duration_days") or day.get("days") or 1)))),
+            mapped_quantity(template, "storage_put_requests", int(values.get("participant_count", 1) * values.get("storage_put_requests_per_participant_day", 1)) if storage_needed else 0),
+            mapped_quantity(template, "storage_get_requests", int(values.get("participant_count", 1) * values.get("storage_get_requests_per_participant_day", 10)) if storage_needed else 0),
         ]
         for column, value in enumerate(row_values, 1):
             cell = mapping_ws.cell(row, column, value)
@@ -728,15 +739,15 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     mapping_end_row = len(days) + 3
     mapping_table = mapping_ws.tables.get("TOCMappingTable")
     if mapping_table:
-        mapping_table.ref = f"A3:I{mapping_end_row}"
+        mapping_table.ref = f"A3:K{mapping_end_row}"
     note_title_row = mapping_end_row + 2
     note_body_row = note_title_row + 1
-    mapping_ws.merge_cells(start_row=note_title_row, start_column=1, end_row=note_title_row, end_column=9)
+    mapping_ws.merge_cells(start_row=note_title_row, start_column=1, end_row=note_title_row, end_column=11)
     mapping_ws.cell(note_title_row, 1, "Mapping note")
     mapping_ws.cell(note_title_row, 1)._style = note_title_style
     mapping_ws.cell(note_title_row, 1).alignment = note_title_alignment
-    mapping_ws.merge_cells(start_row=note_body_row, start_column=1, end_row=note_body_row + 1, end_column=9)
-    mapping_ws.cell(note_body_row, 1, note_text + " VM Light and Heavy rows are billed separately from the Rate Card; active days prevent multi-day labs from being under-counted.")
+    mapping_ws.merge_cells(start_row=note_body_row, start_column=1, end_row=note_body_row + 1, end_column=11)
+    mapping_ws.cell(note_body_row, 1, note_text + " VM Light and Heavy rows are billed separately. Storage defaults to 1 PUT and 10 GET requests per participant per storage-active day; change the mapping counts to match the lab. Blob transactions and S3 API requests are billed separately from stored GB.")
     mapping_ws.cell(note_body_row, 1)._style = note_body_style
     mapping_ws.cell(note_body_row, 1).alignment = note_body_alignment
 
@@ -763,12 +774,40 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
                 continue
             if override.get("rate") is not None:
                 rate_ws.cell(row, 5, max(0, float(override["rate"])))
+            if override.get("unit"):
+                rate_ws.cell(row, 4, str(override["unit"]))
             if override.get("source"):
                 rate_ws.cell(row, 7, str(override["source"]))
             rate_ws.cell(row, 8, str(override.get("verified_date") or values.get("rate_card_verified_date") or datetime.now().date().isoformat()))
             rate_ws.cell(row, 7).comment = openpyxl.comments.Comment(
                 str(override.get("note") or "Current rate supplied for this estimate"), "Codex"
             )
+        configured_selections = values.get("pricing_selections") or {}
+        dynamic_resources = ["Managed database storage", "Object storage PUT requests", "Object storage GET requests"]
+        dynamic_resources.extend(name for name in configured_selections
+                                 if name not in {"VM", "VM Light", "VM Heavy", "Kubernetes control plane",
+                                                 "Kubernetes worker", "Disk", "Storage", "Egress",
+                                                 "Object storage PUT requests", "Object storage GET requests",
+                                                 "Build runner", "Managed database", "Managed database storage",
+                                                 "Monitoring"})
+        for resource in dict.fromkeys(dynamic_resources):
+            override = rate_card_overrides.get(resource) or {}
+            if not isinstance(override, dict) or not override.get("source") or override.get("sku") == "NOT_BILLED":
+                continue
+            rate_end_row += 1
+            for column in range(1, 9):
+                rate_ws.cell(rate_end_row, column)._style = copy(rate_ws.cell(4, column)._style)
+                rate_ws.cell(rate_end_row, column).alignment = copy(rate_ws.cell(4, column).alignment)
+            rate_ws.cell(rate_end_row, 1, provider_label)
+            rate_ws.cell(rate_end_row, 2, region_label)
+            rate_ws.cell(rate_end_row, 3, resource)
+            unit = str(override.get("unit") or "")
+            rate_ws.cell(rate_end_row, 4, {"Requests": "per request", "GB-Mo": "GB-month", "1 GB/Month": "GB-month", "1/Day": "per database-day", "Hrs": "per hour", "Hours": "per hour"}.get(unit, unit))
+            rate_ws.cell(rate_end_row, 5, max(0, float(override.get("rate", 0))))
+            rate_ws.cell(rate_end_row, 6, f"=E{rate_end_row}*'Assumptions'!$B$15")
+            rate_ws.cell(rate_end_row, 7, str(override.get("source")))
+            rate_ws.cell(rate_end_row, 8, str(override.get("verified_date") or values.get("rate_card_verified_date") or datetime.now().date().isoformat()))
+            rate_ws.cell(rate_end_row, 7).comment = openpyxl.comments.Comment(str(override.get("note") or "Live provider rate"), "Codex")
     selected_vm_row = next(
         (row for row in range(4, rate_end_row + 1)
          if rate_ws.cell(row, 1).value == provider_label and rate_ws.cell(row, 2).value == region_label
@@ -808,6 +847,12 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         if resource not in {"VM Light", "VM Heavy"} and rate_ws.cell(row, 1).value == provider_label and rate_ws.cell(row, 2).value == region_label:
             rate_ws.cell(row, 6, f"=E{row}*'Assumptions'!$B$15")
 
+    for ws in workbook.worksheets:
+        for cells in ws.iter_rows():
+            for cell in cells:
+                if isinstance(cell.value, str) and cell.value.startswith("=") and "'Rate Card'!" in cell.value:
+                    cell.value = cell.value.replace("$30", f"${rate_end_row}")
+
     # Billing is driven by resource-days in the mapping. This avoids the old
     # peak-quantity approximation and makes every ToC line auditable.
     breakdown_ws = workbook["Resource Cost Breakdown"]
@@ -819,10 +864,13 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         "database": f"'TOC Mapping'!$G$4:$G${mapping_end_row}",
         "storage": f"'TOC Mapping'!$H$4:$H${mapping_end_row}",
         "days": f"'TOC Mapping'!$I$4:$I${mapping_end_row}",
+        "put": f"'TOC Mapping'!$J$4:$J${mapping_end_row}",
+        "get": f"'TOC Mapping'!$K$4:$K${mapping_end_row}",
     }
     for cost_row, key in ((5, "control"), (6, "worker"), (11, "database")):
         breakdown_ws[f"B{cost_row}"] = f"=SUMPRODUCT({mapping_ranges[key]},{mapping_ranges['days']})"
-        breakdown_ws[f"F{cost_row}"] = "='Assumptions'!$B$7"
+        daily_database = cost_row == 11 and str((rate_card_overrides.get("Managed database") or {}).get("unit")) == "1/Day"
+        breakdown_ws[f"F{cost_row}"] = 1 if daily_database else "='Assumptions'!$B$7"
         breakdown_ws[f"H{cost_row}"] = f"=B{cost_row}*D{cost_row}*F{cost_row}"
         breakdown_ws[f"G{cost_row}"] = "Resource-days × Rate × Hours/day"
     breakdown_ws["A4"] = "VM (profiled)"
@@ -853,6 +901,53 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     breakdown_ws["F8"] = 1
     breakdown_ws["G8"] = "GB-days × monthly rate / 30"
     breakdown_ws["H8"] = "=B8*D8/30"
+
+    assumptions_ws["A42"] = "Managed database storage (GB)"
+    assumptions_ws["B42"] = as_number("database_storage_gb", 20, 0)
+    assumptions_ws["C42"] = "GB per database"
+    assumptions_ws["D42"] = "RDS gp3 default 20 GB; Azure SQL S0 includes up to 250 GB and has no separate storage line"
+    for column in range(1, 5):
+        assumptions_ws.cell(42, column)._style = copy(assumptions_ws.cell(19, column)._style)
+    breakdown_ws.insert_rows(14, amount=2)
+    for row in (13, 14, 15):
+        for column in range(1, 11):
+            breakdown_ws.cell(row, column)._style = copy(breakdown_ws.cell(12, column)._style)
+    breakdown_ws["A13"] = "Managed database storage"
+    breakdown_ws["B13"] = f"='Assumptions'!$B$42*SUMPRODUCT({mapping_ranges['database']},{mapping_ranges['days']})/30"
+    breakdown_ws["D13"] = f"=SUMIFS('Rate Card'!$F$4:$F${rate_end_row},'Rate Card'!$A$4:$A${rate_end_row},I13,'Rate Card'!$B$4:$B${rate_end_row},J13,'Rate Card'!$C$4:$C${rate_end_row},A13)"
+    breakdown_ws["F13"] = 1
+    breakdown_ws["G13"] = "GB database-days × monthly rate / 30; included in Azure SQL S0"
+    breakdown_ws["H13"] = "=B13*D13"
+    for row, label, key, title in ((14, "Object storage PUT requests", "put", "PUT"), (15, "Object storage GET requests", "get", "GET")):
+        breakdown_ws[f"A{row}"] = label
+        breakdown_ws[f"B{row}"] = f"=SUMPRODUCT({mapping_ranges[key]},{mapping_ranges['days']})"
+        breakdown_ws[f"D{row}"] = f"=SUMIFS('Rate Card'!$F$4:$F${rate_end_row},'Rate Card'!$A$4:$A${rate_end_row},I{row},'Rate Card'!$B$4:$B${rate_end_row},J{row},'Rate Card'!$C$4:$C${rate_end_row},A{row})"
+        breakdown_ws[f"F{row}"] = 1
+        breakdown_ws[f"G{row}"] = f"{title} requests × per-request rate"
+        breakdown_ws[f"H{row}"] = f"=B{row}*D{row}"
+    additional_names = [name for name in (values.get("pricing_selections") or {})
+                        if name not in {"VM", "VM Light", "VM Heavy", "Kubernetes control plane",
+                                        "Kubernetes worker", "Disk", "Storage", "Egress",
+                                        "Object storage PUT requests", "Object storage GET requests",
+                                        "Build runner", "Managed database", "Managed database storage",
+                                        "Monitoring"}]
+    if additional_names:
+        breakdown_ws.insert_rows(16, amount=len(additional_names))
+    for index, resource in enumerate(additional_names):
+        row = 16 + index
+        for column in range(1, 11):
+            breakdown_ws.cell(row, column)._style = copy(breakdown_ws.cell(15, column)._style)
+        quantity = (values.get("additional_resource_usage") or {}).get(resource, 0)
+        breakdown_ws[f"A{row}"] = resource
+        breakdown_ws[f"B{row}"] = quantity
+        breakdown_ws[f"D{row}"] = f"=SUMIFS('Rate Card'!$F$4:$F${rate_end_row},'Rate Card'!$A$4:$A${rate_end_row},I{row},'Rate Card'!$B$4:$B${rate_end_row},J{row},'Rate Card'!$C$4:$C${rate_end_row},A{row})"
+        breakdown_ws[f"F{row}"] = 1
+        breakdown_ws[f"G{row}"] = "Explicit billed usage × live catalog rate"
+        breakdown_ws[f"H{row}"] = f"=B{row}*D{row}"
+    total_row = 16 + len(additional_names)
+    breakdown_ws[f"A{total_row}"] = "Total Infrastructure Cost"
+    breakdown_ws[f"H{total_row}"] = f"=SUM(H4:H{total_row - 1})"
+    workbook["Client Estimate"]["B8"] = f"='Resource Cost Breakdown'!H{total_row}"
 
     support = as_number("lab_support_per_participant_day", values.get("lab_support_per_participant") or 0, 0)
     assumptions_ws["A21"] = "Applied support rate (INR / participant-day)"
@@ -913,6 +1008,11 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
             assumptions_ws.cell(row, column, value)
             assumptions_ws.cell(row, column)._style = copy(assumptions_ws.cell(19, column)._style)
     workbook["Client Estimate"]["B9"] = "='Assumptions'!B21*'Assumptions'!B9*'Assumptions'!B8"
+    # The final client quote includes the configured uplift, but its internal
+    # commercial composition is never displayed in the client workbook.
+    workbook["Client Estimate"]["A12"] = "Final estimated cost"
+    workbook["Client Estimate"]["B12"] = f"=SUM(B8:B11)*(1+{client_lab_markup_percent / 100:g})"
+    workbook["Client Estimate"]["B13"] = "=B12/Assumptions!B9"
     workbook["Client Estimate"]["A17"] = (
         "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "
         "India GST defaults to 18%. VM profile rate rows marked as template fallback must be replaced with a current provider SKU rate and URL before client approval."
@@ -974,8 +1074,30 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     workbook.calculation.calcMode = "auto"
     workbook.calculation.fullCalcOnLoad = True
     workbook.calculation.forceFullCalc = True
-    # Open the client quote first for a single-cloud attachment.
-    client_sheet_index = workbook.sheetnames.index("Client Estimate")
+    from app.lab_plan import add_lab_plan
+    add_lab_plan(workbook, days, values, profile_rate_rows)
+    if any(day.get('modules') for day in days):
+        from shared.lab_curriculum import local_unit
+        module_sheet = workbook.create_sheet('Module Lab Inputs')
+        module_sheet.append(['Day', 'Module', 'Teaching minutes', 'Practical activity', 'Execution context', 'Lab access hours/day'])
+        for index, day in enumerate(days, 1):
+            for module in day.get('modules') or []:
+                module_sheet.append([day.get('day') or index, module.get('title') or module.get('topic'),
+                    module.get('minutes'), module.get('lab') or module.get('lab_task'),
+                    'Local' if day.get('lab_setup') == 'local' or local_unit(module) else 'Cloud/shared: see TOC Mapping',
+                    "='Assumptions'!$B$7"])
+        for row in module_sheet:
+            for cell in row:
+                if cell.column != 6 and isinstance(cell.value, str):
+                    cell.data_type = 's'
+                cell.alignment = openpyxl.styles.Alignment(wrap_text=True, vertical='top')
+        for col, width in zip('ABCDEF', (10, 38, 18, 85, 35, 25)):
+            module_sheet.column_dimensions[col].width = width
+        module_sheet.freeze_panes = 'A2'
+        module_sheet.auto_filter.ref = module_sheet.dimensions
+    # Deliver one beginner-friendly sheet. Calculation tabs remain available
+    # internally for audit and recalculation, without overwhelming clients.
+    client_sheet_index = workbook.sheetnames.index("Lab Plan")
     workbook.active = client_sheet_index
     from openpyxl.workbook.views import BookView
     if not workbook.views:
@@ -986,6 +1108,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # view first so Excel, Google Drive, and LibreOffice open the quote.
     for sheet_index, sheet in enumerate(workbook.worksheets):
         sheet.sheet_view.tabSelected = sheet_index == client_sheet_index
+        if sheet_index != client_sheet_index:
+            sheet.sheet_state = 'hidden'
     output = io.BytesIO()
     workbook.save(output)
     return output.getvalue()
@@ -1452,7 +1576,7 @@ def _retired_lab_cost_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[s
 
 
 def _lab_cost_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[str, Any]] = None) -> bytes:
-    """Export Lab Cost using the client-approved five-sheet workbook template."""
+    """Export a day-wise lab plan backed by the existing cost workbook."""
     return _lab_cost_template_to_excel(toc, assumptions)
 
 
@@ -1461,13 +1585,19 @@ async def export_toc_workbook(payload: Dict[str, Any] = Body(...)):
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else payload
     from shared.toc_quality import toc_delivery_error
     error = toc_delivery_error(toc)
-    if error:
+    draft = payload.get("draft") is True
+    if error and not (draft and toc.get("days")):
         raise HTTPException(422, error)
+    if draft:
+        # Draft exports are visible review artefacts, never delivery approval.
+        toc = {**toc, "draft_export": True}
+        if toc.get("excel_layout") in (None, "legacy", "auto"):
+            toc["excel_layout"] = "execution_plan"
     workbook = _toc_to_excel(toc)
     return Response(
         content=workbook,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": "attachment; filename=training_toc.xlsx"},
+        headers={"Content-Disposition": "attachment; filename=" + ("DRAFT_training_toc.xlsx" if draft else "training_toc.xlsx")},
     )
 
 
@@ -1512,13 +1642,21 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
             assumptions.pop(key, None)
         for key, default in (("cloud_provider", "aws"), ("hours_per_day", 3), ("participant_count", 1)):
             if assumptions.get(key) in (None, ""):
-                assumptions[key] = default
+                source_key = 'lab_access_hours_per_day' if key == 'hours_per_day' else key
+                assumptions[key] = toc.get(source_key) if toc.get(source_key) not in (None, '') else default
         if assumptions.get("cloud_region") in (None, ""):
             assumptions["cloud_region"] = {"aws": "ap-south-1", "azure": "centralindia", "gcp": "asia-south1"}.get(assumptions["cloud_provider"], "")
         # Caller-supplied FX, including old saved values, is never production evidence.
         for key in ("fx_rate", "fx_rate_source", "fx_rate_date", "fx_rate_fetched_at"):
             assumptions.pop(key, None)
         assumptions = validate_lab_cost_inputs(assumptions, require_fx=False)
+        # Match the trainer-service rule: a fully local course cannot inherit
+        # default cloud egress, build-runner, or monitoring charges.
+        from shared.lab_planning import local_only_delivery
+        toc, is_local_only = local_only_delivery(toc, assumptions)
+        if is_local_only:
+            for key in ('storage_gb', 'egress_gb', 'build_minutes', 'monitoring_gb', 'k8s_worker_nodes'):
+                assumptions[key] = 0
         if not assumptions.get('lab_day_mapping'):
             from shared.lab_planning import default_cloud_mapping
             assumptions['lab_day_mapping'] = default_cloud_mapping(toc, assumptions)
@@ -1529,20 +1667,61 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
                 'Compute hours use the supplied lab-access assumption; disk/storage retention '
                 'uses active days and requires deletion after each mapped lab period.'
             )
+        else:
+            from shared.lab_planning import default_cloud_mapping
+            planned = default_cloud_mapping(toc, assumptions)
+            provided = assumptions['lab_day_mapping']
+            if isinstance(provided, dict):
+                provided_rows = [provided.get(str(i)) or provided.get(i) or {}
+                                 for i in range(1, len(planned) + 1)]
+            else:
+                provided_rows = list(provided)
+            if len(provided_rows) == len(planned):
+                for day_index, (actual, inferred) in enumerate(zip(provided_rows, planned), 1):
+                    inferred_allocated = any(float(inferred.get(key) or 0) > 0 for key in (
+                        'vm_qty', 'k8s_control_plane', 'k8s_worker_nodes', 'managed_db', 'object_storage_gb'))
+                    if inferred_allocated:
+                        # Preserve any quantities the requester supplied, but
+                        # never allow a short hand-written map to hide named
+                        # services implied by the exercise's tools/subtopics.
+                        for key in ('vm_qty', 'k8s_control_plane', 'k8s_worker_nodes', 'managed_db',
+                                    'object_storage_gb', 'storage_put_requests', 'storage_get_requests'):
+                            actual[key] = max(float(actual.get(key) or 0), float(inferred.get(key) or 0))
+                        if actual.get('vm_qty', 0) > 0 and actual.get('vm_profile') == 'None':
+                            actual['vm_profile'] = inferred.get('vm_profile') or 'Light'
         from shared.lab_planning import validate_mapping
         mapping = assumptions['lab_day_mapping']
         if isinstance(mapping, dict):
             mapping = [mapping.get(str(i)) or mapping.get(i) for i in range(1, len(toc.get('days') or []) + 1)]
         assumptions['lab_day_mapping'] = validate_mapping(mapping, len(toc.get('days') or []))
         # Selections may be maintained centrally; never substitute stored rates.
-        if not assumptions.get('pricing_selections'):
-            config = await db['lab_pricing_catalogs'].find_one({
+        config = await db['lab_pricing_catalogs'].find_one({
                 'provider': assumptions['cloud_provider'], 'region': assumptions['cloud_region'],
-            }, {'_id': 0})
-            assumptions['pricing_selections'] = (config or {}).get('selections', {})
-        if not assumptions.get('pricing_selections'):
-            assumptions['pricing_selections'] = automatic_pricing_selections(toc, assumptions)
+        }, {'_id': 0})
+        automatic = automatic_pricing_selections(toc, assumptions)
+        selections = dict(automatic)
+        selections.update((config or {}).get('selections') or {})
+        selections.update(assumptions.get('pricing_selections') or {})
+        # Keep the legacy VM rate row because the workbook still validates and
+        # exposes it; also use it as the Light profile default when absent.
+        base_vm = selections.get('VM')
+        if base_vm:
+            selections.setdefault('VM Light', base_vm)
+        assumptions['pricing_selections'] = selections
         validate_lab_pricing_coverage(toc, assumptions)
+        assumptions['toc'] = toc
+        service_architecture = assumptions.get('service_architecture') or {}
+        architecture_lines = [
+            f"Day {item['day']} ({item['topic']}): Tools: {', '.join(item.get('tools') or []) or 'not specified'}; "
+            f"Hands-on: {item.get('experiment') or 'not specified'}; Infrastructure: {item['plan']}"
+            for item in service_architecture.get('days', [])
+        ]
+        if architecture_lines:
+            assumptions['architecture_note'] = (
+                f"Proposed {assumptions['cloud_provider'].upper()} training architecture; "
+                "resources are shared per course unless stated otherwise. No resources "
+                "have been provisioned.\n" + "\n".join(architecture_lines)
+            )
     except (ValueError, TypeError) as exc:
         raise HTTPException(422, str(exc)) from exc
     selection_key = hashlib.sha256(json.dumps({
@@ -1581,8 +1760,9 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
                         'change_percent': delta, 'review_required': review})
     assumptions['price_changes'] = changes
     workbook = _lab_cost_to_excel(toc, assumptions)
-    from app.lab_recalculation import recalculate_lab_workbook
+    from app.lab_recalculation import final_estimated_cost, recalculate_lab_workbook
     workbook = await run_in_threadpool(recalculate_lab_workbook, workbook)
+    final_inr = final_estimated_cost(workbook)
     await db['lab_cost_rate_snapshots'].insert_one({
         'quote_id': assumptions['rate_snapshot_id'], 'selection_key': selection_key,
         'rate_checked_at': assumptions['rate_checked_at'],
@@ -1593,13 +1773,18 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         'workbook_sha256': hashlib.sha256(workbook).hexdigest(),
     })
     provider = str(assumptions.get("cloud_provider") or "aws").lower()
+    headers = {
+        "Content-Disposition": f"attachment; filename={provider}_lab_cost.xlsx",
+        "X-Lab-Cost-Quote-ID": assumptions["rate_snapshot_id"],
+        "X-Lab-Cost-Quote-Valid-Until": assumptions["quote_valid_until"],
+        "X-Lab-Cost-Pricing-Status": assumptions["pricing_status"],
+    }
+    if final_inr is not None:
+        headers["X-Lab-Cost-Final-INR"] = f"{final_inr:.2f}"
     return Response(
         content=workbook,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={provider}_lab_cost.xlsx",
-                 'X-Lab-Cost-Quote-ID': assumptions['rate_snapshot_id'],
-                 'X-Lab-Cost-Quote-Valid-Until': assumptions['quote_valid_until'],
-                 'X-Lab-Cost-Pricing-Status': assumptions['pricing_status']},
+        headers=headers,
     )
 
 

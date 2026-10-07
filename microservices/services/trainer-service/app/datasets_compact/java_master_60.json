@@ -5,39 +5,2031 @@
   "program_title": "Java Programming, DSA, Backend and Interview Mastery",
   "level": "Intermediate to Advanced",
   "mode": "Online",
-  "aliases": ["Java", "Core Java", "Advanced Java", "Java Programming", "Java DSA", "Java Data Structures and Algorithms", "Java Algorithms", "Java Interview Preparation"],
-  "tools": ["JDK", "IntelliJ IDEA", "VS Code", "Git", "Maven", "JUnit", "Postman", "MySQL", "Spring Boot"],
-  "certifications": ["Oracle Certified Associate Java Programmer", "Oracle Certified Professional Java Programmer", "Spring Professional Certification"],
+  "aliases": [
+    "Java",
+    "Core Java",
+    "Advanced Java",
+    "Java Programming",
+    "Java DSA",
+    "Java Data Structures and Algorithms",
+    "Java Algorithms",
+    "Java Interview Preparation"
+  ],
+  "tools": [
+    "JDK",
+    "IntelliJ IDEA",
+    "VS Code",
+    "Git",
+    "Maven",
+    "JUnit",
+    "Postman",
+    "MySQL",
+    "Spring Boot"
+  ],
+  "certifications": [
+    "Oracle Certified Associate Java Programmer",
+    "Oracle Certified Professional Java Programmer",
+    "Spring Professional Certification"
+  ],
   "days": [
-    {"day": 1, "topic": "Java Environment, Syntax and Basic Programs", "subtopics": ["JDK, JRE and JVM", "compilation and bytecode", "syntax, identifiers and keywords", "variables and data types", "type casting", "operators", "console input/output", "Scanner"], "tools": ["JDK", "IntelliJ IDEA"], "lab_task": "Install the JDK, run Java programs, and build input, casting, and operator exercises"},
-    {"day": 2, "topic": "Control Statements and Methods", "subtopics": ["if, else and nested conditions", "switch expressions", "for, while and do-while", "break and continue", "method parameters and return types", "method overloading", "varargs", "recursion"], "tools": ["JDK"], "lab_task": "Build menu-driven ATM and marks/rank programs with reusable methods"},
-    {"day": 3, "topic": "Arrays, Matrices and Array Problem Solving", "subtopics": ["one-dimensional arrays", "two-dimensional arrays and matrices", "traversal and updates", "insertion/deletion concepts", "maximum/minimum", "array rotation", "subarrays", "prefix sums"], "tools": ["JDK"], "lab_task": "Implement matrix operations, rotations, and maximum/subarray exercises"},
-    {"day": 4, "topic": "Strings and String Algorithms", "subtopics": ["String immutability", "StringBuilder and StringBuffer", "common String methods", "character arrays", "palindrome", "anagram", "substring", "frequency problems"], "tools": ["JDK"], "lab_task": "Solve palindrome, anagram, substring, and character-frequency challenges"},
-    {"day": 5, "topic": "Object-Oriented Programming Foundations", "subtopics": ["classes and objects", "constructors", "this and static", "encapsulation", "access modifiers", "inheritance", "polymorphism", "abstraction"], "tools": ["JDK", "JUnit"], "lab_task": "Build a student or employee management application using OOP"},
-    {"day": 6, "topic": "Advanced OOP and Object Design", "subtopics": ["method overriding", "super", "abstract classes", "interfaces", "default and static interface methods", "composition", "association", "equals, hashCode and toString"], "tools": ["JDK"], "lab_task": "Model a payment or library system using interfaces, inheritance, and composition"},
-    {"day": 7, "topic": "Exceptions, Files and Serialization", "subtopics": ["checked and unchecked exceptions", "try, catch, finally", "throw and throws", "custom exceptions", "File and Path APIs", "NIO", "read/write files", "serialization basics"], "tools": ["JDK"], "lab_task": "Create a file-backed employee database with validation and custom exceptions"},
-    {"day": 8, "topic": "Collections Framework and Generics", "subtopics": ["List, Set and Map", "ArrayList and LinkedList", "HashSet and TreeSet", "HashMap and TreeMap", "Queue and Deque", "Comparable and Comparator", "generic classes", "wildcards"], "tools": ["JDK"], "lab_task": "Build a collection-based inventory application and sort records with comparators"},
-    {"day": 9, "topic": "Java 8 Functional Programming", "subtopics": ["lambda expressions", "functional interfaces", "method references", "Stream API", "filter, map and reduce", "collectors", "Optional", "date and time API"], "tools": ["JDK"], "lab_task": "Process employee data with streams, collectors, Optional, and lambda expressions"},
-    {"day": 10, "topic": "Multithreading and Concurrency", "subtopics": ["Thread and Runnable", "thread lifecycle", "synchronization", "locks", "wait, notify and notifyAll", "ExecutorService", "Callable and Future", "concurrent collections"], "tools": ["JDK"], "lab_task": "Create a thread-safe ticket booking or task-processing application"},
-    {"day": 11, "topic": "Complexity Analysis and Coding Patterns", "subtopics": ["Big-O, Big-Theta and Big-Omega", "time and space complexity", "best, average and worst case", "two pointers", "sliding window", "prefix sum", "fast and slow pointers", "pattern selection"], "tools": ["JDK"], "lab_task": "Analyze Java solutions and solve two-pointer and sliding-window problems"},
-    {"day": 12, "topic": "Searching Algorithms", "subtopics": ["linear search", "binary search", "binary search on answer", "first and last occurrence", "rotated sorted array", "search in matrix", "lower and upper bound", "complexity comparison"], "tools": ["JDK"], "lab_task": "Implement binary-search variants and solve sorted-array interview questions"},
-    {"day": 13, "topic": "Sorting Algorithms", "subtopics": ["bubble sort", "selection sort", "insertion sort", "merge sort", "quick sort", "partitioning", "heap sort", "stable versus unstable sorting"], "tools": ["JDK"], "lab_task": "Code and benchmark sorting algorithms on sample datasets"},
-    {"day": 14, "topic": "Recursion and Backtracking", "subtopics": ["recursive thinking", "recursion tree", "base cases", "subsets", "permutations", "combination sum", "N-Queens", "Sudoku/backtracking patterns"], "tools": ["JDK"], "lab_task": "Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges"},
-    {"day": 15, "topic": "Linked Lists", "subtopics": ["singly linked list", "doubly linked list", "circular linked list", "insert/delete/reverse", "middle node", "cycle detection", "merge lists", "LRU design concepts"], "tools": ["JDK"], "lab_task": "Implement linked-list operations and solve reversal and cycle problems"},
-    {"day": 16, "topic": "Stacks and Queues", "subtopics": ["stack implementation", "queue implementation", "circular queue", "Deque", "monotonic stack", "balanced parentheses", "next greater element", "queue-based scheduling"], "tools": ["JDK"], "lab_task": "Build stack/queue data structures and solve expression and scheduling problems"},
-    {"day": 17, "topic": "Hashing and HashMap Problems", "subtopics": ["hash functions", "collisions", "HashMap internals", "frequency maps", "Two Sum", "group anagrams", "longest consecutive sequence", "cache concepts"], "tools": ["JDK"], "lab_task": "Solve hash-map interview problems and design a simple cache"},
-    {"day": 18, "topic": "Trees and Binary Search Trees", "subtopics": ["tree terminology", "binary tree", "binary search tree", "insert/search/delete", "height and balance", "lowest common ancestor", "diameter", "tree construction"], "tools": ["JDK"], "lab_task": "Implement BST operations and solve height, diameter, and LCA problems"},
-    {"day": 19, "topic": "Tree Traversals and Heaps", "subtopics": ["inorder, preorder and postorder", "level-order traversal", "iterative traversals", "min heap and max heap", "PriorityQueue", "heapify", "top K elements", "merge K lists"], "tools": ["JDK"], "lab_task": "Use traversals and PriorityQueue to solve top-K and merge problems"},
-    {"day": 20, "topic": "Graphs, BFS and DFS", "subtopics": ["adjacency list and matrix", "directed and undirected graphs", "Breadth-First Search", "Depth-First Search", "connected components", "cycle detection", "bipartite graph", "topological sort"], "tools": ["JDK"], "lab_task": "Represent graphs and solve BFS, DFS, cycle, and dependency-order problems"},
-    {"day": 21, "topic": "Graph Algorithms and Minimum Spanning Trees", "subtopics": ["Dijkstra algorithm", "Bellman-Ford", "Floyd-Warshall", "disjoint set union", "Kruskal algorithm", "Prim algorithm", "minimum spanning tree", "shortest-path choices"], "tools": ["JDK"], "lab_task": "Implement shortest-path and MST solutions using priority queues and union-find"},
-    {"day": 22, "topic": "Greedy Algorithms", "subtopics": ["greedy choice property", "activity selection", "interval scheduling", "job sequencing", "fractional knapsack", "Huffman coding", "meeting rooms", "proof intuition"], "tools": ["JDK"], "lab_task": "Solve interval, scheduling, and knapsack-style greedy problems"},
-    {"day": 23, "topic": "Dynamic Programming", "subtopics": ["memoization", "tabulation", "state transitions", "Fibonacci", "knapsack", "longest common subsequence", "coin change", "grid and sequence DP"], "tools": ["JDK"], "lab_task": "Convert recursive solutions into memoized and tabulated dynamic programs"},
-    {"day": 24, "topic": "Bit Manipulation and Advanced Problem Patterns", "subtopics": ["binary representation", "AND, OR, XOR and NOT", "bit shifts", "set/clear/toggle bit", "power of two", "single number", "bit masks", "subset enumeration"], "tools": ["JDK"], "lab_task": "Solve XOR, bit-mask, and optimized subset problems"},
-    {"day": 25, "topic": "SQL and JDBC", "subtopics": ["relational database basics", "SQL CRUD", "joins and aggregations", "JDBC architecture", "Connection and PreparedStatement", "ResultSet", "transactions", "connection pooling concepts"], "tools": ["MySQL", "JDBC"], "lab_task": "Build a JDBC CRUD application with prepared statements and transaction handling"},
-    {"day": 26, "topic": "Testing, Build Tools and Git", "subtopics": ["JUnit 5", "test lifecycle and assertions", "parameterized tests", "Mockito", "unit versus integration tests", "Maven lifecycle", "Gradle basics", "Git branching and pull requests"], "tools": ["JUnit", "Mockito", "Maven", "Git"], "lab_task": "Test a Java module with JUnit/Mockito and package it with Maven"},
-    {"day": 27, "topic": "Spring Framework and Spring Boot", "subtopics": ["IoC and dependency injection", "beans and component scanning", "Spring Boot project setup", "configuration and profiles", "REST controllers", "request validation", "exception handling", "Swagger/OpenAPI"], "tools": ["Spring Boot", "Maven", "Postman"], "lab_task": "Create a validated REST API with layered architecture and API documentation"},
-    {"day": 28, "topic": "JPA, Hibernate and Microservices", "subtopics": ["entities and relationships", "JPA repositories", "Hibernate mappings", "lazy/eager loading", "pagination", "REST integration", "microservice principles", "service communication and resilience"], "tools": ["Spring Boot", "Spring Data JPA", "MySQL", "Postman"], "lab_task": "Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL"},
-    {"day": 29, "topic": "Design Patterns, SOLID and Java Interviews", "subtopics": ["Singleton, Factory and Builder", "Strategy and Observer", "SOLID principles", "clean code and refactoring", "JVM memory areas", "garbage collection", "class loading", "common Java interview concepts"], "tools": ["JDK", "IntelliJ IDEA"], "lab_task": "Refactor an application using SOLID and implement selected design patterns"},
-    {"day": 30, "topic": "Interview Coding and Java Capstone", "subtopics": ["DSA revision", "Java coding standards", "debugging and profiling", "system design fundamentals", "REST API review", "mock coding interview", "resume project discussion", "capstone presentation"], "tools": ["JDK", "Git", "Spring Boot"], "lab_task": "Complete a Java capstone, solve timed coding problems, and conduct a mock interview"}
-  ]
+    {
+      "day": 1,
+      "topic": "Java Environment, Syntax and Basic Programs",
+      "subtopics": [
+        "JDK, JRE and JVM",
+        "compilation and bytecode",
+        "syntax, identifiers and keywords",
+        "variables and data types",
+        "type casting",
+        "operators",
+        "console input/output",
+        "Scanner"
+      ],
+      "tools": [
+        "JDK",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Install the JDK, run Java programs, and build input, casting, and operator exercises",
+      "deliverable": "Participant submission for 'Java Environment, Syntax and Basic Programs': Install the JDK, run Java programs, and build input, casting, and operator exercises. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Install the JDK, run Java programs, and build input, casting, and operator exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JDK, JRE and JVM; compilation and bytecode; syntax, identifiers and keywords; variables and data types; type casting; operators; console input/output; Scanner). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Install the JDK, run Java programs, and build input, casting, and operator exercises.",
+        "Explain how the lab applies Java Environment, Syntax and Basic Programs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Java Environment, Syntax and Basic Programs' on a prepared training sample through this task: Install the JDK, run Java programs, and build input, casting, and operator exercises.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Install the JDK, run Java programs, and build input, casting, and operator exercises",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JDK, JRE and JVM; compilation and bytecode; syntax, identifiers and keywords; variables and data types; type casting; operators; console input/output; Scanner) and demonstrate the starting sample for: Install the JDK, run Java programs, and build input, casting, and operator exercises",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Install the JDK, run Java programs, and build input, casting, and operator exercises",
+          "evidence": "Participant submission for 'Java Environment, Syntax and Basic Programs': Install the JDK, run Java programs, and build input, casting, and operator exercises. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Install the JDK, run Java programs, and build input, casting, and operator exercises' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Install the JDK, run Java programs, and build input, casting, and operator exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JDK, JRE and JVM; compilation and bytecode; syntax, identifiers and keywords; variables and data types; type casting; operators; console input/output; Scanner). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Control Statements and Methods",
+      "subtopics": [
+        "if, else and nested conditions",
+        "switch expressions",
+        "for, while and do-while",
+        "break and continue",
+        "method parameters and return types",
+        "method overloading",
+        "varargs",
+        "recursion"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Build menu-driven ATM and marks/rank programs with reusable methods",
+      "deliverable": "Participant submission for 'Control Statements and Methods': Build menu-driven ATM and marks/rank programs with reusable methods. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build menu-driven ATM and marks/rank programs with reusable methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if, else and nested conditions; switch expressions; for, while and do-while; break and continue; method parameters and return types; method overloading; varargs; recursion). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build menu-driven ATM and marks/rank programs with reusable methods.",
+        "Explain how the lab applies Control Statements and Methods and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Control Statements and Methods' on a prepared training sample through this task: Build menu-driven ATM and marks/rank programs with reusable methods.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build menu-driven ATM and marks/rank programs with reusable methods",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (if, else and nested conditions; switch expressions; for, while and do-while; break and continue; method parameters and return types; method overloading; varargs; recursion) and demonstrate the starting sample for: Build menu-driven ATM and marks/rank programs with reusable methods",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build menu-driven ATM and marks/rank programs with reusable methods",
+          "evidence": "Participant submission for 'Control Statements and Methods': Build menu-driven ATM and marks/rank programs with reusable methods. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build menu-driven ATM and marks/rank programs with reusable methods' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build menu-driven ATM and marks/rank programs with reusable methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if, else and nested conditions; switch expressions; for, while and do-while; break and continue; method parameters and return types; method overloading; varargs; recursion). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Arrays, Matrices and Array Problem Solving",
+      "subtopics": [
+        "one-dimensional arrays",
+        "two-dimensional arrays and matrices",
+        "traversal and updates",
+        "insertion/deletion concepts",
+        "maximum/minimum",
+        "array rotation",
+        "subarrays",
+        "prefix sums"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Implement matrix operations, rotations, and maximum/subarray exercises",
+      "deliverable": "Participant submission for 'Arrays, Matrices and Array Problem Solving': Implement matrix operations, rotations, and maximum/subarray exercises. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement matrix operations, rotations, and maximum/subarray exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (one-dimensional arrays; two-dimensional arrays and matrices; traversal and updates; insertion/deletion concepts; maximum/minimum; array rotation; subarrays; prefix sums). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement matrix operations, rotations, and maximum/subarray exercises.",
+        "Explain how the lab applies Arrays, Matrices and Array Problem Solving and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Arrays, Matrices and Array Problem Solving' on a prepared training sample through this task: Implement matrix operations, rotations, and maximum/subarray exercises.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement matrix operations, rotations, and maximum/subarray exercises",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (one-dimensional arrays; two-dimensional arrays and matrices; traversal and updates; insertion/deletion concepts; maximum/minimum; array rotation; subarrays; prefix sums) and demonstrate the starting sample for: Implement matrix operations, rotations, and maximum/subarray exercises",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement matrix operations, rotations, and maximum/subarray exercises",
+          "evidence": "Participant submission for 'Arrays, Matrices and Array Problem Solving': Implement matrix operations, rotations, and maximum/subarray exercises. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement matrix operations, rotations, and maximum/subarray exercises' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement matrix operations, rotations, and maximum/subarray exercises. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (one-dimensional arrays; two-dimensional arrays and matrices; traversal and updates; insertion/deletion concepts; maximum/minimum; array rotation; subarrays; prefix sums). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Strings and String Algorithms",
+      "subtopics": [
+        "String immutability",
+        "StringBuilder and StringBuffer",
+        "common String methods",
+        "character arrays",
+        "palindrome",
+        "anagram",
+        "substring",
+        "frequency problems"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Solve palindrome, anagram, substring, and character-frequency challenges",
+      "deliverable": "Participant submission for 'Strings and String Algorithms': Solve palindrome, anagram, substring, and character-frequency challenges. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve palindrome, anagram, substring, and character-frequency challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (String immutability; StringBuilder and StringBuffer; common String methods; character arrays; palindrome; anagram; substring; frequency problems). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve palindrome, anagram, substring, and character-frequency challenges.",
+        "Explain how the lab applies Strings and String Algorithms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Strings and String Algorithms' on a prepared training sample through this task: Solve palindrome, anagram, substring, and character-frequency challenges.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve palindrome, anagram, substring, and character-frequency challenges",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (String immutability; StringBuilder and StringBuffer; common String methods; character arrays; palindrome; anagram; substring; frequency problems) and demonstrate the starting sample for: Solve palindrome, anagram, substring, and character-frequency challenges",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve palindrome, anagram, substring, and character-frequency challenges",
+          "evidence": "Participant submission for 'Strings and String Algorithms': Solve palindrome, anagram, substring, and character-frequency challenges. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve palindrome, anagram, substring, and character-frequency challenges' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve palindrome, anagram, substring, and character-frequency challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (String immutability; StringBuilder and StringBuffer; common String methods; character arrays; palindrome; anagram; substring; frequency problems). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Object-Oriented Programming Foundations",
+      "subtopics": [
+        "classes and objects",
+        "constructors",
+        "this and static",
+        "encapsulation",
+        "access modifiers",
+        "inheritance",
+        "polymorphism",
+        "abstraction"
+      ],
+      "tools": [
+        "JDK",
+        "JUnit"
+      ],
+      "lab_task": "Build a student or employee management application using OOP",
+      "deliverable": "Participant submission for 'Object-Oriented Programming Foundations': Build a student or employee management application using OOP. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a student or employee management application using OOP. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes and objects; constructors; this and static; encapsulation; access modifiers; inheritance; polymorphism; abstraction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a student or employee management application using OOP.",
+        "Explain how the lab applies Object-Oriented Programming Foundations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Object-Oriented Programming Foundations' on a prepared training sample through this task: Build a student or employee management application using OOP.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a student or employee management application using OOP",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (classes and objects; constructors; this and static; encapsulation; access modifiers; inheritance; polymorphism; abstraction) and demonstrate the starting sample for: Build a student or employee management application using OOP",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a student or employee management application using OOP",
+          "evidence": "Participant submission for 'Object-Oriented Programming Foundations': Build a student or employee management application using OOP. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a student or employee management application using OOP' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a student or employee management application using OOP. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes and objects; constructors; this and static; encapsulation; access modifiers; inheritance; polymorphism; abstraction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Advanced OOP and Object Design",
+      "subtopics": [
+        "method overriding",
+        "super",
+        "abstract classes",
+        "interfaces",
+        "default and static interface methods",
+        "composition",
+        "association",
+        "equals, hashCode and toString"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Model a payment or library system using interfaces, inheritance, and composition",
+      "deliverable": "Participant submission for 'Advanced OOP and Object Design': Model a payment or library system using interfaces, inheritance, and composition. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model a payment or library system using interfaces, inheritance, and composition. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (method overriding; super; abstract classes; interfaces; default and static interface methods; composition; association; equals, hashCode and toString). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model a payment or library system using interfaces, inheritance, and composition.",
+        "Explain how the lab applies Advanced OOP and Object Design and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced OOP and Object Design' on a prepared training sample through this task: Model a payment or library system using interfaces, inheritance, and composition.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model a payment or library system using interfaces, inheritance, and composition",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (method overriding; super; abstract classes; interfaces; default and static interface methods; composition; association; equals, hashCode and toString) and demonstrate the starting sample for: Model a payment or library system using interfaces, inheritance, and composition",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model a payment or library system using interfaces, inheritance, and composition",
+          "evidence": "Participant submission for 'Advanced OOP and Object Design': Model a payment or library system using interfaces, inheritance, and composition. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model a payment or library system using interfaces, inheritance, and composition' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model a payment or library system using interfaces, inheritance, and composition. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (method overriding; super; abstract classes; interfaces; default and static interface methods; composition; association; equals, hashCode and toString). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Exceptions, Files and Serialization",
+      "subtopics": [
+        "checked and unchecked exceptions",
+        "try, catch, finally",
+        "throw and throws",
+        "custom exceptions",
+        "File and Path APIs",
+        "NIO",
+        "read/write files",
+        "serialization basics"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Create a file-backed employee database with validation and custom exceptions",
+      "deliverable": "Participant submission for 'Exceptions, Files and Serialization': Create a file-backed employee database with validation and custom exceptions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a file-backed employee database with validation and custom exceptions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (checked and unchecked exceptions; try, catch, finally; throw and throws; custom exceptions; File and Path APIs; NIO; read/write files; serialization basics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a file-backed employee database with validation and custom exceptions.",
+        "Explain how the lab applies Exceptions, Files and Serialization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Exceptions, Files and Serialization' on a prepared training sample through this task: Create a file-backed employee database with validation and custom exceptions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a file-backed employee database with validation and custom exceptions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (checked and unchecked exceptions; try, catch, finally; throw and throws; custom exceptions; File and Path APIs; NIO; read/write files; serialization basics) and demonstrate the starting sample for: Create a file-backed employee database with validation and custom exceptions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a file-backed employee database with validation and custom exceptions",
+          "evidence": "Participant submission for 'Exceptions, Files and Serialization': Create a file-backed employee database with validation and custom exceptions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a file-backed employee database with validation and custom exceptions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a file-backed employee database with validation and custom exceptions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (checked and unchecked exceptions; try, catch, finally; throw and throws; custom exceptions; File and Path APIs; NIO; read/write files; serialization basics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Collections Framework and Generics",
+      "subtopics": [
+        "List, Set and Map",
+        "ArrayList and LinkedList",
+        "HashSet and TreeSet",
+        "HashMap and TreeMap",
+        "Queue and Deque",
+        "Comparable and Comparator",
+        "generic classes",
+        "wildcards"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Build a collection-based inventory application and sort records with comparators",
+      "deliverable": "Participant submission for 'Collections Framework and Generics': Build a collection-based inventory application and sort records with comparators. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a collection-based inventory application and sort records with comparators. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (List, Set and Map; ArrayList and LinkedList; HashSet and TreeSet; HashMap and TreeMap; Queue and Deque; Comparable and Comparator; generic classes; wildcards). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a collection-based inventory application and sort records with comparators.",
+        "Explain how the lab applies Collections Framework and Generics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Collections Framework and Generics' on a prepared training sample through this task: Build a collection-based inventory application and sort records with comparators.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a collection-based inventory application and sort records with comparators",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (List, Set and Map; ArrayList and LinkedList; HashSet and TreeSet; HashMap and TreeMap; Queue and Deque; Comparable and Comparator; generic classes; wildcards) and demonstrate the starting sample for: Build a collection-based inventory application and sort records with comparators",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a collection-based inventory application and sort records with comparators",
+          "evidence": "Participant submission for 'Collections Framework and Generics': Build a collection-based inventory application and sort records with comparators. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a collection-based inventory application and sort records with comparators' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a collection-based inventory application and sort records with comparators. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (List, Set and Map; ArrayList and LinkedList; HashSet and TreeSet; HashMap and TreeMap; Queue and Deque; Comparable and Comparator; generic classes; wildcards). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Java 8 Functional Programming",
+      "subtopics": [
+        "lambda expressions",
+        "functional interfaces",
+        "method references",
+        "Stream API",
+        "filter, map and reduce",
+        "collectors",
+        "Optional",
+        "date and time API"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Process employee data with streams, collectors, Optional, and lambda expressions",
+      "deliverable": "Participant submission for 'Java 8 Functional Programming': Process employee data with streams, collectors, Optional, and lambda expressions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Process employee data with streams, collectors, Optional, and lambda expressions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (lambda expressions; functional interfaces; method references; Stream API; filter, map and reduce; collectors; Optional; date and time API). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Process employee data with streams, collectors, Optional, and lambda expressions.",
+        "Explain how the lab applies Java 8 Functional Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Java 8 Functional Programming' on a prepared training sample through this task: Process employee data with streams, collectors, Optional, and lambda expressions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Process employee data with streams, collectors, Optional, and lambda expressions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (lambda expressions; functional interfaces; method references; Stream API; filter, map and reduce; collectors; Optional; date and time API) and demonstrate the starting sample for: Process employee data with streams, collectors, Optional, and lambda expressions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Process employee data with streams, collectors, Optional, and lambda expressions",
+          "evidence": "Participant submission for 'Java 8 Functional Programming': Process employee data with streams, collectors, Optional, and lambda expressions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Process employee data with streams, collectors, Optional, and lambda expressions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Process employee data with streams, collectors, Optional, and lambda expressions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (lambda expressions; functional interfaces; method references; Stream API; filter, map and reduce; collectors; Optional; date and time API). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Multithreading and Concurrency",
+      "subtopics": [
+        "Thread and Runnable",
+        "thread lifecycle",
+        "synchronization",
+        "locks",
+        "wait, notify and notifyAll",
+        "ExecutorService",
+        "Callable and Future",
+        "concurrent collections"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Create a thread-safe ticket booking or task-processing application",
+      "deliverable": "Participant submission for 'Multithreading and Concurrency': Create a thread-safe ticket booking or task-processing application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a thread-safe ticket booking or task-processing application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Thread and Runnable; thread lifecycle; synchronization; locks; wait, notify and notifyAll; ExecutorService; Callable and Future; concurrent collections). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a thread-safe ticket booking or task-processing application.",
+        "Explain how the lab applies Multithreading and Concurrency and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Multithreading and Concurrency' on a prepared training sample through this task: Create a thread-safe ticket booking or task-processing application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a thread-safe ticket booking or task-processing application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Thread and Runnable; thread lifecycle; synchronization; locks; wait, notify and notifyAll; ExecutorService; Callable and Future; concurrent collections) and demonstrate the starting sample for: Create a thread-safe ticket booking or task-processing application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a thread-safe ticket booking or task-processing application",
+          "evidence": "Participant submission for 'Multithreading and Concurrency': Create a thread-safe ticket booking or task-processing application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a thread-safe ticket booking or task-processing application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a thread-safe ticket booking or task-processing application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Thread and Runnable; thread lifecycle; synchronization; locks; wait, notify and notifyAll; ExecutorService; Callable and Future; concurrent collections). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Complexity Analysis and Coding Patterns",
+      "subtopics": [
+        "Big-O, Big-Theta and Big-Omega",
+        "time and space complexity",
+        "best, average and worst case",
+        "two pointers",
+        "sliding window",
+        "prefix sum",
+        "fast and slow pointers",
+        "pattern selection"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Analyze Java solutions and solve two-pointer and sliding-window problems",
+      "deliverable": "Participant submission for 'Complexity Analysis and Coding Patterns': Analyze Java solutions and solve two-pointer and sliding-window problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze Java solutions and solve two-pointer and sliding-window problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Big-O, Big-Theta and Big-Omega; time and space complexity; best, average and worst case; two pointers; sliding window; prefix sum; fast and slow pointers; pattern selection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze Java solutions and solve two-pointer and sliding-window problems.",
+        "Explain how the lab applies Complexity Analysis and Coding Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Complexity Analysis and Coding Patterns' on a prepared training sample through this task: Analyze Java solutions and solve two-pointer and sliding-window problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze Java solutions and solve two-pointer and sliding-window problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Big-O, Big-Theta and Big-Omega; time and space complexity; best, average and worst case; two pointers; sliding window; prefix sum; fast and slow pointers; pattern selection) and demonstrate the starting sample for: Analyze Java solutions and solve two-pointer and sliding-window problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze Java solutions and solve two-pointer and sliding-window problems",
+          "evidence": "Participant submission for 'Complexity Analysis and Coding Patterns': Analyze Java solutions and solve two-pointer and sliding-window problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze Java solutions and solve two-pointer and sliding-window problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze Java solutions and solve two-pointer and sliding-window problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Big-O, Big-Theta and Big-Omega; time and space complexity; best, average and worst case; two pointers; sliding window; prefix sum; fast and slow pointers; pattern selection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Searching Algorithms",
+      "subtopics": [
+        "linear search",
+        "binary search",
+        "binary search on answer",
+        "first and last occurrence",
+        "rotated sorted array",
+        "search in matrix",
+        "lower and upper bound",
+        "complexity comparison"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Implement binary-search variants and solve sorted-array interview questions",
+      "deliverable": "Participant submission for 'Searching Algorithms': Implement binary-search variants and solve sorted-array interview questions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement binary-search variants and solve sorted-array interview questions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (linear search; binary search; binary search on answer; first and last occurrence; rotated sorted array; search in matrix; lower and upper bound; complexity comparison). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement binary-search variants and solve sorted-array interview questions.",
+        "Explain how the lab applies Searching Algorithms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Searching Algorithms' on a prepared training sample through this task: Implement binary-search variants and solve sorted-array interview questions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement binary-search variants and solve sorted-array interview questions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (linear search; binary search; binary search on answer; first and last occurrence; rotated sorted array; search in matrix; lower and upper bound; complexity comparison) and demonstrate the starting sample for: Implement binary-search variants and solve sorted-array interview questions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement binary-search variants and solve sorted-array interview questions",
+          "evidence": "Participant submission for 'Searching Algorithms': Implement binary-search variants and solve sorted-array interview questions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement binary-search variants and solve sorted-array interview questions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement binary-search variants and solve sorted-array interview questions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (linear search; binary search; binary search on answer; first and last occurrence; rotated sorted array; search in matrix; lower and upper bound; complexity comparison). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Sorting Algorithms",
+      "subtopics": [
+        "bubble sort",
+        "selection sort",
+        "insertion sort",
+        "merge sort",
+        "quick sort",
+        "partitioning",
+        "heap sort",
+        "stable versus unstable sorting"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Code and benchmark sorting algorithms on sample datasets",
+      "deliverable": "Participant submission for 'Sorting Algorithms': Code and benchmark sorting algorithms on sample datasets. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Code and benchmark sorting algorithms on sample datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (bubble sort; selection sort; insertion sort; merge sort; quick sort; partitioning; heap sort; stable versus unstable sorting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Code and benchmark sorting algorithms on sample datasets.",
+        "Explain how the lab applies Sorting Algorithms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Sorting Algorithms' on a prepared training sample through this task: Code and benchmark sorting algorithms on sample datasets.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Code and benchmark sorting algorithms on sample datasets",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (bubble sort; selection sort; insertion sort; merge sort; quick sort; partitioning; heap sort; stable versus unstable sorting) and demonstrate the starting sample for: Code and benchmark sorting algorithms on sample datasets",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Code and benchmark sorting algorithms on sample datasets",
+          "evidence": "Participant submission for 'Sorting Algorithms': Code and benchmark sorting algorithms on sample datasets. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Code and benchmark sorting algorithms on sample datasets' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Code and benchmark sorting algorithms on sample datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (bubble sort; selection sort; insertion sort; merge sort; quick sort; partitioning; heap sort; stable versus unstable sorting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Recursion and Backtracking",
+      "subtopics": [
+        "recursive thinking",
+        "recursion tree",
+        "base cases",
+        "subsets",
+        "permutations",
+        "combination sum",
+        "N-Queens",
+        "Sudoku/backtracking patterns"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges",
+      "deliverable": "Participant submission for 'Recursion and Backtracking': Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (recursive thinking; recursion tree; base cases; subsets; permutations; combination sum; N-Queens; Sudoku/backtracking patterns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges.",
+        "Explain how the lab applies Recursion and Backtracking and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Recursion and Backtracking' on a prepared training sample through this task: Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (recursive thinking; recursion tree; base cases; subsets; permutations; combination sum; N-Queens; Sudoku/backtracking patterns) and demonstrate the starting sample for: Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges",
+          "evidence": "Participant submission for 'Recursion and Backtracking': Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve recursive factorial/Fibonacci and backtracking subset/permutation challenges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (recursive thinking; recursion tree; base cases; subsets; permutations; combination sum; N-Queens; Sudoku/backtracking patterns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Linked Lists",
+      "subtopics": [
+        "singly linked list",
+        "doubly linked list",
+        "circular linked list",
+        "insert/delete/reverse",
+        "middle node",
+        "cycle detection",
+        "merge lists",
+        "LRU design concepts"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Implement linked-list operations and solve reversal and cycle problems",
+      "deliverable": "Participant submission for 'Linked Lists': Implement linked-list operations and solve reversal and cycle problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement linked-list operations and solve reversal and cycle problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (singly linked list; doubly linked list; circular linked list; insert/delete/reverse; middle node; cycle detection; merge lists; LRU design concepts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement linked-list operations and solve reversal and cycle problems.",
+        "Explain how the lab applies Linked Lists and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Linked Lists' on a prepared training sample through this task: Implement linked-list operations and solve reversal and cycle problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement linked-list operations and solve reversal and cycle problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (singly linked list; doubly linked list; circular linked list; insert/delete/reverse; middle node; cycle detection; merge lists; LRU design concepts) and demonstrate the starting sample for: Implement linked-list operations and solve reversal and cycle problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement linked-list operations and solve reversal and cycle problems",
+          "evidence": "Participant submission for 'Linked Lists': Implement linked-list operations and solve reversal and cycle problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement linked-list operations and solve reversal and cycle problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement linked-list operations and solve reversal and cycle problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (singly linked list; doubly linked list; circular linked list; insert/delete/reverse; middle node; cycle detection; merge lists; LRU design concepts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Stacks and Queues",
+      "subtopics": [
+        "stack implementation",
+        "queue implementation",
+        "circular queue",
+        "Deque",
+        "monotonic stack",
+        "balanced parentheses",
+        "next greater element",
+        "queue-based scheduling"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Build stack/queue data structures and solve expression and scheduling problems",
+      "deliverable": "Participant submission for 'Stacks and Queues': Build stack/queue data structures and solve expression and scheduling problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build stack/queue data structures and solve expression and scheduling problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stack implementation; queue implementation; circular queue; Deque; monotonic stack; balanced parentheses; next greater element; queue-based scheduling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build stack/queue data structures and solve expression and scheduling problems.",
+        "Explain how the lab applies Stacks and Queues and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Stacks and Queues' on a prepared training sample through this task: Build stack/queue data structures and solve expression and scheduling problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build stack/queue data structures and solve expression and scheduling problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (stack implementation; queue implementation; circular queue; Deque; monotonic stack; balanced parentheses; next greater element; queue-based scheduling) and demonstrate the starting sample for: Build stack/queue data structures and solve expression and scheduling problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build stack/queue data structures and solve expression and scheduling problems",
+          "evidence": "Participant submission for 'Stacks and Queues': Build stack/queue data structures and solve expression and scheduling problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build stack/queue data structures and solve expression and scheduling problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build stack/queue data structures and solve expression and scheduling problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stack implementation; queue implementation; circular queue; Deque; monotonic stack; balanced parentheses; next greater element; queue-based scheduling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Hashing and HashMap Problems",
+      "subtopics": [
+        "hash functions",
+        "collisions",
+        "HashMap internals",
+        "frequency maps",
+        "Two Sum",
+        "group anagrams",
+        "longest consecutive sequence",
+        "cache concepts"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Solve hash-map interview problems and design a simple cache",
+      "deliverable": "Participant submission for 'Hashing and HashMap Problems': Solve hash-map interview problems and design a simple cache. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve hash-map interview problems and design a simple cache. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (hash functions; collisions; HashMap internals; frequency maps; Two Sum; group anagrams; longest consecutive sequence; cache concepts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve hash-map interview problems and design a simple cache.",
+        "Explain how the lab applies Hashing and HashMap Problems and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Hashing and HashMap Problems' on a prepared training sample through this task: Solve hash-map interview problems and design a simple cache.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve hash-map interview problems and design a simple cache",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (hash functions; collisions; HashMap internals; frequency maps; Two Sum; group anagrams; longest consecutive sequence; cache concepts) and demonstrate the starting sample for: Solve hash-map interview problems and design a simple cache",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve hash-map interview problems and design a simple cache",
+          "evidence": "Participant submission for 'Hashing and HashMap Problems': Solve hash-map interview problems and design a simple cache. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve hash-map interview problems and design a simple cache' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve hash-map interview problems and design a simple cache. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (hash functions; collisions; HashMap internals; frequency maps; Two Sum; group anagrams; longest consecutive sequence; cache concepts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Trees and Binary Search Trees",
+      "subtopics": [
+        "tree terminology",
+        "binary tree",
+        "binary search tree",
+        "insert/search/delete",
+        "height and balance",
+        "lowest common ancestor",
+        "diameter",
+        "tree construction"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Implement BST operations and solve height, diameter, and LCA problems",
+      "deliverable": "Participant submission for 'Trees and Binary Search Trees': Implement BST operations and solve height, diameter, and LCA problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement BST operations and solve height, diameter, and LCA problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tree terminology; binary tree; binary search tree; insert/search/delete; height and balance; lowest common ancestor; diameter; tree construction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement BST operations and solve height, diameter, and LCA problems.",
+        "Explain how the lab applies Trees and Binary Search Trees and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Trees and Binary Search Trees' on a prepared training sample through this task: Implement BST operations and solve height, diameter, and LCA problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement BST operations and solve height, diameter, and LCA problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tree terminology; binary tree; binary search tree; insert/search/delete; height and balance; lowest common ancestor; diameter; tree construction) and demonstrate the starting sample for: Implement BST operations and solve height, diameter, and LCA problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement BST operations and solve height, diameter, and LCA problems",
+          "evidence": "Participant submission for 'Trees and Binary Search Trees': Implement BST operations and solve height, diameter, and LCA problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement BST operations and solve height, diameter, and LCA problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement BST operations and solve height, diameter, and LCA problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tree terminology; binary tree; binary search tree; insert/search/delete; height and balance; lowest common ancestor; diameter; tree construction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Tree Traversals and Heaps",
+      "subtopics": [
+        "inorder, preorder and postorder",
+        "level-order traversal",
+        "iterative traversals",
+        "min heap and max heap",
+        "PriorityQueue",
+        "heapify",
+        "top K elements",
+        "merge K lists"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Use traversals and PriorityQueue to solve top-K and merge problems",
+      "deliverable": "Participant submission for 'Tree Traversals and Heaps': Use traversals and PriorityQueue to solve top-K and merge problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Use traversals and PriorityQueue to solve top-K and merge problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inorder, preorder and postorder; level-order traversal; iterative traversals; min heap and max heap; PriorityQueue; heapify; top K elements; merge K lists). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Use traversals and PriorityQueue to solve top-K and merge problems.",
+        "Explain how the lab applies Tree Traversals and Heaps and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Tree Traversals and Heaps' on a prepared training sample through this task: Use traversals and PriorityQueue to solve top-K and merge problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Use traversals and PriorityQueue to solve top-K and merge problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (inorder, preorder and postorder; level-order traversal; iterative traversals; min heap and max heap; PriorityQueue; heapify; top K elements; merge K lists) and demonstrate the starting sample for: Use traversals and PriorityQueue to solve top-K and merge problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use traversals and PriorityQueue to solve top-K and merge problems",
+          "evidence": "Participant submission for 'Tree Traversals and Heaps': Use traversals and PriorityQueue to solve top-K and merge problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Use traversals and PriorityQueue to solve top-K and merge problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Use traversals and PriorityQueue to solve top-K and merge problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inorder, preorder and postorder; level-order traversal; iterative traversals; min heap and max heap; PriorityQueue; heapify; top K elements; merge K lists). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Graphs, BFS and DFS",
+      "subtopics": [
+        "adjacency list and matrix",
+        "directed and undirected graphs",
+        "Breadth-First Search",
+        "Depth-First Search",
+        "connected components",
+        "cycle detection",
+        "bipartite graph",
+        "topological sort"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Represent graphs and solve BFS, DFS, cycle, and dependency-order problems",
+      "deliverable": "Participant submission for 'Graphs, BFS and DFS': Represent graphs and solve BFS, DFS, cycle, and dependency-order problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Represent graphs and solve BFS, DFS, cycle, and dependency-order problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (adjacency list and matrix; directed and undirected graphs; Breadth-First Search; Depth-First Search; connected components; cycle detection; bipartite graph; topological sort). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Represent graphs and solve BFS, DFS, cycle, and dependency-order problems.",
+        "Explain how the lab applies Graphs, BFS and DFS and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Graphs, BFS and DFS' on a prepared training sample through this task: Represent graphs and solve BFS, DFS, cycle, and dependency-order problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Represent graphs and solve BFS, DFS, cycle, and dependency-order problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (adjacency list and matrix; directed and undirected graphs; Breadth-First Search; Depth-First Search; connected components; cycle detection; bipartite graph; topological sort) and demonstrate the starting sample for: Represent graphs and solve BFS, DFS, cycle, and dependency-order problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Represent graphs and solve BFS, DFS, cycle, and dependency-order problems",
+          "evidence": "Participant submission for 'Graphs, BFS and DFS': Represent graphs and solve BFS, DFS, cycle, and dependency-order problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Represent graphs and solve BFS, DFS, cycle, and dependency-order problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Represent graphs and solve BFS, DFS, cycle, and dependency-order problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (adjacency list and matrix; directed and undirected graphs; Breadth-First Search; Depth-First Search; connected components; cycle detection; bipartite graph; topological sort). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Graph Algorithms and Minimum Spanning Trees",
+      "subtopics": [
+        "Dijkstra algorithm",
+        "Bellman-Ford",
+        "Floyd-Warshall",
+        "disjoint set union",
+        "Kruskal algorithm",
+        "Prim algorithm",
+        "minimum spanning tree",
+        "shortest-path choices"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Implement shortest-path and MST solutions using priority queues and union-find",
+      "deliverable": "Participant submission for 'Graph Algorithms and Minimum Spanning Trees': Implement shortest-path and MST solutions using priority queues and union-find. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement shortest-path and MST solutions using priority queues and union-find. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dijkstra algorithm; Bellman-Ford; Floyd-Warshall; disjoint set union; Kruskal algorithm; Prim algorithm; minimum spanning tree; shortest-path choices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement shortest-path and MST solutions using priority queues and union-find.",
+        "Explain how the lab applies Graph Algorithms and Minimum Spanning Trees and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Graph Algorithms and Minimum Spanning Trees' on a prepared training sample through this task: Implement shortest-path and MST solutions using priority queues and union-find.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement shortest-path and MST solutions using priority queues and union-find",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dijkstra algorithm; Bellman-Ford; Floyd-Warshall; disjoint set union; Kruskal algorithm; Prim algorithm; minimum spanning tree; shortest-path choices) and demonstrate the starting sample for: Implement shortest-path and MST solutions using priority queues and union-find",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement shortest-path and MST solutions using priority queues and union-find",
+          "evidence": "Participant submission for 'Graph Algorithms and Minimum Spanning Trees': Implement shortest-path and MST solutions using priority queues and union-find. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement shortest-path and MST solutions using priority queues and union-find' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement shortest-path and MST solutions using priority queues and union-find. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dijkstra algorithm; Bellman-Ford; Floyd-Warshall; disjoint set union; Kruskal algorithm; Prim algorithm; minimum spanning tree; shortest-path choices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Greedy Algorithms",
+      "subtopics": [
+        "greedy choice property",
+        "activity selection",
+        "interval scheduling",
+        "job sequencing",
+        "fractional knapsack",
+        "Huffman coding",
+        "meeting rooms",
+        "proof intuition"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Solve interval, scheduling, and knapsack-style greedy problems",
+      "deliverable": "Participant submission for 'Greedy Algorithms': Solve interval, scheduling, and knapsack-style greedy problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve interval, scheduling, and knapsack-style greedy problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (greedy choice property; activity selection; interval scheduling; job sequencing; fractional knapsack; Huffman coding; meeting rooms; proof intuition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve interval, scheduling, and knapsack-style greedy problems.",
+        "Explain how the lab applies Greedy Algorithms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Greedy Algorithms' on a prepared training sample through this task: Solve interval, scheduling, and knapsack-style greedy problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve interval, scheduling, and knapsack-style greedy problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (greedy choice property; activity selection; interval scheduling; job sequencing; fractional knapsack; Huffman coding; meeting rooms; proof intuition) and demonstrate the starting sample for: Solve interval, scheduling, and knapsack-style greedy problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve interval, scheduling, and knapsack-style greedy problems",
+          "evidence": "Participant submission for 'Greedy Algorithms': Solve interval, scheduling, and knapsack-style greedy problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve interval, scheduling, and knapsack-style greedy problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve interval, scheduling, and knapsack-style greedy problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (greedy choice property; activity selection; interval scheduling; job sequencing; fractional knapsack; Huffman coding; meeting rooms; proof intuition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "Dynamic Programming",
+      "subtopics": [
+        "memoization",
+        "tabulation",
+        "state transitions",
+        "Fibonacci",
+        "knapsack",
+        "longest common subsequence",
+        "coin change",
+        "grid and sequence DP"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Convert recursive solutions into memoized and tabulated dynamic programs",
+      "deliverable": "Participant submission for 'Dynamic Programming': Convert recursive solutions into memoized and tabulated dynamic programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Convert recursive solutions into memoized and tabulated dynamic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (memoization; tabulation; state transitions; Fibonacci; knapsack; longest common subsequence; coin change; grid and sequence DP). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Convert recursive solutions into memoized and tabulated dynamic programs.",
+        "Explain how the lab applies Dynamic Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dynamic Programming' on a prepared training sample through this task: Convert recursive solutions into memoized and tabulated dynamic programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Convert recursive solutions into memoized and tabulated dynamic programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (memoization; tabulation; state transitions; Fibonacci; knapsack; longest common subsequence; coin change; grid and sequence DP) and demonstrate the starting sample for: Convert recursive solutions into memoized and tabulated dynamic programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Convert recursive solutions into memoized and tabulated dynamic programs",
+          "evidence": "Participant submission for 'Dynamic Programming': Convert recursive solutions into memoized and tabulated dynamic programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Convert recursive solutions into memoized and tabulated dynamic programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Convert recursive solutions into memoized and tabulated dynamic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (memoization; tabulation; state transitions; Fibonacci; knapsack; longest common subsequence; coin change; grid and sequence DP). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "Bit Manipulation and Advanced Problem Patterns",
+      "subtopics": [
+        "binary representation",
+        "AND, OR, XOR and NOT",
+        "bit shifts",
+        "set/clear/toggle bit",
+        "power of two",
+        "single number",
+        "bit masks",
+        "subset enumeration"
+      ],
+      "tools": [
+        "JDK"
+      ],
+      "lab_task": "Solve XOR, bit-mask, and optimized subset problems",
+      "deliverable": "Participant submission for 'Bit Manipulation and Advanced Problem Patterns': Solve XOR, bit-mask, and optimized subset problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve XOR, bit-mask, and optimized subset problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (binary representation; AND, OR, XOR and NOT; bit shifts; set/clear/toggle bit; power of two; single number; bit masks; subset enumeration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve XOR, bit-mask, and optimized subset problems.",
+        "Explain how the lab applies Bit Manipulation and Advanced Problem Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Bit Manipulation and Advanced Problem Patterns' on a prepared training sample through this task: Solve XOR, bit-mask, and optimized subset problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve XOR, bit-mask, and optimized subset problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (binary representation; AND, OR, XOR and NOT; bit shifts; set/clear/toggle bit; power of two; single number; bit masks; subset enumeration) and demonstrate the starting sample for: Solve XOR, bit-mask, and optimized subset problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve XOR, bit-mask, and optimized subset problems",
+          "evidence": "Participant submission for 'Bit Manipulation and Advanced Problem Patterns': Solve XOR, bit-mask, and optimized subset problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve XOR, bit-mask, and optimized subset problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve XOR, bit-mask, and optimized subset problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (binary representation; AND, OR, XOR and NOT; bit shifts; set/clear/toggle bit; power of two; single number; bit masks; subset enumeration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "SQL and JDBC",
+      "subtopics": [
+        "relational database basics",
+        "SQL CRUD",
+        "joins and aggregations",
+        "JDBC architecture",
+        "Connection and PreparedStatement",
+        "ResultSet",
+        "transactions",
+        "connection pooling concepts"
+      ],
+      "tools": [
+        "MySQL",
+        "JDBC"
+      ],
+      "lab_task": "Build a JDBC CRUD application with prepared statements and transaction handling",
+      "deliverable": "Participant submission for 'SQL and JDBC': Build a JDBC CRUD application with prepared statements and transaction handling. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a JDBC CRUD application with prepared statements and transaction handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (relational database basics; SQL CRUD; joins and aggregations; JDBC architecture; Connection and PreparedStatement; ResultSet; transactions; connection pooling concepts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a JDBC CRUD application with prepared statements and transaction handling.",
+        "Explain how the lab applies SQL and JDBC and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SQL and JDBC' on a prepared training sample through this task: Build a JDBC CRUD application with prepared statements and transaction handling.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a JDBC CRUD application with prepared statements and transaction handling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (relational database basics; SQL CRUD; joins and aggregations; JDBC architecture; Connection and PreparedStatement; ResultSet; transactions; connection pooling concepts) and demonstrate the starting sample for: Build a JDBC CRUD application with prepared statements and transaction handling",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a JDBC CRUD application with prepared statements and transaction handling",
+          "evidence": "Participant submission for 'SQL and JDBC': Build a JDBC CRUD application with prepared statements and transaction handling. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a JDBC CRUD application with prepared statements and transaction handling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a JDBC CRUD application with prepared statements and transaction handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (relational database basics; SQL CRUD; joins and aggregations; JDBC architecture; Connection and PreparedStatement; ResultSet; transactions; connection pooling concepts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "Testing, Build Tools and Git",
+      "subtopics": [
+        "JUnit 5",
+        "test lifecycle and assertions",
+        "parameterized tests",
+        "Mockito",
+        "unit versus integration tests",
+        "Maven lifecycle",
+        "Gradle basics",
+        "Git branching and pull requests"
+      ],
+      "tools": [
+        "JUnit",
+        "Mockito",
+        "Maven",
+        "Git"
+      ],
+      "lab_task": "Test a Java module with JUnit/Mockito and package it with Maven",
+      "deliverable": "Participant submission for 'Testing, Build Tools and Git': Test a Java module with JUnit/Mockito and package it with Maven. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Test a Java module with JUnit/Mockito and package it with Maven. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JUnit 5; test lifecycle and assertions; parameterized tests; Mockito; unit versus integration tests; Maven lifecycle; Gradle basics; Git branching and pull requests). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Test a Java module with JUnit/Mockito and package it with Maven.",
+        "Explain how the lab applies Testing, Build Tools and Git and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing, Build Tools and Git' on a prepared training sample through this task: Test a Java module with JUnit/Mockito and package it with Maven.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Test a Java module with JUnit/Mockito and package it with Maven",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JUnit 5; test lifecycle and assertions; parameterized tests; Mockito; unit versus integration tests; Maven lifecycle; Gradle basics; Git branching and pull requests) and demonstrate the starting sample for: Test a Java module with JUnit/Mockito and package it with Maven",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Test a Java module with JUnit/Mockito and package it with Maven",
+          "evidence": "Participant submission for 'Testing, Build Tools and Git': Test a Java module with JUnit/Mockito and package it with Maven. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Test a Java module with JUnit/Mockito and package it with Maven' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Test a Java module with JUnit/Mockito and package it with Maven. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JUnit 5; test lifecycle and assertions; parameterized tests; Mockito; unit versus integration tests; Maven lifecycle; Gradle basics; Git branching and pull requests). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Spring Framework and Spring Boot",
+      "subtopics": [
+        "IoC and dependency injection",
+        "beans and component scanning",
+        "Spring Boot project setup",
+        "configuration and profiles",
+        "REST controllers",
+        "request validation",
+        "exception handling",
+        "Swagger/OpenAPI"
+      ],
+      "tools": [
+        "Spring Boot",
+        "Maven",
+        "Postman"
+      ],
+      "lab_task": "Create a validated REST API with layered architecture and API documentation",
+      "deliverable": "Participant submission for 'Spring Framework and Spring Boot': Create a validated REST API with layered architecture and API documentation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a validated REST API with layered architecture and API documentation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IoC and dependency injection; beans and component scanning; Spring Boot project setup; configuration and profiles; REST controllers; request validation; exception handling; Swagger/OpenAPI). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a validated REST API with layered architecture and API documentation.",
+        "Explain how the lab applies Spring Framework and Spring Boot and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Spring Framework and Spring Boot' on a prepared training sample through this task: Create a validated REST API with layered architecture and API documentation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a validated REST API with layered architecture and API documentation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (IoC and dependency injection; beans and component scanning; Spring Boot project setup; configuration and profiles; REST controllers; request validation; exception handling; Swagger/OpenAPI) and demonstrate the starting sample for: Create a validated REST API with layered architecture and API documentation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a validated REST API with layered architecture and API documentation",
+          "evidence": "Participant submission for 'Spring Framework and Spring Boot': Create a validated REST API with layered architecture and API documentation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a validated REST API with layered architecture and API documentation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a validated REST API with layered architecture and API documentation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IoC and dependency injection; beans and component scanning; Spring Boot project setup; configuration and profiles; REST controllers; request validation; exception handling; Swagger/OpenAPI). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "JPA, Hibernate and Microservices",
+      "subtopics": [
+        "entities and relationships",
+        "JPA repositories",
+        "Hibernate mappings",
+        "lazy/eager loading",
+        "pagination",
+        "REST integration",
+        "microservice principles",
+        "service communication and resilience"
+      ],
+      "tools": [
+        "Spring Boot",
+        "Spring Data JPA",
+        "MySQL",
+        "Postman"
+      ],
+      "lab_task": "Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL",
+      "deliverable": "Participant submission for 'JPA, Hibernate and Microservices': Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (entities and relationships; JPA repositories; Hibernate mappings; lazy/eager loading; pagination; REST integration; microservice principles; service communication and resilience). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL.",
+        "Explain how the lab applies JPA, Hibernate and Microservices and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'JPA, Hibernate and Microservices' on a prepared training sample through this task: Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (entities and relationships; JPA repositories; Hibernate mappings; lazy/eager loading; pagination; REST integration; microservice principles; service communication and resilience) and demonstrate the starting sample for: Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL",
+          "evidence": "Participant submission for 'JPA, Hibernate and Microservices': Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a Spring Boot CRUD service backed by JPA/Hibernate and MySQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (entities and relationships; JPA repositories; Hibernate mappings; lazy/eager loading; pagination; REST integration; microservice principles; service communication and resilience). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 29,
+      "topic": "Design Patterns, SOLID and Java Interviews",
+      "subtopics": [
+        "Singleton, Factory and Builder",
+        "Strategy and Observer",
+        "SOLID principles",
+        "clean code and refactoring",
+        "JVM memory areas",
+        "garbage collection",
+        "class loading",
+        "common Java interview concepts"
+      ],
+      "tools": [
+        "JDK",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Refactor an application using SOLID and implement selected design patterns",
+      "deliverable": "Participant submission for 'Design Patterns, SOLID and Java Interviews': Refactor an application using SOLID and implement selected design patterns. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Refactor an application using SOLID and implement selected design patterns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Singleton, Factory and Builder; Strategy and Observer; SOLID principles; clean code and refactoring; JVM memory areas; garbage collection; class loading; common Java interview concepts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Refactor an application using SOLID and implement selected design patterns.",
+        "Explain how the lab applies Design Patterns, SOLID and Java Interviews and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Design Patterns, SOLID and Java Interviews' on a prepared training sample through this task: Refactor an application using SOLID and implement selected design patterns.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Refactor an application using SOLID and implement selected design patterns",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Singleton, Factory and Builder; Strategy and Observer; SOLID principles; clean code and refactoring; JVM memory areas; garbage collection; class loading; common Java interview concepts) and demonstrate the starting sample for: Refactor an application using SOLID and implement selected design patterns",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Refactor an application using SOLID and implement selected design patterns",
+          "evidence": "Participant submission for 'Design Patterns, SOLID and Java Interviews': Refactor an application using SOLID and implement selected design patterns. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Refactor an application using SOLID and implement selected design patterns' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Refactor an application using SOLID and implement selected design patterns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Singleton, Factory and Builder; Strategy and Observer; SOLID principles; clean code and refactoring; JVM memory areas; garbage collection; class loading; common Java interview concepts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 30,
+      "topic": "Interview Coding and Java Capstone",
+      "subtopics": [
+        "DSA revision",
+        "Java coding standards",
+        "debugging and profiling",
+        "system design fundamentals",
+        "REST API review",
+        "mock coding interview",
+        "resume project discussion",
+        "capstone presentation"
+      ],
+      "tools": [
+        "JDK",
+        "Git",
+        "Spring Boot"
+      ],
+      "lab_task": "Complete a Java capstone, solve timed coding problems, and conduct a mock interview",
+      "deliverable": "Participant submission for 'Interview Coding and Java Capstone': Complete a Java capstone, solve timed coding problems, and conduct a mock interview. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Complete a Java capstone, solve timed coding problems, and conduct a mock interview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DSA revision; Java coding standards; debugging and profiling; system design fundamentals; REST API review; mock coding interview; resume project discussion; capstone presentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Complete a Java capstone, solve timed coding problems, and conduct a mock interview.",
+        "Explain how the lab applies Interview Coding and Java Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Interview Coding and Java Capstone' on a prepared training sample through this task: Complete a Java capstone, solve timed coding problems, and conduct a mock interview.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Complete a Java capstone, solve timed coding problems, and conduct a mock interview",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (DSA revision; Java coding standards; debugging and profiling; system design fundamentals; REST API review; mock coding interview; resume project discussion; capstone presentation) and demonstrate the starting sample for: Complete a Java capstone, solve timed coding problems, and conduct a mock interview",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Complete a Java capstone, solve timed coding problems, and conduct a mock interview",
+          "evidence": "Participant submission for 'Interview Coding and Java Capstone': Complete a Java capstone, solve timed coding problems, and conduct a mock interview. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Complete a Java capstone, solve timed coding problems, and conduct a mock interview' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Complete a Java capstone, solve timed coding problems, and conduct a mock interview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DSA revision; Java coding standards; debugging and profiling; system design fundamentals; REST API review; mock coding interview; resume project discussion; capstone presentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

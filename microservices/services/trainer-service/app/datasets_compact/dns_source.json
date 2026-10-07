@@ -1,376 +1,725 @@
 {
-    "domain":  "DNS",
-    "name":  "DNS â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Domain Name System",
-                    "DNS Administration"
-                ],
-    "tools":  [
-                  "dig",
-                  "nslookup",
-                  "BIND",
-                  "Cloud DNS"
-              ],
-    "certifications":  [
-                           "DNS official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Fundamentals",
-                     "subtopics":  [
-                                       "Core concepts",
-                                       "Architecture",
-                                       "Terminology",
-                                       "Common protocols",
-                                       "Use cases",
-                                       "Threats or failure modes",
-                                       "Lab setup",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND"
-                               ],
-                     "lab_task":  "Set up a safe lab and demonstrate DNS fundamentals.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Fundamentals concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Fundamentals practically using DNS.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Protocols and Components",
-                     "subtopics":  [
-                                       "Core components",
-                                       "Packet/message flow",
-                                       "Ports and protocols",
-                                       "Addressing/identity concepts",
-                                       "State",
-                                       "Control plane/data plane",
-                                       "Common configurations",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND"
-                               ],
-                     "lab_task":  "Inspect and configure core DNS components.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Protocols and Components concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Protocols and Components practically using DNS.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Design and Architecture",
-                     "subtopics":  [
-                                       "Enterprise design patterns",
-                                       "Segmentation",
-                                       "Redundancy",
-                                       "Scalability",
-                                       "Trust boundaries",
-                                       "Failure domains",
-                                       "Cloud considerations",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND"
-                               ],
-                     "lab_task":  "Design an enterprise architecture for DNS.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Design and Architecture concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Design and Architecture practically using DNS.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Security Controls",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Encryption",
-                                       "Certificates/keys",
-                                       "Hardening",
-                                       "Least privilege",
-                                       "Logging and auditing",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND"
-                               ],
-                     "lab_task":  "Apply secure configuration and hardening.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Security Controls concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security Controls practically using DNS.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Monitoring and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Packet or request inspection",
-                                       "Common faults",
-                                       "Diagnostic commands",
-                                       "Alerting",
-                                       "Incident workflow",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND",
-                                   "Cloud DNS"
-                               ],
-                     "lab_task":  "Diagnose and resolve a simulated DNS issue.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Monitoring and Troubleshooting concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using DNS.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Automation and Operations",
-                     "subtopics":  [
-                                       "Configuration automation",
-                                       "Policy management",
-                                       "Backups",
-                                       "Change control",
-                                       "Versioning",
-                                       "Testing",
-                                       "Operational runbooks",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND"
-                               ],
-                     "lab_task":  "Automate a repeatable DNS configuration task.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Automation and Operations concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation and Operations practically using DNS.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Advanced and Cloud Patterns",
-                     "subtopics":  [
-                                       "Cloud-native services",
-                                       "Hybrid connectivity",
-                                       "Zero-trust considerations",
-                                       "Performance",
-                                       "High availability",
-                                       "Disaster recovery",
-                                       "Cost considerations",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND",
-                                   "Cloud DNS"
-                               ],
-                     "lab_task":  "Design a cloud/hybrid implementation.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced and Cloud Patterns concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using DNS.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Capstone",
-                     "subtopics":  [
-                                       "Requirement analysis",
-                                       "Architecture",
-                                       "Security",
-                                       "Configuration",
-                                       "Testing",
-                                       "Monitoring",
-                                       "Troubleshooting",
-                                       "Documentation",
-                                       "DNS terminology and feature mapping for this topic",
-                                       "DNS configuration and implementation considerations",
-                                       "DNS best practices and common mistakes for this topic",
-                                       "zones",
-                                       "records",
-                                       "A",
-                                       "AAAA",
-                                       "CNAME",
-                                       "MX",
-                                       "TXT",
-                                       "NS",
-                                       "PTR",
-                                       "TTL",
-                                       "recursive resolver",
-                                       "authoritative server"
-                                   ],
-                     "tools":  [
-                                   "dig",
-                                   "nslookup",
-                                   "BIND",
-                                   "Cloud DNS"
-                               ],
-                     "lab_task":  "Build and document an end-to-end DNS solution.",
-                     "technology":  "DNS",
-                     "technology_id":  "dns",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone concepts in the context of DNS.",
-                                                 "Configure or implement the key DNS features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone practically using DNS.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "dns"
+  "domain": "DNS",
+  "name": "DNS â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Domain Name System",
+    "DNS Administration"
+  ],
+  "tools": [
+    "dig",
+    "nslookup",
+    "BIND",
+    "Cloud DNS"
+  ],
+  "certifications": [
+    "DNS official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Fundamentals",
+      "subtopics": [
+        "Core concepts",
+        "Architecture",
+        "Terminology",
+        "Common protocols",
+        "Use cases",
+        "Threats or failure modes",
+        "Lab setup",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND"
+      ],
+      "lab_task": "Set up a safe lab and demonstrate DNS fundamentals.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Fundamentals concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Fundamentals practically using DNS.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Fundamentals': Set up a safe lab and demonstrate DNS fundamentals.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up a safe lab and demonstrate DNS fundamentals.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Fundamentals' on a prepared training sample through this task: Set up a safe lab and demonstrate DNS fundamentals..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up a safe lab and demonstrate DNS fundamentals.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Set up a safe lab and demonstrate DNS fundamentals.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up a safe lab and demonstrate DNS fundamentals.",
+          "evidence": "Participant submission for 'Fundamentals': Set up a safe lab and demonstrate DNS fundamentals.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up a safe lab and demonstrate DNS fundamentals.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up a safe lab and demonstrate DNS fundamentals.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Protocols and Components",
+      "subtopics": [
+        "Core components",
+        "Packet/message flow",
+        "Ports and protocols",
+        "Addressing/identity concepts",
+        "State",
+        "Control plane/data plane",
+        "Common configurations",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND"
+      ],
+      "lab_task": "Inspect and configure core DNS components.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Protocols and Components concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Protocols and Components practically using DNS.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Protocols and Components': Inspect and configure core DNS components.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Inspect and configure core DNS components.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Protocols and Components' on a prepared training sample through this task: Inspect and configure core DNS components..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Inspect and configure core DNS components.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Inspect and configure core DNS components.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Inspect and configure core DNS components.",
+          "evidence": "Participant submission for 'Protocols and Components': Inspect and configure core DNS components.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Inspect and configure core DNS components.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Inspect and configure core DNS components.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Design and Architecture",
+      "subtopics": [
+        "Enterprise design patterns",
+        "Segmentation",
+        "Redundancy",
+        "Scalability",
+        "Trust boundaries",
+        "Failure domains",
+        "Cloud considerations",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND"
+      ],
+      "lab_task": "Design an enterprise architecture for DNS.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Design and Architecture concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Design and Architecture practically using DNS.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Design and Architecture': Design an enterprise architecture for DNS.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design an enterprise architecture for DNS.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Design and Architecture' on a prepared training sample through this task: Design an enterprise architecture for DNS..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design an enterprise architecture for DNS.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Design an enterprise architecture for DNS.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design an enterprise architecture for DNS.",
+          "evidence": "Participant submission for 'Design and Architecture': Design an enterprise architecture for DNS.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design an enterprise architecture for DNS.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design an enterprise architecture for DNS.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Security Controls",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Encryption",
+        "Certificates/keys",
+        "Hardening",
+        "Least privilege",
+        "Logging and auditing",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND"
+      ],
+      "lab_task": "Apply secure configuration and hardening.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Security Controls concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security Controls practically using DNS.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Security Controls': Apply secure configuration and hardening.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Apply secure configuration and hardening.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security Controls' on a prepared training sample through this task: Apply secure configuration and hardening..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Apply secure configuration and hardening.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Apply secure configuration and hardening.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Apply secure configuration and hardening.",
+          "evidence": "Participant submission for 'Security Controls': Apply secure configuration and hardening.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Apply secure configuration and hardening.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Apply secure configuration and hardening.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Monitoring and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Packet or request inspection",
+        "Common faults",
+        "Diagnostic commands",
+        "Alerting",
+        "Incident workflow",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND",
+        "Cloud DNS"
+      ],
+      "lab_task": "Diagnose and resolve a simulated DNS issue.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Monitoring and Troubleshooting concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Monitoring and Troubleshooting practically using DNS.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Monitoring and Troubleshooting': Diagnose and resolve a simulated DNS issue.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Diagnose and resolve a simulated DNS issue.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Monitoring and Troubleshooting' on a prepared training sample through this task: Diagnose and resolve a simulated DNS issue..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Diagnose and resolve a simulated DNS issue.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Diagnose and resolve a simulated DNS issue.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Diagnose and resolve a simulated DNS issue.",
+          "evidence": "Participant submission for 'Monitoring and Troubleshooting': Diagnose and resolve a simulated DNS issue.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Diagnose and resolve a simulated DNS issue.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Diagnose and resolve a simulated DNS issue.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Automation and Operations",
+      "subtopics": [
+        "Configuration automation",
+        "Policy management",
+        "Backups",
+        "Change control",
+        "Versioning",
+        "Testing",
+        "Operational runbooks",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND"
+      ],
+      "lab_task": "Automate a repeatable DNS configuration task.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Automation and Operations concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation and Operations practically using DNS.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Automation and Operations': Automate a repeatable DNS configuration task.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate a repeatable DNS configuration task.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation and Operations' on a prepared training sample through this task: Automate a repeatable DNS configuration task..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate a repeatable DNS configuration task.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Automate a repeatable DNS configuration task.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate a repeatable DNS configuration task.",
+          "evidence": "Participant submission for 'Automation and Operations': Automate a repeatable DNS configuration task.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate a repeatable DNS configuration task.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate a repeatable DNS configuration task.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Advanced and Cloud Patterns",
+      "subtopics": [
+        "Cloud-native services",
+        "Hybrid connectivity",
+        "Zero-trust considerations",
+        "Performance",
+        "High availability",
+        "Disaster recovery",
+        "Cost considerations",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND",
+        "Cloud DNS"
+      ],
+      "lab_task": "Design a cloud/hybrid implementation.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Advanced and Cloud Patterns concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced and Cloud Patterns practically using DNS.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced and Cloud Patterns': Design a cloud/hybrid implementation.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a cloud/hybrid implementation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced and Cloud Patterns' on a prepared training sample through this task: Design a cloud/hybrid implementation..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a cloud/hybrid implementation.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Design a cloud/hybrid implementation.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a cloud/hybrid implementation.",
+          "evidence": "Participant submission for 'Advanced and Cloud Patterns': Design a cloud/hybrid implementation.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a cloud/hybrid implementation.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a cloud/hybrid implementation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Capstone",
+      "subtopics": [
+        "Requirement analysis",
+        "Architecture",
+        "Security",
+        "Configuration",
+        "Testing",
+        "Monitoring",
+        "Troubleshooting",
+        "Documentation",
+        "DNS terminology and feature mapping for this topic",
+        "DNS configuration and implementation considerations",
+        "DNS best practices and common mistakes for this topic",
+        "zones",
+        "records",
+        "A",
+        "AAAA",
+        "CNAME",
+        "MX",
+        "TXT",
+        "NS",
+        "PTR",
+        "TTL",
+        "recursive resolver",
+        "authoritative server"
+      ],
+      "tools": [
+        "dig",
+        "nslookup",
+        "BIND",
+        "Cloud DNS"
+      ],
+      "lab_task": "Build and document an end-to-end DNS solution.",
+      "technology": "DNS",
+      "technology_id": "dns",
+      "learning_objectives": [
+        "Explain the Capstone concepts in the context of DNS.",
+        "Configure or implement the key DNS features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone practically using DNS.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone': Build and document an end-to-end DNS solution.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and document an end-to-end DNS solution.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone' on a prepared training sample through this task: Build and document an end-to-end DNS solution..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and document an end-to-end DNS solution.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server) and demonstrate the starting sample for: Build and document an end-to-end DNS solution.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and document an end-to-end DNS solution.",
+          "evidence": "Participant submission for 'Capstone': Build and document an end-to-end DNS solution.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and document an end-to-end DNS solution.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and document an end-to-end DNS solution.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; DNS terminology and feature mapping for this topic; DNS configuration and implementation considerations; DNS best practices and common mistakes for this topic; zones; records; A; AAAA; CNAME; MX; TXT; NS; PTR; TTL; recursive resolver; authoritative server). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "dns",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

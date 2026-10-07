@@ -427,14 +427,14 @@ export default function Requirements() {
     timing: '',
     must_have_linkedin: false,
     must_have_resume: false,
-    top_n: 5,
+    top_n: 50,
     batch_flow: 'confirmed',
     batch_type: 'confirmed',
     requirement_type: 'confirmed_batch',
   })
 
   useEffect(() => {
-    getRequirements().then(r => setReqs((r.data.requirements || []).filter(req => !isLinkedInRequirement(req)))).catch(() => {})
+    getRequirements().then(r => setReqs((r.data.items || r.data.requirements || []).filter(req => !isLinkedInRequirement(req)))).catch(() => {})
   }, [])
 
   // Generate skill suggestions based on input
@@ -497,7 +497,7 @@ export default function Requirements() {
       setResult(res.data)
       setShowForm(false)
       toast.success(`✅ Shortlisted ${res.data.top_trainers} trainers!`)
-      getRequirements().then(r => setReqs((r.data.requirements || []).filter(req => !isLinkedInRequirement(req))))
+      getRequirements().then(r => setReqs((r.data.items || r.data.requirements || []).filter(req => !isLinkedInRequirement(req))))
     } catch (e) { toast.error(e.message) }
     finally { setLoading(false); setLoadingMode('') }
   }
@@ -529,8 +529,8 @@ export default function Requirements() {
 
   return (
     <div className="-m-4 min-h-full space-y-6 bg-gradient-to-br from-blue-500 via-blue-400 to-blue-300 p-4 animate-fade-in sm:-m-6 sm:p-6">
-      <div className="panel border-white/50 bg-white/90 shadow-lg">
-        <div className="pointer-events-none absolute right-[-3rem] top-0 hidden h-full w-80 skew-x-[-18deg] bg-[linear-gradient(180deg,rgba(6,182,212,0.18),rgba(16,185,129,0.10),transparent)] md:block" />
+      <div className="panel relative border-white/50 bg-white/90 shadow-lg">
+        <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-80 skew-x-[-18deg] bg-[linear-gradient(180deg,rgba(6,182,212,0.18),rgba(16,185,129,0.10),transparent)] md:block" />
         <div className="pointer-events-none absolute right-20 top-0 hidden h-full w-px bg-cyan-200/80 md:block" />
         <div className="relative grid gap-5 border-b border-blue-100 px-5 py-5 lg:grid-cols-[1fr_360px]">
           <div className="min-w-0 max-w-3xl">

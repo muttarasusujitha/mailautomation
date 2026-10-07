@@ -1,21 +1,1345 @@
-{"domain":"MariaDB","name":"MariaDB Database Administration","icon":"database","program_title":"MariaDB - Relational Database Administration, SQL Development and Performance Optimization","level":"Beginner to Advanced","mode":"Online","aliases":["MariaDB","MariaDB Server","MariaDB Database","MariaDB SQL"],"tools":["MariaDB Server","MariaDB Client","DBeaver","HeidiSQL","phpMyAdmin","MariaDB MaxScale","Docker","Git"],"certifications":["MariaDB Certified Database Administrator Learning Paths","MariaDB Enterprise Training Programs"],"days":[
-{"day":1,"topic":"MariaDB Introduction and Setup","subtopics":["MariaDB versus MySQL","relational concepts","server install/client connection","databases","server commands","configuration"],"tools":["MariaDB Server","MariaDB Client"],"lab_task":"Install MariaDB and create databases"},
-{"day":2,"topic":"SQL Fundamentals","subtopics":["data types","CREATE/ALTER/DROP","tables","constraints","INSERT/UPDATE/DELETE","SELECT"],"tools":["DBeaver","MariaDB Client"],"lab_task":"Create schema and perform CRUD"},
-{"day":3,"topic":"SQL Queries and Filtering","subtopics":["WHERE","ORDER BY","LIMIT","DISTINCT","LIKE","IN","BETWEEN","NULL","functions"],"tools":["MariaDB Client"],"lab_task":"Write filtered analytical queries"},
-{"day":4,"topic":"Joins and Subqueries","subtopics":["inner/left/right/cross joins","self joins","subqueries","CTEs","UNION","set operations"],"tools":["DBeaver"],"lab_task":"Build multi-table reporting queries"},
-{"day":5,"topic":"Aggregations and Window Functions","subtopics":["GROUP BY/HAVING","count/sum/avg/min/max","window functions","ranking","partitions","analytics"],"tools":["MariaDB Server"],"lab_task":"Create aggregate and ranking reports"},
-{"day":6,"topic":"Database Design and Normalization","subtopics":["ER modeling","keys","relationships","normal forms","constraints","referential integrity","schema design"],"tools":["DBeaver"],"lab_task":"Design normalized business schema"},
-{"day":7,"topic":"Indexes and Query Optimization","subtopics":["index types","primary/unique/composite","EXPLAIN","query plans","covering indexes","slow queries","optimization"],"tools":["MariaDB Server"],"lab_task":"Analyze and optimize slow SQL"},
-{"day":8,"topic":"Transactions and Concurrency","subtopics":["ACID","COMMIT/ROLLBACK/SAVEPOINT","isolation","locks","deadlocks","MVCC","consistency"],"tools":["MariaDB Client"],"lab_task":"Implement safe transactional workflows"},
-{"day":9,"topic":"Stored Programs","subtopics":["procedures/functions","variables","control flow","cursors","handlers","triggers","events"],"tools":["MariaDB Server"],"lab_task":"Create procedures, triggers and scheduled events"},
-{"day":10,"topic":"Users, Roles and Security","subtopics":["users/roles","GRANT/REVOKE","authentication","least privilege","SSL/TLS","auditing","SQL injection"],"tools":["MariaDB Server"],"lab_task":"Secure users and database access"},
-{"day":11,"topic":"Backup and Recovery","subtopics":["logical/physical backups","mariadb-dump","restore","point-in-time recovery","binary logs","backup strategy","verification"],"tools":["MariaDB Server"],"lab_task":"Perform backup, restore and recovery drill"},
-{"day":12,"topic":"Replication and High Availability","subtopics":["binary logs","primary/replica replication","GTID","replication monitoring","failover","Galera awareness","HA design"],"tools":["MariaDB Server","MariaDB MaxScale"],"lab_task":"Configure and monitor replication"},
-{"day":13,"topic":"Performance Monitoring","subtopics":["status variables","slow query log","performance schema","resource usage","connection pools","tuning","capacity planning"],"tools":["MariaDB Server"],"lab_task":"Diagnose and improve database performance"},
-{"day":14,"topic":"Data Import, Export and Migration","subtopics":["CSV import/export","LOAD DATA","migrations","data validation","encoding","cross-database migration","ETL"],"tools":["MariaDB Client","DBeaver"],"lab_task":"Migrate and validate an external dataset"},
-{"day":15,"topic":"MariaDB Configuration and Administration","subtopics":["my.cnf","storage engines","InnoDB","memory/cache settings","connections","logs","startup/maintenance"],"tools":["MariaDB Server"],"lab_task":"Tune a MariaDB configuration"},
-{"day":16,"topic":"Application Integration","subtopics":["connectors","JDBC/ODBC","prepared statements","ORM awareness","connection management","API data access","errors"],"tools":["MariaDB Client","Postman"],"lab_task":"Connect an application to MariaDB securely"},
-{"day":17,"topic":"Docker and MariaDB","subtopics":["Docker images/containers","volumes","environment config","Compose","networking","backup in containers","security"],"tools":["Docker","MariaDB Server"],"lab_task":"Run MariaDB with Docker Compose"},
-{"day":18,"topic":"Testing, Automation and Operations","subtopics":["SQL testing","automation scripts","health checks","monitoring/alerts","maintenance jobs","documentation","runbooks"],"tools":["MariaDB Server","Git"],"lab_task":"Automate health checks and maintenance"},
-{"day":19,"topic":"Production Security and Best Practices","subtopics":["hardening","patching","secrets","auditing","encryption","data privacy","incident response","production checklist"],"tools":["MariaDB Server"],"lab_task":"Harden a production-style database"},
-{"day":20,"topic":"MariaDB Capstone","subtopics":["requirements/schema","SQL/reporting","stored programs","security","backup/replication","performance","Docker","documentation"],"tools":["MariaDB Server","DBeaver","Docker","Git"],"lab_task":"Deliver a production-ready MariaDB solution"}]}
+{
+  "domain": "MariaDB",
+  "name": "MariaDB Database Administration",
+  "icon": "database",
+  "program_title": "MariaDB - Relational Database Administration, SQL Development and Performance Optimization",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "MariaDB",
+    "MariaDB Server",
+    "MariaDB Database",
+    "MariaDB SQL"
+  ],
+  "tools": [
+    "MariaDB Server",
+    "MariaDB Client",
+    "DBeaver",
+    "HeidiSQL",
+    "phpMyAdmin",
+    "MariaDB MaxScale",
+    "Docker",
+    "Git"
+  ],
+  "certifications": [
+    "MariaDB Certified Database Administrator Learning Paths",
+    "MariaDB Enterprise Training Programs"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "MariaDB Introduction and Setup",
+      "subtopics": [
+        "MariaDB versus MySQL",
+        "relational concepts",
+        "server install/client connection",
+        "databases",
+        "server commands",
+        "configuration"
+      ],
+      "tools": [
+        "MariaDB Server",
+        "MariaDB Client"
+      ],
+      "lab_task": "Install MariaDB and create databases",
+      "deliverable": "Participant submission for 'MariaDB Introduction and Setup': Install MariaDB and create databases. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Install MariaDB and create databases. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (MariaDB versus MySQL; relational concepts; server install/client connection; databases; server commands; configuration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Install MariaDB and create databases.",
+        "Explain how the lab applies MariaDB Introduction and Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MariaDB Introduction and Setup' on a prepared training sample through this task: Install MariaDB and create databases.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Install MariaDB and create databases",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (MariaDB versus MySQL; relational concepts; server install/client connection; databases; server commands; configuration) and demonstrate the starting sample for: Install MariaDB and create databases",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Install MariaDB and create databases",
+          "evidence": "Participant submission for 'MariaDB Introduction and Setup': Install MariaDB and create databases. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Install MariaDB and create databases' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Install MariaDB and create databases. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (MariaDB versus MySQL; relational concepts; server install/client connection; databases; server commands; configuration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "SQL Fundamentals",
+      "subtopics": [
+        "data types",
+        "CREATE/ALTER/DROP",
+        "tables",
+        "constraints",
+        "INSERT/UPDATE/DELETE",
+        "SELECT"
+      ],
+      "tools": [
+        "DBeaver",
+        "MariaDB Client"
+      ],
+      "lab_task": "Create schema and perform CRUD",
+      "deliverable": "Participant submission for 'SQL Fundamentals': Create schema and perform CRUD. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create schema and perform CRUD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (data types; CREATE/ALTER/DROP; tables; constraints; INSERT/UPDATE/DELETE; SELECT). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create schema and perform CRUD.",
+        "Explain how the lab applies SQL Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SQL Fundamentals' on a prepared training sample through this task: Create schema and perform CRUD.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create schema and perform CRUD",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (data types; CREATE/ALTER/DROP; tables; constraints; INSERT/UPDATE/DELETE; SELECT) and demonstrate the starting sample for: Create schema and perform CRUD",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create schema and perform CRUD",
+          "evidence": "Participant submission for 'SQL Fundamentals': Create schema and perform CRUD. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create schema and perform CRUD' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create schema and perform CRUD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (data types; CREATE/ALTER/DROP; tables; constraints; INSERT/UPDATE/DELETE; SELECT). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "SQL Queries and Filtering",
+      "subtopics": [
+        "WHERE",
+        "ORDER BY",
+        "LIMIT",
+        "DISTINCT",
+        "LIKE",
+        "IN",
+        "BETWEEN",
+        "NULL",
+        "functions"
+      ],
+      "tools": [
+        "MariaDB Client"
+      ],
+      "lab_task": "Write filtered analytical queries",
+      "deliverable": "Participant submission for 'SQL Queries and Filtering': Write filtered analytical queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write filtered analytical queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WHERE; ORDER BY; LIMIT; DISTINCT; LIKE; IN; BETWEEN; NULL; functions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write filtered analytical queries.",
+        "Explain how the lab applies SQL Queries and Filtering and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SQL Queries and Filtering' on a prepared training sample through this task: Write filtered analytical queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write filtered analytical queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WHERE; ORDER BY; LIMIT; DISTINCT; LIKE; IN; BETWEEN; NULL; functions) and demonstrate the starting sample for: Write filtered analytical queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write filtered analytical queries",
+          "evidence": "Participant submission for 'SQL Queries and Filtering': Write filtered analytical queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write filtered analytical queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write filtered analytical queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WHERE; ORDER BY; LIMIT; DISTINCT; LIKE; IN; BETWEEN; NULL; functions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Joins and Subqueries",
+      "subtopics": [
+        "inner/left/right/cross joins",
+        "self joins",
+        "subqueries",
+        "CTEs",
+        "UNION",
+        "set operations"
+      ],
+      "tools": [
+        "DBeaver"
+      ],
+      "lab_task": "Build multi-table reporting queries",
+      "deliverable": "Participant submission for 'Joins and Subqueries': Build multi-table reporting queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build multi-table reporting queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inner/left/right/cross joins; self joins; subqueries; CTEs; UNION; set operations). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build multi-table reporting queries.",
+        "Explain how the lab applies Joins and Subqueries and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Joins and Subqueries' on a prepared training sample through this task: Build multi-table reporting queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build multi-table reporting queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (inner/left/right/cross joins; self joins; subqueries; CTEs; UNION; set operations) and demonstrate the starting sample for: Build multi-table reporting queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build multi-table reporting queries",
+          "evidence": "Participant submission for 'Joins and Subqueries': Build multi-table reporting queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build multi-table reporting queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build multi-table reporting queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inner/left/right/cross joins; self joins; subqueries; CTEs; UNION; set operations). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Aggregations and Window Functions",
+      "subtopics": [
+        "GROUP BY/HAVING",
+        "count/sum/avg/min/max",
+        "window functions",
+        "ranking",
+        "partitions",
+        "analytics"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Create aggregate and ranking reports",
+      "deliverable": "Participant submission for 'Aggregations and Window Functions': Create aggregate and ranking reports. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create aggregate and ranking reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (GROUP BY/HAVING; count/sum/avg/min/max; window functions; ranking; partitions; analytics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create aggregate and ranking reports.",
+        "Explain how the lab applies Aggregations and Window Functions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Aggregations and Window Functions' on a prepared training sample through this task: Create aggregate and ranking reports.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create aggregate and ranking reports",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (GROUP BY/HAVING; count/sum/avg/min/max; window functions; ranking; partitions; analytics) and demonstrate the starting sample for: Create aggregate and ranking reports",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create aggregate and ranking reports",
+          "evidence": "Participant submission for 'Aggregations and Window Functions': Create aggregate and ranking reports. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create aggregate and ranking reports' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create aggregate and ranking reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (GROUP BY/HAVING; count/sum/avg/min/max; window functions; ranking; partitions; analytics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Database Design and Normalization",
+      "subtopics": [
+        "ER modeling",
+        "keys",
+        "relationships",
+        "normal forms",
+        "constraints",
+        "referential integrity",
+        "schema design"
+      ],
+      "tools": [
+        "DBeaver"
+      ],
+      "lab_task": "Design normalized business schema",
+      "deliverable": "Participant submission for 'Database Design and Normalization': Design normalized business schema. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design normalized business schema. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ER modeling; keys; relationships; normal forms; constraints; referential integrity; schema design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design normalized business schema.",
+        "Explain how the lab applies Database Design and Normalization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database Design and Normalization' on a prepared training sample through this task: Design normalized business schema.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design normalized business schema",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ER modeling; keys; relationships; normal forms; constraints; referential integrity; schema design) and demonstrate the starting sample for: Design normalized business schema",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design normalized business schema",
+          "evidence": "Participant submission for 'Database Design and Normalization': Design normalized business schema. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design normalized business schema' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design normalized business schema. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ER modeling; keys; relationships; normal forms; constraints; referential integrity; schema design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Indexes and Query Optimization",
+      "subtopics": [
+        "index types",
+        "primary/unique/composite",
+        "EXPLAIN",
+        "query plans",
+        "covering indexes",
+        "slow queries",
+        "optimization"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Analyze and optimize slow SQL",
+      "deliverable": "Participant submission for 'Indexes and Query Optimization': Analyze and optimize slow SQL. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze and optimize slow SQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (index types; primary/unique/composite; EXPLAIN; query plans; covering indexes; slow queries; optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze and optimize slow SQL.",
+        "Explain how the lab applies Indexes and Query Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Indexes and Query Optimization' on a prepared training sample through this task: Analyze and optimize slow SQL.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze and optimize slow SQL",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (index types; primary/unique/composite; EXPLAIN; query plans; covering indexes; slow queries; optimization) and demonstrate the starting sample for: Analyze and optimize slow SQL",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze and optimize slow SQL",
+          "evidence": "Participant submission for 'Indexes and Query Optimization': Analyze and optimize slow SQL. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze and optimize slow SQL' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze and optimize slow SQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (index types; primary/unique/composite; EXPLAIN; query plans; covering indexes; slow queries; optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Transactions and Concurrency",
+      "subtopics": [
+        "ACID",
+        "COMMIT/ROLLBACK/SAVEPOINT",
+        "isolation",
+        "locks",
+        "deadlocks",
+        "MVCC",
+        "consistency"
+      ],
+      "tools": [
+        "MariaDB Client"
+      ],
+      "lab_task": "Implement safe transactional workflows",
+      "deliverable": "Participant submission for 'Transactions and Concurrency': Implement safe transactional workflows. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement safe transactional workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ACID; COMMIT/ROLLBACK/SAVEPOINT; isolation; locks; deadlocks; MVCC; consistency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement safe transactional workflows.",
+        "Explain how the lab applies Transactions and Concurrency and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Transactions and Concurrency' on a prepared training sample through this task: Implement safe transactional workflows.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement safe transactional workflows",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ACID; COMMIT/ROLLBACK/SAVEPOINT; isolation; locks; deadlocks; MVCC; consistency) and demonstrate the starting sample for: Implement safe transactional workflows",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement safe transactional workflows",
+          "evidence": "Participant submission for 'Transactions and Concurrency': Implement safe transactional workflows. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement safe transactional workflows' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement safe transactional workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ACID; COMMIT/ROLLBACK/SAVEPOINT; isolation; locks; deadlocks; MVCC; consistency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Stored Programs",
+      "subtopics": [
+        "procedures/functions",
+        "variables",
+        "control flow",
+        "cursors",
+        "handlers",
+        "triggers",
+        "events"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Create procedures, triggers and scheduled events",
+      "deliverable": "Participant submission for 'Stored Programs': Create procedures, triggers and scheduled events. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create procedures, triggers and scheduled events. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (procedures/functions; variables; control flow; cursors; handlers; triggers; events). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create procedures, triggers and scheduled events.",
+        "Explain how the lab applies Stored Programs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Stored Programs' on a prepared training sample through this task: Create procedures, triggers and scheduled events.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create procedures, triggers and scheduled events",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (procedures/functions; variables; control flow; cursors; handlers; triggers; events) and demonstrate the starting sample for: Create procedures, triggers and scheduled events",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create procedures, triggers and scheduled events",
+          "evidence": "Participant submission for 'Stored Programs': Create procedures, triggers and scheduled events. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create procedures, triggers and scheduled events' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create procedures, triggers and scheduled events. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (procedures/functions; variables; control flow; cursors; handlers; triggers; events). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Users, Roles and Security",
+      "subtopics": [
+        "users/roles",
+        "GRANT/REVOKE",
+        "authentication",
+        "least privilege",
+        "SSL/TLS",
+        "auditing",
+        "SQL injection"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Secure users and database access",
+      "deliverable": "Participant submission for 'Users, Roles and Security': Secure users and database access. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Secure users and database access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (users/roles; GRANT/REVOKE; authentication; least privilege; SSL/TLS; auditing; SQL injection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Secure users and database access.",
+        "Explain how the lab applies Users, Roles and Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Users, Roles and Security' on a prepared training sample through this task: Secure users and database access.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Secure users and database access",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (users/roles; GRANT/REVOKE; authentication; least privilege; SSL/TLS; auditing; SQL injection) and demonstrate the starting sample for: Secure users and database access",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Secure users and database access",
+          "evidence": "Participant submission for 'Users, Roles and Security': Secure users and database access. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Secure users and database access' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Secure users and database access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (users/roles; GRANT/REVOKE; authentication; least privilege; SSL/TLS; auditing; SQL injection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Backup and Recovery",
+      "subtopics": [
+        "logical/physical backups",
+        "mariadb-dump",
+        "restore",
+        "point-in-time recovery",
+        "binary logs",
+        "backup strategy",
+        "verification"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Perform backup, restore and recovery drill",
+      "deliverable": "Participant submission for 'Backup and Recovery': Perform backup, restore and recovery drill. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Perform backup, restore and recovery drill. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (logical/physical backups; mariadb-dump; restore; point-in-time recovery; binary logs; backup strategy; verification). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Perform backup, restore and recovery drill.",
+        "Explain how the lab applies Backup and Recovery and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Backup and Recovery' on a prepared training sample through this task: Perform backup, restore and recovery drill.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Perform backup, restore and recovery drill",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (logical/physical backups; mariadb-dump; restore; point-in-time recovery; binary logs; backup strategy; verification) and demonstrate the starting sample for: Perform backup, restore and recovery drill",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Perform backup, restore and recovery drill",
+          "evidence": "Participant submission for 'Backup and Recovery': Perform backup, restore and recovery drill. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Perform backup, restore and recovery drill' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Perform backup, restore and recovery drill. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (logical/physical backups; mariadb-dump; restore; point-in-time recovery; binary logs; backup strategy; verification). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Replication and High Availability",
+      "subtopics": [
+        "binary logs",
+        "primary/replica replication",
+        "GTID",
+        "replication monitoring",
+        "failover",
+        "Galera awareness",
+        "HA design"
+      ],
+      "tools": [
+        "MariaDB Server",
+        "MariaDB MaxScale"
+      ],
+      "lab_task": "Configure and monitor replication",
+      "deliverable": "Participant submission for 'Replication and High Availability': Configure and monitor replication. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure and monitor replication. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (binary logs; primary/replica replication; GTID; replication monitoring; failover; Galera awareness; HA design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure and monitor replication.",
+        "Explain how the lab applies Replication and High Availability and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Replication and High Availability' on a prepared training sample through this task: Configure and monitor replication.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure and monitor replication",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (binary logs; primary/replica replication; GTID; replication monitoring; failover; Galera awareness; HA design) and demonstrate the starting sample for: Configure and monitor replication",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure and monitor replication",
+          "evidence": "Participant submission for 'Replication and High Availability': Configure and monitor replication. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure and monitor replication' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure and monitor replication. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (binary logs; primary/replica replication; GTID; replication monitoring; failover; Galera awareness; HA design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Performance Monitoring",
+      "subtopics": [
+        "status variables",
+        "slow query log",
+        "performance schema",
+        "resource usage",
+        "connection pools",
+        "tuning",
+        "capacity planning"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Diagnose and improve database performance",
+      "deliverable": "Participant submission for 'Performance Monitoring': Diagnose and improve database performance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Diagnose and improve database performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (status variables; slow query log; performance schema; resource usage; connection pools; tuning; capacity planning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Diagnose and improve database performance.",
+        "Explain how the lab applies Performance Monitoring and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Monitoring' on a prepared training sample through this task: Diagnose and improve database performance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Diagnose and improve database performance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (status variables; slow query log; performance schema; resource usage; connection pools; tuning; capacity planning) and demonstrate the starting sample for: Diagnose and improve database performance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Diagnose and improve database performance",
+          "evidence": "Participant submission for 'Performance Monitoring': Diagnose and improve database performance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Diagnose and improve database performance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Diagnose and improve database performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (status variables; slow query log; performance schema; resource usage; connection pools; tuning; capacity planning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Data Import, Export and Migration",
+      "subtopics": [
+        "CSV import/export",
+        "LOAD DATA",
+        "migrations",
+        "data validation",
+        "encoding",
+        "cross-database migration",
+        "ETL"
+      ],
+      "tools": [
+        "MariaDB Client",
+        "DBeaver"
+      ],
+      "lab_task": "Migrate and validate an external dataset",
+      "deliverable": "Participant submission for 'Data Import, Export and Migration': Migrate and validate an external dataset. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Migrate and validate an external dataset. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CSV import/export; LOAD DATA; migrations; data validation; encoding; cross-database migration; ETL). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Migrate and validate an external dataset.",
+        "Explain how the lab applies Data Import, Export and Migration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Import, Export and Migration' on a prepared training sample through this task: Migrate and validate an external dataset.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Migrate and validate an external dataset",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CSV import/export; LOAD DATA; migrations; data validation; encoding; cross-database migration; ETL) and demonstrate the starting sample for: Migrate and validate an external dataset",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Migrate and validate an external dataset",
+          "evidence": "Participant submission for 'Data Import, Export and Migration': Migrate and validate an external dataset. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Migrate and validate an external dataset' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Migrate and validate an external dataset. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CSV import/export; LOAD DATA; migrations; data validation; encoding; cross-database migration; ETL). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "MariaDB Configuration and Administration",
+      "subtopics": [
+        "my.cnf",
+        "storage engines",
+        "InnoDB",
+        "memory/cache settings",
+        "connections",
+        "logs",
+        "startup/maintenance"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Tune a MariaDB configuration",
+      "deliverable": "Participant submission for 'MariaDB Configuration and Administration': Tune a MariaDB configuration. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Tune a MariaDB configuration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (my.cnf; storage engines; InnoDB; memory/cache settings; connections; logs; startup/maintenance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Tune a MariaDB configuration.",
+        "Explain how the lab applies MariaDB Configuration and Administration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MariaDB Configuration and Administration' on a prepared training sample through this task: Tune a MariaDB configuration.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Tune a MariaDB configuration",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (my.cnf; storage engines; InnoDB; memory/cache settings; connections; logs; startup/maintenance) and demonstrate the starting sample for: Tune a MariaDB configuration",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Tune a MariaDB configuration",
+          "evidence": "Participant submission for 'MariaDB Configuration and Administration': Tune a MariaDB configuration. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Tune a MariaDB configuration' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Tune a MariaDB configuration. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (my.cnf; storage engines; InnoDB; memory/cache settings; connections; logs; startup/maintenance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Application Integration",
+      "subtopics": [
+        "connectors",
+        "JDBC/ODBC",
+        "prepared statements",
+        "ORM awareness",
+        "connection management",
+        "API data access",
+        "errors"
+      ],
+      "tools": [
+        "MariaDB Client",
+        "Postman"
+      ],
+      "lab_task": "Connect an application to MariaDB securely",
+      "deliverable": "Participant submission for 'Application Integration': Connect an application to MariaDB securely. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Connect an application to MariaDB securely. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (connectors; JDBC/ODBC; prepared statements; ORM awareness; connection management; API data access; errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Connect an application to MariaDB securely.",
+        "Explain how the lab applies Application Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Application Integration' on a prepared training sample through this task: Connect an application to MariaDB securely.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Connect an application to MariaDB securely",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (connectors; JDBC/ODBC; prepared statements; ORM awareness; connection management; API data access; errors) and demonstrate the starting sample for: Connect an application to MariaDB securely",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Connect an application to MariaDB securely",
+          "evidence": "Participant submission for 'Application Integration': Connect an application to MariaDB securely. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Connect an application to MariaDB securely' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Connect an application to MariaDB securely. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (connectors; JDBC/ODBC; prepared statements; ORM awareness; connection management; API data access; errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Docker and MariaDB",
+      "subtopics": [
+        "Docker images/containers",
+        "volumes",
+        "environment config",
+        "Compose",
+        "networking",
+        "backup in containers",
+        "security"
+      ],
+      "tools": [
+        "Docker",
+        "MariaDB Server"
+      ],
+      "lab_task": "Run MariaDB with Docker Compose",
+      "deliverable": "Participant submission for 'Docker and MariaDB': Run MariaDB with Docker Compose. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Run MariaDB with Docker Compose. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker images/containers; volumes; environment config; Compose; networking; backup in containers; security). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Run MariaDB with Docker Compose.",
+        "Explain how the lab applies Docker and MariaDB and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Docker and MariaDB' on a prepared training sample through this task: Run MariaDB with Docker Compose.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Run MariaDB with Docker Compose",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Docker images/containers; volumes; environment config; Compose; networking; backup in containers; security) and demonstrate the starting sample for: Run MariaDB with Docker Compose",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run MariaDB with Docker Compose",
+          "evidence": "Participant submission for 'Docker and MariaDB': Run MariaDB with Docker Compose. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Run MariaDB with Docker Compose' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Run MariaDB with Docker Compose. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker images/containers; volumes; environment config; Compose; networking; backup in containers; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Testing, Automation and Operations",
+      "subtopics": [
+        "SQL testing",
+        "automation scripts",
+        "health checks",
+        "monitoring/alerts",
+        "maintenance jobs",
+        "documentation",
+        "runbooks"
+      ],
+      "tools": [
+        "MariaDB Server",
+        "Git"
+      ],
+      "lab_task": "Automate health checks and maintenance",
+      "deliverable": "Participant submission for 'Testing, Automation and Operations': Automate health checks and maintenance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate health checks and maintenance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL testing; automation scripts; health checks; monitoring/alerts; maintenance jobs; documentation; runbooks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Automate health checks and maintenance.",
+        "Explain how the lab applies Testing, Automation and Operations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing, Automation and Operations' on a prepared training sample through this task: Automate health checks and maintenance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate health checks and maintenance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL testing; automation scripts; health checks; monitoring/alerts; maintenance jobs; documentation; runbooks) and demonstrate the starting sample for: Automate health checks and maintenance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate health checks and maintenance",
+          "evidence": "Participant submission for 'Testing, Automation and Operations': Automate health checks and maintenance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate health checks and maintenance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate health checks and maintenance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL testing; automation scripts; health checks; monitoring/alerts; maintenance jobs; documentation; runbooks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Production Security and Best Practices",
+      "subtopics": [
+        "hardening",
+        "patching",
+        "secrets",
+        "auditing",
+        "encryption",
+        "data privacy",
+        "incident response",
+        "production checklist"
+      ],
+      "tools": [
+        "MariaDB Server"
+      ],
+      "lab_task": "Harden a production-style database",
+      "deliverable": "Participant submission for 'Production Security and Best Practices': Harden a production-style database. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden a production-style database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (hardening; patching; secrets; auditing; encryption; data privacy; incident response; production checklist). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Harden a production-style database.",
+        "Explain how the lab applies Production Security and Best Practices and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Production Security and Best Practices' on a prepared training sample through this task: Harden a production-style database.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden a production-style database",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (hardening; patching; secrets; auditing; encryption; data privacy; incident response; production checklist) and demonstrate the starting sample for: Harden a production-style database",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden a production-style database",
+          "evidence": "Participant submission for 'Production Security and Best Practices': Harden a production-style database. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden a production-style database' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden a production-style database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (hardening; patching; secrets; auditing; encryption; data privacy; incident response; production checklist). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "MariaDB Capstone",
+      "subtopics": [
+        "requirements/schema",
+        "SQL/reporting",
+        "stored programs",
+        "security",
+        "backup/replication",
+        "performance",
+        "Docker",
+        "documentation"
+      ],
+      "tools": [
+        "MariaDB Server",
+        "DBeaver",
+        "Docker",
+        "Git"
+      ],
+      "lab_task": "Deliver a production-ready MariaDB solution",
+      "deliverable": "Participant submission for 'MariaDB Capstone': Deliver a production-ready MariaDB solution. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a production-ready MariaDB solution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements/schema; SQL/reporting; stored programs; security; backup/replication; performance; Docker; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a production-ready MariaDB solution.",
+        "Explain how the lab applies MariaDB Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MariaDB Capstone' on a prepared training sample through this task: Deliver a production-ready MariaDB solution.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a production-ready MariaDB solution",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements/schema; SQL/reporting; stored programs; security; backup/replication; performance; Docker; documentation) and demonstrate the starting sample for: Deliver a production-ready MariaDB solution",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a production-ready MariaDB solution",
+          "evidence": "Participant submission for 'MariaDB Capstone': Deliver a production-ready MariaDB solution. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a production-ready MariaDB solution' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a production-ready MariaDB solution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements/schema; SQL/reporting; stored programs; security; backup/replication; performance; Docker; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
+}

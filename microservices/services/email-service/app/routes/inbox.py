@@ -1459,7 +1459,7 @@ def _is_technology_catalogue_inquiry(subject: str, body: str) -> bool:
 def _is_lab_cost_inquiry(subject: str, body: str) -> bool:
     text = _plain_text(f"{subject}\n{body}").lower()
     return bool(re.search(
-        r"\blab(?:oratory)?\b.{0,50}\b(?:cost|price|charges?|quote|quotation|commercials?)\b"
+        r"\blab(?:oratory)?\s*(?:cost|price|charges?|quote|quotation|commercials?)\b"
         r"|\b(?:cost|price|charges?|quote|quotation|commercials?)\b.{0,50}\blab(?:oratory)?\b",
         text,
     ))
@@ -1628,6 +1628,7 @@ async def _generate_general_client_question_reply(
         from app.routes.inbox_actions import _ai_draft_reply, _load_reply_workflow_context
 
         context = await _load_reply_workflow_context(db, email_doc, classification, extracted, body)
+        context["verified_conversation_history"] = await _verified_question_history(db, email_doc)
         catalogue = await _technology_catalogue_reply(db, subject)
         context["company_identity"] = {
             "name": "Clahan Technologies",
@@ -1661,6 +1662,7 @@ async def _generate_general_client_question_reply(
         return {
             "subject": f"Re: {subject}" if subject else "Re: Your Enquiry",
             "body": generated.strip(),
+            "reply_analysis": context.get("reply_analysis") or {},
         }
     except Exception:
         logger.exception("General client-question generation failed for %s", email_doc.get("email_id"))
@@ -1702,7 +1704,8 @@ async def _generate_verified_question_reply(
             require_openai=True,
         )
         if _clean(generated):
-            return {"subject": f"Re: {subject}" if subject else "Re: Your Enquiry", "body": generated.strip()}
+            return {"subject": f"Re: {subject}" if subject else "Re: Your Enquiry", "body": generated.strip(),
+                    "reply_analysis": context.get("reply_analysis") or {}}
     except Exception:
         logger.exception("Verified AI question reply failed for %s", email_doc.get("email_id"))
     return None
@@ -1794,23 +1797,20 @@ async def _humanize_verified_client_reply(
     body: str,
     verified_reply: Dict[str, str],
 ) -> Dict[str, str]:
-    """Let GPT phrase verified facts naturally; return the safe reference if generation fails."""
+    """Let the configured provider phrase verified facts naturally."""
     try:
-        from app.config import get_settings
-
         setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
-        if (
-            _clean(setting.get("value")).lower() != "ai"
-            or not bool(getattr(get_settings(), "USE_LLM_FOR_EMAILS", False))
-        ):
+        if _clean(setting.get("value")).lower() != "ai":
             return {**verified_reply, "generation_source": "template"}
     except Exception:
         return {**verified_reply, "generation_source": "template"}
 
+    context: Dict[str, Any] = {}
     try:
         from app.routes.inbox_actions import _ai_draft_reply, _load_reply_workflow_context
 
         context = await _load_reply_workflow_context(db, email_doc, classification, extracted, body)
+        context["verified_conversation_history"] = await _verified_question_history(db, email_doc)
         generated = await _ai_draft_reply(
             subject=subject,
             body=body,
@@ -1826,10 +1826,13 @@ async def _humanize_verified_client_reply(
             require_openai=True,
         )
         if _clean(generated):
-            return {**verified_reply, "body": generated.strip(), "generation_source": "openai"}
+            return {**verified_reply, "body": generated.strip(),
+                    "generation_source": (context.get("reply_analysis") or {}).get("provider", "openai"),
+                    "reply_analysis": context.get("reply_analysis") or {}}
     except Exception:
         logger.exception("Client reply humanization failed for %s", email_doc.get("email_id"))
-    return {**verified_reply, "llm_generation_failed": True, "generation_source": "verified_reference_only"}
+    return {**verified_reply, "llm_generation_failed": True, "generation_source": "verified_reference_only",
+            "reply_analysis": context.get("reply_analysis") or {}}
 
 
 async def _technology_catalogue_reply(db: AsyncIOMotorDatabase, subject: str) -> Dict[str, str]:
@@ -1983,7 +1986,24 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
     is_reply_thread = bool(re.match(r"^\s*(?:re|fw|fwd)\s*:", subject or "", flags=re.IGNORECASE))
     latest_coordination_intent = _client_thread_coordination_intent(body_text) if is_reply_thread else ""
     direct_request = _has_direct_training_request_language(subject, latest_body_text or body_text)
-    if latest_coordination_intent:
+    latest_message = latest_body_text or body_text
+    explicit_requirement_brief = bool(
+        re.search(
+            r"\b(?:we\s+have|there\s+is|there\s+was)\s+(?:a\s+)?(?:new\s+)?requirement\s+for\b",
+            latest_message,
+            flags=re.IGNORECASE,
+        )
+        and len(re.findall(
+            r"\b(?:start\s+date|duration|location|participants?|level|mode|budget|total\s+commercial)\b\s*:",
+            latest_message,
+            flags=re.IGNORECASE,
+        )) >= 2
+    )
+    if explicit_requirement_brief:
+        # A detailed new brief in an existing conversation is still a client
+        # request even when its closing sentence also asks for coordination.
+        latest_coordination_intent = ""
+    elif latest_coordination_intent:
         direct_request = False
     non_client_email = _is_obvious_non_client_email(sender_email, subject, body_text)
     technology = _infer_technology(subject, field_body)
@@ -2468,7 +2488,7 @@ def _reply_signature() -> str:
 
 
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """State the exact lab inputs supplied by the client, or disclose defaults."""
+    """State only confirmed lab inputs; never infer participants from duration."""
     if "Lab availability and cost" not in (extracted.get("clahan_managed_details") or []):
         return ""
 
@@ -2476,8 +2496,9 @@ def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
     hours_per_day = _safe_float(
         extracted.get("lab_hours_per_day") or extracted.get("hours_per_day"), 0,
     )
+    cloud_provider = _clean(extracted.get("cloud_provider"))
     duration_days = _safe_float(extracted.get("duration_days"), 0)
-    if participants and hours_per_day:
+    if participants and hours_per_day and cloud_provider:
         def quantity(value: float) -> str:
             return str(int(value)) if float(value).is_integer() else str(value)
 
@@ -2490,9 +2511,24 @@ def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
             "We will prepare the estimate using these confirmed inputs."
         )
 
+    confirmed = []
+    if participants:
+        confirmed.append(f"{participants} participant{'s' if participants != 1 else ''}")
+    if hours_per_day:
+        hours_text = str(int(hours_per_day)) if float(hours_per_day).is_integer() else str(hours_per_day)
+        confirmed.append(f"{hours_text} lab-access hours per day")
+    known = f" We have noted {', and '.join(confirmed)}." if confirmed else ""
+    missing = []
+    if not participants:
+        missing.append("participant count")
+    if not hours_per_day:
+        missing.append("required lab-access hours per day")
+    if not cloud_provider:
+        missing.append("preferred cloud provider (AWS, Azure, or GCP)")
     return (
-        "\n\nWe will prepare the lab estimate using 3 lab-access hours per day for 1 participant when those inputs are not provided. "
-        "Please share the participant count and required lab-access hours per day if you want the estimate calculated using different inputs."
+        f"\n\nWe will prepare the lab estimate after confirming the {' and '.join(missing)}.{known} "
+        "Training duration is used only for the number of lab days; it is not treated as the participant count. "
+        "The region can be finalized after the cloud provider is selected."
     )
 
 
@@ -8771,7 +8807,7 @@ async def _send_client_auto_reply(
             "commercial_negotiation",
         }
     )
-    reply_body_preview = (reply.get("body") or "").lower()
+    reply_body_preview = (reply.get("template_reference_body") or reply.get("body") or "").lower()
     looks_like_client_ack = (
         "thank you for sharing the" in reply_body_preview
         and "training requirement" in reply_body_preview
@@ -9072,6 +9108,7 @@ async def _send_client_auto_reply(
             "status": "sent",
             "mail_type": mail_type,
             "reply_template_key": email_doc.get("reply_template_key") or "",
+            "reply_analysis": reply.get("reply_analysis") or email_doc.get("reply_analysis") or {},
             "source_email_id": email_doc.get("email_id"),
             "source_gmail_message_id": source_gmail_message_id,
             "requirement_id": effective_requirement_id,
@@ -9222,7 +9259,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         # enquiries remain on the regular Shortlist workflow.
         "pipeline_target": "shortlist1" if flow_type == "confirmed" else "shortlist",
         "pipeline_page": "shortlist1" if flow_type == "confirmed" else "shortlist",
-        "top_n": 5,
+        "top_n": 50,
         "send_emails": True,
         "status": "active",
         "priority": "high" if extracted.get("urgency") == "urgent" else "medium",
@@ -9295,7 +9332,10 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
         r"|\b(?:share|send|provide|need|require)\s+(?:us\s+)?(?:a\s+)?(?:proposal|quotation|quote)\b"
         r"|\bonline\s*[/ or]+\s*offline\b"
     )
-    if re.search(tentative, text) or re.search(pending_pattern, text):
+    # Availability/profile requests are normal next steps for a batch whose
+    # dates, duration, scope and commercials are already fixed.  Let the
+    # concrete-field check below classify that request as confirmed.
+    if re.search(tentative, text):
         return "proposal"
 
     def firm_value(*keys):
@@ -9321,9 +9361,17 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     ))
     has_scope = bool(firm_value("technology_needed", "technology", "domain"))
     has_duration = positive_number("duration_days") or positive_number("duration_hours")
-    has_participants = positive_number("participant_count")
     has_commercials = positive_number("budget_total") or positive_number("budget_per_day")
-    if all((has_scope, has_dates, has_duration, has_participants, has_commercials)):
+    # Preserve an explicitly supplied but invalid participant count as an
+    # incomplete request; an omitted count remains acceptable for a confirmed
+    # batch because many corporate requirements do not include headcount.
+    if "participant_count" in extracted and extracted.get("participant_count") in (None, "", 0, "0"):
+        return "proposal"
+    # Participant count is an execution-planning input, not a confirmation
+    # prerequisite. A named domain, concrete dates, duration and commercial
+    # amount establish a confirmed requirement unless the client uses
+    # tentative or proposal wording above.
+    if all((has_scope, has_dates, has_duration, has_commercials)):
         return "confirmed"
     return "proposal"
 
@@ -9539,6 +9587,14 @@ async def _create_requirement(
     force_new_requirement: bool = False,
 ) -> Dict[str, Any]:
     email_id = email_doc.get("email_id")
+    # A fresh, explicit client training request must be allowed to create a
+    # new requirement even when an older message in the same thread or from
+    # the same sender was deleted.  Otherwise the historical tombstone makes
+    # the new request disappear from Client Requests.
+    force_new_requirement = force_new_requirement or bool(
+        extracted.get("is_training_request")
+        or str(email_doc.get("office_mail_category") or "").lower() == "new_training_requirement"
+    )
     deleted_identity_clauses: List[Dict[str, Any]] = []
     if email_id:
         deleted_identity_clauses.append({"source_email_id": email_id})
@@ -9688,7 +9744,7 @@ async def _send_initial_trainer_mail(
 
 async def _call_intelligence_search(
     extracted: Dict[str, Any],
-    max_results: int = 20,
+    max_results: int = 50,
 ) -> Dict[str, Any]:
     """Call the intelligence service free-search and return results.
 
@@ -9819,13 +9875,23 @@ async def _create_revised_lab_cost_attachment(
         "fx_rate": known.get("fx_rate") or requirement.get("fx_rate"),
         "lab_support_per_participant": known.get("lab_support_per_participant", requirement.get("lab_support_per_participant")),
     }
+    providers = [value.strip().lower() for value in re.split(r"\s+(?:and|&)\s+", str(assumptions["cloud_provider"] or "")) if value.strip()]
+    regions = dict(known.get("cloud_regions") or requirement.get("cloud_regions") or {})
+    if len(providers) == 1:
+        regions[providers[0]] = assumptions["cloud_region"]
+    checked_assumptions = []
     try:
-        assumptions = validate_lab_cost_inputs(assumptions)
+        # FX is refreshed by the pricing service; it is not information a
+        # client should have to supply for a standalone lab-cost enquiry.
+        for provider in providers:
+            checked_assumptions.append(validate_lab_cost_inputs({
+                **assumptions, "cloud_provider": provider, "cloud_region": regions.get(provider),
+            }, require_fx=False))
     except (ValueError, TypeError) as exc:
         logger.warning("Lab-cost workbook withheld: %s", exc)
         return None
-    participants = assumptions["participant_count"]
-    hours = assumptions["hours_per_day"]
+    participants = checked_assumptions[0]["participant_count"]
+    hours = checked_assumptions[0]["hours_per_day"]
     duration = _safe_float(known.get("duration_days") or requirement.get("duration_days"), 0)
     if duration <= 0:
         logger.warning("Lab-cost workbook withheld: confirm lab duration")
@@ -9833,7 +9899,6 @@ async def _create_revised_lab_cost_attachment(
     technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain"))
     if not technology:
         return None
-    provider = assumptions["cloud_provider"]
     # Price the approved/saved day-wise ToC when it exists. Regenerating a
     # generic ToC here can silently change its topics and make the workbook
     # disagree with the ToC already shared with the client.
@@ -9870,23 +9935,23 @@ async def _create_revised_lab_cost_attachment(
                 toc = (toc_response.json() or {}).get("toc_data") or (toc_response.json() or {}).get("toc")
                 if not isinstance(toc, dict):
                     return None
-            workbook_response = await _post_with_local_fallback(
-                client,
-                f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc/lab-cost",
-                json={"toc": toc, "assumptions": {
-                    **assumptions,
-                    "cloud_provider": provider,
-                    "participant_count": participants,
-                    "hours_per_day": hours,
-                    "include_default_hour_options": False,
-                }},
-            )
-        if workbook_response.status_code >= 400 or not workbook_response.content:
-            logger.error("Revised lab-cost workbook generation failed: %s", workbook_response.text[:300])
-            return None
+            workbooks = []
+            for provider_assumptions in checked_assumptions:
+                workbook_response = await _post_with_local_fallback(client, f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc/lab-cost", json={"toc": toc, "assumptions": {**provider_assumptions, "include_default_hour_options": False}})
+                if workbook_response.status_code >= 400 or not workbook_response.content:
+                    logger.error("Revised lab-cost workbook generation failed: %s", workbook_response.text[:300])
+                    return None
+                workbooks.append((provider_assumptions["cloud_provider"], workbook_response.content))
+            if len(workbooks) == 1:
+                workbook_content = workbooks[0][1]
+            else:
+                combined = await _post_with_local_fallback(client, f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc/lab-cost/combine", json={"estimates": [{"provider": provider, "content_base64": base64.b64encode(content).decode()} for provider, content in workbooks]})
+                if combined.status_code >= 400 or not combined.content:
+                    return None
+                workbook_content = combined.content
         return {
-            "filename": f"{technology} - Lab Cost Estimate ({participants} participants, {hours:g} hours per day).xlsx",
-            "content_base64": base64.b64encode(workbook_response.content).decode(),
+            "filename": f"{technology} - Lab Cost Estimate ({' + '.join(provider.upper() for provider in providers)}, {participants} participants).xlsx",
+            "content_base64": base64.b64encode(workbook_content).decode(),
             "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         }
     except Exception:
@@ -10276,6 +10341,25 @@ async def _process_client_requirement_email(
         from app.routes.inbox_actions import _build_lab_reference_reply, _lab_request_context
 
         extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
+        # Standalone lab-cost enquiries are deliberately separate from
+        # requirements/shortlists.  Carry their prior inputs across the
+        # client's reply so answering one missing question can complete the
+        # quote instead of starting the discovery again.
+        lab_thread_id = _clean(email_doc.get("gmail_thread_id") or email_doc.get("thread_id"))
+        previous_lab_query: Dict[str, Any] = {"client_email": sender_email}
+        if lab_thread_id:
+            previous_lab_query["gmail_thread_id"] = lab_thread_id
+        previous_lab_request = await db["lab_cost_requests"].find_one(
+            previous_lab_query, {"_id": 0}, sort=[("updated_at", -1)],
+        )
+        if previous_lab_request:
+            for field in (
+                "technology_needed", "technology", "domain", "duration_days",
+                "participant_count", "hours_per_day", "lab_hours_per_day",
+                "cloud_provider", "cloud_region", "mode", "topics", "custom_topics",
+            ):
+                if extracted.get(field) in (None, "", [], {}) and previous_lab_request.get(field) not in (None, "", [], {}):
+                    extracted[field] = previous_lab_request[field]
         extracted = await _merge_requirement_record_context(db, extracted, email_doc.get("requirement_id"))
         lab_context = _lab_request_context(latest_message_body, extracted)
         # A lab-cost follow-up in an active trainer/interview thread updates
@@ -10362,6 +10446,7 @@ async def _process_client_requirement_email(
                 "participant_count": known.get("participant_count"),
                 "hours_per_day": known.get("hours_per_day"),
                 "cloud_provider": known.get("cloud_provider"),
+                "cloud_region": known.get("cloud_region"),
                 "lab_cost_only": True,
                 "client_email": sender_email,
                 "client_name": email_doc.get("from_name") or "",
@@ -10371,6 +10456,7 @@ async def _process_client_requirement_email(
                 {"$set": {
                     **standalone_requirement,
                     "source_email_id": email_doc.get("email_id") or "",
+                    "gmail_thread_id": _clean(email_doc.get("gmail_thread_id") or email_doc.get("thread_id")),
                     "source_attachment_names": [str(item.get("filename") or "") for item in (email_doc.get("attachments") or []) if isinstance(item, dict)],
                     "toc_or_topics": extracted.get("toc_text") or extracted.get("course_agenda") or extracted.get("topics") or extracted.get("custom_topics") or "",
                     "lab_context": lab_context,
@@ -10408,6 +10494,24 @@ async def _process_client_requirement_email(
                 )
                 await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "auto_sent" if success else "reply_failed", "reply_status": "sent" if success else "failed", "classification_reason": "standalone_lab_cost_estimate_sent", "lab_cost_context": lab_context, "lab_cost_attachments": [attachment["filename"]], "updated_at": _now()}})
                 return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
+        # Persist incomplete standalone enquiries too.  The next reply in
+        # this client thread will merge these fields and generate the workbook
+        # as soon as the final required input is supplied.
+        lab_request_id = f"LAB-{uuid.uuid4().hex[:10].upper()}"
+        await db["lab_cost_requests"].update_one(
+            {"source_email_id": email_doc.get("email_id") or lab_request_id},
+            {"$set": {
+                **extracted,
+                "requirement_id": lab_request_id,
+                "client_email": sender_email,
+                "gmail_thread_id": _clean(email_doc.get("gmail_thread_id") or email_doc.get("thread_id")),
+                "lab_cost_only": True,
+                "lab_context": lab_context,
+                "status": "awaiting_inputs",
+                "updated_at": _now(),
+            }, "$setOnInsert": {"created_at": _now()}},
+            upsert=True,
+        )
         lab_classification = {
             "person_type": "corporate_client",
             "scenario": "client_asks_lab_cost",
@@ -10837,7 +10941,10 @@ async def _process_client_requirement_email(
                 "current_stage": current_stage,
                 "last_mail_type": current_last_mail,
             }
-        latest_reply_text = _strip_quoted_email_history(body) or body
+        # Intent must use only the trainer's newly authored text. Using the
+        # looser history stripper can retain quoted phrases such as “not
+        # interested” and incorrectly decline a reply that contains slots.
+        latest_reply_text = _latest_authored_email_text(body) or _strip_quoted_email_history(body) or body
         initial_intent = _trainer_initial_reply_intent(latest_reply_text)
         if initial_intent == "declined":
             await _mark_shortlist_trainer_reply_received(
@@ -11639,10 +11746,29 @@ async def _process_client_requirement_email(
         )
         if reply.get("llm_generation_failed"):
             logger.warning(
-                "OpenAI wording unavailable for verified workflow reply %s; using approved template %s",
+                "AI wording unavailable for verified workflow reply %s; using approved template %s",
                 email_doc.get("email_id"),
                 selected_template_key or "client_reply",
             )
+
+    if reply:
+        # Template mode and verified-template fallbacks share the same approved
+        # wording bank as AI examples. Never rephrase an AI answer a second time.
+        if (
+            reply.get("generation_source", "template") in {"template", "verified_reference_only"}
+            and not str(selected_template_key or "").startswith("gpt_")
+            and not (reply.get("reply_analysis") or {}).get("provider") in {"ollama", "openai", "anthropic"}
+        ):
+            from app.agents.reply_wording import recent_sent_replies, vary_template
+            recent_bodies = await recent_sent_replies(db, email_doc.get("from_email") or email_doc.get("sender"))
+            reply = {**reply, "template_reference_body": reply.get("body", ""), "body": vary_template(
+                reply.get("body", ""), recent_bodies,
+                seed=f"{email_doc.get('email_id', '')}:{selected_template_key}",
+            )}
+        from app.routes.inbox_actions import _workflow_reply_analysis
+        reply.setdefault("reply_analysis", _workflow_reply_analysis(classification, extracted, email_doc, selected_template_key))
+        if (reply.get("reply_analysis") or {}).get("needs_human_review"):
+            classification = {**classification, "requires_human": True, "auto_reply_allowed": False}
 
     is_client_requirement_template = bool(
         extracted.get("is_training_request")
@@ -11702,6 +11828,7 @@ async def _process_client_requirement_email(
         "auto_send_eligible": auto_send_eligible,
         "auto_send_ready": auto_send_ready,
         "auto_send_block_reason": auto_send_block_reason,
+        "reply_analysis": reply.get("reply_analysis") if reply else {},
         "updated_at": now,
     }
     if reply:
@@ -13397,7 +13524,11 @@ def _build_toc_recheck_state(email_doc: Dict[str, Any], validation: Dict[str, An
     }
 
 
-async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict) -> str:
+async def _persist_client_email_from_reply(
+    db: AsyncIOMotorDatabase,
+    reply: dict,
+    process_client_request: bool = True,
+) -> str:
     raw_from = reply.get("from_raw") or reply.get("from_email") or ""
     parsed_name, parsed_email = parseaddr(raw_from)
     from_email = _email_address(reply.get("from_email") or parsed_email or raw_from)
@@ -13569,6 +13700,23 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
             sender_name=merged.get("from_name") or "",
         )
         candidate_extracted = _merge_existing_requirement_context(candidate_extracted, merged)
+        if not process_client_request:
+            if candidate_extracted.get("is_training_request") or candidate_extracted.get("direct_request_language"):
+                await db["client_emails"].update_one(
+                    {"email_id": existing["email_id"]},
+                    {"$set": {
+                        "extracted": candidate_extracted,
+                        "status": "pending_approval",
+                        "reply_status": "pending_review",
+                        "office_mail_category": "new_training_requirement",
+                        "manual_review_required": True,
+                        "processed": True,
+                        "processed_at": now,
+                        "auto_send_eligible": False,
+                        "updated_at": now,
+                    }},
+                )
+            return existing["email_id"]
         should_process_proceed_reply = (
             _client_wants_to_proceed_now(
                 merged.get("subject") or "",
@@ -13623,12 +13771,33 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
     }
     if message_ids:
         doc["thread_message_ids"] = message_ids
+    if not process_client_request:
+        extracted = _extract_requirement_from_email(
+            subject=doc.get("subject") or "",
+            body=doc.get("clean_body") or doc.get("raw_body") or doc.get("body") or "",
+            sender_email=doc.get("from_email") or "",
+            sender_name=doc.get("from_name") or "",
+        )
+        extracted = _merge_existing_requirement_context(extracted, doc)
+        doc.update({"processed": True, "processed_at": now, "extracted": extracted, "auto_send_eligible": False})
+        if extracted.get("is_training_request") or extracted.get("direct_request_language"):
+            doc.update({
+                "status": "pending_approval",
+                "reply_status": "pending_review",
+                "office_mail_category": "new_training_requirement",
+                "manual_review_required": True,
+            })
     await db["client_emails"].insert_one(doc)
-    await _process_client_requirement_email(db, doc)
+    if process_client_request:
+        await _process_client_requirement_email(db, doc)
     return doc["email_id"]
 
 
-async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) -> int:
+async def _process_and_store_replies(
+    db: AsyncIOMotorDatabase,
+    replies: list,
+    process_client_requests: bool = True,
+) -> int:
     """Persist inbound replies to email logs and process client requirements."""
     stored = 0
     cutoff = _inbox_process_after()
@@ -13645,7 +13814,7 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
         if msg_id_hdr:
             existing = await db.email_logs.find_one({"gmail_message_id": msg_id_hdr})
             if existing:
-                client_email_id = await _persist_client_email_from_reply(db, reply)
+                client_email_id = await _persist_client_email_from_reply(db, reply, process_client_requests)
                 linked_doc = await db["client_emails"].find_one(
                     {"email_id": client_email_id},
                     {"_id": 0},
@@ -13669,7 +13838,7 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                             "updated_at": _now(),
                         }},
                     )
-                    if not linked_doc.get("processed") and _auto_send_retry_due(linked_doc):
+                    if process_client_requests and not linked_doc.get("processed") and _auto_send_retry_due(linked_doc):
                         await _process_client_requirement_email(db, linked_doc)
                     stored += 1
                 continue
@@ -13704,7 +13873,7 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
             "updated_at": now,
         }
         await db.email_logs.insert_one(doc)
-        client_email_id = await _persist_client_email_from_reply(db, reply)
+        client_email_id = await _persist_client_email_from_reply(db, reply, process_client_requests)
         linked_doc = await db["client_emails"].find_one(
             {"email_id": client_email_id},
             {"_id": 0},
@@ -13722,7 +13891,7 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                     "updated_at": _now(),
                 }},
             )
-            if not linked_doc.get("processed") and _auto_send_retry_due(linked_doc):
+            if process_client_requests and not linked_doc.get("processed") and _auto_send_retry_due(linked_doc):
                 await _process_client_requirement_email(db, linked_doc)
         stored += 1
     return stored
@@ -13916,6 +14085,7 @@ async def _poll_and_store(
     max_messages: int = 50,
     from_emails: Optional[list] = None,
     search_query: str = "",
+    process_client_requests: bool = True,
 ) -> int:
     """Poll the configured inbox provider and persist/process messages."""
     settings_doc = await _load_admin_settings(db)
@@ -13942,7 +14112,7 @@ async def _poll_and_store(
                 imap_config=imap_config,
             ),
         )
-    return await _process_and_store_replies(db, replies)
+    return await _process_and_store_replies(db, replies, process_client_requests)
 
 
 @router.post("/poll")

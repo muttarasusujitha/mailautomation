@@ -97,6 +97,10 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+    AI_PROVIDER: str = "openai"
+    OLLAMA_URL: str = "http://localhost:11434/api/generate"
+    OLLAMA_MODEL: str = "qwen3:8b"
+    OLLAMA_EMAIL_TIMEOUT_SECONDS: int = 300
     USE_OPENAI_FOR_EMAILS: bool = False
     USE_LLM_FOR_EMAILS: bool = False
     # Auto-send is opt-in. The LLM can draft email text, but application rules

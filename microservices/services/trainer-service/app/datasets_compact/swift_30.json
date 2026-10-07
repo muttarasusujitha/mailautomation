@@ -5,30 +5,1510 @@
   "program_title": "Swift Programming - Fundamentals to Advanced Application Development",
   "level": "Beginner to Advanced",
   "mode": "Online",
-  "aliases": ["Swift", "Swift Programming", "Apple Swift", "Swift Language"],
-  "tools": ["Xcode", "Swift Compiler", "Swift Package Manager", "Swift Playgrounds", "Git", "GitHub", "Instruments", "XCTest"],
-  "certifications": ["Apple App Development with Swift Learning Path", "Swift Certification - Certiport"],
+  "aliases": [
+    "Swift",
+    "Swift Programming",
+    "Apple Swift",
+    "Swift Language"
+  ],
+  "tools": [
+    "Xcode",
+    "Swift Compiler",
+    "Swift Package Manager",
+    "Swift Playgrounds",
+    "Git",
+    "GitHub",
+    "Instruments",
+    "XCTest"
+  ],
+  "certifications": [
+    "Apple App Development with Swift Learning Path",
+    "Swift Certification - Certiport"
+  ],
   "days": [
-    {"day": 1, "topic": "Swift Introduction and Development Environment", "subtopics": ["Swift overview and use cases", "Apple platforms", "Swift versus Objective-C", "compiler", "Xcode", "Swift Playgrounds", "project structure", "comments", "print", "basic debugging"], "tools": ["Xcode", "Swift Playgrounds"], "lab_task": "Set up Swift and create, compile, and execute basic programs"},
-    {"day": 2, "topic": "Variables, Constants and Data Types", "subtopics": ["var and let", "type inference and annotations", "numeric types", "Bool, Character and String", "tuples", "type aliases", "literals", "type conversion", "string interpolation", "Unicode"], "tools": ["Xcode"], "lab_task": "Develop programs using variables, constants, tuples, data types, and conversions"},
-    {"day": 3, "topic": "Operators and Control Flow", "subtopics": ["arithmetic and assignment", "comparison and logical operators", "nil-coalescing", "range operators", "if/else", "switch pattern matching", "where clauses", "for-in", "while", "repeat-while", "break", "continue", "labels"], "tools": ["Xcode"], "lab_task": "Create decision-making, menu-driven, and loop-based programs"},
-    {"day": 4, "topic": "Strings, Characters and Collections", "subtopics": ["string literals", "multiline strings", "indexing and substrings", "characters and Unicode", "arrays", "sets", "dictionaries", "traversal", "filter", "map", "reduce", "sorting"], "tools": ["Xcode", "Swift Playgrounds"], "lab_task": "Build a student information processor using strings and collections"},
-    {"day": 5, "topic": "Functions and Closures", "subtopics": ["function declaration", "parameters and return values", "tuple returns", "argument labels", "default, variadic and inout parameters", "function types", "nested functions", "closures", "trailing closures", "capturing values", "escaping closures", "higher-order functions"], "tools": ["Xcode"], "lab_task": "Create reusable functions and closure-based data-processing operations"},
-    {"day": 6, "topic": "Optionals and Error Handling", "subtopics": ["optionals and nil", "if let and guard let", "forced/implicitly unwrapped optionals", "optional chaining", "nil-coalescing", "Error protocol", "throw/throws", "do-catch", "try variations", "custom errors", "defer", "error propagation"], "tools": ["Xcode"], "lab_task": "Develop safe input processing with optionals and custom error handling"},
-    {"day": 7, "topic": "Structures, Classes and OOP", "subtopics": ["structures and classes", "properties and methods", "initializers and deinitializers", "value/reference types", "identity operators", "encapsulation", "inheritance", "subclassing", "overriding", "polymorphism", "final"], "tools": ["Xcode"], "lab_task": "Build an employee model using structures, classes, inheritance, and polymorphism"},
-    {"day": 8, "topic": "Properties, Methods and Subscripts", "subtopics": ["stored and computed properties", "lazy properties", "property observers", "willSet/didSet", "type properties", "instance/type methods", "mutating methods", "self", "subscripts", "read-only and multi-parameter subscripts"], "tools": ["Xcode"], "lab_task": "Create domain models with computed properties, observers, and custom subscripts"},
-    {"day": 9, "topic": "Enumerations, Protocols and Extensions", "subtopics": ["enum cases", "associated/raw values", "recursive enums", "protocol requirements", "protocol inheritance and composition", "protocol-oriented programming", "extensions", "protocol extensions", "conditional extensions"], "tools": ["Xcode"], "lab_task": "Design a payment system using enums, protocols, extensions, and polymorphism"},
-    {"day": 10, "topic": "Generics and Advanced Type System", "subtopics": ["generic functions and types", "type constraints", "where clauses", "associated types", "generic protocols", "opaque types", "some and any", "existential types", "type casting", "Any", "AnyObject", "metatypes"], "tools": ["Xcode"], "lab_task": "Develop reusable generic components with constraints and protocols"},
-    {"day": 11, "topic": "Memory Management and ARC", "subtopics": ["stack and heap", "Automatic Reference Counting", "strong references", "reference cycles", "weak and unowned references", "closure cycles", "capture lists", "object lifecycle", "deinitialization", "memory leaks", "Instruments"], "tools": ["Xcode", "Instruments"], "lab_task": "Find and resolve strong-reference cycles while profiling memory"},
-    {"day": 12, "topic": "Concurrency and Asynchronous Programming", "subtopics": ["sync versus async", "threads and tasks", "async/await", "Task and task groups", "structured concurrency", "cancellation", "async errors", "actors", "MainActor", "Sendable", "data-race prevention", "GCD", "DispatchQueue"], "tools": ["Xcode"], "lab_task": "Build an async data-processing application using tasks, actors, and async/await"},
-    {"day": 13, "topic": "Networking and REST API Integration", "subtopics": ["HTTP/HTTPS", "REST", "URL and URLRequest", "URLSession", "GET, POST, PUT and DELETE", "headers and status codes", "JSON", "Codable", "JSONEncoder/Decoder", "API errors", "authentication", "async networking"], "tools": ["Xcode", "Postman", "URLSession"], "lab_task": "Consume a REST API, decode JSON, and display processed data"},
-    {"day": 14, "topic": "Swift Package Management and Modular Development", "subtopics": ["modules and imports", "access control", "Swift Package Manager", "Package.swift", "dependencies", "products and targets", "libraries", "version management", "custom packages", "third-party packages", "modular architecture"], "tools": ["Swift Package Manager", "Xcode", "GitHub"], "lab_task": "Create a reusable Swift package and integrate it into another project"},
-    {"day": 15, "topic": "Testing and Debugging", "subtopics": ["unit testing", "XCTest", "assertions", "setup/teardown", "testing errors", "asynchronous tests", "mocking", "dependency injection", "performance testing", "breakpoints", "LLDB", "logging", "memory debugging"], "tools": ["XCTest", "Xcode", "LLDB", "Instruments"], "lab_task": "Write unit and async tests, then debug a Swift application"},
-    {"day": 16, "topic": "SwiftUI Fundamentals", "subtopics": ["declarative UI", "View protocol", "Text, Image and Button", "VStack/HStack/ZStack", "modifiers", "State", "Binding", "Lists", "Forms", "Navigation", "user input", "reusable views", "previews"], "tools": ["SwiftUI", "Xcode"], "lab_task": "Build a multi-screen SwiftUI application with reusable components and state"},
-    {"day": 17, "topic": "SwiftUI State Management and Data Flow", "subtopics": ["State and Binding", "Observable", "Environment", "application state", "data flow", "view lifecycle", "MVVM", "separation of concerns", "dependency management", "async loading", "loading/error states"], "tools": ["SwiftUI", "Xcode"], "lab_task": "Develop a SwiftUI MVVM application using shared state and API data"},
-    {"day": 18, "topic": "Data Persistence", "subtopics": ["UserDefaults", "file persistence", "Codable persistence", "SwiftData", "model definitions", "containers and queries", "CRUD", "relationships", "persistence errors", "migration concepts", "Core Data awareness"], "tools": ["SwiftData", "Xcode"], "lab_task": "Create a persistent application with create, read, update, and delete functions"},
-    {"day": 19, "topic": "Advanced Swift Language Features", "subtopics": ["key paths", "property wrappers", "result builders", "custom operators", "pattern matching", "advanced switch", "dynamic member lookup", "Mirror reflection", "attributes", "conditional compilation", "advanced generics", "copy-on-write"], "tools": ["Xcode", "Swift Compiler"], "lab_task": "Create reusable components using wrappers, builders, generics, and protocol design"},
-    {"day": 20, "topic": "Performance, Security and Production Practices", "subtopics": ["CPU and memory profiling", "leaks analysis", "responsiveness", "collection efficiency", "concurrency performance", "secure coding", "Keychain", "HTTPS", "token handling", "SOLID", "dependency injection", "clean architecture", "error reporting"], "tools": ["Xcode", "Instruments", "Keychain"], "lab_task": "Profile and optimize a production-style Swift application with secure practices"},
-    {"day": 21, "topic": "Git, CI/CD and Swift Capstone", "subtopics": ["Git workflow", "branches and pull requests", "GitHub workflows", "code review", "CI/CD", "automated build/test", "project planning", "API and persistence integration", "testing strategy", "documentation", "final packaging"], "tools": ["Git", "GitHub", "Xcode", "Swift Package Manager"], "lab_task": "Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming"}
-  ]
+    {
+      "day": 1,
+      "topic": "Swift Introduction and Development Environment",
+      "subtopics": [
+        "Swift overview and use cases",
+        "Apple platforms",
+        "Swift versus Objective-C",
+        "compiler",
+        "Xcode",
+        "Swift Playgrounds",
+        "project structure",
+        "comments",
+        "print",
+        "basic debugging"
+      ],
+      "tools": [
+        "Xcode",
+        "Swift Playgrounds"
+      ],
+      "lab_task": "Set up Swift and create, compile, and execute basic programs",
+      "deliverable": "Participant submission for 'Swift Introduction and Development Environment': Set up Swift and create, compile, and execute basic programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Swift and create, compile, and execute basic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Swift overview and use cases; Apple platforms; Swift versus Objective-C; compiler; Xcode; Swift Playgrounds; project structure; comments; print; basic debugging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up Swift and create, compile, and execute basic programs.",
+        "Explain how the lab applies Swift Introduction and Development Environment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Swift Introduction and Development Environment' on a prepared training sample through this task: Set up Swift and create, compile, and execute basic programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Swift and create, compile, and execute basic programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Swift overview and use cases; Apple platforms; Swift versus Objective-C; compiler; Xcode; Swift Playgrounds; project structure; comments; print; basic debugging) and demonstrate the starting sample for: Set up Swift and create, compile, and execute basic programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Swift and create, compile, and execute basic programs",
+          "evidence": "Participant submission for 'Swift Introduction and Development Environment': Set up Swift and create, compile, and execute basic programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Swift and create, compile, and execute basic programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Swift and create, compile, and execute basic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Swift overview and use cases; Apple platforms; Swift versus Objective-C; compiler; Xcode; Swift Playgrounds; project structure; comments; print; basic debugging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Constants and Data Types",
+      "subtopics": [
+        "var and let",
+        "type inference and annotations",
+        "numeric types",
+        "Bool, Character and String",
+        "tuples",
+        "type aliases",
+        "literals",
+        "type conversion",
+        "string interpolation",
+        "Unicode"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Develop programs using variables, constants, tuples, data types, and conversions",
+      "deliverable": "Participant submission for 'Variables, Constants and Data Types': Develop programs using variables, constants, tuples, data types, and conversions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop programs using variables, constants, tuples, data types, and conversions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (var and let; type inference and annotations; numeric types; Bool, Character and String; tuples; type aliases; literals; type conversion; string interpolation; Unicode). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop programs using variables, constants, tuples, data types, and conversions.",
+        "Explain how the lab applies Variables, Constants and Data Types and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Constants and Data Types' on a prepared training sample through this task: Develop programs using variables, constants, tuples, data types, and conversions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop programs using variables, constants, tuples, data types, and conversions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (var and let; type inference and annotations; numeric types; Bool, Character and String; tuples; type aliases; literals; type conversion; string interpolation; Unicode) and demonstrate the starting sample for: Develop programs using variables, constants, tuples, data types, and conversions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop programs using variables, constants, tuples, data types, and conversions",
+          "evidence": "Participant submission for 'Variables, Constants and Data Types': Develop programs using variables, constants, tuples, data types, and conversions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop programs using variables, constants, tuples, data types, and conversions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop programs using variables, constants, tuples, data types, and conversions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (var and let; type inference and annotations; numeric types; Bool, Character and String; tuples; type aliases; literals; type conversion; string interpolation; Unicode). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Operators and Control Flow",
+      "subtopics": [
+        "arithmetic and assignment",
+        "comparison and logical operators",
+        "nil-coalescing",
+        "range operators",
+        "if/else",
+        "switch pattern matching",
+        "where clauses",
+        "for-in",
+        "while",
+        "repeat-while",
+        "break",
+        "continue",
+        "labels"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Create decision-making, menu-driven, and loop-based programs",
+      "deliverable": "Participant submission for 'Operators and Control Flow': Create decision-making, menu-driven, and loop-based programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create decision-making, menu-driven, and loop-based programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic and assignment; comparison and logical operators; nil-coalescing; range operators; if/else; switch pattern matching; where clauses; for-in; while; repeat-while; break; continue; labels). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create decision-making, menu-driven, and loop-based programs.",
+        "Explain how the lab applies Operators and Control Flow and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Operators and Control Flow' on a prepared training sample through this task: Create decision-making, menu-driven, and loop-based programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create decision-making, menu-driven, and loop-based programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (arithmetic and assignment; comparison and logical operators; nil-coalescing; range operators; if/else; switch pattern matching; where clauses; for-in; while; repeat-while; break; continue; labels) and demonstrate the starting sample for: Create decision-making, menu-driven, and loop-based programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create decision-making, menu-driven, and loop-based programs",
+          "evidence": "Participant submission for 'Operators and Control Flow': Create decision-making, menu-driven, and loop-based programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create decision-making, menu-driven, and loop-based programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create decision-making, menu-driven, and loop-based programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic and assignment; comparison and logical operators; nil-coalescing; range operators; if/else; switch pattern matching; where clauses; for-in; while; repeat-while; break; continue; labels). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Strings, Characters and Collections",
+      "subtopics": [
+        "string literals",
+        "multiline strings",
+        "indexing and substrings",
+        "characters and Unicode",
+        "arrays",
+        "sets",
+        "dictionaries",
+        "traversal",
+        "filter",
+        "map",
+        "reduce",
+        "sorting"
+      ],
+      "tools": [
+        "Xcode",
+        "Swift Playgrounds"
+      ],
+      "lab_task": "Build a student information processor using strings and collections",
+      "deliverable": "Participant submission for 'Strings, Characters and Collections': Build a student information processor using strings and collections. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a student information processor using strings and collections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string literals; multiline strings; indexing and substrings; characters and Unicode; arrays; sets; dictionaries; traversal; filter; map; reduce; sorting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a student information processor using strings and collections.",
+        "Explain how the lab applies Strings, Characters and Collections and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Strings, Characters and Collections' on a prepared training sample through this task: Build a student information processor using strings and collections.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a student information processor using strings and collections",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (string literals; multiline strings; indexing and substrings; characters and Unicode; arrays; sets; dictionaries; traversal; filter; map; reduce; sorting) and demonstrate the starting sample for: Build a student information processor using strings and collections",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a student information processor using strings and collections",
+          "evidence": "Participant submission for 'Strings, Characters and Collections': Build a student information processor using strings and collections. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a student information processor using strings and collections' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a student information processor using strings and collections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string literals; multiline strings; indexing and substrings; characters and Unicode; arrays; sets; dictionaries; traversal; filter; map; reduce; sorting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Functions and Closures",
+      "subtopics": [
+        "function declaration",
+        "parameters and return values",
+        "tuple returns",
+        "argument labels",
+        "default, variadic and inout parameters",
+        "function types",
+        "nested functions",
+        "closures",
+        "trailing closures",
+        "capturing values",
+        "escaping closures",
+        "higher-order functions"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Create reusable functions and closure-based data-processing operations",
+      "deliverable": "Participant submission for 'Functions and Closures': Create reusable functions and closure-based data-processing operations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable functions and closure-based data-processing operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (function declaration; parameters and return values; tuple returns; argument labels; default, variadic and inout parameters; function types; nested functions; closures; trailing closures; capturing values; escaping closures; higher-order functions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable functions and closure-based data-processing operations.",
+        "Explain how the lab applies Functions and Closures and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functions and Closures' on a prepared training sample through this task: Create reusable functions and closure-based data-processing operations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable functions and closure-based data-processing operations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (function declaration; parameters and return values; tuple returns; argument labels; default, variadic and inout parameters; function types; nested functions; closures; trailing closures; capturing values; escaping closures; higher-order functions) and demonstrate the starting sample for: Create reusable functions and closure-based data-processing operations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable functions and closure-based data-processing operations",
+          "evidence": "Participant submission for 'Functions and Closures': Create reusable functions and closure-based data-processing operations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable functions and closure-based data-processing operations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable functions and closure-based data-processing operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (function declaration; parameters and return values; tuple returns; argument labels; default, variadic and inout parameters; function types; nested functions; closures; trailing closures; capturing values; escaping closures; higher-order functions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Optionals and Error Handling",
+      "subtopics": [
+        "optionals and nil",
+        "if let and guard let",
+        "forced/implicitly unwrapped optionals",
+        "optional chaining",
+        "nil-coalescing",
+        "Error protocol",
+        "throw/throws",
+        "do-catch",
+        "try variations",
+        "custom errors",
+        "defer",
+        "error propagation"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Develop safe input processing with optionals and custom error handling",
+      "deliverable": "Participant submission for 'Optionals and Error Handling': Develop safe input processing with optionals and custom error handling. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop safe input processing with optionals and custom error handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (optionals and nil; if let and guard let; forced/implicitly unwrapped optionals; optional chaining; nil-coalescing; Error protocol; throw/throws; do-catch; try variations; custom errors; defer; error propagation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop safe input processing with optionals and custom error handling.",
+        "Explain how the lab applies Optionals and Error Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Optionals and Error Handling' on a prepared training sample through this task: Develop safe input processing with optionals and custom error handling.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop safe input processing with optionals and custom error handling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (optionals and nil; if let and guard let; forced/implicitly unwrapped optionals; optional chaining; nil-coalescing; Error protocol; throw/throws; do-catch; try variations; custom errors; defer; error propagation) and demonstrate the starting sample for: Develop safe input processing with optionals and custom error handling",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop safe input processing with optionals and custom error handling",
+          "evidence": "Participant submission for 'Optionals and Error Handling': Develop safe input processing with optionals and custom error handling. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop safe input processing with optionals and custom error handling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop safe input processing with optionals and custom error handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (optionals and nil; if let and guard let; forced/implicitly unwrapped optionals; optional chaining; nil-coalescing; Error protocol; throw/throws; do-catch; try variations; custom errors; defer; error propagation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Structures, Classes and OOP",
+      "subtopics": [
+        "structures and classes",
+        "properties and methods",
+        "initializers and deinitializers",
+        "value/reference types",
+        "identity operators",
+        "encapsulation",
+        "inheritance",
+        "subclassing",
+        "overriding",
+        "polymorphism",
+        "final"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Build an employee model using structures, classes, inheritance, and polymorphism",
+      "deliverable": "Participant submission for 'Structures, Classes and OOP': Build an employee model using structures, classes, inheritance, and polymorphism. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an employee model using structures, classes, inheritance, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (structures and classes; properties and methods; initializers and deinitializers; value/reference types; identity operators; encapsulation; inheritance; subclassing; overriding; polymorphism; final). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an employee model using structures, classes, inheritance, and polymorphism.",
+        "Explain how the lab applies Structures, Classes and OOP and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Structures, Classes and OOP' on a prepared training sample through this task: Build an employee model using structures, classes, inheritance, and polymorphism.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an employee model using structures, classes, inheritance, and polymorphism",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (structures and classes; properties and methods; initializers and deinitializers; value/reference types; identity operators; encapsulation; inheritance; subclassing; overriding; polymorphism; final) and demonstrate the starting sample for: Build an employee model using structures, classes, inheritance, and polymorphism",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an employee model using structures, classes, inheritance, and polymorphism",
+          "evidence": "Participant submission for 'Structures, Classes and OOP': Build an employee model using structures, classes, inheritance, and polymorphism. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an employee model using structures, classes, inheritance, and polymorphism' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an employee model using structures, classes, inheritance, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (structures and classes; properties and methods; initializers and deinitializers; value/reference types; identity operators; encapsulation; inheritance; subclassing; overriding; polymorphism; final). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Properties, Methods and Subscripts",
+      "subtopics": [
+        "stored and computed properties",
+        "lazy properties",
+        "property observers",
+        "willSet/didSet",
+        "type properties",
+        "instance/type methods",
+        "mutating methods",
+        "self",
+        "subscripts",
+        "read-only and multi-parameter subscripts"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Create domain models with computed properties, observers, and custom subscripts",
+      "deliverable": "Participant submission for 'Properties, Methods and Subscripts': Create domain models with computed properties, observers, and custom subscripts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create domain models with computed properties, observers, and custom subscripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stored and computed properties; lazy properties; property observers; willSet/didSet; type properties; instance/type methods; mutating methods; self; subscripts; read-only and multi-parameter subscripts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create domain models with computed properties, observers, and custom subscripts.",
+        "Explain how the lab applies Properties, Methods and Subscripts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Properties, Methods and Subscripts' on a prepared training sample through this task: Create domain models with computed properties, observers, and custom subscripts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create domain models with computed properties, observers, and custom subscripts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (stored and computed properties; lazy properties; property observers; willSet/didSet; type properties; instance/type methods; mutating methods; self; subscripts; read-only and multi-parameter subscripts) and demonstrate the starting sample for: Create domain models with computed properties, observers, and custom subscripts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create domain models with computed properties, observers, and custom subscripts",
+          "evidence": "Participant submission for 'Properties, Methods and Subscripts': Create domain models with computed properties, observers, and custom subscripts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create domain models with computed properties, observers, and custom subscripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create domain models with computed properties, observers, and custom subscripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stored and computed properties; lazy properties; property observers; willSet/didSet; type properties; instance/type methods; mutating methods; self; subscripts; read-only and multi-parameter subscripts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Enumerations, Protocols and Extensions",
+      "subtopics": [
+        "enum cases",
+        "associated/raw values",
+        "recursive enums",
+        "protocol requirements",
+        "protocol inheritance and composition",
+        "protocol-oriented programming",
+        "extensions",
+        "protocol extensions",
+        "conditional extensions"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Design a payment system using enums, protocols, extensions, and polymorphism",
+      "deliverable": "Participant submission for 'Enumerations, Protocols and Extensions': Design a payment system using enums, protocols, extensions, and polymorphism. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a payment system using enums, protocols, extensions, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (enum cases; associated/raw values; recursive enums; protocol requirements; protocol inheritance and composition; protocol-oriented programming; extensions; protocol extensions; conditional extensions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design a payment system using enums, protocols, extensions, and polymorphism.",
+        "Explain how the lab applies Enumerations, Protocols and Extensions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Enumerations, Protocols and Extensions' on a prepared training sample through this task: Design a payment system using enums, protocols, extensions, and polymorphism.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a payment system using enums, protocols, extensions, and polymorphism",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (enum cases; associated/raw values; recursive enums; protocol requirements; protocol inheritance and composition; protocol-oriented programming; extensions; protocol extensions; conditional extensions) and demonstrate the starting sample for: Design a payment system using enums, protocols, extensions, and polymorphism",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a payment system using enums, protocols, extensions, and polymorphism",
+          "evidence": "Participant submission for 'Enumerations, Protocols and Extensions': Design a payment system using enums, protocols, extensions, and polymorphism. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a payment system using enums, protocols, extensions, and polymorphism' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a payment system using enums, protocols, extensions, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (enum cases; associated/raw values; recursive enums; protocol requirements; protocol inheritance and composition; protocol-oriented programming; extensions; protocol extensions; conditional extensions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Generics and Advanced Type System",
+      "subtopics": [
+        "generic functions and types",
+        "type constraints",
+        "where clauses",
+        "associated types",
+        "generic protocols",
+        "opaque types",
+        "some and any",
+        "existential types",
+        "type casting",
+        "Any",
+        "AnyObject",
+        "metatypes"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Develop reusable generic components with constraints and protocols",
+      "deliverable": "Participant submission for 'Generics and Advanced Type System': Develop reusable generic components with constraints and protocols. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop reusable generic components with constraints and protocols. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generic functions and types; type constraints; where clauses; associated types; generic protocols; opaque types; some and any; existential types; type casting; Any; AnyObject; metatypes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop reusable generic components with constraints and protocols.",
+        "Explain how the lab applies Generics and Advanced Type System and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Generics and Advanced Type System' on a prepared training sample through this task: Develop reusable generic components with constraints and protocols.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop reusable generic components with constraints and protocols",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (generic functions and types; type constraints; where clauses; associated types; generic protocols; opaque types; some and any; existential types; type casting; Any; AnyObject; metatypes) and demonstrate the starting sample for: Develop reusable generic components with constraints and protocols",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop reusable generic components with constraints and protocols",
+          "evidence": "Participant submission for 'Generics and Advanced Type System': Develop reusable generic components with constraints and protocols. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop reusable generic components with constraints and protocols' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop reusable generic components with constraints and protocols. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generic functions and types; type constraints; where clauses; associated types; generic protocols; opaque types; some and any; existential types; type casting; Any; AnyObject; metatypes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Memory Management and ARC",
+      "subtopics": [
+        "stack and heap",
+        "Automatic Reference Counting",
+        "strong references",
+        "reference cycles",
+        "weak and unowned references",
+        "closure cycles",
+        "capture lists",
+        "object lifecycle",
+        "deinitialization",
+        "memory leaks",
+        "Instruments"
+      ],
+      "tools": [
+        "Xcode",
+        "Instruments"
+      ],
+      "lab_task": "Find and resolve strong-reference cycles while profiling memory",
+      "deliverable": "Participant submission for 'Memory Management and ARC': Find and resolve strong-reference cycles while profiling memory. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Find and resolve strong-reference cycles while profiling memory. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stack and heap; Automatic Reference Counting; strong references; reference cycles; weak and unowned references; closure cycles; capture lists; object lifecycle; deinitialization; memory leaks; Instruments). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Find and resolve strong-reference cycles while profiling memory.",
+        "Explain how the lab applies Memory Management and ARC and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Memory Management and ARC' on a prepared training sample through this task: Find and resolve strong-reference cycles while profiling memory.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Find and resolve strong-reference cycles while profiling memory",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (stack and heap; Automatic Reference Counting; strong references; reference cycles; weak and unowned references; closure cycles; capture lists; object lifecycle; deinitialization; memory leaks; Instruments) and demonstrate the starting sample for: Find and resolve strong-reference cycles while profiling memory",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Find and resolve strong-reference cycles while profiling memory",
+          "evidence": "Participant submission for 'Memory Management and ARC': Find and resolve strong-reference cycles while profiling memory. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Find and resolve strong-reference cycles while profiling memory' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Find and resolve strong-reference cycles while profiling memory. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (stack and heap; Automatic Reference Counting; strong references; reference cycles; weak and unowned references; closure cycles; capture lists; object lifecycle; deinitialization; memory leaks; Instruments). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Concurrency and Asynchronous Programming",
+      "subtopics": [
+        "sync versus async",
+        "threads and tasks",
+        "async/await",
+        "Task and task groups",
+        "structured concurrency",
+        "cancellation",
+        "async errors",
+        "actors",
+        "MainActor",
+        "Sendable",
+        "data-race prevention",
+        "GCD",
+        "DispatchQueue"
+      ],
+      "tools": [
+        "Xcode"
+      ],
+      "lab_task": "Build an async data-processing application using tasks, actors, and async/await",
+      "deliverable": "Participant submission for 'Concurrency and Asynchronous Programming': Build an async data-processing application using tasks, actors, and async/await. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an async data-processing application using tasks, actors, and async/await. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (sync versus async; threads and tasks; async/await; Task and task groups; structured concurrency; cancellation; async errors; actors; MainActor; Sendable; data-race prevention; GCD; DispatchQueue). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an async data-processing application using tasks, actors, and async/await.",
+        "Explain how the lab applies Concurrency and Asynchronous Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Concurrency and Asynchronous Programming' on a prepared training sample through this task: Build an async data-processing application using tasks, actors, and async/await.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an async data-processing application using tasks, actors, and async/await",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (sync versus async; threads and tasks; async/await; Task and task groups; structured concurrency; cancellation; async errors; actors; MainActor; Sendable; data-race prevention; GCD; DispatchQueue) and demonstrate the starting sample for: Build an async data-processing application using tasks, actors, and async/await",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an async data-processing application using tasks, actors, and async/await",
+          "evidence": "Participant submission for 'Concurrency and Asynchronous Programming': Build an async data-processing application using tasks, actors, and async/await. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an async data-processing application using tasks, actors, and async/await' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an async data-processing application using tasks, actors, and async/await. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (sync versus async; threads and tasks; async/await; Task and task groups; structured concurrency; cancellation; async errors; actors; MainActor; Sendable; data-race prevention; GCD; DispatchQueue). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Networking and REST API Integration",
+      "subtopics": [
+        "HTTP/HTTPS",
+        "REST",
+        "URL and URLRequest",
+        "URLSession",
+        "GET, POST, PUT and DELETE",
+        "headers and status codes",
+        "JSON",
+        "Codable",
+        "JSONEncoder/Decoder",
+        "API errors",
+        "authentication",
+        "async networking"
+      ],
+      "tools": [
+        "Xcode",
+        "Postman",
+        "URLSession"
+      ],
+      "lab_task": "Consume a REST API, decode JSON, and display processed data",
+      "deliverable": "Participant submission for 'Networking and REST API Integration': Consume a REST API, decode JSON, and display processed data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Consume a REST API, decode JSON, and display processed data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP/HTTPS; REST; URL and URLRequest; URLSession; GET, POST, PUT and DELETE; headers and status codes; JSON; Codable; JSONEncoder/Decoder; API errors; authentication; async networking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Consume a REST API, decode JSON, and display processed data.",
+        "Explain how the lab applies Networking and REST API Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Networking and REST API Integration' on a prepared training sample through this task: Consume a REST API, decode JSON, and display processed data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Consume a REST API, decode JSON, and display processed data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP/HTTPS; REST; URL and URLRequest; URLSession; GET, POST, PUT and DELETE; headers and status codes; JSON; Codable; JSONEncoder/Decoder; API errors; authentication; async networking) and demonstrate the starting sample for: Consume a REST API, decode JSON, and display processed data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Consume a REST API, decode JSON, and display processed data",
+          "evidence": "Participant submission for 'Networking and REST API Integration': Consume a REST API, decode JSON, and display processed data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Consume a REST API, decode JSON, and display processed data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Consume a REST API, decode JSON, and display processed data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP/HTTPS; REST; URL and URLRequest; URLSession; GET, POST, PUT and DELETE; headers and status codes; JSON; Codable; JSONEncoder/Decoder; API errors; authentication; async networking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Swift Package Management and Modular Development",
+      "subtopics": [
+        "modules and imports",
+        "access control",
+        "Swift Package Manager",
+        "Package.swift",
+        "dependencies",
+        "products and targets",
+        "libraries",
+        "version management",
+        "custom packages",
+        "third-party packages",
+        "modular architecture"
+      ],
+      "tools": [
+        "Swift Package Manager",
+        "Xcode",
+        "GitHub"
+      ],
+      "lab_task": "Create a reusable Swift package and integrate it into another project",
+      "deliverable": "Participant submission for 'Swift Package Management and Modular Development': Create a reusable Swift package and integrate it into another project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a reusable Swift package and integrate it into another project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules and imports; access control; Swift Package Manager; Package.swift; dependencies; products and targets; libraries; version management; custom packages; third-party packages; modular architecture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a reusable Swift package and integrate it into another project.",
+        "Explain how the lab applies Swift Package Management and Modular Development and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Swift Package Management and Modular Development' on a prepared training sample through this task: Create a reusable Swift package and integrate it into another project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a reusable Swift package and integrate it into another project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (modules and imports; access control; Swift Package Manager; Package.swift; dependencies; products and targets; libraries; version management; custom packages; third-party packages; modular architecture) and demonstrate the starting sample for: Create a reusable Swift package and integrate it into another project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a reusable Swift package and integrate it into another project",
+          "evidence": "Participant submission for 'Swift Package Management and Modular Development': Create a reusable Swift package and integrate it into another project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a reusable Swift package and integrate it into another project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a reusable Swift package and integrate it into another project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules and imports; access control; Swift Package Manager; Package.swift; dependencies; products and targets; libraries; version management; custom packages; third-party packages; modular architecture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Testing and Debugging",
+      "subtopics": [
+        "unit testing",
+        "XCTest",
+        "assertions",
+        "setup/teardown",
+        "testing errors",
+        "asynchronous tests",
+        "mocking",
+        "dependency injection",
+        "performance testing",
+        "breakpoints",
+        "LLDB",
+        "logging",
+        "memory debugging"
+      ],
+      "tools": [
+        "XCTest",
+        "Xcode",
+        "LLDB",
+        "Instruments"
+      ],
+      "lab_task": "Write unit and async tests, then debug a Swift application",
+      "deliverable": "Participant submission for 'Testing and Debugging': Write unit and async tests, then debug a Swift application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write unit and async tests, then debug a Swift application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit testing; XCTest; assertions; setup/teardown; testing errors; asynchronous tests; mocking; dependency injection; performance testing; breakpoints; LLDB; logging; memory debugging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write unit and async tests, then debug a Swift application.",
+        "Explain how the lab applies Testing and Debugging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing and Debugging' on a prepared training sample through this task: Write unit and async tests, then debug a Swift application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write unit and async tests, then debug a Swift application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (unit testing; XCTest; assertions; setup/teardown; testing errors; asynchronous tests; mocking; dependency injection; performance testing; breakpoints; LLDB; logging; memory debugging) and demonstrate the starting sample for: Write unit and async tests, then debug a Swift application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write unit and async tests, then debug a Swift application",
+          "evidence": "Participant submission for 'Testing and Debugging': Write unit and async tests, then debug a Swift application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write unit and async tests, then debug a Swift application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write unit and async tests, then debug a Swift application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit testing; XCTest; assertions; setup/teardown; testing errors; asynchronous tests; mocking; dependency injection; performance testing; breakpoints; LLDB; logging; memory debugging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "SwiftUI Fundamentals",
+      "subtopics": [
+        "declarative UI",
+        "View protocol",
+        "Text, Image and Button",
+        "VStack/HStack/ZStack",
+        "modifiers",
+        "State",
+        "Binding",
+        "Lists",
+        "Forms",
+        "Navigation",
+        "user input",
+        "reusable views",
+        "previews"
+      ],
+      "tools": [
+        "SwiftUI",
+        "Xcode"
+      ],
+      "lab_task": "Build a multi-screen SwiftUI application with reusable components and state",
+      "deliverable": "Participant submission for 'SwiftUI Fundamentals': Build a multi-screen SwiftUI application with reusable components and state. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a multi-screen SwiftUI application with reusable components and state. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (declarative UI; View protocol; Text, Image and Button; VStack/HStack/ZStack; modifiers; State; Binding; Lists; Forms; Navigation; user input; reusable views; previews). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a multi-screen SwiftUI application with reusable components and state.",
+        "Explain how the lab applies SwiftUI Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SwiftUI Fundamentals' on a prepared training sample through this task: Build a multi-screen SwiftUI application with reusable components and state.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a multi-screen SwiftUI application with reusable components and state",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (declarative UI; View protocol; Text, Image and Button; VStack/HStack/ZStack; modifiers; State; Binding; Lists; Forms; Navigation; user input; reusable views; previews) and demonstrate the starting sample for: Build a multi-screen SwiftUI application with reusable components and state",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a multi-screen SwiftUI application with reusable components and state",
+          "evidence": "Participant submission for 'SwiftUI Fundamentals': Build a multi-screen SwiftUI application with reusable components and state. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a multi-screen SwiftUI application with reusable components and state' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a multi-screen SwiftUI application with reusable components and state. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (declarative UI; View protocol; Text, Image and Button; VStack/HStack/ZStack; modifiers; State; Binding; Lists; Forms; Navigation; user input; reusable views; previews). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "SwiftUI State Management and Data Flow",
+      "subtopics": [
+        "State and Binding",
+        "Observable",
+        "Environment",
+        "application state",
+        "data flow",
+        "view lifecycle",
+        "MVVM",
+        "separation of concerns",
+        "dependency management",
+        "async loading",
+        "loading/error states"
+      ],
+      "tools": [
+        "SwiftUI",
+        "Xcode"
+      ],
+      "lab_task": "Develop a SwiftUI MVVM application using shared state and API data",
+      "deliverable": "Participant submission for 'SwiftUI State Management and Data Flow': Develop a SwiftUI MVVM application using shared state and API data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop a SwiftUI MVVM application using shared state and API data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (State and Binding; Observable; Environment; application state; data flow; view lifecycle; MVVM; separation of concerns; dependency management; async loading; loading/error states). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop a SwiftUI MVVM application using shared state and API data.",
+        "Explain how the lab applies SwiftUI State Management and Data Flow and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SwiftUI State Management and Data Flow' on a prepared training sample through this task: Develop a SwiftUI MVVM application using shared state and API data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop a SwiftUI MVVM application using shared state and API data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (State and Binding; Observable; Environment; application state; data flow; view lifecycle; MVVM; separation of concerns; dependency management; async loading; loading/error states) and demonstrate the starting sample for: Develop a SwiftUI MVVM application using shared state and API data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop a SwiftUI MVVM application using shared state and API data",
+          "evidence": "Participant submission for 'SwiftUI State Management and Data Flow': Develop a SwiftUI MVVM application using shared state and API data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop a SwiftUI MVVM application using shared state and API data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop a SwiftUI MVVM application using shared state and API data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (State and Binding; Observable; Environment; application state; data flow; view lifecycle; MVVM; separation of concerns; dependency management; async loading; loading/error states). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Data Persistence",
+      "subtopics": [
+        "UserDefaults",
+        "file persistence",
+        "Codable persistence",
+        "SwiftData",
+        "model definitions",
+        "containers and queries",
+        "CRUD",
+        "relationships",
+        "persistence errors",
+        "migration concepts",
+        "Core Data awareness"
+      ],
+      "tools": [
+        "SwiftData",
+        "Xcode"
+      ],
+      "lab_task": "Create a persistent application with create, read, update, and delete functions",
+      "deliverable": "Participant submission for 'Data Persistence': Create a persistent application with create, read, update, and delete functions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a persistent application with create, read, update, and delete functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (UserDefaults; file persistence; Codable persistence; SwiftData; model definitions; containers and queries; CRUD; relationships; persistence errors; migration concepts; Core Data awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a persistent application with create, read, update, and delete functions.",
+        "Explain how the lab applies Data Persistence and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Persistence' on a prepared training sample through this task: Create a persistent application with create, read, update, and delete functions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a persistent application with create, read, update, and delete functions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (UserDefaults; file persistence; Codable persistence; SwiftData; model definitions; containers and queries; CRUD; relationships; persistence errors; migration concepts; Core Data awareness) and demonstrate the starting sample for: Create a persistent application with create, read, update, and delete functions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a persistent application with create, read, update, and delete functions",
+          "evidence": "Participant submission for 'Data Persistence': Create a persistent application with create, read, update, and delete functions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a persistent application with create, read, update, and delete functions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a persistent application with create, read, update, and delete functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (UserDefaults; file persistence; Codable persistence; SwiftData; model definitions; containers and queries; CRUD; relationships; persistence errors; migration concepts; Core Data awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Advanced Swift Language Features",
+      "subtopics": [
+        "key paths",
+        "property wrappers",
+        "result builders",
+        "custom operators",
+        "pattern matching",
+        "advanced switch",
+        "dynamic member lookup",
+        "Mirror reflection",
+        "attributes",
+        "conditional compilation",
+        "advanced generics",
+        "copy-on-write"
+      ],
+      "tools": [
+        "Xcode",
+        "Swift Compiler"
+      ],
+      "lab_task": "Create reusable components using wrappers, builders, generics, and protocol design",
+      "deliverable": "Participant submission for 'Advanced Swift Language Features': Create reusable components using wrappers, builders, generics, and protocol design. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable components using wrappers, builders, generics, and protocol design. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (key paths; property wrappers; result builders; custom operators; pattern matching; advanced switch; dynamic member lookup; Mirror reflection; attributes; conditional compilation; advanced generics; copy-on-write). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable components using wrappers, builders, generics, and protocol design.",
+        "Explain how the lab applies Advanced Swift Language Features and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Swift Language Features' on a prepared training sample through this task: Create reusable components using wrappers, builders, generics, and protocol design.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable components using wrappers, builders, generics, and protocol design",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (key paths; property wrappers; result builders; custom operators; pattern matching; advanced switch; dynamic member lookup; Mirror reflection; attributes; conditional compilation; advanced generics; copy-on-write) and demonstrate the starting sample for: Create reusable components using wrappers, builders, generics, and protocol design",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable components using wrappers, builders, generics, and protocol design",
+          "evidence": "Participant submission for 'Advanced Swift Language Features': Create reusable components using wrappers, builders, generics, and protocol design. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable components using wrappers, builders, generics, and protocol design' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable components using wrappers, builders, generics, and protocol design. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (key paths; property wrappers; result builders; custom operators; pattern matching; advanced switch; dynamic member lookup; Mirror reflection; attributes; conditional compilation; advanced generics; copy-on-write). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Performance, Security and Production Practices",
+      "subtopics": [
+        "CPU and memory profiling",
+        "leaks analysis",
+        "responsiveness",
+        "collection efficiency",
+        "concurrency performance",
+        "secure coding",
+        "Keychain",
+        "HTTPS",
+        "token handling",
+        "SOLID",
+        "dependency injection",
+        "clean architecture",
+        "error reporting"
+      ],
+      "tools": [
+        "Xcode",
+        "Instruments",
+        "Keychain"
+      ],
+      "lab_task": "Profile and optimize a production-style Swift application with secure practices",
+      "deliverable": "Participant submission for 'Performance, Security and Production Practices': Profile and optimize a production-style Swift application with secure practices. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize a production-style Swift application with secure practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CPU and memory profiling; leaks analysis; responsiveness; collection efficiency; concurrency performance; secure coding; Keychain; HTTPS; token handling; SOLID; dependency injection; clean architecture; error reporting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize a production-style Swift application with secure practices.",
+        "Explain how the lab applies Performance, Security and Production Practices and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance, Security and Production Practices' on a prepared training sample through this task: Profile and optimize a production-style Swift application with secure practices.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize a production-style Swift application with secure practices",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CPU and memory profiling; leaks analysis; responsiveness; collection efficiency; concurrency performance; secure coding; Keychain; HTTPS; token handling; SOLID; dependency injection; clean architecture; error reporting) and demonstrate the starting sample for: Profile and optimize a production-style Swift application with secure practices",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize a production-style Swift application with secure practices",
+          "evidence": "Participant submission for 'Performance, Security and Production Practices': Profile and optimize a production-style Swift application with secure practices. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize a production-style Swift application with secure practices' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize a production-style Swift application with secure practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CPU and memory profiling; leaks analysis; responsiveness; collection efficiency; concurrency performance; secure coding; Keychain; HTTPS; token handling; SOLID; dependency injection; clean architecture; error reporting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Git, CI/CD and Swift Capstone",
+      "subtopics": [
+        "Git workflow",
+        "branches and pull requests",
+        "GitHub workflows",
+        "code review",
+        "CI/CD",
+        "automated build/test",
+        "project planning",
+        "API and persistence integration",
+        "testing strategy",
+        "documentation",
+        "final packaging"
+      ],
+      "tools": [
+        "Git",
+        "GitHub",
+        "Xcode",
+        "Swift Package Manager"
+      ],
+      "lab_task": "Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming",
+      "deliverable": "Participant submission for 'Git, CI/CD and Swift Capstone': Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git workflow; branches and pull requests; GitHub workflows; code review; CI/CD; automated build/test; project planning; API and persistence integration; testing strategy; documentation; final packaging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming.",
+        "Explain how the lab applies Git, CI/CD and Swift Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Git, CI/CD and Swift Capstone' on a prepared training sample through this task: Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git workflow; branches and pull requests; GitHub workflows; code review; CI/CD; automated build/test; project planning; API and persistence integration; testing strategy; documentation; final packaging) and demonstrate the starting sample for: Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming",
+          "evidence": "Participant submission for 'Git, CI/CD and Swift Capstone': Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a complete Swift app integrating UI, APIs, persistence, testing, and asynchronous programming. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git workflow; branches and pull requests; GitHub workflows; code review; CI/CD; automated build/test; project planning; API and persistence integration; testing strategy; documentation; final packaging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

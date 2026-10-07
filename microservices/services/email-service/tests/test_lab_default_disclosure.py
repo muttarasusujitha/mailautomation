@@ -9,5 +9,5 @@ def test_client_ack_discloses_lab_defaults_and_requests_real_inputs():
     })
 
     body = message["body"]
-    assert "3 lab-access hours per day for 1 participant" in body
-    assert "participant count and required lab-access hours per day" in body
+    assert "after confirming the participant count and required lab-access hours per day and preferred cloud provider (AWS, Azure, or GCP)" in body
+    assert "not treated as the participant count" in body
