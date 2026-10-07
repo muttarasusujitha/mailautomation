@@ -852,6 +852,9 @@ def _build_lab_reference_reply(
     extracted: Dict[str, Any],
     sender_name: str,
     subject: str,
+    *,
+    also_toc: bool = False,
+    toc_attached: bool = False,
 ) -> Dict[str, Any]:
     known = lab_context.get("known_inputs") or {}
     missing = lab_context.get("missing_quote_inputs") or []
@@ -906,11 +909,16 @@ def _build_lab_reference_reply(
         )
     if request_type == "lab_access_only":
         paragraphs.append("We have treated this as a lab-access-only request and not as a trainer requirement.")
-    paragraphs.append("Best Regards,\nRecruitment Team\nClahan Technologies")
+    if also_toc and toc_attached:
+        paragraphs.append("Please find the day-wise ToC attached in this same mail.")
+    elif also_toc:
+        paragraphs.append("The ToC request is covered in this same mail. Trainer shortlisting will not start from it.")
+    paragraphs.append("Thanks,\nClahan Technologies")
+    template_key = "client_toc_and_lab_cost" if also_toc else "client_lab_cost_grounded"
     return {
         "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-        "body": "\n\n".join(paragraphs),
-        "template_key": "client_lab_cost_grounded",
+        "body": apply_voice("\n\n".join(paragraphs), ANNAPURNA),
+        "template_key": template_key,
         "auto_send_safe": False,
     }
 

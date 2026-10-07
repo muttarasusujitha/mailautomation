@@ -6,8 +6,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from app.agents.natural_voice import choose_voice
-from app.agents.reply_templates import build_auto_reply
-from app.routes.inbox_actions import _structure_email_draft, writing_guidance
+from app.agents.reply_templates import build_auto_reply, render_delivery_reply
+from app.routes.inbox import _client_interview_schedule_message
+from app.routes.inbox_actions import _build_lab_reference_reply, _structure_email_draft, writing_guidance
 
 
 def _reply(scenario):
@@ -49,6 +50,98 @@ def test_invoice_template_uses_murali():
     assert reply["body"].startswith("Hello Asha,")
     assert reply["body"].endswith("Thanks and Regards,\nMurali Mohan M\nClahan Technologies")
     assert "invoice" in reply["body"].lower()
+
+
+def test_toc_and_lab_cost_is_one_annapurna_reply():
+    reply = render_delivery_reply(
+        client_name="Asha",
+        subject="Kubernetes ToC and lab cost",
+        technology="Kubernetes",
+        toc_requested=True,
+        lab_requested=True,
+        toc_attached=True,
+        lab_attached=True,
+        lab_sentence="Please find the lab-cost estimate attached for 20 participant(s), with 3 hours of lab access per day.",
+    )
+    assert choose_voice(reply["template_key"]) == "annapurna"
+    assert reply["body"].startswith("Hi Asha,")
+    assert "Greetings of the day! Thanks for sharing the ToC and lab-cost request" in reply["body"]
+    assert "day-wise ToC" in reply["body"]
+    assert "lab-cost estimate" in reply["body"]
+    assert reply["body"].count("Annapurna U.") == 1
+    assert "Murali Mohan M" not in reply["body"]
+    assert "Recruitment Team" not in reply["body"]
+    assert "Dear" not in reply["body"]
+
+
+def test_toc_only_stays_with_annapurna():
+    reply = render_delivery_reply(
+        client_name="Asha",
+        subject="Need the ToC",
+        technology="DevOps",
+        toc_requested=True,
+        toc_attached=True,
+    )
+    assert reply["template_key"] == "client_toc_only"
+    assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+    assert "trainer shortlisting will not start" in reply["body"].lower()
+
+
+def test_purchase_order_template_uses_murali():
+    reply = build_auto_reply(
+        {
+            "person_type": "corporate_client",
+            "scenario": "client_sends_po",
+            "auto_reply_allowed": True,
+            "requires_human": False,
+        },
+        {"client_name": "Asha", "technology_needed": "DevOps"},
+        subject="Purchase order",
+        sender_name="Asha",
+    )
+    assert choose_voice("client_po_received_ack") == "murali"
+    assert reply["body"].startswith("Hello Asha,")
+    assert reply["body"].endswith("Thanks and Regards,\nMurali Mohan M\nClahan Technologies")
+    assert "Annapurna U." not in reply["body"]
+    assert "purchase order" in reply["body"].lower()
+
+
+def test_lab_reference_uses_annapurna_and_keeps_the_missing_input():
+    reply = _build_lab_reference_reply(
+        {
+            "known_inputs": {"cloud_provider": "aws", "duration_days": 5, "hours_per_day": 3},
+            "missing_quote_inputs": ["participant_count"],
+            "request_type": "lab_access_only",
+        },
+        {"client_name": "Sneha", "technology_needed": "DevOps"},
+        "Sneha",
+        "Lab cost",
+        also_toc=True,
+        toc_attached=True,
+    )
+    assert reply["template_key"] == "client_toc_and_lab_cost"
+    assert reply["body"].startswith("Hi Sneha,")
+    assert "number of participants/users requiring access" in reply["body"]
+    assert "day-wise ToC" in reply["body"]
+    assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+    assert "Murali Mohan M" not in reply["body"]
+    assert "Recruitment Team" not in reply["body"]
+
+
+def test_interview_confirmation_carries_lab_cost_in_the_same_note():
+    message = _client_interview_schedule_message(
+        client_name="Asha",
+        trainer_name="Ravi",
+        technology="Kubernetes",
+        requirement_id="REQ-1",
+        interview_date="10 Oct, 10:00 AM",
+        meeting_link="https://meet.google.com/abc-defg-hij",
+        extra_paragraph="Please find the day-wise ToC and the lab-cost estimate attached with this interview confirmation.",
+    )
+    assert message["body"].count("Annapurna U.") == 1
+    assert "Murali Mohan M" not in message["body"]
+    assert message["body"].count("lab-cost estimate") == 1
+    assert "https://meet.google.com/abc-defg-hij" in message["body"]
 
 
 def test_draft_envelope_follows_the_same_voice():
