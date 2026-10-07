@@ -11,6 +11,8 @@ from shared import live_lab_pricing
 def setup(monkeypatch):
     monkeypatch.setattr('shared.toc_quality.toc_delivery_error', lambda toc: '')
     monkeypatch.setattr('app.lab_recalculation.recalculate_lab_workbook', lambda raw: raw)
+    # The workbook bytes in this test are a stand-in, not a real xlsx.
+    monkeypatch.setattr('app.lab_recalculation.final_estimated_cost', lambda content: None)
     monkeypatch.setattr(excel, '_lab_cost_to_excel', lambda toc, values: b'calculated workbook')
     db = {'lab_pricing_catalogs': SimpleNamespace(find_one=AsyncMock(return_value=None)),
           'lab_cost_rate_snapshots': SimpleNamespace(find_one=AsyncMock(return_value=None), insert_one=AsyncMock())}
