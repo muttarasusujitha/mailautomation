@@ -1,6 +1,14 @@
 from app.routes.shortlists import _trainer_mail1_commercial_text, _trainer_mail1_commercial_section, _proposal_client_commercial_section
 
 
+def test_confirmed_mail1_section_shows_client_commercial_not_trainer_share():
+    requirement = {'batch_flow': 'confirmed', 'budget_per_day': 20000, 'duration_days': 5}
+    section = ' '.join(_trainer_mail1_commercial_section(requirement))
+    assert section == '- Client commercial: INR 20,000 per day/session'
+    assert '14,000' not in section
+    assert 'Offered trainer commercial' not in section
+
+
 def test_confirmed_uses_seventy_percent_and_daily_rate_above_threshold():
     text = _trainer_mail1_commercial_text({'batch_flow': 'confirmed',
         'budget_per_day': 20000, 'duration_days': 5, 'clahan_margin_percent': 25})

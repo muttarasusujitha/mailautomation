@@ -16,6 +16,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from shared.database.service import get_db
+from shared.generation_mode import application_ai_enabled
 from shared.trainer_identity import linkedin_profile_url
 from app.config import get_settings
 from app.toc_pdf_template import build_toc_html
@@ -60,9 +61,11 @@ PROPOSAL_SHORTLIST_COMMERCIAL = "INR 13,000 per day/session"
 # expose the trainer range or exact margin arithmetic such as INR 16,900.
 PROPOSAL_CLIENT_QUOTE_RANGE = (17000,)
 # A client that explicitly asks for lab costing receives the generated
-# workbook during the profile/slot handoff.  The workbook uses the client ToC
-# where one was provided, otherwise the system-generated ToC; it never mixes
-# trainer commercial margin into the lab-cost calculation.
+# workbook during the profile/slot handoff.  Lab tools, setup, access, or a
+# local/cloud lab mention do not attach that workbook and must not block the
+# handoff.  The workbook uses the client ToC where one was provided, otherwise
+# the system-generated ToC; it never mixes trainer commercial margin into the
+# lab-cost calculation.
 AUTO_ATTACH_LAB_COST_WORKBOOK = True
 ACTIVE_PIPELINE_STAGES = {
     "mail1",
@@ -383,7 +386,12 @@ def _client_mail1_budget_text(requirement: Dict[str, Any]) -> str:
 
 
 def _trainer_mail1_commercial_section(requirement: Dict[str, Any], trainer=None) -> List[str]:
-    """Show only the trainer's offer; client pricing and margin are internal."""
+    """Confirmed Mail 1 shows the client commercial. Proposal Mail 1 shows the trainer offer."""
+    if not _is_proposal_requirement(requirement):
+        client_commercial = _client_mail1_budget_text(requirement)
+        if client_commercial:
+            return [f"- Client commercial: {client_commercial}"]
+        return []
     lines: List[str] = []
     offer_requirement = dict(requirement)
     for key in ("clahan_offer_per_day", "clahan_skill_tier"):
@@ -405,19 +413,41 @@ def _trainer_mail1_commercial_section(requirement: Dict[str, Any], trainer=None)
     return lines
 
 
+def _strip_confirmed_trainer_offer_confirmation(body: str, requirement: Dict[str, Any]) -> str:
+    """Confirmed Mail 1 must not ask the trainer to accept the 70% share."""
+    if _is_proposal_requirement(requirement):
+        return body
+    text = re.sub(
+        r"(?im)^.*please confirm the offered (?:trainer )?commercials?.*(?:\n|$)",
+        "",
+        body or "",
+    )
+    text = re.sub(r"(?im)^.*offered trainer commercial:.*(?:\n|$)", "", text)
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
 def _ensure_trainer_mail1_commercial_section(body: str, requirement: Dict[str, Any], trainer=None) -> str:
     """Keep AI Mail 1 factual when it omits the recorded commercial lines."""
     section = _trainer_mail1_commercial_section(requirement, trainer)
     if not section:
-        return body
+        return _strip_confirmed_trainer_offer_confirmation(body, requirement)
     text = _clean(body)
-    if "offered trainer commercial:" in text.lower():
-        return re.sub(r"(?im)^.*offered trainer commercial:.*$", lambda _: section[0], text)
+    line = section[0]
+    if re.search(r"(?im)^.*(?:offered trainer commercial|client commercial):.*$", text):
+        text = re.sub(
+            r"(?im)^.*(?:offered trainer commercial|client commercial):.*$",
+            lambda _: line,
+            text,
+            count=1,
+        )
+        return _strip_confirmed_trainer_offer_confirmation(text, requirement)
     marker = "Please let us know whether you are available"
     insert = "\n".join(section) + "\n\n"
     if marker in text:
-        return text.replace(marker, insert + marker, 1)
-    return f"{text.rstrip()}\n\n{insert.rstrip()}"
+        text = text.replace(marker, insert + marker, 1)
+    else:
+        text = f"{text.rstrip()}\n\n{insert.rstrip()}"
+    return _strip_confirmed_trainer_offer_confirmation(text, requirement)
 
 
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
@@ -665,14 +695,19 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         if ask else
         f"Please confirm your interest, delivery feasibility and {availability}.\n\n"
     )
-    commercial_offer = _trainer_mail1_commercial_section(requirement, trainer)
-    commercial_request = (
-        "Please confirm the offered trainer commercial and your availability. "
-        "If it does not work for you, let us know for review.\n\n"
-        if commercial_offer else
-        "Please confirm your interest and availability. Clahan will share the approved trainer commercial "
-        "based on your skill tier.\n\n"
-    )
+    if is_proposal:
+        commercial_offer = _trainer_mail1_commercial_section(requirement, trainer)
+        commercial_request = (
+            "Please confirm the offered trainer commercial and your availability. "
+            "If it does not work for you, let us know for review.\n\n"
+            if commercial_offer else
+            "Please confirm your interest and availability. Clahan will share the approved trainer commercial "
+            "based on your skill tier.\n\n"
+        )
+    else:
+        # The client commercial is shown for context. It is not a trainer offer
+        # and Mail 1 must not ask the trainer to confirm the 70% share.
+        commercial_request = ""
     slot_context = ""
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
     return (
@@ -1012,29 +1047,31 @@ def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bo
             "lab quote", "lab pricing", "cost for lab", "price for lab", "lab price",
         )
     )
-    # In a confirmed batch, a request for lab requirements/tools, lab access,
-    # setup, or a local/cloud lab choice is also a request for the associated
-    # lab estimate. That is the business rule used by the automatic handoff;
-    # clients do not always write the phrase "lab cost".
-    lab_delivery_request = bool(re.search(
+    # Tools, setup, access, or a local/cloud lab are delivery notes. They do
+    # not require the lab-cost workbook and must not stop the handoff when
+    # that workbook cannot be built.
+    broader_lab_mention = bool(re.search(
         r"\blab(?:oratory)?\s+(?:requirements?|required\s+tools?|setup|access|support|availability|preference|environment)\b"
         r"|\b(?:local|cloud)\s+lab(?:oratory)?\b"
         r"|\blab(?:oratory)?\b.{0,80}\b(?:required\s+tools?|local|cloud|access)\b",
         request_text,
         flags=re.IGNORECASE | re.DOTALL,
-    ))
-    managed_lab_request = any(
+    )) or any(
         "lab" in _clean(item).lower() and any(
-            word in _clean(item).lower() for word in ("cost", "availability", "setup", "tool")
-        )
+            word in _clean(item).lower() for word in ("availability", "setup", "tool")
+        ) and "cost" not in _clean(item).lower()
         for item in (requirement.get("clahan_managed_details") or [])
-    )
-    structured_lab_request = any(
+    ) or any(
         _clean(item.get("category")) in {"lab_requirements", "lab_delivery_preference"}
         for item in (requirement.get("requirement_items") or [])
         if isinstance(item, dict)
     )
-    wants_lab_cost = bool(requirement.get("lab_cost_requested")) or explicit_lab_cost_request or lab_delivery_request or managed_lab_request or structured_lab_request
+    if explicit_lab_cost_request:
+        wants_lab_cost = True
+    elif broader_lab_mention:
+        wants_lab_cost = False
+    else:
+        wants_lab_cost = bool(requirement.get("lab_cost_requested"))
     return wants_profile, wants_toc, wants_lab_cost
 
 
@@ -1843,9 +1880,23 @@ async def _ai_trainer_mail1(
             "total_lab_duration_hours",
         ) if requirement.get(key) not in (None, "", [], {})
     }
-    trainer_offer = _trainer_mail1_commercial_text(requirement)
-    if trainer_offer:
-        facts["offered_trainer_commercial"] = trainer_offer
+    if _is_proposal_requirement(requirement):
+        trainer_offer = _trainer_mail1_commercial_text(requirement)
+        if trainer_offer:
+            facts["offered_trainer_commercial"] = trainer_offer
+        commercial_rule = (
+            "If an offered trainer commercial is present, state only that offer. Never mention client pricing, "
+            "margins, percentages, or internal calculations."
+        )
+    else:
+        client_commercial = _client_mail1_budget_text(requirement)
+        if client_commercial:
+            facts["client_commercial"] = client_commercial
+        commercial_rule = (
+            "If a client commercial is present, state it as the client commercial taken from the client. "
+            "Do not calculate or present the trainer's 70 percent share, an offered trainer commercial, a margin, "
+            "or any internal allocation, and do not ask the trainer to confirm that share."
+        )
     # Keep this in sync with frontend/src/utils/batchEmailRules.js.  The UI
     # previews these rules, but Mail 1 is generated by this service, so the
     # backend must provide the same policy to the model.
@@ -1868,10 +1919,9 @@ async def _ai_trainer_mail1(
         "Batch type: CONFIRMED REQUIREMENT. This is a CONFIRMED CLIENT REQUIREMENT. The client has explicitly confirmed the engagement or supplied a training domain, "
         "concrete dates, duration and commercial amount without tentative language. Use wording such as 'We have a confirmed requirement'. "
         "Move toward trainer allocation and execution using the agreed client scope and supplied schedule. Request trainer profiles "
-        "and LinkedIn links as needed. When duration is known, show the per-day rate plus total only if the trainer daily allocation "
-        "after Clahan margin and before TDS exceeds INR 13,000; otherwise show only the total engagement amount. Preserve supplied "
-        "amounts and never invent a missing daily rate or total. Clahan prepares and sends commercials and ToC; do not ask the trainer "
-        "to supply them. Use a final or approved ToC where available; calculate requested lab costs from confirmed requirements. "
+        "and LinkedIn links as needed. State the client commercial from the supplied facts. Do not show the trainer's 70 percent "
+        "share or ask the trainer to confirm it. Preserve supplied amounts and never invent a missing commercial. Clahan prepares "
+        "and sends the ToC; do not ask the trainer to supply commercials. Use a final or approved ToC where available. "
         "Check trainer availability and delivery feasibility. Request missing profile information and three dated interview options "
         "at initial outreach. Do not claim the trainer is selected, an interview is booked, a PO is signed or an invoice is paid. "
         "Describe ToC or lab attachments only when verified; do not reopen agreed commercials or disclose internal margins. "
@@ -1887,9 +1937,9 @@ async def _ai_trainer_mail1(
         "training experience, delivery availability, and exactly three convenient interview/discussion slots "
         "with date, time, and time zone. Ask the trainer to supply these dates; never copy fixed example dates. If the client "
         "requested a ToC, say the attached/generated ToC is to be reviewed and confirmed for delivery; do not invent its contents. "
-        "Mention known lab requirements only as delivery scope, never ask the trainer to quote lab cost. If an offered trainer "
-        "commercial is present, state only that offer. Never mention client pricing, margins, percentages, internal calculations, "
-        "internal IDs, or internal workflow. Never invent dates, rates, client names, attachments, slots, or commitments. "
+        "Mention known lab requirements only as delivery scope, never ask the trainer to quote lab cost. "
+        f"{commercial_rule} Never mention internal IDs or internal workflow. "
+        "Never invent dates, rates, client names, attachments, slots, or commitments. "
         "Address the trainer by name and finish with exactly: Regards, Clahan Technologies. "
         "Return exactly: SUBJECT: <subject> followed by BODY: <body>."
     )
@@ -3350,7 +3400,8 @@ async def send_shortlist_mail(
                         send_payload["attachments"] = scope_attachments
                 if mail_type in {"mail1", "first"}:
                     body = _normalize_trainer_mail1_body(body)
-                    if "confirm the offered commercials" not in body.lower():
+                    body = _strip_confirmed_trainer_offer_confirmation(body, requirement)
+                    if _is_proposal_requirement(requirement) and "confirm the offered commercials" not in body.lower():
                         body += "\n\nPlease confirm the offered commercials and your availability."
                 send_payload["body"] = body
                 if mail_type not in {"mail1", "first"}:
@@ -4189,8 +4240,10 @@ async def send_client_slots(
         "trainer_id": payload.trainer_id,
         "trainer_name": trainer_name,
 
-        # Preserve the exact wording that the reviewer approves.
-        "ai_generate": False,
+        # AI on rewrites this handoff from the verified facts, the same way
+        # later pipeline mail is rewritten. AI off keeps this confirmed body.
+        # A missing model key fails only that AI call inside email-service.
+        "ai_generate": await application_ai_enabled(db),
         "ai_context": {
             "workflow": "client_handoff",
             "batch_type": "proposal" if _is_proposal_requirement(req) else "confirmed",
