@@ -1708,6 +1708,17 @@ def _merge_pipeline_state(new_trainer: Dict[str, Any], old_trainer: Dict[str, An
         "toc_status",
         "interview_date",
         "interview_link",
+        "meet_link",
+        "calendar_event_id",
+        "reschedule_requested",
+        "reschedule_requested_by",
+        "reschedule_requested_date",
+        "reschedule_request_text",
+        "reschedule_slots_email_id",
+        "previous_meet_link",
+        "previous_calendar_event_id",
+        "previous_interview_date",
+        "live_meeting",
     }
     merged = dict(new_trainer)
     for key, value in old_trainer.items():
@@ -2390,7 +2401,10 @@ async def _sync_shortlist_with_trainers(
         # evidence that the interview was scheduled.  Ranking refreshes can
         # otherwise rehydrate an older slot_booked/sent_to_client state and
         # make the UI fall back to Details Received.
-        if _clean(trainer.get("interview_link") or trainer.get("meet_link")) and _clean(trainer.get("interview_date")):
+        if trainer.get("reschedule_requested") or _clean(trainer.get("pipeline_status")).lower() == "interview_reschedule_requested":
+            trainer["pipeline_status"] = "interview_reschedule_requested"
+            trainer["interview_scheduled"] = False
+        elif _clean(trainer.get("interview_link") or trainer.get("meet_link")) and _clean(trainer.get("interview_date")):
             trainer["pipeline_status"] = "interview_scheduled"
             trainer["interview_scheduled"] = True
             trainer["meet_link"] = trainer.get("meet_link") or trainer.get("interview_link")
@@ -2676,6 +2690,8 @@ INTERVIEW_DOWNSTREAM_STAGES = {
 
 def _apply_interview_schedule(trainer: Dict[str, Any], schedule: Dict[str, Any]) -> bool:
     """Bring the shortlist stage up to date from a persisted scheduled meeting."""
+    if trainer.get("reschedule_requested") or _clean(trainer.get("pipeline_status")).lower() == "interview_reschedule_requested":
+        return False
     stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
     date = schedule.get("interview_date") or schedule.get("date_time_text") or schedule.get("interview_at")
     link = _clean(schedule.get("interview_link") or schedule.get("meet_link"))

@@ -75,7 +75,10 @@ REPLY_OUTBOUND_MAIL_PRIORITY = {
     "mail3_slot_followup": 51,
     "mail3_too_many_slots": 52,
     "client_slots": 60,
+    "client_reschedule_slots": 65,
     "client_interview_schedule": 70,
+    "client_interview_reschedule_request": 72,
+    "client_interview_reschedule_date_request": 73,
     "mail4": 80,
     "mail5": 90,
     "mail5_ok": 91,
@@ -124,8 +127,10 @@ CLIENT_REPLY_SOURCE_MAIL_TYPES = {
     "client_budget_acknowledgment",
     "client_budget_revision_request",
     "client_slots",
+    "client_reschedule_slots",
     "client_interview_schedule",
     "client_interview_reschedule_request",
+    "client_interview_reschedule_date_request",
     "client_toc_details_request",
     "client_toc_details_followup",
 }
@@ -4133,6 +4138,10 @@ def _client_slots_message(
         "Regards,\n"
         "Clahan Technologies"
     )
+    if is_reschedule:
+        # Coordination stays with Annapurna. The revised-slot mail carries only
+        # the new dates; stored CV, profile, and LinkedIn are not sent again.
+        body = apply_voice(body, ANNAPURNA)
     return {"subject": subject, "body": body}
 
 
@@ -5182,6 +5191,162 @@ async def _send_trainer_mail3_if_missing(
     }
 
 
+
+async def _deliver_client_reschedule_slots(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    requirement: Dict[str, Any],
+    shortlist: Dict[str, Any],
+    trainer: Dict[str, Any],
+    *,
+    requirement_id: str,
+    trainer_id: str,
+    client_email: str,
+    slot_text: str,
+    reply_text: str,
+    now: datetime,
+) -> Dict[str, Any]:
+    """Send the trainer's new dates to the client once, without the stored profile package."""
+    source_gmail_message_id = _current_inbound_message_id(email_doc)
+    duplicate_terms = []
+    if email_doc.get("email_id"):
+        duplicate_terms.append({"source_email_id": email_doc.get("email_id")})
+    if source_gmail_message_id:
+        duplicate_terms.append({"source_gmail_message_id": source_gmail_message_id})
+    duplicate_query: Dict[str, Any] = {
+        "direction": "outbound",
+        "status": "sent",
+        "mail_type": "client_reschedule_slots",
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+    }
+    if duplicate_terms:
+        duplicate_query["$or"] = duplicate_terms
+    existing = await db["email_logs"].find_one(
+        duplicate_query,
+        {"_id": 0, "email_id": 1, "to_email": 1, "recipient": 1},
+        sort=[("created_at", -1)],
+    )
+    if existing:
+        return {
+            "attempted": True,
+            "success": True,
+            "already_sent": True,
+            "email_id": existing.get("email_id"),
+            "to": existing.get("to_email") or existing.get("recipient"),
+            "mail_type": "client_reschedule_slots",
+            "reason": "reschedule_slots_already_sent",
+        }
+
+    message = _client_slots_message(
+        requirement,
+        shortlist,
+        {**trainer, "reschedule_requested": True},
+        slot_text,
+    )
+    reference_body = message["body"]
+    body, generation_source = await _client_pipeline_email_body(
+        db,
+        requirement=requirement,
+        workflow="client_reschedule_slots",
+        subject=message["subject"],
+        reference_body=reference_body,
+        context={
+            "recipient_kind": "client",
+            "available_slots": slot_text,
+            "reschedule": True,
+            "profile_already_shared": True,
+        },
+    )
+    reused_profile = bool(re.search(
+        r"linkedin\.com|\b(?:cv|resume|profile)\b.{0,40}\battached\b|\battached\b.{0,40}\b(?:cv|resume|profile)\b"
+        r"|\b(?:share|send|provide)\b.{0,40}\bcommercials?\b",
+        body or "",
+        flags=re.IGNORECASE,
+    ))
+    if generation_source == "ai" and (
+        not _body_preserves_slot_lines(body, slot_text)
+        or _has_both_coordination_voices(body)
+        or _is_google_meet_link(body)
+        or reused_profile
+    ):
+        body, generation_source = reference_body, "template_fallback"
+
+    settings_doc = await _load_admin_settings(db)
+    message_id_header = generate_message_id()
+    success, error = await _send_verified_workflow_email(
+        db, requirement_id, trainer_id, "client_reply",
+        to=client_email,
+        subject=message["subject"],
+        body=body,
+        smtp_config=settings_doc.get("emailCfg") or None,
+        message_id_header=message_id_header,
+    )
+    email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
+    client_name = _client_name_from_context(requirement, shortlist)
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name") or email_doc.get("trainer_name")) or "Trainer"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "direction": "outbound",
+        "recipient": client_email,
+        "to_email": client_email,
+        "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
+        "body": body,
+        "body_snippet": body[:300],
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "mail_type": "client_reschedule_slots",
+        "source_email_id": email_doc.get("email_id"),
+        "source_gmail_message_id": source_gmail_message_id,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "client_email": client_email,
+        "client_name": client_name,
+        "slot_text": slot_text,
+        "reschedule_requested": True,
+        "generation_source": generation_source,
+        "interview_scheduled": False,
+        "sent_at": now if success else None,
+        "created_at": now,
+        "updated_at": now,
+    })
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.pipeline_status": "interview_reschedule_requested",
+            "top_trainers.$.slot_status": "reschedule_slots_sent_to_client" if success else "reschedule_slots_send_failed",
+            "top_trainers.$.reschedule_requested": True,
+            "top_trainers.$.slot_reply_at": now,
+            "top_trainers.$.slot_reply_text": slot_text,
+            "top_trainers.$.reschedule_slots_email_id": email_id if success else "",
+            "top_trainers.$.reschedule_slots_sent_at": now if success else trainer.get("reschedule_slots_sent_at"),
+            "top_trainers.$.last_mail_type": "client_reschedule_slots" if success else trainer.get("last_mail_type"),
+            "top_trainers.$.last_mail_type_attempted": "client_reschedule_slots",
+            "top_trainers.$.last_mail_attempted_at": now,
+            "top_trainers.$.last_mailed_at": now if success else trainer.get("last_mailed_at"),
+            "top_trainers.$.last_mail_error": "" if success else error,
+            "top_trainers.$.updated_at": now,
+            "updated_at": now,
+        }},
+    )
+    return {
+        "attempted": True,
+        "success": bool(success),
+        "error": error or "",
+        "email_id": email_id,
+        "to": client_email,
+        "subject": message["subject"],
+        "intent": "valid_slots",
+        "slot_text": slot_text,
+        "mail_type": "client_reschedule_slots",
+        "generation_source": generation_source,
+        "sent_at": now if success else None,
+    }
+
+
 async def _handle_trainer_slot_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -5456,7 +5621,7 @@ async def _handle_trainer_slot_reply(
         {"_id": 0, "email_id": 1, "to_email": 1, "recipient": 1, "sent_at": 1},
         sort=[("created_at", -1)],
     )
-    if existing:
+    if existing and not is_reschedule_slot_reply:
         sent_at = existing.get("sent_at") or now
         await db["shortlists"].update_one(
             {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
@@ -5487,7 +5652,8 @@ async def _handle_trainer_slot_reply(
     pending_retry_after = trainer.get("client_handoff_retry_after")
     from shared.handoff_inputs import handoff_input_version
     input_version = handoff_input_version(requirement)
-    if (trainer.get("slot_status") == "client_handoff_needs_input"
+    if (not is_reschedule_slot_reply
+            and trainer.get("slot_status") == "client_handoff_needs_input"
             and trainer.get("client_handoff_input_version") == input_version):
         # Retry once after requirement inputs change; unchanged invalid inputs
         # stay paused without repeated document generation or failed mail logs.
@@ -5501,7 +5667,7 @@ async def _handle_trainer_slot_reply(
         }
     if isinstance(pending_retry_after, str):
         pending_retry_after = _parse_retry_after(f"Retry after {pending_retry_after}")
-    if isinstance(pending_retry_after, datetime) and pending_retry_after > now:
+    if isinstance(pending_retry_after, datetime) and pending_retry_after > now and not is_reschedule_slot_reply:
         return {
             "attempted": True,
             "success": False,
@@ -5536,6 +5702,20 @@ async def _handle_trainer_slot_reply(
             "reason": "invalid_slot_text",
             "error": "Trainer reply did not include dated time slots; client slot mail was not sent.",
         }
+    if is_reschedule_slot_reply:
+        return await _deliver_client_reschedule_slots(
+            db,
+            email_doc,
+            requirement,
+            shortlist,
+            trainer,
+            requirement_id=requirement_id,
+            trainer_id=trainer_id,
+            client_email=client_email,
+            slot_text=slot_text,
+            reply_text=reply_text,
+            now=now,
+        )
     # The trainer may include details and slots in one reply.  Initialise this
     # before the optional lookup so client handoff never fails when there is
     # no earlier, separate details-only reply.
@@ -6121,6 +6301,94 @@ def _has_exact_authoritative_meet_link(body: Any, meeting_link: Any) -> bool:
     return len(found) == 1 and found[0] == expected
 
 
+
+def _has_both_coordination_voices(body: Any) -> bool:
+    """Annapurna coordinates interviews. Murali does not sign the same mail."""
+    lower = str(body or "").lower()
+    return "annapurna" in lower and "murali" in lower
+
+
+def _body_preserves_slot_lines(body: Any, slot_text: Any) -> bool:
+    """AI wording may rephrase, but every verified slot line must remain."""
+    generated = _plain_text(body).lower()
+    lines = [line.strip() for line in str(slot_text or "").splitlines() if line.strip()]
+    return bool(lines) and all(line.lower() in generated for line in lines)
+
+
+def _interview_was_scheduled(trainer: Dict[str, Any]) -> bool:
+    stage = str((trainer or {}).get("pipeline_status") or "").lower()
+    return bool(
+        (trainer or {}).get("reschedule_requested")
+        or (trainer or {}).get("interview_scheduled_at")
+        or _clean((trainer or {}).get("meet_link") or (trainer or {}).get("interview_link") or (trainer or {}).get("previous_meet_link"))
+        or stage in {"interview_scheduled", "interview_reschedule_requested"}
+    )
+
+
+def _single_confirmed_reschedule_slot(reply_text: Any, requested_date: str = "") -> Dict[str, Any]:
+    """Return one dated slot the existing parser accepts, without inventing a time."""
+    options = _slot_options_from_text(reply_text)
+    if len(options) == 1:
+        return options[0]
+    if len(options) > 1:
+        return {}
+    requested = _clean(requested_date)
+    if requested:
+        combined = f"{requested}\n{_strip_quoted_email_history(reply_text)}"
+        options = _slot_options_from_text(combined)
+        if len(options) == 1:
+            return options[0]
+    resolved = _resolve_interview_slot_datetime(reply_text, reply_text)
+    if resolved.get("start") and resolved.get("end") and resolved.get("source") not in {"", "unresolved"}:
+        return resolved
+    return {}
+
+
+async def _retire_live_meeting_for_reschedule(
+    db: AsyncIOMotorDatabase,
+    requirement_id: str,
+    trainer_id: str,
+    trainer: Dict[str, Any],
+    now: datetime,
+) -> Dict[str, Any]:
+    """Stop treating the current Meet as the live meeting without cancelling it yet.
+
+    The Calendar event stays until a replacement link is delivered to both
+    people. Ranking and schedule sync must not put the old link back on stage.
+    """
+    previous_link = _clean(trainer.get("meet_link") or trainer.get("interview_link"))
+    previous_event = _clean(trainer.get("calendar_event_id") or trainer.get("previous_calendar_event_id"))
+    previous_date = _clean(trainer.get("interview_date") or trainer.get("previous_interview_date"))
+    if previous_link or previous_event:
+        await db["email_logs"].update_many(
+            {
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "mail_type": {"$in": ["mail4", "client_interview_schedule"]},
+                "interview_scheduled": True,
+            },
+            {"$set": {
+                "interview_scheduled": False,
+                "live_meeting": False,
+                "reschedule_retired_at": now,
+                "updated_at": now,
+            }},
+        )
+    fields: Dict[str, Any] = {
+        "top_trainers.$.live_meeting": False,
+        "top_trainers.$.meet_link": "",
+        "top_trainers.$.interview_link": "",
+    }
+    if previous_link:
+        fields["top_trainers.$.previous_meet_link"] = previous_link
+        fields["top_trainers.$.interview_date"] = ""
+    if previous_event:
+        fields["top_trainers.$.previous_calendar_event_id"] = previous_event
+    if previous_date:
+        fields["top_trainers.$.previous_interview_date"] = previous_date
+    return fields
+
+
 def _is_reschedule_request(text: Any) -> bool:
     lower = _strip_quoted_email_history(text).lower()
     if not lower:
@@ -6188,13 +6456,11 @@ async def _reschedule_mail_body(
             subject=subject,
             body=inbound_text,
             hint=(
-                "Write a concise interview-reschedule email to the stated recipient. "
-                "Preserve the exact operational request in the reference: if the recipient is the trainer, "
-                "ask for exactly three alternate slots with date, time, and time zone on the stated requested "
-                "date. If that date is unavailable, ask the trainer for their nearest available date and exactly "
-                "three slots on it. If the recipient is the client, ask for a preferred alternate date. Do not "
-                "invent any date, availability, meeting link, "
-                "commercial, or confirmation. Keep the Clahan Technologies sign-off."
+                "Rewrite this one interview-reschedule email from the verified reference facts. "
+                "Preserve the recipient, the requested date, the exact slot count, and the next action. "
+                "Do not invent a date, time, availability, meeting link, commercial, CV, profile, or LinkedIn URL. "
+                "Do not ask the trainer for their commercial. "
+                "Sign as Annapurna U only. Do not add Murali Mohan M or a second email."
             ),
             workflow_context={
                 "workflow": "interview_reschedule",
@@ -6203,13 +6469,36 @@ async def _reschedule_mail_body(
                 "requirement_id": requirement.get("requirement_id"),
                 "technology": requirement.get("technology_needed") or requirement.get("domain"),
                 "requested_date": requested_date,
-                "required_action": "three alternate slots on the requested date" if recipient_kind == "trainer" else "one preferred alternate date",
+                "required_action": "exactly three dated slots" if recipient_kind == "trainer" else "one dated alternate slot",
             },
             reference_reply={"body": reference_body},
             require_openai=True,
         )
-        if _clean(generated):
-            return generated.strip(), "ai"
+        generated_text = _clean(generated)
+        if generated_text:
+            asks_for_stored_profile = bool(re.search(
+                r"\b(?:share|send|provide|attach)\b.{0,50}\b(?:commercials?|rates?|cv|resume|linkedin|profile)\b"
+                r"|\b(?:cv|resume|linkedin|profile)\b.{0,40}\battached\b",
+                generated_text,
+                flags=re.IGNORECASE,
+            ))
+            reference_links = re.findall(r"https://meet\.google\.com/[A-Za-z0-9-]+", reference_body or "", flags=re.IGNORECASE)
+            invented_meet = _is_google_meet_link(generated_text) and not reference_links
+            changed_meet = bool(reference_links) and not _has_exact_authoritative_meet_link(generated_text, reference_links[0])
+            missing_annapurna = "annapurna" not in generated_text.lower()
+            if (
+                _has_both_coordination_voices(generated_text)
+                or asks_for_stored_profile
+                or invented_meet
+                or changed_meet
+                or missing_annapurna
+            ):
+                logger.warning(
+                    "Rejected AI reschedule wording that changed verified facts for %s",
+                    requirement.get("requirement_id"),
+                )
+                return reference_body, "template_fallback"
+            return generated_text, "ai"
     except Exception:
         logger.exception("AI reschedule wording failed for %s", requirement.get("requirement_id"))
     return reference_body, "template_fallback"
@@ -6729,9 +7018,6 @@ async def _handle_interview_reschedule_reply(
         }
         or bool(re.search(r"(Interview Schedule|Interview Link|Meeting Link|Google Meet|Reschedule Request)", subject, flags=re.IGNORECASE))
     )
-    if not is_interview_thread:
-        return {"attempted": False, "reason": "not_interview_thread"}
-
     reply_text = _strip_quoted_email_history(
         email_doc.get("classification_body")
         or email_doc.get("clean_body")
@@ -6739,7 +7025,9 @@ async def _handle_interview_reschedule_reply(
         or email_doc.get("body")
         or ""
     )
-    if not _is_reschedule_request(reply_text) and not is_client_date_reply:
+    if not is_interview_thread and not _is_reschedule_request(reply_text) and not is_client_date_reply:
+        return {"attempted": False, "reason": "not_interview_thread"}
+    if is_interview_thread and not _is_reschedule_request(reply_text) and not is_client_date_reply:
         return {"attempted": False, "reason": "not_reschedule_reply"}
 
     requirement_id = email_doc.get("requirement_id") or ""
@@ -6752,6 +7040,8 @@ async def _handle_interview_reschedule_reply(
     trainer = _find_shortlist_trainer(shortlist, trainer_id)
     if not trainer:
         trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    if not is_interview_thread and not _interview_was_scheduled(trainer):
+        return {"attempted": False, "reason": "not_interview_thread"}
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name") or email_doc.get("trainer_name")) or "Trainer"
     trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email") or email_doc.get("trainer_email"))
     inbound_sender = _email_address(email_doc.get("from_email") or email_doc.get("sender_email") or email_doc.get("from"))
@@ -6781,6 +7071,17 @@ async def _handle_interview_reschedule_reply(
         and not sender_is_trainer
         and (not requested_date or requested_date == previous_requested_date)
     ):
+        if _clean(trainer.get("meet_link") or trainer.get("interview_link")):
+            await db["shortlists"].update_one(
+                {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+                {"$set": {
+                    **await _retire_live_meeting_for_reschedule(db, requirement_id, trainer_id, trainer, now),
+                    "top_trainers.$.pipeline_status": "interview_reschedule_requested",
+                    "top_trainers.$.reschedule_requested": True,
+                    "top_trainers.$.updated_at": now,
+                    "updated_at": now,
+                }},
+            )
         return {
             "attempted": True,
             "success": True,
@@ -6790,6 +7091,7 @@ async def _handle_interview_reschedule_reply(
             "to": trainer_email,
         }
 
+    retired_fields = await _retire_live_meeting_for_reschedule(db, requirement_id, trainer_id, trainer, now)
     target_email = client_email if sender_is_trainer else trainer_email
     target_name = client_name if sender_is_trainer else trainer_name
     if not target_email:
@@ -6800,8 +7102,10 @@ async def _handle_interview_reschedule_reply(
                 "top_trainers.$.slot_status": "reschedule_needs_manual_email",
                 "top_trainers.$.reschedule_requested_by": "trainer" if sender_is_trainer else "client",
                 "top_trainers.$.reschedule_request_text": reply_text,
+                "top_trainers.$.reschedule_requested": True,
                 "top_trainers.$.updated_at": now,
                 "updated_at": now,
+                **retired_fields,
             }},
         )
         return {"attempted": True, "success": False, "reason": "missing_target_email", "error": "Other side email missing"}
@@ -6813,7 +7117,7 @@ async def _handle_interview_reschedule_reply(
             f"Trainer {trainer_name} has requested to reschedule the interview for the {technology} requirement.\n\n"
             "Trainer message:\n"
             f"{reply_text}\n\n"
-            "Please share one convenient alternate slot, including the date, time, and time zone. Once the trainer confirms it, we will send a new meeting link.\n\n"
+            "Please share one convenient alternate slot, including the date, time, and time zone. We will create a new meeting link for that time and send it to you and the trainer.\n\n"
             "Regards,\nClahan Technologies"
         )
         mail_type = "client_interview_reschedule_request"
@@ -6843,6 +7147,7 @@ async def _handle_interview_reschedule_reply(
         mail_type = "mail4_reschedule_request"
         recipient_kind = "trainer"
 
+    body = apply_voice(body, ANNAPURNA)
     body, generation_source = await _reschedule_mail_body(
         db=db,
         requirement=requirement,
@@ -6883,7 +7188,7 @@ async def _handle_interview_reschedule_reply(
         "trainer_name": trainer_name,
         "client_email": client_email,
         "client_name": client_name,
-        "interview_scheduled": True,
+        "interview_scheduled": False,
         "reschedule_requested": True,
         "reschedule_requested_by": "trainer" if sender_is_trainer else "client",
         "reschedule_request_text": reply_text,
@@ -6911,6 +7216,7 @@ async def _handle_interview_reschedule_reply(
             "top_trainers.$.last_mail_error": "" if success else error,
             "top_trainers.$.updated_at": now,
             "updated_at": now,
+            **retired_fields,
         }},
     )
     return {
@@ -7075,7 +7381,8 @@ async def _handle_client_slot_confirmation_reply(
         or _clean(email_doc.get("references"))
         or re.match(r"^\s*(?:re|fw|fwd)\s*:", subject, flags=re.IGNORECASE)
     )
-    is_client_slot_thread = has_slot_subject or (
+    direct_client_time = source_mail_type == "client_interview_reschedule_request"
+    is_client_slot_thread = has_slot_subject or direct_client_time or source_mail_type == "client_reschedule_slots" or (
         source_mail_type == "client_slots" and has_reply_thread_link
     )
     reply_text = _strip_quoted_email_history(
@@ -7100,7 +7407,10 @@ async def _handle_client_slot_confirmation_reply(
 
     # New slots sent during a reschedule must lead to a new Calendar event.
     # Do not let the normal Mail 4 duplicate protection reuse the old link.
-    is_reschedule_selection = bool(trainer.get("reschedule_requested"))
+    is_reschedule_selection = bool(
+        trainer.get("reschedule_requested")
+        or source_mail_type in {"client_interview_reschedule_request", "client_reschedule_slots"}
+    )
 
     trainer_email = _email_address(
         trainer.get("email")
@@ -7118,7 +7428,23 @@ async def _handle_client_slot_confirmation_reply(
     intent = _slot_confirmation_intent(reply_text)
     now = _now()
 
-    if intent != "selected_slot_number" and intent != "selected_slot_details" and intent != "selected_slot":
+    proposed_direct_slot: Dict[str, Any] = {}
+    if direct_client_time:
+        proposed_direct_slot = _single_confirmed_reschedule_slot(
+            reply_text,
+            _clean(trainer.get("reschedule_requested_date")),
+        )
+        if not proposed_direct_slot.get("start") or not proposed_direct_slot.get("end"):
+            return {
+                "attempted": True,
+                "success": False,
+                "reason": "client_reschedule_time_missing",
+                "intent": intent,
+                "error": "Client reply did not include one dated interview time.",
+            }
+    if not proposed_direct_slot and intent == "reschedule" and _interview_was_scheduled(trainer):
+        return {"attempted": False, "reason": "scheduled_interview_reschedule", "intent": intent}
+    if not proposed_direct_slot and intent != "selected_slot_number" and intent != "selected_slot_details" and intent != "selected_slot":
         return {
             "attempted": True,
             "success": False,
@@ -7158,13 +7484,16 @@ async def _handle_client_slot_confirmation_reply(
     inbound_sender = _email_address(email_doc.get("from_email") or email_doc.get("sender_email") or email_doc.get("sender") or email_doc.get("from"))
     if inbound_sender != _email_address(client_email):
         return {"attempted": False, "reason": "sender_not_linked_client"}
-    delivered_handoff = await db["email_logs"].find_one({
-        "requirement_id": requirement_id, "trainer_id": trainer_id,
-        "mail_type": "client_slots", "status": "sent", "direction": "outbound",
-    }, {"_id": 0, "email_id": 1})
-    if not delivered_handoff:
-        return {"attempted": True, "success": False, "reason": "client_handoff_not_delivered",
-                "error": "Approve and deliver the client package before scheduling the interview."}
+    if proposed_direct_slot:
+        delivered_handoff = {"email_id": trainer.get("client_slots_email_id") or ""}
+    else:
+        delivered_handoff = await db["email_logs"].find_one({
+            "requirement_id": requirement_id, "trainer_id": trainer_id,
+            "mail_type": "client_slots", "status": "sent", "direction": "outbound",
+        }, {"_id": 0, "email_id": 1})
+        if not delivered_handoff:
+            return {"attempted": True, "success": False, "reason": "client_handoff_not_delivered",
+                    "error": "Approve and deliver the client package before scheduling the interview."}
     interview_date = selected_slot_text or _strip_quoted_email_history(reply_text)
     source_gmail_message_id = _current_inbound_message_id(email_doc)
     client_slots_email_id = (
@@ -7198,11 +7527,45 @@ async def _handle_client_slot_confirmation_reply(
         or trainer.get("slot_reply_text")
         or ""
     )
-    resolved_slot = _resolve_interview_slot_datetime(reply_text, source_slot_text)
-    offered_starts = {option["start"] for option in _slot_options_from_text(source_slot_text)}
-    if resolved_slot.get("start") and resolved_slot["start"] not in offered_starts:
-        return {"attempted": True, "success": False, "reason": "selected_slot_not_offered",
-                "error": "The selected time is not one of the delivered interview options. Please select an offered slot or request rescheduling."}
+    if proposed_direct_slot.get("start"):
+        resolved_slot = proposed_direct_slot
+    else:
+        if trainer.get("reschedule_requested") or source_mail_type == "client_reschedule_slots":
+            slots_email_id = (
+                (email_doc.get("source_outbound_email_id") if source_mail_type == "client_reschedule_slots" else "")
+                or trainer.get("reschedule_slots_email_id")
+                or ""
+            )
+            reschedule_slots_log = None
+            if slots_email_id:
+                reschedule_slots_log = await db["email_logs"].find_one(
+                    {
+                        "email_id": slots_email_id,
+                        "mail_type": "client_reschedule_slots",
+                        "requirement_id": requirement_id,
+                        "trainer_id": trainer_id,
+                    },
+                    {"_id": 0, "slot_text": 1, "body": 1},
+                )
+            if not reschedule_slots_log:
+                reschedule_slots_log = await db["email_logs"].find_one(
+                    {
+                        "direction": "outbound",
+                        "status": "sent",
+                        "mail_type": "client_reschedule_slots",
+                        "requirement_id": requirement_id,
+                        "trainer_id": trainer_id,
+                    },
+                    {"_id": 0, "slot_text": 1, "body": 1},
+                    sort=[("created_at", -1)],
+                )
+            if reschedule_slots_log:
+                source_slot_text = reschedule_slots_log.get("slot_text") or reschedule_slots_log.get("body") or source_slot_text
+        resolved_slot = _resolve_interview_slot_datetime(reply_text, source_slot_text)
+        offered_starts = {option["start"] for option in _slot_options_from_text(source_slot_text)}
+        if resolved_slot.get("start") and resolved_slot["start"] not in offered_starts:
+            return {"attempted": True, "success": False, "reason": "selected_slot_not_offered",
+                    "error": "The selected time is not one of the delivered interview options. Please select an offered slot or request rescheduling."}
     if resolved_slot.get("label"):
         interview_date = resolved_slot["label"]
 
@@ -7235,7 +7598,14 @@ async def _handle_client_slot_confirmation_reply(
     if existing:
         sent_at = existing.get("sent_at") or now
         existing_link = existing.get("meet_link") or existing.get("interview_link") or ""
-    if existing and _is_google_meet_link(existing_link) and not is_reschedule_selection:
+    protected_old_link = _clean(trainer.get("previous_meet_link"))
+    if is_reschedule_selection and not protected_old_link:
+        protected_old_link = _clean(trainer.get("meet_link") or trainer.get("interview_link"))
+    retired_original = bool(existing and (
+        existing.get("reschedule_retired_at")
+        or (is_reschedule_selection and protected_old_link and _clean(existing_link) == protected_old_link)
+    ))
+    if existing and _is_google_meet_link(existing_link) and not retired_original:
         # Earlier events may have been created without attendees. Repair the
         # actual Calendar event so Google sends invitations to both parties.
         calendar_invite_result = await add_google_calendar_attendees(
@@ -7623,7 +7993,11 @@ async def _handle_client_slot_confirmation_reply(
     # usable meeting link if Calendar or SMTP fails.
     superseded_event_result: Dict[str, Any] = {}
     if is_reschedule_selection and overall_success and existing:
-        previous_event_id = _clean(existing.get("calendar_event_id") or trainer.get("calendar_event_id"))
+        previous_event_id = _clean(
+            trainer.get("previous_calendar_event_id")
+            or existing.get("calendar_event_id")
+            or trainer.get("calendar_event_id")
+        )
         replacement_event_id = _clean(calendar_event.get("event_id"))
         if previous_event_id and previous_event_id != replacement_event_id:
             superseded_event_result = await cancel_google_calendar_event(previous_event_id)
@@ -10920,7 +11294,7 @@ async def _process_client_requirement_email(
     # Client replies to slot-selection emails are operational confirmations,
     # not requirement replies. Handle them before generic sentiment analysis.
     source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
-    if source_mail_type in {"client_slots", "client_interview_reschedule_request"}:
+    if source_mail_type in {"client_slots", "client_reschedule_slots", "client_interview_reschedule_request"}:
         slot_email_doc = email_doc
         bundled_files: List[Dict[str, Any]] = []
         try:
