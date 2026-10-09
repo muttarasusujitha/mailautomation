@@ -83,6 +83,7 @@ def test_search_counts_only_unique_matching_profiles_toward_twenty():
 
 def test_urls_only_accept_linkedin_results():
     assert canonical_url('https://in.linkedin.com/in/alice/?trk=search') == 'https://www.linkedin.com/in/alice'
+    assert canonical_url('/in/alice') == 'https://www.linkedin.com/in/alice'
     assert not canonical_url('https://linkedin.com.evil.test/in/alice')
     assert not canonical_url('https://www.linkedin.com/jobs/123')
     assert '/people/' in search_url('Python', 'trainer')
@@ -137,6 +138,18 @@ def test_disabled_bot_does_not_launch_browser():
     with patch.dict('os.environ', {'LINKEDIN_BOT_ENABLED': 'false'}):
         with pytest.raises(ValueError, match='not enabled'):
             asyncio.run(search_linkedin_account('Python', 'trainer'))
+
+
+def test_trainer_search_budget_survives_a_slow_people_page():
+    from app.clients.linkedin_browser import trainer_collection_budget
+    limit, _scan, pages, seconds = trainer_collection_budget(60)
+    assert limit == 60
+    assert pages >= 24
+    assert seconds >= 150
+    # A 20 or 50 profile request used to expire after 65 seconds.
+    assert trainer_collection_budget(50)[3] >= 120
+    assert trainer_collection_budget(20)[3] >= 120
+    assert trainer_collection_budget(2)[3] < 90
 
 
 def test_people_pages_collect_multiword_trainer_profiles():

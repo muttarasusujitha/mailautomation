@@ -64,6 +64,26 @@ def test_search_retains_refreshed_login_without_hiding_results(tmp_path, monkeyp
         context.add_cookies.assert_awaited_once_with(refreshed)
 
 
+def test_trainer_account_search_keeps_the_sixty_profile_target(tmp_path, monkeypatch):
+    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    page = MagicMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.locator.return_value.count = AsyncMock(return_value=0)
+    context = AsyncMock()
+    context.new_page.return_value = page
+    context.cookies.return_value = []
+    playwright = MagicMock()
+    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
+    manager = AsyncMock()
+    manager.__aenter__.return_value = playwright
+    collector = AsyncMock(return_value=[])
+    with patch('playwright.async_api.async_playwright', return_value=manager), \
+            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
+        asyncio.run(search_linkedin_account('DevOps trainer', 'trainer', 60))
+    assert collector.await_args.args[3] == 60
+
+
 @pytest.mark.parametrize('partial', [False, True])
 def test_checkpoint_stops_future_browser_launches_and_preserves_partial_results(tmp_path, monkeypatch, partial):
     monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')

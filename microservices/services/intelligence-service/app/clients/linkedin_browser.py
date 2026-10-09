@@ -35,6 +35,10 @@ def profile_path():
 
 
 def canonical_url(value):
+    value = (value or '').strip()
+    # People-search cards sometimes expose a relative profile path.
+    if value.startswith('/') and not value.startswith('//'):
+        value = 'https://www.linkedin.com' + value
     parts = urlsplit(value)
     host = (parts.hostname or '').lower()
     if parts.scheme != 'https' or not (host == 'linkedin.com' or host.endswith('.linkedin.com')):
@@ -137,14 +141,17 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
             continue
         menu = card.locator('button[aria-label^="Open control menu for post"]')
         if not await menu.count():
-            raise ValueError('Post card has no source-link menu')
+            # One card without a permalink menu must not abandon the rest of the page.
+            processed.add(fingerprint)
+            continue
         await menu.click()
         copy = page.get_by_text('Copy link to post', exact=True)
         try:
             await copy.wait_for(timeout=3000)
-        except Exception as exc:
+        except Exception:
             await page.keyboard.press('Escape')
-            raise ValueError(f'Post copy-link menu unavailable: {exc}') from exc
+            processed.add(fingerprint)
+            continue
         # Capture only the URL written by this explicit Copy link action. Reading
         # the OS clipboard is unreliable when a headless tab loses focus.
         await page.evaluate('''() => {
@@ -179,7 +186,8 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
             if len(results) >= limit:
                 break
         else:
-            raise ValueError(f'Post link did not resolve: {urlsplit(copied).hostname} {urlsplit(copied).path}; resolved {url}')
+            # A short link that does not resolve is skipped; later cards can still match.
+            processed.add(fingerprint)
     return results
 
 
@@ -188,17 +196,44 @@ PEOPLE_CARDS = """els => els.flatMap(a => {
   const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
     || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
   if (!card) return [];
-  const text = (card.innerText || a.innerText || '').trim();
+  let text = (card.innerText || a.innerText || '').trim();
+  const lines = text.split('\\n').filter(line => line.trim());
+  if (lines.length < 2 && card.parentElement) {
+    const wider = (card.parentElement.innerText || '').trim();
+    if (wider.length > text.length) text = wider;
+  }
   if (!text) return [];
-  return [{url: a.href, text: text.slice(0, 4000)}];
+  return [{url: a.href || a.getAttribute('href') || '', text: text.slice(0, 4000)}];
 })"""
 
 
 def _people_search_url(keywords, page_number):
-    return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
+    # origin makes LinkedIn render the people-result list instead of an empty shell.
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({
+        'keywords': keywords, 'origin': 'GLOBAL_SEARCH_HEADER', 'page': page_number,
+    })
 
 
 from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
+
+
+def trainer_collection_budget(limit):
+    """Page count and seconds for one domain.
+
+    A 50-profile cap used to select the 65-second budget, so the scan stopped
+    with "Trainer search reached its time limit" after the first slow page.
+    """
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
+    full_target = limit >= TRAINER_RESULT_TARGET
+    scan_limit = TRAINER_SCAN_LIMIT if full_target else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    page_cap = max(1, (scan_limit + 9) // 10) if full_target else min(20, max(limit, 2))
+    if full_target:
+        seconds = 160
+    elif limit >= 20:
+        seconds = 130
+    else:
+        seconds = 70
+    return limit, scan_limit, page_cap, seconds
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
@@ -206,11 +241,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
-    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
-    scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    limit, scan_limit, page_cap, seconds = trainer_collection_budget(limit)
     # LinkedIn shows about ten people per page. A 60-profile fetch can read 24 pages, then stops.
-    page_cap = max(1, (scan_limit + 9) // 10) if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
-    deadline = asyncio.get_running_loop().time() + (180 if limit >= TRAINER_RESULT_TARGET else 65)
+    deadline = asyncio.get_running_loop().time() + seconds
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -271,19 +304,23 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 if response and response.status in (403, 429):
                     raise ValueError('LinkedIn limited this session. Fetching stopped.')
                 try:
-                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                    await page.locator(
+                        'a[href*="/in/"], [data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container'
+                    ).first.wait_for(timeout=6000)
                 except Exception:
                     pass
                 await require_session(page)
-                new_urls, raw_count = await read_people()
-                if new_urls == 0 and raw_count == 0:
+                new_urls, _raw_count = await read_people()
+                paints = 0
+                while new_urls == 0 and paints < 3 and not timed_out():
                     # The result list often paints after the first lookup.
+                    paints += 1
                     try:
                         await page.mouse.wheel(0, 1600)
-                        await page.wait_for_timeout(500)
+                        await page.wait_for_timeout(600)
                     except Exception:
-                        pass
-                    new_urls, raw_count = await read_people()
+                        break
+                    new_urls, _raw_count = await read_people()
                 if new_urls == 0:
                     break
                 if len(results) >= limit or len(visited) >= scan_limit:
@@ -373,7 +410,7 @@ async def collect_client_posts(page, context, domain, location, limit):
                 distinct.setdefault(row['url'], row)
         return list(distinct.values())[:limit]
     try:
-        async with asyncio.timeout(50):
+        async with asyncio.timeout(90):
             response = await page.goto(search_url(domain, 'client', location), wait_until='domcontentloaded', timeout=15000)
             if response and response.status in (403, 429):
                 raise ValueError('LinkedIn limited this session.')
@@ -415,7 +452,10 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                     await context.add_cookies(saved)
                 page = await context.new_page()
                 if mode == 'trainer':
-                    return await collect_trainer_profiles(page, domain, location, min(max(limit, 1), 50), collected)
+                    # Keep the caller's target. Capping at 50 selected the short
+                    # timer and stopped a 60-profile search before page two.
+                    return await collect_trainer_profiles(
+                        page, domain, location, min(max(limit, 1), TRAINER_RESULT_CEILING), collected)
                 if mode == 'client':
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:

@@ -131,6 +131,35 @@ def test_missing_required_document_prevents_send_and_completion(monkeypatch, fai
     db["shortlists"].update_one.assert_not_awaited()
 
 
+def test_broader_lab_mention_does_not_attach_or_block_workbook(monkeypatch):
+    db, requests = prepare(monkeypatch, failure="lab", requirement_overrides={
+        "lab_cost_requested": True,
+        "client_requirement_text": "Please arrange lab tools, setup, access, and a local or cloud lab.",
+        "requirement_items": [{"category": "lab_requirements"}, {"category": "lab_delivery_preference"}],
+    })
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["success"] is True
+    mail = requests[-1][1]
+    assert not any(path.endswith("/lab-cost") for path, _ in requests)
+    assert all("Lab Cost" not in item["filename"] for item in mail["attachments"])
+    assert mail["ai_generate"] is False
+    assert "Available slots:" in mail["body"]
+
+
+def test_ai_on_rewrites_client_handoff(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={"lab_cost_requested": False})
+    db["automation_settings"].find_one.return_value = {"value": "ai"}
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    mail = requests[-1][1]
+    assert mail["ai_generate"] is True
+    assert mail["ai_context"]["workflow"] == "client_handoff"
+    assert "Available slots:" in mail["body"]
+
+
 def test_incomplete_slots_prevent_handoff(monkeypatch):
     db, requests = prepare(monkeypatch)
     with pytest.raises(HTTPException) as error:

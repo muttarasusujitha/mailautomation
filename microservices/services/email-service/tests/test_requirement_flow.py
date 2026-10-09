@@ -105,6 +105,47 @@ Commercial Budget = ₹5,40,000
     assert extracted["budget_total"] == 540000
 
 
+def test_confirmed_first_mail_sends_mail1_without_a_later_authorization():
+    from app.routes.inbox import (
+        _confirmed_requirement_on_first_client_mail,
+        _should_send_trainer_mail1_now,
+    )
+    body = """We have a confirmed DevOps training requirement.
+Technology: DevOps
+Training dates: 01 November 2026
+Duration: 20 days
+Commercial: INR 540000
+"""
+    extracted = {
+        "technology_needed": "DevOps",
+        "training_dates": "01 November 2026",
+        "duration_days": 20,
+        "budget_total": 540000,
+        "is_training_request": True,
+        "direct_request_language": True,
+    }
+    email_doc = {"subject": "Confirmed DevOps batch", "body": body}
+    assert _confirmed_requirement_on_first_client_mail("Confirmed DevOps batch", email_doc, extracted) is True
+    assert _should_send_trainer_mail1_now(
+        automation_ready=True,
+        confirmed_first_mail=True,
+        is_first_client_mail=True,
+        explicit_trainer_authorization=False,
+        details_ready_on_client_reply=False,
+        is_training_request=True,
+        has_domain=True,
+    ) is True
+    assert _should_send_trainer_mail1_now(
+        automation_ready=True,
+        confirmed_first_mail=False,
+        is_first_client_mail=True,
+        explicit_trainer_authorization=False,
+        details_ready_on_client_reply=False,
+        is_training_request=True,
+        has_domain=True,
+    ) is False
+
+
 def test_confirmation_must_come_from_client_text():
     assert _requirement_flow_from_email({"batch_type": "confirmed batch"}, "Please share commercials") == "proposal"
 

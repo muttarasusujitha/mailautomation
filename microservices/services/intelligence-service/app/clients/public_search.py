@@ -319,16 +319,20 @@ async def _search_bing(query, limit):
 async def search_public(query, limit=10):
     """Read a public results page, then the next page only while new profile links appear."""
     limit = min(max(int(limit or 1), 1), 60)
-    found, challenged = await _search_ddg(query, limit)
-    if found or challenged:
+    found, _challenged = await _search_ddg(query, limit)
+    if found:
         return found[:limit]
+    # A challenge page is not solved. The other public results page can still be read.
     return (await _search_bing(query, limit))[:limit]
 
 
-async def search_public_many(queries, limit=50):
+async def search_public_many(queries, limit=50, found=None, seen=None):
     """Keep reading result pages until the route minimum is filled or the connection stops answering."""
     limit = min(max(int(limit or 1), 1), 60)
-    found, seen = [], set()
+    if found is None:
+        found = []
+    if seen is None:
+        seen = set()
     challenges = 0
     timeouts = 0
     attempts = 0
@@ -357,6 +361,6 @@ async def search_public_many(queries, limit=50):
             timeouts = 0
         else:
             timeouts = 0
-    if not found and timeouts < 2 and challenges < 3 and queries:
+    if not found and timeouts < 2 and queries:
         found.extend(await _search_bing(queries[0], limit))
     return found[:limit], attempts
