@@ -49,15 +49,26 @@ async def discover(domain, mode, target, location=''):
     if mode == 'trainer':
         from app.clients.public_search import search_public_many
         attempts += 1
+        found_public = []
+        public_timed_out = False
         try:
-            rows, used = await search_public_many(queries, max(50, target))
+            # Leave most of the request budget for the connected people search.
+            rows, used = await asyncio.wait_for(
+                search_public_many(queries, max(50, target), found_public), timeout=30)
             attempts += max(used - 1, 0)
+        except TimeoutError:
+            rows, used = list(found_public), 1
+            public_timed_out = True
         except Exception as exc:
             warning = search_warning('public', exc)
             if warning not in warnings:
                 warnings.append(warning)
             rows = []
         accept(rows, 'public')
+        if public_timed_out and len(results) < target:
+            warning = search_warning('public', TimeoutError())
+            if warning not in warnings:
+                warnings.append(warning)
     else:
         for query in queries:
             need = min(60, max(1, target - len(results)))
@@ -79,7 +90,7 @@ async def discover(domain, mode, target, location=''):
             # People search paginates inside this budget. Keep every profile
             # appended before a timeout, including when the browser is cancelled.
             accept(await asyncio.wait_for(
-                search_linkedin_account(domain, mode, target, location, collected), timeout=260), 'linkedin_account')
+                search_linkedin_account(domain, mode, target, location, collected), timeout=175), 'linkedin_account')
         except Exception as exc:
             accept(getattr(exc, 'results', None) or collected, 'linkedin_account')
             # Account verification is the actionable blocker. Put it first for
