@@ -119,6 +119,38 @@ def test_client_gets_profile_toc_lab_and_three_slots(monkeypatch):
     assert db["shortlists"].update_one.await_count == 1
 
 
+def test_inferred_lab_flag_sends_handoff_without_workbook(monkeypatch):
+    db, requests = prepare(monkeypatch, failure="lab", requirement_overrides={
+        "lab_cost_requested": True,
+        "explicit_lab_cost_requested": False,
+        "client_requirement_text": "Please arrange lab setup and access for a local lab.",
+    })
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["success"] is True
+    mail = next(body for path, body in requests if path.endswith("/email/send"))
+    assert mail["ai_generate"] is False
+    assert [item["filename"] for item in mail["attachments"]] == [
+        "Test Trainer - Client Aligned Profile.pdf",
+        "DevOps - Training ToC.xlsx",
+    ]
+
+
+def test_explicit_lab_cost_request_blocks_handoff_without_workbook(monkeypatch):
+    db, requests = prepare(monkeypatch, failure="lab", requirement_overrides={
+        "explicit_lab_cost_requested": True,
+        "client_requirement_text": "Please share the lab cost estimate.",
+    })
+    with pytest.raises(HTTPException) as error:
+        asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+            requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+        ), db))
+    assert error.value.status_code == 502
+    assert not any(path.endswith("/email/send") for path, _ in requests)
+    db["shortlists"].update_one.assert_not_awaited()
+
+
 @pytest.mark.parametrize("failure", ["profile", "toc", "lab"])
 def test_missing_required_document_prevents_send_and_completion(monkeypatch, failure):
     db, requests = prepare(monkeypatch, failure)
