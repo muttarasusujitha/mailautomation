@@ -48,6 +48,32 @@ def test_finance_approval_serializes_dates_and_excludes_database_id(monkeypatch)
     assert requests[1][1]['attachments']
 
 
+def test_received_po_sets_batch_confirmed_and_completes_pipeline(monkeypatch):
+    transport(monkeypatch)
+    db = database()
+    db['shortlists'] = SimpleNamespace(find_one=AsyncMock(return_value={}), update_one=AsyncMock())
+    db['finance_approvals'].find_one.return_value = {
+        'status': 'processing_invoice',
+        'requirement_id': 'REQ-PO',
+        'trainer_id': 'T-PO',
+        'client_email': 'client@example.com',
+    }
+    payload = finance.FinanceApproveRequest(
+        client_name='Test', client_email='client@example.com', po_number='PO-9', total_amount=1000,
+    )
+    result = asyncio.run(finance.approve_and_send_invoice('FIN-1', payload, db))
+    assert result['batch_confirmed'] is True
+    assert result['pipeline_status'] == 'completed'
+    requirement_update = db['requirements'].update_one.await_args.args[1]['$set']
+    assert requirement_update['batch_confirmed'] is True
+    assert requirement_update['status'] == 'completed'
+    assert requirement_update['invoice_sent'] is True
+    trainer_update = db['shortlists'].update_one.await_args.args[1]['$set']
+    assert trainer_update['top_trainers.$.pipeline_status'] == 'training_confirmed'
+    assert trainer_update['top_trainers.$.batch_confirmed'] is True
+    assert trainer_update['pipeline_summary.status'] == 'completed'
+
+
 def test_invalid_amount_does_not_claim_approval():
     db = database()
     payload = finance.FinanceApproveRequest(client_name='Test', client_email='client@example.com', po_number='TEST', total_amount=0)
