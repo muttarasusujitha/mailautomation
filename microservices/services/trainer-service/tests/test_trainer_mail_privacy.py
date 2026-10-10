@@ -12,16 +12,18 @@ def _requirement():
     }
 
 
-def test_mail1_exposes_only_trainer_offer_not_client_pricing_or_margin():
+def test_mail1_shows_client_commercial_and_does_not_offer_the_trainer_share():
     body = shortlists._clean_confirmed_mail1_body(
         "Suresh Reddy", _requirement(), "DevOps", {}
     )
 
-    assert "Offered trainer commercial: INR 91,000 total commercial" in body
-    assert "Client commercial/budget" not in body
-    assert "Clahan-calculated" not in body
-    assert "70% of client commercial" not in body
-    assert "130,000" not in body
+    assert "- Client commercial: INR 130,000 total-course commercial" in body
+    assert "Offered trainer commercial" not in body
+    assert "91,000" not in body
+    assert "70%" not in body
+    assert "Please confirm the offered trainer commercial" not in body
+    assert "Please confirm the offered commercials" not in body
+    assert "three convenient interview/discussion slots" in body
 
 
 def test_secondary_trainer_automation_hides_margin_formula():

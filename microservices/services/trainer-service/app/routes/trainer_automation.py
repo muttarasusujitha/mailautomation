@@ -119,13 +119,26 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
     return trainer_commercial_text(requirement)
 
 
+def _visible_mail1_commercial_line(requirement: Dict[str, Any]) -> str:
+    """Confirmed Mail 1 shows the client commercial, not the trainer's 70% share."""
+    if _is_proposal_requirement(requirement):
+        commercial_text = _trainer_mail1_commercial_text(requirement)
+        return f"Offered trainer commercial: {commercial_text}" if commercial_text else ""
+    from app.routes.shortlists import _client_mail1_budget_text
+    client_commercial = _client_mail1_budget_text(requirement)
+    return f"Client commercial: {client_commercial}" if client_commercial else ""
+
+
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
-    commercial_text = _trainer_mail1_commercial_text(requirement)
-    if not commercial_text:
+    line = _visible_mail1_commercial_line(requirement)
+    if not line:
         return body
-    line = f"Offered trainer commercial: {commercial_text}"
-    if re.search(r"(?im)^(?:Commercials/Budget|Offered trainer commercial):\s*.*$", body or ""):
-        return re.sub(r"(?im)^(?:Commercials/Budget|Offered trainer commercial):\s*.*$", line, body or "")
+    if re.search(r"(?im)^(?:Commercials/Budget|Offered trainer commercial|Client commercial):\s*.*$", body or ""):
+        return re.sub(
+            r"(?im)^(?:Commercials/Budget|Offered trainer commercial|Client commercial):\s*.*$",
+            line,
+            body or "",
+        )
     return body
 
 
@@ -203,7 +216,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     participants = _clean_text(requirement.get("participant_count") or requirement.get("participants") or requirement.get("audience_level"))
     training_time = _clean_text(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?"))
     hands_on_lab = _clean_text(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration"))
-    commercial = _trainer_mail1_commercial_text(requirement)
+    commercial = _visible_mail1_commercial_line(requirement)
     details = [f"Domain/Technology: {technology}"]
     if dates:
         details.append(f"Training dates: {dates}")
@@ -218,7 +231,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if participants:
         details.append(f"Participants: {participants}")
     if commercial:
-        details.append(f"Offered trainer commercial: {commercial}")
+        details.append(commercial)
     requested_items = _mail1_requested_items(requirement)
     selected = []
     for label, needle in [
