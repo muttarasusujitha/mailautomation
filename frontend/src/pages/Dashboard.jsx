@@ -439,7 +439,7 @@ export default function Dashboard() {
           </span>
           <div>
             <p className="font-bold text-slate-900">Agentic AI for the entire application</p>
-            <p className="mt-1 text-sm text-slate-600">When this is on, shortlist mail, client replies, TOC, lab planning, purchase-order requests, invoice emails, and every application agent use the configured LLM. Approved packages stay exactly as reviewed.</p>
+            <p className="mt-1 text-sm text-slate-600">When this is on, the model writes the same one reply the templates use. Annapurna U covers ToC, lab cost, and a mail that asks for both. Murali Mohan M covers invoice and purchase order. Approved packages stay exactly as reviewed.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

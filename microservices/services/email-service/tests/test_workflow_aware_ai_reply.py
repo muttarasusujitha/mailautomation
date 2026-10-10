@@ -87,10 +87,45 @@ def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participant
         "DevOps and AWS lab access",
     )
     assert "number of participants/users requiring access" in reply["body"]
+    assert "which lab tool" not in reply["body"].lower()
     assert "preferred training dates" not in reply["body"].lower()
-    assert "trainer shortlist" not in reply["body"].lower()
-    assert "lab-access-only" in reply["body"]
+    assert "shortlist" not in reply["body"].lower()
+    assert "pipeline" not in reply["body"].lower()
+    assert "trainer requirement" not in reply["body"].lower()
     assert reply["auto_send_safe"] is False
+
+
+def test_missing_cloud_tool_asks_which_lab_tool_to_cost():
+    context = _lab_request_context(
+        "Please share the lab cost for a Docker and Kubernetes program. 12 participants, 4 hours per day, 5 days.",
+        {"technology_needed": "Kubernetes"},
+    )
+    assert context["known_inputs"]["lab_tools"] == ["Kubernetes", "Docker"]
+    assert "cloud_provider" in context["missing_quote_inputs"]
+
+    reply = _build_lab_reference_reply(
+        context,
+        {"client_name": "Asha", "technology_needed": "Kubernetes"},
+        "Asha",
+        "Lab cost",
+    )
+    assert "Which cloud tool should that lab run on: AWS, Azure, or GCP?" in reply["body"]
+    assert "Kubernetes" in reply["body"]
+    assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+
+
+def test_unnamed_lab_asks_which_tool_without_inventing_one():
+    context = _lab_request_context(
+        "Please share the lab cost for 8 participants, 3 hours per day, for 4 days.",
+        {"technology_needed": "DevOps"},
+    )
+    reply = _build_lab_reference_reply(
+        context,
+        {"client_name": "Asha", "technology_needed": "DevOps"},
+        "Asha",
+        "Lab cost",
+    )
+    assert "Which lab tool should we cost: AWS, Azure, or GCP?" in reply["body"]
 
 
 def test_lab_context_reads_labelled_client_values_and_region_only_follow_up():

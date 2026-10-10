@@ -527,7 +527,7 @@ async def search_linkedin_leads(
                 search_errors.append({'domain': domain, 'error': outcome['warnings'][-1]})
         if payload.search_provider == "auto":
             from app.clients.lead_discovery import discover
-            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "")
+            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
             domain_outcomes.append(outcome)
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome.get('primary_error') or outcome['warnings'][0]['error']})

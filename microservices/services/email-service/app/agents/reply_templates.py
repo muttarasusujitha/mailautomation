@@ -230,6 +230,87 @@ def _reply(subject: str, body: str, template_key: str, auto_send_safe: bool = Tr
     }
 
 
+_SITUATION_KEYS = {
+    "toc": "client_toc_only",
+    "lab_cost": "client_lab_cost_grounded",
+    "toc_and_lab_cost": "client_toc_and_lab_cost",
+    "invoice": "client_invoice_request_ack",
+    "po": "client_po_received_ack",
+    "payment": "client_payment_terms_ack",
+}
+
+
+def compose_typed_client_reply(
+    kind: str,
+    client_name: str,
+    subject: str,
+    lines: list[str],
+    *,
+    technology: str = "",
+) -> Dict[str, Any]:
+    """Render one situation in one voice. Finance uses Murali; coordination uses Annapurna."""
+    template_key = _SITUATION_KEYS.get(kind, "client_toc_only")
+    name = _clean(client_name, "Team").split()[0]
+    if name.lower() in {"client", "team", "sender"}:
+        name = "Team"
+    clean_subject = _clean(subject)
+    if clean_subject.lower().startswith("re:"):
+        subject_line = clean_subject
+    elif clean_subject:
+        subject_line = f"Re: {clean_subject}"
+    else:
+        subject_line = f"Re: {_clean(technology, 'Your request')}"
+    spoken = [str(line).strip() for line in lines if str(line or "").strip()]
+    body = f"Dear {name},\n\n" + "\n\n".join(spoken) + f"\n\n{SIGNATURE}"
+    return _reply(subject_line, body, template_key)
+
+
+def render_delivery_reply(
+    *,
+    client_name: str,
+    subject: str,
+    technology: str = "",
+    toc_requested: bool = False,
+    lab_requested: bool = False,
+    toc_attached: bool = False,
+    lab_attached: bool = False,
+    lab_sentence: str = "",
+    missing_lab: str = "",
+    toc_missing: str = "",
+    closing_note: str = "",
+) -> Dict[str, Any]:
+    """One ToC and/or lab-cost reply. Callers attach every ready file to this same mail."""
+    tech = _clean(technology, "the training")
+    if toc_requested and lab_requested:
+        kind = "toc_and_lab_cost"
+        lines = [f"Thanks for sharing the ToC and lab-cost request for the {tech} training."]
+    elif toc_requested:
+        kind = "toc"
+        lines = [f"Thanks for sharing the ToC request for the {tech} training."]
+    else:
+        kind = "lab_cost"
+        lines = ["Thanks for sharing the lab-cost request."]
+    if toc_requested:
+        if toc_attached:
+            lines.append("Please find the day-wise ToC attached.")
+        elif toc_missing:
+            lines.append(f"To prepare the ToC, please confirm {toc_missing}.")
+        else:
+            lines.append("The day-wise ToC will be prepared from the technology and duration you shared.")
+    if lab_requested:
+        if lab_attached:
+            lines.append(_clean(lab_sentence, "Please find the lab-cost estimate attached."))
+        elif missing_lab:
+            lines.append(f"To prepare the lab-cost total, please confirm {missing_lab}.")
+        else:
+            lines.append("The lab-cost calculation will use these inputs and stay with this request.")
+    if toc_requested and lab_requested:
+        lines.append("Both are covered in this one mail.")
+    if closing_note:
+        lines.append(closing_note)
+    return compose_typed_client_reply(kind, client_name, subject, lines, technology=tech)
+
+
 def _client_missing_details_reply(
     client: str,
     tech: str,

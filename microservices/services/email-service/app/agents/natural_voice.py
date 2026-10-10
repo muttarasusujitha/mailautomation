@@ -75,6 +75,13 @@ def choose_voice(*hints: object) -> str:
     return ANNAPURNA
 
 
+def voice_for_situation(*situation: object, subject: str = "") -> str:
+    """Use the classified situation. The subject is only a fallback."""
+    if any(str(item or "").strip() for item in situation):
+        return choose_voice(*situation)
+    return choose_voice(subject)
+
+
 def signature_for(voice: str = ANNAPURNA) -> str:
     return SIGNATURES.get(voice, SIGNATURES[ANNAPURNA])
 
