@@ -215,6 +215,33 @@ def test_missing_system_input_is_resolved_automatically(monkeypatch, missing, ba
     assert 'fx_rate' not in lab
 
 
+def test_partial_topics_still_cost_the_lab_from_the_approved_baseline(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        "batch_flow": "confirmed",
+        "participant_count": None,
+        "participants": None,
+        "cloud_provider": None,
+        "cloud_region": None,
+        "duration_days": 7,
+        "mode": "Offline",
+        "lab_hours_per_day": 3,
+        "topics": "Docker, Kubernetes, and CI/CD",
+        "requested_details": ["CV", "ToC", "lab cost"],
+        "explicit_lab_cost_requested": True,
+    })
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    lab_request = next(body for path, body in requests if path.endswith("/lab-cost"))
+    assert lab_request["assumptions"]["participant_count"] == 1
+    assert lab_request["assumptions"]["hours_per_day"] == 3
+    assert lab_request["assumptions"]["cloud_provider"] == "aws"
+    assert lab_request["assumptions"]["cloud_region"] == "Mumbai"
+    mail = next(body for path, body in requests if path.endswith("/email/send"))
+    assert "DevOps - Lab Cost Estimate.xlsx" in [item["filename"] for item in mail["attachments"]]
+    assert "DevOps - Training ToC.xlsx" in [item["filename"] for item in mail["attachments"]]
+
+
 def test_missing_usage_uses_approved_one_person_three_hour_baseline(monkeypatch):
     db, requests = prepare(monkeypatch, requirement_overrides={
         "participant_count": None, "participants": None, "lab_hours_per_day": None,

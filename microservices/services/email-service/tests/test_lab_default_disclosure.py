@@ -29,16 +29,17 @@ def test_partial_devops_ack_reads_like_a_short_note():
     assert body.startswith("Hi,")
     assert "Greetings of the day! Thanks for sharing the DevOps training requirement." in body
     assert "We have noted 7 training days, Offline, and 3 lab hours per day." in body
-    assert "We will share the CV for your review." in body
-    assert "We will share the CV and ToC" not in body
-    assert "Please share the participant count and preferred cloud provider (AWS, Azure, or GCP) so we can prepare the ToC and the lab cost." in body
+    assert "We will share the CV and ToC for your review." in body
+    assert "We will prepare the ToC and the lab cost from the details already shared." in body
+    assert "Please share the participant count" not in body
+    assert "so we can prepare the ToC and the lab cost." not in body
     assert "confirmed batch scope" not in body
     assert "not treated as the participant count" not in body
     assert "region can be finalized" not in body
     assert "suitable trainer profiles" not in body
 
 
-def test_topics_keep_the_batch_moving_and_wait_to_prepare_toc_and_lab_cost():
+def test_topics_and_partial_details_prepare_toc_and_lab_cost():
     message = _client_short_requirement_ack({
         "technology_needed": "DevOps",
         "duration_days": 7,
@@ -52,13 +53,15 @@ def test_topics_keep_the_batch_moving_and_wait_to_prepare_toc_and_lab_cost():
 
     body = message["body"]
     assert "We have noted the topics you shared, 7 training days, Offline, and 3 lab hours per day." in body
-    assert "We will share the CV for your review." in body
-    assert "We will share the CV and ToC" not in body
-    assert "Please share the participant count and preferred cloud provider (AWS, Azure, or GCP) so we can prepare the ToC and the lab cost." in body
+    assert "We will share the CV and ToC for your review." in body
+    assert "We will prepare the ToC and the lab cost from the topics and the details already shared." in body
+    assert "Please share the participant count" not in body
+    assert "preferred cloud provider" not in body
+    assert "1 participant" not in body
     assert "confirmed batch scope" not in body
 
 
-def test_profile_items_stay_grammatical_when_toc_waits():
+def test_profile_items_stay_grammatical_when_topics_were_shared():
     message = _client_short_requirement_ack({
         "technology_needed": "DevOps",
         "duration_days": 7,
@@ -70,9 +73,9 @@ def test_profile_items_stay_grammatical_when_toc_waits():
 
     body = message["body"]
     assert "We have noted the topics you shared and 7 training days." in body
-    assert "We will share the CV, LinkedIn profile, and relevant experience for your review." in body
-    assert "ToC" not in body.split("Please share")[0]
-    assert "so we can prepare the ToC and the lab cost." in body
+    assert "We will share the CV, LinkedIn profile, ToC, and relevant experience for your review." in body
+    assert "We will prepare the ToC and the lab cost from the topics and the details already shared." in body
+    assert "Please share the participant count" not in body
 
 
 def test_complete_lab_inputs_still_share_toc_and_prepare_the_estimate():

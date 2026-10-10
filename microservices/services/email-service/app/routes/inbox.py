@@ -2572,8 +2572,17 @@ def _lab_inputs_complete(extracted: Dict[str, Any]) -> bool:
     )
 
 
+def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
+    return bool(
+        _safe_float(extracted.get("duration_days"), 0)
+        or _clean(extracted.get("mode"))
+        or _known_lab_hours(extracted)
+        or _clean(extracted.get("audience_level"))
+    )
+
+
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """Ask only for missing lab inputs. Keep internal costing rules out of the note."""
+    """Say the estimate will be prepared. Keep internal costing rules out of the note."""
     if not _lab_is_clahan_managed(extracted):
         return ""
 
@@ -2587,6 +2596,13 @@ def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
             parts.append(f"{_display_quantity(duration_days)} days")
         parts.append(f"{_display_quantity(hours_per_day)} hours per day")
         return f"\n\nWe will prepare the lab estimate for {_join_phrases(parts)}."
+
+    # Topics and the details already shared are enough to prepare the documents.
+    # Missing headcount or cloud provider is not a reason to ask the client to wait.
+    if _topics_were_shared(extracted):
+        return "\n\nWe will prepare the ToC and the lab cost from the topics and the details already shared."
+    if _shared_batch_details(extracted):
+        return "\n\nWe will prepare the ToC and the lab cost from the details already shared."
 
     missing = []
     if not participants:
@@ -2732,23 +2748,10 @@ def _client_short_requirement_ack(
             follow = f"We will share the {items} for your review."
         else:
             follow = "We will check trainer availability and share suitable trainer profiles for your review."
-        # Topics and the known batch details keep the confirmed-batch path moving.
-        # ToC and lab cost still wait until the inputs those two documents need are known.
-        if "ToC" in items and "so we can prepare the lab estimate." in clahan_note:
-            remaining = _join_phrases([
-                label.strip()
-                for label in items.replace(" and ", ",").split(",")
-                if label.strip() and label.strip() != "ToC"
-            ])
-            follow = f"We will share the {remaining} for your review." if remaining else ""
-            clahan_note = clahan_note.replace(
-                "so we can prepare the lab estimate.",
-                "so we can prepare the ToC and the lab cost.",
-            )
-        middle = f"{follow}\n\n" if follow else ""
         body = (
-            f"{hello}\n\n{opening}{noted}\n\n{middle}".rstrip()
-            + f"{clahan_note}\n\n"
+            f"{hello}\n\n"
+            f"{opening}{noted}\n\n"
+            f"{follow}{clahan_note}\n\n"
             + _reply_signature()
         )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}

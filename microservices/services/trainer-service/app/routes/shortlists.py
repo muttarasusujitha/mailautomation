@@ -2121,6 +2121,26 @@ def _format_client_slot_lines(slot_text: str) -> str:
     return "\n".join(f"*{line}*" for line in lines)
 
 
+def _client_topic_phrases(value: Any) -> List[str]:
+    """Split a client topic list into the subjects a ToC can be prepared from."""
+    if isinstance(value, (list, tuple, set)):
+        phrases: List[str] = []
+        for item in value:
+            phrases.extend(_client_topic_phrases(item))
+        return phrases
+    text = _clean(value)
+    if not text:
+        return []
+    return [
+        phrase
+        for phrase in (
+            _clean(part).strip(" .-")
+            for part in re.split(r"[,;\n]+|\s+\band\b\s+", text, flags=re.IGNORECASE)
+        )
+        if phrase
+    ]
+
+
 async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
     try:
         from app.routes.toc import TocRequest, generate_toc, _required_technologies
@@ -2139,6 +2159,15 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         for key in ("skills", "required_skills", "requested_topics"):
             value = requirement.get(key)
             topics.extend(value if isinstance(value, list) else [value] if value else [])
+        # A confirmed batch often arrives with only a topic list plus duration,
+        # mode, and lab hours. Those topics are the scope the ToC is built from.
+        topic_sources = [requirement]
+        nested = requirement.get("extracted")
+        if isinstance(nested, dict):
+            topic_sources.append(nested)
+        for source in topic_sources:
+            for key in ("topics", "custom_topics"):
+                topics.extend(_client_topic_phrases(source.get(key)))
         toc_req = TocRequest(
             domain=domain,
             duration_days=duration,
