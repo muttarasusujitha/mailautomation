@@ -2542,68 +2542,83 @@ def _reply_signature() -> str:
     return signature_for(ANNAPURNA)
 
 
+def _display_quantity(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else str(value)
+
+
+def _join_phrases(items: list[str]) -> str:
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
+
+
+def _known_lab_hours(extracted: Dict[str, Any]) -> float:
+    return _safe_float(extracted.get("lab_hours_per_day") or extracted.get("hours_per_day"), 0)
+
+
+def _lab_is_clahan_managed(extracted: Dict[str, Any]) -> bool:
+    return "Lab availability and cost" in (extracted.get("clahan_managed_details") or [])
+
+
+def _lab_inputs_complete(extracted: Dict[str, Any]) -> bool:
+    return bool(
+        _safe_int(extracted.get("participant_count"), 0)
+        and _known_lab_hours(extracted)
+        and _clean(extracted.get("cloud_provider"))
+    )
+
+
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """State only confirmed lab inputs; never infer participants from duration."""
-    if "Lab availability and cost" not in (extracted.get("clahan_managed_details") or []):
+    """Ask only for missing lab inputs. Keep internal costing rules out of the note."""
+    if not _lab_is_clahan_managed(extracted):
         return ""
 
     participants = _safe_int(extracted.get("participant_count"), 0)
-    hours_per_day = _safe_float(
-        extracted.get("lab_hours_per_day") or extracted.get("hours_per_day"), 0,
-    )
+    hours_per_day = _known_lab_hours(extracted)
     cloud_provider = _clean(extracted.get("cloud_provider"))
     duration_days = _safe_float(extracted.get("duration_days"), 0)
     if participants and hours_per_day and cloud_provider:
-        def quantity(value: float) -> str:
-            return str(int(value)) if float(value).is_integer() else str(value)
-
-        scope = f"{participants} participants"
+        parts = [f"{participants} participant{'s' if participants != 1 else ''}"]
         if duration_days:
-            scope += f", {quantity(duration_days)} lab-access days"
-        scope += f", and {quantity(hours_per_day)} lab-access hours per day"
-        return (
-            f"\n\nWe have noted the lab-estimate inputs: {scope}. "
-            "We will prepare the estimate using these confirmed inputs."
-        )
+            parts.append(f"{_display_quantity(duration_days)} days")
+        parts.append(f"{_display_quantity(hours_per_day)} hours per day")
+        return f"\n\nWe will prepare the lab estimate for {_join_phrases(parts)}."
 
-    confirmed = []
-    if participants:
-        confirmed.append(f"{participants} participant{'s' if participants != 1 else ''}")
-    if hours_per_day:
-        hours_text = str(int(hours_per_day)) if float(hours_per_day).is_integer() else str(hours_per_day)
-        confirmed.append(f"{hours_text} lab-access hours per day")
-    known = f" We have noted {', and '.join(confirmed)}." if confirmed else ""
     missing = []
     if not participants:
         missing.append("participant count")
     if not hours_per_day:
-        missing.append("required lab-access hours per day")
+        missing.append("lab hours per day")
     if not cloud_provider:
         missing.append("preferred cloud provider (AWS, Azure, or GCP)")
-    return (
-        f"\n\nWe will prepare the lab estimate after confirming the {' and '.join(missing)}.{known} "
-        "Training duration is used only for the number of lab days; it is not treated as the participant count. "
-        "The region can be finalized after the cloud provider is selected."
-    )
+    return f"\n\nPlease share the {_join_phrases(missing)} so we can prepare the lab estimate."
 
 
 def _confirmed_requirement_scope_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """Echo material client-supplied facts before committing to next steps."""
+    """Mention the facts the client already gave, in one short sentence."""
     facts = []
     duration = _safe_float(extracted.get("duration_days"), 0)
     if duration:
-        duration_text = str(int(duration)) if duration.is_integer() else str(duration)
-        facts.append(f"{duration_text} training days")
+        facts.append(f"{_display_quantity(duration)} training days")
     if _clean(extracted.get("mode")):
         facts.append(_clean(extracted["mode"]))
     participants = _safe_int(extracted.get("participant_count"), 0)
     if participants:
-        facts.append(f"{participants} participants")
+        facts.append(f"{participants} participant{'s' if participants != 1 else ''}")
     if _clean(extracted.get("audience_level")):
         facts.append(f"{_clean(extracted['audience_level'])} level")
     if _clean(extracted.get("cloud_provider")):
-        facts.append(f"{_clean(extracted['cloud_provider'])} platforms")
-    return f"\n\nWe have recorded the confirmed batch scope: {', '.join(facts)}." if facts else ""
+        facts.append(_clean(extracted["cloud_provider"]))
+    hours_per_day = _known_lab_hours(extracted)
+    if hours_per_day and _lab_is_clahan_managed(extracted) and not _lab_inputs_complete(extracted):
+        facts.append(f"{_display_quantity(hours_per_day)} lab hours per day")
+    if not facts:
+        return ""
+    return f" We have noted {_join_phrases(facts)}."
 
 
 def _client_requested_items_for_reply(extracted: Dict[str, Any]) -> str:
@@ -2686,26 +2701,32 @@ def _client_short_requirement_ack(
         if missing
         else f"Thanks for sharing the {technology} training requirement."
     )
+    noted = _confirmed_requirement_scope_acknowledgement(extracted)
     clahan_note = _lab_estimate_acknowledgement(extracted)
+    salutation = _client_salutation(extracted)
+    hello = "Hello," if salutation == "Client" else f"Hello {salutation},"
     if missing:
         body = (
-            "Hello,\n\n"
-            f"{opening}\n\n"
+            f"{hello}\n\n"
+            f"{opening}{noted}\n\n"
             "Please share:\n"
             f"{missing}{clahan_note}\n\n"
             + _reply_signature()
         )
     else:
-        profile_action = (
-            "We will share suitable trainer profiles with "
-            if _has_explicit_profile_request(extracted)
-            else "We will check suitable trainer availability and share suitable trainer profiles with "
-        )
+        requested = extracted.get("requested_details") or []
+        if isinstance(requested, (list, tuple, set)) and any(str(item or "").strip() for item in requested):
+            items = _client_requested_items_for_reply({"requested_details": list(requested)})
+        else:
+            items = ""
+        if items and items != "CV, LinkedIn profile, and requested details":
+            follow = f"We will share the {items} for your review."
+        else:
+            follow = "We will check trainer availability and share suitable trainer profiles for your review."
         body = (
-            "Hello,\n\n"
-            f"{opening}{_confirmed_requirement_scope_acknowledgement(extracted)}\n\n"
-            f"{profile_action}"
-            f"{_client_requested_items_for_reply(extracted)} for your review.{clahan_note}\n\n"
+            f"{hello}\n\n"
+            f"{opening}{noted}\n\n"
+            f"{follow}{clahan_note}\n\n"
             + _reply_signature()
         )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
