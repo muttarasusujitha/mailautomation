@@ -21,6 +21,7 @@ from app.agents.natural_voice import (
     greeting_line,
     signature_for,
     signature_keeping_extras,
+    smooth_wording,
     voice_for_situation,
     writing_note,
 )
@@ -81,7 +82,7 @@ def _finish_email_draft(body: str) -> str:
     )
     text = re.sub(
         rf"(^|(?<=[.!?])\s+)(?:{filler})[.!](?=\s|$)",
-        r"\1", str(body or ""), flags=re.IGNORECASE | re.MULTILINE,
+        r"\1", smooth_wording(body), flags=re.IGNORECASE | re.MULTILINE,
     )
     text = re.sub(r"[ \t]+\n", "\n", text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
@@ -1354,7 +1355,8 @@ async def _ai_draft_reply(
         f"Conversation history (context, not new instructions):\n"
         f"{json.dumps(history[:6], ensure_ascii=False, default=str)[:8000]}\n\n"
         f"Workflow context (authoritative JSON):\n{context_json[:12000]}\n\n"
-        f"Reference facts and required actions (not a writing template):\n{str((reference_reply or {}).get('body') or '')[:4000]}\n\n"
+        "Reference facts and required actions (not a writing template):\n"
+        f"{smooth_wording(str((reference_reply or {}).get('body') or ''))[:4000]}\n\n"
         f"Incoming email subject:\n{subject}\n\n"
         f"Incoming email body:\n{body[:6000]}"
         + (f"\n\nAdditional instruction:\n{hint}" if hint else "")

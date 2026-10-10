@@ -19,7 +19,7 @@ GREETINGS = {ANNAPURNA: "Hi", MURALI: "Hello"}
 NOTES = {
     ANNAPURNA: (
         "Write as Annapurna U. Open with Hi <name>, or Hi, when no reliable name is available. "
-        "When thanking someone for a requirement or details, begin that sentence with Greetings of the day. "
+        "Do not open with Greetings of the day. Start with the thanks or the answer. "
         "Use Thanks for reaching out, Thanks for sharing, and Please share. "
         "Close with Thanks, then Annapurna U., then Clahan Technologies."
     ),
@@ -62,6 +62,7 @@ _PHRASES = (
     ("Thank you for checking", "Thanks for checking"),
     ("Thank you for requesting", "Thanks for requesting"),
     ("To help us refine the shortlist, please share:", "Please share:"),
+    ("We have recorded the confirmed batch scope:", "We have noted"),
     ("To proceed further, kindly share", "Please share"),
     ("To proceed further, please share", "Please share"),
     ("To proceed further, kindly", "Please"),
@@ -129,17 +130,35 @@ def signature_keeping_extras(tail: str, voice: str = ANNAPURNA) -> str:
     return signature + "\n" + "\n".join(extras)
 
 
+def smooth_wording(body: str) -> str:
+    """Drop office phrasing from a draft without changing the greeting or sign-off."""
+    text = str(body or "")
+    for old, new in _PHRASES:
+        text = text.replace(old, new)
+    text = re.sub(r"(?i)\bgreetings of the day[.!]?\s*", "", text)
+    text = re.sub(
+        r"(?i)training duration is used only for the number of lab days; it is not treated as the participant count\.?\s*",
+        "",
+        text,
+    )
+    text = re.sub(
+        r"(?i)the region can be finalized after the cloud provider is selected\.?\s*",
+        "",
+        text,
+    )
+    text = re.sub(r" +([,.])", r"\1", text)
+    text = re.sub(r" {2,}", " ", text)
+    text = re.sub(r"\bKindly\b", "Please", text)
+    text = re.sub(r"\bkindly\b", "please", text)
+    return text
+
+
 def apply_voice(body: str, voice: str = ANNAPURNA) -> str:
     text = str(body or "").strip()
     if not text:
         return ""
     voice = voice if voice in SIGNATURES else ANNAPURNA
-    for old, new in _PHRASES:
-        text = text.replace(old, new)
-    text = re.sub(r" +([,.])", r"\1", text)
-    text = re.sub(r" {2,}", " ", text)
-    text = re.sub(r"\bKindly\b", "Please", text)
-    text = re.sub(r"\bkindly\b", "please", text)
+    text = smooth_wording(text)
     lines = text.splitlines()
     if lines:
         match = _GREETING_LINE.match(lines[0].strip())
