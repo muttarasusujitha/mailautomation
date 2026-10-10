@@ -292,18 +292,6 @@ jobs:
         shell: bash
         run: bash .github/scripts/check-docker-space.sh
 
-      - name: Stop Existing Containers
-        working-directory: ${{ github.workspace }}
-        run: |
-          docker compose -f microservices/docker-compose.yml down --remove-orphans || true
-          docker compose -f docker-compose.yml down --remove-orphans || true
-
-      - name: Cleanup Docker
-        run: |
-          docker system prune -af --volumes || true
-          docker builder prune -af || true
-          df -h
-
       # Pull everything before changing running containers. Never prune volumes:
       # MongoDB data and the authenticated meeting-bot profile must survive.
       - name: Pull Latest Images
