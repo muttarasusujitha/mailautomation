@@ -570,15 +570,39 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
             missing.append("Relevant corporate training experience")
         # Commercials are platform-calculated and are never requested again.
 
-    slot_source = _clean(
+    # Mail 1 asks for exactly three dated slots. One follow-up covers that gap
+    # after an interested reply, the same way a missing CV or LinkedIn URL does.
+    # Stored profile, LinkedIn, or availability is not that reply, so those
+    # checks must not grow an extra slot request.
+    reply_text = _clean(
+        trainer.get("mail1_reply_text")
+        or trainer.get("reply_text")
+        or trainer.get("last_reply_snippet")
+        or trainer.get("details_reply_text")
+    )
+    slot_reply = _clean(
         trainer.get("slot_reply_text")
         or trainer.get("pending_slot_reply_text")
-        or availability
     )
-    # Mail 1 always asks for exactly three dated slots. One follow-up covers
-    # that gap the same way a missing CV or LinkedIn URL does.
-    if _dated_slot_option_count(slot_source) != 3:
-        missing.append("Exactly three dated interview/discussion slots (date, time, and time zone)")
+    sentiment = _clean(trainer.get("reply_sentiment")).lower()
+    status = _clean(trainer.get("pipeline_status")).lower()
+    declined = bool(re.search(r"\b(?:not|no)\b.{0,40}\binterested\b", reply_text, flags=re.IGNORECASE))
+    interested_reply = (
+        not declined
+        and (
+            status == "mail1_replied"
+            or sentiment == "positive"
+            or bool(re.search(r"\b(?:i am interested|i'm interested|interested)\b", reply_text, flags=re.IGNORECASE))
+            or bool(slot_reply)
+        )
+    )
+    if interested_reply:
+        sources = [part for part in (slot_reply, reply_text, availability) if part]
+        counts = [_dated_slot_option_count(part) for part in sources]
+        combined = _dated_slot_option_count("\n".join(sources)) if sources else 0
+        already_requested = any("slot" in item.lower() for item in missing)
+        if 3 not in counts and combined != 3 and not already_requested:
+            missing.append("Exactly three dated interview/discussion slots (date, time, and time zone)")
 
     return list(dict.fromkeys(missing))
 
