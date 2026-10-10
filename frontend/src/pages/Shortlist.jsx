@@ -673,9 +673,6 @@ function MailModal({ trainer, req, mailType, onClose, onSent, generationMode = '
     }
     setLoading(true)
     try {
-      if (generationMode === 'ai' && !aiMail) {
-        throw new Error('AI email generation failed. Template fallback is disabled while AI mode is on.')
-      }
       if (mailType === 'mail3') {
         await api.post('/shortlists/send-interview-link', {
           trainer_id:     trainer.trainer_id,
@@ -858,7 +855,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, generationMode = '
         </div>
 
         <div className="flex gap-3 p-5 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={handleSend} disabled={loading || aiGenerating || (generationMode === 'ai' && !aiMail)}
+          <button onClick={handleSend} disabled={loading || aiGenerating}
             className="flex items-center gap-2 justify-center flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : <><Send className="w-4 h-4" /> Send Email</>}
           </button>

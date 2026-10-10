@@ -148,6 +148,63 @@ def test_broader_lab_mention_does_not_attach_or_block_workbook(monkeypatch):
     assert "Available slots:" in mail["body"]
 
 
+def test_confirmed_handoff_uses_toc_for_lab_cost_and_does_not_attach_it(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        "batch_flow": "confirmed",
+        "lab_cost_requested": False,
+        "client_requirement_text": "Please arrange lab tools, setup, access, and a local or cloud lab.",
+        "availability": "Available on the stated dates",
+    })
+    db["shortlists"].find_one.return_value = {
+        "top_trainers": [{
+            "trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com",
+            "availability": "Available 01-20 November 2026",
+        }],
+    }
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["success"] is True
+    mail = requests[-1][1]
+    names = [item["filename"] for item in mail["attachments"]]
+    assert names == [
+        "Test Trainer - Client Aligned Profile.pdf",
+        "DevOps - Lab Cost Estimate.xlsx",
+    ]
+    assert any(path.endswith("/lab-cost") for path, _ in requests)
+    assert not any(path.endswith("/excel/toc") for path, _ in requests)
+    assert "ToC is attached" not in mail["body"]
+    assert "Training ToC" not in " ".join(names)
+    assert "The lab-cost estimate is attached." in mail["body"]
+    assert "Trainer availability:" in mail["body"]
+    assert "Available slots:" in mail["body"]
+    assert mail["ai_context"]["toc_attached"] is False
+    assert mail["ai_context"]["lab_cost_attached"] is True
+    assert mail["ai_context"]["lab_cost_unavailable"] is False
+    assert mail["ai_generate"] is False
+
+
+def test_confirmed_handoff_still_sends_when_lab_workbook_cannot_be_built(monkeypatch):
+    db, requests = prepare(monkeypatch, failure="lab", requirement_overrides={
+        "batch_flow": "confirmed",
+        "lab_cost_requested": False,
+    })
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["success"] is True
+    mail = requests[-1][1]
+    assert [item["filename"] for item in mail["attachments"]] == [
+        "Test Trainer - Client Aligned Profile.pdf",
+    ]
+    assert mail["ai_context"]["lab_cost_unavailable"] is True
+    assert mail["ai_context"]["lab_cost_attached"] is False
+    assert mail["ai_context"]["toc_attached"] is False
+    assert "Available slots:" in mail["body"]
+    assert "lab-cost estimate is attached" not in mail["body"]
+    assert db["shortlists"].update_one.await_count == 1
+
+
 def test_ai_on_rewrites_client_handoff(monkeypatch):
     db, requests = prepare(monkeypatch, requirement_overrides={"lab_cost_requested": False})
     db["automation_settings"].find_one.return_value = {"value": "ai"}

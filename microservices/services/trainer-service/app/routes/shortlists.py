@@ -1956,7 +1956,12 @@ async def _ai_trainer_mail1(
     try:
         text = await _invoke_mail_model(instructions, prompt)
         return _subject_body_from_model(text, fallback_subject)
-    except HTTPException:
+    except HTTPException as exc:
+        detail = str(exc.detail).lower()
+        if "not configured" in detail:
+            # A missing key fails this call only. Mail 1 still sends the confirmed body.
+            logger.warning("Mail 1 AI call skipped because the model key is not configured")
+            return None
         raise
     except Exception as exc:
         logger.warning("AI Mail 1 generation failed: %s", exc)
@@ -3096,6 +3101,7 @@ async def send_shortlist_mail(
     results = []
     attempted_recipients = set()
     quota_blocked = False
+    ai_wording = await application_ai_enabled(db)
     for t in targets:
         auto_toc_sent = False
         trainer_email = t.get("email") or t.get("trainer_email") or ""
@@ -3404,20 +3410,37 @@ async def send_shortlist_mail(
                     if _is_proposal_requirement(requirement) and "confirm the offered commercials" not in body.lower():
                         body += "\n\nPlease confirm the offered commercials and your availability."
                 send_payload["body"] = body
-                if mail_type not in {"mail1", "first"}:
-                    # All later workflow emails may use the enabled LLM for
-                    # natural wording. The body above remains the controlled
-                    # fallback and all operational facts stay fixed.
+                if mail_type in {"mail1", "first"}:
+                    # Mail 1 is already written by _ai_trainer_mail1 when AI is
+                    # on. Leaving this flag off avoids a second rewrite. A
+                    # missing model key returns no draft and this confirmed
+                    # body is what gets sent.
+                    send_payload["ai_generate"] = False
+                    send_payload["ai_context"] = {
+                        "workflow": "trainer_mail1",
+                        "stage": mail_type,
+                        "generation": "ai" if ai_mail1_used else "confirmed_body",
+                        "batch_type": "proposal" if is_proposal_flow else "confirmed",
+                        "requirement_id": payload.requirement_id,
+                        "batch_email_rules": _all_mail_batch_rules(requirement),
+                        "trainer_name": trainer_name,
+                        "technology": domain,
+                    }
+                elif ai_wording:
+                    # Later workflow mail, including the one follow-up, is
+                    # rewritten from this confirmed body only when AI is on.
                     send_payload["ai_generate"] = True
                     send_payload["ai_context"] = {
-                "workflow": "trainer_pipeline",
-                "stage": mail_type,
-                "requirement_id": payload.requirement_id,
-                "batch_email_rules": _all_mail_batch_rules(requirement),
-                "trainer_name": trainer_name,
+                        "workflow": "trainer_pipeline",
+                        "stage": mail_type,
+                        "requirement_id": payload.requirement_id,
+                        "batch_email_rules": _all_mail_batch_rules(requirement),
+                        "trainer_name": trainer_name,
                         "technology": domain,
                         "missing_items": missing_followup_details,
                     }
+                else:
+                    send_payload["ai_generate"] = False
                 if mail_type == "mail4_reschedule_request" and payload.requirement_id:
                     # The same client-requested date must reach the trainer
                     # once only. A different date deliberately creates a new
@@ -3917,6 +3940,12 @@ async def send_client_slots(
     # core documents are mandatory for that automated delivery, irrespective
     # of whether the original client request named each attachment explicitly.
     wants_profile = True
+    confirmed_handoff = not _is_proposal_requirement(req)
+    if confirmed_handoff:
+        # A confirmed handoff always prices the lab from the ToC. That estimate
+        # is not gated on a separate "lab cost" phrase, and a broader lab
+        # mention must not suppress it or stop the rest of the handoff.
+        wants_lab_cost = True
     client_toc_supplied = _has_client_supplied_toc(req)
     profile_pdf = None
     if wants_profile:
@@ -3959,14 +3988,25 @@ async def send_client_slots(
     else:
         raise HTTPException(502, "Could not generate the required trainer profile for the client handoff")
 
-    # Client handoff always includes the training ToC together with the
-    # trainer profile and exactly three slots.  Where the client supplied a
-    # ToC, send that exact safe source document.  Otherwise attach the
-    # approved system-generated ToC workbook.
+    # Mail 1 already sent the ToC to the trainer. A confirmed client handoff
+    # does not attach it again. The client-supplied ToC, when present, or the
+    # generated ToC otherwise, is only the input to the lab-cost workbook.
+    # Proposal handoffs keep the existing ToC attachment.
     client_toc_topics = _client_supplied_toc_topics(req)
-    client_toc_attachments = _client_toc_scope_attachments(req) if client_toc_supplied else []
+    client_toc_attachments = [] if confirmed_handoff else (
+        _client_toc_scope_attachments(req) if client_toc_supplied else []
+    )
     toc_data = await _build_toc(req, trainer, db)
-    if toc_data and not client_toc_attachments:
+    if confirmed_handoff and not toc_data and client_toc_topics:
+        toc_data = {
+            "title": technology,
+            "source": "client_supplied_toc",
+            "days": [
+                {"day": index + 1, "topic": topic, "focus_area": topic, "title": topic}
+                for index, topic in enumerate(client_toc_topics)
+            ],
+        }
+    if toc_data and not client_toc_attachments and not confirmed_handoff:
         from shared.toc_quality import toc_delivery_error
         quality_error = toc_delivery_error(toc_data)
         if quality_error:
@@ -3976,7 +4016,11 @@ async def send_client_slots(
                 "missing_requested_topics": (toc_data.get("quality") or {}).get("missing_requested_topics") or [],
             })
     toc_attachment: Optional[bytes] = None
-    if client_toc_attachments:
+    if confirmed_handoff:
+        # The ToC stays off the client email. A missing workbook input is
+        # recorded later; it does not drop the profile and the three slots.
+        pass
+    elif client_toc_attachments:
         attachments.extend(client_toc_attachments)
     elif toc_data:
         try:
@@ -3998,7 +4042,7 @@ async def send_client_slots(
             raise HTTPException(502, "Could not generate the required ToC attachment for the client handoff")
     else:
         raise HTTPException(502, "Could not generate the required ToC for the client handoff")
-    if toc_attachment:
+    if toc_attachment and not confirmed_handoff:
         attachments.append({
             "filename": f"{technology} - Training ToC.xlsx",
             "content_base64": base64.b64encode(toc_attachment).decode(),
@@ -4095,10 +4139,17 @@ async def send_client_slots(
                     "participant_count": supplied_participant_count,
                 }, require_fx=False))
         except (ValueError, TypeError) as exc:
-            raise HTTPException(422, detail=str(exc)) from exc
-        participant_count = checked_provider_inputs[0]["participant_count"]
-        lab_hours_per_day = checked_provider_inputs[0]["hours_per_day"]
+            if not confirmed_handoff:
+                raise HTTPException(422, detail=str(exc)) from exc
+            lab_error = str(exc)
+            checked_provider_inputs = []
+            requested_providers = []
+        if checked_provider_inputs:
+            participant_count = checked_provider_inputs[0]["participant_count"]
+            lab_hours_per_day = checked_provider_inputs[0]["hours_per_day"]
         try:
+            if not checked_provider_inputs:
+                raise RuntimeError(lab_error or "lab-cost inputs are not usable")
             # The standard corporate-training baseline uses self-managed
             # Minikube/Kind on learner environments. Managed Kubernetes and
             # related cloud charges are included only when explicitly asked
@@ -4160,6 +4211,10 @@ async def send_client_slots(
                         break
         except Exception:
             logger.exception("Failed to generate lab-cost workbook for client handoff")
+            if confirmed_handoff:
+                lab_error = lab_error or "lab-cost workbook unavailable"
+                lab_cost_attachments = []
+                requested_providers = []
     if wants_lab_cost and lab_cost_attachments and len(lab_cost_attachments) == len(requested_providers):
         # Keep an already client-ready one-cloud workbook intact. Flattening it
         # into the combined layout exposed collapsed technical sections.
@@ -4174,19 +4229,29 @@ async def send_client_slots(
                         for provider, content in lab_cost_attachments
                     ]})
             if combined.status_code != 200 or not combined.content:
-                raise HTTPException(502, 'Could not prepare the combined lab estimate')
-            lab_cost_content = combined.content
-        attachments.append({
-            "filename": f"{technology} - Lab Cost Estimate.xlsx",
-            "content_base64": base64.b64encode(lab_cost_content).decode(),
-            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        })
-    # Do not mark the handoff delivered with an incomplete attachment set.
-    # Returning an error lets the existing handoff retry workflow try again.
-    elif wants_lab_cost:
-        # A required document is part of the delivery contract. Retry the
-        # complete package when pricing or workbook generation becomes available.
+                if not confirmed_handoff:
+                    raise HTTPException(502, 'Could not prepare the combined lab estimate')
+                lab_error = "combined lab estimate unavailable"
+                lab_cost_content = b""
+            else:
+                lab_cost_content = combined.content
+        if lab_cost_content:
+            attachments.append({
+                "filename": f"{technology} - Lab Cost Estimate.xlsx",
+                "content_base64": base64.b64encode(lab_cost_content).decode(),
+                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            })
+        else:
+            lab_cost_attachments = []
+            lab_error = lab_error or "lab-cost workbook unavailable"
+    # A proposal that explicitly needs the workbook still retries the whole
+    # package. A confirmed handoff keeps the profile, availability, and slots
+    # and records that the workbook could not be built.
+    elif wants_lab_cost and not confirmed_handoff:
         raise HTTPException(502, "Could not prepare the required lab workbook; client handoff was not sent")
+    elif confirmed_handoff and wants_lab_cost:
+        lab_cost_attachments = []
+        lab_error = lab_error or "lab-cost workbook unavailable"
 
     trainer_details = _requested_trainer_details_for_client(
         req,
@@ -4200,7 +4265,19 @@ async def send_client_slots(
     training_summary_section = f"Training details:\n{training_summary}\n\n" if training_summary else ""
     proposal_commercial_section = _proposal_client_commercial_section(req, trainer)
     lab_cost_note = ""
-    toc_note = "The training ToC is attached for your review together with the trainer profile and interview slots.\n\n"
+    lab_workbook_unavailable = bool(confirmed_handoff and wants_lab_cost and not lab_cost_attachments)
+    if lab_workbook_unavailable:
+        lab_error = lab_error or "lab-cost workbook unavailable"
+        logger.warning("Confirmed client handoff continuing without the lab-cost workbook: %s", lab_error)
+    toc_note = "" if confirmed_handoff else (
+        "The training ToC is attached for your review together with the trainer profile and interview slots.\n\n"
+    )
+    availability_text = _clean(
+        trainer.get("availability")
+        or trainer.get("available_dates")
+        or trainer.get("availability_text")
+    )
+    availability_note = f"Trainer availability:\n{availability_text}\n\n" if confirmed_handoff and availability_text else ""
     if wants_lab_cost and lab_cost_attachments:
         participant_label = "participant" if participant_count == 1 else "participants"
         assumption_note = (
@@ -4222,6 +4299,7 @@ async def send_client_slots(
         f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
         f"{training_summary_section}"
         f"{trainer_details_section}"
+        f"{availability_note}"
         f"{proposal_commercial_section}"
         f"{toc_note}"
         "Available slots:\n"
@@ -4252,8 +4330,11 @@ async def send_client_slots(
             "trainer_name": trainer_name,
             "technology": technology,
             "available_slots": slots_text,
+            "trainer_availability": availability_text,
             "toc_attached": bool(toc_attachment or client_toc_attachments),
             "lab_cost_attached": bool(lab_cost_attachments),
+            "lab_cost_unavailable": lab_workbook_unavailable,
+            "lab_cost_unavailable_reason": lab_error if lab_workbook_unavailable else "",
             "lab_hours_per_day": lab_hours_per_day,
             "participant_count": participant_count,
             "lab_defaults_used": lab_defaults_used,
