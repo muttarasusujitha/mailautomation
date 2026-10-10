@@ -100,9 +100,13 @@ to prevent overlap and a 240-second scan timeout, with ten-minute start-to-start
 scheduling (up to 30 seconds of polling delay). Trainer collection stays hourly.
 
 Trainer discovery reads people search across result pages, using plain keywords
-such as "DevOps trainer", then a short content fallback when more profiles are
-still needed. Matches already collected are kept if a later page slows down.
-The account request allows about 110 seconds including browser startup and cleanup.
+such as "DevOps trainer" or "soft skills trainer". A match is taken from the
+whole profile card, including the headline, not from the name or photo link
+alone. Two people-search pages that do not open, or two pages that add no
+trainers, switch to the content fallback while time remains. Matches already
+collected are kept if a later page slows down.
+The account request allows about three minutes including browser startup. The
+search page and gateway keep that request open for five minutes.
 It saves at most 50 cards per domain within the requested total. Only one fetch uses the
 profile at once. Login, checkpoints, rate limits and unrecognized result layouts
 produce explicit errors. The bot does not bypass them or switch to a paid API.
