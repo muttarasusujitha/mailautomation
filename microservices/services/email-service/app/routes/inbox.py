@@ -2581,6 +2581,101 @@ def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
+# Same meaning, different wording. None of these open with "Thanks for sharing":
+# apply_voice would prefix that phrase with "Greetings of the day!" on every note.
+_ACK_OPENINGS = (
+    "Thanks for the {technology} requirement.",
+    "Thank you for the {technology} requirement.",
+    "Thanks for sending the {technology} requirement.",
+    "Thank you for sending the {technology} requirement.",
+    "Thanks for the {technology} training requirement.",
+    "Thank you for the {technology} training requirement.",
+    "Thanks for sending across the {technology} requirement.",
+    "Thank you for sending across the {technology} requirement.",
+    "Thanks for sending the {technology} training requirement.",
+    "Thank you for sending the {technology} training requirement.",
+)
+_PREPARE_FROM_TOPICS = (
+    "We will prepare the ToC and the lab cost from the topics and the details already shared.",
+    "We will prepare the ToC and the lab cost from the topics and details you shared.",
+    "The ToC and the lab cost will be prepared from the topics and the details already shared.",
+    "We will prepare the ToC and the lab cost from the topics and the details shared with us.",
+    "We will put together the ToC and the lab cost from the topics and the details you shared.",
+    "We will prepare the ToC and the lab cost using the topics and the details already shared.",
+)
+_PREPARE_FROM_DETAILS = (
+    "We will prepare the ToC and the lab cost from the details already shared.",
+    "We will prepare the ToC and the lab cost from the details you shared.",
+    "The ToC and the lab cost will be prepared from the details already shared.",
+    "We will prepare the ToC and the lab cost from the details shared with us.",
+    "We will put together the ToC and the lab cost from the details you shared.",
+    "We will prepare the ToC and the lab cost using the details already shared.",
+)
+_LOOKING_FORWARD = (
+    "Looking forward to your review.",
+    "Looking forward to sharing the profiles.",
+    "Looking forward to sending this across.",
+    "Looking forward to your thoughts.",
+    "Looking forward to sharing this with you.",
+    "Looking forward to the next update.",
+)
+
+
+def _ack_topics_key(extracted: Dict[str, Any]) -> str:
+    def _as_text(raw: Any) -> str:
+        if isinstance(raw, (list, tuple, set)):
+            return ", ".join(str(item or "").strip() for item in raw if str(item or "").strip())
+        return str(raw or "").strip()
+
+    text = _as_text(extracted.get("topics"))
+    if text:
+        return text
+    return _as_text(extracted.get("custom_topics"))
+
+
+def _ack_client_key(extracted: Dict[str, Any]) -> str:
+    """Email identifies the client. The name is the fallback."""
+    email = _clean(extracted.get("client_email"))
+    if email:
+        return email.lower()
+    name = _clean(extracted.get("client_name"))
+    if name and name.lower() not in {"client", "team"}:
+        return name.lower()
+    return "client"
+
+
+def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
+    """Stable sentence choice for this client and this requirement.
+
+    Identical facts stay on one sentence. Technology, duration, mode, topics,
+    and lab hours move a repeat client onto another sentence with the same meaning.
+    """
+    if size <= 1:
+        return 0
+    duration = _safe_float(extracted.get("duration_days"), 0)
+    hours = _known_lab_hours(extracted)
+    material = "\n".join([
+        salt,
+        _ack_client_key(extracted),
+        _clean(extracted.get("technology_needed") or extracted.get("technology") or "training").lower(),
+        _display_quantity(duration) if duration else "",
+        _clean(extracted.get("mode")).lower(),
+        _ack_topics_key(extracted).lower(),
+        _display_quantity(hours) if hours else "",
+    ])
+    digest = hashlib.sha256(material.encode("utf-8")).digest()
+    return int.from_bytes(digest[:4], "big") % size
+
+
+def _requirement_thanks_line(extracted: Dict[str, Any], technology: str) -> str:
+    template = _ACK_OPENINGS[_ack_variant_index(extracted, "opening", len(_ACK_OPENINGS))]
+    return template.replace("{technology}", technology)
+
+
+def _looking_forward_line(extracted: Dict[str, Any]) -> str:
+    return _LOOKING_FORWARD[_ack_variant_index(extracted, "close", len(_LOOKING_FORWARD))]
+
+
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
     """Say the estimate will be prepared. Keep internal costing rules out of the note."""
     if not _lab_is_clahan_managed(extracted):
@@ -2600,9 +2695,11 @@ def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
     # Topics and the details already shared are enough to prepare the documents.
     # Missing headcount or cloud provider is not a reason to ask the client to wait.
     if _topics_were_shared(extracted):
-        return "\n\nWe will prepare the ToC and the lab cost from the topics and the details already shared."
+        line = _PREPARE_FROM_TOPICS[_ack_variant_index(extracted, "prepare-topics", len(_PREPARE_FROM_TOPICS))]
+        return f"\n\n{line}"
     if _shared_batch_details(extracted):
-        return "\n\nWe will prepare the ToC and the lab cost from the details already shared."
+        line = _PREPARE_FROM_DETAILS[_ack_variant_index(extracted, "prepare-details", len(_PREPARE_FROM_DETAILS))]
+        return f"\n\n{line}"
 
     missing = []
     if not participants:
@@ -2721,15 +2818,14 @@ def _client_short_requirement_ack(
 ) -> Dict[str, str]:
     technology = extracted.get("technology_needed") or "training"
     missing = _format_missing_details(extracted) if ask_missing else ""
-    opening = _clean(intro) or (
-        "Thanks for sharing your training requirement."
-        if missing
-        else f"Thanks for sharing the {technology} training requirement."
-    )
+    opening = _clean(intro) or _requirement_thanks_line(extracted, str(technology))
     noted = _confirmed_requirement_scope_acknowledgement(extracted)
     clahan_note = _lab_estimate_acknowledgement(extracted)
     salutation = _client_salutation(extracted)
     hello = "Hello," if salutation == "Client" else f"Hello {salutation},"
+    looking_forward = ""
+    if not missing and not clahan_note.strip().lower().startswith("please share"):
+        looking_forward = f"\n\n{_looking_forward_line(extracted)}"
     if missing:
         body = (
             f"{hello}\n\n"
@@ -2751,7 +2847,7 @@ def _client_short_requirement_ack(
         body = (
             f"{hello}\n\n"
             f"{opening}{noted}\n\n"
-            f"{follow}{clahan_note}\n\n"
+            f"{follow}{clahan_note}{looking_forward}\n\n"
             + _reply_signature()
         )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}

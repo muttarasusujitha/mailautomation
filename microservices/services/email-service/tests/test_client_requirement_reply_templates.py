@@ -27,7 +27,10 @@ def test_partial_client_requirement_reply_asks_only_missing_details():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thanks for sharing your training requirement." in reply["body"]
+    opening = reply["body"].split("\n\n")[1]
+    assert opening.startswith("Thanks ") or opening.startswith("Thank you ")
+    assert "requirement" in opening
+    assert "Thanks for sharing your training requirement." not in reply["body"]
     assert "Please share:" in reply["body"]
     assert "- Training duration" in reply["body"]
     assert "- Training mode/location" in reply["body"]
