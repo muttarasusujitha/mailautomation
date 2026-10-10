@@ -27,7 +27,18 @@ Client
     categories = [item["category"] for item in extracted["requirement_items"]]
     assert {"batch_confirmation", "training_schedule", "commercials", "taxes", "training_scope"}.issubset(categories)
     assert {"toc", "lab_requirements", "lab_delivery_preference", "trainer_profile", "workflow_condition"}.issubset(categories)
-    assert extracted["lab_cost_requested"] is True
+    assert extracted["lab_cost_requested"] is False
+    assert extracted["lab_required_tools_requested"] is True
     assert extracted["lab_hours_per_day"] == 3.0
     assert extracted["trainer_cv_approval_requested"] is True
     assert "practical capstone project" in extracted["requirement_source_text"].lower()
+
+
+def test_explicit_lab_cost_request_is_distinct_from_lab_tools():
+    extracted = _extract_requirement_from_email(
+        "Lab cost",
+        "Please share the lab cost estimate for the AWS sandbox.",
+        "client@example.com",
+        "Client",
+    )
+    assert extracted["lab_cost_requested"] is True
