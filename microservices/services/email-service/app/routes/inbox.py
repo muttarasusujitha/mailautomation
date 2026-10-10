@@ -2616,9 +2616,18 @@ def _confirmed_requirement_scope_acknowledgement(extracted: Dict[str, Any]) -> s
     hours_per_day = _known_lab_hours(extracted)
     if hours_per_day and _lab_is_clahan_managed(extracted) and not _lab_inputs_complete(extracted):
         facts.append(f"{_display_quantity(hours_per_day)} lab hours per day")
+    if _topics_were_shared(extracted):
+        facts.insert(0, "the topics you shared")
     if not facts:
         return ""
     return f" We have noted {_join_phrases(facts)}."
+
+
+def _topics_were_shared(extracted: Dict[str, Any]) -> bool:
+    raw = extracted.get("topics") or extracted.get("custom_topics") or ""
+    if isinstance(raw, (list, tuple, set)):
+        return any(str(item or "").strip() for item in raw)
+    return bool(str(raw).strip())
 
 
 def _client_requested_items_for_reply(extracted: Dict[str, Any]) -> str:
@@ -2723,10 +2732,23 @@ def _client_short_requirement_ack(
             follow = f"We will share the {items} for your review."
         else:
             follow = "We will check trainer availability and share suitable trainer profiles for your review."
+        # Topics and the known batch details keep the confirmed-batch path moving.
+        # ToC and lab cost still wait until the inputs those two documents need are known.
+        if "ToC" in items and "so we can prepare the lab estimate." in clahan_note:
+            remaining = _join_phrases([
+                label.strip()
+                for label in items.replace(" and ", ",").split(",")
+                if label.strip() and label.strip() != "ToC"
+            ])
+            follow = f"We will share the {remaining} for your review." if remaining else ""
+            clahan_note = clahan_note.replace(
+                "so we can prepare the lab estimate.",
+                "so we can prepare the ToC and the lab cost.",
+            )
+        middle = f"{follow}\n\n" if follow else ""
         body = (
-            f"{hello}\n\n"
-            f"{opening}{noted}\n\n"
-            f"{follow}{clahan_note}\n\n"
+            f"{hello}\n\n{opening}{noted}\n\n{middle}".rstrip()
+            + f"{clahan_note}\n\n"
             + _reply_signature()
         )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
