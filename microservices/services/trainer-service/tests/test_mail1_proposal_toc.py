@@ -160,7 +160,10 @@ def test_ai_on_generates_confirmed_mail1(monkeypatch):
 
 
 def test_ai_on_sets_followup_generation_and_ai_off_keeps_the_body(monkeypatch):
-    trainer = {"trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com"}
+    trainer = {
+        "trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com",
+        "pipeline_status": "mail1_replied",
+    }
     req = {
         "batch_flow": "confirmed",
         "technology_needed": "DevOps",

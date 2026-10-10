@@ -3057,7 +3057,7 @@ async def send_shortlist_mail(
         )
     if (
         not _clean(payload.body)
-        and mail_type not in {"mail1", "first"}
+        and mail_type not in {"mail1", "first", "mail2_followup"}
         and mail_type not in CLIENT_COMMERCIAL_MAIL_TYPES
     ):
         # Do not let an empty request select an old email-service template.

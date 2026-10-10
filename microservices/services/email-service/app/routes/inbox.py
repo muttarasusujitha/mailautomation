@@ -3127,6 +3127,22 @@ async def _send_missing_trainer_details_followup(
         "office_mail_category": "trainer_interested",
     }
     message = _trainer_mail2_details_reply(followup_doc)
+    if await _global_ai_wording_enabled(db):
+        rewritten, generation_source = await _client_pipeline_email_body(
+            db,
+            requirement=requirement,
+            workflow="trainer_mail2_followup",
+            subject=message["subject"],
+            reference_body=message["body"],
+            context={
+                "trainer_name": followup_doc.get("trainer_name") or "",
+                "missing_items": clean_missing,
+                "batch_type": "confirmed",
+            },
+        )
+        message = {**message, "body": rewritten, "generation_source": generation_source}
+    else:
+        message = {**message, "generation_source": "confirmed_body"}
     # Reuse the standard, idempotent sender but explicitly mark this as the
     # one permitted missing-details follow-up, not the old generic Mail 2.
     send_result = await _send_client_auto_reply(
