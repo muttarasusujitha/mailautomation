@@ -69,6 +69,8 @@ function trainerProfileText(lead) {
     lead?.headline,
     lead?.profile_text,
     lead?.snippet,
+    lead?.domain,
+    String(lead?.source_url || '').replace(/[-_/]+/g, ' '),
   ].join(' ').toLowerCase()
 }
 
@@ -97,12 +99,13 @@ function isTrainerProviderProfile(lead) {
   const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
     || lead?.source_url?.includes('linkedin.com/posts/')
     || lead?.source_url?.includes('linkedin.com/feed/update')
+    || lead?.source_url?.includes('naukri.com/')
     || lead?.lead_type === 'resume_trainer_post'
-  return Boolean(
-    hasTrainerUrl
-    && /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
-    && hasSkillMatch,
-  )
+    || lead?.lead_type === 'trainer_profile'
+  const hasTrainerLanguage = /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
+    || lead?.lead_type === 'trainer_profile'
+    || lead?.lead_type === 'resume_trainer_post'
+  return Boolean(hasTrainerUrl && hasTrainerLanguage && hasSkillMatch)
 }
 
 function leadEmail(lead) {
@@ -222,13 +225,20 @@ export default function LinkedInSearch() {
   }, [filter])
   useEffect(() => {
     const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
-    setLeads([])
     setSelectedDomain('all')
     setSearchDomains(domains)
     setSearchReport(null)
     setShowSearchMatches(false)
-    runSearch({ domainText: domains, automatic: true, searchMode: mode })
-    return () => { listToken.current += 1 }
+    let cancelled = false
+    const start = async () => {
+      await load({ query: '', statusFilter: 'all', searchMode: mode })
+      if (!cancelled) await runSearch({ domainText: domains, automatic: true, searchMode: mode })
+    }
+    start()
+    return () => {
+      cancelled = true
+      listToken.current += 1
+    }
   }, [mode])
 
 
@@ -311,13 +321,19 @@ export default function LinkedInSearch() {
   }, [leads])
 
   const visibleLeads = useMemo(() => {
+    let rows = leads
     if (showSearchMatches && searchReport?.results?.length) {
       const matched = matchingSavedLeads(leads, searchReport.results)
-      if (matched.length) return matched
+      const fresh = (searchReport.results || []).filter(item => item?.source_url || item?.url || item?.lead_id)
+      rows = matched.length ? matched : (fresh.length ? fresh : leads)
     }
-    if (selectedDomain === 'all') return leads
-    const selected = selectedDomain.toLowerCase()
-    return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    if (selectedDomain !== 'all') {
+      const selected = selectedDomain.toLowerCase()
+      const filtered = rows.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+      if (filtered.length) rows = filtered
+    }
+    if (!rows.length && leads.length) return leads
+    return rows
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
@@ -479,13 +495,15 @@ export default function LinkedInSearch() {
 
       {isTrainer && <TrustLegend />}
 
-      {loading ? (
-        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
-      ) : searching ? (
-        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-16 text-center text-slate-500">
-          <RefreshCw className="mx-auto mb-3 h-10 w-10 animate-spin text-blue-600" />
+      {searching && (
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-6 text-center text-slate-500">
+          <RefreshCw className="mx-auto mb-3 h-8 w-8 animate-spin text-blue-600" />
           <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
+          <p className="mt-1 text-xs text-slate-400">Profiles already saved stay listed below.</p>
         </div>
+      )}
+      {loading && !leads.length ? (
+        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
         <div className="grid gap-4 xl:grid-cols-2">
           {visibleLeads.map(lead => (
