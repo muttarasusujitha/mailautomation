@@ -187,6 +187,29 @@ def test_draft_envelope_follows_the_same_voice():
     assert "do not mention trainer shortlisting" in writing_guidance("annapurna")
 
 
+def test_client_and_trainer_templates_drop_office_phrasing():
+    odd = ("revert", "as applicable", "accordingly", "to proceed further", "concerned team", "cancelled/on hold")
+    cases = (
+        ("client_escalation_delay", "corporate_client", "Asha"),
+        ("client_asks_contract", "corporate_client", "Asha"),
+        ("client_payment_terms", "corporate_client", "Asha"),
+        ("trainer_payment_query", "trainer", "Ravi"),
+        ("trainer_slot_confirmed", "trainer", "Ravi"),
+        ("trainer_more_details", "trainer", "Ravi"),
+    )
+    for scenario, person, sender in cases:
+        reply = build_auto_reply(
+            {"person_type": person, "scenario": scenario, "auto_reply_allowed": True, "requires_human": False},
+            {"client_name": sender, "technology_needed": "DevOps", "needs_clarification": []},
+            subject="DevOps training",
+            sender_name=sender,
+        )
+        lowered = reply["body"].lower()
+        for phrase in odd:
+            assert phrase not in lowered, f"{scenario} still says {phrase}"
+        assert reply["body"].count("Clahan Technologies") == 1
+
+
 def test_ai_voice_follows_the_situation_rather_than_a_mixed_subject():
     assert voice_for_situation("client_toc_and_lab_cost", "client_asks_toc_and_lab_cost", subject="Invoice and PO") == "annapurna"
     assert voice_for_situation("client_invoice_request_ack", subject="ToC and lab cost") == "murali"

@@ -971,8 +971,8 @@ def _client_commercial_message(
         f"- Technology: {technology}\n\n"
         "Commercials for your review:\n"
         f"{rate_lines}{lab_line}\n\n"
-        "Please review and confirm if we can proceed with this trainer. Once approved, we will move ahead with interview/slot coordination.\n\n"
-        "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
+        "Please review and let us know if we should go ahead with this trainer.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
     )
     return {"subject": subject, "body": body}
 
@@ -990,7 +990,7 @@ def _trainer_interview_message(
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
     body = (
         f"Dear {trainer_name or 'Trainer'},\n\n"
-        f"Your interview/discussion for the {technology} training requirement is confirmed.\n\n"
+        f"Your discussion for the {technology} training is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         f"Platform: {platform or 'Google Meet'}\n"
@@ -4279,11 +4279,12 @@ async def send_client_slots(
             f"This estimate uses {lab_hours_per_day:g} lab-access hours per day for "
             f"{participant_count} {participant_label}. "
         )
-        revision_note = "We will revise the estimate if the confirmed inputs change. "
+        revision_note = "We will update it if the participant count or lab hours change. "
         lab_cost_note = (
-            ("The lab-cost estimate is attached and is based on the ToC you provided. " if client_toc_supplied else "The lab-cost estimate is attached. ")
-            + assumption_note + revision_note
-            + "We will update the final quote once the cloud region and access timings are confirmed.\n\n"
+            ("The lab-cost estimate is attached. It follows the ToC you shared. " if client_toc_supplied else "The lab-cost estimate is attached. ")
+            + assumption_note
+            + revision_note
+            + "\n\n"
         )
 
     subject = f"Interview Slots - {technology}"
@@ -4299,7 +4300,7 @@ async def send_client_slots(
         "Available slots:\n"
         f"{formatted_slots_text}\n\n"
         f"{lab_cost_note}"
-        "Please confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
+        "Please confirm one slot, and we will send the meeting invite.\n\n"
         "Thanks,\nAnnapurna U.\nClahan Technologies"
     )
 

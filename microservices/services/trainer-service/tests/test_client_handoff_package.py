@@ -114,7 +114,7 @@ def test_client_gets_profile_toc_lab_and_three_slots(monkeypatch):
     assert mail["ai_context"]["participant_count"] == 1
     assert mail["ai_context"]["lab_defaults_used"] is False
     assert "3 lab-access hours per day for 1 participant" in mail["body"]
-    assert "confirmed inputs change" in mail["body"]
+    assert "participant count or lab hours change" in mail["body"]
     assert mail["idempotency_key"].startswith("client-handoff:")
     assert db["shortlists"].update_one.await_count == 1
 

@@ -64,6 +64,24 @@ _PHRASES = (
     ("To help us refine the shortlist, please share:", "Please share:"),
     ("To proceed further, kindly share", "Please share"),
     ("To proceed further, please share", "Please share"),
+    ("To proceed further, kindly", "Please"),
+    ("To proceed further, please", "Please"),
+    ("To proceed further for", "For"),
+    ("We will revert with a concrete status shortly.", "We will send the next update."),
+    ("We will revert with the next step shortly.", "We will send the next step."),
+    ("We will revert with the available approach shortly.", "We will send what we can offer."),
+    ("We will revert with the confirmation shortly.", "We will confirm this."),
+    ("We will revert with an updated option or recommendation shortly.", "We will send an updated option."),
+    ("We will revert with the relevant confirmation shortly.", "We will confirm the payment terms."),
+    ("We will revert with the feasible option shortly.", "We will send a workable option."),
+    ("and revert shortly", "and write back"),
+    ("revert shortly", "write back"),
+    ("We will revert", "We will write back"),
+    ("route it to the concerned team", "check it with the team"),
+    ("route it to the appropriate team", "check it with the team"),
+    ("the concerned team", "the team"),
+    (" as applicable", ""),
+    (" accordingly", ""),
 )
 
 
@@ -118,6 +136,8 @@ def apply_voice(body: str, voice: str = ANNAPURNA) -> str:
     voice = voice if voice in SIGNATURES else ANNAPURNA
     for old, new in _PHRASES:
         text = text.replace(old, new)
+    text = re.sub(r" +([,.])", r"\1", text)
+    text = re.sub(r" {2,}", " ", text)
     text = re.sub(r"\bKindly\b", "Please", text)
     text = re.sub(r"\bkindly\b", "please", text)
     lines = text.splitlines()

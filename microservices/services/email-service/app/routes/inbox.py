@@ -2864,10 +2864,10 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
 
     body = (
         f"Dear {trainer_name},\n\n"
-        "Thank you for your response. The confirmed training details are below:\n\n"
+        "Thanks for your response. The training details are below:\n\n"
         + "\n".join(training_lines)
         + "\n\n"
-        "To proceed, please share only the following outstanding item(s):\n\n"
+        "Please share:\n\n"
         + "\n".join(detail_lines)
         + "\n\n"
         "Regards,\n"
@@ -3691,17 +3691,19 @@ def _trainer_commercial_body(
         extra_sections += "\n\n" + "\n".join(profile_lines)
     if toc_lines:
         extra_sections += "\n\n" + "\n".join(toc_lines)
-    body = (
-        f"{_client_time_greeting(client_name)},\n\n"
-        f"Trainer {trainer_name} has shared the required details and commercials for the {technology} requirement.\n\n"
-        "Trainer Summary:\n"
+    spoken = client_name if client_name and str(client_name).lower() not in {"client", "team"} else ""
+    hello = f"Hello {spoken}," if spoken else "Hello,"
+    body = apply_voice(
+        f"{hello}\n\n"
+        f"Trainer {trainer_name} has shared the details and commercials for the {technology} requirement.\n\n"
+        "Trainer summary:\n"
         f"{chr(10).join(details)}\n\n"
         "Commercials for your review:\n"
         f"{rate_lines}"
         f"{extra_sections}\n\n"
-        "Please review and confirm if we can proceed with this trainer. Once approved, we will move ahead with interview/slot coordination.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Please review and let us know if we should go ahead with this trainer.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -3724,13 +3726,12 @@ def _trainer_budget_negotiation_message(
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
     unit_text = "per hour" if unit == "hour" else "per day"
     subject = f"Re: Training Requirement - {technology} | Commercial Discussion"
-    body = (
-        f"Dear {trainer_name},\n\n"
-        f"Thank you for sharing your commercial expectation for the {technology} requirement.\n\n"
-        f"For this engagement, please confirm if you can proceed at INR {target_amount:,.0f} {unit_text}.\n\n"
-        "Once confirmed, we will move ahead with the client coordination.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+    body = apply_voice(
+        f"Hello {trainer_name},\n\n"
+        f"Thanks for sharing your commercial for the {technology} requirement.\n\n"
+        f"Please confirm if you can do INR {target_amount:,.0f} {unit_text}. Once you confirm, we will take this to the client.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4101,13 +4102,13 @@ def _trainer_slot_booking_message(
         "- Date: 3 September 2026, Time: 4:00 PM - 4:30 PM IST"
     )
     subject = f"Interview Slot Booking - {technology}"
-    body = (
-        f"Dear {trainer_name},\n\n"
-        "Please share three convenient interview/discussion slots with date, time, and time zone so we can coordinate with the client.\n\n"
-        "Preferred format:\n"
+    body = apply_voice(
+        f"Hello {trainer_name},\n\n"
+        "Please share three convenient interview/discussion slots with the date, time, and time zone.\n\n"
+        "For example:\n"
         f"{slots_text}\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4211,15 +4212,17 @@ def _client_slots_message(
         if is_reschedule
         else f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
     )
-    body = (
-        f"{_client_time_greeting(client_name)},\n\n"
+    spoken = client_name if client_name and str(client_name).lower() not in {"client", "team"} else ""
+    hello = f"Hello {spoken}," if spoken else "Hello,"
+    body = apply_voice(
+        f"{hello}\n\n"
         f"{opening}"
         f"{trainer_details_section}"
         "Available slots:\n"
         f"{slot_text}\n\n"
-        "Kindly confirm one preferred slot. We will then send the Google Meet invitation to both you and the trainer.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Please confirm one slot. We will then send the Google Meet invite to you and the trainer.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
