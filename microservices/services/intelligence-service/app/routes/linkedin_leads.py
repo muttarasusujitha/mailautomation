@@ -283,6 +283,10 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str, require_doma
     terms = _domain_terms(domain)
     # Profile URLs such as /in/soft-skills-trainer count toward the skill check.
     domain_text = f"{combined_text}\n{url.replace('-', ' ')}" if mode == "trainer" else combined_text
+    # A people-search hit was already returned for these keywords. The visible
+    # headline often says only "Corporate trainer" and leaves the skill out.
+    if item.get("keyword_qualified") and mode == "trainer":
+        require_domain = False
     if require_domain and terms and not _text_has_domain(domain_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):

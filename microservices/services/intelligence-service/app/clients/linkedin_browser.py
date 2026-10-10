@@ -268,7 +268,12 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             new_urls += 1
             if url in seen or not text.strip():
                 continue
-            candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000]}
+            candidate = {
+                'url': url,
+                'title': profile_title(text),
+                'content': text[:5000],
+                'keyword_qualified': True,
+            }
             # This page was opened for the requested keywords. Keep a trainer card
             # when the visible headline leaves out one of those skill words.
             if _normalize_result(candidate, domain, 'trainer', require_domain=False):
@@ -333,8 +338,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                     'url': url,
                     'title': (profile.get('title') or profile_title(text))[:200],
                     'content': text[:5000],
+                    'keyword_qualified': True,
                 }
-                if _normalize_result(candidate, domain, 'trainer'):
+                # The payload is the same keyword search. Keep it when the headline
+                # names the person as a trainer without repeating the skill.
+                if _normalize_result(candidate, domain, 'trainer', require_domain=False):
                     seen.add(url)
                     results.append(candidate)
                 if len(results) >= limit:
@@ -444,8 +452,13 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                             url = canonical_url(link['url'])
                             if not url or '/in/' not in urlsplit(url).path or not link['title'].strip():
                                 continue
-                            item = {'url': url, 'title': link['title'].strip().split('\n')[0], 'content': headline}
-                            if url not in seen and _normalize_result(item, domain, 'trainer'):
+                            item = {
+                                'url': url,
+                                'title': link['title'].strip().split('\n')[0],
+                                'content': headline,
+                                'keyword_qualified': True,
+                            }
+                            if url not in seen and _normalize_result(item, domain, 'trainer', require_domain=False):
                                 seen.add(url)
                                 results.append(item)
                             break

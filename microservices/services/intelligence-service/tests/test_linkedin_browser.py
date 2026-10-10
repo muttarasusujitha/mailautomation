@@ -290,8 +290,13 @@ def test_search_markup_collects_profiles_when_cards_are_not_visible():
     page.locator.return_value = people
     with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
         rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 5))
-    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada-lovelace',
+        'https://www.linkedin.com/in/ben-devops',
+    ]
     assert _normalize_result(rows[0], 'soft skills', 'trainer')['lead_type'] == 'trainer_profile'
+    assert rows[1]['keyword_qualified'] is True
+    assert _normalize_result(rows[1], 'soft skills', 'trainer')['domain'] == 'soft skills'
 
 
 def test_result_payload_ignores_profile_urls_without_a_headline():
