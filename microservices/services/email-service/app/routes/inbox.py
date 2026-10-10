@@ -2589,6 +2589,10 @@ def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
+# One version pool for every domain. The domain string is read from the
+# requirement input (technology_needed, then technology, then domain) and
+# placed in the sentence. There is no template per domain name. When none of
+# those fields is present, the note says "training requirement".
 # Eight professional notes. Version 1 and version 10 keep the reference tone.
 # Versions 4 and 5 are retired and are never selected. The other six are
 # separate emails: the facts sit in different sentences, not in one shared
@@ -2601,7 +2605,7 @@ _ACK_ROTATION = (0, 9, 1, 2, 5, 6, 7, 8)
 _RETIRED_ACK_INDEXES = frozenset((3, 4))
 _ACK_VERSIONS = (
     {
-        "thanks": "Thank you for sharing the {technology} requirement.",
+        "thanks": "Thank you for sharing the {domain} requirement.",
         "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "training_days",
@@ -2663,7 +2667,7 @@ _ACK_VERSIONS = (
         "cv": "the CV",
     },
     {
-        "thanks": "Thank you for sharing the {technology} requirement.",
+        "thanks": "Thank you for sharing the {domain} requirement.",
         "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "the_day_training_duration",
@@ -2719,11 +2723,9 @@ def _requirement_fingerprint(extracted: Dict[str, Any]) -> str:
     """Facts that make one requirement different from the next."""
     duration = _safe_float(extracted.get("duration_days"), 0)
     hours = _known_lab_hours(extracted)
-    technology = _clean(
-        extracted.get("technology_needed") or extracted.get("technology") or "training"
-    ).lower()
+    domain = _ack_technology(extracted).lower() or "training"
     return "|".join([
-        technology,
+        domain,
         _display_quantity(duration) if duration else "",
         _clean(extracted.get("mode")).lower(),
         _ack_topics_key(extracted).lower(),
@@ -2960,7 +2962,34 @@ def _ack_greeting(extracted: Dict[str, Any]) -> str:
 
 
 def _ack_technology(extracted: Dict[str, Any]) -> str:
-    return _clean(extracted.get("technology_needed") or extracted.get("technology") or "training")
+    """Exact domain from the requirement input.
+
+    Read technology_needed, then technology, then domain. The string is placed
+    in the sentence as written. Empty means the input did not name a domain,
+    so the note says "training requirement" and does not invent one.
+    """
+    for key in ("technology_needed", "technology", "domain"):
+        text = _clean(extracted.get(key))
+        if text:
+            return text
+    return ""
+
+
+def _ack_requirement_thanks(extracted: Dict[str, Any], template: str) -> str:
+    """Place the input domain in a thanks sentence. Do not invent a domain."""
+    domain = _ack_technology(extracted)
+    if domain:
+        return template.replace("{domain}", domain)
+    text = template.replace("{domain} training", "training")
+    text = text.replace("{domain}", "training")
+    text = re.sub(r"\btraining training\b", "training", text, flags=re.IGNORECASE)
+    return re.sub(r" {2,}", " ", text).strip()
+
+
+def _ack_domain_prefix(extracted: Dict[str, Any]) -> str:
+    """'Snowflake ' when the input named a domain, otherwise nothing."""
+    domain = _ack_technology(extracted)
+    return f"{domain} " if domain else ""
 
 
 def _ack_paragraph(*sentences: str) -> str:
@@ -3002,18 +3031,18 @@ def _ack_shape_schedule_first(
     extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
 ) -> list[str]:
     """Version 2. The schedule is stated first. Documents follow from it."""
-    technology = _ack_technology(extracted)
+    named = _ack_domain_prefix(extracted)
     topics = _topics_were_shared(extracted)
     days = _safe_float(extracted.get("duration_days"), 0)
     mode = _clean(extracted.get("mode"))
     hours = _known_lab_hours(extracted)
-    thanks = f"Thank you for sharing the {technology} requirement."
+    thanks = _ack_requirement_thanks(extracted, "Thank you for sharing the {domain} requirement.")
     if mode and days:
-        schedule = f"This {technology} batch is {mode} and runs for {_ack_day_phrase(days)}."
+        schedule = f"This {named}batch is {mode} and runs for {_ack_day_phrase(days)}."
     elif mode:
-        schedule = f"This {technology} batch is {mode}."
+        schedule = f"This {named}batch is {mode}."
     elif days:
-        schedule = f"This {technology} batch runs for {_ack_day_phrase(days)}."
+        schedule = f"This {named}batch runs for {_ack_day_phrase(days)}."
     else:
         schedule = ""
     if topics and hours:
@@ -3109,12 +3138,13 @@ def _ack_shape_documents_first(
     extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
 ) -> list[str]:
     """Version 3. The CV, ToC, and lab cost are promised before the schedule."""
-    technology = _ack_technology(extracted)
     topics = _topics_were_shared(extracted)
     days = _safe_float(extracted.get("duration_days"), 0)
     mode = _clean(extracted.get("mode"))
     hours = _known_lab_hours(extracted)
-    thanks = f"Thank you for sharing the {technology} training requirement."
+    thanks = _ack_requirement_thanks(
+        extracted, "Thank you for sharing the {domain} training requirement."
+    )
     if toc and lab and noun:
         offer = f"We will share {noun} for your review once the ToC and the lab cost are ready."
     elif toc and noun:
@@ -3142,12 +3172,13 @@ def _ack_shape_topics_cover(
     extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
 ) -> list[str]:
     """Version 6. The ToC is described by the topics and the length, then the lab cost."""
-    technology = _ack_technology(extracted)
     topics = _topics_were_shared(extracted)
     days = _safe_float(extracted.get("duration_days"), 0)
     mode = _clean(extracted.get("mode"))
     hours = _known_lab_hours(extracted)
-    opening = f"Thank you for sending us the {technology} requirement."
+    opening = _ack_requirement_thanks(
+        extracted, "Thank you for sending us the {domain} requirement."
+    )
     sentences: list[str] = []
     if toc and topics and days and mode:
         sentences.append(
@@ -3219,18 +3250,20 @@ def _ack_shape_length_first(
     extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
 ) -> list[str]:
     """Version 7. The length opens the note. Lab hours explain the documents."""
-    technology = _ack_technology(extracted)
+    named = _ack_domain_prefix(extracted)
     topics = _topics_were_shared(extracted)
     days = _safe_float(extracted.get("duration_days"), 0)
     mode = _clean(extracted.get("mode"))
     hours = _known_lab_hours(extracted)
-    thanks = f"Thank you for sharing your {technology} training requirements."
+    thanks = _ack_requirement_thanks(
+        extracted, "Thank you for sharing your {domain} training requirements."
+    )
     if days and mode:
-        length = f"The length of this {mode} {technology} training is {_ack_day_phrase(days)}."
+        length = f"The length of this {mode} {named}training is {_ack_day_phrase(days)}."
     elif days:
-        length = f"The length of this {technology} training is {_ack_day_phrase(days)}."
+        length = f"The length of this {named}training is {_ack_day_phrase(days)}."
     elif mode:
-        length = f"This {technology} training is delivered {mode}."
+        length = f"This {named}training is delivered {mode}."
     else:
         length = ""
     sentences: list[str] = []
@@ -3288,13 +3321,15 @@ def _ack_shape_mode_first(
     extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
 ) -> list[str]:
     """Version 8. Delivery mode opens the note. Days stay with the ToC."""
-    technology = _ack_technology(extracted)
+    named = _ack_domain_prefix(extracted)
     topics = _topics_were_shared(extracted)
     days = _safe_float(extracted.get("duration_days"), 0)
     mode = _clean(extracted.get("mode"))
     hours = _known_lab_hours(extracted)
-    thanks = f"Thank you for providing the {technology} training requirement."
-    lead = f"{mode} delivery is how this {technology} training will run." if mode else ""
+    thanks = _ack_requirement_thanks(
+        extracted, "Thank you for providing the {domain} training requirement."
+    )
+    lead = f"{mode} delivery is how this {named}training will run." if mode else ""
     sentences: list[str] = []
     if toc and topics and days:
         sentences.append(f"The ToC carries the topics across {_ack_day_phrase(days)}.")
@@ -3346,12 +3381,13 @@ def _ack_shape_topics_decide(
     extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
 ) -> list[str]:
     """Version 9. Topics decide the ToC. The batch decides the lab cost."""
-    technology = _ack_technology(extracted)
     topics = _topics_were_shared(extracted)
     days = _safe_float(extracted.get("duration_days"), 0)
     mode = _clean(extracted.get("mode"))
     hours = _known_lab_hours(extracted)
-    opening = f"Thank you for sharing the {technology} training details."
+    opening = _ack_requirement_thanks(
+        extracted, "Thank you for sharing the {domain} training details."
+    )
     sentences: list[str] = []
     if toc and topics:
         sentences.append("The topics are what the ToC will follow.")
@@ -3450,9 +3486,8 @@ def _render_professional_ack(
         if missing:
             paragraphs.append("Please share:\n" + missing)
     else:
-        technology = _ack_technology(extracted)
         noted = _ack_noted_sentence(version, extracted)
-        thanks = str(version["thanks"]).replace("{technology}", technology)
+        thanks = _ack_requirement_thanks(extracted, str(version["thanks"]))
         opening = f"{thanks} {noted}".strip() if noted else thanks
         work = _prepare_sentence(
             version,
@@ -3560,10 +3595,10 @@ def _client_short_requirement_ack(
     # The older details-received intro is not the opening. Every requirement
     # acknowledgement uses one version from the professional pool.
     del intro
-    technology = extracted.get("technology_needed") or extracted.get("technology") or "training"
+    domain = _ack_technology(extracted) or "training"
     index = _ack_variant_index(extracted, "version", len(_ACK_VERSIONS))
     body = _render_professional_ack(extracted, index, ask_missing=ask_missing)
-    return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
+    return {"subject": f"Re: {domain} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:

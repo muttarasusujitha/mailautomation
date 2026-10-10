@@ -116,11 +116,14 @@ def _client_short_requirement_ack(
     extra_text: str = "",
     intro: str = "",
 ) -> Dict[str, Any]:
-    """Every requirement acknowledgement uses the professional version pool.
+    """Every requirement acknowledgement uses the one professional version pool.
 
-    Technology, days, mode, topics, and lab hours are filled in only when this
-    requirement has them. A fixed DevOps thanks line is not used for other
-    technologies. The older intro is not the opening.
+    The domain string is read from the requirement input, in this order:
+    technology_needed, technology, domain. That exact string is placed in the
+    sentence. There is no template per domain name. When none of those fields
+    is present, the note says "training requirement". Days, mode, topics, and
+    lab hours are filled in only when this requirement has them. The older
+    intro is not the opening.
     """
     del intro
     # Imported lazily: inbox already imports this module while it loads.

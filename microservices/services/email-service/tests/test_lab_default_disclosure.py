@@ -1,3 +1,6 @@
+import ast
+from pathlib import Path
+
 import pytest
 
 from app.agents.natural_voice import apply_voice
@@ -578,3 +581,108 @@ def test_version_one_and_ten_use_the_reference_tone():
     assert "share the relevant CV and LinkedIn profile for your review." in linkedin_body
     assert linkedin_body.count("for your review") == 1
     assert _OLD_ACK_SENTENCE not in linkedin_body
+
+
+def test_domain_from_the_requirement_input_is_placed_in_the_sentence():
+    """Snowflake and SAP are not template keys. They come from the input fields."""
+    source = Path(inbox.__file__).read_text(encoding="utf-8")
+    pool = source[source.index("_ACK_VERSIONS = (") : source.index("\ndef _ack_topics_key")]
+    parsed_pool = ast.parse(pool)
+    assert isinstance(parsed_pool.body[0], ast.Assign)
+    assert isinstance(parsed_pool.body[0].value, ast.Tuple)
+    assert 'Thank you for sharing the {domain} requirement.' in pool
+    domain_names = {"devops", "python", "java", "aws", "snowflake", "sap"}
+    app_dir = Path(inbox.__file__).resolve().parents[1]
+    for path in (
+        Path(inbox.__file__),
+        app_dir / "agents" / "reply_templates.py",
+        app_dir / "routes" / "templates.py",
+    ):
+        tree = ast.parse(path.read_text(encoding="utf-8-sig"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Dict):
+                continue
+            for key in node.keys:
+                if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                    assert key.value.strip().lower() not in domain_names
+    for name in ("DevOps", "Python", "Java", "AWS", "Snowflake", "SAP"):
+        assert name not in pool
+    order = source[source.index("def _ack_technology") : source.index("def _ack_requirement_thanks")]
+    assert '("technology_needed", "technology", "domain")' in order
+
+    assert inbox._ack_technology({
+        "technology_needed": "Snowflake",
+        "technology": "SAP",
+        "domain": "Java",
+    }) == "Snowflake"
+    assert inbox._ack_technology({"technology": "SAP", "domain": "Java"}) == "SAP"
+    assert inbox._ack_technology({"domain": "Snowflake"}) == "Snowflake"
+    assert inbox._ack_technology({}) == ""
+
+    unnamed = _render_professional_ack({
+        "client_name": "Asha",
+        "duration_days": 5,
+        "mode": "Online",
+        "topics": "Overview",
+        "requested_details": ["CV"],
+        "clahan_managed_details": [],
+        "needs_clarification": [],
+    }, 0)
+    assert "Thank you for sharing the training requirement." in unnamed
+    for invented in ("DevOps", "Python", "Java", "AWS", "Snowflake", "SAP"):
+        assert invented not in unnamed
+
+    client = "asha.domain@example.com"
+    _reset_ack_clients(client)
+
+    def requirement(domain: str, **facts):
+        payload = {
+            "client_email": client,
+            "client_name": "Asha",
+            "domain": domain,
+            "needs_clarification": [],
+        }
+        payload.update(facts)
+        return _client_short_requirement_ack(payload)
+
+    snowflake = requirement(
+        "Snowflake",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Warehousing and SQL",
+        requested_details=["CV"],
+        clahan_managed_details=["Lab availability and cost"],
+    )["body"]
+    sap = requirement(
+        "SAP",
+        duration_days=4,
+        mode="Offline",
+        topics="Finance modules",
+        requested_details=["CV"],
+        clahan_managed_details=[],
+    )["body"]
+
+    versions = inbox._CLIENT_ACK_VERSIONS[client]
+    assert list(versions.values()) == [0, 9]
+    assert "Snowflake" in snowflake
+    assert "SAP" not in snowflake
+    assert "Thank you for sharing the Snowflake requirement." in snowflake
+    assert "We have noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day." in snowflake
+    assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in snowflake
+    assert "Looking forward to sharing the documents with you." in snowflake
+    assert "toc" not in snowflake.lower()
+    assert "SAP" in sap
+    assert "Snowflake" not in sap
+    assert "Thank you for sharing the SAP requirement." in sap
+    assert "We have noted the topics, the 4-day training duration, and Offline mode." in sap
+    assert "We will share the trainer's CV for your review." in sap
+    assert "Looking forward to sending these over to you." in sap
+    assert "lab" not in sap.lower()
+    assert snowflake != sap
+    for body in (snowflake, sap):
+        assert "Greetings of the day" not in body
+        assert "Our team" not in body
+        assert "connecting with you again soon" not in body
+        assert body.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+        assert _close(body) in _CLOSES
