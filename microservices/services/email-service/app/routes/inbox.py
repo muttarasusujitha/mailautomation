@@ -884,6 +884,52 @@ def _has_all_required_client_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
+def _has_client_toc_attachment(extracted: Dict[str, Any], email_doc: Dict[str, Any]) -> bool:
+    """True when the client mail actually attached a ToC, not merely mentioned one."""
+    if extracted.get("attachment_topics"):
+        return True
+    for attachment in (email_doc or {}).get("attachments") or []:
+        if not isinstance(attachment, dict):
+            continue
+        analysis = attachment.get("analysis") or {}
+        if analysis.get("attachment_type") == "toc":
+            return True
+        filename = str(attachment.get("filename") or "")
+        if re.search(r"\b(?:toc|agenda|curriculum|syllabus|course[ _-]?outline)\b", filename, flags=re.IGNORECASE):
+            return True
+    return False
+
+
+def _confirmed_intake_ready_for_trainer_mail(
+    extracted: Dict[str, Any],
+    email_doc: Dict[str, Any],
+    client_text: str,
+) -> bool:
+    """A complete confirmed first mail can start Mail 1 without a later authorization reply."""
+    if not extracted or extracted.get("is_non_client_email") or not extracted.get("is_training_request"):
+        return False
+    if _requirement_flow_from_email(extracted, client_text) != "confirmed":
+        return False
+    if not _has_training_domain(extracted) or not _has_training_duration(extracted):
+        return False
+    dates = _clean(extracted.get("training_dates") or extracted.get("preferred_dates") or extracted.get("timeline_start"))
+    mode = _clean(extracted.get("mode") or extracted.get("training_mode") or extracted.get("delivery_mode"))
+    if not _flow_has_value(dates) or not _flow_has_value(mode):
+        return False
+    try:
+        if float(extracted.get("participant_count") or 0) <= 0:
+            return False
+    except (TypeError, ValueError):
+        return False
+    has_commercial = any(
+        _flow_has_value(extracted.get(key))
+        for key in ("budget_total", "budget_per_day", "budget_range", "client_budget_per_day")
+    )
+    if not has_commercial:
+        return False
+    return _has_client_toc_attachment(extracted, email_doc)
+
+
 def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> bool:
     if not extracted.get("is_training_request"):
         return False
@@ -2256,6 +2302,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "total_lab_duration_hours": total_lab_duration_hours,
         "cloud_provider": cloud_provider,
         "lab_cost_requested": lab_cost_requested,
+        "explicit_lab_cost_requested": explicit_lab_cost_requested,
         "lab_required_tools_requested": "lab_requirements" in requirement_categories,
         "lab_delivery_preference": "local_or_cloud_to_be_confirmed" if "lab_delivery_preference" in requirement_categories else "",
         "trainer_cv_approval_requested": "trainer_profile" in requirement_categories,
@@ -2830,6 +2877,13 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         lab_hours = _safe_float(extracted["lab_hours_per_day"], 0)
         display_hours = str(int(lab_hours)) if lab_hours and lab_hours.is_integer() else str(extracted["lab_hours_per_day"])
         lines.append(f"Lab Access: {display_hours} hours per day")
+    client_commercial = _clean(extracted.get("budget_range"))
+    if not client_commercial and extracted.get("budget_total"):
+        client_commercial = f"INR {int(round(float(extracted['budget_total']))):,} total-course commercial"
+    elif not client_commercial and extracted.get("budget_per_day"):
+        client_commercial = f"INR {int(round(float(extracted['budget_per_day']))):,} per day/session"
+    if client_commercial:
+        lines.append(f"Client commercial: {client_commercial}")
 
     # Use a concise, single-render template matching the requested clean version.
     body = (
@@ -2842,7 +2896,6 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         "- Total experience\n"
         "- Relevant training experience\n"
         "- Availability\n"
-        "- Commercials per day\n"
         "- LinkedIn profile, if available\n\n"
         "Please also share 3 convenient interview/discussion slots with the date, time, and time zone. For example:\n"
         "- [Your available date 1], [time], [time zone]\n"
@@ -3985,6 +4038,20 @@ def _trainer_missing_requested_details(
     if slots_required and _slot_reply_intent(reply_text) != "valid_slots":
         missing.append("Exactly three interview/discussion slots (date, time, and time zone)")
     return missing
+
+
+DATED_SLOT_FOLLOWUP = "Exactly three dated interview/discussion slots (date, time, and time zone)"
+
+
+def _with_missing_dated_slots(missing: List[str], reply_text: Any) -> List[str]:
+    """An interested reply without three dated slots gets one Mail 2, not a second one later."""
+    items = [item for item in missing if _clean(item)]
+    if _slot_reply_intent(reply_text) == "valid_slots":
+        return items
+    if any("slot" in item.lower() for item in items):
+        return items
+    items.append(DATED_SLOT_FOLLOWUP)
+    return items
 
 
 def _trainer_reply_has_requested_details(
@@ -9253,6 +9320,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "lab_hours_per_day": extracted.get("lab_hours_per_day"),
         "total_lab_duration_hours": extracted.get("total_lab_duration_hours"),
         "lab_cost_requested": bool(extracted.get("lab_cost_requested")),
+        "explicit_lab_cost_requested": bool(extracted.get("explicit_lab_cost_requested")),
         "lab_cost_status": "requested" if extracted.get("lab_cost_requested") else "",
         "lab_required_tools_requested": bool(extracted.get("lab_required_tools_requested")),
         "lab_delivery_preference": extracted.get("lab_delivery_preference"),
@@ -9300,6 +9368,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
             "requested_details": extracted.get("requested_details", []),
             "clahan_managed_details": extracted.get("clahan_managed_details", []),
             "lab_cost_requested": bool(extracted.get("lab_cost_requested")),
+            "explicit_lab_cost_requested": bool(extracted.get("explicit_lab_cost_requested")),
             "cloud_provider": extracted.get("cloud_provider"),
             "requirement_items": extracted.get("requirement_items", []),
             "toc_requested": extracted.get("toc_requested"),
@@ -9472,6 +9541,7 @@ async def _update_existing_requirement_from_extracted(
         "total_lab_duration_hours",
         "cloud_provider",
         "lab_cost_requested",
+        "explicit_lab_cost_requested",
         "lab_required_tools_requested",
         "lab_delivery_preference",
         "trainer_cv_approval_requested",
@@ -11198,7 +11268,10 @@ async def _process_client_requirement_email(
         document_review = await _persist_trainer_requirement_fit(
             db, email_doc, mail2_requirement, current_trainer_state,
         )
-        missing_requested_details = _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc)
+        missing_requested_details = _with_missing_dated_slots(
+            _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc),
+            latest_reply_text,
+        )
         if missing_requested_details:
             # If three valid slots were already provided with this partial
             # reply, retain them while asking only for the remaining detail.
@@ -11669,6 +11742,8 @@ async def _process_client_requirement_email(
                 "client_name": email_doc.get("from_name") or "",
                 "subject": subject,
                 "request_type": "po_to_invoice" if classification.get("scenario") == "client_sends_po" else "invoice_request",
+                "requirement_id": email_doc.get("requirement_id") or "",
+                "trainer_id": email_doc.get("trainer_id") or "",
                 "status": "pending_human_approval",
                 "notification_title": "PO / Invoice Approval Required",
                 "notification_message": "Review PO/invoice details before generating or sending an invoice.",
@@ -11779,10 +11854,25 @@ async def _process_client_requirement_email(
         or details_later
         or email_doc.get("client_authorized_trainer_search")
     )
+    existing_trainer_mail = (email_doc.get("mail_automation") or {}).get("trainer_mail") or {}
+    trainer_search_already_dispatched = (
+        email_doc.get("trainer_automation_status") in {"started", "no_trainers_emailed"}
+        or _safe_int(existing_trainer_mail.get("sent"), 0) > 0
+    )
+    confirmed_intake_ready = bool(
+        is_first_client_mail
+        and not trainer_search_already_dispatched
+        and _confirmed_intake_ready_for_trainer_mail(extracted, email_doc, classification_body)
+    )
     should_start_trainer_search = bool(
-        should_start_trainer_search
-        and not is_first_client_mail
-        and (explicit_trainer_authorization or details_ready_on_client_reply)
+        (should_start_trainer_search or confirmed_intake_ready)
+        and (
+            confirmed_intake_ready
+            or (
+                not is_first_client_mail
+                and (explicit_trainer_authorization or details_ready_on_client_reply)
+            )
+        )
         and extracted.get("is_training_request")
         and _has_training_domain(extracted)
     )

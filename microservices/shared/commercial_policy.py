@@ -83,6 +83,29 @@ def trainer_offer(requirement, trainer=None):
             "daily_rate": rate, "total": total, "days": days}
 
 
+def client_stated_commercial_text(requirement):
+    """The commercial the client stated, with no trainer share applied."""
+    per_day = (positive_number(requirement.get("client_budget_per_day"))
+               or positive_number(requirement.get("budget_per_day")))
+    total = next((positive_number(requirement.get(key)) for key in (
+        "budget_total", "training_commercial_amount", "client_commercial_total",
+        "total_commercial", "commercial_amount",
+    ) if positive_number(requirement.get(key))), None)
+    stated_range = str(requirement.get("budget_range") or "").strip()
+
+    def money(value):
+        return f"{int(round(value)):,}"
+
+    # A figure below INR 10,000 is one course total, not a daily rate.
+    if per_day:
+        if per_day < 10000:
+            return f"INR {money(total or per_day)} total-course commercial"
+        return f"INR {money(per_day)} per day/session"
+    if total:
+        return f"INR {money(total)} total-course commercial"
+    return stated_range
+
+
 def trainer_commercial_text(requirement, trainer=None):
     """Show daily plus total above INR 13,000; otherwise show known total."""
     offer = trainer_offer(requirement, trainer)
