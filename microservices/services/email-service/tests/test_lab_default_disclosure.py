@@ -1,5 +1,13 @@
+import pytest
+
 from app.agents.natural_voice import apply_voice
-from app.routes.inbox import _ACK_VERSIONS, _client_short_requirement_ack, _render_professional_ack
+from app.routes.inbox import (
+    _ACK_ROTATION,
+    _ACK_VERSIONS,
+    _client_short_requirement_ack,
+    _render_professional_ack,
+)
+import app.routes.inbox as inbox
 
 
 _CLOSES = tuple(version["close"] for version in _ACK_VERSIONS)
@@ -40,6 +48,13 @@ def _thanks_sentence(body: str) -> str:
 
 def _chosen_wording(body: str) -> tuple[str, str, str]:
     return _thanks_sentence(body), _work_paragraph(body), _close(body)
+
+
+def _reset_ack_clients(*clients: str) -> None:
+    """Start these clients at version 1. The saved book must not pick the version."""
+    inbox._load_ack_book()
+    for client in clients:
+        inbox._CLIENT_ACK_VERSIONS[client.lower()] = {}
 
 
 def _ack(technology: str, client_email: str = "asha@example.com", client_name: str = "Asha", **facts) -> str:
@@ -185,19 +200,20 @@ def test_complete_lab_inputs_still_share_toc_and_prepare_the_estimate():
 
 
 def test_same_client_different_requirements_use_different_professional_versions():
-    python_body = _ack(
-        "Python",
-        duration_days=5,
-        mode="Online",
-        lab_hours_per_day=2,
-        topics="Pandas and FastAPI",
-    )
+    _reset_ack_clients("asha@example.com")
     devops_body = _ack(
         "DevOps",
         duration_days=7,
         mode="Offline",
         lab_hours_per_day=3,
         topics="Docker, Kubernetes, and CI/CD",
+    )
+    python_body = _ack(
+        "Python",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Pandas and FastAPI",
     )
     devops_other = _ack(
         "DevOps",
@@ -214,6 +230,18 @@ def test_same_client_different_requirements_use_different_professional_versions(
         topics="Docker, Kubernetes, and CI/CD",
     )
 
+    assert "We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in devops_body
+    assert "Looking forward to sharing the documents with you." in devops_body
+    assert "We have noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day." in python_body
+    assert "share the trainer's CV for your review." in python_body
+    assert "Looking forward to sending these over to you." in python_body
+    assert "We have noted" not in devops_other
+    assert "We have recorded" not in devops_other
+    assert "taken note" not in devops_other
+    assert "This DevOps batch is Online and runs for 10 days." in devops_other
+    assert "The topics are included, and the lab is 4 hours per day." in devops_other
+    assert "The lab cost will use those daily hours." in devops_other
+
     assert python_body != devops_body
     assert devops_body != devops_other
     assert devops_body == repeated
@@ -223,6 +251,8 @@ def test_same_client_different_requirements_use_different_professional_versions(
     for body in (python_body, devops_body, devops_other):
         _assert_professional_ack(body, topics=True)
         assert "Greetings of the day" not in body
+        assert "Our team" not in body
+        assert "connecting with you again soon" not in body
         assert _OLD_ACK_SENTENCE not in body
         assert _close(body) in _CLOSES
 
@@ -237,6 +267,7 @@ def test_same_client_different_requirements_use_different_professional_versions(
 
 
 def test_repeated_devops_requirements_do_not_reuse_one_sentence():
+    _reset_ack_clients("successive@example.com")
     openings = set()
     prepares = set()
     closes = set()
@@ -250,8 +281,6 @@ def test_repeated_devops_requirements_do_not_reuse_one_sentence():
         (10, "Online", 2, "Ansible"),
         (12, "Offline", 5, "Helm"),
         (15, "Hybrid", 3, "GitOps"),
-        (4, "Online", 2, "Prometheus"),
-        (11, "Offline", 4, "Argo CD"),
     )
     for days, mode, hours, topics in samples:
         body = _ack(
@@ -272,10 +301,19 @@ def test_repeated_devops_requirements_do_not_reuse_one_sentence():
         assert _OLD_PREPARE_SENTENCE not in body
         assert "Looking forward to sending this across." not in body
         assert "Greetings of the day" not in body
-    assert len(openings) > 1
-    assert len(prepares) == 10
-    assert len(closes) > 1
-    assert len(set(bodies)) == 10
+        assert "Our team" not in body
+        assert "connecting with you again soon" not in body
+    assert "We have noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day." in bodies[0]
+    assert "the 6-day training duration" in bodies[1]
+    for body in bodies[2:]:
+        assert "We have noted" not in body
+    assert "We have noted" not in bodies[2]
+    assert "This DevOps batch is Online and runs for 7 days." in bodies[2]
+    # Version 1 and version 10 keep the same thank-you sentence.
+    assert len(openings) == 7
+    assert len(prepares) == 8
+    assert len(closes) == 8
+    assert len(set(bodies)) == 8
     repeated = _ack(
         "DevOps",
         client_email="successive@example.com",
@@ -294,26 +332,43 @@ def test_acknowledgement_recognises_the_client():
         "lab_hours_per_day": 3,
         "topics": "Docker, Kubernetes, and CI/CD",
     }
-    by_email = {
-        _chosen_wording(_ack("DevOps", client_email=email, client_name=name, **facts))
-        for email, name in (
-            ("asha@example.com", "Asha"),
-            ("meera@example.com", "Meera"),
-            ("ravi@example.com", "Ravi"),
-            ("neha@example.com", "Neha"),
-            ("kiran@example.com", "Kiran"),
-            ("pooja@example.com", "Pooja"),
-        )
-    }
-    by_name = {
-        _chosen_wording(_ack("DevOps", client_email="", client_name=name, **facts))
-        for name in ("Asha", "Meera", "Ravi", "Neha", "Kiran", "Pooja")
-    }
-    assert len(by_email) > 1
-    assert len(by_name) > 1
+    emails = (
+        ("asha@example.com", "Asha"),
+        ("meera@example.com", "Meera"),
+        ("ravi@example.com", "Ravi"),
+        ("neha@example.com", "Neha"),
+        ("kiran@example.com", "Kiran"),
+        ("pooja@example.com", "Pooja"),
+    )
+    _reset_ack_clients(*(email for email, _name in emails))
+    email_bodies = [
+        _ack("DevOps", client_email=email, client_name=name, **facts)
+        for email, name in emails
+    ]
+    assert len({_chosen_wording(body) for body in email_bodies}) == 1
+    assert [body.split("\n\n")[0] for body in email_bodies] == [f"Hi {name}," for _email, name in emails]
+    assert "We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in email_bodies[0]
+
+    names = ("Asha", "Meera", "Ravi", "Neha", "Kiran", "Pooja")
+    _reset_ack_clients(*names)
+    name_bodies = [_ack("DevOps", client_email="", client_name=name, **facts) for name in names]
+    assert len({_chosen_wording(body) for body in name_bodies}) == 1
+    assert [body.split("\n\n")[0] for body in name_bodies] == [f"Hi {name}," for name in names]
+
+    second = _ack(
+        "Python",
+        client_email="meera@example.com",
+        client_name="Meera",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Pandas and FastAPI",
+    )
+    assert "We have noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day." in second
     same_email = _chosen_wording(_ack("DevOps", client_email="asha@example.com", client_name="Asha", **facts))
-    renamed = _chosen_wording(_ack("DevOps", client_email="asha@example.com", client_name="Meera", **facts))
-    assert same_email == renamed
+    renamed = _ack("DevOps", client_email="asha@example.com", client_name="Meera", **facts)
+    assert same_email == _chosen_wording(renamed)
+    assert renamed.startswith("Hi Meera,")
 
 
 def test_version_one_and_ten_use_the_reference_tone():
@@ -351,8 +406,20 @@ def test_version_one_and_ten_use_the_reference_tone():
     assert _render_professional_ack(payload, 9) == version_ten
     assert apply_voice(version_one) == version_one
     assert apply_voice(version_ten) == version_ten
-    rendered = {_render_professional_ack(payload, index) for index in range(10)}
-    assert len(rendered) == 10
+    rendered = [_render_professional_ack(payload, index) for index in _ACK_ROTATION]
+    assert len(set(rendered)) == len(_ACK_ROTATION) == 8
+    assert _ACK_ROTATION == (0, 9, 1, 2, 5, 6, 7, 8)
+    for body in rendered[2:]:
+        assert "We have noted" not in body
+        assert "We have recorded" not in body
+        assert "taken note" not in body
+        assert "Our team" not in body
+        assert "connecting with you again soon" not in body
+        assert apply_voice(body) == body
+    with pytest.raises(ValueError):
+        _render_professional_ack(payload, 3)
+    with pytest.raises(ValueError):
+        _render_professional_ack(payload, 4)
 
     missing_topics = {**payload, "topics": "", "requested_details": ["CV"]}
     missing_body = _render_professional_ack(missing_topics, 0)

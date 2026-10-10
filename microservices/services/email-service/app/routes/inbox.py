@@ -2582,10 +2582,16 @@ def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
-# Ten professional notes. Each one keeps the sentence rhythm it was written in.
-# Openings start with "Thank you", never "Thanks for sharing", so apply_voice
-# does not prefix "Greetings of the day!". One version is the whole note.
-# A missing fact is left out of that version's own sentence.
+# Eight professional notes. Version 1 and version 10 keep the reference tone.
+# Versions 4 and 5 are retired and are never selected. The other six are
+# separate emails: the facts sit in different sentences, not in one shared
+# "we have noted a, b, c, and d" line. A missing fact is left out of that
+# version's own sentence. Openings stay "Thank you ...", never "Thanks for
+# sharing", so apply_voice does not prefix "Greetings of the day!".
+# First distinct requirement for a client is version 1, the next is version 10,
+# then 2, 3, 6, 7, 8, 9.
+_ACK_ROTATION = (0, 9, 1, 2, 5, 6, 7, 8)
+_RETIRED_ACK_INDEXES = frozenset((3, 4))
 _ACK_VERSIONS = (
     {
         "thanks": "Thank you for sharing the {technology} requirement.",
@@ -2608,171 +2614,46 @@ _ACK_VERSIONS = (
         },
     },
     {
-        "thanks": "Thank you for sending over the {technology} training requirement.",
-        "noted": "We have taken note of {facts}.",
-        "topics": "the topics",
-        "duration": "day_duration",
-        "mode": "mode",
-        "hours": "lab_hours",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "We look forward to sharing these with you.",
+        "shape": "schedule_first",
+        "close": "Looking forward to your thoughts on the draft.",
         "cv": "the CV",
-        "lines": {
-            "both": "We will put together the ToC and lab cost according to your requirements and share them along with {noun} for your review.",
-            "toc": "We will put together the ToC according to your requirements and share it along with {noun} for your review.",
-            "lab": "We will put together the lab cost according to your requirements and share it along with {noun} for your review.",
-            "share": "We will share {noun} for your review.",
-            "both_only": "We will put together the ToC and lab cost according to your requirements.",
-            "toc_only": "We will put together the ToC according to your requirements.",
-            "lab_only": "We will put together the lab cost according to your requirements.",
-        },
     },
     {
-        "thanks": "Thank you for sharing the {technology} requirement.",
-        "noted": "We have noted {facts}.",
-        "topics": "the topics",
-        "duration": "training_days",
-        "mode": "mode",
-        "hours": "lab_hours",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "Looking forward to sending the details across.",
+        "shape": "documents_first",
+        "close": "We look forward to reading your comments.",
         "cv": "the CV",
-        "lines": {
-            "both": "We will prepare the ToC, calculate the lab cost, and share {noun} for your review.",
-            "toc": "We will prepare the ToC and share {noun} for your review.",
-            "lab": "We will calculate the lab cost and share {noun} for your review.",
-            "share": "We will share {noun} for your review.",
-            "both_only": "We will prepare the ToC and calculate the lab cost.",
-            "toc_only": "We will prepare the ToC.",
-            "lab_only": "We will calculate the lab cost.",
-        },
     },
     {
-        "thanks": "Thank you for providing the {technology} training requirements.",
-        "noted": "We have noted {facts}.",
-        "topics": "the proposed topics",
-        "duration": "day_training_schedule",
-        "mode": "delivery",
-        "hours": "lab_hours",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "We look forward to sharing the documents with you.",
-        "cv": "the relevant CV",
-        "lines": {
-            "both": "Our team will prepare the ToC and lab cost based on the information shared and provide {noun} for your review.",
-            "toc": "Our team will prepare the ToC based on the information shared and provide {noun} for your review.",
-            "lab": "Our team will prepare the lab cost based on the information shared and provide {noun} for your review.",
-            "share": "Our team will provide {noun} for your review.",
-            "both_only": "Our team will prepare the ToC and lab cost based on the information shared.",
-            "toc_only": "Our team will prepare the ToC based on the information shared.",
-            "lab_only": "Our team will prepare the lab cost based on the information shared.",
-        },
-    },
-    {
-        "thanks": "Thank you for sharing the {technology} requirement with us.",
-        "noted": "We have noted all the details, including {facts}.",
-        "topics": "the topics",
-        "duration": "training_days",
-        "mode": "delivery",
-        "hours": "lab_hours",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "Looking forward to connecting with you again soon.",
+        # Version 4 is retired. "Our team" is not used.
+        "retired": True,
+        "close": "Looking forward to your thoughts on the draft.",
         "cv": "the CV",
-        "lines": {
-            "both": "We will work on the ToC and lab cost based on your inputs and share {noun} for your review.",
-            "toc": "We will work on the ToC based on your inputs and share {noun} for your review.",
-            "lab": "We will work on the lab cost based on your inputs and share {noun} for your review.",
-            "share": "We will share {noun} for your review.",
-            "both_only": "We will work on the ToC and lab cost based on your inputs.",
-            "toc_only": "We will work on the ToC based on your inputs.",
-            "lab_only": "We will work on the lab cost based on your inputs.",
-        },
     },
     {
-        "thanks": "Thank you for sharing the {technology} training details.",
-        "noted": "We have recorded {facts}.",
-        "topics": "the topics",
-        "duration": "day_duration",
-        "mode": "mode",
-        "hours": "hours_of_lab",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "We look forward to sending everything across.",
+        # Version 5 is retired. "connecting with you again soon" is not used.
+        "retired": True,
+        "close": "We look forward to reading your comments.",
         "cv": "the CV",
-        "lines": {
-            "both": "Based on these details, we will develop the ToC, prepare the lab cost, and share {noun} for your review.",
-            "toc": "Based on these details, we will develop the ToC and share {noun} for your review.",
-            "lab": "Based on these details, we will prepare the lab cost and share {noun} for your review.",
-            "share": "Based on these details, we will share {noun} for your review.",
-            "both_only": "Based on these details, we will develop the ToC and prepare the lab cost.",
-            "toc_only": "Based on these details, we will develop the ToC.",
-            "lab_only": "Based on these details, we will prepare the lab cost.",
-            "both_plain": "We will develop the ToC, prepare the lab cost, and share {noun} for your review.",
-            "toc_plain": "We will develop the ToC and share {noun} for your review.",
-            "lab_plain": "We will prepare the lab cost and share {noun} for your review.",
-            "share_plain": "We will share {noun} for your review.",
-            "both_only_plain": "We will develop the ToC and prepare the lab cost.",
-            "toc_only_plain": "We will develop the ToC.",
-            "lab_only_plain": "We will prepare the lab cost.",
-        },
     },
     {
-        "thanks": "Thank you for sharing your {technology} training requirements.",
-        "noted": "We have noted {facts}.",
-        "topics": "the topics",
-        "duration": "training_days",
-        "mode": "format",
-        "hours": "lab_hours",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "Looking forward to sharing the details with you.",
-        "cv": "the relevant CV",
-        "lines": {
-            "both": "We will prepare the ToC and lab cost to align with the requirements you shared and send {noun} for your consideration.",
-            "toc": "We will prepare the ToC to align with the requirements you shared and send {noun} for your consideration.",
-            "lab": "We will prepare the lab cost to align with the requirements you shared and send {noun} for your consideration.",
-            "share": "We will send {noun} for your consideration.",
-            "both_only": "We will prepare the ToC and lab cost to align with the requirements you shared.",
-            "toc_only": "We will prepare the ToC to align with the requirements you shared.",
-            "lab_only": "We will prepare the lab cost to align with the requirements you shared.",
-        },
-    },
-    {
-        "thanks": "Thank you for sending us the {technology} requirement.",
-        "noted": "We have noted {facts}.",
-        "topics": "the requested topics",
-        "duration": "day_schedule",
-        "mode": "training_mode",
-        "hours": "lab_hours",
-        "order": ("topics", "mode", "duration", "hours"),
-        "close": "We look forward to sending the proposed details across.",
+        "shape": "topics_cover",
+        "close": "Looking forward to the follow-up once these are with you.",
         "cv": "the CV",
-        "lines": {
-            "both": "We will compile the ToC and lab cost using the information provided and share {noun} for your review.",
-            "toc": "We will compile the ToC using the information provided and share {noun} for your review.",
-            "lab": "We will compile the lab cost using the information provided and share {noun} for your review.",
-            "share": "We will share {noun} for your review.",
-            "both_only": "We will compile the ToC and lab cost using the information provided.",
-            "toc_only": "We will compile the ToC using the information provided.",
-            "lab_only": "We will compile the lab cost using the information provided.",
-        },
     },
     {
-        "thanks": "Thank you for sharing the {technology} training requirement.",
-        "noted": "We have taken note of {facts}.",
-        "topics": "the topics",
-        "duration": "training_days",
-        "mode": "delivery",
-        "hours": "lab_hours",
-        "order": ("topics", "duration", "mode", "hours"),
-        "close": "Looking forward to sharing the details with you.",
-        "cv": "the relevant CV",
-        "lines": {
-            "both": "We will develop the ToC and work out the lab cost based on the shared requirements. {Noun} will also be provided for your review.",
-            "toc": "We will develop the ToC based on the shared requirements. {Noun} will also be provided for your review.",
-            "lab": "We will work out the lab cost based on the shared requirements. {Noun} will also be provided for your review.",
-            "share": "{Noun} will also be provided for your review.",
-            "both_only": "We will develop the ToC and work out the lab cost based on the shared requirements.",
-            "toc_only": "We will develop the ToC based on the shared requirements.",
-            "lab_only": "We will work out the lab cost based on the shared requirements.",
-        },
+        "shape": "length_first",
+        "close": "Looking forward to the discussion once you have them.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "mode_first",
+        "close": "Looking forward to working from your comments.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "topics_decide",
+        "close": "We look forward to your feedback.",
+        "cv": "the CV",
     },
     {
         "thanks": "Thank you for sharing the {technology} requirement.",
@@ -2825,14 +2706,6 @@ def _ack_client_key(extracted: Dict[str, Any]) -> str:
 _CLIENT_ACK_VERSIONS: Dict[str, Dict[str, int]] = {}
 _ACK_BOOK_PATH = Path(__file__).resolve().parents[2] / "data" / "client_ack_versions.json"
 _ACK_BOOK_LOADED = False
-
-
-def _ack_cycle_start(client: str, size: int) -> int:
-    """Where this client's cycle begins. Different clients do not all start together."""
-    total = 0
-    for char in client.lower():
-        total = total * 19 + ord(char)
-    return total % size
 
 
 def _requirement_fingerprint(extracted: Dict[str, Any]) -> str:
@@ -2891,9 +2764,11 @@ def _save_ack_book() -> None:
 def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
     """Walk versions for this client.
 
-    The key is the client email plus the requirement fingerprint. Identical
-    facts stay on the version already given to that fingerprint. The next
-    different requirement takes the next version in the cycle.
+    The key is the client email, or the name when there is no email, plus the
+    requirement fingerprint. The same facts stay on the version already given
+    to that fingerprint. The first distinct requirement is version 1, the next
+    is version 10, then versions 2, 3, 6, 7, 8, and 9. Versions 4 and 5 are
+    never selected.
     """
     del salt
     if size <= 1:
@@ -2903,9 +2778,17 @@ def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
     fingerprint = _requirement_fingerprint(extracted)
     book = _CLIENT_ACK_VERSIONS.setdefault(client, {})
     saved = book.get(fingerprint)
-    if saved is not None:
+    if isinstance(saved, int) and not isinstance(saved, bool) and (saved % size) in _ACK_ROTATION:
         return saved % size
-    version = (_ack_cycle_start(client, size) + len(book)) % size
+    already = [
+        key
+        for key, value in book.items()
+        if key != fingerprint
+        and isinstance(value, int)
+        and not isinstance(value, bool)
+        and (value % size) in _ACK_ROTATION
+    ]
+    version = _ACK_ROTATION[len(already) % len(_ACK_ROTATION)]
     book[fingerprint] = version
     _save_ack_book()
     return version
@@ -3069,35 +2952,514 @@ def _ack_greeting(extracted: Dict[str, Any]) -> str:
     return f"Hi {salutation},"
 
 
+def _ack_technology(extracted: Dict[str, Any]) -> str:
+    return _clean(extracted.get("technology_needed") or extracted.get("technology") or "training")
+
+
+def _ack_paragraph(*sentences: str) -> str:
+    return " ".join(sentence.strip() for sentence in sentences if sentence and sentence.strip())
+
+
+def _ack_day_phrase(days: float) -> str:
+    number = _display_quantity(days)
+    unit = "day" if float(days) == 1 else "days"
+    return f"{number} {unit}"
+
+
+def _ack_hour_phrase(hours: float, *, style: str = "per day") -> str:
+    number = _display_quantity(hours)
+    unit = "hour" if float(hours) == 1 else "hours"
+    if style == "lab a day":
+        return f"{number} lab {unit} a day"
+    if style == "on each day":
+        return f"{number} lab {unit} on each day"
+    if style == "of lab":
+        return f"{number} {unit} of lab work per day"
+    if style == "a day":
+        return f"{number} {unit} a day"
+    return f"{number} {unit} per day"
+
+
+def _ack_named(noun: str) -> str:
+    text = str(noun or "").strip()
+    if not text:
+        return ""
+    return text[:1].upper() + text[1:]
+
+
+def _ack_article(word: str) -> str:
+    return "An" if str(word or "")[:1].lower() in "aeiou" else "A"
+
+
+def _ack_shape_schedule_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 2. The schedule is stated first. Documents follow from it."""
+    technology = _ack_technology(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = f"Thank you for sharing the {technology} requirement."
+    if mode and days:
+        schedule = f"This {technology} batch is {mode} and runs for {_ack_day_phrase(days)}."
+    elif mode:
+        schedule = f"This {technology} batch is {mode}."
+    elif days:
+        schedule = f"This {technology} batch runs for {_ack_day_phrase(days)}."
+    else:
+        schedule = ""
+    if topics and hours:
+        detail = f"The topics are included, and the lab is {_ack_hour_phrase(hours)}."
+    elif topics:
+        detail = "The topics are included."
+    elif hours:
+        detail = f"The lab is {_ack_hour_phrase(hours)}."
+    else:
+        detail = ""
+    share = f"we will share {noun} for your review" if noun else ""
+    if toc and topics:
+        toc_clause = "The ToC will be prepared from the topics"
+    elif toc:
+        toc_clause = "The ToC will be prepared from the requirement"
+    else:
+        toc_clause = ""
+    sentences: list[str] = []
+    if lab and hours:
+        sentences.append("The lab cost will use those daily hours.")
+    if toc_clause and lab and not hours and share:
+        sentences.append(f"{toc_clause}. The lab cost will be prepared with it, and {share}.")
+    elif toc_clause and lab and not hours:
+        sentences.append(f"{toc_clause}. The lab cost will be prepared with it.")
+    elif toc_clause and share:
+        sentences.append(f"{toc_clause}, and {share}.")
+    elif toc_clause:
+        sentences.append(f"{toc_clause}.")
+    elif lab and not hours and share:
+        sentences.append(f"The lab cost will be prepared from the requirement, and {share}.")
+    elif lab and not hours:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif share:
+        sentences.append(f"We will share {noun} for your review.")
+    paragraphs = [_ack_paragraph(schedule, detail, thanks)]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_documents_schedule(topics: bool, days: float, mode: str, hours: float) -> str:
+    """Version 3's schedule sentence. A missing fact is left out of this sentence."""
+    if topics and days and mode and hours:
+        return (
+            f"The topics run for {_ack_day_phrase(days)} in {mode} mode, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if topics and days and mode:
+        return f"The topics run for {_ack_day_phrase(days)} in {mode} mode."
+    if topics and days and hours:
+        return (
+            f"The topics run for {_ack_day_phrase(days)}, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if topics and mode and hours:
+        return (
+            f"The topics are delivered {mode}, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if days and mode and hours and not topics:
+        return (
+            f"The training runs for {_ack_day_phrase(days)} in {mode} mode, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if topics and days:
+        return f"The topics run for {_ack_day_phrase(days)}."
+    if topics and mode:
+        return f"The topics are delivered {mode}."
+    if topics and hours:
+        return f"The topics include {_ack_hour_phrase(hours, style='on each day')}."
+    if days and mode:
+        return f"The training runs for {_ack_day_phrase(days)} in {mode} mode."
+    if days and hours:
+        return (
+            f"The training runs for {_ack_day_phrase(days)}, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if mode and hours:
+        return f"Delivery is {mode}, with {_ack_hour_phrase(hours, style='on each day')}."
+    if topics:
+        return "The topics are the ones you sent."
+    if days:
+        return f"The training runs for {_ack_day_phrase(days)}."
+    if mode:
+        return f"Delivery is {mode}."
+    if hours:
+        return f"The lab is {_ack_hour_phrase(hours, style='on each day')}."
+    return ""
+
+
+def _ack_shape_documents_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 3. The CV, ToC, and lab cost are promised before the schedule."""
+    technology = _ack_technology(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = f"Thank you for sharing the {technology} training requirement."
+    if toc and lab and noun:
+        offer = f"We will share {noun} for your review once the ToC and the lab cost are ready."
+    elif toc and noun:
+        offer = f"We will share {noun} for your review once the ToC is ready."
+    elif lab and noun:
+        offer = f"We will share {noun} for your review once the lab cost is ready."
+    elif noun:
+        offer = f"We will share {noun} for your review."
+    elif toc and lab:
+        offer = "The ToC and the lab cost will be ready for you."
+    elif toc:
+        offer = "The ToC will be ready for you."
+    elif lab:
+        offer = "The lab cost will be ready for you."
+    else:
+        offer = ""
+    paragraphs = [_ack_paragraph(thanks, offer)]
+    schedule = _ack_documents_schedule(topics, days, mode, hours)
+    if schedule:
+        paragraphs.append(schedule)
+    return paragraphs
+
+
+def _ack_shape_topics_cover(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 6. The ToC is described by the topics and the length, then the lab cost."""
+    technology = _ack_technology(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    opening = f"Thank you for sending us the {technology} requirement."
+    sentences: list[str] = []
+    if toc and topics and days and mode:
+        sentences.append(
+            f"The ToC follows the topics you sent and covers {_ack_day_phrase(days)} of {mode} training."
+        )
+    elif toc and topics and days:
+        sentences.append(
+            f"The ToC follows the topics you sent and covers {_ack_day_phrase(days)} of training."
+        )
+    elif toc and topics and mode:
+        sentences.append(f"The ToC follows the topics you sent for {mode} training.")
+    elif toc and topics:
+        sentences.append("The ToC follows the topics you sent.")
+    elif toc and days and mode:
+        sentences.append(f"The ToC covers {_ack_day_phrase(days)} of {mode} training.")
+    elif toc and days:
+        sentences.append(f"The ToC covers {_ack_day_phrase(days)} of training.")
+    elif toc and mode:
+        sentences.append(f"The ToC is arranged for {mode} training.")
+    elif toc:
+        sentences.append("The ToC will be drafted from the requirement.")
+    elif topics and days and mode:
+        sentences.append(f"The topics you sent are for {_ack_day_phrase(days)} of {mode} training.")
+    elif topics and days:
+        sentences.append(f"The topics you sent are for {_ack_day_phrase(days)} of training.")
+    elif topics and mode:
+        sentences.append(f"The topics you sent are for {mode} training.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    elif days and mode:
+        sentences.append(f"The training is {_ack_day_phrase(days)} and {mode}.")
+    elif days:
+        sentences.append(f"The training is {_ack_day_phrase(days)}.")
+    elif mode:
+        sentences.append(f"Delivery is {mode}.")
+    named = _ack_named(noun)
+    if lab and hours and noun and toc:
+        sentences.append(f"The lab cost is based on {_ack_hour_phrase(hours, style='lab a day')}.")
+        sentences.append(f"{named} will be shared for your review with that draft.")
+    elif lab and hours and noun:
+        sentences.append(
+            f"The lab cost is based on {_ack_hour_phrase(hours, style='lab a day')}, "
+            f"and {noun} will be shared for your review."
+        )
+    elif lab and hours:
+        sentences.append(f"The lab cost is based on {_ack_hour_phrase(hours, style='lab a day')}.")
+    elif lab and noun and toc:
+        sentences.append(
+            f"The lab cost will be set with that draft, and {noun} will be shared for your review."
+        )
+    elif lab and noun:
+        sentences.append(
+            f"The lab cost will be prepared from the requirement, and {noun} will be shared for your review."
+        )
+    elif lab:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif noun:
+        sentences.append(f"{named} will be shared for your review.")
+    if hours and not lab and not any(_display_quantity(hours) in sentence for sentence in sentences):
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    paragraphs = [opening]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_shape_length_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 7. The length opens the note. Lab hours explain the documents."""
+    technology = _ack_technology(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = f"Thank you for sharing your {technology} training requirements."
+    if days and mode:
+        length = f"The length of this {mode} {technology} training is {_ack_day_phrase(days)}."
+    elif days:
+        length = f"The length of this {technology} training is {_ack_day_phrase(days)}."
+    elif mode:
+        length = f"This {technology} training is delivered {mode}."
+    else:
+        length = ""
+    sentences: list[str] = []
+    if topics and days:
+        sentences.append("The topics are planned across those days.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    hours_text = _ack_hour_phrase(hours, style="of lab") if hours else ""
+    if hours and toc and lab and noun:
+        sentences.append(
+            f"With {hours_text}, we will write the lab cost and the ToC, "
+            f"and {noun} will be included for your review."
+        )
+    elif hours and toc and lab:
+        sentences.append(f"With {hours_text}, we will write the lab cost and the ToC.")
+    elif hours and toc and noun:
+        sentences.append(
+            f"With {hours_text}, we will write the ToC, and {noun} will be included for your review."
+        )
+    elif hours and lab and noun:
+        sentences.append(
+            f"With {hours_text}, we will write the lab cost, and {noun} will be included for your review."
+        )
+    elif toc and lab and noun:
+        sentences.append(
+            "The lab cost and the ToC will be written from the requirement, "
+            f"and {noun} will be included for your review."
+        )
+    elif toc and lab:
+        sentences.append("The lab cost and the ToC will be written from the requirement.")
+    elif toc and noun:
+        sentences.append(
+            f"The ToC will be written from the requirement, and {noun} will be included for your review."
+        )
+    elif lab and noun:
+        sentences.append(
+            f"The lab cost will be written from the requirement, and {noun} will be included for your review."
+        )
+    elif noun:
+        sentences.append(f"{_ack_named(noun)} will be included for your review.")
+    elif hours and not lab:
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    paragraphs = [_ack_paragraph(length, thanks)]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_sent(noun: str) -> str:
+    return f"{_ack_named(noun)} will be sent"
+
+
+def _ack_shape_mode_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 8. Delivery mode opens the note. Days stay with the ToC."""
+    technology = _ack_technology(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = f"Thank you for providing the {technology} training requirement."
+    lead = f"{mode} delivery is how this {technology} training will run." if mode else ""
+    sentences: list[str] = []
+    if toc and topics and days:
+        sentences.append(f"The ToC carries the topics across {_ack_day_phrase(days)}.")
+    elif toc and topics:
+        sentences.append("The ToC carries the topics.")
+    elif toc and days:
+        sentences.append(f"The ToC covers {_ack_day_phrase(days)}.")
+    elif toc:
+        sentences.append("The ToC will be drafted from the requirement.")
+    elif topics and days:
+        sentences.append(f"The topics are planned across {_ack_day_phrase(days)}.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    elif days:
+        sentences.append(f"The training runs for {_ack_day_phrase(days)}.")
+    if lab and hours and noun and toc:
+        sentences.append(f"The lab cost is for {_ack_hour_phrase(hours, style='a day')}.")
+        sentences.append(f"{_ack_sent(noun)} with both for your review.")
+    elif lab and hours and noun:
+        sentences.append(
+            f"The lab cost is for {_ack_hour_phrase(hours, style='a day')}, "
+            f"and {noun} will be sent for your review."
+        )
+    elif lab and hours:
+        sentences.append(f"The lab cost is for {_ack_hour_phrase(hours, style='a day')}.")
+    elif lab and noun and toc:
+        sentences.append(f"The lab cost will be prepared with the ToC.")
+        sentences.append(f"{_ack_sent(noun)} with both for your review.")
+    elif lab and noun:
+        sentences.append(
+            f"The lab cost will be prepared from the requirement, and {noun} will be sent for your review."
+        )
+    elif lab:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif noun and toc:
+        sentences.append(f"{_ack_sent(noun)} with the ToC for your review.")
+    elif noun:
+        sentences.append(f"{_ack_sent(noun)} for your review.")
+    if hours and not lab and not any(_display_quantity(hours) in sentence for sentence in sentences):
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    paragraphs = [_ack_paragraph(lead, thanks)]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_shape_topics_decide(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 9. Topics decide the ToC. The batch decides the lab cost."""
+    technology = _ack_technology(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    opening = f"Thank you for sharing the {technology} training details."
+    sentences: list[str] = []
+    if toc and topics:
+        sentences.append("The topics are what the ToC will follow.")
+    elif toc:
+        sentences.append("The ToC will follow the requirement you sent.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    if mode and days and hours and lab:
+        sentences.append(
+            f"{_ack_article(mode)} {mode} batch of {_ack_day_phrase(days)}, "
+            f"at {_ack_hour_phrase(hours, style='lab a day')}, is what the lab cost will use."
+        )
+    elif mode and days and lab:
+        sentences.append(
+            f"{_ack_article(mode)} {mode} batch of {_ack_day_phrase(days)} is what the lab cost will use."
+        )
+    elif days and hours and lab:
+        sentences.append(
+            f"A batch of {_ack_day_phrase(days)}, at {_ack_hour_phrase(hours, style='lab a day')}, "
+            f"is what the lab cost will use."
+        )
+    elif mode and hours and lab:
+        sentences.append(
+            f"{mode} delivery, at {_ack_hour_phrase(hours, style='lab a day')}, is what the lab cost will use."
+        )
+    elif hours and lab:
+        sentences.append(f"The lab cost will use {_ack_hour_phrase(hours, style='lab a day')}.")
+    elif days and lab:
+        sentences.append(f"The lab cost will use a batch of {_ack_day_phrase(days)}.")
+    elif mode and lab:
+        sentences.append(f"The lab cost will use {mode} delivery.")
+    elif lab:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif mode and days and hours:
+        sentences.append(
+            f"The batch is {mode} for {_ack_day_phrase(days)}, and the lab is {_ack_hour_phrase(hours)}."
+        )
+    elif mode and days:
+        sentences.append(f"The batch is {mode} for {_ack_day_phrase(days)}.")
+    elif days and hours:
+        sentences.append(
+            f"The training runs for {_ack_day_phrase(days)}, and the lab is {_ack_hour_phrase(hours)}."
+        )
+    elif hours:
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    elif days:
+        sentences.append(f"The training runs for {_ack_day_phrase(days)}.")
+    elif mode:
+        sentences.append(f"Delivery is {mode}.")
+    if noun and toc and lab:
+        sentences.append(f"{_ack_named(noun)} will be sent with them for your review.")
+    elif noun and toc:
+        sentences.append(f"{_ack_named(noun)} will be sent with the ToC for your review.")
+    elif noun and lab:
+        sentences.append(f"{_ack_named(noun)} will be sent with the lab cost for your review.")
+    elif noun:
+        sentences.append(f"{_ack_named(noun)} will be sent for your review.")
+    paragraphs = [opening]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+_ACK_SHAPES = {
+    1: _ack_shape_schedule_first,
+    2: _ack_shape_documents_first,
+    5: _ack_shape_topics_cover,
+    6: _ack_shape_length_first,
+    7: _ack_shape_mode_first,
+    8: _ack_shape_topics_decide,
+}
+
+
 def _render_professional_ack(
     extracted: Dict[str, Any],
     version_index: int,
     ask_missing: bool = True,
 ) -> str:
     """One professional version, filled with this requirement's facts."""
-    version = _ACK_VERSIONS[version_index % len(_ACK_VERSIONS)]
-    technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or "training")
+    index = version_index % len(_ACK_VERSIONS)
+    if index in _RETIRED_ACK_INDEXES:
+        raise ValueError("acknowledgement versions 4 and 5 are not used")
+    version = _ACK_VERSIONS[index]
     labels = _explicit_request_labels(extracted)
     topics_shared = _topics_were_shared(extracted)
     promise_toc = topics_shared or "ToC" in labels
     promise_lab = _lab_is_clahan_managed(extracted) and not _lab_inputs_request(extracted)
     noun = _ack_share_noun(version, labels)
-    noted = _ack_noted_sentence(version, extracted)
-    thanks = str(version["thanks"]).replace("{technology}", technology)
-    opening = f"{thanks} {noted}".strip() if noted else thanks
-    work = _prepare_sentence(
-        version,
-        toc=promise_toc,
-        lab=promise_lab,
-        noun=noun,
-        has_facts=bool(noted),
-    )
-    paragraphs = [_ack_greeting(extracted), opening]
     missing = _format_missing_details(extracted) if ask_missing else ""
-    if missing:
-        paragraphs.append("Please share:\n" + missing)
-    if work:
-        paragraphs.append(work)
+    shape = _ACK_SHAPES.get(index)
+    if shape:
+        paragraphs = [_ack_greeting(extracted)]
+        paragraphs.extend(paragraph for paragraph in shape(
+            extracted, toc=promise_toc, lab=promise_lab, noun=noun,
+        ) if paragraph)
+        if missing:
+            paragraphs.append("Please share:\n" + missing)
+    else:
+        technology = _ack_technology(extracted)
+        noted = _ack_noted_sentence(version, extracted)
+        thanks = str(version["thanks"]).replace("{technology}", technology)
+        opening = f"{thanks} {noted}".strip() if noted else thanks
+        work = _prepare_sentence(
+            version,
+            toc=promise_toc,
+            lab=promise_lab,
+            noun=noun,
+            has_facts=bool(noted),
+        )
+        paragraphs = [_ack_greeting(extracted), opening]
+        if missing:
+            paragraphs.append("Please share:\n" + missing)
+        if work:
+            paragraphs.append(work)
     estimate = _lab_estimate_sentence(extracted)
     lab_request = _lab_inputs_request(extracted)
     if estimate:
