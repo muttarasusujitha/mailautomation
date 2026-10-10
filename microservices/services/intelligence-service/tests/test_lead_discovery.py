@@ -63,7 +63,7 @@ def test_public_matches_survive_blocked_account_and_deduplicate():
 
 
 def test_auto_target_is_per_domain_and_saves_separate_collections():
-    async def fake(domain, mode, target, location):
+    async def fake(domain, mode, target, location, **kwargs):
         rows = [{'url': f'https://www.linkedin.com/in/{domain}-{i}', 'title': f'{domain} trainer'} for i in range(20)]
         return rows, {'domain': domain, 'target': target, 'matched': 20, 'target_met': True, 'status': 'target_met'}
     db = {'trainer_profile_leads': AsyncMock(), 'client_leads': AsyncMock()}
@@ -79,7 +79,7 @@ def test_public_timeouts_and_paused_login_report_same_primary_error():
     with patch('app.clients.public_search.search_public_many', AsyncMock(side_effect=TimeoutError())), \
             patch('app.clients.linkedin_browser.search_linkedin_account', AsyncMock(side_effect=LinkedInAuthenticationRequired(RECONNECT_MESSAGE))):
         result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(
-            domains=['sap trainer'], search_provider='auto', max_results=50), {}))
+            domains=['sap trainer'], search_provider='auto', max_results=50), {'trainer_profile_leads': AsyncMock()}))
     outcome = result['domain_outcomes'][0]
     assert result['search_error'] == outcome['primary_error'] == outcome['warnings'][0]['error'] == RECONNECT_MESSAGE
     assert outcome['warnings'][1]['error'].startswith('Public web search timed out.')
