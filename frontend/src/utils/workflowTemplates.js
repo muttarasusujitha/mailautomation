@@ -50,6 +50,13 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
   const dates = req.training_dates || req.preferred_dates || [req.timeline_start, req.timeline_end].filter(Boolean).join(' to ')
   const requested = hasDetails ? [] : missingProfile(trainer)
   const offer = trainerOffer(req, trainer)
+  const clientCommercialText = clientCommercial(req)
+  const commercialLine = isProposal
+    ? (offer ? `Offered trainer commercial:\n${offer}\nPlease confirm whether this offer works for you.` : 'Clahan will confirm the engagement amount once the commercial inputs are available.')
+    : (clientCommercialText ? `Client commercial: ${clientCommercialText}` : '')
+  const slotExamples = isProposal
+    ? 'Format only; replace these placeholders with your actual availability:\n- [Your available date 1], [time], [time zone]\n- [Your available date 2], [time], [time zone]\n- [Your available date 3], [time], [time zone]'
+    : 'Please also share three convenient interview/discussion slots, with the date, time, and time zone.\nExample:\n- 01 November 2026, 10:00 AM IST\n- 03 November 2026, 2:00 PM IST\n- 05 November 2026, 4:00 PM IST'
   return compose(trainer, `${isReminder ? `[Reminder ${reminderNum}] ` : ''}${isProposal ? 'Proposed' : 'Confirmed'} Training Requirement - ${course}`, [
     isReminder ? 'Following up on our earlier training enquiry.' : `We are contacting you about ${isProposal ? 'a proposed corporate training engagement' : 'a confirmed client training requirement'}.`,
     'Training scope:\n' + rows([
@@ -61,13 +68,26 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
       ['Mode', req.mode || 'To be confirmed'], ['Location', req.preferred_location || req.location || 'To be confirmed'],
       ['Experience required', req.experience_required || (req.min_experience_years ? `${req.min_experience_years}+ years` : '')],
     ]),
-    offer ? `Offered trainer commercial:\n${offer}\nPlease confirm whether this offer works for you.` : 'Clahan will confirm the engagement amount once the commercial inputs are available.',
+    commercialLine,
     `Please confirm your interest, delivery feasibility, and ${known(dates) ? 'availability for the stated training dates' : 'tentative availability; calendar dates remain to be confirmed'}.`,
     requested.length ? 'Please share the following outstanding details:\n' + requested.map(item => `- ${item}`).join('\n') : '',
-    'Please share three convenient interview/discussion slots, each with a date, start time, and time zone. These are discussion options, not confirmed training dates.',
-    'Format only; replace these placeholders with your actual availability:\n- [Your available date 1], [time], [time zone]\n- [Your available date 2], [time], [time zone]\n- [Your available date 3], [time], [time zone]',
+    isProposal ? 'Please share three convenient interview/discussion slots, each with a date, start time, and time zone. These are discussion options, not confirmed training dates.' : '',
+    slotExamples,
     'Please identify any scope changes or lab prerequisites needed for delivery. Clahan will coordinate the ToC and any requested lab estimate for review.',
   ])
+}
+function clientCommercial(req = {}) {
+  const perDay = number(req.client_budget_per_day || req.budget_per_day)
+  const total = number(req.budget_total)
+  if (perDay) {
+    if (perDay < 10000) {
+      const amount = total || perDay
+      return `INR ${Math.round(amount).toLocaleString('en-IN')} total-course commercial`
+    }
+    return `INR ${Math.round(perDay).toLocaleString('en-IN')} per day/session`
+  }
+  if (total) return `INR ${Math.round(total).toLocaleString('en-IN')} total-course commercial`
+  return text(req.budget_range)
 }
 export function mail2FollowupTemplate(trainer, req, missingItems = null) {
   const items = (Array.isArray(missingItems) ? missingItems : missingProfile(trainer))

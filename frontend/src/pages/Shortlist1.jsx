@@ -1135,9 +1135,6 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
     }
     setLoading(true)
     try {
-      if (generationMode === 'ai' && !aiUsed) {
-        throw new Error('AI email generation failed. Template fallback is disabled while AI mode is on.')
-      }
       const finalSubject = generationMode === 'ai' && aiUsed ? aiSubject : preview.subject
       const finalBody    = generationMode === 'ai' && aiUsed ? aiBody    : preview.body
       let res
@@ -1379,7 +1376,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
         </div>
 
         <div className="flex gap-3 p-5 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={handleSend} disabled={loading || aiGenerating || (generationMode === 'ai' && !aiUsed)}
+          <button onClick={handleSend} disabled={loading || aiGenerating}
             className="flex items-center gap-2 justify-center flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : <><Send className="w-4 h-4" /> Send Email</>}
           </button>

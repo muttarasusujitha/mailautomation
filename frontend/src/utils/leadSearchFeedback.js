@@ -69,3 +69,26 @@ export function matchingSavedLeads(leads, results) {
   if (!urls.size) return []
   return (leads || []).filter(lead => urls.has(lead?.source_url) || urls.has(lead?.linkedin_url))
 }
+
+export function searchResultLeads(leads, options = {}) {
+  const rows = Array.isArray(leads) ? leads : []
+  const selected = String(options.selectedDomain || 'all').trim().toLowerCase()
+  const domainOf = options.domainOf || (lead => lead?.domain || '')
+  const textOf = options.textOf || (() => '')
+  const domainFiltered = selected === 'all'
+    ? rows
+    : rows.filter(lead => {
+      const domain = String(domainOf(lead) || '').trim().toLowerCase()
+      const text = String(textOf(lead) || '').toLowerCase()
+      return domain === selected || (selected && text.includes(selected))
+    })
+  // A domain or search-match filter that lines up with nothing must not hide
+  // profiles already saved. The search report explains the latest fetch.
+  const pool = domainFiltered.length ? domainFiltered : rows
+  const results = options.results || []
+  if (options.showSearchMatches && results.length) {
+    const matched = matchingSavedLeads(pool, results)
+    if (matched.length) return matched
+  }
+  return pool
+}
