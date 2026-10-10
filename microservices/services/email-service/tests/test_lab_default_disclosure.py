@@ -199,6 +199,141 @@ def test_complete_lab_inputs_still_share_toc_and_prepare_the_estimate():
     assert "Please share the participant count" not in body
 
 
+def test_python_and_java_for_one_client_use_different_versions():
+    """The version pool is not a DevOps template. Facts that are absent stay out."""
+    _reset_ack_clients("asha@example.com")
+    python_body = _ack(
+        "Python",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Pandas and FastAPI",
+        requested_details=["CV"],
+        clahan_managed_details=["Lab availability and cost"],
+    )
+    java_body = _ack(
+        "Java",
+        duration_days=4,
+        mode="Offline",
+        topics="Spring Boot",
+        requested_details=["CV"],
+        clahan_managed_details=[],
+    )
+    aws_body = _ack(
+        "AWS",
+        duration_days=6,
+        mode="Online",
+        lab_hours_per_day=3,
+        topics="IAM and VPC",
+        requested_details=["CV"],
+        clahan_managed_details=["Lab availability and cost"],
+    )
+
+    assert "We have noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day." in python_body
+    assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in python_body
+    assert "Looking forward to sharing the documents with you." in python_body
+    assert "toc" not in python_body.lower()
+    assert "We have noted the topics, the 4-day training duration, and Offline mode." in java_body
+    assert "We will share the trainer's CV for your review." in java_body
+    assert "Looking forward to sending these over to you." in java_body
+    assert "lab" not in java_body.lower()
+    assert "This AWS batch is Online and runs for 6 days." in aws_body
+    assert "The topics are included, and the lab is 3 hours per day." in aws_body
+    assert "The lab cost will use those daily hours." in aws_body
+    assert "We will share the CV for your review." in aws_body
+    assert "Looking forward to your thoughts on the draft." in aws_body
+    assert "toc" not in aws_body.lower()
+
+    assert len({python_body, java_body, aws_body}) == 3
+    assert _chosen_wording(python_body) != _chosen_wording(java_body)
+    assert _chosen_wording(java_body) != _chosen_wording(aws_body)
+    for body, technology in ((python_body, "Python"), (java_body, "Java"), (aws_body, "AWS")):
+        assert "devops" not in body.lower()
+        assert technology in body
+        assert "Greetings of the day" not in body
+        assert "Our team" not in body
+        assert "connecting with you again soon" not in body
+        assert body.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+        assert _close(body) in _CLOSES
+
+    repeated = _ack(
+        "Python",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Pandas and FastAPI",
+        requested_details=["CV"],
+        clahan_managed_details=["Lab availability and cost"],
+    )
+    assert repeated == python_body
+
+    proposal = _ack(
+        "Python",
+        client_email="proposal.asha@example.com",
+        duration_days=3,
+        mode="Online",
+        topics="",
+        requested_details=[],
+        clahan_managed_details=[],
+        batch_flow="proposal",
+    )
+    assert "devops" not in proposal.lower()
+    assert "Python" in proposal
+    assert "lab cost" not in proposal.lower()
+    assert "cv" not in proposal.lower()
+    assert "We have noted 3 training days and Online delivery mode." in proposal
+    assert _close(proposal) in _CLOSES
+
+
+def test_template_replies_use_the_same_version_pool():
+    from app.agents.reply_templates import build_auto_reply
+
+    _reset_ack_clients("template.asha@example.com")
+
+    def reply(technology, **facts):
+        payload = {
+            "client_name": "Asha",
+            "client_email": "template.asha@example.com",
+            "technology_needed": technology,
+            "needs_clarification": [],
+            "requested_details": ["CV"],
+            "clahan_managed_details": [],
+        }
+        payload.update(facts)
+        return build_auto_reply(
+            {
+                "person_type": "corporate_client",
+                "scenario": "new_training_requirement",
+                "auto_reply_allowed": True,
+                "requires_human": False,
+            },
+            payload,
+            subject=f"{technology} training requirement",
+            sender_name="Asha",
+        )
+
+    python = reply(
+        "Python",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Pandas and FastAPI",
+        clahan_managed_details=["Lab availability and cost"],
+    )
+    java = reply("Java", duration_days=4, mode="Offline", topics="Spring Boot")
+    assert python["template_key"] == "client_requirement_ack"
+    assert java["template_key"] == "client_requirement_ack"
+    assert "devops" not in python["body"].lower()
+    assert "devops" not in java["body"].lower()
+    assert "Python" in python["body"]
+    assert "Java" in java["body"]
+    assert _chosen_wording(python["body"]) != _chosen_wording(java["body"])
+    assert "Greetings of the day" not in python["body"]
+    assert "Thanks for sharing the DevOps training requirement." not in java["body"]
+    assert "lab cost" in python["body"].lower()
+    assert "lab" not in java["body"].lower()
+
+
 def test_same_client_different_requirements_use_different_professional_versions():
     _reset_ack_clients("asha@example.com")
     devops_body = _ack(

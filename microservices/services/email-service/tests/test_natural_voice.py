@@ -50,7 +50,10 @@ def test_professional_requirement_thanks_keeps_thank_you():
 def test_coordination_template_uses_annapurna():
     reply = _reply("client_sent_details")
     assert reply["body"].startswith("Hi Asha,")
-    assert "Greetings of the day! Thanks for sharing" in reply["body"]
+    assert "Thank you for" in reply["body"]
+    assert "DevOps" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
     assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     assert "Dear" not in reply["body"]
     assert "Recruitment Team" not in reply["body"]

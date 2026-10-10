@@ -398,7 +398,10 @@ def test_client_sent_details_template_uses_details_ack_intro():
 
     assert reply["template_key"] == "client_details_ack"
     assert "Hi Asha" in reply["body"]
-    assert "Thanks for sharing the required details." in reply["body"]
+    assert "DevOps" in reply["body"]
+    assert "Thank you for" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "Thanks for sharing the required details." not in reply["body"]
     assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
 
 
@@ -421,8 +424,8 @@ def test_auto_reply_partial_requirement_lists_only_missing_details():
     )
 
     assert "Please share:" in reply["body"]
-    assert "* Training mode/location" in reply["body"]
-    assert "* Participant count" in reply["body"]
+    assert "- Training mode/location" in reply["body"]
+    assert "- Participant count" in reply["body"]
 
 
 def test_auto_reply_profile_request_does_not_ask_for_unrelated_fields():

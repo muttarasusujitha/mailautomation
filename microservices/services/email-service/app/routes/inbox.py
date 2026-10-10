@@ -2565,6 +2565,13 @@ def _lab_is_clahan_managed(extracted: Dict[str, Any]) -> bool:
     return "Lab availability and cost" in (extracted.get("clahan_managed_details") or [])
 
 
+def _ack_should_promise_toc(extracted: Dict[str, Any], labels: list[str]) -> bool:
+    """ToC is promised only when the client asked for one, or Clahan is writing it."""
+    if "ToC" in labels or extracted.get("toc_requested"):
+        return True
+    return _clean(extracted.get("toc_action")).lower() == "generate_by_clahan"
+
+
 def _lab_inputs_complete(extracted: Dict[str, Any]) -> bool:
     return bool(
         _safe_int(extracted.get("participant_count"), 0)
@@ -3430,8 +3437,7 @@ def _render_professional_ack(
         raise ValueError("acknowledgement versions 4 and 5 are not used")
     version = _ACK_VERSIONS[index]
     labels = _explicit_request_labels(extracted)
-    topics_shared = _topics_were_shared(extracted)
-    promise_toc = topics_shared or "ToC" in labels
+    promise_toc = _ack_should_promise_toc(extracted, labels)
     promise_lab = _lab_is_clahan_managed(extracted) and not _lab_inputs_request(extracted)
     noun = _ack_share_noun(version, labels)
     missing = _format_missing_details(extracted) if ask_missing else ""

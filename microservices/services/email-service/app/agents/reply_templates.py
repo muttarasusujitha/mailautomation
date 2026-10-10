@@ -108,66 +108,6 @@ def _details_block(extracted: Dict[str, Any]) -> str:
     return "\n".join(f"{label}: {value}" for label, value in rows)
 
 
-def _client_requested_items(extracted: Dict[str, Any] | None = None, extra_text: str = "") -> str:
-    extracted = extracted or {}
-    requested_details = extracted.get("requested_details") or []
-    if isinstance(requested_details, (list, tuple, set)):
-        items = []
-        checks = [
-            (("cv", "resume", "profile"), "CV"),
-            (("linkedin", "linked in"), "LinkedIn profile"),
-            (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
-            (("experience", "implementation"), "relevant experience"),
-            (("current location", "location"), "current location"),
-            (("availability", "available"), "availability"),
-            (("technical call", "slots", "time slots"), "technical call slots"),
-            (("commercial", "commercials", "rate", "per hour", "per day"), "commercials"),
-            (("software", "hardware", "system requirement"), "software/hardware requirements"),
-            (("certification", "certifications"), "certifications"),
-        ]
-        request_texts = [str(item or "").lower() for item in requested_details]
-        for keys, label in checks:
-            if any(any(key in text for key in keys) for text in request_texts) and label not in items:
-                items.append(label)
-        if items:
-            return _join_readable(items)
-
-    haystack = " ".join(
-        str(value or "")
-        for value in list(extracted.values()) + [extra_text]
-        if not isinstance(value, (dict, list, tuple, set))
-    ).lower()
-    items: list[str] = []
-    checks = [
-        (("cv", "resume", "profile"), "CV"),
-        (("linkedin", "linked in"), "LinkedIn profile"),
-        (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
-        (("experience", "implementation"), "relevant experience"),
-        (("current location", "location"), "current location"),
-        (("availability", "available"), "availability"),
-        (("technical call", "slots", "time slots"), "technical call slots"),
-        (("commercial", "commercials", "rate", "per hour", "per day"), "commercials"),
-        (("software", "hardware", "system requirement"), "software/hardware requirements"),
-        (("certification", "certifications"), "certifications"),
-    ]
-    for keys, label in checks:
-        if any(key in haystack for key in keys) and label not in items:
-            items.append(label)
-    if not items:
-        items = ["CV", "LinkedIn profile", "requested details"]
-    return _join_readable(items)
-
-
-def _join_readable(items: list[str]) -> str:
-    if not items:
-        return ""
-    if len(items) == 1:
-        return items[0]
-    if len(items) == 2:
-        return f"{items[0]} and {items[1]}"
-    return f"{', '.join(items[:-1])}, and {items[-1]}"
-
-
 def _client_short_requirement_ack(
     client: str,
     tech: str,
@@ -176,33 +116,36 @@ def _client_short_requirement_ack(
     extra_text: str = "",
     intro: str = "",
 ) -> Dict[str, Any]:
-    extracted = extracted or {}
-    greeting = client if client and client.lower() not in {"client"} else "Team"
-    items = _client_requested_items(extracted, extra_text)
-    has_profile_request = bool(extracted.get("requested_details")) and not _missing_lines(extracted)
-    missing = "" if has_profile_request else (_missing_lines(extracted) or extra_text.strip())
-    opening = _clean(
-        intro,
-        "Thank you for sharing the requirement."
-        if missing
-        else f"Thank you for sharing the {tech} requirement.",
-    )
-    if missing:
-        body = (
-            f"Dear {greeting},\n\n"
-            f"{opening}\n\n"
-            "To help us refine the shortlist, please share:\n"
-            f"{missing}\n\n"
-            f"{CLIENT_SIGNATURE}"
-        )
-    else:
-        body = (
-            f"Dear {greeting},\n\n"
-            f"{opening}\n\n"
-            f"We will review suitable {tech} trainers and share the requested {items}.\n\n"
-            f"{CLIENT_SIGNATURE}"
-        )
-    return _reply(f"Re: {tech} Trainer Requirement", body, template_key)
+    """Every requirement acknowledgement uses the professional version pool.
+
+    Technology, days, mode, topics, and lab hours are filled in only when this
+    requirement has them. A fixed DevOps thanks line is not used for other
+    technologies. The older intro is not the opening.
+    """
+    del intro
+    # Imported lazily: inbox already imports this module while it loads.
+    from app.routes.inbox import _client_short_requirement_ack as render_ack
+
+    payload = dict(extracted or {})
+    if client and not _clean(payload.get("client_name")):
+        payload["client_name"] = client
+    if tech and not _clean(payload.get("technology_needed") or payload.get("technology") or payload.get("domain")):
+        payload["technology_needed"] = tech
+    if extra_text and not payload.get("needs_clarification"):
+        items = []
+        for line in str(extra_text).splitlines():
+            cleaned = re.sub(r"^\s*(?:[-*]|\d+[.)])\s*", "", line).strip()
+            if cleaned:
+                items.append(cleaned)
+        if items:
+            payload["needs_clarification"] = items
+    reply = render_ack(payload)
+    return {
+        "subject": reply.get("subject") or f"Re: {_clean(tech, 'training')} Trainer Requirement",
+        "body": reply.get("body") or "",
+        "auto_send_safe": True,
+        "template_key": template_key,
+    }
 
 
 def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
