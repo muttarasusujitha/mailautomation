@@ -12,6 +12,8 @@ config/token.json
 **/config/*.secret.json
 microservices/services/email-service/config/token.json
 microservices/gmail_config/token.json
+microservices/services/email-service/data/client_ack_versions.json
+microservices/services/email-service/data/client_ack_versions.json.tmp
 
 # Databases and browser state
 linkedin-bot-profile/

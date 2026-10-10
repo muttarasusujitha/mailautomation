@@ -180,6 +180,43 @@ def test_empty_schema_response_retries_json_with_review_validation(monkeypatch):
     assert result["reply_body"] == "The syllabus availability needs confirmation."
 
 
+def test_ai_draft_drops_the_stiff_opening_and_office_phrases(monkeypatch):
+    draft = (
+        "Hi,\n\n"
+        "Greetings of the day! Thanks for sharing the DevOps training requirement.\n\n"
+        "We have recorded the confirmed batch scope: 7 training days, Offline.\n\n"
+        "We will revert with the next step shortly. "
+        "Training duration is used only for the number of lab days; it is not treated as the participant count. "
+        "The region can be finalized after the cloud provider is selected."
+    )
+    use_ollama(monkeypatch, draft)
+    result = asyncio.run(inbox_actions._ai_draft_reply(
+        "DevOps training requirement",
+        "Please share a trainer CV and ToC for 7 offline days.",
+        require_openai=True,
+    ))
+    lowered = result.lower()
+    assert "greetings of the day" not in lowered
+    assert "confirmed batch scope" not in lowered
+    assert "revert" not in lowered
+    assert "not treated as the participant count" not in lowered
+    assert "region can be finalized" not in lowered
+    assert "7 training days, Offline" in result
+    assert result.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+
+
+def test_ai_prompt_does_not_ask_for_greetings_of_the_day(monkeypatch):
+    writer = use_ollama(monkeypatch, "Thanks for sharing the requirement.")
+    asyncio.run(inbox_actions._ai_draft_reply(
+        "DevOps training", "We need a trainer.", require_openai=True,
+        reference_reply={"body": "Greetings of the day! Thanks for sharing the requirement. We will revert shortly."},
+    ))
+    prompt = writer.call_args.args[1]
+    assert "begin that sentence with Greetings of the day" not in prompt
+    assert "Do not open with Greetings of the day" in prompt
+    assert "Greetings of the day" not in prompt.split("Reference facts", 1)[-1].split("Incoming email", 1)[0]
+
+
 def test_generated_reply_adds_named_greeting_and_short_signature(monkeypatch):
     writer = use_ollama(monkeypatch, "The session is online.\n\nPlease confirm your availability.")
     result = asyncio.run(inbox_actions._ai_draft_reply(

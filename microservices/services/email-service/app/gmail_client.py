@@ -283,7 +283,7 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
     body = _normalize_trainer_reply_body(body)
     from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
     display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
-    tagline = "Trainer Matching Platform"
+    tagline = from_email or "Trainer Matching Platform"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -301,9 +301,6 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
 <p style="margin:4px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">{tagline}</p>
 </td></tr>
 <tr><td style="padding:32px 36px;color:#1e293b;font-size:15px;line-height:1.8;">{html_body}</td></tr>
-<tr><td style="background:#f1f5f9;padding:20px 36px;border-top:1px solid #e2e8f0;">
-<p style="margin:0;color:#94a3b8;font-size:12px;">{display_name} &bull; {from_email}</p>
-</td></tr>
 </table></td></tr></table>
 {pixel}
 </body></html>"""
