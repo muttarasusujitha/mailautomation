@@ -11,6 +11,7 @@ import re
 import subprocess
 import tempfile
 import uuid
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from email.utils import parseaddr
 from typing import Annotated, Any, Dict, List, Optional, Tuple
@@ -2581,129 +2582,217 @@ def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
-# Ten professional notes with the same meaning. Openings start with "Thank you",
-# never "Thanks for sharing", so apply_voice does not prefix "Greetings of the day!".
-# One index selects the whole note. Placeholders are filled from the requirement.
+# Ten professional notes. Each one keeps the sentence rhythm it was written in.
+# Openings start with "Thank you", never "Thanks for sharing", so apply_voice
+# does not prefix "Greetings of the day!". One version is the whole note.
+# A missing fact is left out of that version's own sentence.
 _ACK_VERSIONS = (
     {
         "thanks": "Thank you for sharing the {technology} requirement.",
-        "verb": "We have noted",
+        "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "training_days",
         "mode": "delivery_mode",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "Looking forward to sharing the documents with you.",
         "cv": "the relevant CV",
+        "lines": {
+            "both": "We will prepare the ToC and lab cost based on the details provided and share {noun} for your review.",
+            "toc": "We will prepare the ToC based on the details provided and share {noun} for your review.",
+            "lab": "We will prepare the lab cost based on the details provided and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will prepare the ToC and lab cost based on the details provided.",
+            "toc_only": "We will prepare the ToC based on the details provided.",
+            "lab_only": "We will prepare the lab cost based on the details provided.",
+        },
     },
     {
         "thanks": "Thank you for sending over the {technology} training requirement.",
-        "verb": "We have taken note of",
+        "noted": "We have taken note of {facts}.",
         "topics": "the topics",
         "duration": "day_duration",
         "mode": "mode",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "We look forward to sharing these with you.",
         "cv": "the CV",
+        "lines": {
+            "both": "We will put together the ToC and lab cost according to your requirements and share them along with {noun} for your review.",
+            "toc": "We will put together the ToC according to your requirements and share it along with {noun} for your review.",
+            "lab": "We will put together the lab cost according to your requirements and share it along with {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will put together the ToC and lab cost according to your requirements.",
+            "toc_only": "We will put together the ToC according to your requirements.",
+            "lab_only": "We will put together the lab cost according to your requirements.",
+        },
     },
     {
         "thanks": "Thank you for sharing the {technology} requirement.",
-        "verb": "We have noted",
+        "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "training_days",
         "mode": "mode",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "Looking forward to sending the details across.",
         "cv": "the CV",
+        "lines": {
+            "both": "We will prepare the ToC, calculate the lab cost, and share {noun} for your review.",
+            "toc": "We will prepare the ToC and share {noun} for your review.",
+            "lab": "We will calculate the lab cost and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will prepare the ToC and calculate the lab cost.",
+            "toc_only": "We will prepare the ToC.",
+            "lab_only": "We will calculate the lab cost.",
+        },
     },
     {
         "thanks": "Thank you for providing the {technology} training requirements.",
-        "verb": "We have noted",
+        "noted": "We have noted {facts}.",
         "topics": "the proposed topics",
         "duration": "day_training_schedule",
         "mode": "delivery",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "We look forward to sharing the documents with you.",
         "cv": "the relevant CV",
+        "lines": {
+            "both": "Our team will prepare the ToC and lab cost based on the information shared and provide {noun} for your review.",
+            "toc": "Our team will prepare the ToC based on the information shared and provide {noun} for your review.",
+            "lab": "Our team will prepare the lab cost based on the information shared and provide {noun} for your review.",
+            "share": "Our team will provide {noun} for your review.",
+            "both_only": "Our team will prepare the ToC and lab cost based on the information shared.",
+            "toc_only": "Our team will prepare the ToC based on the information shared.",
+            "lab_only": "Our team will prepare the lab cost based on the information shared.",
+        },
     },
     {
         "thanks": "Thank you for sharing the {technology} requirement with us.",
-        "verb": "We have noted",
+        "noted": "We have noted all the details, including {facts}.",
         "topics": "the topics",
         "duration": "training_days",
         "mode": "delivery",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": True,
         "close": "Looking forward to connecting with you again soon.",
         "cv": "the CV",
+        "lines": {
+            "both": "We will work on the ToC and lab cost based on your inputs and share {noun} for your review.",
+            "toc": "We will work on the ToC based on your inputs and share {noun} for your review.",
+            "lab": "We will work on the lab cost based on your inputs and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will work on the ToC and lab cost based on your inputs.",
+            "toc_only": "We will work on the ToC based on your inputs.",
+            "lab_only": "We will work on the lab cost based on your inputs.",
+        },
     },
     {
         "thanks": "Thank you for sharing the {technology} training details.",
-        "verb": "We have recorded",
+        "noted": "We have recorded {facts}.",
         "topics": "the topics",
         "duration": "day_duration",
         "mode": "mode",
         "hours": "hours_of_lab",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "We look forward to sending everything across.",
         "cv": "the CV",
+        "lines": {
+            "both": "Based on these details, we will develop the ToC, prepare the lab cost, and share {noun} for your review.",
+            "toc": "Based on these details, we will develop the ToC and share {noun} for your review.",
+            "lab": "Based on these details, we will prepare the lab cost and share {noun} for your review.",
+            "share": "Based on these details, we will share {noun} for your review.",
+            "both_only": "Based on these details, we will develop the ToC and prepare the lab cost.",
+            "toc_only": "Based on these details, we will develop the ToC.",
+            "lab_only": "Based on these details, we will prepare the lab cost.",
+            "both_plain": "We will develop the ToC, prepare the lab cost, and share {noun} for your review.",
+            "toc_plain": "We will develop the ToC and share {noun} for your review.",
+            "lab_plain": "We will prepare the lab cost and share {noun} for your review.",
+            "share_plain": "We will share {noun} for your review.",
+            "both_only_plain": "We will develop the ToC and prepare the lab cost.",
+            "toc_only_plain": "We will develop the ToC.",
+            "lab_only_plain": "We will prepare the lab cost.",
+        },
     },
     {
         "thanks": "Thank you for sharing your {technology} training requirements.",
-        "verb": "We have noted",
+        "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "training_days",
         "mode": "format",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "Looking forward to sharing the details with you.",
         "cv": "the relevant CV",
+        "lines": {
+            "both": "We will prepare the ToC and lab cost to align with the requirements you shared and send {noun} for your consideration.",
+            "toc": "We will prepare the ToC to align with the requirements you shared and send {noun} for your consideration.",
+            "lab": "We will prepare the lab cost to align with the requirements you shared and send {noun} for your consideration.",
+            "share": "We will send {noun} for your consideration.",
+            "both_only": "We will prepare the ToC and lab cost to align with the requirements you shared.",
+            "toc_only": "We will prepare the ToC to align with the requirements you shared.",
+            "lab_only": "We will prepare the lab cost to align with the requirements you shared.",
+        },
     },
     {
         "thanks": "Thank you for sending us the {technology} requirement.",
-        "verb": "We have noted",
+        "noted": "We have noted {facts}.",
         "topics": "the requested topics",
         "duration": "day_schedule",
         "mode": "training_mode",
         "hours": "lab_hours",
         "order": ("topics", "mode", "duration", "hours"),
-        "including": False,
         "close": "We look forward to sending the proposed details across.",
         "cv": "the CV",
+        "lines": {
+            "both": "We will compile the ToC and lab cost using the information provided and share {noun} for your review.",
+            "toc": "We will compile the ToC using the information provided and share {noun} for your review.",
+            "lab": "We will compile the lab cost using the information provided and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will compile the ToC and lab cost using the information provided.",
+            "toc_only": "We will compile the ToC using the information provided.",
+            "lab_only": "We will compile the lab cost using the information provided.",
+        },
     },
     {
         "thanks": "Thank you for sharing the {technology} training requirement.",
-        "verb": "We have taken note of",
+        "noted": "We have taken note of {facts}.",
         "topics": "the topics",
         "duration": "training_days",
         "mode": "delivery",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "Looking forward to sharing the details with you.",
         "cv": "the relevant CV",
+        "lines": {
+            "both": "We will develop the ToC and work out the lab cost based on the shared requirements. {Noun} will also be provided for your review.",
+            "toc": "We will develop the ToC based on the shared requirements. {Noun} will also be provided for your review.",
+            "lab": "We will work out the lab cost based on the shared requirements. {Noun} will also be provided for your review.",
+            "share": "{Noun} will also be provided for your review.",
+            "both_only": "We will develop the ToC and work out the lab cost based on the shared requirements.",
+            "toc_only": "We will develop the ToC based on the shared requirements.",
+            "lab_only": "We will work out the lab cost based on the shared requirements.",
+        },
     },
     {
         "thanks": "Thank you for sharing the {technology} requirement.",
-        "verb": "We have noted",
+        "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "the_day_training_duration",
         "mode": "mode",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "including": False,
         "close": "Looking forward to sending these over to you.",
         "cv": "the trainer's CV",
+        "lines": {
+            "both": "We will put together the ToC and lab cost based on the details you provided and share {noun} for your review.",
+            "toc": "We will put together the ToC based on the details you provided and share {noun} for your review.",
+            "lab": "We will put together the lab cost based on the details you provided and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will put together the ToC and lab cost based on the details you provided.",
+            "toc_only": "We will put together the ToC based on the details you provided.",
+            "lab_only": "We will put together the lab cost based on the details you provided.",
+        },
     },
 )
 
@@ -2731,27 +2820,95 @@ def _ack_client_key(extracted: Dict[str, Any]) -> str:
     return "client"
 
 
-def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
-    """Stable sentence choice for this client and this requirement.
+# client email -> {requirement fingerprint -> version index}
+# A new fingerprint takes the next version. The same fingerprint keeps its version.
+_CLIENT_ACK_VERSIONS: Dict[str, Dict[str, int]] = {}
+_ACK_BOOK_PATH = Path(__file__).resolve().parents[2] / "data" / "client_ack_versions.json"
+_ACK_BOOK_LOADED = False
 
-    Identical facts stay on one sentence. Technology, duration, mode, topics,
-    and lab hours move a repeat client onto another sentence with the same meaning.
-    """
-    if size <= 1:
-        return 0
+
+def _ack_cycle_start(client: str, size: int) -> int:
+    """Where this client's cycle begins. Different clients do not all start together."""
+    total = 0
+    for char in client.lower():
+        total = total * 19 + ord(char)
+    return total % size
+
+
+def _requirement_fingerprint(extracted: Dict[str, Any]) -> str:
+    """Facts that make one requirement different from the next."""
     duration = _safe_float(extracted.get("duration_days"), 0)
     hours = _known_lab_hours(extracted)
-    material = "\n".join([
-        salt,
-        _ack_client_key(extracted),
-        _clean(extracted.get("technology_needed") or extracted.get("technology") or "training").lower(),
+    technology = _clean(
+        extracted.get("technology_needed") or extracted.get("technology") or "training"
+    ).lower()
+    return "|".join([
+        technology,
         _display_quantity(duration) if duration else "",
         _clean(extracted.get("mode")).lower(),
         _ack_topics_key(extracted).lower(),
         _display_quantity(hours) if hours else "",
+        "lab" if _lab_is_clahan_managed(extracted) else "nolab",
     ])
-    digest = hashlib.sha256(material.encode("utf-8")).digest()
-    return int.from_bytes(digest[:4], "big") % size
+
+
+def _load_ack_book() -> None:
+    """Remember version choices across restarts. A missing file starts a new cycle."""
+    global _ACK_BOOK_LOADED
+    if _ACK_BOOK_LOADED:
+        return
+    _ACK_BOOK_LOADED = True
+    try:
+        raw = json.loads(_ACK_BOOK_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return
+    if not isinstance(raw, dict):
+        return
+    for client, book in raw.items():
+        if not isinstance(book, dict):
+            continue
+        cleaned: Dict[str, int] = {}
+        for fingerprint, index in book.items():
+            if isinstance(index, int) and not isinstance(index, bool):
+                cleaned[str(fingerprint)] = index
+        if cleaned:
+            _CLIENT_ACK_VERSIONS[str(client)] = cleaned
+
+
+def _save_ack_book() -> None:
+    try:
+        _ACK_BOOK_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temporary = _ACK_BOOK_PATH.with_suffix(".json.tmp")
+        temporary.write_text(
+            json.dumps(_CLIENT_ACK_VERSIONS, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        temporary.replace(_ACK_BOOK_PATH)
+    except OSError:
+        return
+
+
+def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
+    """Walk versions for this client.
+
+    The key is the client email plus the requirement fingerprint. Identical
+    facts stay on the version already given to that fingerprint. The next
+    different requirement takes the next version in the cycle.
+    """
+    del salt
+    if size <= 1:
+        return 0
+    _load_ack_book()
+    client = _ack_client_key(extracted)
+    fingerprint = _requirement_fingerprint(extracted)
+    book = _CLIENT_ACK_VERSIONS.setdefault(client, {})
+    saved = book.get(fingerprint)
+    if saved is not None:
+        return saved % size
+    version = (_ack_cycle_start(client, size) + len(book)) % size
+    book[fingerprint] = version
+    _save_ack_book()
+    return version
 
 
 def _duration_phrase(style: str, days: float) -> str:
@@ -2835,118 +2992,23 @@ def _ack_share_noun(version: Dict[str, Any], labels: list[str]) -> str:
     return _join_phrases(named)
 
 
-def _ack_work_line(index: int, *, toc: bool, lab: bool, noun: str, has_facts: bool) -> str:
-    """Promise only the documents this requirement actually asked us to prepare."""
-    if index == 2:
-        actions = []
-        if toc:
-            actions.append("prepare the ToC")
-        if lab:
-            actions.append("calculate the lab cost")
-        if noun:
-            actions.append(f"share {noun} for your review")
-        return f"We will {_join_phrases(actions)}." if actions else ""
-    if index == 8:
-        sentences = []
-        if toc and lab:
-            sentences.append("We will develop the ToC and work out the lab cost based on the shared requirements.")
-        elif toc:
-            sentences.append("We will develop the ToC based on the shared requirements.")
-        elif lab:
-            sentences.append("We will work out the lab cost based on the shared requirements.")
-        if noun:
-            shown = noun[0].upper() + noun[1:]
-            sentences.append(f"{shown} will also be provided for your review.")
-        return " ".join(sentences)
-    if index == 5:
-        actions = []
-        if toc:
-            actions.append("develop the ToC")
-        if lab:
-            actions.append("prepare the lab cost")
-        if noun:
-            actions.append(f"share {noun} for your review")
-        if not actions:
-            return ""
-        lead = "Based on these details, we will " if has_facts else "We will "
-        return lead + _join_phrases(actions) + "."
-
-    heads = {
-        0: (
-            "We will prepare the ToC and lab cost based on the details provided",
-            "We will prepare the ToC based on the details provided",
-            "We will prepare the lab cost based on the details provided",
-            "share",
-            "for your review",
-            False,
-        ),
-        1: (
-            "We will put together the ToC and lab cost according to your requirements",
-            "We will put together the ToC according to your requirements",
-            "We will put together the lab cost according to your requirements",
-            "share",
-            "for your review",
-            True,
-        ),
-        3: (
-            "Our team will prepare the ToC and lab cost based on the information shared",
-            "Our team will prepare the ToC based on the information shared",
-            "Our team will prepare the lab cost based on the information shared",
-            "provide",
-            "for your review",
-            False,
-        ),
-        4: (
-            "We will work on the ToC and lab cost based on your inputs",
-            "We will work on the ToC based on your inputs",
-            "We will work on the lab cost based on your inputs",
-            "share",
-            "for your review",
-            False,
-        ),
-        6: (
-            "We will prepare the ToC and lab cost to align with the requirements you shared",
-            "We will prepare the ToC to align with the requirements you shared",
-            "We will prepare the lab cost to align with the requirements you shared",
-            "send",
-            "for your consideration",
-            False,
-        ),
-        7: (
-            "We will compile the ToC and lab cost using the information provided",
-            "We will compile the ToC using the information provided",
-            "We will compile the lab cost using the information provided",
-            "share",
-            "for your review",
-            False,
-        ),
-        9: (
-            "We will put together the ToC and lab cost based on the details you provided",
-            "We will put together the ToC based on the details you provided",
-            "We will put together the lab cost based on the details you provided",
-            "share",
-            "for your review",
-            False,
-        ),
-    }
-    both, only_toc, only_lab, verb, tail, along_with = heads[index]
+def _prepare_sentence(version: Dict[str, Any], *, toc: bool, lab: bool, noun: str, has_facts: bool) -> str:
+    """That version's prepare sentence, with only the missing document left out."""
+    lines = version["lines"]
     if toc and lab:
-        head = both
+        key = "both" if noun else "both_only"
     elif toc:
-        head = only_toc
+        key = "toc" if noun else "toc_only"
     elif lab:
-        head = only_lab
+        key = "lab" if noun else "lab_only"
+    elif noun:
+        key = "share"
     else:
-        head = ""
-    if noun and head and along_with:
-        pronoun = "them" if toc and lab else "it"
-        return f"{head} and share {pronoun} along with {noun} for your review."
-    if noun and head:
-        return f"{head} and {verb} {noun} {tail}."
-    if noun:
-        starter = "Our team will" if index == 3 else "We will"
-        return f"{starter} {verb} {noun} {tail}."
-    return f"{head}." if head else ""
+        return ""
+    if not has_facts and f"{key}_plain" in lines:
+        key = f"{key}_plain"
+    shown = noun[:1].upper() + noun[1:] if noun else ""
+    return str(lines[key]).format(noun=noun, Noun=shown)
 
 
 def _ack_noted_sentence(version: Dict[str, Any], extracted: Dict[str, Any]) -> str:
@@ -2965,10 +3027,7 @@ def _ack_noted_sentence(version: Dict[str, Any], extracted: Dict[str, Any]) -> s
             phrases.append(_lab_hours_phrase(str(version["hours"]), hours))
     if not phrases:
         return ""
-    joined = _join_phrases(phrases)
-    if version["including"]:
-        return f"We have noted all the details, including {joined}."
-    return f"{version['verb']} {joined}."
+    return str(version["noted"]).format(facts=_join_phrases(phrases))
 
 
 def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
@@ -3026,8 +3085,8 @@ def _render_professional_ack(
     noted = _ack_noted_sentence(version, extracted)
     thanks = str(version["thanks"]).replace("{technology}", technology)
     opening = f"{thanks} {noted}".strip() if noted else thanks
-    work = _ack_work_line(
-        version_index % len(_ACK_VERSIONS),
+    work = _prepare_sentence(
+        version,
         toc=promise_toc,
         lab=promise_lab,
         noun=noun,

@@ -240,6 +240,7 @@ def test_repeated_devops_requirements_do_not_reuse_one_sentence():
     openings = set()
     prepares = set()
     closes = set()
+    bodies = []
     samples = (
         (5, "Online", 2, "Docker"),
         (6, "Offline", 3, "Kubernetes"),
@@ -253,15 +254,37 @@ def test_repeated_devops_requirements_do_not_reuse_one_sentence():
         (11, "Offline", 4, "Argo CD"),
     )
     for days, mode, hours, topics in samples:
-        body = _ack("DevOps", duration_days=days, mode=mode, lab_hours_per_day=hours, topics=topics)
+        body = _ack(
+            "DevOps",
+            client_email="successive@example.com",
+            duration_days=days,
+            mode=mode,
+            lab_hours_per_day=hours,
+            topics=topics,
+        )
         opening, prepare, close = _chosen_wording(body)
         openings.add(opening)
         prepares.add(prepare)
         closes.add(close)
+        bodies.append(body)
         _assert_professional_ack(body, topics=True)
+        assert _OLD_ACK_SENTENCE not in body
+        assert _OLD_PREPARE_SENTENCE not in body
+        assert "Looking forward to sending this across." not in body
+        assert "Greetings of the day" not in body
     assert len(openings) > 1
-    assert len(prepares) > 1
+    assert len(prepares) == 10
     assert len(closes) > 1
+    assert len(set(bodies)) == 10
+    repeated = _ack(
+        "DevOps",
+        client_email="successive@example.com",
+        duration_days=5,
+        mode="Online",
+        lab_hours_per_day=2,
+        topics="Docker",
+    )
+    assert repeated == bodies[0]
 
 
 def test_acknowledgement_recognises_the_client():
@@ -330,3 +353,26 @@ def test_version_one_and_ten_use_the_reference_tone():
     assert apply_voice(version_ten) == version_ten
     rendered = {_render_professional_ack(payload, index) for index in range(10)}
     assert len(rendered) == 10
+
+    missing_topics = {**payload, "topics": "", "requested_details": ["CV"]}
+    missing_body = _render_professional_ack(missing_topics, 0)
+    assert "Thank you for sharing the DevOps requirement. We have noted 7 training days, Offline delivery mode, and 3 lab hours per day." in missing_body
+    assert "the topics" not in missing_body.lower()
+    assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in missing_body
+    assert "Looking forward to sharing the documents with you." in missing_body
+    assert _OLD_ACK_SENTENCE not in missing_body
+    assert _OLD_PREPARE_SENTENCE not in missing_body
+
+    not_lab = {**payload, "clahan_managed_details": []}
+    not_lab_body = _render_professional_ack(not_lab, 9)
+    assert "We have noted the topics, the 7-day training duration, Offline mode, and 3 lab hours per day." in not_lab_body
+    assert "We will put together the ToC based on the details you provided and share the trainer's CV for your review." in not_lab_body
+    assert "lab cost" not in not_lab_body.lower()
+    assert "Looking forward to sending these over to you." in not_lab_body
+    assert _OLD_ACK_SENTENCE not in not_lab_body
+
+    linkedin = {**payload, "requested_details": ["CV", "LinkedIn profile", "ToC"]}
+    linkedin_body = _render_professional_ack(linkedin, 0)
+    assert "share the relevant CV and LinkedIn profile for your review." in linkedin_body
+    assert linkedin_body.count("for your review") == 1
+    assert _OLD_ACK_SENTENCE not in linkedin_body

@@ -50,13 +50,12 @@ _GREETING_LINE = re.compile(
     r"^(?:hi|hello|dear)\b\s*([^,!\n]{0,70})?[,!]?\s*$",
     re.IGNORECASE,
 )
-# Requirement acknowledgements open with "Thank you for sharing the {technology}
-# requirement" and continue in the same professional note. Those sentences stay
-# as written. A line that already starts with "Thanks for sharing" is unchanged
-# here, and apply_voice still prefixes that literal opener with
+# Each professional requirement note opens with its own "Thank you" sentence
+# and stays as written. A line that already starts with "Thanks for sharing"
+# is unchanged here, and apply_voice still prefixes that literal opener with
 # "Greetings of the day!".
 _PROFESSIONAL_ACK_OPENING = re.compile(
-    r"Thank you for sharing (?:the|your) (?!required details\b).+?"
+    r"Thank you for (?:sharing|sending over|sending us|providing) (?:the|your) (?!required details\b).+?"
     r"(?:training requirements|training requirement|training details|requirement with us|requirement)\.",
     re.IGNORECASE,
 )
