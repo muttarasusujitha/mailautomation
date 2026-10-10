@@ -50,8 +50,17 @@ _GREETING_LINE = re.compile(
     r"^(?:hi|hello|dear)\b\s*([^,!\n]{0,70})?[,!]?\s*$",
     re.IGNORECASE,
 )
+# Requirement acknowledgements open with "Thank you for sharing the {technology}
+# requirement" and continue in the same professional note. Those sentences stay
+# as written. A line that already starts with "Thanks for sharing" is unchanged
+# here, and apply_voice still prefixes that literal opener with
+# "Greetings of the day!".
+_PROFESSIONAL_ACK_OPENING = re.compile(
+    r"Thank you for sharing (?:the|your) (?!required details\b).+?"
+    r"(?:training requirements|training requirement|training details|requirement with us|requirement)\.",
+    re.IGNORECASE,
+)
 _PHRASES = (
-    ("Thank you for sharing", "Thanks for sharing"),
     ("Thank you for your email", "Thanks for the email"),
     ("Thank you for your response", "Thanks for your response"),
     ("Thank you for the update", "Thanks for the update"),
@@ -130,9 +139,29 @@ def signature_keeping_extras(tail: str, voice: str = ANNAPURNA) -> str:
     return signature + "\n" + "\n".join(extras)
 
 
+def is_professional_requirement_thanks(sentence: str) -> bool:
+    """True for a requirement-acknowledgement opening that must stay 'Thank you'."""
+    return bool(_PROFESSIONAL_ACK_OPENING.fullmatch(str(sentence or "").strip()))
+
+
+def _rewrite_legacy_thank_you_for_sharing(text: str) -> str:
+    """Rewrite short template thanks without touching the professional ack openings."""
+    protected = [(match.start(), match.end()) for match in _PROFESSIONAL_ACK_OPENING.finditer(text)]
+    if not protected:
+        return text.replace("Thank you for sharing", "Thanks for sharing")
+    pieces = []
+    cursor = 0
+    for start, end in protected:
+        pieces.append(text[cursor:start].replace("Thank you for sharing", "Thanks for sharing"))
+        pieces.append(text[start:end])
+        cursor = end
+    pieces.append(text[cursor:].replace("Thank you for sharing", "Thanks for sharing"))
+    return "".join(pieces)
+
+
 def smooth_wording(body: str) -> str:
     """Drop office phrasing from a draft without changing the greeting or sign-off."""
-    text = str(body or "")
+    text = _rewrite_legacy_thank_you_for_sharing(str(body or ""))
     for old, new in _PHRASES:
         text = text.replace(old, new)
     text = re.sub(r"(?i)\bgreetings of the day[.!]?\s*", "", text)

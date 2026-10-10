@@ -2581,43 +2581,130 @@ def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
-# Same meaning, different wording. None of these open with "Thanks for sharing":
-# apply_voice would prefix that phrase with "Greetings of the day!" on every note.
-_ACK_OPENINGS = (
-    "Thanks for the {technology} requirement.",
-    "Thank you for the {technology} requirement.",
-    "Thanks for sending the {technology} requirement.",
-    "Thank you for sending the {technology} requirement.",
-    "Thanks for the {technology} training requirement.",
-    "Thank you for the {technology} training requirement.",
-    "Thanks for sending across the {technology} requirement.",
-    "Thank you for sending across the {technology} requirement.",
-    "Thanks for sending the {technology} training requirement.",
-    "Thank you for sending the {technology} training requirement.",
-)
-_PREPARE_FROM_TOPICS = (
-    "We will prepare the ToC and the lab cost from the topics and the details already shared.",
-    "We will prepare the ToC and the lab cost from the topics and details you shared.",
-    "The ToC and the lab cost will be prepared from the topics and the details already shared.",
-    "We will prepare the ToC and the lab cost from the topics and the details shared with us.",
-    "We will put together the ToC and the lab cost from the topics and the details you shared.",
-    "We will prepare the ToC and the lab cost using the topics and the details already shared.",
-)
-_PREPARE_FROM_DETAILS = (
-    "We will prepare the ToC and the lab cost from the details already shared.",
-    "We will prepare the ToC and the lab cost from the details you shared.",
-    "The ToC and the lab cost will be prepared from the details already shared.",
-    "We will prepare the ToC and the lab cost from the details shared with us.",
-    "We will put together the ToC and the lab cost from the details you shared.",
-    "We will prepare the ToC and the lab cost using the details already shared.",
-)
-_LOOKING_FORWARD = (
-    "Looking forward to your review.",
-    "Looking forward to sharing the profiles.",
-    "Looking forward to sending this across.",
-    "Looking forward to your thoughts.",
-    "Looking forward to sharing this with you.",
-    "Looking forward to the next update.",
+# Ten professional notes with the same meaning. Openings start with "Thank you",
+# never "Thanks for sharing", so apply_voice does not prefix "Greetings of the day!".
+# One index selects the whole note. Placeholders are filled from the requirement.
+_ACK_VERSIONS = (
+    {
+        "thanks": "Thank you for sharing the {technology} requirement.",
+        "verb": "We have noted",
+        "topics": "the topics",
+        "duration": "training_days",
+        "mode": "delivery_mode",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "Looking forward to sharing the documents with you.",
+        "cv": "the relevant CV",
+    },
+    {
+        "thanks": "Thank you for sending over the {technology} training requirement.",
+        "verb": "We have taken note of",
+        "topics": "the topics",
+        "duration": "day_duration",
+        "mode": "mode",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "We look forward to sharing these with you.",
+        "cv": "the CV",
+    },
+    {
+        "thanks": "Thank you for sharing the {technology} requirement.",
+        "verb": "We have noted",
+        "topics": "the topics",
+        "duration": "training_days",
+        "mode": "mode",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "Looking forward to sending the details across.",
+        "cv": "the CV",
+    },
+    {
+        "thanks": "Thank you for providing the {technology} training requirements.",
+        "verb": "We have noted",
+        "topics": "the proposed topics",
+        "duration": "day_training_schedule",
+        "mode": "delivery",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "We look forward to sharing the documents with you.",
+        "cv": "the relevant CV",
+    },
+    {
+        "thanks": "Thank you for sharing the {technology} requirement with us.",
+        "verb": "We have noted",
+        "topics": "the topics",
+        "duration": "training_days",
+        "mode": "delivery",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": True,
+        "close": "Looking forward to connecting with you again soon.",
+        "cv": "the CV",
+    },
+    {
+        "thanks": "Thank you for sharing the {technology} training details.",
+        "verb": "We have recorded",
+        "topics": "the topics",
+        "duration": "day_duration",
+        "mode": "mode",
+        "hours": "hours_of_lab",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "We look forward to sending everything across.",
+        "cv": "the CV",
+    },
+    {
+        "thanks": "Thank you for sharing your {technology} training requirements.",
+        "verb": "We have noted",
+        "topics": "the topics",
+        "duration": "training_days",
+        "mode": "format",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "Looking forward to sharing the details with you.",
+        "cv": "the relevant CV",
+    },
+    {
+        "thanks": "Thank you for sending us the {technology} requirement.",
+        "verb": "We have noted",
+        "topics": "the requested topics",
+        "duration": "day_schedule",
+        "mode": "training_mode",
+        "hours": "lab_hours",
+        "order": ("topics", "mode", "duration", "hours"),
+        "including": False,
+        "close": "We look forward to sending the proposed details across.",
+        "cv": "the CV",
+    },
+    {
+        "thanks": "Thank you for sharing the {technology} training requirement.",
+        "verb": "We have taken note of",
+        "topics": "the topics",
+        "duration": "training_days",
+        "mode": "delivery",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "Looking forward to sharing the details with you.",
+        "cv": "the relevant CV",
+    },
+    {
+        "thanks": "Thank you for sharing the {technology} requirement.",
+        "verb": "We have noted",
+        "topics": "the topics",
+        "duration": "the_day_training_duration",
+        "mode": "mode",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "including": False,
+        "close": "Looking forward to sending these over to you.",
+        "cv": "the trainer's CV",
+    },
 )
 
 
@@ -2667,73 +2754,300 @@ def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
     return int.from_bytes(digest[:4], "big") % size
 
 
-def _requirement_thanks_line(extracted: Dict[str, Any], technology: str) -> str:
-    template = _ACK_OPENINGS[_ack_variant_index(extracted, "opening", len(_ACK_OPENINGS))]
-    return template.replace("{technology}", technology)
+def _duration_phrase(style: str, days: float) -> str:
+    number = _display_quantity(days)
+    if style == "training_days":
+        unit = "day" if float(days) == 1 else "days"
+        return f"{number} training {unit}"
+    if style == "day_duration":
+        return f"{number}-day duration"
+    if style == "day_training_schedule":
+        return f"{number}-day training schedule"
+    if style == "day_schedule":
+        return f"{number}-day schedule"
+    return f"the {number}-day training duration"
 
 
-def _looking_forward_line(extracted: Dict[str, Any]) -> str:
-    return _LOOKING_FORWARD[_ack_variant_index(extracted, "close", len(_LOOKING_FORWARD))]
+def _mode_phrase(style: str, mode: str) -> str:
+    word = _clean(mode)
+    phrases = {
+        "delivery_mode": f"{word} delivery mode",
+        "mode": f"{word} mode",
+        "delivery": f"{word} delivery",
+        "format": f"{word} format",
+        "training_mode": f"{word} training mode",
+    }
+    return phrases.get(style, f"{word} mode")
 
 
-def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """Say the estimate will be prepared. Keep internal costing rules out of the note."""
-    if not _lab_is_clahan_managed(extracted):
-        return ""
-
-    participants = _safe_int(extracted.get("participant_count"), 0)
-    hours_per_day = _known_lab_hours(extracted)
-    cloud_provider = _clean(extracted.get("cloud_provider"))
-    duration_days = _safe_float(extracted.get("duration_days"), 0)
-    if participants and hours_per_day and cloud_provider:
-        parts = [f"{participants} participant{'s' if participants != 1 else ''}"]
-        if duration_days:
-            parts.append(f"{_display_quantity(duration_days)} days")
-        parts.append(f"{_display_quantity(hours_per_day)} hours per day")
-        return f"\n\nWe will prepare the lab estimate for {_join_phrases(parts)}."
-
-    # Topics and the details already shared are enough to prepare the documents.
-    # Missing headcount or cloud provider is not a reason to ask the client to wait.
-    if _topics_were_shared(extracted):
-        line = _PREPARE_FROM_TOPICS[_ack_variant_index(extracted, "prepare-topics", len(_PREPARE_FROM_TOPICS))]
-        return f"\n\n{line}"
-    if _shared_batch_details(extracted):
-        line = _PREPARE_FROM_DETAILS[_ack_variant_index(extracted, "prepare-details", len(_PREPARE_FROM_DETAILS))]
-        return f"\n\n{line}"
-
-    missing = []
-    if not participants:
-        missing.append("participant count")
-    if not hours_per_day:
-        missing.append("lab hours per day")
-    if not cloud_provider:
-        missing.append("preferred cloud provider (AWS, Azure, or GCP)")
-    return f"\n\nPlease share the {_join_phrases(missing)} so we can prepare the lab estimate."
+def _lab_hours_phrase(style: str, hours: float) -> str:
+    number = _display_quantity(hours)
+    if style == "hours_of_lab":
+        unit = "hour" if float(hours) == 1 else "hours"
+        return f"{number} {unit} of lab work per day"
+    unit = "lab hour" if float(hours) == 1 else "lab hours"
+    return f"{number} {unit} per day"
 
 
-def _confirmed_requirement_scope_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """Mention the facts the client already gave, in one short sentence."""
-    facts = []
+def _explicit_request_labels(extracted: Dict[str, Any]) -> list[str]:
+    """Labels the client actually asked for. An empty request list stays empty."""
+    requested_details = extracted.get("requested_details") or []
+    if not isinstance(requested_details, (list, tuple, set)):
+        return []
+    request_texts = [str(item or "").lower() for item in requested_details if str(item or "").strip()]
+    if not request_texts:
+        return []
+    labels: list[str] = []
+
+    def add(label: str) -> None:
+        if label not in labels:
+            labels.append(label)
+
+    for text in request_texts:
+        if any(key in text for key in ("cv", "resume")):
+            add("CV")
+        elif "profile" in text and "linkedin" not in text and "linked in" not in text:
+            add("CV")
+    checks = [
+        (("linkedin", "linked in"), "LinkedIn profile"),
+        (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
+        (("experience", "implementation"), "relevant experience"),
+        (("current location", "location"), "current location"),
+        (("availability", "available"), "availability"),
+        (("technical call", "slots", "time slots"), "technical call slots"),
+        (("commercial", "commercials", "rate"), "commercials"),
+        (("software", "hardware", "system requirement"), "software/hardware requirements"),
+        (("certification", "certifications"), "certifications"),
+    ]
+    for keys, label in checks:
+        if any(any(key in text for key in keys) for text in request_texts):
+            add(label)
+    return labels
+
+
+def _ack_share_noun(version: Dict[str, Any], labels: list[str]) -> str:
+    extras = [label for label in labels if label not in {"CV", "ToC"}]
+    if "CV" in labels:
+        if not extras:
+            return str(version["cv"])
+        return _join_phrases([str(version["cv"]), *extras])
+    named = [label if label.lower().startswith("the ") else f"the {label}" for label in extras]
+    return _join_phrases(named)
+
+
+def _ack_work_line(index: int, *, toc: bool, lab: bool, noun: str, has_facts: bool) -> str:
+    """Promise only the documents this requirement actually asked us to prepare."""
+    if index == 2:
+        actions = []
+        if toc:
+            actions.append("prepare the ToC")
+        if lab:
+            actions.append("calculate the lab cost")
+        if noun:
+            actions.append(f"share {noun} for your review")
+        return f"We will {_join_phrases(actions)}." if actions else ""
+    if index == 8:
+        sentences = []
+        if toc and lab:
+            sentences.append("We will develop the ToC and work out the lab cost based on the shared requirements.")
+        elif toc:
+            sentences.append("We will develop the ToC based on the shared requirements.")
+        elif lab:
+            sentences.append("We will work out the lab cost based on the shared requirements.")
+        if noun:
+            shown = noun[0].upper() + noun[1:]
+            sentences.append(f"{shown} will also be provided for your review.")
+        return " ".join(sentences)
+    if index == 5:
+        actions = []
+        if toc:
+            actions.append("develop the ToC")
+        if lab:
+            actions.append("prepare the lab cost")
+        if noun:
+            actions.append(f"share {noun} for your review")
+        if not actions:
+            return ""
+        lead = "Based on these details, we will " if has_facts else "We will "
+        return lead + _join_phrases(actions) + "."
+
+    heads = {
+        0: (
+            "We will prepare the ToC and lab cost based on the details provided",
+            "We will prepare the ToC based on the details provided",
+            "We will prepare the lab cost based on the details provided",
+            "share",
+            "for your review",
+            False,
+        ),
+        1: (
+            "We will put together the ToC and lab cost according to your requirements",
+            "We will put together the ToC according to your requirements",
+            "We will put together the lab cost according to your requirements",
+            "share",
+            "for your review",
+            True,
+        ),
+        3: (
+            "Our team will prepare the ToC and lab cost based on the information shared",
+            "Our team will prepare the ToC based on the information shared",
+            "Our team will prepare the lab cost based on the information shared",
+            "provide",
+            "for your review",
+            False,
+        ),
+        4: (
+            "We will work on the ToC and lab cost based on your inputs",
+            "We will work on the ToC based on your inputs",
+            "We will work on the lab cost based on your inputs",
+            "share",
+            "for your review",
+            False,
+        ),
+        6: (
+            "We will prepare the ToC and lab cost to align with the requirements you shared",
+            "We will prepare the ToC to align with the requirements you shared",
+            "We will prepare the lab cost to align with the requirements you shared",
+            "send",
+            "for your consideration",
+            False,
+        ),
+        7: (
+            "We will compile the ToC and lab cost using the information provided",
+            "We will compile the ToC using the information provided",
+            "We will compile the lab cost using the information provided",
+            "share",
+            "for your review",
+            False,
+        ),
+        9: (
+            "We will put together the ToC and lab cost based on the details you provided",
+            "We will put together the ToC based on the details you provided",
+            "We will put together the lab cost based on the details you provided",
+            "share",
+            "for your review",
+            False,
+        ),
+    }
+    both, only_toc, only_lab, verb, tail, along_with = heads[index]
+    if toc and lab:
+        head = both
+    elif toc:
+        head = only_toc
+    elif lab:
+        head = only_lab
+    else:
+        head = ""
+    if noun and head and along_with:
+        pronoun = "them" if toc and lab else "it"
+        return f"{head} and share {pronoun} along with {noun} for your review."
+    if noun and head:
+        return f"{head} and {verb} {noun} {tail}."
+    if noun:
+        starter = "Our team will" if index == 3 else "We will"
+        return f"{starter} {verb} {noun} {tail}."
+    return f"{head}." if head else ""
+
+
+def _ack_noted_sentence(version: Dict[str, Any], extracted: Dict[str, Any]) -> str:
+    phrases = []
     duration = _safe_float(extracted.get("duration_days"), 0)
-    if duration:
-        facts.append(f"{_display_quantity(duration)} training days")
-    if _clean(extracted.get("mode")):
-        facts.append(_clean(extracted["mode"]))
-    participants = _safe_int(extracted.get("participant_count"), 0)
-    if participants:
-        facts.append(f"{participants} participant{'s' if participants != 1 else ''}")
-    if _clean(extracted.get("audience_level")):
-        facts.append(f"{_clean(extracted['audience_level'])} level")
-    if _clean(extracted.get("cloud_provider")):
-        facts.append(_clean(extracted["cloud_provider"]))
-    hours_per_day = _known_lab_hours(extracted)
-    if hours_per_day and _lab_is_clahan_managed(extracted) and not _lab_inputs_complete(extracted):
-        facts.append(f"{_display_quantity(hours_per_day)} lab hours per day")
-    if _topics_were_shared(extracted):
-        facts.insert(0, "the topics you shared")
-    if not facts:
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    for key in version["order"]:
+        if key == "topics" and _topics_were_shared(extracted):
+            phrases.append(str(version["topics"]))
+        elif key == "duration" and duration:
+            phrases.append(_duration_phrase(str(version["duration"]), duration))
+        elif key == "mode" and mode:
+            phrases.append(_mode_phrase(str(version["mode"]), mode))
+        elif key == "hours" and hours:
+            phrases.append(_lab_hours_phrase(str(version["hours"]), hours))
+    if not phrases:
         return ""
-    return f" We have noted {_join_phrases(facts)}."
+    joined = _join_phrases(phrases)
+    if version["including"]:
+        return f"We have noted all the details, including {joined}."
+    return f"{version['verb']} {joined}."
+
+
+def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
+    """Name the estimate once participant count, hours, and cloud are known."""
+    if not _lab_is_clahan_managed(extracted) or not _lab_inputs_complete(extracted):
+        return ""
+    participants = _safe_int(extracted.get("participant_count"), 0)
+    hours_per_day = _known_lab_hours(extracted)
+    duration_days = _safe_float(extracted.get("duration_days"), 0)
+    parts = [f"{participants} participant{'s' if participants != 1 else ''}"]
+    if duration_days:
+        parts.append(f"{_display_quantity(duration_days)} days")
+    parts.append(f"{_display_quantity(hours_per_day)} hours per day")
+    return f"We will prepare the lab estimate for {_join_phrases(parts)}."
+
+
+def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
+    """Ask for lab inputs only when the client has not shared enough to start."""
+    if not _lab_is_clahan_managed(extracted) or _lab_inputs_complete(extracted):
+        return ""
+    if _topics_were_shared(extracted) or _shared_batch_details(extracted):
+        return ""
+    missing = []
+    if not _safe_int(extracted.get("participant_count"), 0):
+        missing.append("participant count")
+    if not _known_lab_hours(extracted):
+        missing.append("lab hours per day")
+    if not _clean(extracted.get("cloud_provider")):
+        missing.append("preferred cloud provider (AWS, Azure, or GCP)")
+    if not missing:
+        return ""
+    return f"Please share the {_join_phrases(missing)} so we can prepare the lab estimate."
+
+
+def _ack_greeting(extracted: Dict[str, Any]) -> str:
+    salutation = _client_salutation(extracted)
+    if salutation == "Client":
+        return "Hi,"
+    return f"Hi {salutation},"
+
+
+def _render_professional_ack(
+    extracted: Dict[str, Any],
+    version_index: int,
+    ask_missing: bool = True,
+) -> str:
+    """One professional version, filled with this requirement's facts."""
+    version = _ACK_VERSIONS[version_index % len(_ACK_VERSIONS)]
+    technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or "training")
+    labels = _explicit_request_labels(extracted)
+    topics_shared = _topics_were_shared(extracted)
+    promise_toc = topics_shared or "ToC" in labels
+    promise_lab = _lab_is_clahan_managed(extracted) and not _lab_inputs_request(extracted)
+    noun = _ack_share_noun(version, labels)
+    noted = _ack_noted_sentence(version, extracted)
+    thanks = str(version["thanks"]).replace("{technology}", technology)
+    opening = f"{thanks} {noted}".strip() if noted else thanks
+    work = _ack_work_line(
+        version_index % len(_ACK_VERSIONS),
+        toc=promise_toc,
+        lab=promise_lab,
+        noun=noun,
+        has_facts=bool(noted),
+    )
+    paragraphs = [_ack_greeting(extracted), opening]
+    missing = _format_missing_details(extracted) if ask_missing else ""
+    if missing:
+        paragraphs.append("Please share:\n" + missing)
+    if work:
+        paragraphs.append(work)
+    estimate = _lab_estimate_sentence(extracted)
+    lab_request = _lab_inputs_request(extracted)
+    if estimate:
+        paragraphs.append(estimate)
+    elif lab_request:
+        paragraphs.append(lab_request)
+    paragraphs.append(str(version["close"]))
+    paragraphs.append(_reply_signature())
+    return "\n\n".join(paragraphs)
 
 
 def _topics_were_shared(extracted: Dict[str, Any]) -> bool:
@@ -2816,40 +3130,12 @@ def _client_short_requirement_ack(
     intro: str = "",
     ask_missing: bool = True,
 ) -> Dict[str, str]:
-    technology = extracted.get("technology_needed") or "training"
-    missing = _format_missing_details(extracted) if ask_missing else ""
-    opening = _clean(intro) or _requirement_thanks_line(extracted, str(technology))
-    noted = _confirmed_requirement_scope_acknowledgement(extracted)
-    clahan_note = _lab_estimate_acknowledgement(extracted)
-    salutation = _client_salutation(extracted)
-    hello = "Hello," if salutation == "Client" else f"Hello {salutation},"
-    looking_forward = ""
-    if not missing and not clahan_note.strip().lower().startswith("please share"):
-        looking_forward = f"\n\n{_looking_forward_line(extracted)}"
-    if missing:
-        body = (
-            f"{hello}\n\n"
-            f"{opening}{noted}\n\n"
-            "Please share:\n"
-            f"{missing}{clahan_note}\n\n"
-            + _reply_signature()
-        )
-    else:
-        requested = extracted.get("requested_details") or []
-        if isinstance(requested, (list, tuple, set)) and any(str(item or "").strip() for item in requested):
-            items = _client_requested_items_for_reply({"requested_details": list(requested)})
-        else:
-            items = ""
-        if items and items != "CV, LinkedIn profile, and requested details":
-            follow = f"We will share the {items} for your review."
-        else:
-            follow = "We will check trainer availability and share suitable trainer profiles for your review."
-        body = (
-            f"{hello}\n\n"
-            f"{opening}{noted}\n\n"
-            f"{follow}{clahan_note}{looking_forward}\n\n"
-            + _reply_signature()
-        )
+    # The older details-received intro is not the opening. Every requirement
+    # acknowledgement uses one version from the professional pool.
+    del intro
+    technology = extracted.get("technology_needed") or extracted.get("technology") or "training"
+    index = _ack_variant_index(extracted, "version", len(_ACK_VERSIONS))
+    body = _render_professional_ack(extracted, index, ask_missing=ask_missing)
     return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
 
 

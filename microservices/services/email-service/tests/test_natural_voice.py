@@ -25,6 +25,28 @@ def _reply(scenario):
     )
 
 
+def test_professional_requirement_thanks_keeps_thank_you():
+    from app.agents.natural_voice import apply_voice
+
+    kept = apply_voice(
+        "Hi Asha,\n\n"
+        "Thank you for sharing the DevOps requirement. We have noted the topics, "
+        "7 training days, Offline delivery mode, and 3 lab hours per day.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
+    )
+    assert "Thank you for sharing the DevOps requirement." in kept
+    assert "Greetings of the day" not in kept
+    assert "Thanks for sharing the DevOps requirement." not in kept
+
+    prefixed = apply_voice(
+        "Hi Asha,\n\n"
+        "Thanks for sharing the ToC request for the DevOps training.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
+    )
+    assert prefixed.startswith("Hi Asha,")
+    assert "Greetings of the day! Thanks for sharing the ToC request" in prefixed
+
+
 def test_coordination_template_uses_annapurna():
     reply = _reply("client_sent_details")
     assert reply["body"].startswith("Hi Asha,")

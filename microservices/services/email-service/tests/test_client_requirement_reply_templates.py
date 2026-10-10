@@ -150,8 +150,15 @@ def test_client_supplied_lab_inputs_are_acknowledged_without_default_disclaimer(
     assert extracted["lab_hours_per_day"] == 3
     assert extracted["cloud_provider"] == "AWS & Azure"
     body = _client_proceed_ack_reply(extracted)["body"]
-    assert "We have noted 20 training days, Offline, 34 participants, Advanced level, and AWS & Azure." in body
     assert "We will prepare the lab estimate for 34 participants, 20 days, and 3 hours per day." in body
+    assert "20" in body
+    assert "Offline" in body
+    assert "CV" in body
+    assert "LinkedIn" in body
+    assert "toc" in body.lower()
+    assert "topics" not in body.lower()
+    assert "Greetings of the day" not in body
+    assert "We will share the CV and ToC for your review." not in body
     assert "not treated as the participant count" not in body
     assert "Please share the participant count" not in body
     assert "commercials for your review" not in body
@@ -356,8 +363,14 @@ def test_client_provided_all_details_reply_thanks_naturally():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thanks for sharing the required details for your training requirement." in reply["body"]
-    assert "share suitable trainer profiles" in reply["body"]
+    assert "DevOps" in reply["body"]
+    assert "5" in reply["body"]
+    assert "Online" in reply["body"]
+    assert "Looking forward" in reply["body"] or "look forward" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "We will share the CV and ToC for your review." not in reply["body"]
+    assert "topics" not in reply["body"].lower()
+    assert "lab cost" not in reply["body"].lower()
     assert "Please share:" not in reply["body"]
 
 
