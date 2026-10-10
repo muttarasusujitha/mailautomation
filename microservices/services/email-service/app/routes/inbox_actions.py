@@ -662,16 +662,52 @@ async def regenerate_reply(
     payload: RegenerateRequest,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Re-generate an AI reply from the configured provider and thread context."""
+    """Re-generate a reply. AI off still drafts from the pipeline and stored records."""
     # The Client Requests and Shortlist screens use this one persisted setting.
-    # Enforce it here too so an API call cannot silently bypass template mode.
+    # When it is off, the reply comes from the requirement or trainer record.
     setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
-    if str(setting.get("value") or "template").strip().lower() != "ai":
-        raise HTTPException(409, "AI reply generation is off. Enable AI text generation first.")
+    ai_on = str(setting.get("value") or "template").strip().lower() == "ai"
 
     doc = await db["client_emails"].find_one({"email_id": email_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Inbox email not found")
+
+    if not ai_on:
+        from app.agents.offline_replies import reply_for_stored_message
+
+        generated = await reply_for_stored_message(db, doc)
+        new_reply = str(generated.get("body") or "").strip()
+        if not new_reply:
+            raise HTTPException(422, "No reply could be prepared from the stored records.")
+        now = datetime.utcnow()
+        generated_reply = {
+            "subject": generated.get("subject") or (
+                f"Re: {doc.get('subject')}" if doc.get("subject") and not str(doc.get("subject")).lower().startswith("re:")
+                else doc.get("subject") or ""
+            ),
+            "body": new_reply,
+        }
+        await db["client_emails"].update_one(
+            {"email_id": email_id},
+            {"$set": {
+                "ai_reply": new_reply,
+                "draft_reply": new_reply,
+                "generated_reply": generated_reply,
+                "reply_template_key": generated.get("template_key") or doc.get("reply_template_key") or "",
+                "status": "pending_approval",
+                "reply_status": "pending_review",
+                "regenerated_at": now,
+                "updated_at": now,
+                "generation_source": "template",
+            }},
+        )
+        return {
+            "success": True,
+            "email_id": email_id,
+            "reply": new_reply,
+            "generated_reply": generated_reply,
+            "generation_source": "template",
+        }
 
     body = _clean_incoming_email(doc.get("clean_body") or doc.get("body") or doc.get("raw_body") or "")
     subject = doc.get("subject", "")

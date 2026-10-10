@@ -3767,13 +3767,6 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         lab_hours = _safe_float(extracted["lab_hours_per_day"], 0)
         display_hours = str(int(lab_hours)) if lab_hours and lab_hours.is_integer() else str(extracted["lab_hours_per_day"])
         lines.append(f"Lab Access: {display_hours} hours per day")
-    client_commercial = _clean(extracted.get("budget_range"))
-    if not client_commercial and extracted.get("budget_total"):
-        client_commercial = f"INR {int(round(float(extracted['budget_total']))):,} total-course commercial"
-    elif not client_commercial and extracted.get("budget_per_day"):
-        client_commercial = f"INR {int(round(float(extracted['budget_per_day']))):,} per day/session"
-    if client_commercial:
-        lines.append(f"Client commercial: {client_commercial}")
 
     # Use a concise, single-render template matching the requested clean version.
     body = (
@@ -7512,9 +7505,32 @@ async def _handle_trainer_general_question(
     settings_doc = await _load_admin_settings(db)
     now = _now()
 
-    requirement_reply = _verified_requirement_question_answer(question, requirement, trainer_name)
-    if requirement_reply:
-        generated_reply = requirement_reply
+    from app.agents.offline_replies import guard_trainer_body, prepare_trainer_reply
+
+    ai_on = await _global_ai_wording_enabled(db)
+    generated_reply = prepare_trainer_reply(
+        question,
+        generated_reply,
+        trainer,
+        requirement,
+        shortlist,
+        ai_on=ai_on,
+    )
+    # A stored-record reply already answered the safe part and refused secrets.
+    # The field lookup stays for a caller that passed its own verified draft.
+    if not generated_reply.get("from_records"):
+        requirement_reply = _verified_requirement_question_answer(question, requirement, trainer_name)
+        if requirement_reply:
+            generated_reply = {
+                **requirement_reply,
+                "body": guard_trainer_body(
+                    requirement_reply.get("body") or "",
+                    question,
+                    trainer,
+                    requirement,
+                    shortlist,
+                ),
+            }
 
     # A draft that contains a direct, verified answer can go straight back to
     # the trainer. The question record is deliberately separate from shortlist
@@ -7546,7 +7562,14 @@ async def _handle_trainer_general_question(
                 "updated_at": _now(),
             }},
         )
-        return {"attempted": True, "success": bool(ok), "query_id": query_id, "error": error or ""}
+        return {
+            "attempted": True,
+            "success": bool(ok),
+            "query_id": query_id,
+            "error": error or "",
+            "answer": generated_reply.get("body") or "",
+            "answer_subject": generated_reply.get("subject") or "",
+        }
 
     if not client_email:
         await db["trainer_question_queries"].update_one(
@@ -11371,23 +11394,34 @@ async def _process_client_requirement_email(
             question_result = {"attempted": True, "success": False, "error": str(exc)}
         if question_result.get("attempted"):
             question_status = "auto_sent" if question_result.get("success") else "pending_retry"
+            answer_body = _clean(question_result.get("answer"))
+            question_update = {
+                "processed": bool(question_result.get("success")),
+                "processed_at": _now() if question_result.get("success") else None,
+                "status": question_status,
+                "reply_status": question_status,
+                "email_classification": question_doc["email_classification"],
+                "office_mail_category": "trainer_general_question",
+                "classification_reason": "trainer_question_resolution_before_pipeline",
+                "reply_template_key": "trainer_record_reply" if answer_body else "trainer_question_resolution",
+                "question_resolution": question_result,
+                "auto_send_candidate": False,
+                "auto_send_eligible": False,
+                "auto_send_ready": False,
+                "updated_at": _now(),
+            }
+            if answer_body:
+                question_update.update({
+                    "generated_reply": {
+                        "subject": question_result.get("answer_subject") or reference_reply.get("subject") or "",
+                        "body": answer_body,
+                    },
+                    "ai_reply": answer_body,
+                    "draft_reply": answer_body,
+                })
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
-                {"$set": {
-                    "processed": bool(question_result.get("success")),
-                    "processed_at": _now() if question_result.get("success") else None,
-                    "status": question_status,
-                    "reply_status": question_status,
-                    "email_classification": question_doc["email_classification"],
-                    "office_mail_category": "trainer_general_question",
-                    "classification_reason": "trainer_question_resolution_before_pipeline",
-                    "reply_template_key": "trainer_question_resolution",
-                    "question_resolution": question_result,
-                    "auto_send_candidate": False,
-                    "auto_send_eligible": False,
-                    "auto_send_ready": False,
-                    "updated_at": _now(),
-                }},
+                {"$set": question_update},
             )
             log_identity = []
             if email_doc.get("gmail_message_id"):
@@ -12844,12 +12878,27 @@ async def _process_client_requirement_email(
             template_reply = {"auto_send_safe": True}
             selected_template_key = "gpt_general_client_question"
         else:
-            # Global Template mode and an AI failure both keep the enquiry
-            # moving with approved wording.  Unknown facts are never guessed.
-            reply = _approved_question_reply(email_doc.get("from_name") or "")
-            reply["subject"] = f"Re: {subject}" if subject else "Re: Your Enquiry"
-            template_reply = {"auto_send_safe": True}
-            selected_template_key = "general_client_question_template"
+            # AI wording is off. A message tied to a requirement still gets the
+            # professional acknowledgement from that client's stored facts.
+            record_reply: Dict[str, Any] = {}
+            if email_doc.get("requirement_id") or extracted.get("is_training_request"):
+                from app.agents.offline_replies import reply_for_stored_message
+
+                record_reply = await reply_for_stored_message(db, {
+                    **email_doc,
+                    "extracted": extracted,
+                    "email_classification": classification,
+                    "classification_body": classification_body,
+                })
+            if record_reply.get("body"):
+                reply = record_reply
+                template_reply = {"auto_send_safe": True}
+                selected_template_key = "client_requirement_ack"
+            else:
+                reply = _approved_question_reply(email_doc.get("from_name") or "")
+                reply["subject"] = f"Re: {subject}" if subject else "Re: Your Enquiry"
+                template_reply = {"auto_send_safe": True}
+                selected_template_key = "general_client_question_template"
 
     # A trainer can also ask a genuine question in an existing thread.  Run
     # this only after all deterministic mail/slot/detail routes above have
@@ -12880,7 +12929,15 @@ async def _process_client_requirement_email(
             reference_reply=trainer_reference,
             recipient_kind="trainer",
         )
-        reply = ai_question_reply or trainer_reference
+        if ai_question_reply:
+            reply = ai_question_reply
+        elif not await _global_ai_wording_enabled(db):
+            from app.agents.offline_replies import trainer_reply_for_email
+
+            record_reply = await trainer_reply_for_email(db, email_doc, classification_body)
+            reply = record_reply if record_reply.get("body") else trainer_reference
+        else:
+            reply = trainer_reference
         classification = {
             **classification,
             "scenario": "trainer_general_question",
@@ -12889,7 +12946,11 @@ async def _process_client_requirement_email(
             "requires_human": False,
         }
         template_reply = {"auto_send_safe": True}
-        selected_template_key = "gpt_trainer_question" if ai_question_reply else "trainer_question_template"
+        selected_template_key = (
+            "gpt_trainer_question" if ai_question_reply
+            else "trainer_record_reply" if reply.get("from_records")
+            else "trainer_question_template"
+        )
 
     should_humanize_workflow_reply = bool(
         reply
@@ -12926,6 +12987,12 @@ async def _process_client_requirement_email(
                 reply.get("body", ""), recent_bodies,
                 seed=f"{email_doc.get('email_id', '')}:{selected_template_key}",
             )}
+        if not general_trainer_question and classification.get("person_type") != "trainer":
+            from app.agents.offline_replies import guard_client_body
+
+            guarded_body = guard_client_body(reply.get("body") or "", classification_body, extracted)
+            if guarded_body:
+                reply = {**reply, "body": guarded_body}
         from app.routes.inbox_actions import _workflow_reply_analysis
         reply.setdefault("reply_analysis", _workflow_reply_analysis(classification, extracted, email_doc, selected_template_key))
         if (reply.get("reply_analysis") or {}).get("needs_human_review"):
@@ -13057,6 +13124,18 @@ async def _process_client_requirement_email(
             trainer_question_result = {"attempted": True, "success": False, "error": str(exc)}
         if trainer_question_result.get("attempted"):
             question_status = "auto_sent" if trainer_question_result.get("success") else "pending_retry"
+            answer_body = _clean(trainer_question_result.get("answer"))
+            if answer_body:
+                base_update = {
+                    **base_update,
+                    "generated_reply": {
+                        "subject": trainer_question_result.get("answer_subject") or (reply or {}).get("subject") or "",
+                        "body": answer_body,
+                    },
+                    "ai_reply": answer_body,
+                    "draft_reply": answer_body,
+                    "reply_template_key": "trainer_record_reply",
+                }
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
                 {"$set": {

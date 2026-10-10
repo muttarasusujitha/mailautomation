@@ -170,6 +170,11 @@ def smooth_wording(body: str) -> str:
         text,
     )
     text = re.sub(
+        r"(?i)training duration is not the participant count\.?\s*",
+        "",
+        text,
+    )
+    text = re.sub(
         r"(?i)the region can be finalized after the cloud provider is selected\.?\s*",
         "",
         text,
