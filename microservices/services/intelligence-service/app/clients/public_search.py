@@ -357,6 +357,7 @@ async def search_public_many(queries, limit=50):
             timeouts = 0
         else:
             timeouts = 0
-    if not found and timeouts < 2 and challenges < 3 and queries:
-        found.extend(await _search_bing(queries[0], limit))
+    if not found and queries:
+        # DuckDuckGo often answers with a challenge or a timeout. Read Bing before giving up.
+        found.extend(await _search_bing(f'{queries[0]} site:linkedin.com/in', limit))
     return found[:limit], attempts
