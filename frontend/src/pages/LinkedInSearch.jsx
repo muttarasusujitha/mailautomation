@@ -7,7 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, matchingSavedLeads, mergeSearchLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, searchResultLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
@@ -91,12 +91,16 @@ function domainTerms(domain) {
 }
 
 function isTrainerProviderProfile(lead) {
+  const url = String(lead?.source_url || lead?.linkedin_url || '')
+  // Profiles already saved as trainers stay in the list. The snippet often has
+  // the person's name only, so a second skill check was hiding every card.
+  if (lead?.lead_type === 'trainer_profile' && /linkedin\.com\/in\/|naukri\.com\//i.test(url)) return true
   const text = trainerProfileText(lead)
   const terms = domainTerms(lead?.domain)
   const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
-  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
-    || lead?.source_url?.includes('linkedin.com/posts/')
-    || lead?.source_url?.includes('linkedin.com/feed/update')
+  const hasTrainerUrl = url.includes('linkedin.com/in/')
+    || url.includes('linkedin.com/posts/')
+    || url.includes('linkedin.com/feed/update')
     || lead?.lead_type === 'resume_trainer_post'
   return Boolean(
     hasTrainerUrl
@@ -204,6 +208,7 @@ export default function LinkedInSearch() {
         : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true })
       setShowSearchMatches(false)
       toast.error(e.message)
+      await load({ query: '', statusFilter: 'all', searchMode: trainerSearch ? 'trainer' : 'client' })
     } finally {
       if (token === listToken.current) {
         searchingRef.current = false
@@ -222,13 +227,19 @@ export default function LinkedInSearch() {
   }, [filter])
   useEffect(() => {
     const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
-    setLeads([])
     setSelectedDomain('all')
     setSearchDomains(domains)
     setSearchReport(null)
     setShowSearchMatches(false)
-    runSearch({ domainText: domains, automatic: true, searchMode: mode })
-    return () => { listToken.current += 1 }
+    let cancelled = false
+    ;(async () => {
+      await load({ query: '', statusFilter: 'all', searchMode: mode })
+      if (!cancelled) await runSearch({ domainText: domains, automatic: true, searchMode: mode })
+    })()
+    return () => {
+      cancelled = true
+      listToken.current += 1
+    }
   }, [mode])
 
 
@@ -310,15 +321,13 @@ export default function LinkedInSearch() {
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
   }, [leads])
 
-  const visibleLeads = useMemo(() => {
-    if (showSearchMatches && searchReport?.results?.length) {
-      const matched = matchingSavedLeads(leads, searchReport.results)
-      if (matched.length) return matched
-    }
-    if (selectedDomain === 'all') return leads
-    const selected = selectedDomain.toLowerCase()
-    return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
-  }, [leads, selectedDomain, showSearchMatches, searchReport])
+  const visibleLeads = useMemo(() => searchResultLeads(leads, {
+    selectedDomain,
+    showSearchMatches,
+    results: searchReport?.results || [],
+    domainOf: leadDomain,
+    textOf: leadSearchText,
+  }), [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
     total: visibleLeads.length,
@@ -479,13 +488,14 @@ export default function LinkedInSearch() {
 
       {isTrainer && <TrustLegend />}
 
-      {loading ? (
-        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
-      ) : searching ? (
-        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-16 text-center text-slate-500">
-          <RefreshCw className="mx-auto mb-3 h-10 w-10 animate-spin text-blue-600" />
+      {searching && (
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-4 text-center text-sm text-slate-500">
+          <RefreshCw className="mx-auto mb-2 h-5 w-5 animate-spin text-blue-600" />
           <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
         </div>
+      )}
+      {loading && !visibleLeads.length ? (
+        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
         <div className="grid gap-4 xl:grid-cols-2">
           {visibleLeads.map(lead => (

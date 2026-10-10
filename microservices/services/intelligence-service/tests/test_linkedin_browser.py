@@ -323,6 +323,58 @@ def test_account_results_saved_without_search_api_or_mail(mode, table, url, text
     mail.assert_not_awaited()
 
 
+def test_search_page_html_keeps_trainer_profiles_and_skips_the_nav_label():
+    from app.clients.linkedin_browser import profiles_from_search_html
+    html = (
+        '{"navigationUrl":"https:\\/\\/www.linkedin.com\\/in\\/ada-lovelace",'
+        '"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"DevOps corporate trainer"}}'
+        '{"publicIdentifier":"me","navigationUrl":"https://www.linkedin.com/in/me","title":{"text":"Me"}}'
+    )
+    rows = profiles_from_search_html(html)
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+    assert 'DevOps corporate trainer' in rows[0]['text']
+
+
+def test_nav_link_does_not_hide_profiles_embedded_in_the_search_page():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    html = (
+        '{"navigationUrl":"https://www.linkedin.com/in/ada-lovelace",'
+        '"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"Soft Skills corporate trainer"}}'
+    )
+    page = MagicMock()
+    page.goto = AsyncMock(side_effect=TimeoutError('slow search page'))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.content = AsyncMock(return_value=html)
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(return_value=[{'url': 'https://www.linkedin.com/in/me', 'text': 'Me'}])
+    page.locator.return_value = people
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 5))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+
+
+def test_account_search_asks_for_sixty_profiles_instead_of_stopping_at_fifty(tmp_path, monkeypatch):
+    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    page = MagicMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.locator.return_value.count = AsyncMock(return_value=0)
+    context = AsyncMock()
+    context.new_page.return_value = page
+    context.cookies.return_value = []
+    playwright = MagicMock()
+    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
+    manager = AsyncMock()
+    manager.__aenter__.return_value = playwright
+    collector = AsyncMock(return_value=[])
+    with patch('playwright.async_api.async_playwright', return_value=manager), \
+            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
+        asyncio.run(search_linkedin_account('DevOps', 'trainer', 60))
+    assert collector.await_args.args[3] == 60
+
+
 def test_account_failure_is_explicit_and_stops_other_domains():
     with patch('app.clients.linkedin_browser.search_linkedin_account', AsyncMock(side_effect=ValueError('Sign in required'))) as browser:
         result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(domains=['Python', 'Java'], search_provider='linkedin_account'), {}))

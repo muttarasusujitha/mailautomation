@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { linkedInSearchPayload, mergeSearchLeads } from './leadSearchFeedback.js'
+import { linkedInSearchPayload, mergeSearchLeads, searchResultLeads } from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')
@@ -20,6 +20,23 @@ test('client and trainer searches both post into LinkedIn search with the same d
 test('an entered domain list is shared by both LinkedIn search modes', () => {
   assert.deepEqual(linkedInSearchPayload('client', 'SAP, Python').domains, ['SAP', 'Python'])
   assert.deepEqual(linkedInSearchPayload('trainer', 'SAP, Python').domains, ['SAP', 'Python'])
+})
+
+test('saved trainer profiles stay visible when the latest search matches nothing', () => {
+  const leads = [
+    { lead_id: 'TPL-1', domain: 'AWS', source_url: 'https://www.linkedin.com/in/a' },
+    { lead_id: 'TPL-2', domain: 'Python', source_url: 'https://www.linkedin.com/in/b' },
+  ]
+  const visible = searchResultLeads(leads, {
+    selectedDomain: 'soft skills',
+    showSearchMatches: true,
+    results: [{ source_url: 'https://www.linkedin.com/in/missing' }],
+  })
+  assert.deepEqual(visible.map(lead => lead.lead_id), ['TPL-1', 'TPL-2'])
+  assert.deepEqual(
+    searchResultLeads(leads, { selectedDomain: 'AWS' }).map(lead => lead.lead_id),
+    ['TPL-1'],
+  )
 })
 
 test('fresh search matches stay in the LinkedIn search list with saved leads', () => {
