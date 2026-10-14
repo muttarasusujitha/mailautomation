@@ -93,79 +93,19 @@ def _missing_lines(extracted: Dict[str, Any]) -> str:
 
 def _details_block(extracted: Dict[str, Any]) -> str:
     rows = [
-        ("Technology/Domain", _technology(extracted)),
+        ("Technology", _technology(extracted)),
         ("Duration", _duration(extracted)),
-        ("Dates/Timings", _dates_or_timing(extracted)),
-        ("Mode/Location", _clean(extracted.get("mode"), "To be confirmed")),
+        ("Dates", _dates_or_timing(extracted)),
+        ("Mode", _clean(extracted.get("mode"), "To be confirmed")),
         ("Participant Count", _clean(extracted.get("participant_count"), "To be confirmed")),
         ("Participant Level", _clean(extracted.get("audience_level"), "To be confirmed")),
         ("Client Domain", _clean(extracted.get("client_domain") or extracted.get("client_industry"), "To be confirmed")),
-        ("Budget/Commercial Range", _budget(extracted)),
+        ("Commercials", _budget(extracted)),
     ]
     topics = _clean(extracted.get("topics") or extracted.get("custom_topics"))
     if topics:
         rows.append(("Topics", topics))
     return "\n".join(f"{label}: {value}" for label, value in rows)
-
-
-def _client_requested_items(extracted: Dict[str, Any] | None = None, extra_text: str = "") -> str:
-    extracted = extracted or {}
-    requested_details = extracted.get("requested_details") or []
-    if isinstance(requested_details, (list, tuple, set)):
-        items = []
-        checks = [
-            (("cv", "resume", "profile"), "CV"),
-            (("linkedin", "linked in"), "LinkedIn profile"),
-            (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
-            (("experience", "implementation"), "relevant experience"),
-            (("current location", "location"), "current location"),
-            (("availability", "available"), "availability"),
-            (("technical call", "slots", "time slots"), "technical call slots"),
-            (("commercial", "commercials", "rate", "per hour", "per day"), "commercials"),
-            (("software", "hardware", "system requirement"), "software/hardware requirements"),
-            (("certification", "certifications"), "certifications"),
-        ]
-        request_texts = [str(item or "").lower() for item in requested_details]
-        for keys, label in checks:
-            if any(any(key in text for key in keys) for text in request_texts) and label not in items:
-                items.append(label)
-        if items:
-            return _join_readable(items)
-
-    haystack = " ".join(
-        str(value or "")
-        for value in list(extracted.values()) + [extra_text]
-        if not isinstance(value, (dict, list, tuple, set))
-    ).lower()
-    items: list[str] = []
-    checks = [
-        (("cv", "resume", "profile"), "CV"),
-        (("linkedin", "linked in"), "LinkedIn profile"),
-        (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
-        (("experience", "implementation"), "relevant experience"),
-        (("current location", "location"), "current location"),
-        (("availability", "available"), "availability"),
-        (("technical call", "slots", "time slots"), "technical call slots"),
-        (("commercial", "commercials", "rate", "per hour", "per day"), "commercials"),
-        (("software", "hardware", "system requirement"), "software/hardware requirements"),
-        (("certification", "certifications"), "certifications"),
-    ]
-    for keys, label in checks:
-        if any(key in haystack for key in keys) and label not in items:
-            items.append(label)
-    if not items:
-        items = ["CV", "LinkedIn profile", "requested details"]
-    return _join_readable(items)
-
-
-def _join_readable(items: list[str]) -> str:
-    if not items:
-        return ""
-    if len(items) == 1:
-        return items[0]
-    if len(items) == 2:
-        return f"{items[0]} and {items[1]}"
-    return f"{', '.join(items[:-1])}, and {items[-1]}"
 
 
 def _client_short_requirement_ack(
@@ -176,41 +116,47 @@ def _client_short_requirement_ack(
     extra_text: str = "",
     intro: str = "",
 ) -> Dict[str, Any]:
-    extracted = extracted or {}
-    greeting = client if client and client.lower() not in {"client"} else "Team"
-    items = _client_requested_items(extracted, extra_text)
-    has_profile_request = bool(extracted.get("requested_details")) and not _missing_lines(extracted)
-    missing = "" if has_profile_request else (_missing_lines(extracted) or extra_text.strip())
-    opening = _clean(
-        intro,
-        "Thank you for sharing the requirement."
-        if missing
-        else f"Thank you for sharing the {tech} requirement.",
-    )
-    if missing:
-        body = (
-            f"Dear {greeting},\n\n"
-            f"{opening}\n\n"
-            "To help us refine the shortlist, please share:\n"
-            f"{missing}\n\n"
-            f"{CLIENT_SIGNATURE}"
-        )
-    else:
-        body = (
-            f"Dear {greeting},\n\n"
-            f"{opening}\n\n"
-            f"We will review suitable {tech} trainers and share the requested {items}.\n\n"
-            f"{CLIENT_SIGNATURE}"
-        )
-    return _reply(f"Re: {tech} Trainer Requirement", body, template_key)
+    """Every requirement acknowledgement uses the one professional version pool.
+
+    The domain string is read from the requirement input, in this order:
+    technology_needed, technology, domain. That exact string is placed in the
+    sentence. There is no template per domain name. When none of those fields
+    is present, the note says "training requirement". Days, mode, topics, and
+    lab hours are filled in only when this requirement has them. The older
+    intro is not the opening.
+    """
+    del intro
+    # Imported lazily: inbox already imports this module while it loads.
+    from app.routes.inbox import _client_short_requirement_ack as render_ack
+
+    payload = dict(extracted or {})
+    if client and not _clean(payload.get("client_name")):
+        payload["client_name"] = client
+    if tech and not _clean(payload.get("technology_needed") or payload.get("technology") or payload.get("domain")):
+        payload["technology_needed"] = tech
+    if extra_text and not payload.get("needs_clarification"):
+        items = []
+        for line in str(extra_text).splitlines():
+            cleaned = re.sub(r"^\s*(?:[-*]|\d+[.)])\s*", "", line).strip()
+            if cleaned:
+                items.append(cleaned)
+        if items:
+            payload["needs_clarification"] = items
+    reply = render_ack(payload)
+    return {
+        "subject": reply.get("subject") or f"Re: {_clean(tech, 'training')} Trainer Requirement",
+        "body": reply.get("body") or "",
+        "auto_send_safe": True,
+        "template_key": template_key,
+    }
 
 
 def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
     name = _clean(sender_name, "Sender")
     body = (
         f"Dear {name},\n\n"
-        "Thank you for your email.\n\n"
-        "We have received your message and our team will review it carefully before responding further.\n\n"
+        "Thanks for your email.\n\n"
+        "We will review it and reply.\n\n"
         f"{TRAINER_SIGNATURE}"
     )
     return {
@@ -349,169 +295,160 @@ CONSULTANCY_REPLY_LINES = {
     "client_asks_technology_catalogue": (
         "client_technology_catalogue_ack",
         [
-            "Thank you for asking about our corporate training catalogue.",
-            "We provide instructor-led training across software engineering, cloud, DevOps, data, AI, cybersecurity, enterprise platforms, and related technologies.",
-            "Please share the technologies or capability areas you are evaluating, and we will send the most relevant options.",
+            "Thanks for asking about our training catalogue.",
+            "We run instructor-led courses across software, cloud, DevOps, data, AI, and cybersecurity.",
+            "Please share the technologies you need, and we will send the closest options.",
         ],
     ),
     "client_escalation_delay": (
         "client_escalation_delay_ack",
         [
-            "Thank you for following up. We understand the urgency.",
-            "We are checking the pending item internally and will prioritize the next update.",
-            "We will revert with a concrete status shortly.",
+            "Thanks for following up. We can see this is urgent.",
+            "We are checking the pending item and will send the next update.",
         ],
     ),
     "client_cancels_requirement": (
         "client_cancellation_ack",
         [
-            "Thank you for the update.",
-            "We have noted that this requirement is cancelled/on hold for now.",
-            "We will pause further coordination unless you ask us to resume.",
+            "Thanks for the update. We have put this requirement on hold.",
+            "We will wait to hear from you before doing anything further.",
         ],
     ),
     "client_reopens_requirement": (
         "client_reopen_ack",
         [
-            "Thank you for confirming that the requirement is active again.",
-            "We will resume coordination and refresh the trainer/profile status accordingly.",
-            "We will share the next update shortly.",
+            "Thanks for confirming that this requirement is active again.",
+            "We will pick it up and share the next update.",
         ],
     ),
     "client_asks_contract": (
         "client_contract_request_ack",
         [
-            "Thank you for sharing the contract/agreement query.",
-            "We will review the required document or legal/commercial input and route it to the concerned team.",
-            "We will revert with the next step shortly.",
+            "Thanks for the agreement question.",
+            "We will check the document and send the next step.",
         ],
     ),
     "client_vendor_registration": (
         "client_vendor_registration_ack",
         [
-            "Thank you for sharing the vendor registration/onboarding requirement.",
-            "We will review the requested details and coordinate the required company/billing documents.",
-            "Please share any portal link or mandatory format if applicable.",
+            "Thanks for the vendor registration request.",
+            "We will check the company and billing documents you need.",
+            "Please share the portal link or the format if there is one.",
         ],
     ),
     "client_asks_trainer_docs": (
         "client_trainer_docs_ack",
         [
-            "Thank you for requesting trainer documents/profile details.",
-            "We will check the available trainer profile, credentials, and supporting details and share them for your review shortly.",
-            "If you need a specific format, please share it in the same thread.",
+            "Thanks for asking for the trainer documents.",
+            "We will check the profile and supporting details and send them for your review.",
+            "If you need a specific format, please send it in this thread.",
         ],
     ),
     "client_asks_customization": (
         "client_customization_ack",
         [
-            "Thank you for sharing the customization request.",
-            "We will align the agenda/content with the trainer based on your specific topic requirements.",
-            "Please share any must-have or excluded topics so we can refine the plan accurately.",
+            "Thanks for the customization request.",
+            "We will align the agenda with the trainer around the topics you listed.",
+            "Please share any topics that must be included or left out.",
         ],
     ),
     "client_asks_recording": (
         "client_recording_ack",
         [
-            "Thank you for checking about session recording.",
-            "We will confirm recording feasibility with the trainer and based on the training mode/platform.",
-            "We will update you before the session is finalized.",
+            "Thanks for checking on session recording.",
+            "We will confirm this with the trainer and the training platform, and update you before the session is fixed.",
         ],
     ),
     "client_asks_materials": (
         "client_materials_ack",
         [
-            "Thank you for requesting training materials.",
-            "We will coordinate with the trainer on slides, handouts, labs, or supporting documents as applicable.",
-            "We will share availability of materials shortly.",
+            "Thanks for asking about the training materials.",
+            "We will check slides, handouts, and labs with the trainer and tell you what can be shared.",
         ],
     ),
     "client_asks_attendance": (
         "client_attendance_ack",
         [
-            "Thank you for checking about attendance/reporting.",
-            "We will coordinate the attendance or completion report requirement for this training.",
-            "Please share any preferred format if your team needs one.",
+            "Thanks for checking on attendance.",
+            "We will arrange the attendance or completion report for this training.",
+            "Please share the format if your team needs a specific one.",
         ],
     ),
     "client_asks_certificate": (
         "client_certificate_ack",
         [
-            "Thank you for checking about certificates.",
-            "We will verify the certificate/completion documentation requirement and coordinate accordingly.",
-            "Please share participant names in the required format if certificates are needed.",
+            "Thanks for checking on certificates.",
+            "We will confirm what completion document we can provide.",
+            "Please share the participant names in the format you need.",
         ],
     ),
     "client_asks_lab_setup": (
         "client_lab_setup_ack",
         [
-            "Thank you for sharing the lab/setup query.",
-            "We will check the required tools, access, and environment prerequisites with the trainer/team.",
-            "We will share the setup requirements before the session wherever applicable.",
+            "Thanks for the lab setup question.",
+            "We will check the tools, access, and setup with the trainer and send the requirements before the session.",
         ],
     ),
     "client_asks_preassessment": (
         "client_assessment_ack",
         [
-            "Thank you for asking about assessment/evaluation.",
-            "We will check whether pre/post assessment or participant evaluation can be included for this training.",
-            "We will revert with the available approach shortly.",
+            "Thanks for asking about assessment.",
+            "We will check whether a pre or post assessment can be included, and send what we can offer.",
         ],
     ),
     "client_asks_timezone": (
         "client_timezone_ack",
         [
-            "Thank you for confirming the timezone requirement.",
-            "We will align the schedule using the correct timezone and validate trainer availability accordingly.",
-            "Please confirm the preferred timezone if it differs from IST.",
+            "Thanks for the timezone note.",
+            "We will set the schedule in that timezone and check the trainer's availability.",
+            "Please confirm the timezone if it is not IST.",
         ],
     ),
     "client_asks_mode_change": (
         "client_mode_change_ack",
         [
-            "Thank you for sharing the training mode change.",
-            "We will check trainer feasibility for the revised mode and update the coordination plan accordingly.",
-            "We will revert if commercials or logistics change due to the mode update.",
+            "Thanks for the mode change.",
+            "We will check whether the trainer can do the revised mode.",
+            "We will write back if the commercials or logistics need to change.",
         ],
     ),
     "client_asks_location": (
         "client_location_ack",
         [
-            "Thank you for sharing the location/venue query.",
-            "We will check trainer feasibility for the requested location and coordinate the logistics accordingly.",
-            "Please share the venue/city details if not already confirmed.",
+            "Thanks for the location question.",
+            "We will check whether the trainer can travel to that location.",
+            "Please share the city and venue if they are not confirmed yet.",
         ],
     ),
     "client_asks_batch_split": (
         "client_batch_split_ack",
         [
-            "Thank you for sharing the batch split requirement.",
-            "We will check trainer availability and commercials for multiple batches or parallel sessions as applicable.",
-            "Please share expected batch size and preferred schedule for each batch.",
+            "Thanks for the batch split request.",
+            "We will check trainer availability and commercials for the extra batches.",
+            "Please share the batch size and preferred dates for each batch.",
         ],
     ),
     "client_asks_rate_card": (
         "client_rate_card_ack",
         [
-            "Thank you for requesting rate/commercial details.",
-            "We will check the applicable trainer commercials for the requirement and share the commercials for your review.",
-            "Final commercials may vary based on trainer, duration, mode, and schedule.",
+            "Thanks for asking about the rate.",
+            "We will check the trainer commercials for this requirement and send them for your review.",
+            "The final figure can change with the trainer, duration, mode, and dates.",
         ],
     ),
     "client_asks_availability": (
         "client_availability_ack",
         [
-            "Thank you for checking trainer availability.",
-            "We will validate the trainer's availability against your preferred dates/timings and revert shortly.",
-            "Please share any strict schedule constraints if applicable.",
+            "Thanks for checking availability.",
+            "We will match the trainer's dates with yours and write back.",
+            "Please share any dates that cannot move.",
         ],
     ),
     "client_asks_shortlist_eta": (
         "client_shortlist_eta_ack",
         [
-            "Thank you for checking the profile sharing timeline.",
-            "We are working on the trainer shortlist and will share suitable profiles with commercials and availability shortly.",
-            "We will keep you updated on the next action.",
+            "Thanks for checking on the profiles.",
+            "We are preparing the trainer shortlist and will send profiles with commercials and availability.",
         ],
     ),
 }
@@ -521,153 +458,143 @@ TRAINER_REPLY_LINES = {
     "trainer_not_interested": (
         "trainer_not_interested_ack",
         [
-            "Thank you for the update.",
-            "We have noted that this requirement is not suitable for you at this time.",
-            "We will reach out again if a more relevant opportunity comes up.",
+            "Thanks for letting us know.",
+            "We will write if a closer requirement comes up.",
         ],
     ),
     "trainer_partial_availability": (
         "trainer_partial_availability_ack",
         [
-            "Thank you for sharing your availability.",
-            "We will check this against the client schedule and update you on the next step.",
-            "If there are any strict date or timing constraints, please mention them clearly.",
+            "Thanks for sharing your availability.",
+            "We will check it against the client dates and update you.",
+            "Please mention any dates that cannot move.",
         ],
     ),
     "trainer_commercial_acceptance": (
         "trainer_commercial_acceptance_ack",
         [
-            "Thank you for confirming the revised commercials.",
-            "We will update the requirement records and proceed with the next coordination step.",
-            "We will keep you posted once the client confirms.",
+            "Thanks for confirming the revised commercials.",
+            "We will take this to the client and update you once they confirm.",
         ],
     ),
     "trainer_commercial_rejection": (
         "trainer_commercial_rejection_ack",
         [
-            "Thank you for sharing your commercial feedback.",
-            "We have noted that the current budget/rate is not feasible.",
-            "We will review internally and update you if there is scope for revision.",
+            "Thanks for the commercial feedback.",
+            "We have noted that this rate does not work.",
+            "We will update you if the budget can be revised.",
         ],
     ),
     "trainer_slot_confirmed": (
         "trainer_slot_confirmed_ack",
         [
-            "Thank you for confirming the slot.",
-            "We have noted your availability and will coordinate the discussion/interview details accordingly.",
-            "Please keep the slot blocked until we share the final confirmation.",
+            "Thanks for confirming the slot.",
+            "Please keep it blocked until we send the final confirmation.",
         ],
     ),
     "trainer_reschedule_request": (
         "trainer_reschedule_request_ack",
         [
-            "Thank you for the schedule update.",
-            "We have noted your reschedule request and will coordinate revised timing with the client/team.",
-            "Please share 2-3 alternate slots if not already shared.",
+            "Thanks for the schedule update.",
+            "We will check a new time with the client.",
+            "Please share two or three other slots if you have not already.",
         ],
     ),
     "trainer_interview_done": (
         "trainer_interview_done_ack",
         [
-            "Thank you for the update.",
-            "We have noted that the client discussion/interview is completed.",
-            "We will follow up internally/client-side and update you on the next step.",
+            "Thanks for the update. We have noted that the client discussion is done.",
+            "We will update you on the next step.",
         ],
     ),
     "trainer_selected_ack": (
         "trainer_selected_ack",
         [
-            "Thank you for confirming.",
-            "We will coordinate the next steps for schedule, documentation, commercials, and final training confirmation as applicable.",
-            "Please keep your availability open for the agreed timeline.",
+            "Thanks for confirming.",
+            "We will share the schedule and the remaining documents next.",
+            "Please keep the agreed dates open.",
         ],
     ),
     "trainer_toc_shared": (
         "trainer_toc_shared_ack",
         [
-            "Thank you for sharing the ToC/course agenda.",
-            "We will review it and share it with the client for confirmation.",
-            "If any changes are requested, we will get back to you.",
+            "Thanks for sharing the ToC.",
+            "We will review it and send it to the client. We will come back if they ask for changes.",
         ],
     ),
     "trainer_content_doubt": (
         "trainer_content_doubt_ack",
         [
-            "Thank you for highlighting the content/scope point.",
-            "We will clarify the exact topics, depth, and expected coverage with the client/team.",
-            "Please mention any topics you cannot cover or any minimum duration needed.",
+            "Thanks for flagging the scope.",
+            "We will confirm the topics and depth with the client.",
+            "Please mention any topics you cannot cover, or a minimum duration you need.",
         ],
     ),
     "trainer_logistics_query": (
         "trainer_logistics_query_ack",
         [
-            "Thank you for checking the logistics/prerequisites.",
-            "We will confirm the platform, participant details, lab/tool setup, and any prerequisites before the session.",
-            "Please share any mandatory setup needs from your side.",
+            "Thanks for checking the setup.",
+            "We will confirm the platform, participants, and lab access before the session.",
+            "Please share anything you need installed before then.",
         ],
     ),
     "trainer_recording_material_policy": (
         "trainer_recording_material_policy_ack",
         [
-            "Thank you for clarifying the recording/material policy.",
-            "We have noted your preference/restriction and will align it with the client before final confirmation.",
-            "We will let you know if the client has any specific requirement around recording or materials.",
+            "Thanks for explaining your recording and material preference.",
+            "We will check it with the client before the training is confirmed.",
         ],
     ),
     "trainer_payment_query": (
         "trainer_payment_query_ack",
         [
-            "Thank you for raising the payment/billing query.",
-            "We will check the applicable payment terms, invoice process, GST/TDS handling, and billing details.",
-            "We will revert with the relevant confirmation shortly.",
+            "Thanks for the payment question.",
+            "We will check the payment terms, invoice process, and GST or TDS handling, and confirm them.",
         ],
     ),
     "trainer_onsite_travel_query": (
         "trainer_onsite_travel_query_ack",
         [
-            "Thank you for sharing the onsite/travel query.",
-            "We will confirm the training location, travel expectations, reimbursement scope, and commercials impact if any.",
-            "Please share your travel constraints if applicable.",
+            "Thanks for the travel question.",
+            "We will confirm the location, what travel is covered, and whether it changes the commercials.",
+            "Please share any travel limits from your side.",
         ],
     ),
     "trainer_meeting_issue": (
         "trainer_meeting_issue_ack",
         [
-            "Thank you for the update.",
-            "We have noted the meeting/link/platform issue and will coordinate support or revised joining details as needed.",
-            "Please stay available on email/phone for quick coordination.",
+            "Thanks for flagging the meeting problem.",
+            "We will send a working link or a revised joining detail.",
+            "Please stay reachable on email or phone while we sort it.",
         ],
     ),
     "trainer_training_update": (
         "trainer_training_update_ack",
         [
-            "Thank you for sharing the training/session update.",
-            "We have noted the status and will coordinate any pending action, issue, material, or feedback item accordingly.",
-            "Please keep us posted if anything needs client/team intervention.",
+            "Thanks for the session update.",
+            "Please tell us if you need anything from the client.",
         ],
     ),
     "trainer_referral": (
         "trainer_referral_ack",
         [
-            "Thank you for offering a referral.",
-            "Please share the trainer's profile, skills, availability, commercials, and contact details for review.",
-            "We will evaluate the referred profile against the requirement.",
+            "Thanks for the referral.",
+            "Please share the trainer's profile, skills, availability, commercials, and contact details.",
         ],
     ),
     "trainer_duplicate_reply": (
         "trainer_duplicate_reply_ack",
         [
-            "Thank you for the update.",
-            "We will check the previous email/details shared and update our records accordingly.",
-            "If anything has changed, please share the latest version in this thread.",
+            "Thanks for the update.",
+            "We will use the latest details in this thread. Please send a fresh copy if anything changed.",
         ],
     ),
     "trainer_attachment_issue": (
         "trainer_attachment_issue_ack",
         [
-            "Thank you for the attachment update.",
-            "We will check the file/link shared and update you if we are unable to access it.",
-            "Please ensure the document permissions are open for review if using a drive link.",
+            "Thanks for the file update.",
+            "We will open it and write back if we cannot access it.",
+            "If it is a drive link, please leave the permission open.",
         ],
     ),
 }
@@ -743,8 +670,8 @@ def build_auto_reply(
     if scenario == "reschedule":
         body = (
             f"Dear {client},\n\n"
-            "Thank you for the schedule update.\n\n"
-            "We have noted the revised dates/timings below and will align trainer availability accordingly:\n\n"
+            "Thanks for the schedule update.\n\n"
+            "We have noted the revised dates below and will check trainer availability:\n\n"
             f"{_details_block(extracted)}\n\n"
             "We will come back with suitable trainer availability and commercials for your review.\n\n"
             f"{TRAINER_SIGNATURE}"
@@ -753,23 +680,22 @@ def build_auto_reply(
 
     if scenario == "client_confirms_trainer":
         return _client_simple_reply(client, tech, subject, [
-            f"Thank you for confirming the trainer for the {tech} requirement.",
-            "We have noted your approval and will proceed with the next coordination steps, including interview/training schedule alignment and commercial closure as applicable.",
-            "We will keep you updated on the next action shortly.",
+            f"Thanks for confirming the trainer for the {tech} requirement.",
+            "We will set the schedule and close the commercials next.",
         ], "client_trainer_confirmation_ack")
 
     if scenario == "client_rejects_trainer":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
-            f"We have noted that the shared trainer profile is not suitable for the {tech} requirement.",
-            "We will review alternate trainer options and share more relevant profiles for your review.",
+            f"We have noted that this profile is not the right fit for the {tech} requirement.",
+            "We will send other profiles for your review.",
         ], "client_trainer_rejection_ack")
 
     if scenario == "client_requests_replacement":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
-            f"We will arrange alternate trainer profiles for the {tech} requirement based on your feedback.",
-            "If there are any specific gaps to address, please share them so we can refine the next shortlist accordingly.",
+            f"We will send other trainer profiles for the {tech} requirement.",
+            "Please share the gaps you want the next profiles to cover.",
         ], "client_replacement_request_ack")
 
     if scenario == "client_shared_meeting_link_to_trainer":
@@ -781,71 +707,69 @@ def build_auto_reply(
 
     if scenario == "client_confirms_interview_slot":
         return _client_simple_reply(client, tech, subject, [
-            "Thank you for confirming the interview/discussion slot.",
-            "We will coordinate the schedule with the trainer and share the meeting link/final confirmation shortly.",
+            "Thanks for confirming the discussion slot.",
+            "We will confirm it with the trainer and send the meeting link.",
             "Please let us know if any participant details need to be added to the invite.",
         ], "client_interview_slot_confirmation_ack")
 
     if scenario == "client_requests_interview_slots":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for your message.",
-            f"We will coordinate interview/discussion slot options for the {tech} trainer and share suitable availability shortly.",
+            f"We will ask the {tech} trainer for discussion slots and send the options.",
             "Once a slot is confirmed, we will share the meeting link and final schedule details.",
         ], "client_interview_slots_request_ack")
 
     if scenario == "client_asks_meeting_link":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for checking.",
-            "We will verify the confirmed schedule and share the meeting/joining link shortly.",
+            "We will check the confirmed schedule and send the meeting link.",
             "If there has been any change in timing or participants, please let us know.",
         ], "client_meeting_link_request_ack")
 
     if scenario == "client_asks_toc":
         return _client_simple_reply(client, tech, subject, [
-            f"Thank you for requesting the ToC/course agenda for the {tech} training.",
-            "We will coordinate with the trainer and share the relevant course outline for your review.",
+            f"Thanks for asking for the ToC for the {tech} training.",
+            "We will prepare the course outline and send it for your review.",
             "If you have any specific topics or participant level to include, please share them.",
         ], "client_toc_request_ack")
 
     if scenario == "client_sends_po":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for sharing the purchase order.",
-            "We have received it and will review the details for billing, training scope, and commercial alignment.",
-            "We will proceed with invoice and logistics coordination shortly.",
+            "We have received the purchase order and will check the billing and training scope.",
+            "We will send the invoice next.",
         ], "client_po_received_ack")
 
     if scenario == "client_asks_invoice":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for your message.",
-            "We will check the invoice status and share the invoice copy/update shortly.",
+            "We will check the invoice and send the copy or the current status.",
             "If any PO number, GST details, or billing address needs to be used, please share it in the same thread.",
         ], "client_invoice_request_ack")
 
     if scenario == "client_payment_terms":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for sharing the payment terms query.",
-            "We have noted it and will align internally on the applicable billing/payment terms for this engagement.",
-            "We will revert with the confirmation shortly.",
+            "We have noted the payment terms and will confirm what applies to this engagement.",
         ], "client_payment_terms_ack")
 
     if scenario == "client_budget_negotiation":
         return _client_simple_reply(client, tech, subject, [
-            "Thank you for sharing the budget/commercial feedback.",
-            f"We will review the commercials for the {tech} requirement and check the best feasible alignment with the trainer.",
-            "We will revert with an updated option or recommendation shortly.",
+            "Thanks for the commercial feedback.",
+            f"We will check the commercials for the {tech} requirement with the trainer and send an updated option.",
         ], "client_budget_negotiation_ack")
 
     if scenario == "client_changes_training_details":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for sharing the revised training details.",
-            "We have noted the change and will align the trainer search/schedule accordingly.",
+            "We have noted the change and will update the trainer search and schedule.",
             "If any duration, timing, mode, participant count, or date is still tentative, please confirm so we can keep the plan accurate.",
         ], "client_training_change_ack")
 
     if scenario == "client_asks_final_logistics":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for checking on the final logistics.",
-            "We will compile the confirmed trainer details, schedule, meeting link, and any required coordination notes and share them shortly.",
+            "We will send the confirmed trainer, schedule, and meeting link.",
             "Please let us know if there are additional participants or internal instructions to include.",
         ], "client_final_logistics_ack")
 
@@ -860,21 +784,21 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
             f"We will look for additional trainer profiles for the {tech} requirement.",
-            "If there are specific skills, experience level, budget, or location preferences to prioritize, kindly share them.",
+            "Please share any skill, experience, budget, or location preference we should prioritise.",
         ], "client_more_profiles_ack")
 
     if scenario == "client_training_completed":
         return _client_simple_reply(client, tech, subject, [
-            "Thank you for confirming that the training/session has been completed.",
-            "We will proceed with the required closure steps and coordinate any pending feedback, documentation, or billing items.",
+            "Thanks for confirming that the training is complete.",
+            "We will close the pending feedback, documents, and billing.",
             "Please share participant feedback if available.",
         ], "client_training_completion_ack")
 
     if scenario == "client_feedback_shared":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for sharing the feedback.",
-            "We have noted it and will review it with the relevant internal/trainer team.",
-            "If any corrective action or follow-up session is required, we will coordinate accordingly.",
+            "We have noted it and will review it with the trainer.",
+            "We will arrange a follow-up if one is needed.",
         ], "client_feedback_ack")
 
     if scenario == "client_thanks":
@@ -891,8 +815,7 @@ def build_auto_reply(
         body = (
             f"Dear {trainer_name},\n\n"
             "Thank you for your response.\n\n"
-            "We are checking the details already available in your trainer profile against this requirement. "
-            "We will contact you only if a required detail, such as availability for the proposed dates, is missing.\n\n"
+            "We will write if we still need your availability for the proposed dates.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         # Do not automatically send a generic profile/CV/LinkedIn request.
@@ -914,7 +837,7 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for sharing your profile, availability, and commercial details.\n\n"
-            "We will share the required details with the client and coordinate discussion/interview slots if the client asks to proceed.\n\n"
+            "We will share your details with the client and ask for a discussion slot if they want to proceed.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_details_ack")
@@ -922,8 +845,8 @@ def build_auto_reply(
     if scenario == "trainer_credentials_sent":
         body = (
             "Dear Trainer,\n\n"
-            "Thank you for sharing your profile/credentials.\n\n"
-            "Kindly also share your availability and commercials for this requirement so we can proceed with client review.\n\n"
+            "Thanks for sharing your profile.\n\n"
+            "Please also share your availability and commercials so we can send this to the client.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_credentials_ack")
@@ -932,7 +855,7 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for sharing your commercial details.\n\n"
-            "Kindly confirm your availability for the proposed schedule as well, so we can share the complete profile with the client.\n\n"
+            "Please also confirm your availability for the proposed dates so we can share the full profile with the client.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_commercials_ack")
@@ -940,7 +863,7 @@ def build_auto_reply(
     if scenario == "trainer_slots_sent":
         body = (
             "Dear Trainer,\n\n"
-            "Thank you for sharing your availability/slots.\n\n"
+            "Thanks for sharing your slots.\n\n"
             "We are reviewing them with the client and will confirm the next step shortly.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
@@ -950,7 +873,7 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for your response.\n\n"
-            "To proceed further, kindly share any remaining client-requested details such as profile/CV, availability, commercials, LinkedIn, ToC, or certifications.\n\n"
+            "Please share any remaining details the client asked for, such as your profile, availability, commercials, LinkedIn, ToC, or certifications.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_more_details")
@@ -976,7 +899,7 @@ def build_auto_reply(
     if scenario == "vendor_hotlist":
         body = (
             "Dear Vendor,\n\n"
-            "Thank you for sharing the profiles/hotlist.\n\n"
+            "Thanks for sharing the profiles.\n\n"
             "We will review the details and reach out if there is a matching requirement.\n\n"
             f"{SIGNATURE}"
         )
@@ -995,7 +918,7 @@ def build_auto_reply(
         body = (
             f"Dear {_clean(sender_name, 'Student')},\n\n"
             "Thank you for reaching out.\n\n"
-            "We have received your training/course enquiry and will route it to the appropriate team for review.\n\n"
+            "We have received your course enquiry and will review it.\n\n"
             f"{SIGNATURE}"
         )
         return _reply(f"Re: {_clean(subject, 'Training Enquiry')}", body, "student_enquiry_ack")
@@ -1003,8 +926,8 @@ def build_auto_reply(
     if scenario == "government_enquiry":
         body = (
             f"Dear {_clean(sender_name, 'Team')},\n\n"
-            "Thank you for sharing the government/public sector training enquiry.\n\n"
-            "We will review the requirement details and route it to the concerned team for the next step.\n\n"
+            "Thanks for the public-sector training enquiry.\n\n"
+            "We will review the requirement and take the next step.\n\n"
             f"{SIGNATURE}"
         )
         return _reply(f"Re: {_clean(subject, 'Government Training Enquiry')}", body, "government_enquiry_ack")
@@ -1013,7 +936,7 @@ def build_auto_reply(
         body = (
             f"Dear {_clean(sender_name, 'Team')},\n\n"
             "Thank you for reaching out.\n\n"
-            "We have received your media/press enquiry and will route it to the appropriate team for review.\n\n"
+            "We have received your press enquiry and will review it.\n\n"
             f"{SIGNATURE}"
         )
         return _reply(f"Re: {_clean(subject, 'Media Enquiry')}", body, "media_enquiry_ack")
@@ -1021,7 +944,7 @@ def build_auto_reply(
     if scenario == "partnership":
         body = (
             f"Dear {_clean(sender_name, 'Team')},\n\n"
-            "Thank you for sharing the partnership/collaboration enquiry.\n\n"
+            "Thanks for the partnership enquiry.\n\n"
             "We will review the details and get back to you if there is a suitable opportunity to proceed.\n\n"
             f"{SIGNATURE}"
         )
@@ -1030,8 +953,8 @@ def build_auto_reply(
     if scenario == "finance_legal":
         body = (
             f"Dear {_clean(sender_name, 'Team')},\n\n"
-            "Thank you for sharing the finance/legal related details.\n\n"
-            "We have received your message and will route it to the concerned team for review.\n\n"
+            "Thanks for the finance and legal details.\n\n"
+            "We have received your message and will review it.\n\n"
             f"{SIGNATURE}"
         )
         return _reply(f"Re: {_clean(subject, 'Your Email')}", body, "finance_legal_ack")
@@ -1040,7 +963,7 @@ def build_auto_reply(
         body = (
             f"Dear {_clean(sender_name, 'Team')},\n\n"
             "Thank you for reaching out.\n\n"
-            "We have received your message and will route it to the appropriate team for review.\n\n"
+            "We have received your message and will review it.\n\n"
             f"{SIGNATURE}"
         )
         return _reply(f"Re: {_clean(subject, 'Your Email')}", body, "general_enquiry_ack")

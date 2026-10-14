@@ -89,6 +89,26 @@ def test_twenty_day_devops_agenda_passes_delivery_quality():
     assert not toc_delivery_error(document)
 
 
+def test_partial_topics_prepare_toc_without_headcount_or_cloud(monkeypatch):
+    generate = AsyncMock(return_value={'toc_data': {'days': []}})
+    monkeypatch.setattr(toc, 'generate_toc', generate)
+    db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
+    asyncio.run(shortlists._build_toc({
+        'technology_needed': 'DevOps',
+        'duration_days': 7,
+        'mode': 'Offline',
+        'lab_hours_per_day': 3,
+        'topics': 'Docker, Kubernetes, and CI/CD',
+    }, {}, db))
+    request = generate.call_args.args[0]
+    assert request.duration_days == 7
+    assert request.mode == 'Offline'
+    assert request.hours_per_day == 3
+    assert request.participant_count is None
+    assert request.cloud_provider == ''
+    assert request.custom_topics.split('; ') == ['DevOps', 'Docker', 'Kubernetes', 'CI/CD']
+
+
 def test_mail1_toc_inherits_advanced_audience(monkeypatch):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
