@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api, { getDashboardStats, getDashboardAnalytics, clearDatabase } from '../utils/api'
+import api, { getDashboardStats, getDashboardAnalytics } from '../utils/api'
 import {
   Users, Mail, TrendingUp, RefreshCw, BarChart2, Activity,
-  Trash2, AlertTriangle, Star, ArrowUpRight, Database, Send,
+  Star, ArrowUpRight, Database, Send,
   BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles, Search,
 } from 'lucide-react'
 import {
@@ -75,14 +75,14 @@ function TooltipBox({ active, payload, label }) {
 
 /* ─── Stat Card ────────────────────────────────────────────── */
 const TONE_MAP = {
-  blue:    { bg: 'bg-blue-50',    icon: 'text-blue-600',    border: 'border-blue-100' },
-  purple:  { bg: 'bg-purple-50',  icon: 'text-purple-600',  border: 'border-purple-100' },
-  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-100' },
-  green:   { bg: 'bg-green-50',   icon: 'text-green-600',   border: 'border-green-100' },
-  orange:  { bg: 'bg-orange-50',  icon: 'text-orange-500',  border: 'border-orange-100' },
-  sky:     { bg: 'bg-sky-50',     icon: 'text-sky-600',     border: 'border-sky-100' },
-  amber:   { bg: 'bg-amber-50',   icon: 'text-amber-600',   border: 'border-amber-100' },
-  red:     { bg: 'bg-red-50',     icon: 'text-red-500',     border: 'border-red-100' },
+  blue:    { bg: 'bg-blue-50',    icon: 'text-blue-600',    border: 'border-blue-100', accent: '#2563eb' },
+  purple:  { bg: 'bg-purple-50',  icon: 'text-purple-600',  border: 'border-purple-100', accent: '#7c3aed' },
+  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-100', accent: '#059669' },
+  green:   { bg: 'bg-green-50',   icon: 'text-green-600',   border: 'border-green-100', accent: '#16a34a' },
+  orange:  { bg: 'bg-orange-50',  icon: 'text-orange-500',  border: 'border-orange-100', accent: '#ea580c' },
+  sky:     { bg: 'bg-sky-50',     icon: 'text-sky-600',     border: 'border-sky-100', accent: '#0284c7' },
+  amber:   { bg: 'bg-amber-50',   icon: 'text-amber-600',   border: 'border-amber-100', accent: '#d97706' },
+  red:     { bg: 'bg-red-50',     icon: 'text-red-500',     border: 'border-red-100', accent: '#dc2626' },
 }
 
 function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkTo, delay = 0 }) {
@@ -92,7 +92,7 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkT
     <button
       type="button"
       onClick={() => linkTo && navigate(linkTo)}
-      style={{ animationDelay: `${delay}ms` }}
+      style={{ animationDelay: `${delay}ms`, '--stat-accent': t.accent }}
       className={clsx(
         'stat-card group text-left animate-slide-up',
         linkTo ? 'cursor-pointer' : 'cursor-default'
@@ -173,8 +173,6 @@ export default function Dashboard() {
   const [syncingInbox, setSyncingInbox] = useState(false)
   const [generationMode, setGenerationMode] = useState('template')
   const [savingGenerationMode, setSavingGenerationMode] = useState(false)
-  const [showClear, setShowClear]   = useState(false)
-  const [clearing, setClearing]     = useState(false)
   const [fetchingLinkedIn, setFetchingLinkedIn] = useState(false)
   const [linkedinMessage, setLinkedinMessage] = useState('')
   const navigate = useNavigate()
@@ -237,13 +235,6 @@ export default function Dashboard() {
     } finally {
       setSavingGenerationMode(false)
     }
-  }
-
-  const handleClear = async () => {
-    setClearing(true)
-    try { await clearDatabase(); toast.success('Database cleared'); setShowClear(false); load() }
-    catch (e) { toast.error(e.message) }
-    finally { setClearing(false) }
   }
 
   const fetchLinkedIn = async () => {
@@ -329,9 +320,6 @@ export default function Dashboard() {
   const emailAttempts  = totalEmails + failedEmails
   const deliveryRate   = emailAttempts ? (totalEmails / emailAttempts) * 100 : null
   const reviewLoad     = totalTrainers ? (pendingReview / totalTrainers) * 100 : null
-  const scoreInputs    = [deliveryRate, replyRate, interestRate, reviewLoad == null ? null : Math.max(0, 100 - reviewLoad)].filter(Number.isFinite)
-  const automationScore = scoreInputs.length ? Math.round(scoreInputs.reduce((sum, value) => sum + value, 0) / scoreInputs.length) : null
-
   const statusData = stats ? [
     { name: 'Interested', value: stats.interested_count, color: '#10b981' },
     { name: 'Contacted',  value: stats.contacted_count,  color: '#2563eb' },
@@ -382,8 +370,8 @@ export default function Dashboard() {
           <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-3">
-                <span className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_16px_rgba(37,99,235,.45)] animate-pulse-soft" />
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Live command view</span>
+                <span className="h-2 w-2 rounded-full bg-blue-600" />
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Overview</span>
               </div>
               <h1 className="text-4xl font-extrabold tracking-normal text-slate-950 md:text-5xl">Dashboard</h1>
               <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-slate-600 md:text-base">Track trainer inventory, outreach movement, reply quality, and recruiter action in one clean view.</p>
@@ -397,9 +385,9 @@ export default function Dashboard() {
             {/* Ops signals */}
             <div className="grid gap-2.5">
               {[
-                ['AI matching', 'Live', 'badge-blue'],
+                ['Reply writing', generationMode === 'ai' ? 'AI' : 'Templates', generationMode === 'ai' ? 'badge-blue' : 'badge-slate'],
                 ['Mail automation', gmailConnected ? 'Ready' : 'Setup needed', gmailConnected ? 'badge-green' : 'badge-amber'],
-                ['Pipeline sync', refreshing ? 'Refreshing…' : 'Normal', refreshing ? 'badge-blue' : 'badge-slate'],
+                ['Pipeline', refreshing ? 'Refreshing…' : 'Idle', refreshing ? 'badge-blue' : 'badge-slate'],
               ].map(([label, val, cls]) => (
                 <div key={label} className="dashboard-signal px-4 py-3 flex items-center justify-between gap-4">
                   <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">{label}</span>
@@ -420,14 +408,9 @@ export default function Dashboard() {
                 ? 'Trainer data temporarily unavailable'
                 : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
           </div>
-          <div className="flex gap-2">
-            <button onClick={() => setShowClear(true)} className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50">
-              <Trash2 className="h-4 w-4" /> Clear DB
-            </button>
-            <button onClick={() => load(true)} disabled={refreshing} className="dashboard-hero-action inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-blue-700 transition disabled:opacity-60">
-              <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
-            </button>
-          </div>
+          <button onClick={() => load(true)} disabled={refreshing} className="dashboard-hero-action inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-blue-700 transition disabled:opacity-60">
+            <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
+          </button>
         </div>
       </div>
 
@@ -439,7 +422,7 @@ export default function Dashboard() {
           </span>
           <div>
             <p className="font-bold text-slate-900">Agentic AI for the entire application</p>
-            <p className="mt-1 text-sm text-slate-600">When this is on, the model writes the same one reply the templates use. Annapurna U covers ToC, lab cost, and a mail that asks for both. Murali Mohan M covers invoice and purchase order. Approved packages stay exactly as reviewed.</p>
+            <p className="mt-1 text-sm text-slate-600">When this is on, replies follow the approved templates. Coordination mail covers a table of contents and lab cost. Finance mail covers invoices and purchase orders. Packages that were already reviewed stay as reviewed.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -459,41 +442,6 @@ export default function Dashboard() {
           </button>
         </div>
       </section>
-
-      <div className="grid gap-3 md:grid-cols-4">
-        {[
-          ['Automation score', formatPercent(automationScore), automationScore == null ? 'No data' : automationScore >= 80 ? 'Strong' : automationScore >= 55 ? 'Watch' : 'Needs action', automationScore == null ? 'badge-slate' : automationScore >= 80 ? 'badge-green' : automationScore >= 55 ? 'badge-amber' : 'badge-red'],
-          ['Client queue', clientPending.toLocaleString('en-IN'), clientPending ? 'Pending review' : 'Clear', clientPending ? 'badge-amber' : 'badge-green'],
-          ['Reply engine', formatPercent(replyRate), `${totalReplies.toLocaleString('en-IN')} replies`, 'badge-blue'],
-          ['Delivery', formatPercent(deliveryRate), deliveryRate == null ? 'No activity' : failedEmails ? `${failedEmails} failed` : 'Clean', deliveryRate == null ? 'badge-slate' : failedEmails ? 'badge-red' : 'badge-green'],
-        ].map(([label, value, status, badge]) => (
-          <div key={label} className="dashboard-mini-card flex items-center justify-between gap-3 p-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
-              <p className="mt-1 truncate text-xl font-extrabold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{value}</p>
-            </div>
-            <span className={clsx('badge text-[11px]', badge)}>{status}</span>
-          </div>
-        ))}
-      </div>
-
-      {showClear && (
-        <div className="panel border-red-200 bg-red-50 animate-slide-up">
-          <div className="panel-body flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold text-red-800">Clear entire database?</p>
-              <p className="text-sm text-red-600 mt-1">This will permanently delete all trainers, requirements, shortlists and email logs.</p>
-              <div className="flex gap-3 mt-3">
-                <button onClick={handleClear} disabled={clearing} className="btn-danger text-sm">
-                  {clearing ? <><RefreshCw className="h-4 w-4 animate-spin" />Clearing…</> : 'Yes, clear all'}
-                </button>
-                <button onClick={() => setShowClear(false)} className="btn-secondary text-sm">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Stat cards ─────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -699,9 +647,8 @@ export default function Dashboard() {
             <PulseMetric label="Review load" value={reviewLoad} sub="Pending review share" color="bg-amber-500" />
           </div>
         </Panel>
-        <Panel title="Channel Health" eyebrow="Email + WhatsApp">
+        <Panel title="WhatsApp Health" eyebrow="Messaging">
           <div className="space-y-5">
-            <PulseMetric label="Email delivery" value={deliveryRate} sub={`${failedEmails.toLocaleString('en-IN')} failed emails`} />
             <PulseMetric label="WhatsApp health"
               value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : null}
               sub={whatsappSent + whatsappFailed ? `${whatsappFailed} failed, ${whatsappSkipped} skipped, ${whatsappReplies} replies` : 'No delivery attempts yet'} color="bg-emerald-500" />

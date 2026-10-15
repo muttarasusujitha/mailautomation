@@ -323,8 +323,8 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #2563eb, #14b8a6, #f59e0b);
-    opacity: .75;
+    background: var(--stat-accent, #2563eb);
+    opacity: .9;
     transition: opacity 0.15s;
   }
   .stat-card:hover::after { opacity: 1; }
