@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api, { getDashboardStats, getDashboardAnalytics } from '../utils/api'
 import {
   Users, Mail, TrendingUp, RefreshCw, BarChart2, Activity,
-  Star, ArrowUpRight, Database, Send,
+  Star, ArrowUpRight, Send,
   BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles, Search,
 } from 'lucide-react'
 import {
@@ -92,7 +92,7 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkT
     <button
       type="button"
       onClick={() => linkTo && navigate(linkTo)}
-      style={{ animationDelay: `${delay}ms`, '--stat-accent': t.accent }}
+      style={{ animationDelay: `${delay}ms` }}
       className={clsx(
         'stat-card group text-left animate-slide-up',
         linkTo ? 'cursor-pointer' : 'cursor-default'
@@ -359,166 +359,74 @@ export default function Dashboard() {
     { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
     { icon: Send,              label: 'WhatsApp Activity', value: whatsappAttempted, sub: `${whatsappSent} sent, ${whatsappFailed} failed, ${whatsappSkipped} skipped`, tone: whatsappFailed ? 'red' : 'green' },
   ]
+  const primaryCards = [statCards[1], statCards[0], statCards[4], statCards[2]]
+  const secondaryCards = [statCards[3], statCards[5], statCards[6], statCards[7]]
+  const queueSummary = loading
+    ? 'Loading the latest pipeline.'
+    : statsUnavailable
+      ? 'Trainer data is temporarily unavailable.'
+      : clientPending
+        ? `${clientPending.toLocaleString('en-IN')} client request${clientPending === 1 ? '' : 's'} need review.`
+        : 'The client queue is clear.'
 
 
   return (
-    <div className="dashboard-shell space-y-6 animate-fade-in">
-
-      {/* ── Hero strip ─────────────────────────────────────── */}
-      <div className="dashboard-hero overflow-hidden">
-        <div className="p-5 md:p-7">
-          <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="h-2 w-2 rounded-full bg-blue-600" />
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Overview</span>
-              </div>
-              <h1 className="text-4xl font-extrabold tracking-normal text-slate-950 md:text-5xl">Dashboard</h1>
-              <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-slate-600 md:text-base">Track trainer inventory, outreach movement, reply quality, and recruiter action in one clean view.</p>
-              <div className="flex flex-wrap gap-2.5 mt-5">
-                {['Trainer intelligence','Client inbox','Mail automation','PO to invoice'].map(item => (
-                  <span key={item} className="dashboard-hero-chip px-3 py-1.5 text-xs font-bold">{item}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Ops signals */}
-            <div className="grid gap-2.5">
-              {[
-                ['Reply writing', generationMode === 'ai' ? 'AI' : 'Templates', generationMode === 'ai' ? 'badge-blue' : 'badge-slate'],
-                ['Mail automation', gmailConnected ? 'Ready' : 'Setup needed', gmailConnected ? 'badge-green' : 'badge-amber'],
-                ['Pipeline', refreshing ? 'Refreshing…' : 'Idle', refreshing ? 'badge-blue' : 'badge-slate'],
-              ].map(([label, val, cls]) => (
-                <div key={label} className="dashboard-signal px-4 py-3 flex items-center justify-between gap-4">
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">{label}</span>
-                  <span className={clsx('badge text-[11px]', cls)}>{val}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="dashboard-shell space-y-5 animate-fade-in">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0 max-w-2xl">
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-sub">{queueSummary} {generationMode === 'ai' ? 'AI drafts the approved coordination and finance replies.' : 'Approved templates write the coordination and finance replies.'}</p>
         </div>
-
-        {/* Action bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/80 px-5 py-4 md:px-7">
-          <div className="dashboard-hero-chip flex items-center gap-2 px-3 py-2 text-xs font-bold">
-            <Database className="h-4 w-4 text-blue-600" />
-            {loading
-              ? 'Loading…'
-              : statsUnavailable
-                ? 'Trainer data temporarily unavailable'
-                : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
-          </div>
-          <button onClick={() => load(true)} disabled={refreshing} className="dashboard-hero-action inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-blue-700 transition disabled:opacity-60">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            role="switch"
+            aria-label="Reply writing"
+            aria-checked={generationMode === 'ai'}
+            onClick={() => updateGenerationMode(generationMode === 'ai' ? 'template' : 'ai')}
+            disabled={savingGenerationMode}
+            className="btn-secondary text-sm disabled:opacity-60"
+          >
+            <Sparkles className="h-4 w-4" />
+            {generationMode === 'ai' ? 'AI replies' : 'Template replies'}
+          </button>
+          <button onClick={() => load(true)} disabled={refreshing} className="btn-secondary text-sm disabled:opacity-60">
             <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
           </button>
         </div>
       </div>
 
-      {/* Shared AI generation setting */}
-      <section className={clsx('flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-4', generationMode === 'ai' ? 'border-violet-200 bg-violet-50' : 'border-slate-200 bg-white')}>
-        <div className="flex items-start gap-3">
-          <span className={clsx('mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl', generationMode === 'ai' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500')}>
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <div>
-            <p className="font-bold text-slate-900">Agentic AI for the entire application</p>
-            <p className="mt-1 text-sm text-slate-600">When this is on, replies follow the approved templates. Coordination mail covers a table of contents and lab cost. Finance mail covers invoices and purchase orders. Packages that were already reviewed stay as reviewed.</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className={clsx('text-xs font-bold uppercase tracking-wide', generationMode === 'ai' ? 'text-violet-800' : 'text-slate-600')}>
-            {generationMode === 'ai' ? 'AI is on' : 'Approved templates'}
-          </span>
-          <button
-            type="button"
-            role="switch"
-            aria-label="Agentic AI for the entire application"
-            aria-checked={generationMode === 'ai'}
-            onClick={() => updateGenerationMode(generationMode === 'ai' ? 'template' : 'ai')}
-            disabled={savingGenerationMode}
-            className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}
-          >
-            <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
-          </button>
-        </div>
-      </section>
-
-      {/* ── Stat cards ─────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {statCards.map((card, i) => (
-          <StatCard key={card.label} {...card} loading={loading} delay={i * 50} />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {primaryCards.map((card, i) => (
+          <StatCard key={card.label} {...card} loading={loading} delay={i * 40} />
         ))}
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900">LinkedIn collection</p>
-            <p className="mt-1 text-xs text-slate-500">
-              {linkedinMessage || 'Fetch client requirement posts and trainer profiles. Saved leads stay on this dashboard.'}
-            </p>
-          </div>
-          <button type="button" onClick={fetchLinkedIn} disabled={fetchingLinkedIn} className="btn-primary text-sm disabled:opacity-50">
-            {fetchingLinkedIn ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            Fetch LinkedIn
-          </button>
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-800">Client requirements</p>
-              <button type="button" onClick={() => navigate('/linkedin-client-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
-            </div>
-            {loading ? (
-              <div className="skeleton h-16 w-full" />
-            ) : linkedinClients.length ? (
-              <div className="space-y-2">
-                {linkedinClients.slice(0, 4).map(item => (
-                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-client-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-sm font-semibold text-slate-800">{item.domain ? `${item.domain} requirement` : item.company_name || 'Client requirement'}</p>
-                      <span className="badge badge-blue text-[11px]">{item.status || 'new'}</span>
-                    </div>
-                    <p className="mt-1 truncate text-xs text-slate-400">
-                      {item.contact_name || item.company_name || 'LinkedIn post'}
-                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
-                    </p>
-                    {item.summary && <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.summary}</p>}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn client requirements yet.</p>
-            )}
-          </div>
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-800">Trainers</p>
-              <button type="button" onClick={() => navigate('/linkedin-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
-            </div>
-            {loading ? (
-              <div className="skeleton h-16 w-full" />
-            ) : linkedinTrainers.length ? (
-              <div className="space-y-2">
-                {linkedinTrainers.slice(0, 4).map(item => (
-                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-sm font-semibold text-slate-800">{item.name || item.trainer_name || 'Trainer profile'}</p>
-                      <span className="badge badge-slate text-[11px]">{item.domain || 'LinkedIn'}</span>
-                    </div>
-                    <p className="mt-1 truncate text-xs text-slate-400">
-                      {item.headline || item.summary || 'Trainer lead'}
-                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn trainers yet.</p>
-            )}
-          </div>
-        </div>
-      </section>
+      <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-4">
+        {secondaryCards.map((card, index) => {
+          const Tag = card.linkTo ? 'button' : 'div'
+          return (
+            <Tag
+              key={card.label}
+              type={card.linkTo ? 'button' : undefined}
+              onClick={card.linkTo ? () => navigate(card.linkTo) : undefined}
+              className={clsx(
+                'min-w-0 px-4 py-3 text-left',
+                card.linkTo && 'transition hover:bg-slate-50',
+                index % 2 === 1 && 'border-l border-slate-100',
+                index > 1 && 'border-t border-slate-100 md:border-t-0',
+                index > 0 && 'md:border-l md:border-slate-100'
+              )}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{card.label}</p>
+              <p className="mt-1 text-lg font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
+                {loading ? '—' : Number(card.value || 0).toLocaleString('en-IN')}
+              </p>
+              <p className="truncate text-xs text-slate-500">{card.sub}</p>
+            </Tag>
+          )
+        })}
+      </div>
 
       {/* ── Client flow + shortcuts ─────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
@@ -636,6 +544,76 @@ export default function Dashboard() {
           </div>
         </Panel>
       </div>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900">LinkedIn collection</p>
+            <p className="mt-1 text-xs text-slate-500">
+              {linkedinMessage || 'Fetch client requirement posts and trainer profiles. Saved leads stay on this dashboard.'}
+            </p>
+          </div>
+          <button type="button" onClick={fetchLinkedIn} disabled={fetchingLinkedIn} className="btn-primary text-sm disabled:opacity-50">
+            {fetchingLinkedIn ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Fetch LinkedIn
+          </button>
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-800">Client requirements</p>
+              <button type="button" onClick={() => navigate('/linkedin-client-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
+            </div>
+            {loading ? (
+              <div className="skeleton h-16 w-full" />
+            ) : linkedinClients.length ? (
+              <div className="space-y-2">
+                {linkedinClients.slice(0, 4).map(item => (
+                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-client-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-slate-800">{item.domain ? `${item.domain} requirement` : item.company_name || 'Client requirement'}</p>
+                      <span className="badge badge-blue text-[11px]">{item.status || 'new'}</span>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      {item.contact_name || item.company_name || 'LinkedIn post'}
+                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
+                    </p>
+                    {item.summary && <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.summary}</p>}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn client requirements yet.</p>
+            )}
+          </div>
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-800">Trainers</p>
+              <button type="button" onClick={() => navigate('/linkedin-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
+            </div>
+            {loading ? (
+              <div className="skeleton h-16 w-full" />
+            ) : linkedinTrainers.length ? (
+              <div className="space-y-2">
+                {linkedinTrainers.slice(0, 4).map(item => (
+                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-slate-800">{item.name || item.trainer_name || 'Trainer profile'}</p>
+                      <span className="badge badge-slate text-[11px]">{item.domain || 'LinkedIn'}</span>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      {item.headline || item.summary || 'Trainer lead'}
+                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn trainers yet.</p>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* ── Metrics row ────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">

@@ -1474,10 +1474,8 @@ function HeroImagePanel() {
         backdropFilter: 'blur(12px)',
         boxShadow: '0 12px 34px rgba(37,99,235,0.16)',
       }}>
-        <span className="live-ping">
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: T.green, position: 'relative', zIndex: 1, display: 'block' }} />
-        </span>
-        <span style={{ fontSize: 12, fontWeight: 800 }}>Live hiring ops</span>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: T.brand, display: 'block' }} />
+        <span style={{ fontSize: 12, fontWeight: 800 }}>Sample workspace</span>
       </div>
     </div>
   )
@@ -1689,13 +1687,6 @@ export default function Home() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Live indicator */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: T.greenLight, borderRadius: 100, border: `1px solid ${T.green}20` }}>
-            <div className="live-ping">
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green, display: 'block', position: 'relative', zIndex: 1 }} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 600, color: T.green }}>System Live</span>
-          </div>
           <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '7px 16px', fontSize: 13 }}>
             Dashboard <ArrowRight size={13} />
           </button>

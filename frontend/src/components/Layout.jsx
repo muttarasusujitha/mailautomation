@@ -345,15 +345,10 @@ export default function Layout({ onLogout }) {
           </button>
 
           {/* Breadcrumb + title */}
-          <div className="min-w-0 flex-1">
-            <div className="hidden items-center gap-1 text-[11px] font-semibold text-slate-400 sm:flex">
-              <span>TrainerSync</span>
-              <ChevronRight className="h-3 w-3" />
-              <span className="text-slate-600">{title}</span>
-            </div>
-            <h1 className="truncate text-[17px] font-bold tracking-tight text-slate-900 sm:text-lg">
-              {title}
-            </h1>
+          <div className="flex min-w-0 flex-1 items-center gap-1 text-[13px] font-semibold text-slate-400">
+            <span className="hidden sm:inline">TrainerSync</span>
+            <ChevronRight className="hidden h-3 w-3 sm:block" />
+            <span className="truncate text-slate-800">{title}</span>
           </div>
 
           {/* Search */}
@@ -376,15 +371,18 @@ export default function Layout({ onLogout }) {
               <ChatAssistant headerTrigger />
             </ErrorBoundary>
             {/* Gmail status */}
-            <div className={clsx(
-              'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
-              connected
-                ? 'border-green-200 bg-green-50 text-green-700'
-                : 'border-amber-200 bg-amber-50 text-amber-700'
-            )}>
+            <NavLink
+              to="/admin"
+              className={clsx(
+                'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
+                connected
+                  ? 'border-green-200 bg-green-50 text-green-700'
+                  : 'border-amber-200 bg-amber-50 text-amber-700'
+              )}
+            >
               <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
-              {connected ? 'Gmail Ready' : 'Connect Gmail'}
-            </div>
+              {connected ? 'Gmail ready' : 'Connect Gmail'}
+            </NavLink>
 
             {/* Notifications */}
             <button

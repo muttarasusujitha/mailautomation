@@ -205,7 +205,7 @@
   @media (max-width: 768px) {
     .page-content { padding: 12px; padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
     .app-header { padding: 0 12px; gap: 8px; }
-    .dashboard-shell { margin: -12px; padding: 12px; }
+    .dashboard-shell { margin: 0; padding: 0; }
     input:not([type='checkbox']):not([type='radio']), textarea, select { font-size: 16px; }
   }
   .mobile-drawer { width: min(var(--sidebar-w), calc(100vw - 56px)); }
@@ -246,95 +246,24 @@
   .dashboard-shell {
     position: relative;
     min-height: 100%;
-    margin: -16px;
-    padding: 16px;
-    background:
-      linear-gradient(180deg, #ffffff 0%, #f8fafc 320px),
-      linear-gradient(90deg, rgba(15, 23, 42, 0.035), rgba(255, 255, 255, 0.96)),
-      var(--c-bg);
   }
-
-  .dashboard-shell .rounded-md,
-  .dashboard-shell .rounded-lg,
-  .dashboard-shell .rounded-xl,
-  .dashboard-shell .rounded-2xl {
-    border-radius: 18px;
-  }
-
-  .dashboard-shell button.rounded-md,
-  .dashboard-shell button.rounded-lg {
-    border-radius: 14px;
-  }
-
-  .dashboard-hero {
-    position: relative;
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.94) 56%, rgba(239, 246, 255, 0.92) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 20px;
-    box-shadow:
-      0 24px 60px -42px rgb(15 23 42 / .42),
-      inset 0 1px 0 rgba(255, 255, 255, .95);
-    overflow: hidden;
-  }
-  .dashboard-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 4px;
-    background: linear-gradient(90deg, #2563eb, #64748b, #e2e8f0);
-  }
-  .dashboard-hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(rgba(100,116,139,.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(100,116,139,.055) 1px, transparent 1px);
-    background-size: 42px 42px;
-    mask-image: linear-gradient(90deg, transparent, #64748b 18%, #64748b 82%, transparent);
-    opacity: .38;
-  }
-  .dashboard-hero > * { position: relative; z-index: 1; }
 
   .stat-card {
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.96));
-    border: 1px solid rgba(203, 213, 225, 0.9);
-    border-radius: 20px;
-    padding: 18px;
+    background: #fff;
+    border: 1px solid var(--c-border);
+    border-radius: 16px;
+    padding: 16px 18px;
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    box-shadow: 0 1px 2px rgb(15 23 42 / .04), 0 14px 28px -24px rgb(15 23 42 / .55);
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s;
+    box-shadow: var(--shadow-xs);
+    transition: border-color 0.15s, box-shadow 0.15s;
     position: relative;
     overflow: hidden;
   }
   .stat-card:hover {
-    background: #fff;
-    border-color: #93c5fd;
-    box-shadow: 0 10px 30px -18px rgb(37 99 235/.38);
-    transform: translateY(-2px);
-  }
-  .stat-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--stat-accent, #2563eb);
-    opacity: .9;
-    transition: opacity 0.15s;
-  }
-  .stat-card:hover::after { opacity: 1; }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border: 1px solid rgba(255, 255, 255, .72);
-    border-radius: inherit;
+    border-color: #bfdbfe;
+    box-shadow: var(--shadow-sm);
   }
 
   .stat-icon {
@@ -345,38 +274,6 @@
     height: 42px;
     border-radius: 18px;
     flex-shrink: 0;
-  }
-
-  .dashboard-signal {
-    border: 1px solid rgba(203, 213, 225, .95);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.94));
-    border-radius: 18px;
-    color: #334155;
-    backdrop-filter: blur(16px);
-    box-shadow:
-      0 12px 30px -24px rgb(15 23 42 / .45),
-      inset 0 1px 0 rgba(255,255,255,.9);
-  }
-
-  .dashboard-hero-chip {
-    border: 1px solid rgba(203, 213, 225, .95);
-    background: rgba(255, 255, 255, .9);
-    border-radius: 18px;
-    box-shadow: 0 10px 26px -22px rgb(15 23 42 / .42);
-    color: #334155;
-  }
-
-  .dashboard-hero-action {
-    border: 1px solid rgba(203, 213, 225, .95);
-    background: linear-gradient(180deg, #ffffff, #f8fafc);
-    border-radius: 14px;
-    box-shadow: 0 10px 24px -20px rgb(15 23 42 / .42);
-  }
-
-  .dashboard-hero-action:hover {
-    border-color: #94a3b8;
-    background: #ffffff;
   }
 
   .dashboard-mini-card,
