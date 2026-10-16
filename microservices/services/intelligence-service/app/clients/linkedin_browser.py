@@ -11,7 +11,16 @@ from app.clients.linkedin_session import (
 )
 
 _lock = asyncio.Lock()
+_LOCK_WAIT_SECONDS = 90
 logger = logging.getLogger(__name__)
+
+
+async def _acquire_bot_lock():
+    """Wait for the current LinkedIn fetch instead of failing the next one immediately."""
+    try:
+        await asyncio.wait_for(_lock.acquire(), timeout=_LOCK_WAIT_SECONDS)
+    except TimeoutError:
+        raise ValueError('LinkedIn bot is busy. Try again after the current fetch finishes.') from None
 
 
 class PartialSearchError(ValueError):
@@ -399,10 +408,9 @@ async def collect_client_posts(page, context, domain, location, limit):
 async def search_linkedin_account(domain, mode, limit=20, location='', collected=None):
     if bot_option('LINKEDIN_BOT_ENABLED', 'false').lower() != 'true':
         raise ValueError('LinkedIn bot is not enabled. Connect the dedicated account and set LINKEDIN_BOT_ENABLED=true.')
-    if _lock.locked():
-        raise ValueError('LinkedIn bot is busy. Try again after the current fetch finishes.')
     from playwright.async_api import async_playwright
-    async with _lock:
+    await _acquire_bot_lock()
+    try:
         ensure_session_not_blocked(profile_path())
         async with async_playwright() as playwright:
             context = await playwright.chromium.launch_persistent_context(
@@ -439,6 +447,8 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                         await persist_session(context, page)
                 finally:
                     await context.close()
+    finally:
+        _lock.release()
 
 
 async def persist_session(context, page):

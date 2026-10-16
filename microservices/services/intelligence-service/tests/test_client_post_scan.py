@@ -10,15 +10,28 @@ def post(text, slug='request'):
     return {'url': f'https://www.linkedin.com/posts/{slug}', 'content': text}
 
 
-def test_broad_discovery_does_not_search_individual_domains():
+def test_broad_discovery_uses_the_linkedin_account_once():
     rows = [post('Looking for a Python and SAP trainer')]
-    with patch('app.clients.public_search.search_public', AsyncMock(return_value=rows)) as public, patch(
-        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[])
+    with patch('app.clients.public_search.search_public_many', AsyncMock()) as public, patch(
+        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=rows)
     ) as account:
-        result, _ = asyncio.run(discover('', 'client', 50))
+        result, outcome = asyncio.run(discover('', 'client', 50))
+    public.assert_not_awaited()
     assert len(result) == 1
-    assert all('Python' not in call.args[0] and 'SAP' not in call.args[0] for call in public.await_args_list)
+    assert outcome['warnings'] == []
     assert account.await_args.args[:3] == ('', 'client', 50)
+
+
+def test_client_discovery_does_not_report_a_public_web_timeout():
+    with patch('app.clients.public_search.search_public_many', AsyncMock(side_effect=TimeoutError())) as public, patch(
+        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[post('Looking for a Python trainer')])
+    ) as account:
+        result, outcome = asyncio.run(discover('', 'client', 50))
+    public.assert_not_awaited()
+    assert len(result) == 1
+    assert outcome['status'] == 'partial'
+    assert outcome['warnings'] == []
+    account.assert_awaited()
 
 
 def test_all_domains_multi_match_dedupe_and_repeat_status_preservation():

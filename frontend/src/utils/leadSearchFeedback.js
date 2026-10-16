@@ -59,6 +59,37 @@ export function mergeSearchLeads(saved, results) {
   return merged
 }
 
+export function outcomeLine(outcome = {}) {
+  const matched = Number(outcome.matched) || 0
+  const target = Number(outcome.target)
+  if (!(target > 0)) {
+    const noun = matched === 1 ? 'post' : 'posts'
+    return `${outcome.domain}: ${matched} ${noun} matched.`
+  }
+  const gap = outcome.target_met
+    ? ''
+    : matched > 0
+      ? ' Partial results; the target is not guaranteed.'
+      : ' Target not reached.'
+  return `${outcome.domain}: ${matched} found (target: ${target}).${gap}`
+}
+
+export function collectionOutcomeLines(outcomes) {
+  const rows = Array.isArray(outcomes) ? outcomes : []
+  const targeted = rows.filter(item => Number(item?.target) > 0)
+  const counted = rows.filter(item => !(Number(item?.target) > 0))
+  if (counted.length > 6) {
+    const hits = counted.filter(item => Number(item.matched) > 0)
+    const misses = counted.length - hits.length
+    return [
+      ...targeted.map(outcomeLine),
+      ...hits.map(outcomeLine),
+      misses ? `${misses} domain${misses === 1 ? '' : 's'} had no matching posts.` : '',
+    ].filter(Boolean)
+  }
+  return rows.map(outcomeLine)
+}
+
 export function matchingSavedLeads(leads, results) {
   const urls = new Set()
   for (const item of results || []) {
