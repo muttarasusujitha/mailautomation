@@ -97,4 +97,87 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
         raise HTTPException(502, f"Invoice created but email failed: {exc}")
     await db["invoices"].update_one({"invoice_id": invoice_id}, {"$set": {"status": "sent", "sent_to": payload.client_email, "sent_at": datetime.utcnow()}})
     await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "invoice_sent", "po_id": po_id, "invoice_id": invoice_id, "reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
+    await _confirm_batch_after_invoice(db, approval, po_id, invoice_id)
     return {"success": True, "finance_id": finance_id, "po_id": po_id, "invoice_id": invoice_id, "status": "invoice_sent"}
+
+
+def _db_collection(db, name: str):
+    getter = getattr(db, "get", None)
+    if callable(getter):
+        found = getter(name)
+        if found is not None:
+            return found
+        if isinstance(db, dict):
+            return None
+    try:
+        return db[name]
+    except Exception:
+        return None
+
+
+async def _confirm_batch_after_invoice(db, approval: Dict[str, Any], po_id: str, invoice_id: str) -> None:
+    """PO approval that creates and emails the invoice also closes the batch."""
+    approval = approval or {}
+    requirement_id = str(approval.get("requirement_id") or "").strip()
+    requirements = _db_collection(db, "requirements")
+    if not requirement_id and requirements is not None:
+        client_email = str(approval.get("client_email") or "").strip()
+        if client_email:
+            try:
+                requirement = await requirements.find_one(
+                    {"client_email": client_email},
+                    {"_id": 0, "requirement_id": 1},
+                )
+            except TypeError:
+                requirement = await requirements.find_one({"client_email": client_email})
+            requirement_id = str((requirement or {}).get("requirement_id") or "").strip()
+    if not requirement_id or requirements is None:
+        return
+    now = datetime.utcnow()
+    await requirements.update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "batch_confirmed": True,
+            "status": "batch_confirmed",
+            "training_status": "confirmed",
+            "pipeline_status": "completed",
+            "client_po_status": "invoice_sent",
+            "invoice_status": "sent",
+            "po_id": po_id,
+            "invoice_id": invoice_id,
+            "batch_confirmed_at": now,
+            "updated_at": now,
+        }},
+    )
+    shortlists = _db_collection(db, "shortlists")
+    if shortlists is None:
+        return
+    stage_update = {
+        "pipeline_summary.status": "completed",
+        "pipeline_summary.current_stage": "batch_confirmed",
+        "pipeline_summary.batch_confirmed": True,
+        "pipeline_summary.matching_status": "completed",
+        "updated_at": now,
+    }
+    trainer_id = str(approval.get("trainer_id") or "").strip()
+    if trainer_id:
+        await shortlists.update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {**stage_update, "top_trainers.$.pipeline_status": "training_confirmed", "top_trainers.$.batch_confirmed": True}},
+        )
+        return
+    try:
+        shortlist = await shortlists.find_one({"requirement_id": requirement_id}, {"_id": 0, "top_trainers": 1})
+    except TypeError:
+        shortlist = await shortlists.find_one({"requirement_id": requirement_id})
+    trainers = list((shortlist or {}).get("top_trainers") or [])
+    for trainer in trainers:
+        stage = str(trainer.get("pipeline_status") or "").lower()
+        if stage in {"rejected", "declined", "stopped_selected"}:
+            continue
+        trainer["pipeline_status"] = "training_confirmed"
+        trainer["batch_confirmed"] = True
+    await shortlists.update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {**stage_update, "top_trainers": trainers} if trainers else stage_update},
+    )

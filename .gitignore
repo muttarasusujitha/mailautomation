@@ -12,6 +12,8 @@ config/token.json
 **/config/*.secret.json
 microservices/services/email-service/config/token.json
 microservices/gmail_config/token.json
+microservices/services/email-service/data/client_ack_versions.json
+microservices/services/email-service/data/client_ack_versions.json.tmp
 
 # Databases and browser state
 linkedin-bot-profile/
@@ -77,6 +79,7 @@ Thumbs.db
 !/frontend/src/components/LeadBot.jsx
 !/frontend/src/utils/leadSearchFeedback.js
 !/frontend/src/utils/leadSearchFeedback.test.js
+!/frontend/src/utils/workflowTemplates.test.js
 !/frontend/src/pages/
 /frontend/src/pages/*
 !/frontend/src/pages/PurchaseOrders.jsx

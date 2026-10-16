@@ -11,6 +11,7 @@ import re
 import subprocess
 import tempfile
 import uuid
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from email.utils import parseaddr
 from typing import Annotated, Any, Dict, List, Optional, Tuple
@@ -25,7 +26,7 @@ from pymongo.errors import DuplicateKeyError
 from app.config import get_settings
 from app.agents.email_classifier import SAFETY_SCENARIOS, classify_email
 from app.agents.natural_voice import ANNAPURNA, apply_voice, signature_for
-from app.agents.reply_templates import build_auto_reply
+from app.agents.reply_templates import build_auto_reply, render_delivery_reply
 from app.calendar_client import (
     add_google_calendar_attendees,
     cancel_google_calendar_event,
@@ -884,6 +885,52 @@ def _has_all_required_client_details(extracted: Dict[str, Any]) -> bool:
     )
 
 
+def _has_client_toc_attachment(extracted: Dict[str, Any], email_doc: Dict[str, Any]) -> bool:
+    """True when the client mail actually attached a ToC, not merely mentioned one."""
+    if extracted.get("attachment_topics"):
+        return True
+    for attachment in (email_doc or {}).get("attachments") or []:
+        if not isinstance(attachment, dict):
+            continue
+        analysis = attachment.get("analysis") or {}
+        if analysis.get("attachment_type") == "toc":
+            return True
+        filename = str(attachment.get("filename") or "")
+        if re.search(r"\b(?:toc|agenda|curriculum|syllabus|course[ _-]?outline)\b", filename, flags=re.IGNORECASE):
+            return True
+    return False
+
+
+def _confirmed_intake_ready_for_trainer_mail(
+    extracted: Dict[str, Any],
+    email_doc: Dict[str, Any],
+    client_text: str,
+) -> bool:
+    """A complete confirmed first mail can start Mail 1 without a later authorization reply."""
+    if not extracted or extracted.get("is_non_client_email") or not extracted.get("is_training_request"):
+        return False
+    if _requirement_flow_from_email(extracted, client_text) != "confirmed":
+        return False
+    if not _has_training_domain(extracted) or not _has_training_duration(extracted):
+        return False
+    dates = _clean(extracted.get("training_dates") or extracted.get("preferred_dates") or extracted.get("timeline_start"))
+    mode = _clean(extracted.get("mode") or extracted.get("training_mode") or extracted.get("delivery_mode"))
+    if not _flow_has_value(dates) or not _flow_has_value(mode):
+        return False
+    try:
+        if float(extracted.get("participant_count") or 0) <= 0:
+            return False
+    except (TypeError, ValueError):
+        return False
+    has_commercial = any(
+        _flow_has_value(extracted.get(key))
+        for key in ("budget_total", "budget_per_day", "budget_range", "client_budget_per_day")
+    )
+    if not has_commercial:
+        return False
+    return _has_client_toc_attachment(extracted, email_doc)
+
+
 def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> bool:
     if not extracted.get("is_training_request"):
         return False
@@ -1605,11 +1652,12 @@ def _approved_question_reply(sender_name: str = "") -> Dict[str, str]:
     greeting = f"Hi {name}," if name and "@" not in name else "Hi,"
     return {
         "subject": "Re: Your Enquiry",
-        "body": (
+        "body": apply_voice(
             f"{greeting}\n\n"
-            "Thank you for your question. We are checking the relevant training details and will share a confirmed response shortly. "
-            "If you need an immediate update on a specific item, please let us know the requirement or topic you are referring to.\n\n"
-            "Best Regards,\nRecruitment Team\nClahan Technologies"
+            "Thanks for your question. We are checking the relevant training details and will share a confirmed response shortly. "
+            "If you need an immediate update on a specific item, please tell us the requirement or topic.\n\n"
+            "Thanks,\nClahan Technologies",
+            ANNAPURNA,
         ),
     }
 
@@ -1816,11 +1864,14 @@ async def _humanize_verified_client_reply(
             subject=subject,
             body=body,
             hint=(
-                "Rewrite the verified reference as a natural human-to-human email. "
-                "Use Annapurna U's voice for coordination and Murali Mohan M's voice for invoice, payment, PO, or finance. "
-                "Preserve every business fact and restriction. Answer directly, choose vocabulary appropriate to "
-                "the sender, and make the length proportional to the incoming message. Do not make it sound like "
-                "a fixed template and do not add facts or promises."
+                "Rewrite the verified reference as one natural email from one person. "
+                "The reference already chose the situation: ToC, lab cost, both together, invoice, or purchase order. "
+                "Keep every file, amount, date, and restriction from that reference in this single body. "
+                "Annapurna U signs ToC, lab cost, and coordination. Murali Mohan M signs invoice, payment, and purchase order. "
+                "When the reference includes both a ToC and a lab cost, keep both in this email. "
+                "When the request is only a ToC, only a lab cost, or both, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
+                "Do not write a second email, a generic acknowledgement, or the other person's signature. "
+                "Do not add facts or promises."
             ),
             workflow_context=context,
             reference_reply=verified_reply,
@@ -2252,6 +2303,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "total_lab_duration_hours": total_lab_duration_hours,
         "cloud_provider": cloud_provider,
         "lab_cost_requested": lab_cost_requested,
+        "explicit_lab_cost_requested": explicit_lab_cost_requested,
         "lab_required_tools_requested": "lab_requirements" in requirement_categories,
         "lab_delivery_preference": "local_or_cloud_to_be_confirmed" if "lab_delivery_preference" in requirement_categories else "",
         "trainer_cv_approval_requested": "trainer_profile" in requirement_categories,
@@ -2491,68 +2543,980 @@ def _reply_signature() -> str:
     return signature_for(ANNAPURNA)
 
 
-def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """State only confirmed lab inputs; never infer participants from duration."""
-    if "Lab availability and cost" not in (extracted.get("clahan_managed_details") or []):
+def _display_quantity(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else str(value)
+
+
+def _join_phrases(items: list[str]) -> str:
+    if not items:
         return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
 
-    participants = _safe_int(extracted.get("participant_count"), 0)
-    hours_per_day = _safe_float(
-        extracted.get("lab_hours_per_day") or extracted.get("hours_per_day"), 0,
-    )
-    cloud_provider = _clean(extracted.get("cloud_provider"))
-    duration_days = _safe_float(extracted.get("duration_days"), 0)
-    if participants and hours_per_day and cloud_provider:
-        def quantity(value: float) -> str:
-            return str(int(value)) if float(value).is_integer() else str(value)
 
-        scope = f"{participants} participants"
-        if duration_days:
-            scope += f", {quantity(duration_days)} lab-access days"
-        scope += f", and {quantity(hours_per_day)} lab-access hours per day"
-        return (
-            f"\n\nWe have noted the lab-estimate inputs: {scope}. "
-            "We will prepare the estimate using these confirmed inputs."
-        )
+def _known_lab_hours(extracted: Dict[str, Any]) -> float:
+    return _safe_float(extracted.get("lab_hours_per_day") or extracted.get("hours_per_day"), 0)
 
-    confirmed = []
-    if participants:
-        confirmed.append(f"{participants} participant{'s' if participants != 1 else ''}")
-    if hours_per_day:
-        hours_text = str(int(hours_per_day)) if float(hours_per_day).is_integer() else str(hours_per_day)
-        confirmed.append(f"{hours_text} lab-access hours per day")
-    known = f" We have noted {', and '.join(confirmed)}." if confirmed else ""
-    missing = []
-    if not participants:
-        missing.append("participant count")
-    if not hours_per_day:
-        missing.append("required lab-access hours per day")
-    if not cloud_provider:
-        missing.append("preferred cloud provider (AWS, Azure, or GCP)")
-    return (
-        f"\n\nWe will prepare the lab estimate after confirming the {' and '.join(missing)}.{known} "
-        "Training duration is used only for the number of lab days; it is not treated as the participant count. "
-        "The region can be finalized after the cloud provider is selected."
+
+def _lab_is_clahan_managed(extracted: Dict[str, Any]) -> bool:
+    return "Lab availability and cost" in (extracted.get("clahan_managed_details") or [])
+
+
+def _ack_should_promise_toc(extracted: Dict[str, Any], labels: list[str]) -> bool:
+    """ToC is promised only when the client asked for one, or Clahan is writing it."""
+    if "ToC" in labels or extracted.get("toc_requested"):
+        return True
+    return _clean(extracted.get("toc_action")).lower() == "generate_by_clahan"
+
+
+def _lab_inputs_complete(extracted: Dict[str, Any]) -> bool:
+    return bool(
+        _safe_int(extracted.get("participant_count"), 0)
+        and _known_lab_hours(extracted)
+        and _clean(extracted.get("cloud_provider"))
     )
 
 
-def _confirmed_requirement_scope_acknowledgement(extracted: Dict[str, Any]) -> str:
-    """Echo material client-supplied facts before committing to next steps."""
-    facts = []
+def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
+    return bool(
+        _safe_float(extracted.get("duration_days"), 0)
+        or _clean(extracted.get("mode"))
+        or _known_lab_hours(extracted)
+        or _clean(extracted.get("audience_level"))
+    )
+
+
+# One version pool for every domain. The domain string is read from the
+# requirement input (technology_needed, then technology, then domain) and
+# placed in the sentence. There is no template per domain name. When none of
+# those fields is present, the note says "training requirement".
+# Eight professional notes. Version 1 and version 10 keep the reference tone.
+# Versions 4 and 5 are retired and are never selected. The other six are
+# separate emails: the facts sit in different sentences, not in one shared
+# "we have noted a, b, c, and d" line. A missing fact is left out of that
+# version's own sentence. Openings stay "Thank you ...", never "Thanks for
+# sharing", so apply_voice does not prefix "Greetings of the day!".
+# First distinct requirement for a client is version 1, the next is version 10,
+# then 2, 3, 6, 7, 8, 9.
+_ACK_ROTATION = (0, 9, 1, 2, 5, 6, 7, 8)
+_RETIRED_ACK_INDEXES = frozenset((3, 4))
+_ACK_VERSIONS = (
+    {
+        "thanks": "Thank you for sharing the {domain} requirement.",
+        "noted": "We have noted {facts}.",
+        "topics": "the topics",
+        "duration": "training_days",
+        "mode": "delivery_mode",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "close": "Looking forward to sharing the documents with you.",
+        "cv": "the relevant CV",
+        "lines": {
+            "both": "We will prepare the ToC and lab cost based on the details provided and share {noun} for your review.",
+            "toc": "We will prepare the ToC based on the details provided and share {noun} for your review.",
+            "lab": "We will prepare the lab cost based on the details provided and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will prepare the ToC and lab cost based on the details provided.",
+            "toc_only": "We will prepare the ToC based on the details provided.",
+            "lab_only": "We will prepare the lab cost based on the details provided.",
+        },
+    },
+    {
+        "shape": "schedule_first",
+        "close": "Looking forward to your thoughts on the draft.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "documents_first",
+        "close": "We look forward to reading your comments.",
+        "cv": "the CV",
+    },
+    {
+        # Version 4 is retired. "Our team" is not used.
+        "retired": True,
+        "close": "Looking forward to your thoughts on the draft.",
+        "cv": "the CV",
+    },
+    {
+        # Version 5 is retired. "connecting with you again soon" is not used.
+        "retired": True,
+        "close": "We look forward to reading your comments.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "topics_cover",
+        "close": "Looking forward to the follow-up once these are with you.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "length_first",
+        "close": "Looking forward to the discussion once you have them.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "mode_first",
+        "close": "Looking forward to working from your comments.",
+        "cv": "the CV",
+    },
+    {
+        "shape": "topics_decide",
+        "close": "We look forward to your feedback.",
+        "cv": "the CV",
+    },
+    {
+        "thanks": "Thank you for sharing the {domain} requirement.",
+        "noted": "We have noted {facts}.",
+        "topics": "the topics",
+        "duration": "the_day_training_duration",
+        "mode": "mode",
+        "hours": "lab_hours",
+        "order": ("topics", "duration", "mode", "hours"),
+        "close": "Looking forward to sending these over to you.",
+        "cv": "the trainer's CV",
+        "lines": {
+            "both": "We will put together the ToC and lab cost based on the details you provided and share {noun} for your review.",
+            "toc": "We will put together the ToC based on the details you provided and share {noun} for your review.",
+            "lab": "We will put together the lab cost based on the details you provided and share {noun} for your review.",
+            "share": "We will share {noun} for your review.",
+            "both_only": "We will put together the ToC and lab cost based on the details you provided.",
+            "toc_only": "We will put together the ToC based on the details you provided.",
+            "lab_only": "We will put together the lab cost based on the details you provided.",
+        },
+    },
+)
+
+
+def _ack_topics_key(extracted: Dict[str, Any]) -> str:
+    def _as_text(raw: Any) -> str:
+        if isinstance(raw, (list, tuple, set)):
+            return ", ".join(str(item or "").strip() for item in raw if str(item or "").strip())
+        return str(raw or "").strip()
+
+    text = _as_text(extracted.get("topics"))
+    if text:
+        return text
+    return _as_text(extracted.get("custom_topics"))
+
+
+def _ack_client_key(extracted: Dict[str, Any]) -> str:
+    """Email identifies the client. The name is the fallback."""
+    email = _clean(extracted.get("client_email"))
+    if email:
+        return email.lower()
+    name = _clean(extracted.get("client_name"))
+    if name and name.lower() not in {"client", "team"}:
+        return name.lower()
+    return "client"
+
+
+# client email -> {requirement fingerprint -> version index}
+# A new fingerprint takes the next version. The same fingerprint keeps its version.
+_CLIENT_ACK_VERSIONS: Dict[str, Dict[str, int]] = {}
+_ACK_BOOK_PATH = Path(__file__).resolve().parents[2] / "data" / "client_ack_versions.json"
+_ACK_BOOK_LOADED = False
+
+
+def _requirement_fingerprint(extracted: Dict[str, Any]) -> str:
+    """Facts that make one requirement different from the next."""
     duration = _safe_float(extracted.get("duration_days"), 0)
-    if duration:
-        duration_text = str(int(duration)) if duration.is_integer() else str(duration)
-        facts.append(f"{duration_text} training days")
-    if _clean(extracted.get("mode")):
-        facts.append(_clean(extracted["mode"]))
+    hours = _known_lab_hours(extracted)
+    domain = _ack_technology(extracted).lower() or "training"
+    return "|".join([
+        domain,
+        _display_quantity(duration) if duration else "",
+        _clean(extracted.get("mode")).lower(),
+        _ack_topics_key(extracted).lower(),
+        _display_quantity(hours) if hours else "",
+        "lab" if _lab_is_clahan_managed(extracted) else "nolab",
+    ])
+
+
+def _load_ack_book() -> None:
+    """Remember version choices across restarts. A missing file starts a new cycle."""
+    global _ACK_BOOK_LOADED
+    if _ACK_BOOK_LOADED:
+        return
+    _ACK_BOOK_LOADED = True
+    try:
+        raw = json.loads(_ACK_BOOK_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return
+    if not isinstance(raw, dict):
+        return
+    for client, book in raw.items():
+        if not isinstance(book, dict):
+            continue
+        cleaned: Dict[str, int] = {}
+        for fingerprint, index in book.items():
+            if isinstance(index, int) and not isinstance(index, bool):
+                cleaned[str(fingerprint)] = index
+        if cleaned:
+            _CLIENT_ACK_VERSIONS[str(client)] = cleaned
+
+
+def _save_ack_book() -> None:
+    try:
+        _ACK_BOOK_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temporary = _ACK_BOOK_PATH.with_suffix(".json.tmp")
+        temporary.write_text(
+            json.dumps(_CLIENT_ACK_VERSIONS, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+        temporary.replace(_ACK_BOOK_PATH)
+    except OSError:
+        return
+
+
+def _ack_variant_index(extracted: Dict[str, Any], salt: str, size: int) -> int:
+    """Walk versions for this client.
+
+    The key is the client email, or the name when there is no email, plus the
+    requirement fingerprint. The same facts stay on the version already given
+    to that fingerprint. The first distinct requirement is version 1, the next
+    is version 10, then versions 2, 3, 6, 7, 8, and 9. Versions 4 and 5 are
+    never selected.
+    """
+    del salt
+    if size <= 1:
+        return 0
+    _load_ack_book()
+    client = _ack_client_key(extracted)
+    fingerprint = _requirement_fingerprint(extracted)
+    book = _CLIENT_ACK_VERSIONS.setdefault(client, {})
+    saved = book.get(fingerprint)
+    if isinstance(saved, int) and not isinstance(saved, bool) and (saved % size) in _ACK_ROTATION:
+        return saved % size
+    already = [
+        key
+        for key, value in book.items()
+        if key != fingerprint
+        and isinstance(value, int)
+        and not isinstance(value, bool)
+        and (value % size) in _ACK_ROTATION
+    ]
+    version = _ACK_ROTATION[len(already) % len(_ACK_ROTATION)]
+    book[fingerprint] = version
+    _save_ack_book()
+    return version
+
+
+def _duration_phrase(style: str, days: float) -> str:
+    number = _display_quantity(days)
+    if style == "training_days":
+        unit = "day" if float(days) == 1 else "days"
+        return f"{number} training {unit}"
+    if style == "day_duration":
+        return f"{number}-day duration"
+    if style == "day_training_schedule":
+        return f"{number}-day training schedule"
+    if style == "day_schedule":
+        return f"{number}-day schedule"
+    return f"the {number}-day training duration"
+
+
+def _mode_phrase(style: str, mode: str) -> str:
+    word = _clean(mode)
+    phrases = {
+        "delivery_mode": f"{word} delivery mode",
+        "mode": f"{word} mode",
+        "delivery": f"{word} delivery",
+        "format": f"{word} format",
+        "training_mode": f"{word} training mode",
+    }
+    return phrases.get(style, f"{word} mode")
+
+
+def _lab_hours_phrase(style: str, hours: float) -> str:
+    number = _display_quantity(hours)
+    if style == "hours_of_lab":
+        unit = "hour" if float(hours) == 1 else "hours"
+        return f"{number} {unit} of lab work per day"
+    unit = "lab hour" if float(hours) == 1 else "lab hours"
+    return f"{number} {unit} per day"
+
+
+def _explicit_request_labels(extracted: Dict[str, Any]) -> list[str]:
+    """Labels the client actually asked for. An empty request list stays empty."""
+    requested_details = extracted.get("requested_details") or []
+    if not isinstance(requested_details, (list, tuple, set)):
+        return []
+    request_texts = [str(item or "").lower() for item in requested_details if str(item or "").strip()]
+    if not request_texts:
+        return []
+    labels: list[str] = []
+
+    def add(label: str) -> None:
+        if label not in labels:
+            labels.append(label)
+
+    for text in request_texts:
+        if any(key in text for key in ("cv", "resume")):
+            add("CV")
+        elif "profile" in text and "linkedin" not in text and "linked in" not in text:
+            add("CV")
+    checks = [
+        (("linkedin", "linked in"), "LinkedIn profile"),
+        (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
+        (("experience", "implementation"), "relevant experience"),
+        (("current location", "location"), "current location"),
+        (("availability", "available"), "availability"),
+        (("technical call", "slots", "time slots"), "technical call slots"),
+        (("commercial", "commercials", "rate"), "commercials"),
+        (("software", "hardware", "system requirement"), "software/hardware requirements"),
+        (("certification", "certifications"), "certifications"),
+    ]
+    for keys, label in checks:
+        if any(any(key in text for key in keys) for text in request_texts):
+            add(label)
+    return labels
+
+
+def _ack_share_noun(version: Dict[str, Any], labels: list[str]) -> str:
+    extras = [label for label in labels if label not in {"CV", "ToC"}]
+    if "CV" in labels:
+        if not extras:
+            return str(version["cv"])
+        return _join_phrases([str(version["cv"]), *extras])
+    named = [label if label.lower().startswith("the ") else f"the {label}" for label in extras]
+    return _join_phrases(named)
+
+
+def _prepare_sentence(version: Dict[str, Any], *, toc: bool, lab: bool, noun: str, has_facts: bool) -> str:
+    """That version's prepare sentence, with only the missing document left out."""
+    lines = version["lines"]
+    if toc and lab:
+        key = "both" if noun else "both_only"
+    elif toc:
+        key = "toc" if noun else "toc_only"
+    elif lab:
+        key = "lab" if noun else "lab_only"
+    elif noun:
+        key = "share"
+    else:
+        return ""
+    if not has_facts and f"{key}_plain" in lines:
+        key = f"{key}_plain"
+    shown = noun[:1].upper() + noun[1:] if noun else ""
+    return str(lines[key]).format(noun=noun, Noun=shown)
+
+
+def _ack_noted_sentence(version: Dict[str, Any], extracted: Dict[str, Any]) -> str:
+    phrases = []
+    duration = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    for key in version["order"]:
+        if key == "topics" and _topics_were_shared(extracted):
+            phrases.append(str(version["topics"]))
+        elif key == "duration" and duration:
+            phrases.append(_duration_phrase(str(version["duration"]), duration))
+        elif key == "mode" and mode:
+            phrases.append(_mode_phrase(str(version["mode"]), mode))
+        elif key == "hours" and hours:
+            phrases.append(_lab_hours_phrase(str(version["hours"]), hours))
+    if not phrases:
+        return ""
+    return str(version["noted"]).format(facts=_join_phrases(phrases))
+
+
+def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
+    """Name the estimate once participant count, hours, and cloud are known."""
+    if not _lab_is_clahan_managed(extracted) or not _lab_inputs_complete(extracted):
+        return ""
     participants = _safe_int(extracted.get("participant_count"), 0)
-    if participants:
-        facts.append(f"{participants} participants")
-    if _clean(extracted.get("audience_level")):
-        facts.append(f"{_clean(extracted['audience_level'])} level")
-    if _clean(extracted.get("cloud_provider")):
-        facts.append(f"{_clean(extracted['cloud_provider'])} platforms")
-    return f"\n\nWe have recorded the confirmed batch scope: {', '.join(facts)}." if facts else ""
+    hours_per_day = _known_lab_hours(extracted)
+    duration_days = _safe_float(extracted.get("duration_days"), 0)
+    parts = [f"{participants} participant{'s' if participants != 1 else ''}"]
+    if duration_days:
+        parts.append(f"{_display_quantity(duration_days)} days")
+    parts.append(f"{_display_quantity(hours_per_day)} hours per day")
+    return f"We will prepare the lab estimate for {_join_phrases(parts)}."
+
+
+def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
+    """Ask for lab inputs only when the client has not shared enough to start."""
+    if not _lab_is_clahan_managed(extracted) or _lab_inputs_complete(extracted):
+        return ""
+    if _topics_were_shared(extracted) or _shared_batch_details(extracted):
+        return ""
+    missing = []
+    if not _safe_int(extracted.get("participant_count"), 0):
+        missing.append("participant count")
+    if not _known_lab_hours(extracted):
+        missing.append("lab hours per day")
+    if not _clean(extracted.get("cloud_provider")):
+        missing.append("preferred cloud provider (AWS, Azure, or GCP)")
+    if not missing:
+        return ""
+    return f"Please share the {_join_phrases(missing)} so we can prepare the lab estimate."
+
+
+def _ack_greeting(extracted: Dict[str, Any]) -> str:
+    salutation = _client_salutation(extracted)
+    if salutation == "Client":
+        return "Hi,"
+    return f"Hi {salutation},"
+
+
+def _ack_technology(extracted: Dict[str, Any]) -> str:
+    """Exact domain from the requirement input.
+
+    Read technology_needed, then technology, then domain. The string is placed
+    in the sentence as written. Empty means the input did not name a domain,
+    so the note says "training requirement" and does not invent one.
+    """
+    for key in ("technology_needed", "technology", "domain"):
+        text = _clean(extracted.get(key))
+        if text:
+            return text
+    return ""
+
+
+def _ack_requirement_thanks(extracted: Dict[str, Any], template: str) -> str:
+    """Place the input domain in a thanks sentence. Do not invent a domain."""
+    domain = _ack_technology(extracted)
+    if domain:
+        return template.replace("{domain}", domain)
+    text = template.replace("{domain} training", "training")
+    text = text.replace("{domain}", "training")
+    text = re.sub(r"\btraining training\b", "training", text, flags=re.IGNORECASE)
+    return re.sub(r" {2,}", " ", text).strip()
+
+
+def _ack_domain_prefix(extracted: Dict[str, Any]) -> str:
+    """'Snowflake ' when the input named a domain, otherwise nothing."""
+    domain = _ack_technology(extracted)
+    return f"{domain} " if domain else ""
+
+
+def _ack_paragraph(*sentences: str) -> str:
+    return " ".join(sentence.strip() for sentence in sentences if sentence and sentence.strip())
+
+
+def _ack_day_phrase(days: float) -> str:
+    number = _display_quantity(days)
+    unit = "day" if float(days) == 1 else "days"
+    return f"{number} {unit}"
+
+
+def _ack_hour_phrase(hours: float, *, style: str = "per day") -> str:
+    number = _display_quantity(hours)
+    unit = "hour" if float(hours) == 1 else "hours"
+    if style == "lab a day":
+        return f"{number} lab {unit} a day"
+    if style == "on each day":
+        return f"{number} lab {unit} on each day"
+    if style == "of lab":
+        return f"{number} {unit} of lab work per day"
+    if style == "a day":
+        return f"{number} {unit} a day"
+    return f"{number} {unit} per day"
+
+
+def _ack_named(noun: str) -> str:
+    text = str(noun or "").strip()
+    if not text:
+        return ""
+    return text[:1].upper() + text[1:]
+
+
+def _ack_article(word: str) -> str:
+    return "An" if str(word or "")[:1].lower() in "aeiou" else "A"
+
+
+def _ack_shape_schedule_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 2. The schedule is stated first. Documents follow from it."""
+    named = _ack_domain_prefix(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = _ack_requirement_thanks(extracted, "Thank you for sharing the {domain} requirement.")
+    if mode and days:
+        schedule = f"This {named}batch is {mode} and runs for {_ack_day_phrase(days)}."
+    elif mode:
+        schedule = f"This {named}batch is {mode}."
+    elif days:
+        schedule = f"This {named}batch runs for {_ack_day_phrase(days)}."
+    else:
+        schedule = ""
+    if topics and hours:
+        detail = f"The topics are included, and the lab is {_ack_hour_phrase(hours)}."
+    elif topics:
+        detail = "The topics are included."
+    elif hours:
+        detail = f"The lab is {_ack_hour_phrase(hours)}."
+    else:
+        detail = ""
+    share = f"we will share {noun} for your review" if noun else ""
+    if toc and topics:
+        toc_clause = "The ToC will be prepared from the topics"
+    elif toc:
+        toc_clause = "The ToC will be prepared from the requirement"
+    else:
+        toc_clause = ""
+    sentences: list[str] = []
+    if lab and hours:
+        sentences.append("The lab cost will use those daily hours.")
+    if toc_clause and lab and not hours and share:
+        sentences.append(f"{toc_clause}. The lab cost will be prepared with it, and {share}.")
+    elif toc_clause and lab and not hours:
+        sentences.append(f"{toc_clause}. The lab cost will be prepared with it.")
+    elif toc_clause and share:
+        sentences.append(f"{toc_clause}, and {share}.")
+    elif toc_clause:
+        sentences.append(f"{toc_clause}.")
+    elif lab and not hours and share:
+        sentences.append(f"The lab cost will be prepared from the requirement, and {share}.")
+    elif lab and not hours:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif share:
+        sentences.append(f"We will share {noun} for your review.")
+    paragraphs = [_ack_paragraph(schedule, detail, thanks)]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_documents_schedule(topics: bool, days: float, mode: str, hours: float) -> str:
+    """Version 3's schedule sentence. A missing fact is left out of this sentence."""
+    if topics and days and mode and hours:
+        return (
+            f"The topics run for {_ack_day_phrase(days)} in {mode} mode, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if topics and days and mode:
+        return f"The topics run for {_ack_day_phrase(days)} in {mode} mode."
+    if topics and days and hours:
+        return (
+            f"The topics run for {_ack_day_phrase(days)}, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if topics and mode and hours:
+        return (
+            f"The topics are delivered {mode}, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if days and mode and hours and not topics:
+        return (
+            f"The training runs for {_ack_day_phrase(days)} in {mode} mode, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if topics and days:
+        return f"The topics run for {_ack_day_phrase(days)}."
+    if topics and mode:
+        return f"The topics are delivered {mode}."
+    if topics and hours:
+        return f"The topics include {_ack_hour_phrase(hours, style='on each day')}."
+    if days and mode:
+        return f"The training runs for {_ack_day_phrase(days)} in {mode} mode."
+    if days and hours:
+        return (
+            f"The training runs for {_ack_day_phrase(days)}, "
+            f"with {_ack_hour_phrase(hours, style='on each day')}."
+        )
+    if mode and hours:
+        return f"Delivery is {mode}, with {_ack_hour_phrase(hours, style='on each day')}."
+    if topics:
+        return "The topics are the ones you sent."
+    if days:
+        return f"The training runs for {_ack_day_phrase(days)}."
+    if mode:
+        return f"Delivery is {mode}."
+    if hours:
+        return f"The lab is {_ack_hour_phrase(hours, style='on each day')}."
+    return ""
+
+
+def _ack_shape_documents_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 3. The CV, ToC, and lab cost are promised before the schedule."""
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = _ack_requirement_thanks(
+        extracted, "Thank you for sharing the {domain} training requirement."
+    )
+    if toc and lab and noun:
+        offer = f"We will share {noun} for your review once the ToC and the lab cost are ready."
+    elif toc and noun:
+        offer = f"We will share {noun} for your review once the ToC is ready."
+    elif lab and noun:
+        offer = f"We will share {noun} for your review once the lab cost is ready."
+    elif noun:
+        offer = f"We will share {noun} for your review."
+    elif toc and lab:
+        offer = "The ToC and the lab cost will be ready for you."
+    elif toc:
+        offer = "The ToC will be ready for you."
+    elif lab:
+        offer = "The lab cost will be ready for you."
+    else:
+        offer = ""
+    paragraphs = [_ack_paragraph(thanks, offer)]
+    schedule = _ack_documents_schedule(topics, days, mode, hours)
+    if schedule:
+        paragraphs.append(schedule)
+    return paragraphs
+
+
+def _ack_shape_topics_cover(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 6. The ToC is described by the topics and the length, then the lab cost."""
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    opening = _ack_requirement_thanks(
+        extracted, "Thank you for sending us the {domain} requirement."
+    )
+    sentences: list[str] = []
+    if toc and topics and days and mode:
+        sentences.append(
+            f"The ToC follows the topics you sent and covers {_ack_day_phrase(days)} of {mode} training."
+        )
+    elif toc and topics and days:
+        sentences.append(
+            f"The ToC follows the topics you sent and covers {_ack_day_phrase(days)} of training."
+        )
+    elif toc and topics and mode:
+        sentences.append(f"The ToC follows the topics you sent for {mode} training.")
+    elif toc and topics:
+        sentences.append("The ToC follows the topics you sent.")
+    elif toc and days and mode:
+        sentences.append(f"The ToC covers {_ack_day_phrase(days)} of {mode} training.")
+    elif toc and days:
+        sentences.append(f"The ToC covers {_ack_day_phrase(days)} of training.")
+    elif toc and mode:
+        sentences.append(f"The ToC is arranged for {mode} training.")
+    elif toc:
+        sentences.append("The ToC will be drafted from the requirement.")
+    elif topics and days and mode:
+        sentences.append(f"The topics you sent are for {_ack_day_phrase(days)} of {mode} training.")
+    elif topics and days:
+        sentences.append(f"The topics you sent are for {_ack_day_phrase(days)} of training.")
+    elif topics and mode:
+        sentences.append(f"The topics you sent are for {mode} training.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    elif days and mode:
+        sentences.append(f"The training is {_ack_day_phrase(days)} and {mode}.")
+    elif days:
+        sentences.append(f"The training is {_ack_day_phrase(days)}.")
+    elif mode:
+        sentences.append(f"Delivery is {mode}.")
+    named = _ack_named(noun)
+    if lab and hours and noun and toc:
+        sentences.append(f"The lab cost is based on {_ack_hour_phrase(hours, style='lab a day')}.")
+        sentences.append(f"{named} will be shared for your review with that draft.")
+    elif lab and hours and noun:
+        sentences.append(
+            f"The lab cost is based on {_ack_hour_phrase(hours, style='lab a day')}, "
+            f"and {noun} will be shared for your review."
+        )
+    elif lab and hours:
+        sentences.append(f"The lab cost is based on {_ack_hour_phrase(hours, style='lab a day')}.")
+    elif lab and noun and toc:
+        sentences.append(
+            f"The lab cost will be set with that draft, and {noun} will be shared for your review."
+        )
+    elif lab and noun:
+        sentences.append(
+            f"The lab cost will be prepared from the requirement, and {noun} will be shared for your review."
+        )
+    elif lab:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif noun:
+        sentences.append(f"{named} will be shared for your review.")
+    if hours and not lab and not any(_display_quantity(hours) in sentence for sentence in sentences):
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    paragraphs = [opening]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_shape_length_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 7. The length opens the note. Lab hours explain the documents."""
+    named = _ack_domain_prefix(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = _ack_requirement_thanks(
+        extracted, "Thank you for sharing your {domain} training requirements."
+    )
+    if days and mode:
+        length = f"The length of this {mode} {named}training is {_ack_day_phrase(days)}."
+    elif days:
+        length = f"The length of this {named}training is {_ack_day_phrase(days)}."
+    elif mode:
+        length = f"This {named}training is delivered {mode}."
+    else:
+        length = ""
+    sentences: list[str] = []
+    if topics and days:
+        sentences.append("The topics are planned across those days.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    hours_text = _ack_hour_phrase(hours, style="of lab") if hours else ""
+    if hours and toc and lab and noun:
+        sentences.append(
+            f"With {hours_text}, we will write the lab cost and the ToC, "
+            f"and {noun} will be included for your review."
+        )
+    elif hours and toc and lab:
+        sentences.append(f"With {hours_text}, we will write the lab cost and the ToC.")
+    elif hours and toc and noun:
+        sentences.append(
+            f"With {hours_text}, we will write the ToC, and {noun} will be included for your review."
+        )
+    elif hours and lab and noun:
+        sentences.append(
+            f"With {hours_text}, we will write the lab cost, and {noun} will be included for your review."
+        )
+    elif toc and lab and noun:
+        sentences.append(
+            "The lab cost and the ToC will be written from the requirement, "
+            f"and {noun} will be included for your review."
+        )
+    elif toc and lab:
+        sentences.append("The lab cost and the ToC will be written from the requirement.")
+    elif toc and noun:
+        sentences.append(
+            f"The ToC will be written from the requirement, and {noun} will be included for your review."
+        )
+    elif lab and noun:
+        sentences.append(
+            f"The lab cost will be written from the requirement, and {noun} will be included for your review."
+        )
+    elif noun:
+        sentences.append(f"{_ack_named(noun)} will be included for your review.")
+    elif hours and not lab:
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    paragraphs = [_ack_paragraph(length, thanks)]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_sent(noun: str) -> str:
+    return f"{_ack_named(noun)} will be sent"
+
+
+def _ack_shape_mode_first(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 8. Delivery mode opens the note. Days stay with the ToC."""
+    named = _ack_domain_prefix(extracted)
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    thanks = _ack_requirement_thanks(
+        extracted, "Thank you for providing the {domain} training requirement."
+    )
+    lead = f"{mode} delivery is how this {named}training will run." if mode else ""
+    sentences: list[str] = []
+    if toc and topics and days:
+        sentences.append(f"The ToC carries the topics across {_ack_day_phrase(days)}.")
+    elif toc and topics:
+        sentences.append("The ToC carries the topics.")
+    elif toc and days:
+        sentences.append(f"The ToC covers {_ack_day_phrase(days)}.")
+    elif toc:
+        sentences.append("The ToC will be drafted from the requirement.")
+    elif topics and days:
+        sentences.append(f"The topics are planned across {_ack_day_phrase(days)}.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    elif days:
+        sentences.append(f"The training runs for {_ack_day_phrase(days)}.")
+    if lab and hours and noun and toc:
+        sentences.append(f"The lab cost is for {_ack_hour_phrase(hours, style='a day')}.")
+        sentences.append(f"{_ack_sent(noun)} with both for your review.")
+    elif lab and hours and noun:
+        sentences.append(
+            f"The lab cost is for {_ack_hour_phrase(hours, style='a day')}, "
+            f"and {noun} will be sent for your review."
+        )
+    elif lab and hours:
+        sentences.append(f"The lab cost is for {_ack_hour_phrase(hours, style='a day')}.")
+    elif lab and noun and toc:
+        sentences.append(f"The lab cost will be prepared with the ToC.")
+        sentences.append(f"{_ack_sent(noun)} with both for your review.")
+    elif lab and noun:
+        sentences.append(
+            f"The lab cost will be prepared from the requirement, and {noun} will be sent for your review."
+        )
+    elif lab:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif noun and toc:
+        sentences.append(f"{_ack_sent(noun)} with the ToC for your review.")
+    elif noun:
+        sentences.append(f"{_ack_sent(noun)} for your review.")
+    if hours and not lab and not any(_display_quantity(hours) in sentence for sentence in sentences):
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    paragraphs = [_ack_paragraph(lead, thanks)]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+def _ack_shape_topics_decide(
+    extracted: Dict[str, Any], *, toc: bool, lab: bool, noun: str,
+) -> list[str]:
+    """Version 9. Topics decide the ToC. The batch decides the lab cost."""
+    topics = _topics_were_shared(extracted)
+    days = _safe_float(extracted.get("duration_days"), 0)
+    mode = _clean(extracted.get("mode"))
+    hours = _known_lab_hours(extracted)
+    opening = _ack_requirement_thanks(
+        extracted, "Thank you for sharing the {domain} training details."
+    )
+    sentences: list[str] = []
+    if toc and topics:
+        sentences.append("The topics are what the ToC will follow.")
+    elif toc:
+        sentences.append("The ToC will follow the requirement you sent.")
+    elif topics:
+        sentences.append("The topics are in the note you sent.")
+    if mode and days and hours and lab:
+        sentences.append(
+            f"{_ack_article(mode)} {mode} batch of {_ack_day_phrase(days)}, "
+            f"at {_ack_hour_phrase(hours, style='lab a day')}, is what the lab cost will use."
+        )
+    elif mode and days and lab:
+        sentences.append(
+            f"{_ack_article(mode)} {mode} batch of {_ack_day_phrase(days)} is what the lab cost will use."
+        )
+    elif days and hours and lab:
+        sentences.append(
+            f"A batch of {_ack_day_phrase(days)}, at {_ack_hour_phrase(hours, style='lab a day')}, "
+            f"is what the lab cost will use."
+        )
+    elif mode and hours and lab:
+        sentences.append(
+            f"{mode} delivery, at {_ack_hour_phrase(hours, style='lab a day')}, is what the lab cost will use."
+        )
+    elif hours and lab:
+        sentences.append(f"The lab cost will use {_ack_hour_phrase(hours, style='lab a day')}.")
+    elif days and lab:
+        sentences.append(f"The lab cost will use a batch of {_ack_day_phrase(days)}.")
+    elif mode and lab:
+        sentences.append(f"The lab cost will use {mode} delivery.")
+    elif lab:
+        sentences.append("The lab cost will be prepared from the requirement.")
+    elif mode and days and hours:
+        sentences.append(
+            f"The batch is {mode} for {_ack_day_phrase(days)}, and the lab is {_ack_hour_phrase(hours)}."
+        )
+    elif mode and days:
+        sentences.append(f"The batch is {mode} for {_ack_day_phrase(days)}.")
+    elif days and hours:
+        sentences.append(
+            f"The training runs for {_ack_day_phrase(days)}, and the lab is {_ack_hour_phrase(hours)}."
+        )
+    elif hours:
+        sentences.append(f"The lab is {_ack_hour_phrase(hours)}.")
+    elif days:
+        sentences.append(f"The training runs for {_ack_day_phrase(days)}.")
+    elif mode:
+        sentences.append(f"Delivery is {mode}.")
+    if noun and toc and lab:
+        sentences.append(f"{_ack_named(noun)} will be sent with them for your review.")
+    elif noun and toc:
+        sentences.append(f"{_ack_named(noun)} will be sent with the ToC for your review.")
+    elif noun and lab:
+        sentences.append(f"{_ack_named(noun)} will be sent with the lab cost for your review.")
+    elif noun:
+        sentences.append(f"{_ack_named(noun)} will be sent for your review.")
+    paragraphs = [opening]
+    work = _ack_paragraph(*sentences)
+    if work:
+        paragraphs.append(work)
+    return paragraphs
+
+
+_ACK_SHAPES = {
+    1: _ack_shape_schedule_first,
+    2: _ack_shape_documents_first,
+    5: _ack_shape_topics_cover,
+    6: _ack_shape_length_first,
+    7: _ack_shape_mode_first,
+    8: _ack_shape_topics_decide,
+}
+
+
+def _render_professional_ack(
+    extracted: Dict[str, Any],
+    version_index: int,
+    ask_missing: bool = True,
+) -> str:
+    """One professional version, filled with this requirement's facts."""
+    index = version_index % len(_ACK_VERSIONS)
+    if index in _RETIRED_ACK_INDEXES:
+        raise ValueError("acknowledgement versions 4 and 5 are not used")
+    version = _ACK_VERSIONS[index]
+    labels = _explicit_request_labels(extracted)
+    promise_toc = _ack_should_promise_toc(extracted, labels)
+    promise_lab = _lab_is_clahan_managed(extracted) and not _lab_inputs_request(extracted)
+    noun = _ack_share_noun(version, labels)
+    missing = _format_missing_details(extracted) if ask_missing else ""
+    shape = _ACK_SHAPES.get(index)
+    if shape:
+        paragraphs = [_ack_greeting(extracted)]
+        paragraphs.extend(paragraph for paragraph in shape(
+            extracted, toc=promise_toc, lab=promise_lab, noun=noun,
+        ) if paragraph)
+        if missing:
+            paragraphs.append("Please share:\n" + missing)
+    else:
+        noted = _ack_noted_sentence(version, extracted)
+        thanks = _ack_requirement_thanks(extracted, str(version["thanks"]))
+        opening = f"{thanks} {noted}".strip() if noted else thanks
+        work = _prepare_sentence(
+            version,
+            toc=promise_toc,
+            lab=promise_lab,
+            noun=noun,
+            has_facts=bool(noted),
+        )
+        paragraphs = [_ack_greeting(extracted), opening]
+        if missing:
+            paragraphs.append("Please share:\n" + missing)
+        if work:
+            paragraphs.append(work)
+    estimate = _lab_estimate_sentence(extracted)
+    lab_request = _lab_inputs_request(extracted)
+    if estimate:
+        paragraphs.append(estimate)
+    elif lab_request:
+        paragraphs.append(lab_request)
+    paragraphs.append(str(version["close"]))
+    paragraphs.append(_reply_signature())
+    return "\n\n".join(paragraphs)
+
+
+def _topics_were_shared(extracted: Dict[str, Any]) -> bool:
+    raw = extracted.get("topics") or extracted.get("custom_topics") or ""
+    if isinstance(raw, (list, tuple, set)):
+        return any(str(item or "").strip() for item in raw)
+    return bool(str(raw).strip())
 
 
 def _client_requested_items_for_reply(extracted: Dict[str, Any]) -> str:
@@ -2628,36 +3592,13 @@ def _client_short_requirement_ack(
     intro: str = "",
     ask_missing: bool = True,
 ) -> Dict[str, str]:
-    technology = extracted.get("technology_needed") or "training"
-    missing = _format_missing_details(extracted) if ask_missing else ""
-    opening = _clean(intro) or (
-        "Thanks for sharing your training requirement."
-        if missing
-        else f"Thanks for sharing the {technology} training requirement."
-    )
-    clahan_note = _lab_estimate_acknowledgement(extracted)
-    if missing:
-        body = (
-            "Hello,\n\n"
-            f"{opening}\n\n"
-            "Please share:\n"
-            f"{missing}{clahan_note}\n\n"
-            + _reply_signature()
-        )
-    else:
-        profile_action = (
-            "We will share suitable trainer profiles with "
-            if _has_explicit_profile_request(extracted)
-            else "We will check suitable trainer availability and share suitable trainer profiles with "
-        )
-        body = (
-            "Hello,\n\n"
-            f"{opening}{_confirmed_requirement_scope_acknowledgement(extracted)}\n\n"
-            f"{profile_action}"
-            f"{_client_requested_items_for_reply(extracted)} for your review.{clahan_note}\n\n"
-            + _reply_signature()
-        )
-    return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
+    # The older details-received intro is not the opening. Every requirement
+    # acknowledgement uses one version from the professional pool.
+    del intro
+    domain = _ack_technology(extracted) or "training"
+    index = _ack_variant_index(extracted, "version", len(_ACK_VERSIONS))
+    body = _render_professional_ack(extracted, index, ask_missing=ask_missing)
+    return {"subject": f"Re: {domain} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:
@@ -2792,10 +3733,10 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
 
     body = (
         f"Dear {trainer_name},\n\n"
-        "Thank you for your response. The confirmed training details are below:\n\n"
+        "Thanks for your response. The training details are below:\n\n"
         + "\n".join(training_lines)
         + "\n\n"
-        "To proceed, please share only the following outstanding item(s):\n\n"
+        "Please share:\n\n"
         + "\n".join(detail_lines)
         + "\n\n"
         "Regards,\n"
@@ -2838,7 +3779,6 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         "- Total experience\n"
         "- Relevant training experience\n"
         "- Availability\n"
-        "- Commercials per day\n"
         "- LinkedIn profile, if available\n\n"
         "Please also share 3 convenient interview/discussion slots with the date, time, and time zone. For example:\n"
         "- [Your available date 1], [time], [time zone]\n"
@@ -3613,17 +4553,19 @@ def _trainer_commercial_body(
         extra_sections += "\n\n" + "\n".join(profile_lines)
     if toc_lines:
         extra_sections += "\n\n" + "\n".join(toc_lines)
-    body = (
-        f"{_client_time_greeting(client_name)},\n\n"
-        f"Trainer {trainer_name} has shared the required details and commercials for the {technology} requirement.\n\n"
-        "Trainer Summary:\n"
+    spoken = client_name if client_name and str(client_name).lower() not in {"client", "team"} else ""
+    hello = f"Hello {spoken}," if spoken else "Hello,"
+    body = apply_voice(
+        f"{hello}\n\n"
+        f"Trainer {trainer_name} has shared the details and commercials for the {technology} requirement.\n\n"
+        "Trainer summary:\n"
         f"{chr(10).join(details)}\n\n"
         "Commercials for your review:\n"
         f"{rate_lines}"
         f"{extra_sections}\n\n"
-        "Please review and confirm if we can proceed with this trainer. Once approved, we will move ahead with interview/slot coordination.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Please review and let us know if we should go ahead with this trainer.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -3646,13 +4588,12 @@ def _trainer_budget_negotiation_message(
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
     unit_text = "per hour" if unit == "hour" else "per day"
     subject = f"Re: Training Requirement - {technology} | Commercial Discussion"
-    body = (
-        f"Dear {trainer_name},\n\n"
-        f"Thank you for sharing your commercial expectation for the {technology} requirement.\n\n"
-        f"For this engagement, please confirm if you can proceed at INR {target_amount:,.0f} {unit_text}.\n\n"
-        "Once confirmed, we will move ahead with the client coordination.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+    body = apply_voice(
+        f"Hello {trainer_name},\n\n"
+        f"Thanks for sharing your commercial for the {technology} requirement.\n\n"
+        f"Please confirm if you can do INR {target_amount:,.0f} {unit_text}. Once you confirm, we will take this to the client.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -3983,6 +4924,20 @@ def _trainer_missing_requested_details(
     return missing
 
 
+DATED_SLOT_FOLLOWUP = "Exactly three dated interview/discussion slots (date, time, and time zone)"
+
+
+def _with_missing_dated_slots(missing: List[str], reply_text: Any) -> List[str]:
+    """An interested reply without three dated slots gets one Mail 2, not a second one later."""
+    items = [item for item in missing if _clean(item)]
+    if _slot_reply_intent(reply_text) == "valid_slots":
+        return items
+    if any("slot" in item.lower() for item in items):
+        return items
+    items.append(DATED_SLOT_FOLLOWUP)
+    return items
+
+
 def _trainer_reply_has_requested_details(
     text: Any,
     requirement: Optional[Dict[str, Any]] = None,
@@ -4009,13 +4964,13 @@ def _trainer_slot_booking_message(
         "- Date: 3 September 2026, Time: 4:00 PM - 4:30 PM IST"
     )
     subject = f"Interview Slot Booking - {technology}"
-    body = (
-        f"Dear {trainer_name},\n\n"
-        "Please share three convenient interview/discussion slots with date, time, and time zone so we can coordinate with the client.\n\n"
-        "Preferred format:\n"
+    body = apply_voice(
+        f"Hello {trainer_name},\n\n"
+        "Please share three convenient interview/discussion slots with the date, time, and time zone.\n\n"
+        "For example:\n"
         f"{slots_text}\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4119,15 +5074,17 @@ def _client_slots_message(
         if is_reschedule
         else f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
     )
-    body = (
-        f"{_client_time_greeting(client_name)},\n\n"
+    spoken = client_name if client_name and str(client_name).lower() not in {"client", "team"} else ""
+    hello = f"Hello {spoken}," if spoken else "Hello,"
+    body = apply_voice(
+        f"{hello}\n\n"
         f"{opening}"
         f"{trainer_details_section}"
         "Available slots:\n"
         f"{slot_text}\n\n"
-        "Kindly confirm one preferred slot. We will then send the Google Meet invitation to both you and the trainer.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Please confirm one slot. We will then send the Google Meet invite to you and the trainer.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4140,10 +5097,12 @@ def _client_interview_schedule_message(
     requirement_id: str,
     interview_date: str,
     meeting_link: str,
+    extra_paragraph: str = "",
 ) -> Dict[str, str]:
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
     link = _clean(meeting_link)
+    extra = f"{_clean(extra_paragraph)}\n\n" if _clean(extra_paragraph) else ""
     body = apply_voice(
         f"Hi {client_name or ''},\n\n"
         f"The interview for the shortlisted {technology} trainer is confirmed.\n\n"
@@ -4151,6 +5110,7 @@ def _client_interview_schedule_message(
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {link}\n\n"
+        f"{extra}"
         "Please join on time and let us know if any change is required.\n\n"
         "Thanks,\n"
         "Clahan Technologies",
@@ -4510,10 +5470,11 @@ async def _client_pipeline_email_body(
             subject=subject,
             body=reference_body,
             hint=(
-                "Write this client-facing pipeline email naturally. Preserve every verified fact from the "
-                "reference exactly, especially meeting links, dates, times, attachments and the requested "
+                "Write this as one client email from the person already signing the reference. "
+                "If the reference includes a ToC and a lab-cost estimate, keep both in this same body. "
+                "Preserve every verified fact exactly, especially meeting links, dates, times, attachments and the requested "
                 "next action. Do not invent trainer availability, commercial values, documents, decisions, "
-                "or completion status. Keep the Clahan Technologies sign-off."
+                "or completion status. Do not add a second email or the other person's signature."
             ),
             workflow_context={
                 **context,
@@ -4572,6 +5533,8 @@ async def _send_client_interview_schedule_email(
     slot_text: str = "",
     timezone_name: str = "",
     now: Optional[datetime] = None,
+    extra_paragraph: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     sent_at = now or _now()
     if not _clean(meeting_link):
@@ -4644,6 +5607,7 @@ async def _send_client_interview_schedule_email(
         requirement_id=requirement_id,
         interview_date=interview_date,
         meeting_link=meeting_link,
+        extra_paragraph=extra_paragraph,
     )
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
     message_body, generation_source = await _client_pipeline_email_body(
@@ -4667,6 +5631,7 @@ async def _send_client_interview_schedule_email(
         body=message_body,
         smtp_config=smtp_config,
         message_id_header=message_id_header,
+        attachments=attachments or None,
     )
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
     event = calendar_event or {}
@@ -4721,6 +5686,7 @@ async def _send_client_interview_schedule_email(
         "to": client_email,
         "subject": message["subject"],
         "sent_at": sent_at if success else None,
+        "attachments_included": bool(success and attachments),
     }
 
 
@@ -6539,9 +7505,32 @@ async def _handle_trainer_general_question(
     settings_doc = await _load_admin_settings(db)
     now = _now()
 
-    requirement_reply = _verified_requirement_question_answer(question, requirement, trainer_name)
-    if requirement_reply:
-        generated_reply = requirement_reply
+    from app.agents.offline_replies import guard_trainer_body, prepare_trainer_reply
+
+    ai_on = await _global_ai_wording_enabled(db)
+    generated_reply = prepare_trainer_reply(
+        question,
+        generated_reply,
+        trainer,
+        requirement,
+        shortlist,
+        ai_on=ai_on,
+    )
+    # A stored-record reply already answered the safe part and refused secrets.
+    # The field lookup stays for a caller that passed its own verified draft.
+    if not generated_reply.get("from_records"):
+        requirement_reply = _verified_requirement_question_answer(question, requirement, trainer_name)
+        if requirement_reply:
+            generated_reply = {
+                **requirement_reply,
+                "body": guard_trainer_body(
+                    requirement_reply.get("body") or "",
+                    question,
+                    trainer,
+                    requirement,
+                    shortlist,
+                ),
+            }
 
     # A draft that contains a direct, verified answer can go straight back to
     # the trainer. The question record is deliberately separate from shortlist
@@ -6573,7 +7562,14 @@ async def _handle_trainer_general_question(
                 "updated_at": _now(),
             }},
         )
-        return {"attempted": True, "success": bool(ok), "query_id": query_id, "error": error or ""}
+        return {
+            "attempted": True,
+            "success": bool(ok),
+            "query_id": query_id,
+            "error": error or "",
+            "answer": generated_reply.get("body") or "",
+            "answer_subject": generated_reply.get("subject") or "",
+        }
 
     if not client_email:
         await db["trainer_question_queries"].update_one(
@@ -7318,6 +8314,8 @@ async def _handle_client_slot_confirmation_reply(
                 source_trainer_email_id=existing.get("email_id") or "",
                 slot_text=reply_text,
                 now=now,
+                extra_paragraph=_clean(email_doc.get("bundled_client_note")),
+                attachments=email_doc.get("bundled_client_attachments") or None,
             )
         client_schedule_success = bool(trainer_schedule_success and client_schedule_result.get("success"))
         client_schedule_sent_at = client_schedule_result.get("sent_at") or sent_at
@@ -7382,6 +8380,7 @@ async def _handle_client_slot_confirmation_reply(
             "interview_link": existing_link if client_schedule_success else "",
             "error": "" if client_schedule_success else (trainer_retry_error or client_schedule_result.get("error") or "Interview schedule email failed"),
             "sent_at": sent_at,
+            "lab_cost_included": bool(client_schedule_result.get("attachments_included")),
         }
 
     if not resolved_slot.get("start") or not resolved_slot.get("end"):
@@ -7587,6 +8586,8 @@ async def _handle_client_slot_confirmation_reply(
         slot_text=reply_text,
         timezone_name=calendar_timezone,
         now=now,
+        extra_paragraph=_clean(email_doc.get("bundled_client_note")),
+        attachments=email_doc.get("bundled_client_attachments") or None,
     )
     client_schedule_success = bool(client_schedule_result.get("success"))
     overall_success = bool(success and client_schedule_success)
@@ -7699,6 +8700,7 @@ async def _handle_client_slot_confirmation_reply(
         "interview_link": meeting_link if overall_success else "",
         "calendar_event": calendar_event,
         "sent_at": now if overall_success else None,
+        "lab_cost_included": bool(client_schedule_result.get("attachments_included")),
     }
 
 
@@ -9234,6 +10236,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "lab_hours_per_day": extracted.get("lab_hours_per_day"),
         "total_lab_duration_hours": extracted.get("total_lab_duration_hours"),
         "lab_cost_requested": bool(extracted.get("lab_cost_requested")),
+        "explicit_lab_cost_requested": bool(extracted.get("explicit_lab_cost_requested")),
         "lab_cost_status": "requested" if extracted.get("lab_cost_requested") else "",
         "lab_required_tools_requested": bool(extracted.get("lab_required_tools_requested")),
         "lab_delivery_preference": extracted.get("lab_delivery_preference"),
@@ -9281,6 +10284,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
             "requested_details": extracted.get("requested_details", []),
             "clahan_managed_details": extracted.get("clahan_managed_details", []),
             "lab_cost_requested": bool(extracted.get("lab_cost_requested")),
+            "explicit_lab_cost_requested": bool(extracted.get("explicit_lab_cost_requested")),
             "cloud_provider": extracted.get("cloud_provider"),
             "requirement_items": extracted.get("requirement_items", []),
             "toc_requested": extracted.get("toc_requested"),
@@ -9453,6 +10457,7 @@ async def _update_existing_requirement_from_extracted(
         "total_lab_duration_hours",
         "cloud_provider",
         "lab_cost_requested",
+        "explicit_lab_cost_requested",
         "lab_required_tools_requested",
         "lab_delivery_preference",
         "trainer_cv_approval_requested",
@@ -9964,31 +10969,150 @@ async def _create_revised_lab_cost_attachment(
         return None
 
 
+async def _create_standalone_toc_attachment(
+    *,
+    technology: str,
+    duration_days: int,
+    mode: str = "Online",
+    topics: str = "",
+    client_notes: str = "",
+    generation_mode: str = "template",
+) -> Optional[Dict[str, str]]:
+    """Build one day-wise ToC workbook. Returns None when the outline cannot be made."""
+    technology = _clean(technology)
+    days = _safe_int(duration_days, 0)
+    if not technology or days <= 0:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=90) as client:
+            toc_response = await _post_with_local_fallback(
+                client,
+                f"{TRAINER_SERVICE_URL}/api/v1/toc/generate",
+                json={
+                    "domain": technology,
+                    "duration_days": max(1, days),
+                    "mode": mode or "Online",
+                    "generation_mode": "ai" if _clean(generation_mode).lower() == "ai" else "template",
+                    "custom_topics": topics,
+                    "client_notes": client_notes[:4000],
+                },
+            )
+            toc_response.raise_for_status()
+            toc_data = (toc_response.json() or {}).get("toc_data") or {}
+            workbook_response = await _post_with_local_fallback(
+                client,
+                f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc",
+                json={"toc": toc_data},
+            )
+            workbook_response.raise_for_status()
+        if not workbook_response.content:
+            return None
+        return {
+            "filename": f"{technology} - Training ToC.xlsx",
+            "content_base64": base64.b64encode(workbook_response.content).decode(),
+            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }
+    except Exception:
+        logger.exception("Standalone ToC workbook failed for %s", technology)
+        return None
+
+
+async def _bundle_slot_delivery_files(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    subject: str,
+    latest_message_body: str,
+    lab_requirement_probe: Dict[str, Any],
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """Attach a ToC and/or lab workbook to the interview mail instead of sending another one."""
+    if not email_doc.get("requirement_id"):
+        return email_doc, []
+    asks_lab = _is_lab_cost_inquiry(subject, latest_message_body)
+    asks_toc = _is_toc_only_inquiry(subject, latest_message_body)
+    if not asks_lab and not asks_toc:
+        return email_doc, []
+    from app.routes.inbox_actions import _lab_request_context
+
+    files: List[Dict[str, Any]] = []
+    lab_extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
+    lab_extracted = await _merge_requirement_record_context(db, lab_extracted, email_doc["requirement_id"])
+    requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or {}
+    if asks_lab:
+        slot_lab_context = _lab_request_context(latest_message_body, lab_extracted)
+        known = slot_lab_context.get("known_inputs") or {}
+        await db["requirements"].update_one(
+            {"requirement_id": email_doc["requirement_id"]},
+            {"$set": {
+                "participant_count": known.get("participant_count"),
+                "hours_per_day": known.get("hours_per_day"),
+                "cloud_provider": known.get("cloud_provider") or "AWS",
+                "lab_cost_requested": True,
+                "lab_cost_status": "inputs_received",
+                "updated_at": _now(),
+            }},
+        )
+        requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or requirement
+        lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context)
+        if lab_file:
+            files.append(lab_file)
+    toc_file = None
+    if asks_toc:
+        toc_file = await _create_standalone_toc_attachment(
+            technology=_clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain")),
+            duration_days=_safe_int(requirement.get("duration_days"), 0),
+            mode=_clean(requirement.get("mode") or "Online"),
+            topics=_clean(requirement.get("toc_or_topics") or requirement.get("topics") or ""),
+            client_notes=latest_message_body,
+            generation_mode="ai" if await _global_ai_wording_enabled(db) else "template",
+        )
+        if toc_file:
+            files.append(toc_file)
+    if not files:
+        return email_doc, []
+    has_toc = bool(toc_file)
+    has_lab = any(item is not toc_file for item in files)
+    if has_toc and has_lab:
+        note = "Please find the day-wise ToC and the lab-cost estimate attached with this interview confirmation."
+    elif has_lab:
+        note = "Please find the lab-cost estimate attached. It uses the participant count and lab-access hours from this mail and follows the current training dates and ToC."
+    else:
+        note = "Please find the day-wise ToC attached with this interview confirmation."
+    return {**email_doc, "bundled_client_note": note, "bundled_client_attachments": files}, files
+
+
 def _lab_cost_template_reply(subject: str, sender_name: str, known: Dict[str, Any]) -> Dict[str, str]:
-    """Client-facing lab-cost acknowledgement; workbook generation is manual."""
-    details = []
+    """Client-facing lab-cost acknowledgement in Annapurna's voice."""
+    noted = []
     missing = []
-    for key, label in (("cloud_provider", "Cloud provider"), ("participant_count", "Participant count"), ("duration_days", "Lab-access days"), ("hours_per_day", "Lab-access hours per day")):
+    for key, label in (
+        ("cloud_provider", "cloud provider"),
+        ("participant_count", "participant count"),
+        ("duration_days", "lab-access days"),
+        ("hours_per_day", "lab-access hours per day"),
+    ):
         value = known.get(key)
         if value not in (None, "", 0):
-            details.append(f"- {label}: {value}")
+            noted.append(f"{label}: {value}")
         else:
-            missing.append(label.lower())
-    message = "Thank you for your lab-cost enquiry."
-    if details:
-        message += " We have noted:\n\n" + "\n".join(details)
+            missing.append(label)
+    noted_text = ("We have noted " + ", ".join(noted) + ". ") if noted else ""
     if missing:
-        message += "\n\nPlease confirm " + ", ".join(missing) + "."
-    name = (_clean(sender_name) or "Team").split()[0]
-    return {
-        "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-        "body": (
-            f"Hi {name},\n\n"
-            f"{message}\n\n"
-            "Our team will prepare the estimate after verifying the lab scope and pricing inputs.\n\n"
-            "Best Regards,\nRecruitment Team\nClahan Technologies"
-        ),
-    }
+        reply = render_delivery_reply(
+            client_name=sender_name,
+            subject=subject,
+            lab_requested=True,
+            missing_lab=", ".join(missing),
+            closing_note=(noted_text + "The estimate follows once those inputs are confirmed.").strip(),
+        )
+    else:
+        reply = render_delivery_reply(
+            client_name=sender_name,
+            subject=subject,
+            lab_requested=True,
+            lab_attached=True,
+            lab_sentence=(noted_text + "The estimate will be prepared after the lab scope and pricing inputs are checked.").strip(),
+        )
+    return {"subject": reply["subject"], "body": reply["body"]}
 
 
 async def _recover_client_slot_reply_context(
@@ -10270,23 +11394,34 @@ async def _process_client_requirement_email(
             question_result = {"attempted": True, "success": False, "error": str(exc)}
         if question_result.get("attempted"):
             question_status = "auto_sent" if question_result.get("success") else "pending_retry"
+            answer_body = _clean(question_result.get("answer"))
+            question_update = {
+                "processed": bool(question_result.get("success")),
+                "processed_at": _now() if question_result.get("success") else None,
+                "status": question_status,
+                "reply_status": question_status,
+                "email_classification": question_doc["email_classification"],
+                "office_mail_category": "trainer_general_question",
+                "classification_reason": "trainer_question_resolution_before_pipeline",
+                "reply_template_key": "trainer_record_reply" if answer_body else "trainer_question_resolution",
+                "question_resolution": question_result,
+                "auto_send_candidate": False,
+                "auto_send_eligible": False,
+                "auto_send_ready": False,
+                "updated_at": _now(),
+            }
+            if answer_body:
+                question_update.update({
+                    "generated_reply": {
+                        "subject": question_result.get("answer_subject") or reference_reply.get("subject") or "",
+                        "body": answer_body,
+                    },
+                    "ai_reply": answer_body,
+                    "draft_reply": answer_body,
+                })
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
-                {"$set": {
-                    "processed": bool(question_result.get("success")),
-                    "processed_at": _now() if question_result.get("success") else None,
-                    "status": question_status,
-                    "reply_status": question_status,
-                    "email_classification": question_doc["email_classification"],
-                    "office_mail_category": "trainer_general_question",
-                    "classification_reason": "trainer_question_resolution_before_pipeline",
-                    "reply_template_key": "trainer_question_resolution",
-                    "question_resolution": question_result,
-                    "auto_send_candidate": False,
-                    "auto_send_eligible": False,
-                    "auto_send_ready": False,
-                    "updated_at": _now(),
-                }},
+                {"$set": question_update},
             )
             log_identity = []
             if email_doc.get("gmail_message_id"):
@@ -10367,6 +11502,8 @@ async def _process_client_requirement_email(
                     extracted[field] = previous_lab_request[field]
         extracted = await _merge_requirement_record_context(db, extracted, email_doc.get("requirement_id"))
         lab_context = _lab_request_context(latest_message_body, extracted)
+        asks_toc = _is_toc_only_inquiry(subject, latest_message_body)
+        content_generation_mode = "ai" if await _global_ai_wording_enabled(db) else "template"
         # A lab-cost follow-up in an active trainer/interview thread updates
         # the requirement.  Do not send another generic question: the revised
         # estimate belongs with the interview-link email if the client asked
@@ -10392,35 +11529,56 @@ async def _process_client_requirement_email(
             # A message must only claim an attachment when this succeeds.
             attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context)
             if attachment:
-                reply = {
-                    "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-                    "body": (
-                        f"Dear {(_clean(email_doc.get('from_name')) or 'Team').split()[0]},\n\n"
-                        f"Please find the revised lab-cost estimate attached for {known.get('participant_count') or requirement.get('participant_count') or 1} participant(s), "
-                        f"with {known.get('hours_per_day') or requirement.get('hours_per_day') or 3} hours of lab access per day. "
-                        "The calculation is aligned to the current training dates and TOC.\n\n"
-                        "Regards,\nClahan Technologies"
+                technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "the training")
+                participants = known.get("participant_count") or requirement.get("participant_count") or 1
+                hours = known.get("hours_per_day") or requirement.get("hours_per_day") or 3
+                toc_attachment = None
+                if asks_toc:
+                    toc_attachment = await _create_standalone_toc_attachment(
+                        technology=technology,
+                        duration_days=_safe_int(requirement.get("duration_days"), 0),
+                        mode=_clean(requirement.get("mode") or "Online"),
+                        topics=_clean(requirement.get("toc_or_topics") or requirement.get("topics") or requirement.get("custom_topics")),
+                        client_notes=latest_message_body,
+                        generation_mode=content_generation_mode,
+                    )
+                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                reply = render_delivery_reply(
+                    client_name=email_doc.get("from_name") or "",
+                    subject=subject,
+                    technology=technology,
+                    toc_requested=asks_toc,
+                    lab_requested=True,
+                    toc_attached=bool(toc_attachment),
+                    lab_attached=True,
+                    lab_sentence=(
+                        f"Please find the lab-cost estimate attached for {participants} participant(s), "
+                        f"with {hours} hours of lab access per day. The calculation follows the current training dates and ToC."
                     ),
-                }
+                )
                 send_result = await _send_client_auto_reply(
                     db,
                     {**email_doc, "from_email": sender_email},
                     reply,
                     requirement_id=email_doc["requirement_id"],
-                    attachments=[attachment],
-                    mail_type_override="client_lab_cost_revised",
+                    attachments=delivery_files,
+                    mail_type_override="client_toc_and_lab_cost" if asks_toc else "client_lab_cost_revised",
                 )
                 success = bool(send_result.get("success"))
-                lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
+                if success and asks_toc:
+                    lab_update["lab_cost_status"] = "toc_and_lab_sent"
+                else:
+                    lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
                 await db["requirements"].update_one({"requirement_id": email_doc["requirement_id"]}, {"$set": lab_update})
                 await db["client_emails"].update_one(
                     {"email_id": email_doc.get("email_id")},
                     {"$set": {
                         "processed": True, "status": "auto_sent" if success else "reply_failed",
                         "reply_status": "sent" if success else "failed",
-                        "classification_reason": "revised_lab_cost_sent",
+                        "classification_reason": "toc_and_lab_sent" if asks_toc else "revised_lab_cost_sent",
+                        "reply_template_key": "client_toc_and_lab_cost" if asks_toc else "client_lab_cost_revised",
                         "lab_cost_context": lab_context,
-                        "lab_cost_attachments": [attachment["filename"]],
+                        "lab_cost_attachments": [item["filename"] for item in delivery_files],
                         "updated_at": _now(),
                     }},
                 )
@@ -10474,31 +11632,51 @@ async def _process_client_requirement_email(
                 db,
                 standalone_requirement,
                 lab_context,
-                generation_mode="ai" if await _global_ai_wording_enabled(db) else "template",
+                generation_mode=content_generation_mode,
             )
             if attachment:
-                reply = {
-                    "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-                    "body": (
-                        f"Dear {(_clean(email_doc.get('from_name')) or 'Team').split()[0]},\n\n"
-                        "Please find the lab-cost estimate attached. It is prepared from the domain/ToC details and the lab inputs you shared.\n\n"
-                        "Regards,\nClahan Technologies"
-                    ),
-                }
-                lab_classification = {"person_type": "corporate_client", "scenario": "client_asks_lab_cost", "confidence": 0.99, "auto_reply_allowed": True, "requires_human": False}
+                technology = _clean(standalone_requirement.get("technology_needed") or "the training")
+                toc_attachment = None
+                if asks_toc:
+                    toc_attachment = await _create_standalone_toc_attachment(
+                        technology=technology,
+                        duration_days=_safe_int(standalone_requirement.get("duration_days"), 0),
+                        mode=_clean(standalone_requirement.get("mode") or "Online"),
+                        topics=_clean(standalone_requirement.get("toc_or_topics") or standalone_requirement.get("topics")),
+                        client_notes=latest_message_body,
+                        generation_mode=content_generation_mode,
+                    )
+                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                scenario = "client_asks_toc_and_lab_cost" if asks_toc else "client_asks_lab_cost"
+                reply = render_delivery_reply(
+                    client_name=email_doc.get("from_name") or "",
+                    subject=subject,
+                    technology=technology,
+                    toc_requested=asks_toc,
+                    lab_requested=True,
+                    toc_attached=bool(toc_attachment),
+                    lab_attached=True,
+                    lab_sentence="Please find the lab-cost estimate attached. It is prepared from the domain and ToC details and the lab inputs you shared.",
+                )
+                lab_classification = {"person_type": "corporate_client", "scenario": scenario, "confidence": 0.99, "auto_reply_allowed": True, "requires_human": False}
                 reply = await _humanize_verified_client_reply(db, email_doc, lab_classification, standalone_requirement, subject, body, reply)
                 send_result = await _send_client_auto_reply(
                     db, {**email_doc, "from_email": sender_email, "email_classification": lab_classification,
-                         "office_mail_category": "client_asks_lab_cost"}, reply,
-                    requirement_id=lab_request_id, attachments=[attachment], mail_type_override="client_lab_cost_estimate",
+                         "office_mail_category": scenario}, reply,
+                    requirement_id=lab_request_id, attachments=delivery_files,
+                    mail_type_override="client_toc_and_lab_cost" if asks_toc else "client_lab_cost_estimate",
                 )
                 success = bool(send_result.get("success"))
                 await db["lab_cost_requests"].update_one(
                     {"source_email_id": email_doc.get("email_id") or lab_request_id},
-                    {"$set": {"status": "estimate_sent" if success else "estimate_send_failed", "workbook_filename": attachment["filename"], "updated_at": _now()}},
+                    {"$set": {
+                        "status": ("toc_and_lab_sent" if asks_toc else "estimate_sent") if success else "estimate_send_failed",
+                        "workbook_filename": attachment["filename"],
+                        "updated_at": _now(),
+                    }},
                 )
-                await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "auto_sent" if success else "reply_failed", "reply_status": "sent" if success else "failed", "classification_reason": "standalone_lab_cost_estimate_sent", "lab_cost_context": lab_context, "lab_cost_attachments": [attachment["filename"]], "updated_at": _now()}})
-                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
+                await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "auto_sent" if success else "reply_failed", "reply_status": "sent" if success else "failed", "classification_reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "reply_template_key": reply.get("template_key") or "", "lab_cost_context": lab_context, "lab_cost_attachments": [item["filename"] for item in delivery_files], "updated_at": _now()}})
+                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
         # Persist incomplete standalone enquiries too.  The next reply in
         # this client thread will merge these fields and generate the workbook
         # as soon as the final required input is supplied.
@@ -10517,18 +11695,34 @@ async def _process_client_requirement_email(
             }, "$setOnInsert": {"created_at": _now()}},
             upsert=True,
         )
+        lab_scenario = "client_asks_toc_and_lab_cost" if asks_toc else "client_asks_lab_cost"
         lab_classification = {
             "person_type": "corporate_client",
-            "scenario": "client_asks_lab_cost",
+            "scenario": lab_scenario,
             "confidence": 0.99,
             "auto_reply_allowed": True,
             "requires_human": False,
         }
+        known_for_toc = lab_context.get("known_inputs") or {}
+        toc_technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain"))
+        toc_days = _safe_int(known_for_toc.get("duration_days") or extracted.get("duration_days"), 0)
+        toc_attachment = None
+        if asks_toc:
+            toc_attachment = await _create_standalone_toc_attachment(
+                technology=toc_technology,
+                duration_days=toc_days,
+                mode=_clean(extracted.get("mode") or "Online"),
+                topics=_clean(extracted.get("topics") or extracted.get("custom_topics")),
+                client_notes=latest_message_body,
+                generation_mode=content_generation_mode,
+            )
         reply = _build_lab_reference_reply(
             lab_context,
             extracted,
             email_doc.get("from_name") or "",
             subject,
+            also_toc=asks_toc,
+            toc_attached=bool(toc_attachment),
         )
         reply = await _humanize_verified_client_reply(
             db, email_doc, lab_classification, extracted, subject, body, reply,
@@ -10541,20 +11735,21 @@ async def _process_client_requirement_email(
         send_result = await _send_client_auto_reply(
             db,
             {**email_doc, "from_email": sender_email, "email_classification": lab_classification,
-             "office_mail_category": "client_asks_lab_cost"},
+             "office_mail_category": lab_scenario},
             reply,
+            attachments=[toc_attachment] if toc_attachment else None,
         )
         success = bool(send_result.get("success"))
         update = {
             "processed": True, "processed_at": send_result.get("sent_at") or now,
             "status": "auto_sent" if success else "reply_failed",
             "reply_status": "sent" if success else "failed",
-            "email_classification": lab_classification, "office_mail_category": "client_asks_lab_cost",
-            "classification_reason": "lab_cost_inputs_requested",
-            "reply_template_key": "client_lab_cost_grounded",
+            "email_classification": lab_classification, "office_mail_category": lab_scenario,
+            "classification_reason": "toc_and_lab_inputs_requested" if asks_toc else "lab_cost_inputs_requested",
+            "reply_template_key": reply.get("template_key") or ("client_toc_and_lab_cost" if asks_toc else "client_lab_cost_grounded"),
             "generated_reply": {"subject": reply["subject"], "body": reply["body"]},
             "ai_reply": reply["body"], "draft_reply": reply["body"], "lab_cost_context": lab_context,
-            "lab_cost_attachments": [],
+            "lab_cost_attachments": [toc_attachment["filename"]] if toc_attachment else [],
             "reply_sent": success, "reply_sent_at": send_result.get("sent_at"),
             "sent_reply_body": send_result.get("body") or reply["body"],
             "sent_reply_subject": send_result.get("subject") or reply["subject"],
@@ -10566,10 +11761,14 @@ async def _process_client_requirement_email(
 
     # A stand-alone ToC request is a content-delivery enquiry, not a trainer
     # requirement. Keep it outside both confirmed and proposal pipelines.
-    if not linked_trainer_thread and _is_toc_only_inquiry(subject, body):
+    if (
+        not linked_trainer_thread
+        and str(email_doc.get("source_outbound_mail_type") or "").strip() != "client_slots"
+        and _is_toc_only_inquiry(subject, latest_message_body)
+    ):
         toc_extracted = _extract_requirement_from_email(
             subject=subject,
-            body=body,
+            body=latest_message_body,
             sender_email=sender_email,
             sender_name=email_doc.get("from_name") or "",
         )
@@ -10581,43 +11780,25 @@ async def _process_client_requirement_email(
         if not duration:
             missing.append("training duration or number of days")
         client_name = _clean(email_doc.get("from_name") or "Client").split()[0]
-        toc_attachment = None
         generation_mode = "ai" if await _global_ai_wording_enabled(db) else "template"
+        toc_attachment = None
         if not missing:
-            try:
-                async with httpx.AsyncClient(timeout=90) as client:
-                    toc_response = await _post_with_local_fallback(client, f"{TRAINER_SERVICE_URL}/api/v1/toc/generate", json={
-                        "domain": technology,
-                        "duration_days": max(1, _safe_int(toc_extracted.get("duration_days"), 1)),
-                        "mode": toc_extracted.get("mode") or "Online",
-                        "generation_mode": generation_mode,
-                        "custom_topics": toc_extracted.get("topics") or toc_extracted.get("custom_topics") or "",
-                        "client_notes": body[:4000],
-                    })
-                    toc_response.raise_for_status()
-                    toc_data = (toc_response.json() or {}).get("toc_data") or {}
-                    workbook_response = await _post_with_local_fallback(client, f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc", json={"toc": toc_data})
-                    workbook_response.raise_for_status()
-                if workbook_response.content:
-                    toc_attachment = {"filename": f"{technology} - Training ToC.xlsx", "content_base64": base64.b64encode(workbook_response.content).decode(), "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-            except Exception:
-                logger.exception("Standalone ToC generation failed for %s", email_doc.get("email_id"))
-        if missing:
-            action = "To prepare the right ToC, please confirm " + " and ".join(missing) + "."
-        elif toc_attachment:
-            action = "Please find the day-wise ToC attached, prepared using the technology and duration you shared."
-        else:
-            action = "We will prepare the day-wise ToC using the technology and duration you shared."
-        toc_reply = {
-            "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-            "body": (
-                f"Dear {client_name},\n\n"
-                "Thank you for your ToC/course-agenda request. "
-                f"{action}\n\n"
-                "We have treated this as a ToC-only request and will not start trainer shortlisting.\n\n"
-                "Regards,\nClahan Technologies"
-            ),
-        }
+            toc_attachment = await _create_standalone_toc_attachment(
+                technology=technology,
+                duration_days=max(1, _safe_int(toc_extracted.get("duration_days"), 1)),
+                mode=toc_extracted.get("mode") or "Online",
+                topics=_clean(toc_extracted.get("topics") or toc_extracted.get("custom_topics")),
+                client_notes=latest_message_body,
+                generation_mode=generation_mode,
+            )
+        toc_reply = render_delivery_reply(
+            client_name=client_name,
+            subject=subject,
+            technology=technology or "the training",
+            toc_requested=True,
+            toc_attached=bool(toc_attachment),
+            toc_missing=" and ".join(missing),
+        )
         toc_classification = {
             "person_type": "corporate_client",
             "scenario": "client_asks_toc_only",
@@ -10737,8 +11918,17 @@ async def _process_client_requirement_email(
     # not requirement replies. Handle them before generic sentiment analysis.
     source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
     if source_mail_type in {"client_slots", "client_interview_reschedule_request"}:
+        slot_email_doc = email_doc
+        bundled_files: List[Dict[str, Any]] = []
         try:
-            slot_result = await _handle_client_slot_confirmation_reply(db, email_doc)
+            slot_email_doc, bundled_files = await _bundle_slot_delivery_files(
+                db, email_doc, subject, latest_message_body, lab_requirement_probe,
+            )
+        except Exception:
+            logger.exception("Could not attach ToC or lab cost to the interview mail for %s", email_doc.get("email_id"))
+            slot_email_doc, bundled_files = email_doc, []
+        try:
+            slot_result = await _handle_client_slot_confirmation_reply(db, slot_email_doc)
         except Exception as exc:
             logger.exception("Client slot confirmation automation failed for %s", email_doc.get("email_id"))
             slot_result = {"attempted": True, "success": False, "error": str(exc)}
@@ -10750,38 +11940,18 @@ async def _process_client_requirement_email(
                 and slot_result.get("reason") == "calendar_failed_no_mail_sent"
             )
             prior_retry_count = int(email_doc.get("calendar_retry_count") or 0)
-            revised_lab_result: Dict[str, Any] = {}
-            if slot_result.get("success") and _is_lab_cost_inquiry(subject, latest_message_body) and email_doc.get("requirement_id"):
-                from app.routes.inbox_actions import _lab_request_context
-
-                lab_extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
-                lab_extracted = await _merge_requirement_record_context(db, lab_extracted, email_doc["requirement_id"])
-                lab_context = _lab_request_context(latest_message_body, lab_extracted)
-                known = lab_context.get("known_inputs") or {}
+            revised_lab_result: Dict[str, Any] = {
+                "included_in_interview_mail": bool(slot_result.get("lab_cost_included")),
+                "filenames": [item.get("filename") for item in bundled_files],
+            }
+            if bundled_files and email_doc.get("requirement_id"):
                 await db["requirements"].update_one(
                     {"requirement_id": email_doc["requirement_id"]},
                     {"$set": {
-                        "participant_count": known.get("participant_count"),
-                        "hours_per_day": known.get("hours_per_day"),
-                        "cloud_provider": known.get("cloud_provider") or "AWS",
-                        "lab_cost_requested": True,
+                        "lab_cost_status": "included_with_interview" if slot_result.get("lab_cost_included") else "inputs_received",
                         "updated_at": now,
                     }},
                 )
-                requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or {}
-                attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context)
-                if attachment:
-                    revised_lab_result = await _send_client_auto_reply(
-                        db,
-                        {**email_doc, "from_email": sender_email},
-                        {
-                            "subject": f"Re: {subject}" if not subject.lower().startswith("re:") else subject,
-                            "body": "Please find the revised lab-cost estimate attached, calculated using the participant count and lab-access duration you shared.\n\nRegards,\nClahan Technologies",
-                        },
-                        requirement_id=email_doc["requirement_id"],
-                        attachments=[attachment],
-                        mail_type_override="client_lab_cost_revised",
-                    )
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
                 {"$set": {
@@ -11025,7 +12195,10 @@ async def _process_client_requirement_email(
         document_review = await _persist_trainer_requirement_fit(
             db, email_doc, mail2_requirement, current_trainer_state,
         )
-        missing_requested_details = _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc)
+        missing_requested_details = _with_missing_dated_slots(
+            _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc),
+            latest_reply_text,
+        )
         if missing_requested_details:
             # If three valid slots were already provided with this partial
             # reply, retain them while asking only for the remaining detail.
@@ -11496,6 +12669,8 @@ async def _process_client_requirement_email(
                 "client_name": email_doc.get("from_name") or "",
                 "subject": subject,
                 "request_type": "po_to_invoice" if classification.get("scenario") == "client_sends_po" else "invoice_request",
+                "requirement_id": email_doc.get("requirement_id") or "",
+                "trainer_id": email_doc.get("trainer_id") or "",
                 "status": "pending_human_approval",
                 "notification_title": "PO / Invoice Approval Required",
                 "notification_message": "Review PO/invoice details before generating or sending an invoice.",
@@ -11606,10 +12781,25 @@ async def _process_client_requirement_email(
         or details_later
         or email_doc.get("client_authorized_trainer_search")
     )
+    existing_trainer_mail = (email_doc.get("mail_automation") or {}).get("trainer_mail") or {}
+    trainer_search_already_dispatched = (
+        email_doc.get("trainer_automation_status") in {"started", "no_trainers_emailed"}
+        or _safe_int(existing_trainer_mail.get("sent"), 0) > 0
+    )
+    confirmed_intake_ready = bool(
+        is_first_client_mail
+        and not trainer_search_already_dispatched
+        and _confirmed_intake_ready_for_trainer_mail(extracted, email_doc, classification_body)
+    )
     should_start_trainer_search = bool(
-        should_start_trainer_search
-        and not is_first_client_mail
-        and (explicit_trainer_authorization or details_ready_on_client_reply)
+        (should_start_trainer_search or confirmed_intake_ready)
+        and (
+            confirmed_intake_ready
+            or (
+                not is_first_client_mail
+                and (explicit_trainer_authorization or details_ready_on_client_reply)
+            )
+        )
         and extracted.get("is_training_request")
         and _has_training_domain(extracted)
     )
@@ -11688,12 +12878,27 @@ async def _process_client_requirement_email(
             template_reply = {"auto_send_safe": True}
             selected_template_key = "gpt_general_client_question"
         else:
-            # Global Template mode and an AI failure both keep the enquiry
-            # moving with approved wording.  Unknown facts are never guessed.
-            reply = _approved_question_reply(email_doc.get("from_name") or "")
-            reply["subject"] = f"Re: {subject}" if subject else "Re: Your Enquiry"
-            template_reply = {"auto_send_safe": True}
-            selected_template_key = "general_client_question_template"
+            # AI wording is off. A message tied to a requirement still gets the
+            # professional acknowledgement from that client's stored facts.
+            record_reply: Dict[str, Any] = {}
+            if email_doc.get("requirement_id") or extracted.get("is_training_request"):
+                from app.agents.offline_replies import reply_for_stored_message
+
+                record_reply = await reply_for_stored_message(db, {
+                    **email_doc,
+                    "extracted": extracted,
+                    "email_classification": classification,
+                    "classification_body": classification_body,
+                })
+            if record_reply.get("body"):
+                reply = record_reply
+                template_reply = {"auto_send_safe": True}
+                selected_template_key = "client_requirement_ack"
+            else:
+                reply = _approved_question_reply(email_doc.get("from_name") or "")
+                reply["subject"] = f"Re: {subject}" if subject else "Re: Your Enquiry"
+                template_reply = {"auto_send_safe": True}
+                selected_template_key = "general_client_question_template"
 
     # A trainer can also ask a genuine question in an existing thread.  Run
     # this only after all deterministic mail/slot/detail routes above have
@@ -11724,7 +12929,15 @@ async def _process_client_requirement_email(
             reference_reply=trainer_reference,
             recipient_kind="trainer",
         )
-        reply = ai_question_reply or trainer_reference
+        if ai_question_reply:
+            reply = ai_question_reply
+        elif not await _global_ai_wording_enabled(db):
+            from app.agents.offline_replies import trainer_reply_for_email
+
+            record_reply = await trainer_reply_for_email(db, email_doc, classification_body)
+            reply = record_reply if record_reply.get("body") else trainer_reference
+        else:
+            reply = trainer_reference
         classification = {
             **classification,
             "scenario": "trainer_general_question",
@@ -11733,7 +12946,11 @@ async def _process_client_requirement_email(
             "requires_human": False,
         }
         template_reply = {"auto_send_safe": True}
-        selected_template_key = "gpt_trainer_question" if ai_question_reply else "trainer_question_template"
+        selected_template_key = (
+            "gpt_trainer_question" if ai_question_reply
+            else "trainer_record_reply" if reply.get("from_records")
+            else "trainer_question_template"
+        )
 
     should_humanize_workflow_reply = bool(
         reply
@@ -11770,6 +12987,12 @@ async def _process_client_requirement_email(
                 reply.get("body", ""), recent_bodies,
                 seed=f"{email_doc.get('email_id', '')}:{selected_template_key}",
             )}
+        if not general_trainer_question and classification.get("person_type") != "trainer":
+            from app.agents.offline_replies import guard_client_body
+
+            guarded_body = guard_client_body(reply.get("body") or "", classification_body, extracted)
+            if guarded_body:
+                reply = {**reply, "body": guarded_body}
         from app.routes.inbox_actions import _workflow_reply_analysis
         reply.setdefault("reply_analysis", _workflow_reply_analysis(classification, extracted, email_doc, selected_template_key))
         if (reply.get("reply_analysis") or {}).get("needs_human_review"):
@@ -11901,6 +13124,18 @@ async def _process_client_requirement_email(
             trainer_question_result = {"attempted": True, "success": False, "error": str(exc)}
         if trainer_question_result.get("attempted"):
             question_status = "auto_sent" if trainer_question_result.get("success") else "pending_retry"
+            answer_body = _clean(trainer_question_result.get("answer"))
+            if answer_body:
+                base_update = {
+                    **base_update,
+                    "generated_reply": {
+                        "subject": trainer_question_result.get("answer_subject") or (reply or {}).get("subject") or "",
+                        "body": answer_body,
+                    },
+                    "ai_reply": answer_body,
+                    "draft_reply": answer_body,
+                    "reply_template_key": "trainer_record_reply",
+                }
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
                 {"$set": {

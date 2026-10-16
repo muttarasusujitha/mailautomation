@@ -268,6 +268,8 @@ jobs:
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
           set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
+          set_env STYLE_IMAP_USER "${{ secrets.STYLE_IMAP_USER }}"
+          set_env STYLE_IMAP_PASSWORD "${{ secrets.STYLE_IMAP_PASSWORD }}"
           set_env GMAIL_FALLBACK_FROM_EMAIL "${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}"
           set_env FROM_EMAIL "${{ secrets.FROM_EMAIL }}"
           set_env FROM_NAME "${{ secrets.FROM_NAME }}"
@@ -289,18 +291,6 @@ jobs:
       - name: Check Deployment Disk Space
         shell: bash
         run: bash .github/scripts/check-docker-space.sh
-
-      - name: Stop Existing Containers
-        working-directory: ${{ github.workspace }}
-        run: |
-          docker compose -f microservices/docker-compose.yml down --remove-orphans || true
-          docker compose -f docker-compose.yml down --remove-orphans || true
-
-      - name: Cleanup Docker
-        run: |
-          docker system prune -af --volumes || true
-          docker builder prune -af || true
-          df -h
 
       # Pull everything before changing running containers. Never prune volumes:
       # MongoDB data and the authenticated meeting-bot profile must survive.

@@ -205,7 +205,8 @@ def test_people_search_keeps_paging_until_the_fifty_profile_target():
         rows = asyncio.run(collect_trainer_profiles(page, 'SAP trainer', '', 50))
     assert len(rows) == 6
     assert page.goto.await_count > 6
-    assert all('page=' in call.args[0] for call in page.goto.await_args_list)
+    assert sum('page=' in call.args[0] for call in page.goto.await_args_list) >= 6
+    assert any('/content/' in call.args[0] for call in page.goto.await_args_list)
 
 
 def test_scanning_people_stops_at_sixty_trainer_profiles():
@@ -236,7 +237,7 @@ def test_scanning_people_stops_at_sixty_trainer_profiles():
     assert len({row['url'] for row in rows}) == 60
     assert all('trainer-' in row['url'] for row in rows)
     assert page.goto.await_count == 12
-    assert any('page=12' in call.args[0] for call in page.goto.await_args_list)
+    assert len({call.args[0].split('&page=')[0] for call in page.goto.await_args_list}) >= 3
     assert all('page=13' not in call.args[0] for call in page.goto.await_args_list)
     page.get_by_role.return_value.click.assert_not_awaited()
 

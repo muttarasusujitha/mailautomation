@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from app.config import get_settings
 from app.agents import reply_templates as rt
-from app.agents.natural_voice import ANNAPURNA, apply_voice
+from app.agents.natural_voice import ANNAPURNA, apply_voice, choose_voice
 
 router = APIRouter()
 # Proposal enquiries use this internal shortlist range in the trainer mail.
@@ -32,16 +32,15 @@ def _from_name() -> str:
     return settings.FROM_NAME or "Clahan Technologies"
 
 
+def _spoken(body: str, hint: str = "") -> str:
+    return apply_voice(body, choose_voice(hint, body))
+
+
 def _client_time_greeting(name: str) -> str:
-    clean_name = str(name or "Client").strip() or "Client"
-    hour = datetime.now(LOCAL_TZ).hour
-    if hour < 12:
-        greeting = "Good morning"
-    elif hour < 17:
-        greeting = "Good afternoon"
-    else:
-        greeting = "Good evening"
-    return f"{greeting} {clean_name}"
+    clean_name = str(name or "").strip()
+    if not clean_name or clean_name.lower() in {"client", "team"}:
+        return "Hello,"
+    return f"Hello {clean_name},"
 
 
 PLACEHOLDER_EMAILS = {
@@ -562,18 +561,19 @@ async def compose_interview(payload: InterviewEmailRequest):
     date_line = f"\nScheduled: {payload.interview_date}\n" if payload.interview_date else ""
     link_line = f"- Join Link: {link}\n" if link else "- Join Link: To be shared shortly\n"
     subject = f"Interview Slot Booking - {payload.technology} | Ref: {payload.req_id}"
-    body = (
-        f"Dear {payload.trainer_name},\n\n"
-        f"Thank you for your interest in the {payload.technology} opportunity.\n\n"
-        f"Your trainer evaluation / client discussion has been scheduled. Please find the calendar invite details below:\n{date_line}\n"
-        "Calendar Invite Details:\n"
+    body = _spoken(
+        f"Hello {payload.trainer_name},\n\n"
+        f"The client discussion for the {payload.technology} requirement is scheduled.\n\n"
+        f"{date_line}"
+        "Details:\n"
         f"- Technology: {payload.technology}\n"
-        f"- Reference ID: {payload.req_id}\n"
+        f"- Reference: {payload.req_id}\n"
         "- Duration: 30 minutes\n"
         "- Mode: Google Meet\n"
         f"{link_line}\n"
-        "Please accept the calendar invite and join on time. Let us know if any change is required.\n\n"
-        f"Regards,\nClahan Technologies\n{_from_email()}"
+        "Please accept the calendar invite and join on time. Let us know if you need a change.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        "interview",
     )
     calendar_invite = _calendar_event_from_interview(payload, subject)
     return {
@@ -586,24 +586,22 @@ async def compose_interview(payload: InterviewEmailRequest):
 @router.post("/toc-request")
 async def compose_toc_request(payload: TocRequestEmailRequest):
     trainer_name = payload.trainer_name or payload.name or "Trainer"
-    body = (
-        f"Dear {trainer_name},\n\n"
-        "Thank you for the discussion. To proceed further, please share the Table of Contents (ToC) / Course Agenda for the proposed training.\n\n"
-        f"Regards,\nClahan Technologies\n{_from_email()}"
+    body = _spoken(
+        f"Hello {trainer_name},\n\n"
+        "Please share the ToC for the proposed training.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        "toc",
     )
     return {"subject": "ToC / Course Agenda Request", "body": body}
 
 
 @router.post("/retry")
 async def compose_retry(payload: RetryEmailRequest):
-    body = (
-        f"Dear {payload.trainer_name},\n\n"
-        f"Following up on the {payload.technology} training opportunity shared earlier.\n\n"
-        "Please let us know your interest and availability so we can update the client accordingly.\n"
-        "\u2705 Are you available for a quick call this week?\n"
-        "\u2705 What is your availability for training engagements?\n\n"
-        "Please reply with your available slots, and we will share a Google Meet link once the discussion slot is confirmed.\n\n"
-        f"Warm regards,\n{_from_name()}\n{_from_email()}"
+    body = _spoken(
+        f"Hello {payload.trainer_name},\n\n"
+        f"Following up on the {payload.technology} training requirement.\n\n"
+        "Please let us know if you are interested and share a few times you can talk this week. We will send a Google Meet link once a slot is fixed.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {
         "subject": f"Follow-Up: {payload.technology} Training Requirement",
@@ -678,15 +676,14 @@ async def compose_client_slots(payload: BaseModel, x_internal_token: str = Heade
         else ""
     )
     subject = f"Interview Slots - {technology}"
-    body = (
-        f"{_client_time_greeting(client_name)},\n\n"
-        f"Thank you for sharing the requirement details for the {technology} training.\n\n"
-        f"We have coordinated suitable interview/discussion slots for the shortlisted {technology} trainer.\n\n"
+    body = _spoken(
+        f"{_client_time_greeting(client_name)}\n\n"
+        f"Here are discussion slots for the shortlisted {technology} trainer.\n\n"
         f"{trainer_details_section}"
         "Available slots:\n"
         f"{slots_text}\n\n"
-        "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
-        "Regards,\nClahan Technologies"
+        "Please confirm one slot, and we will send the meeting invite.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
@@ -706,13 +703,12 @@ async def compose_mail2(payload: GenericSimpleRequest):
     ref_text = f" (Ref: {payload.requirement_id})" if payload.requirement_id else ""
     requested_details = payload.requested_details or ["Updated trainer profile/CV"]
     requested_lines = "\n".join(f"- {item}" for item in requested_details)
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        f"Thank you for confirming your interest in the {tech} requirement{ref_text}.\n\n"
-        "To proceed further, kindly share the below details:\n\n"
-        f"- Technology: {tech}\n\n"
+    polished_body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        f"Thanks for confirming your interest in the {tech} requirement{ref_text}.\n\n"
+        "Please share:\n\n"
         f"{requested_lines}\n\n"
-        "Regards,\nClahan Technologies"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": polished_body}
 
@@ -721,22 +717,20 @@ async def compose_mail2(payload: GenericSimpleRequest):
 async def compose_mail2_followup(payload: GenericSimpleRequest):
     tech = payload.technology or "training"
     subject = f"Reminder: Details Request - {tech} Requirement"
-    body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for confirming your interest.\n\n"
-        f"To proceed further for the {tech} requirement, kindly share the above requested details.\n\n"
-        "Regards,\nClahan Technologies"
+    body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        f"Please share the pending details for the {tech} requirement when you can.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
 @router.post("/trainer-ack")
 async def compose_trainer_ack(payload: GenericSimpleRequest):
     subject = "Trainer Acknowledgement"
-    body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for sharing your details. We have noted your profile, availability, and commercials for the requirement.\n\n"
-        "We will review and update you with the next coordination step shortly.\n\n"
-        "Regards,\nClahan Technologies"
+    body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        "Thanks for sharing your profile, availability, and commercials. We will update you on the next step.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
@@ -744,10 +738,10 @@ async def compose_trainer_ack(payload: GenericSimpleRequest):
 @router.post("/send-commercials")
 async def compose_send_commercials(payload: GenericSimpleRequest):
     subject = f"Commercials for {payload.technology or 'training'} Requirement"
-    body = (
-        f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "Please find the trainer commercials attached/outlined below.\n\n"
-        "Regards,\n" + _from_name()
+    body = _spoken(
+        f"{_client_time_greeting(payload.client_name or 'Client')}\n\n"
+        "Please find the trainer commercials below.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
@@ -755,12 +749,12 @@ async def compose_send_commercials(payload: GenericSimpleRequest):
 @router.post("/client-budget-reply")
 async def compose_client_budget_reply(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
     _require_internal(x_internal_token)
-    subject = "Budget Received â€” Thank you"
-    body = (
-        f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "Thank you for sharing the budget/commercial feedback.\n\n"
-        "We will review the commercials and revert with the feasible option shortly.\n\n"
-        "Regards,\n" + _from_name()
+    subject = "Budget received"
+    body = _spoken(
+        f"{_client_time_greeting(payload.client_name or 'Client')}\n\n"
+        "Thanks for the commercial feedback. We will check it and send a workable option.\n\n"
+        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies",
+        "budget payment",
     )
     return {"subject": subject, "body": body}
 
@@ -769,23 +763,22 @@ async def compose_client_budget_reply(payload: GenericSimpleRequest, x_internal_
 async def compose_client_budget_ack(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
     _require_internal(x_internal_token)
     subject = "Budget Acknowledgement"
-    body = (
-        f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "Thank you for confirming the budget.\n\n"
-        "We will align the trainer option accordingly and proceed with the next coordination step.\n\n"
-        "Regards,\n" + _from_name()
+    body = _spoken(
+        f"{_client_time_greeting(payload.client_name or 'Client')}\n\n"
+        "Thanks for confirming the budget. We will match a trainer to it and take the next step.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
 
 @router.post("/rate-gap-resolution")
 async def compose_rate_gap_resolution(payload: GenericSimpleRequest):
-    subject = "Rate Gap â€” Proposed Resolution"
-    body = (
-        f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "We have reviewed the rate expectation for this requirement.\n\n"
-        "We will share the feasible commercial option for your review shortly.\n\n"
-        "Regards,\n" + _from_name()
+    subject = "Rate update"
+    body = _spoken(
+        f"{_client_time_greeting(payload.client_name or 'Client')}\n\n"
+        "We have looked at the rate for this requirement and will send a workable commercial for your review.\n\n"
+        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies",
+        "payment",
     )
     return {"subject": subject, "body": body}
 
@@ -810,12 +803,12 @@ async def compose_client_alternative(payload: GenericSimpleRequest, x_internal_t
 @router.post("/client-toc-request")
 async def compose_client_toc_request(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
     _require_internal(x_internal_token)
-    subject = "TOC / Course Agenda Request"
-    body = (
-        f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "We have requested the trainer to share the Table of Contents (ToC) / Course Agenda.\n\n"
-        "We will share it with you once received.\n\n"
-        "Regards,\n" + _from_name()
+    subject = "ToC request"
+    body = _spoken(
+        f"{_client_time_greeting(payload.client_name or 'Client')}\n\n"
+        "We have asked the trainer for the ToC and will send it once it arrives.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        "toc",
     )
     return {"subject": subject, "body": body}
 
@@ -823,11 +816,10 @@ async def compose_client_toc_request(payload: GenericSimpleRequest, x_internal_t
 @router.post("/trainer-rate-discussion")
 async def compose_trainer_rate_discussion(payload: GenericSimpleRequest):
     subject = "Commercial Discussion"
-    body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for sharing your commercial expectation.\n\n"
-        "Please confirm your best workable commercial for this requirement so we can proceed with the client coordination.\n\n"
-        "Regards,\nClahan Technologies"
+    body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        "Thanks for sharing your commercial. Please confirm the rate you can do for this requirement, and we will take it to the client.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
@@ -836,15 +828,14 @@ async def compose_trainer_rate_discussion(payload: GenericSimpleRequest):
 async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
     technology = payload.technology or "Training"
     subject = f"Interview Slot Booking - {technology}"
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Please share three convenient interview/discussion slots with date, time, and time zone so we can coordinate with the client.\n\n"
-        "Preferred format:\n"
-        "- Date: 1 September 2026, Time: 10:00 AM - 10:30 AM IST\n"
-        "- Date: 2 September 2026, Time: 2:00 PM - 2:30 PM IST\n"
-        "- Date: 3 September 2026, Time: 4:00 PM - 4:30 PM IST\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+    polished_body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        "Please share three convenient interview/discussion slots with the date, time, and time zone.\n\n"
+        "For example:\n"
+        "- 1 September 2026, 10:00 AM IST\n"
+        "- 2 September 2026, 2:00 PM IST\n"
+        "- 3 September 2026, 4:00 PM IST\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": polished_body}
 
@@ -875,11 +866,10 @@ async def compose_mail3_too_few(payload: GenericSimpleRequest):
 async def compose_mail5_selection(payload: GenericSimpleRequest):
     tech = payload.technology or "training"
     subject = f"Selection Update - {tech} Requirement"
-    body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        f"Congratulations. The client has selected your profile for the {tech} requirement.\n\n"
-        "We will share the next steps and coordination details shortly.\n\n"
-        f"Regards,\nClahan Technologies\n{_from_email()}"
+    body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        f"The client has selected you for the {tech} requirement. We will send the next steps.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": body}
 
@@ -887,54 +877,32 @@ async def compose_mail5_selection(payload: GenericSimpleRequest):
 @router.post("/mail5-rejection")
 async def compose_mail5_rejection(payload: GenericSimpleRequest):
     polished_subject = "Update - Application Status"
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for your time and interest. The client has decided to proceed with another profile for this requirement.\n\n"
-        "We will keep your profile in consideration for suitable future opportunities.\n\n"
-        "Regards,\nClahan Technologies"
+    polished_body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        "Thanks for your time. The client has chosen another profile for this requirement. We will write if a closer one comes up.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": polished_subject, "body": polished_body}
-    subject = "Update â€” Application Status"
-    body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for your interest. Unfortunately, we will not be proceeding with your profile for this requirement. We will keep you in our pool for future opportunities.\n\n"
-        "Regards,\n" + _from_name()
-    )
-    return {"subject": subject, "body": body}
 
 
 @router.post("/mail6-toc-request")
 async def compose_mail6_toc_request(payload: GenericSimpleRequest):
     polished_subject = "ToC / Course Agenda Request"
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Please share the Table of Contents (ToC) / Course Agenda for the proposed training delivery so we can align it with the client requirement.\n\n"
-        "Regards,\nClahan Technologies"
+    polished_body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        "Please share the ToC for this training so we can send it to the client.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
+        "toc",
     )
     return {"subject": polished_subject, "body": polished_body}
-    subject = "ToC / Course Agenda Request"
-    body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Please share the Table of Contents (ToC) / Course Agenda for the proposed training delivery.\n\n"
-        "Regards,\n" + _from_name()
-    )
-    return {"subject": subject, "body": body}
 
 
 @router.post("/mail7-training-confirmation")
 async def compose_mail7_confirmation(payload: GenericSimpleRequest):
     polished_subject = "Training Confirmation - Next Steps"
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        f"We are pleased to confirm your engagement for the {payload.technology or 'training'} requirement.\n\n"
-        "We will share the final logistics and coordination details shortly.\n\n"
-        "Regards,\nClahan Technologies"
+    polished_body = _spoken(
+        f"Hello {payload.name or 'Trainer'},\n\n"
+        f"This confirms your engagement for the {payload.technology or 'training'} requirement. We will send the final schedule and joining details.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": polished_subject, "body": polished_body}
-    subject = "Training Confirmation â€” Next Steps"
-    body = (
-        f"{_client_time_greeting(payload.client_name or payload.name or 'Client')},\n\n"
-        "This confirms the training booking. We will share final logistics, invoices, and trainer details shortly.\n\n"
-        "Regards,\n" + _from_name()
-    )
-    return {"subject": subject, "body": body}
