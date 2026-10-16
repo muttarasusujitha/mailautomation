@@ -103,7 +103,9 @@ function isTrainerProviderProfile(lead) {
     || lead?.lead_type === 'resume_trainer_post'
   const hasName = Boolean(String(lead?.trainer_name || lead?.name || lead?.headline || '').trim())
   const saysTrainer = /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
-  return Boolean(hasTrainerUrl && hasSkillMatch && (saysTrainer || hasName || lead?.lead_type === 'trainer_profile'))
+  // People search often returns a trainer whose visible card does not repeat the skill.
+  const skillShown = !terms.length || terms.some(term => text.includes(term)) || saysTrainer || lead?.lead_type === 'trainer_profile'
+  return Boolean(hasTrainerUrl && (hasSkillMatch || skillShown) && (saysTrainer || hasName || lead?.lead_type === 'trainer_profile'))
 }
 
 function leadEmail(lead) {
@@ -162,7 +164,20 @@ export default function LinkedInSearch() {
     searchingRef.current = true
     setSearching(true)
     setSearchReport(null)
+    setSelectedDomain('all')
     try {
+      const savedListEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
+      try {
+        const savedRes = await api.get(savedListEndpoint, { params: { q: '', limit: 150 } })
+        if (token === listToken.current) {
+          const savedNow = trainerSearch
+            ? (savedRes.data.leads || []).filter(isTrainerProviderProfile)
+            : (savedRes.data.leads || [])
+          setLeads(savedNow)
+        }
+      } catch {
+        // The search below still reports its own result. Saved rows stay as they are.
+      }
       const payload = linkedInSearchPayload(searchMode, domainText)
       const res = await api.post('/linkedin-leads/search', payload)
       if (token !== listToken.current) return
@@ -224,7 +239,6 @@ export default function LinkedInSearch() {
   }, [filter])
   useEffect(() => {
     const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
-    setLeads([])
     setSelectedDomain('all')
     setSearchDomains(domains)
     setSearchReport(null)
@@ -313,11 +327,13 @@ export default function LinkedInSearch() {
   }, [leads])
 
   const visibleLeads = useMemo(() => {
-    const fetched = visibleSearchLeads(leads, searchReport?.results, showSearchMatches)
-    if (showSearchMatches && fetched.length) return fetched
+    const searchHits = (searchReport?.results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
+    if (showSearchMatches && searchHits.length) return visibleSearchLeads([], searchReport.results, true)
     if (selectedDomain === 'all') return leads
     const selected = selectedDomain.toLowerCase()
-    return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    const matched = leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    // A search term that is not a saved domain must not hide the profiles already collected.
+    return matched.length ? matched : leads
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
@@ -479,13 +495,15 @@ export default function LinkedInSearch() {
 
       {isTrainer && <TrustLegend />}
 
-      {loading ? (
-        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
-      ) : searching ? (
-        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-16 text-center text-slate-500">
-          <RefreshCw className="mx-auto mb-3 h-10 w-10 animate-spin text-blue-600" />
-          <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
+      {searching && (
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] px-4 py-3 text-center text-sm text-slate-500">
+          <RefreshCw className="mr-2 inline h-4 w-4 animate-spin text-blue-600" />
+          Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search. Saved profiles stay in the list.
         </div>
+      )}
+
+      {loading && !visibleLeads.length ? (
+        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
         <div className="linkedin-result-list">
           {visibleLeads.map(lead => (

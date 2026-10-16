@@ -166,6 +166,22 @@ def _looks_like_client_requirement_post(text: str) -> bool:
     )
 
 
+def _keyword_card_is_trainer(combined_text: str) -> bool:
+    """A people-search hit can omit the skill and still be the trainer who was searched."""
+    if _looks_like_client_requirement_post(combined_text):
+        return False
+    if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", combined_text):
+        return False
+    if re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
+        return True
+    if re.search(
+        r"\b(recruiter|recruiting|talent acquisition|human resources|\bhr\b|engineer|developer|director|analyst|manager|specialist|executive|architect|administrator|intern|consultant)\b",
+        combined_text,
+    ):
+        return False
+    return True
+
+
 def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
     required = [term for term in terms if term != "full stack"]
     if all(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", combined_text) for term in required):
@@ -281,7 +297,9 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    if terms and not _text_has_domain(combined_text, terms):
+    # People search already queried this skill. The visible card often omits it.
+    keyword_qualified = mode == "trainer" and bool(item.get("keyword_qualified"))
+    if terms and not keyword_qualified and not _text_has_domain(combined_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         return None
@@ -295,11 +313,15 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
         is_resume_post = is_post and _looks_like_resume_trainer_post(combined_text)
         if source == "linkedin" and not (is_profile or is_resume_post):
             return None
-        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
-            return None
-        terms = _domain_terms(domain)
-        if terms and not any(term in combined_text for term in terms):
-            return None
+        if keyword_qualified:
+            if source == "linkedin" and not _keyword_card_is_trainer(combined_text):
+                return None
+        else:
+            if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
+                return None
+            terms = _domain_terms(domain)
+            if terms and not any(term in combined_text for term in terms):
+                return None
     slug = _slug_from_url(url)
     if mode == "client":
         contact_name = item.get('contact_name', _contact_name_from_linkedin_post(url))

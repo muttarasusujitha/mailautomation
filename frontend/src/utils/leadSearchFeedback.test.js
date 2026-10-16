@@ -37,6 +37,11 @@ test('fresh search matches stay in the LinkedIn search list with saved leads', (
   assert.equal(mergeSearchLeads(saved, [{ lead_id: 'CL-1', source_url: 'https://www.linkedin.com/posts/old' }]).length, 1)
 })
 
+test('an empty search keeps saved profiles on screen', () => {
+  const saved = [{ lead_id: 'TPL-1', source_url: 'https://www.linkedin.com/in/ada' }]
+  assert.deepEqual(visibleSearchLeads(saved, [], true).map(lead => lead.lead_id), ['TPL-1'])
+})
+
 test('a finished search displays the fetched profiles even when they were already saved', () => {
   const saved = []
   const results = [
