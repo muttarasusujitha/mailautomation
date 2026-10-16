@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Bot, Pause, Play, Search } from 'lucide-react'
 import api from '../utils/api'
+import { collectionOutcomeLines } from '../utils/leadSearchFeedback'
 
 function stamp(value) {
   if (!value) return ''
@@ -11,6 +12,12 @@ function stamp(value) {
 
 function domainList(value) {
   return String(value || '').split(',').map(item => item.trim()).filter(Boolean).slice(0, 4)
+}
+
+function CollectionOutcomes({ outcomes }) {
+  return collectionOutcomeLines(outcomes).map(line => (
+    <p key={line} className="text-sm text-slate-600">{line}</p>
+  ))
 }
 
 function outcomeWarnings(config) {
@@ -128,14 +135,7 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
         {config?.enabled ? 'Enabled' : 'Paused'} · Last automatic run: {runLabel} · Found: {config?.found || 0} · Saved: {config?.saved || 0}
       </p>
       <p className="text-xs text-slate-500">This panel shows the automatic collection run. Searches started with Find Profiles or Find Client Posts report their results below.</p>
-      {(config?.domain_outcomes || []).map(outcome => (
-        <p key={outcome.domain} className="text-sm text-slate-600">
-          {outcome.domain}: {outcome.matched ?? 0} found (target: {outcome.target ?? 0}).
-          {!outcome.target_met && (outcome.matched > 0
-            ? ' Partial results; the target is not guaranteed.'
-            : ' Target not reached.')}
-        </p>
-      ))}
+      <CollectionOutcomes outcomes={config?.domain_outcomes} />
       {warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
       {isTrainer && <p className="text-xs text-slate-500">Saved counts new profiles only. Existing profiles keep their original domain label.</p>}
       {(config?.last_finished || config?.next_run) && (

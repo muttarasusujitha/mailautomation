@@ -133,6 +133,82 @@ def test_remember_me_redirect_can_finish_but_verification_is_not_bypassed(destin
     page.wait_for_url.assert_awaited_once()
 
 
+def test_a_busy_linkedin_fetch_waits_and_then_reports_busy(monkeypatch):
+    from app.clients import linkedin_browser
+    linkedin_browser._lock = asyncio.Lock()
+    monkeypatch.setattr(linkedin_browser, '_LOCK_WAIT_SECONDS', 0.05)
+
+    async def hold():
+        async with linkedin_browser._lock:
+            await asyncio.sleep(0.2)
+
+    async def run():
+        waiter = asyncio.create_task(hold())
+        await asyncio.sleep(0)
+        with pytest.raises(ValueError, match='LinkedIn bot is busy'):
+            await linkedin_browser._acquire_bot_lock()
+        await waiter
+
+    try:
+        asyncio.run(run())
+    finally:
+        linkedin_browser._lock = asyncio.Lock()
+
+
+def test_a_finished_linkedin_fetch_releases_the_next_search(monkeypatch):
+    from app.clients import linkedin_browser
+    linkedin_browser._lock = asyncio.Lock()
+    monkeypatch.setattr(linkedin_browser, '_LOCK_WAIT_SECONDS', 1)
+
+    async def run():
+        await linkedin_browser._lock.acquire()
+        async def release():
+            await asyncio.sleep(0.05)
+            linkedin_browser._lock.release()
+        asyncio.create_task(release())
+        await linkedin_browser._acquire_bot_lock()
+        assert linkedin_browser._lock.locked()
+        linkedin_browser._lock.release()
+
+    try:
+        asyncio.run(run())
+    finally:
+        linkedin_browser._lock = asyncio.Lock()
+
+
+def test_trainer_search_budget_is_long_enough_to_page_people_results():
+    from app.clients.linkedin_browser import trainer_scan_budget
+    limit, scan_limit, page_cap, seconds = trainer_scan_budget(60)
+    assert limit == 60
+    assert scan_limit == 240
+    assert page_cap >= 24
+    assert seconds >= 160
+    # A 50-profile request used to miss the 60-profile line and stop after 65 seconds.
+    assert trainer_scan_budget(50)[3] >= 160
+    assert trainer_scan_budget(2)[3] < 90
+
+
+def test_account_search_asks_the_browser_for_the_full_trainer_target(tmp_path, monkeypatch):
+    from app.clients.linkedin_browser import search_linkedin_account
+    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    page = MagicMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.locator.return_value.count = AsyncMock(return_value=0)
+    context = AsyncMock()
+    context.new_page.return_value = page
+    context.cookies.return_value = []
+    playwright = MagicMock()
+    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
+    manager = AsyncMock()
+    manager.__aenter__.return_value = playwright
+    collector = AsyncMock(return_value=[])
+    with patch('playwright.async_api.async_playwright', return_value=manager), \
+            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
+        asyncio.run(search_linkedin_account('Devops trainer', 'trainer', 60))
+    assert collector.await_args.args[3] == 60
+
+
 def test_disabled_bot_does_not_launch_browser():
     with patch.dict('os.environ', {'LINKEDIN_BOT_ENABLED': 'false'}):
         with pytest.raises(ValueError, match='not enabled'):

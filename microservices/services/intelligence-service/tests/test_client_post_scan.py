@@ -12,13 +12,25 @@ def post(text, slug='request'):
 
 def test_broad_discovery_does_not_search_individual_domains():
     rows = [post('Looking for a Python and SAP trainer')]
-    with patch('app.clients.public_search.search_public', AsyncMock(return_value=rows)) as public, patch(
+    with patch('app.clients.public_search.search_public_many', AsyncMock(return_value=(rows, 1))) as public, patch(
         'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[])
     ) as account:
         result, _ = asyncio.run(discover('', 'client', 50))
     assert len(result) == 1
-    assert all('Python' not in call.args[0] and 'SAP' not in call.args[0] for call in public.await_args_list)
+    assert all('Python' not in query and 'SAP' not in query for query in public.await_args.args[0])
     assert account.await_args.args[:3] == ('', 'client', 50)
+
+
+def test_public_timeout_keeps_the_warning_and_still_asks_the_linkedin_account():
+    from app.clients.public_search import SearchBatch
+    with patch('app.clients.public_search.search_public_many', AsyncMock(return_value=SearchBatch([], 2, timed_out=True))), patch(
+        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[post('Looking for a Python trainer')])
+    ) as account:
+        result, outcome = asyncio.run(discover('', 'client', 50))
+    assert len(result) == 1
+    assert outcome['status'] == 'partial'
+    assert outcome['warnings'][0]['error'].startswith('Public web search timed out.')
+    account.assert_awaited()
 
 
 def test_all_domains_multi_match_dedupe_and_repeat_status_preservation():
