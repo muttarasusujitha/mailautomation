@@ -46,13 +46,19 @@ def _clean_messages(messages: List[ChatMessage]) -> List[Dict[str, str]]:
 async def _call_anthropic(messages: List[Dict], system: str, settings, max_tokens: int, temperature: float) -> str:
     import anthropic
     client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY.strip())
-    resp = await client.messages.create(
+    request = dict(
         model=settings.ANTHROPIC_MODEL,
         max_tokens=max_tokens,
-        temperature=temperature,
         system=system or "You are TrainerSync AI — a helpful training coordination assistant.",
         messages=messages,
     )
+    try:
+        resp = await client.messages.create(temperature=temperature, **request)
+    except TypeError as exc:
+        # Some SDK builds and proxy-backed models reject sampling parameters.
+        if "temperature" not in str(exc):
+            raise
+        resp = await client.messages.create(**request)
     return "".join(b.text for b in resp.content if getattr(b, "type", "") == "text").strip()
 
 
@@ -140,7 +146,7 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
                 messages, system, settings, payload.max_tokens, payload.temperature
             )
         except Exception as exc:
-            logger.warning("Ollama failed, trying cloud providers: %s", exc)
+            logger.warning("Ollama failed, trying cloud providers: %s: %s", type(exc).__name__, exc)
             error = str(exc)
 
     if not reply and settings.OPENAI_API_KEY.strip():

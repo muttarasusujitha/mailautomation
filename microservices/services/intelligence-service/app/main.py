@@ -22,8 +22,18 @@ from app.routes import (
 settings = get_settings()
 
 
+def _ignore_closed_browser_noise(loop, context):
+    # Cancelling a timed-out LinkedIn step leaves Playwright calls in flight; they fail
+    # when the browser closes and nobody awaits them. That is expected, not an error.
+    exc = context.get('exception')
+    if type(exc).__name__ == 'TargetClosedError':
+        return
+    loop.default_exception_handler(context)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    asyncio.get_running_loop().set_exception_handler(_ignore_closed_browser_noise)
     await connect_service_db(settings)
     db = await get_db()
     await db['client_leads'].create_index('post_key', unique=True,
