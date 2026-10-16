@@ -64,3 +64,35 @@ def test_closed_browser_noise_is_ignored_but_other_errors_are_not():
     assert not seen
     main._ignore_closed_browser_noise(loop, {'exception': ValueError('real')})
     assert len(seen) == 1
+
+
+def _settings(**overrides):
+    base = dict(AI_PROVIDER='ollama', OLLAMA_URL='', OLLAMA_MODEL='qwen3:8b',
+                OPENAI_API_KEY='k', ANTHROPIC_API_KEY='k', GEMINI_API_KEY='k')
+    return SimpleNamespace(**{**base, **overrides})
+
+
+def test_ollama_provider_uses_only_ollama(monkeypatch):
+    monkeypatch.setattr(assistant, 'get_settings', lambda: _settings(OLLAMA_URL='http://ollama:11434/api/generate'))
+    ollama = AsyncMock(return_value='local reply')
+    cloud = AsyncMock(return_value='cloud reply')
+    monkeypatch.setattr(assistant, '_call_ollama', ollama)
+    for name in ('_call_openai', '_call_anthropic', '_call_gemini'):
+        monkeypatch.setattr(assistant, name, cloud)
+    result = asyncio.run(assistant.assistant_chat(assistant.ChatRequest(messages=[assistant.ChatMessage(role='user', content='Hi')]), None))
+    assert result['reply'] == 'local reply'
+    assert ollama.await_args.args[-1] == 'http://ollama:11434/api/generate'
+    cloud.assert_not_called()
+
+
+def test_ollama_provider_never_falls_back_to_cloud_and_defaults_the_url(monkeypatch):
+    monkeypatch.setattr(assistant, 'get_settings', lambda: _settings())
+    ollama = AsyncMock(side_effect=RuntimeError('down'))
+    cloud = AsyncMock(return_value='cloud reply')
+    monkeypatch.setattr(assistant, '_call_ollama', ollama)
+    for name in ('_call_openai', '_call_anthropic', '_call_gemini'):
+        monkeypatch.setattr(assistant, name, cloud)
+    result = asyncio.run(assistant.assistant_chat(assistant.ChatRequest(messages=[assistant.ChatMessage(role='user', content='Hi')]), None))
+    assert result['success'] is False and 'Ollama' in result['reply']
+    assert ollama.await_args.args[-1] == assistant.DEFAULT_OLLAMA_URL
+    cloud.assert_not_called()

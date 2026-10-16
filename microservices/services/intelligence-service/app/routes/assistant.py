@@ -93,7 +93,7 @@ async def _call_openai(messages: List[Dict], system: str, settings, max_tokens: 
 
 
 async def _call_ollama(
-    messages: List[Dict], system: str, settings, max_tokens: int, temperature: float
+    messages: List[Dict], system: str, settings, max_tokens: int, temperature: float, url: str = ""
 ) -> str:
     import httpx
 
@@ -102,7 +102,7 @@ async def _call_ollama(
     ) + "\n\nAssistant:"
     async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.post(
-            settings.OLLAMA_URL.strip(),
+            (url or settings.OLLAMA_URL).strip(),
             json={
                 "model": settings.OLLAMA_MODEL,
                 "system": system,
@@ -119,6 +119,9 @@ async def _call_ollama(
     if not isinstance(result, str) or not result.strip():
         raise ValueError("Ollama returned an empty or invalid response")
     return result.strip()
+
+
+DEFAULT_OLLAMA_URL = "http://host.docker.internal:11434/api/generate"
 
 
 @router.post("/chat")
@@ -139,31 +142,34 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
     reply = ""
     error = ""
     # Prefer Ollama when configured, followed by the cloud providers.
+    ollama_only = str(getattr(settings, "AI_PROVIDER", "openai") or "").strip().lower() == "ollama"
     ollama_url = getattr(settings, "OLLAMA_URL", "").strip()
+    if ollama_only and not ollama_url:
+        ollama_url = DEFAULT_OLLAMA_URL
     if ollama_url:
         try:
             reply = await _call_ollama(
-                messages, system, settings, payload.max_tokens, payload.temperature
+                messages, system, settings, payload.max_tokens, payload.temperature, ollama_url
             )
         except Exception as exc:
-            logger.warning("Ollama failed, trying cloud providers: %s: %s", type(exc).__name__, exc)
+            logger.warning("Ollama failed%s: %s: %s", "" if ollama_only else ", trying cloud providers", type(exc).__name__, exc)
             error = str(exc)
 
-    if not reply and settings.OPENAI_API_KEY.strip():
+    if not reply and not ollama_only and settings.OPENAI_API_KEY.strip():
         try:
             reply = await _call_openai(messages, system, settings, payload.max_tokens)
         except Exception as exc:
             logger.warning("OpenAI failed, trying Anthropic/Gemini: %s", exc)
             error = str(exc)
 
-    if not reply and settings.ANTHROPIC_API_KEY.strip():
+    if not reply and not ollama_only and settings.ANTHROPIC_API_KEY.strip():
         try:
             reply = await _call_anthropic(messages, system, settings, payload.max_tokens, payload.temperature)
         except Exception as exc:
             logger.warning("Anthropic failed, trying Gemini: %s", exc)
             error = str(exc)
 
-    if not reply and settings.GEMINI_API_KEY.strip():
+    if not reply and not ollama_only and settings.GEMINI_API_KEY.strip():
         try:
             reply = await _call_gemini(messages, system, settings, payload.max_tokens, payload.temperature)
             error = ""
@@ -174,7 +180,11 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
     if not reply:
         return {
             "success": False,
-            "reply": "AI is unavailable. Check the configured Ollama, OpenAI, Anthropic or Gemini provider and try again.",
+            "reply": (
+                "AI is unavailable. Check that Ollama is running, reachable at OLLAMA_URL, and has the OLLAMA_MODEL pulled."
+                if ollama_only else
+                "AI is unavailable. Check the configured Ollama, OpenAI, Anthropic or Gemini provider and try again."
+            ),
             "error": "ai_provider_unavailable",
             "messages": messages,
         }
