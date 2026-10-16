@@ -193,6 +193,8 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
 
 
 # Result-card text, not the name link alone. Header/profile-menu links stay out.
+# LinkedIn's current people cards keep the headline in a sibling paragraph, so the
+# enclosing result card is required. A name-only link would fail the trainer check.
 PEOPLE_CARDS = """els => els.flatMap(a => {
   const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
     || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
@@ -201,6 +203,21 @@ PEOPLE_CARDS = """els => els.flatMap(a => {
   if (!text) return [];
   return [{url: a.href, text: text.slice(0, 4000)}];
 })"""
+
+# Used only when the anchor walk finds nothing. Keeps the Python locator free of
+# the post-card marker so a people-page read is not treated as the content fallback.
+PEOPLE_LIST_SCRIPT = """() => {
+  const cards = [...document.querySelectorAll('div[role="listitem"], li.reusable-search__result-container, .entity-result')];
+  const rows = [];
+  for (const card of cards) {
+    const link = [...card.querySelectorAll('a[href*="/in/"]')].find(a => (a.innerText || '').trim());
+    if (!link || !link.href) continue;
+    const text = (card.innerText || link.innerText || '').trim();
+    if (!text) continue;
+    rows.push({url: link.href, text: text.slice(0, 4000)});
+  }
+  return rows;
+}"""
 
 
 def _people_search_url(keywords, page_number):
@@ -240,7 +257,15 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
     # LinkedIn shows about ten people per page. A 60-profile fetch can read 24 pages, then stops.
     page_cap = max(1, (scan_limit + 9) // 10) if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
-    deadline = asyncio.get_running_loop().time() + (180 if limit >= 20 else 65)
+    # A full trainer scan pages people search for about 160 seconds, then keeps a
+    # short content fallback. A 65-second cap stops after the first slow page.
+    if limit >= TRAINER_RESULT_TARGET:
+        total_budget, people_budget = 200, 160
+    elif limit >= 20:
+        total_budget, people_budget = 180, 120
+    else:
+        total_budget, people_budget = 65, 45
+    deadline = asyncio.get_running_loop().time() + total_budget
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -253,9 +278,18 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         return (lines[0] if lines else '')[:200]
 
     async def read_people():
-        links = await page.locator('a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
+        try:
+            links = await page.locator('a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
+            if not links:
+                links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all(PEOPLE_CARDS)
+        except (TimeoutError, BrowserTimeoutError):
+            # One slow card read must not end the scan as a time limit.
+            return 0, 0
         if not links:
-            links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all(PEOPLE_CARDS)
+            try:
+                links = await page.evaluate(PEOPLE_LIST_SCRIPT)
+            except Exception:
+                links = []
         if not links:
             try:
                 visible_text = await page.locator('body').inner_text(timeout=3000)
@@ -297,7 +331,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     ]))
     # Give alternate queries a share of the page budget and reserve fallback time.
     pages_per_query = max(2, (page_cap + len(queries) - 1) // len(queries))
-    people_deadline = deadline - min(60, max(10, (deadline - asyncio.get_running_loop().time()) / 3))
+    people_deadline = asyncio.get_running_loop().time() + people_budget
     try:
         page_loads = 0
         for keywords in queries:
@@ -318,15 +352,29 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 except Exception:
                     pass
                 await require_session(page)
-                new_urls, raw_count = await read_people()
-                if new_urls == 0 and raw_count == 0:
-                    # The result list often paints after the first lookup.
-                    try:
-                        await page.mouse.wheel(0, 1600)
-                        await page.wait_for_timeout(500)
-                    except Exception:
-                        pass
+                try:
                     new_urls, raw_count = await read_people()
+                    if new_urls == 0 and raw_count == 0:
+                        # The result list often paints after the first lookup.
+                        try:
+                            await page.mouse.wheel(0, 1600)
+                            await page.wait_for_timeout(500)
+                        except Exception:
+                            pass
+                        new_urls, raw_count = await read_people()
+                    elif new_urls == 0 and raw_count > 0:
+                        # The page URL repeated the same cards. Scroll once so an
+                        # infinite result list can reveal the next profiles.
+                        try:
+                            await page.mouse.wheel(0, 2000)
+                            await page.wait_for_timeout(700)
+                        except Exception:
+                            pass
+                        extra_urls, extra_raw = await read_people()
+                        new_urls += extra_urls
+                        raw_count = max(raw_count, extra_raw)
+                except (TimeoutError, BrowserTimeoutError):
+                    continue
                 repeated_pages = repeated_pages + 1 if new_urls == 0 else 0
                 if raw_count == 0 or repeated_pages >= 2:
                     break
@@ -337,10 +385,13 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     except ValueError:
         # Verification and rate limits require human action, not another search.
         raise
-    except TimeoutError:
-        if results:
-            return results
-        raise PartialSearchError(restriction or 'Trainer search reached its time limit.', results)
+    except (TimeoutError, BrowserTimeoutError):
+        # Keep profiles already read, and still try the content fallback when
+        # people search itself was the call that ran out of time.
+        if results or timed_out():
+            if results:
+                return results
+            raise PartialSearchError(restriction or 'Trainer search reached its time limit.', results)
     except Exception:
         # People layouts vary; continue with the content search below.
         if results:
