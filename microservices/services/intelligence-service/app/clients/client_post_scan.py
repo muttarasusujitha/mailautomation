@@ -39,7 +39,7 @@ async def scan_client_posts(domains, db, include_unmatched=False):
         found += 1
         for domain in matches:
             counts[domain] += 1
-        provider = row.get('discovery_provider', 'public')
+        provider = row.get('discovery_provider', 'linkedin_account')
         lead.update(matched_domains=matches, discovery_provider=provider,
                     verification_status='unverified_linkedin_account' if provider == 'linkedin_account' else 'unverified_public_search',
                     discovered_at=now)
