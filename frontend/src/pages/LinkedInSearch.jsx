@@ -166,9 +166,9 @@ export default function LinkedInSearch() {
     setSearchReport(null)
     setSelectedDomain('all')
     try {
-      const listEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
+      const savedListEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
       try {
-        const savedRes = await api.get(listEndpoint, { params: { q: '', limit: 150 } })
+        const savedRes = await api.get(savedListEndpoint, { params: { q: '', limit: 150 } })
         if (token === listToken.current) {
           const savedNow = trainerSearch
             ? (savedRes.data.leads || []).filter(isTrainerProviderProfile)
