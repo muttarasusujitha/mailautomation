@@ -84,6 +84,13 @@ def test_html_search_keeps_current_skill_profiles_and_their_snippets():
     ]
 
 
+def test_present_role_stays_current_when_the_start_year_is_older():
+    from app.clients.search_accuracy import is_current_year_result
+    assert is_current_year_result({'content': 'DevOps Trainer\n2016 - Present\nHyderabad'})
+    assert is_current_year_result({'content': 'Python corporate trainer since last year', 'title': f'{datetime.utcnow().year - 1}'})
+    assert not is_current_year_result({'content': 'Python corporate trainer since 2019'})
+
+
 def test_html_search_extracts_only_allowed_linkedin_paths():
     html = b'<li class="b_algo"><h2><a href="https://www.linkedin.com/in/alice/?x=1">Alice</a></h2></li><a href="https://linkedin.com/jobs/1">Job</a><a href="https://linkedin.com.evil.test/in/x">Fake</a>'
     rows = parse_html(html, 10)

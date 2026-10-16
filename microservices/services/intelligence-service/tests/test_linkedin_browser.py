@@ -176,6 +176,39 @@ def test_a_finished_linkedin_fetch_releases_the_next_search(monkeypatch):
         linkedin_browser._lock = asyncio.Lock()
 
 
+def test_trainer_search_budget_is_long_enough_to_page_people_results():
+    from app.clients.linkedin_browser import trainer_scan_budget
+    limit, scan_limit, page_cap, seconds = trainer_scan_budget(60)
+    assert limit == 60
+    assert scan_limit == 240
+    assert page_cap >= 24
+    assert seconds >= 160
+    # A 50-profile request used to miss the 60-profile line and stop after 65 seconds.
+    assert trainer_scan_budget(50)[3] >= 160
+    assert trainer_scan_budget(2)[3] < 90
+
+
+def test_account_search_asks_the_browser_for_the_full_trainer_target(tmp_path, monkeypatch):
+    from app.clients.linkedin_browser import search_linkedin_account
+    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    page = MagicMock()
+    page.url = 'https://www.linkedin.com/search/results/people/'
+    page.locator.return_value.count = AsyncMock(return_value=0)
+    context = AsyncMock()
+    context.new_page.return_value = page
+    context.cookies.return_value = []
+    playwright = MagicMock()
+    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
+    manager = AsyncMock()
+    manager.__aenter__.return_value = playwright
+    collector = AsyncMock(return_value=[])
+    with patch('playwright.async_api.async_playwright', return_value=manager), \
+            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
+        asyncio.run(search_linkedin_account('Devops trainer', 'trainer', 60))
+    assert collector.await_args.args[3] == 60
+
+
 def test_disabled_bot_does_not_launch_browser():
     with patch.dict('os.environ', {'LINKEDIN_BOT_ENABLED': 'false'}):
         with pytest.raises(ValueError, match='not enabled'):
