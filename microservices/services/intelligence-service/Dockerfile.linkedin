@@ -15,5 +15,8 @@ COPY microservices/services/intelligence-service/app/routes/client_leads.py /app
 COPY microservices/services/intelligence-service/app/routes/linkedin_leads.py /app/app/routes/
 COPY microservices/services/intelligence-service/app/routes/trainer_profile_leads.py /app/app/routes/
 COPY microservices/services/intelligence-service/app/main.py /app/app/main.py
+COPY microservices/services/intelligence-service/app/config.py /app/app/config.py
+COPY microservices/services/intelligence-service/app/routes/assistant.py /app/app/routes/
+COPY microservices/services/intelligence-service/app/routes/client_intelligence.py /app/app/routes/
 COPY microservices/services/intelligence-service/app/clients/course_domains.py /app/app/clients/
 COPY microservices/services/trainer-service/app/datasets_compact /app/it-course-datasets
