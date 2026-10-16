@@ -25,7 +25,6 @@ def public_queries(domain, mode, location=''):
 
 
 async def discover(domain, mode, target, location=''):
-    from app.clients.public_search import search_public
     from app.clients.linkedin_browser import search_linkedin_account
     from app.clients.search_accuracy import canonical_public_url, select_accurate_profiles
     from app.routes.linkedin_leads import _normalize_result
@@ -46,32 +45,28 @@ async def discover(domain, mode, target, location=''):
 
     # Public indexes remain usable when the account needs manual verification.
     queries = public_queries(domain, mode, location)
-    if mode == 'trainer':
-        from app.clients.public_search import search_public_many
-        attempts += 1
-        try:
-            rows, used = await search_public_many(queries, max(50, target))
-            attempts += max(used - 1, 0)
-        except Exception as exc:
-            warning = search_warning('public', exc)
-            if warning not in warnings:
-                warnings.append(warning)
-            rows = []
-        accept(rows, 'public')
+    from app.clients.public_search import search_public_many
+    attempts += 1
+    batch = None
+    public_limit = max(50, target) if mode == 'trainer' else max(20, min(target, 50))
+    try:
+        # One pass for every phrase. Cancelling each phrase at 20 seconds
+        # discarded results that were still arriving.
+        batch = await asyncio.wait_for(search_public_many(queries, public_limit), timeout=50)
+        rows, used = batch
+        attempts += max(int(used) - 1, 0)
+    except TimeoutError:
+        rows = []
+        warnings.append(search_warning('public', TimeoutError()))
+    except Exception as exc:
+        warning = search_warning('public', exc)
+        if warning not in warnings:
+            warnings.append(warning)
+        rows = []
     else:
-        for query in queries:
-            need = min(60, max(1, target - len(results)))
-            attempts += 1
-            try:
-                outcome = await asyncio.wait_for(search_public(query, need), timeout=20)
-            except Exception as exc:
-                warning = search_warning('public', exc)
-                if warning not in warnings:
-                    warnings.append(warning)
-                continue
-            accept(outcome, 'public')
-            if len(results) >= target:
-                break
+        if not rows and getattr(batch, 'timed_out', False):
+            warnings.append(search_warning('public', TimeoutError()))
+    accept(rows, 'public')
     if len(results) < target:
         attempts += 1
         collected = []
