@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 const apiProxyConfig = (target, rewriteApiToV1) => ({
   target,
   changeOrigin: true,
-  timeout: 300000,
-  proxyTimeout: 300000,
+  timeout: 600000,
+  proxyTimeout: 600000,
   ...(rewriteApiToV1 && {
     rewrite: path => path.replace(/^\/api(?=\/|$)/, '/api/v1'),
   }),

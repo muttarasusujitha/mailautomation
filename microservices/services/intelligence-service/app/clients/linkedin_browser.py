@@ -141,45 +141,14 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
                 # The author's visible headline is evidence about that person;
                 # the post body may describe someone else or a hiring request.
                 headline = author_headline(data['content'])
-                results.append({'url': canonical_url(author['url']), 'title': author_name, 'content': headline})
+                results.append({'url': canonical_url(author['url']), 'title': author_name, 'content': headline, 'keyword_qualified': True})
             processed.add(fingerprint)
             continue
-        menu = card.locator('button[aria-label^="Open control menu for post"]')
-        if not await menu.count():
-            raise ValueError('Post card has no source-link menu')
-        await menu.click()
-        copy = page.get_by_text('Copy link to post', exact=True)
-        try:
-            await copy.wait_for(timeout=3000)
-        except Exception as exc:
-            await page.keyboard.press('Escape')
-            raise ValueError(f'Post copy-link menu unavailable: {exc}') from exc
-        # Capture only the URL written by this explicit Copy link action. Reading
-        # the OS clipboard is unreliable when a headless tab loses focus.
-        await page.evaluate('''() => {
-            window.__botCopiedLink = '';
-            window.__botOriginalWrite = navigator.clipboard.writeText;
-            navigator.clipboard.writeText = async text => { window.__botCopiedLink = text; };
-        }''')
-        try:
-            await copy.click()
-            await page.wait_for_function('() => window.__botCopiedLink.startsWith("https://")', timeout=5000)
-            copied = await page.evaluate('window.__botCopiedLink')
-        finally:
-            await page.evaluate('''() => {
-                navigator.clipboard.writeText = window.__botOriginalWrite;
-                delete window.__botOriginalWrite;
-                delete window.__botCopiedLink;
-            }''')
-        url = canonical_url(copied)
-        if urlsplit(copied).hostname == 'lnkd.in' and copied.startswith('https://lnkd.in/p/'):
-            resolver = await context.new_page()
-            try:
-                await resolver.goto(copied, wait_until='domcontentloaded', timeout=15000)
-                await resolver.wait_for_url('https://www.linkedin.com/**', timeout=10000)
-                url = canonical_url(resolver.url)
-            finally:
-                await resolver.close()
+        url = next((canonical_url(link['url']) for link in data['links']
+                    if urlsplit(canonical_url(link['url'])).path.startswith(('/posts/', '/feed/update/'))), '')
+        if not url:
+            # One card without a menu used to abort the whole client search.
+            url = await _copy_post_link(page, context, card)
         if url and urlsplit(url).path.startswith(('/posts/', '/feed/update/')):
             results.append({'url': url, 'title': title,
                             'content': data['content'], 'contact_name': author_name,
@@ -188,12 +157,56 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
             if len(results) >= limit:
                 break
         else:
-            raise ValueError(f'Post link did not resolve: {urlsplit(copied).hostname} {urlsplit(copied).path}; resolved {url}')
+            processed.add(fingerprint)
     return results
+
+
+async def _copy_post_link(page, context, card):
+    """Copy one post permalink. A missing menu skips that card."""
+    menu = card.locator('button[aria-label^="Open control menu for post"]')
+    if not await menu.count():
+        return ''
+    await menu.click()
+    copy = page.get_by_text('Copy link to post', exact=True)
+    try:
+        await copy.wait_for(timeout=3000)
+    except Exception:
+        await page.keyboard.press('Escape')
+        return ''
+    # Capture only the URL written by this explicit Copy link action. Reading
+    # the OS clipboard is unreliable when a headless tab loses focus.
+    await page.evaluate('''() => {
+        window.__botCopiedLink = '';
+        window.__botOriginalWrite = navigator.clipboard.writeText;
+        navigator.clipboard.writeText = async text => { window.__botCopiedLink = text; };
+    }''')
+    try:
+        await copy.click()
+        await page.wait_for_function('() => window.__botCopiedLink.startsWith("https://")', timeout=5000)
+        copied = await page.evaluate('window.__botCopiedLink')
+    except Exception:
+        return ''
+    finally:
+        await page.evaluate('''() => {
+            navigator.clipboard.writeText = window.__botOriginalWrite;
+            delete window.__botOriginalWrite;
+            delete window.__botCopiedLink;
+        }''')
+    url = canonical_url(copied)
+    if urlsplit(copied).hostname == 'lnkd.in' and copied.startswith('https://lnkd.in/p/'):
+        resolver = await context.new_page()
+        try:
+            await resolver.goto(copied, wait_until='domcontentloaded', timeout=15000)
+            await resolver.wait_for_url('https://www.linkedin.com/**', timeout=10000)
+            url = canonical_url(resolver.url)
+        finally:
+            await resolver.close()
+    return url
 
 
 # Result-card text, not the name link alone. Header/profile-menu links stay out.
 PEOPLE_CARDS = """els => els.flatMap(a => {
+  if (a.closest('header, nav, [role="banner"], [role="navigation"]')) return [];
   const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
     || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
   if (!card) return [];
@@ -201,6 +214,39 @@ PEOPLE_CARDS = """els => els.flatMap(a => {
   if (!text) return [];
   return [{url: a.href, text: text.slice(0, 4000)}];
 })"""
+
+
+# LinkedIn includes people-search headlines in hidden result JSON. Reading that
+# JSON does not open another profile or send a request.
+EMBEDDED_PROFILES = """() => {
+  const rows = [];
+  for (const node of document.querySelectorAll('code')) {
+    const raw = node.textContent || '';
+    if (raw.length < 20 || raw.length > 500000 || !raw.includes('/in/')) continue;
+    let data;
+    try { data = JSON.parse(raw); } catch (error) { continue; }
+    const stack = [data];
+    let seen = 0;
+    while (stack.length && rows.length < 30 && seen < 4000) {
+      const item = stack.pop();
+      seen += 1;
+      if (!item || typeof item !== 'object') continue;
+      if (Array.isArray(item)) { stack.push(...item.slice(0, 50)); continue; }
+      const url = item.navigationUrl || (item.navigationContext && item.navigationContext.url) || '';
+      if (typeof url === 'string' && url.includes('/in/')) {
+        const title = (item.title && item.title.text) || (typeof item.title === 'string' ? item.title : '');
+        const headline = (item.primarySubtitle && item.primarySubtitle.text) || item.headline || '';
+        const summary = (item.summary && item.summary.text) || (item.secondarySubtitle && item.secondarySubtitle.text) || '';
+        const text = [title, headline, summary].filter(Boolean).join('\\n');
+        if (text) rows.push({url, text});
+      }
+      for (const value of Object.values(item)) {
+        if (value && typeof value === 'object') stack.push(value);
+      }
+    }
+  }
+  return rows;
+}"""
 
 
 def _people_search_url(keywords, page_number):
@@ -240,7 +286,13 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
     # LinkedIn shows about ten people per page. A 60-profile fetch can read 24 pages, then stops.
     page_cap = max(1, (scan_limit + 9) // 10) if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
-    deadline = asyncio.get_running_loop().time() + (180 if limit >= 20 else 65)
+    started = asyncio.get_running_loop().time()
+    # People pages and the content fallback have separate budgets, so a slow
+    # page cannot consume the fallback or raise a time limit before it runs.
+    people_budget = 160 if limit >= 20 else 45
+    content_budget = 40 if limit >= 20 else 20
+    people_deadline = started + people_budget
+    deadline = started + people_budget + content_budget
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -258,6 +310,13 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all(PEOPLE_CARDS)
         if not links:
             try:
+                embedded = await page.evaluate(EMBEDDED_PROFILES)
+            except Exception:
+                embedded = []
+            if isinstance(embedded, list) and embedded:
+                links = embedded
+        if not links:
+            try:
                 visible_text = await page.locator('body').inner_text(timeout=3000)
             except Exception:
                 visible_text = ''
@@ -273,7 +332,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             new_urls += 1
             if url in seen or url.lower() in excluded or not text.strip():
                 continue
-            candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000]}
+            candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000], 'keyword_qualified': True}
             # The save path uses this same check, so rejected cards are not reported as found.
             if _normalize_result(candidate, domain, 'trainer'):
                 seen.add(url)
@@ -297,36 +356,50 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     ]))
     # Give alternate queries a share of the page budget and reserve fallback time.
     pages_per_query = max(2, (page_cap + len(queries) - 1) // len(queries))
-    people_deadline = deadline - min(60, max(10, (deadline - asyncio.get_running_loop().time()) / 3))
     try:
         page_loads = 0
         for keywords in queries:
-            if len(results) >= limit or len(visited) >= scan_limit or timed_out():
+            if len(results) >= limit or len(visited) >= scan_limit or asyncio.get_running_loop().time() >= people_deadline:
                 break
             repeated_pages = 0
             for page_number in range(1, min(page_cap, pages_per_query) + 1):
                 if len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap or asyncio.get_running_loop().time() >= people_deadline:
                     break
                 page_loads += 1
-                response, opened = await open_people_page(keywords, page_number)
-                if not opened:
-                    continue
-                if response and response.status in (403, 429):
-                    raise ValueError('LinkedIn limited this session. Fetching stopped.')
                 try:
-                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                    async with asyncio.timeout(18):
+                        response, opened = await open_people_page(keywords, page_number)
+                        if not opened:
+                            repeated_pages += 1
+                            if repeated_pages >= 2:
+                                break
+                            continue
+                        if response and response.status in (403, 429):
+                            raise ValueError('LinkedIn limited this session. Fetching stopped.')
+                        try:
+                            await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                        except Exception:
+                            pass
+                        await require_session(page)
+                        new_urls, raw_count = await read_people()
+                        if new_urls == 0 and raw_count == 0:
+                            # The result list often paints after the first lookup.
+                            try:
+                                await page.mouse.wheel(0, 1600)
+                                await page.wait_for_timeout(500)
+                            except Exception:
+                                pass
+                            new_urls, raw_count = await read_people()
+                except PeopleIdentitiesHidden:
+                    raise
+                except ValueError:
+                    raise
                 except Exception:
-                    pass
-                await require_session(page)
-                new_urls, raw_count = await read_people()
-                if new_urls == 0 and raw_count == 0:
-                    # The result list often paints after the first lookup.
-                    try:
-                        await page.mouse.wheel(0, 1600)
-                        await page.wait_for_timeout(500)
-                    except Exception:
-                        pass
-                    new_urls, raw_count = await read_people()
+                    # A timeout on one page continues. It must not skip the content fallback.
+                    repeated_pages += 1
+                    if repeated_pages >= 2:
+                        break
+                    continue
                 repeated_pages = repeated_pages + 1 if new_urls == 0 else 0
                 if raw_count == 0 or repeated_pages >= 2:
                     break
@@ -337,28 +410,18 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     except ValueError:
         # Verification and rate limits require human action, not another search.
         raise
-    except TimeoutError:
-        if results:
-            return results
-        raise PartialSearchError(restriction or 'Trainer search reached its time limit.', results)
-    except Exception:
-        # People layouts vary; continue with the content search below.
-        if results:
-            return results
     if len(results) >= limit:
         return results
-    if timed_out():
-        if results:
-            return results
-        raise PartialSearchError(restriction or 'Trainer search reached its time limit.', results)
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')
     remaining = deadline - asyncio.get_running_loop().time()
     if remaining < 8:
-        return results
+        if results or not timed_out():
+            return results
+        raise PartialSearchError(restriction or 'Trainer search reached its time limit.', results)
     try:
-        async with asyncio.timeout(min(60, remaining)):
+        async with asyncio.timeout(min(content_budget, remaining)):
             for phrase in phrases:
                 try:
                     async with asyncio.timeout(12):
@@ -376,7 +439,17 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                         try:
                             await cards.first.wait_for(timeout=5000)
                         except Exception:
-                            await require_session(page)
+                            try:
+                                await require_session(page)
+                                await read_people()
+                            except PeopleIdentitiesHidden:
+                                pass
+                            except ValueError:
+                                raise
+                            except Exception:
+                                pass
+                            if len(results) >= limit:
+                                return results
                             continue
                         stagnant = 0
                         previous = set()
@@ -391,7 +464,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                                     url = canonical_url(link['url'])
                                     if not url or '/in/' not in urlsplit(url).path or not link['title'].strip():
                                         continue
-                                    item = {'url': url, 'title': link['title'].strip().split('\n')[0], 'content': headline}
+                                    item = {'url': url, 'title': link['title'].strip().split('\n')[0], 'content': headline, 'keyword_qualified': True}
                                     if url not in seen and url.lower() not in excluded and _normalize_result(item, domain, 'trainer'):
                                         seen.add(url)
                                         results.append(item)
@@ -428,7 +501,7 @@ async def collect_client_posts(page, context, domain, location, limit):
                 distinct.setdefault(row['url'], row)
         return list(distinct.values())[:limit]
     try:
-        async with asyncio.timeout(50):
+        async with asyncio.timeout(90):
             response = await page.goto(search_url(domain, 'client', location), wait_until='domcontentloaded', timeout=15000)
             if response and response.status in (403, 429):
                 raise ValueError('LinkedIn limited this session.')
@@ -438,16 +511,33 @@ async def collect_client_posts(page, context, domain, location, limit):
             for _ in range(12):
                 before = len(processed)
                 # Inspect each loaded batch, retaining results before scrolling.
-                await read_post_cards(page, context, 'client', len(collected) + 10, collected, processed)
+                try:
+                    await read_post_cards(page, context, 'client', len(collected) + 10, collected, processed)
+                except ValueError:
+                    raise
+                except Exception:
+                    if qualified():
+                        return qualified()
+                    break
                 if len(qualified()) >= limit:
                     return qualified()
                 stagnant = stagnant + 1 if len(processed) == before else 0
                 if stagnant >= 2:
                     break
-                await scroll_results(page, page.locator('[role="listitem"][componentkey^="update-card-focus"]'))
-                await require_session(page)
+                try:
+                    await scroll_results(page, page.locator('[role="listitem"][componentkey^="update-card-focus"]'))
+                    await require_session(page)
+                except ValueError:
+                    raise
+                except Exception:
+                    break
+    except ValueError:
+        raise
     except Exception as exc:
-        raise PartialSearchError(str(exc) or 'Client search reached its time limit.', qualified()) from exc
+        found = qualified()
+        if found:
+            return found
+        raise PartialSearchError(str(exc) or 'Client search reached its time limit.', found) from exc
     return qualified()
 
 
