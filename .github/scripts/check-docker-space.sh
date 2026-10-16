@@ -7,6 +7,13 @@ minimum_inodes="${MIN_DOCKER_FREE_INODES:-50000}"
   echo "Disk thresholds must be positive integers." >&2
   exit 1
 }
+
+# Reclaim only unused Docker build cache and images before checking capacity.
+# Docker will preserve images referenced by containers; never prune containers or volumes.
+echo "Pruning unused Docker build cache and images before checking free space..."
+docker builder prune -af
+docker image prune -af
+
 docker_root="$(docker info --format '{{.DockerRootDir}}')"
 paths=("$docker_root")
 # Docker's containerd image store may live outside DockerRootDir.
@@ -22,7 +29,7 @@ for path in "${paths[@]}"; do
   available_inodes="$(df -Pi "$path" | awk 'NR==2 {print $4}')"
   df -h "$path"
   if (( available_kib < minimum_gib * 1024 * 1024 || available_inodes < minimum_inodes )); then
-    echo "::error::Insufficient Docker storage at $path: need at least ${minimum_gib} GiB and ${minimum_inodes} free inodes. Expand the host disk/filesystem or review unused image/build cache space before rerunning. No containers or volumes have been removed."
+    echo "::error::Insufficient Docker storage at $path: need at least ${minimum_gib} GiB and ${minimum_inodes} free inodes after pruning unused images/cache. Expand the host disk/filesystem or review Docker storage usage. No containers or volumes have been removed."
     exit 1
   fi
 done
