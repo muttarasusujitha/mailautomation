@@ -96,3 +96,15 @@ def test_ollama_provider_never_falls_back_to_cloud_and_defaults_the_url(monkeypa
     assert result['success'] is False and 'Ollama' in result['reply']
     assert ollama.await_args.args[-1] == assistant.DEFAULT_OLLAMA_URL
     cloud.assert_not_called()
+
+
+def test_email_analysis_uses_ollama_in_ollama_mode(monkeypatch):
+    from app.routes import client_intelligence as ci
+    monkeypatch.setattr(ci, 'settings', _settings(OLLAMA_URL='http://ollama/api/generate'))
+    monkeypatch.setattr(ci, '_anthropic_client', lambda: (_ for _ in ()).throw(AssertionError('cloud used')))
+    ollama = AsyncMock(return_value='{"technology": "Python", "urgency": "high"}')
+    monkeypatch.setattr(ci, '_call_ollama', ollama)
+    result = asyncio.run(ci.analyse_email(ci.AnalyseEmailRequest(subject='Python training', body='We need Python training for 20 participants'), None))
+    analysis = result['analysis']
+    assert analysis['extraction_method'] == 'ai' and analysis['technology'] == 'Python'
+    assert ollama.await_args.args[-1] == 'http://ollama/api/generate'

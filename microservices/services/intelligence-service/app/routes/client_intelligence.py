@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from app.config import get_settings
+from app.routes.assistant import _call_ollama, ollama_endpoint, ollama_only_mode
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -91,26 +92,31 @@ async def analyse_email(payload: AnalyseEmailRequest, db: AsyncIOMotorDatabase =
     ai_result: Dict[str, Any] = {}
 
     if payload.use_ai:
-        client = _anthropic_client()
-        if client:
+        prompt = (
+            "Extract a structured training requirement from this email. "
+            "Return ONLY valid JSON with keys: technology, skills (list), domain, "
+            "budget (number or null), duration_days (int or null), num_participants (int or null), "
+            "location, delivery_mode, client_name, client_company, urgency (low/medium/high), "
+            "intent_score (0-1), is_training_request (bool), summary.\n\n"
+            f"Email:\n{text[:4000]}"
+        )
+        client = None if ollama_only_mode(settings) else _anthropic_client()
+        if ollama_only_mode(settings) or client:
             try:
-                prompt = (
-                    "Extract a structured training requirement from this email. "
-                    "Return ONLY valid JSON with keys: technology, skills (list), domain, "
-                    "budget (number or null), duration_days (int or null), num_participants (int or null), "
-                    "location, delivery_mode, client_name, client_company, urgency (low/medium/high), "
-                    "intent_score (0-1), is_training_request (bool), summary.\n\n"
-                    f"Email:\n{text[:4000]}"
-                )
-                msg = await client.messages.create(
-                    model=settings.ANTHROPIC_MODEL, max_tokens=800, temperature=0,
-                    messages=[{"role": "user", "content": prompt}],
-                )
-                raw = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
+                if client is None:
+                    raw = await _call_ollama(
+                        [{"role": "user", "content": prompt}], "Return only valid JSON.",
+                        settings, 800, 0, ollama_endpoint(settings))
+                else:
+                    msg = await client.messages.create(
+                        model=settings.ANTHROPIC_MODEL, max_tokens=800, temperature=0,
+                        messages=[{"role": "user", "content": prompt}],
+                    )
+                    raw = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
                 ai_result = _extract_json(raw)
                 ai_result["extraction_method"] = "ai"
             except Exception as exc:
-                logger.warning("AI analysis failed, using regex: %s", exc)
+                logger.warning("AI analysis failed, using regex: %s: %s", type(exc).__name__, exc)
 
     final = {**regex_result, **{k: v for k, v in ai_result.items() if v is not None}}
 

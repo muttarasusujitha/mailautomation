@@ -124,6 +124,15 @@ async def _call_ollama(
 DEFAULT_OLLAMA_URL = "http://host.docker.internal:11434/api/generate"
 
 
+def ollama_only_mode(settings) -> bool:
+    return str(getattr(settings, "AI_PROVIDER", "openai") or "").strip().lower() == "ollama"
+
+
+def ollama_endpoint(settings) -> str:
+    url = str(getattr(settings, "OLLAMA_URL", "") or "").strip()
+    return url or (DEFAULT_OLLAMA_URL if ollama_only_mode(settings) else "")
+
+
 @router.post("/chat")
 async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     settings = get_settings()
@@ -142,10 +151,8 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
     reply = ""
     error = ""
     # Prefer Ollama when configured, followed by the cloud providers.
-    ollama_only = str(getattr(settings, "AI_PROVIDER", "openai") or "").strip().lower() == "ollama"
-    ollama_url = getattr(settings, "OLLAMA_URL", "").strip()
-    if ollama_only and not ollama_url:
-        ollama_url = DEFAULT_OLLAMA_URL
+    ollama_only = ollama_only_mode(settings)
+    ollama_url = ollama_endpoint(settings)
     if ollama_url:
         try:
             reply = await _call_ollama(
