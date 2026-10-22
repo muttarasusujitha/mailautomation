@@ -15400,6 +15400,7 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
             {"trainer_id": {"$nin": ["", None]}},
             {"source_outbound_mail_type": {"$in": list(TRAINER_REPLY_SOURCE_MAIL_TYPES)}},
             {"status": "needs_manual_review"},
+            {"legacy_client_handoff_retry_checked_at": {"$exists": False}},
             {"auto_send_error": {"$regex": r"(?:502\s+Bad\s+Gateway|Gmail\s+sending\s+quota|Client\s+handoff)", "$options": "i"}},
             retry_due_query,
         ],
@@ -15469,9 +15470,29 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
         and not doc.get("slot_parser_rechecked_at")
         and str(doc.get("source_outbound_mail_type") or "") in TRAINER_REPLY_SOURCE_MAIL_TYPES
     }
+    legacy_handoff_recheck_ids = {
+        doc.get("email_id")
+        for doc in items
+        if doc.get("email_id")
+        and doc.get("status") == "needs_manual_review"
+        and not doc.get("legacy_client_handoff_retry_checked_at")
+        and str(doc.get("source_outbound_mail_type") or "") in TRAINER_REPLY_SOURCE_MAIL_TYPES
+        and re.search(
+            r"(?:502\s+Bad\s+Gateway|Gmail\s+sending\s+quota|Client\s+handoff)",
+            str(doc.get("auto_send_error") or ""),
+            flags=re.IGNORECASE,
+        )
+    }
     results = []
     for doc in items:
-        result = await _process_client_requirement_email(db, doc)
+        try:
+            result = await _process_client_requirement_email(db, doc)
+        finally:
+            if doc.get("email_id") in legacy_handoff_recheck_ids:
+                await db["client_emails"].update_one(
+                    {"email_id": doc.get("email_id")},
+                    {"$set": {"legacy_client_handoff_retry_checked_at": _now()}},
+                )
         results.append(result)
         if doc.get("email_id") in recheck_email_ids:
             await db["client_emails"].update_one(
