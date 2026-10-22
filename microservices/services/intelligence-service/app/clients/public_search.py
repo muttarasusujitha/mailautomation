@@ -368,7 +368,13 @@ async def search_public_many(queries, limit=50, allowed_domains=None):
             timeouts = 0
         else:
             timeouts = 0
-    if not found and timeouts < 2 and challenges < 3 and queries:
-        found.extend(await _search_bing(queries[0], limit, domains))
+    # A DuckDuckGo challenge is not a reason to skip the independent Bing
+    # fallback. Try the remaining query variants as well; this matters for
+    # Naukri, where one narrow path-specific query often has no indexed hits.
+    if not found and timeouts < 2 and queries:
+        for query in queries:
+            if len(found) >= limit:
+                break
+            found.extend(await _search_bing(query, limit - len(found), domains))
     kept = found[:limit]
     return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0)

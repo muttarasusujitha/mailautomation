@@ -47,12 +47,12 @@ def public_profile_queries(skill, location=""):
     location = " ".join(str(location or "").split())
     if not skill:
         return []
-    suffix = f' "{location}"' if location else ""
+    suffix = f" {location}" if location else ""
     return [
-        f'site:naukri.com/resume "{skill}"{suffix}',
-        f'site:naukri.com/profile "{skill}"{suffix}',
-        f'site:naukri.com/candidate "{skill}"{suffix}',
-        f'site:naukri.com "{skill}" "profile summary"{suffix}',
+        f"site:naukri.com/resume {skill}{suffix}",
+        f"site:naukri.com/profile {skill}{suffix}",
+        f"site:naukri.com/candidate {skill}{suffix}",
+        f"site:naukri.com {skill} profile{suffix}",
     ]
 
 
