@@ -75,7 +75,7 @@ services:
 
   core-api:
     container_name: ts-core-api
-    image: ghcr.io/muttarasusujitha/trainersync/core-api:latest
+    image: trainersync-core-shortlist-fix:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -93,7 +93,7 @@ services:
 
   email-service:
     container_name: ts-email-service
-    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
+    image: trainersync-email-slot-validation-fix:local
     build:
       context: ..
       dockerfile: microservices/services/email-service/Dockerfile
@@ -136,7 +136,7 @@ services:
 
   trainer-service:
     container_name: ts-trainer-service
-    image: ghcr.io/muttarasusujitha/trainersync/trainer-service:latest
+    image: trainersync-trainer-resume-fix:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -168,6 +168,11 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - linkedin_bot_profile:/data/linkedin-bot-profile
+      - ./services/intelligence-service/app/routes/trainer_profile_leads.py:/app/app/routes/trainer_profile_leads.py:ro
+      - ./services/intelligence-service/app/routes/free_search.py:/app/app/routes/free_search.py:ro
+      - ./services/intelligence-service/app/clients/public_search.py:/app/app/clients/public_search.py:ro
+      - ./services/intelligence-service/app/clients/naukri_public_search.py:/app/app/clients/naukri_public_search.py:ro
+      - ./services/intelligence-service/app/config.py:/app/app/config.py:ro
     shm_size: "1gb"
     expose:
       - "8005"
@@ -180,7 +185,7 @@ services:
 
   document-service:
     container_name: ts-document-service
-    image: ghcr.io/muttarasusujitha/trainersync/document-service:latest
+    image: trainersync-document-autohandoff-fix:local
     <<: *service-defaults
     environment:
       <<: *common-env

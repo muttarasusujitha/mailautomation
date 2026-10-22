@@ -541,8 +541,9 @@ def _term_matches(terms: List[str], text: str) -> List[str]:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    if trainer.get("needs_review") is True:
-        return None
+    # Resume extraction status is informational.  A valid ranked match enters
+    # the automated outreach workflow without a manual approval gate.
+    profile_review_required = False
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -643,6 +644,9 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     public["score_breakdown"] = breakdown
     public["match_quality"] = _quality(public["match_score"])
     public["recommended_next_action"] = "Contact trainer and confirm availability"
+    public["profile_review_required"] = profile_review_required
+    if profile_review_required:
+        public["recommended_next_action"] = "Review the uploaded profile before contacting this trainer"
     return public
 
 
@@ -674,9 +678,8 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timeline_end"] = _clean(data.get("timeline_end"))
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
-    # Every service keeps the same trainer result size.
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    data["top_n"] = TRAINER_RESULT_TARGET
+    # Shortlist and Shortlist1 use the five highest ranked candidates.
+    data["top_n"] = 5
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     source_text = " ".join(
@@ -834,8 +837,8 @@ async def _build_shortlist_for_requirement(
         reverse=True,
     )
 
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    top_trainers = scored[:TRAINER_RESULT_TARGET]
+    # Store the five highest ranked candidates in Shortlist/Shortlist1.
+    top_trainers = scored[:5]
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
     old_by_id = {
         _clean(trainer.get("trainer_id")): trainer
@@ -844,10 +847,15 @@ async def _build_shortlist_for_requirement(
     }
     for index, trainer in enumerate(top_trainers, start=1):
         trainer["rank"] = index
-        trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
         old = old_by_id.get(_clean(trainer.get("trainer_id")))
         if old:
             trainer.update(_merge_pipeline_state(trainer, old))
+        if trainer.get("profile_review_required"):
+            trainer["pipeline_status"] = "profile_review"
+        elif _clean(trainer.get("pipeline_status")).lower() == "profile_review":
+            trainer["pipeline_status"] = "shortlisted"
+        else:
+            trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
 
     now = datetime.utcnow()
     warnings = [] if all_trainers else ["No trainers available in database."]
@@ -914,6 +922,7 @@ async def _build_shortlist_for_requirement(
         {"$set": {
             "total_matched": len(scored),
             "top_count": len(top_trainers),
+            "top_n": len(top_trainers),
             "updated_at": now,
         }},
     )
@@ -1031,6 +1040,51 @@ async def list_commercial_analyses(
     async for doc in cursor:
         items.append(await _requirement_analysis(db, doc))
     return {"items": items, "total": len(items)}
+
+
+@router.post("/{req_id}/refresh-shortlist")
+async def refresh_shortlist(
+    req_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Re-rank this requirement after trainer records are added or updated."""
+    requirement = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    shortlist = await _build_shortlist_for_requirement(db, requirement)
+    return {
+        "requirement_id": requirement.get("requirement_id") or req_id,
+        "total_trainers_scanned": shortlist.get("total_trainers_scanned", 0),
+        "total_available": shortlist.get("total_available", 0),
+        "total_matched": shortlist.get("total_matched", 0),
+        "top_trainers": shortlist.get("top_trainers", []),
+        "pipeline_summary": shortlist.get("pipeline_summary", {}),
+    }
+
+
+@router.post("/{req_id}/trainers/{trainer_id}/approve-profile")
+async def approve_shortlisted_trainer_profile(
+    req_id: str,
+    trainer_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Approve an extracted profile before any trainer outreach can begin."""
+    requirement = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0, "requirement_id": 1})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0, "trainer_id": 1})
+    if not trainer:
+        raise HTTPException(404, "Trainer not found")
+    await db["trainers"].update_one(
+        {"trainer_id": trainer_id},
+        {"$set": {"needs_review": False, "profile_reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
+    )
+    shortlist = await _build_shortlist_for_requirement(db, requirement)
+    return {
+        "success": True,
+        "requirement_id": requirement.get("requirement_id") or req_id,
+        "top_trainers": shortlist.get("top_trainers", []),
+    }
 
 
 @router.get("/{req_id}")
@@ -1179,8 +1233,7 @@ async def update_requirement(
             raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
         data["generation_mode"] = generation_mode
     if "top_n" in data:
-        from shared.trainer_targets import TRAINER_RESULT_TARGET
-        data["top_n"] = TRAINER_RESULT_TARGET
+        data["top_n"] = 5
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
         data = _normalise_requirement_payload(data, current)
     data.pop("_id", None)

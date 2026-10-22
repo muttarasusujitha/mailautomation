@@ -51,6 +51,34 @@ def proposal_offer(requirement, trainer=None):
             "margin_percent": margin}
 
 
+def shortlist_proposal_offer(requirement, trainer=None):
+    """Clahan-selected trainer offer for proposals entered through Shortlist.
+
+    Proposal markup pricing is separate from confirmed-batch 70/30 shares.
+    The trainer rate is constrained to INR 15,000-16,000/day, and the client
+    rate is exactly 30% above that Clahan-set amount.
+    """
+    trainer = trainer or {}
+    rate = positive_number(trainer.get("clahan_offer_per_day")) or positive_number(requirement.get("clahan_offer_per_day"))
+    tier = str(trainer.get("clahan_skill_tier") or requirement.get("clahan_skill_tier") or "standard").lower()
+    if rate is None:
+        if tier not in {"standard", "advanced", "specialist"}:
+            raise ValueError("Clahan skill tier must be standard, advanced, or specialist")
+        rate = {"standard": 15000, "advanced": 15500, "specialist": 16000}[tier]
+    if not 15000 <= rate <= 16000:
+        raise ValueError("Shortlist proposal trainer offer must be between INR 15,000 and INR 16,000 per day")
+    days = commercial_days(requirement)
+    trainer_amount = rate * days if days else rate
+    total = bool(days)
+    return {"trainer_amount": trainer_amount,
+            "client_amount": trainer_amount * 1.30,
+            "trainer_daily_rate": rate,
+            "client_daily_rate": rate * 1.30,
+            "days": days,
+            "basis": "total engagement" if total else "per training day",
+            "margin_percent": 30}
+
+
 def trainer_offer(requirement, trainer=None):
     """Return both trainer daily rate and total where duration is known."""
     batch = str(requirement.get("batch_flow") or requirement.get("batch_type") or "").lower()

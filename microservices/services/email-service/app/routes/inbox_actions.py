@@ -49,6 +49,7 @@ def writing_guidance(voice: str = ANNAPURNA) -> str:
         "'revert', 'as applicable', 'accordingly', 'concerned team', or 'we look forward'. "
         "Do not join two ideas with a slash, such as discussion/interview or profile/CV. "
         "Do not add unrelated services, emotional claims, or unsupported next steps. "
+        "Never mention internal notes, internal workflow, internal defaults, calculations, rates, margins, or private team discussion. "
         "Do not force synonyms just for variety. Each sentence must answer the message or convey a necessary "
         "next step. Check what is already supplied, what is still missing, and whose action is needed. "
         "Ask only for missing information the recipient can provide. Once complete, stop. "
@@ -123,7 +124,7 @@ def _structure_email_draft(body: str, sender_name: str = "", voice: str = ANNAPU
         signature = signature_for(voice)
     if not text:
         return ""
-    return f"{opening}\n\n{text}\n\n{signature}"
+    return apply_voice(f"{opening}\n\n{text}\n\n{signature}", voice)
 
 PENDING_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
 LAB_COST_DEFAULT_PARTICIPANTS = 1
@@ -880,6 +881,13 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
     # client instead of being silently replaced by a costing default.
     if known_inputs.get("participant_count"):
         known_inputs["participant_count_source"] = "client"
+    # Use the agreed standard lab-access window when the client has not
+    # specified one. A later client reply always replaces this baseline.
+    if not known_inputs.get("hours_per_day"):
+        known_inputs["hours_per_day"] = 3
+        known_inputs["hours_per_day_source"] = "default"
+    else:
+        known_inputs["hours_per_day_source"] = "client"
     if not known_inputs.get("duration_days"):
         known_inputs["duration_days"] = LAB_COST_DEFAULT_DURATION_DAYS
         known_inputs["duration_days_source"] = "default"
@@ -1097,7 +1105,11 @@ async def _load_reply_workflow_context(
                 recent_client_replies.append(str(prior_reply).strip()[:900])
 
         from app.agents.reply_wording import recent_sent_replies
-        sent_bodies = await recent_sent_replies(db, sender_email)
+        current_topic = (
+            extracted.get("technology_needed") or extracted.get("technology")
+            or extracted.get("domain") or subject
+        )
+        sent_bodies = await recent_sent_replies(db, sender_email, topic=current_topic)
         recent_client_replies = list(dict.fromkeys(sent_bodies + recent_client_replies))[:10]
 
     trainer_summaries = []
@@ -1175,6 +1187,11 @@ async def _load_reply_workflow_context(
             },
         },
         "document_delivery": _client_document_delivery_context(doc, extracted),
+        "current_reply_scope": {
+            "technology_or_domain": extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain") or "",
+            "requirement_id": requirement_id,
+            "rule": "This sender may have several unrelated requirements. Use facts only from the current technology/domain and requirement; do not carry dates, participants, trainer details, or wording from another thread.",
+        },
         "lab_cost": _lab_request_context(body, extracted),
         "recent_replies_to_this_sender": recent_client_replies,
     }
@@ -1397,7 +1414,8 @@ async def _ai_draft_reply(
         f"Incoming email body:\n{body[:6000]}"
         + (f"\n\nAdditional instruction:\n{hint}" if hint else "")
         + "\n\nWriting requirement: " + guidance +
-        "Reply to the latest message in plain, natural language. "
+        "Reply to the latest message in plain, natural language. The sender may have multiple unrelated training requirements. "
+        "Use the current technology/domain and current requirement only; treat older replies about another domain as unrelated. "
         "A receipt-only acknowledgement needs just one brief sentence. A direct question needs its answer; "
         "several questions need each answer. Stop when those needs are met, then the signature from the writing rules. "
         "Remove generic offers of further help and anticipation. Do not add 'shortly', 'soon', or any other "

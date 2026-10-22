@@ -730,7 +730,8 @@ def check_gmail_api_replies(
         else:
             query_parts.append(
                 '("training requirement" OR "trainer requirement" OR "requirement for" OR '
-                '"please share suitable trainer" OR "trainer profiles" OR "commercials" OR "TOC")'
+                '"please share suitable trainer" OR "trainer profiles" OR "commercials" OR "TOC" OR '
+                'interview OR selected OR approved OR proceed OR rejected OR availability OR slot)'
             )
         query = " ".join(query_parts)
 

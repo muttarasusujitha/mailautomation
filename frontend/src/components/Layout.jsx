@@ -43,9 +43,9 @@ const NAV_GROUPS = [
       { to: '/client-mail-pipeline', label: 'Client Pipeline',  icon: Kanban,            keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
       { to: '/invoices',             label: 'Invoices',         icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
       { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['purchase order','purchase orders','generate po','po generator'] },
+      { to: '/finance-approvals',    label: 'PO PDF Approvals', icon: ClipboardCheck,    keywords: ['po pdf','finance approvals','purchase order approval','client po review'] },
     ],
     more: [
-      { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Linkedin, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
     ],
   },
   {

@@ -25,7 +25,7 @@ def _reply(scenario):
     )
 
 
-def test_professional_requirement_thanks_keeps_thank_you():
+def test_professional_requirement_thanks_keeps_a_direct_acknowledgement():
     from app.agents.natural_voice import apply_voice
 
     kept = apply_voice(
@@ -44,13 +44,14 @@ def test_professional_requirement_thanks_keeps_thank_you():
         "Thanks,\nAnnapurna U.\nClahan Technologies"
     )
     assert prefixed.startswith("Hi Asha,")
-    assert "Greetings of the day! Thanks for sharing the ToC request" in prefixed
+    assert "Greetings of the day" not in prefixed
+    assert "Thanks for sharing the ToC request" in prefixed
 
 
 def test_coordination_template_uses_annapurna():
     reply = _reply("client_sent_details")
     assert reply["body"].startswith("Hi Asha,")
-    assert "Thank you for" in reply["body"]
+    assert "Thanks for sharing the DevOps requirement." in reply["body"]
     assert "DevOps" in reply["body"]
     assert "Greetings of the day" not in reply["body"]
     assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
@@ -90,7 +91,8 @@ def test_toc_and_lab_cost_is_one_annapurna_reply():
     )
     assert choose_voice(reply["template_key"]) == "annapurna"
     assert reply["body"].startswith("Hi Asha,")
-    assert "Greetings of the day! Thanks for sharing the ToC and lab-cost request" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "Thanks for sharing the ToC and lab-cost request" in reply["body"]
     assert "day-wise ToC" in reply["body"]
     assert "lab-cost estimate" in reply["body"]
     assert "Both are covered in this one mail." in reply["body"]

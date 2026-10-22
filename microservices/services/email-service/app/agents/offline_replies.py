@@ -73,6 +73,7 @@ _SECRET_PHRASES = (
     re.compile(r"(?i)\b1 participant(?:s)?\b"),
     re.compile(r"(?i)\b(?:api[_ ]?key|openai[_ ]?key|sk-[A-Za-z0-9]{8,})\b"),
     re.compile(r"(?i)\b(?:mailbox|smtp|imap)\s+password\b"),
+    re.compile(r"(?i)\binternal (?:default|assumption|calculation|rate|margin|allocation)s?\b"),
 )
 
 
@@ -153,7 +154,10 @@ def client_secret_kinds(question: str) -> List[str]:
 
 
 def _refusal_sentence(kinds: List[str]) -> str:
-    items = list(dict.fromkeys(kinds))
+    # The recipient needs a clear boundary, never the name of an internal
+    # rule or data source that they asked us to reveal.
+    outward_names = {"internal defaults": "private information"}
+    items = list(dict.fromkeys(outward_names.get(kind, kind) for kind in kinds))
     if not items:
         return ""
     if len(items) == 1:
@@ -286,7 +290,7 @@ def guard_client_body(body: str, question: str, extracted: Optional[Dict[str, An
             forbidden.append(fx)
     cleaned = _drop_secret_sentences(body, forbidden, [])
     if cleaned:
-        return cleaned
+        return apply_voice(cleaned, ANNAPURNA)
     if any(pattern.search(body or "") for pattern in _SECRET_PHRASES):
         return ""
     return _text(body)

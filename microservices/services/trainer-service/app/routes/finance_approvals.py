@@ -1,11 +1,13 @@
 """Separate finance approval queue for client PO and invoice requests."""
 import base64
+import re
 import uuid
 from datetime import datetime
 from typing import Any, Dict, Optional
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
@@ -41,6 +43,33 @@ async def list_finance_approvals(db: AsyncIOMotorDatabase = Depends(get_db)):
     return {"approvals": rows, "pending": sum(1 for row in rows if row.get("status") == "pending_human_approval")}
 
 
+@router.get("/approvals/{finance_id}/source-document")
+async def get_approval_source_document(finance_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    approval = await db["finance_approvals"].find_one(
+        {"finance_id": finance_id}, {"_id": 0, "source_email_id": 1, "attachment_names": 1},
+    )
+    if not approval:
+        raise HTTPException(404, "Finance approval not found")
+    source = await db["client_emails"].find_one(
+        {"email_id": approval.get("source_email_id")}, {"_id": 0, "attachments": 1},
+    ) or {}
+    for attachment in source.get("attachments") or []:
+        filename = str(attachment.get("filename") or "purchase-order.pdf")
+        encoded = attachment.get("content_base64") or ""
+        if filename.lower().endswith(".pdf") and encoded:
+            try:
+                content = base64.b64decode(encoded, validate=True)
+            except Exception:
+                continue
+            safe_filename = re.sub(r"[^A-Za-z0-9._-]+", "_", filename).strip("._") or "purchase-order.pdf"
+            return Response(
+                content=content,
+                media_type="application/pdf",
+                headers={"Content-Disposition": f'inline; filename="{safe_filename}"'},
+            )
+    raise HTTPException(404, "No captured PDF is available on the source email")
+
+
 @router.post("/approvals/{finance_id}/reject")
 async def reject_finance_approval(finance_id: str, payload: FinanceRejectRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     result = await db["finance_approvals"].update_one(
@@ -66,14 +95,22 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
         raise HTTPException(404, "Pending finance approval not found")
     approval = await db["finance_approvals"].find_one({"finance_id": finance_id}, {"_id": 0}) or {}
     now = datetime.utcnow()
-    po_id, invoice_id = f"PO-{uuid.uuid4().hex[:10].upper()}", f"INV-{uuid.uuid4().hex[:10].upper()}"
+    existing_invoice = await db["invoices"].find_one(
+        {"source_finance_id": finance_id}, {"_id": 0, "invoice_id": 1, "po_id": 1},
+    ) or {}
+    po_id = existing_invoice.get("po_id") or f"PO-{uuid.uuid4().hex[:10].upper()}"
+    invoice_id = existing_invoice.get("invoice_id") or f"INV-{uuid.uuid4().hex[:10].upper()}"
     item = {"description": payload.description, "quantity": 1, "rate": payload.total_amount, "amount": payload.total_amount}
     gst_amount = round(payload.total_amount * payload.gst_rate / 100, 2)
     grand_total = round(payload.total_amount + gst_amount, 2)
     po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": payload.total_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": [item], "status": "approved", "source_finance_id": finance_id, "created_at": now, "updated_at": now}
     invoice = {"invoice_id": invoice_id, "invoice_number": invoice_id, "po_id": po_id, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_address": payload.billing_address, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_gstin": payload.gstin, "total_amount": payload.total_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": [item], "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"), "due_date": payload.due_date, "commercials": {"subtotal": payload.total_amount, "gst_rate": payload.gst_rate, "gst_amount": gst_amount, "grand_total": grand_total}, "balance_due": grand_total, "status": "draft", "source_finance_id": finance_id, "created_at": now, "updated_at": now}
-    await db["purchase_orders"].insert_one(po)
-    await db["invoices"].insert_one(invoice)
+    await db["purchase_orders"].update_one(
+        {"source_finance_id": finance_id}, {"$set": po, "$setOnInsert": {"created_at": now}}, upsert=True,
+    )
+    await db["invoices"].update_one(
+        {"source_finance_id": finance_id}, {"$set": invoice, "$setOnInsert": {"created_at": now}}, upsert=True,
+    )
     doc_url, email_url = settings.DOCUMENT_SERVICE_URL.rstrip("/"), settings.EMAIL_SERVICE_URL.rstrip("/")
     try:
         async with httpx.AsyncClient(timeout=60) as client:
@@ -102,13 +139,6 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
 
 
 def _db_collection(db, name: str):
-    getter = getattr(db, "get", None)
-    if callable(getter):
-        found = getter(name)
-        if found is not None:
-            return found
-        if isinstance(db, dict):
-            return None
     try:
         return db[name]
     except Exception:

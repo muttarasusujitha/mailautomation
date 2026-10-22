@@ -142,6 +142,7 @@ export const getVoiceAINotes = (params = {}) => api.get('/voice-ai/notes', { par
 export const getVoiceAITasks = (params = {}) => api.get('/voice-ai/tasks', { params })
 export const getRequirements   = (params = {}) => api.get('/requirements', { params: { page_size: 100, ...params } })
 export const getRequirement    = (id)     => api.get(`/requirements/${id}`)
+export const refreshShortlist  = (id)     => api.post(`/requirements/${id}/refresh-shortlist`)
 export const getCommercialAnalyses = (params = {}) => api.get('/requirements/analysis/commercial', { params })
 export const getCommercialAnalysis = (id) => api.get(`/requirements/${id}/commercial-analysis`)
 export const getAgentRoles = () => api.get('/agent-orchestrator/roles')

@@ -1,6 +1,6 @@
 ﻿import { mail1Template, mail2FollowupTemplate, mail3Template, mail3SlotClarificationTemplate, mail3TooManySlotsTemplate, mail4Template, mail5SelectedTemplate, mail5RejectedTemplate, mailTrainingConfirmedTemplate } from '../utils/workflowTemplates'
 import { useState, useEffect, useRef } from 'react'
-import { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
+import { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, refreshShortlist, updateRequirement } from '../utils/api'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 import {
@@ -104,6 +104,7 @@ function sendMailError(result = {}, fallback = 'Email delivery failed') {
 }
 
 const STAGES = {
+  profile_review:       { label: 'Profile Review Required', color: 'bg-amber-100 text-amber-800', step: 0 },
   pending:              { label: 'Pending',               color: 'bg-slate-100 text-slate-500',     step: 0 },
   mail1_sent:           { label: '1st Mail Sent Ã°Å¸â€œÂ§',      color: 'bg-blue-100 text-blue-700',       step: 1 },
   waiting_reply1:       { label: 'Waiting for Reply Ã¢ÂÂ³',  color: 'bg-sky-100 text-sky-700',         step: 1 },
@@ -261,6 +262,7 @@ const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'stopped_selected',
   'role_filled',
   'requirement_filled',
+  'interview_scheduled',
   'selected',
   'toc_requested',
   'toc_received_pending',
@@ -306,6 +308,31 @@ function normalizePipelineStage(value = '') {
 function resolveTrainerStage(trainer, req, state) {
   const authoritative = backendAuthoritativeStage(trainer, req)
   const stateStage = normalizePipelineStage(state?.status)
+  const trainerStage = String(trainer?.pipeline_status || trainer?.status || '').trim().toLowerCase()
+  const lastMailType = String(trainer?.last_mail_type || trainer?.last_automation_mail_type || '').trim().toLowerCase()
+  const downstreamState = new Set([
+    'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed',
+    'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent',
+  ])
+  if (authoritative && authoritative !== 'interview_scheduled') return authoritative
+
+  const hasInterviewDetails = Boolean(
+    trainer?.interview_date || trainer?.interview_at || trainer?.interview_link || trainer?.meet_link
+  )
+  const interviewScheduledFlag = trainer?.interview_scheduled === true ||
+    String(trainer?.interview_scheduled || '').trim().toLowerCase() === 'true'
+  const hasScheduledInterview = hasInterviewDetails && (
+    interviewScheduledFlag ||
+    trainerStage === 'interview_scheduled' ||
+    lastMailType === 'mail4' ||
+    String(trainer?.slot_status || '').trim().toLowerCase() === 'interview_link_sent'
+  )
+  if (
+    hasScheduledInterview &&
+    !['rejected', 'declined', 'interview_reschedule_requested', 'reschedule_waiting_trainer'].includes(trainerStage) &&
+    !downstreamState.has(stateStage)
+  ) return 'interview_scheduled'
+
   if (authoritative) return authoritative
 
   if (stateStage && stateStage !== 'pending') return stateStage
@@ -2817,7 +2844,7 @@ export default function Shortlist() {
     setTrainers([])
     getShortlist(selectedReq.requirement_id)
       .then(r => {
-        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 3)
+        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 5)
         setTrainers(list)
         const saved = getLS(`sl_v5_${selectedReq.requirement_id}`) || {}
         const merged = { ...saved }
@@ -2839,7 +2866,7 @@ export default function Shortlist() {
       .finally(() => setLoadingTrainers(false))
   }, [selectedReq])
 
-  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS)
+  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS, 5)
 
   const handleStatusUpdate = (trainerId, newStage, extra = {}) => {
     setStates(prev => {
@@ -2922,10 +2949,15 @@ export default function Shortlist() {
   const reload = () => {
     if (!selectedReq) return
     setLoadingTrainers(true)
-    getShortlist(selectedReq.requirement_id)
+    refreshShortlist(selectedReq.requirement_id)
       .then(r => {
-        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 3)
+        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 5)
         setTrainers(list)
+        setSelectedReq(previous => previous ? {
+          ...previous,
+          top_count: Number(r.data.total_matched || 0),
+          total_matched: Number(r.data.total_matched || 0),
+        } : previous)
         setStates(prev => {
           const next = { ...prev }
           list.forEach(trainer => {
@@ -3168,7 +3200,7 @@ export default function Shortlist() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-sm truncate text-slate-800">{r.technology_needed}</p>
-                      <p className="text-xs text-slate-400">{r.requirement_id} Ã‚Â· Top {r.top_n}</p>
+                      <p className="text-xs text-slate-400">{r.requirement_id} Ã‚Â· {Number(r.top_count ?? r.total_matched ?? r.top_n) || 0} matched</p>
                     </div>
                     <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
                   </div>
@@ -3207,7 +3239,7 @@ export default function Shortlist() {
                 Shortlisted for: <span className="text-blue-600">{selectedReq.technology_needed}</span>
               </h2>
               <div className="flex flex-wrap gap-3 mt-2">
-                <p className="text-xs text-slate-400">{selectedReq.requirement_id} Ã‚Â· Top {selectedReq.top_n}</p>
+                <p className="text-xs text-slate-400">{selectedReq.requirement_id} Ã‚Â· {Number(selectedReq.top_count ?? selectedReq.total_matched ?? trainers.length) || 0} matched</p>
                 {(() => {
                   const dateDisplay = formatRequirementSchedule(selectedReq)
                   return (

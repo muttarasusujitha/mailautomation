@@ -653,6 +653,12 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     client_lab_markup_percent = values["clahan_margin_percent"]
     if client_lab_markup_percent > 100:
         raise ValueError("client_lab_markup_percent cannot exceed 100")
+    # Keep the markup factor out of visible client cells and the formula bar.
+    # The client sees only the resulting estimate on the Client Estimate sheet.
+    assumptions_ws["A20"] = "Client adjustment factor"
+    assumptions_ws["B20"] = client_lab_markup_percent / 100
+    assumptions_ws["B20"].number_format = "0%"
+    assumptions_ws.row_dimensions[20].hidden = True
 
     # The supplied template owns the entire visual structure.  Replace only
     # its example mapping rows with one accurately mapped row per ToC day.
@@ -1011,7 +1017,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # The final client quote includes the configured uplift, but its internal
     # commercial composition is never displayed in the client workbook.
     workbook["Client Estimate"]["A12"] = "Final estimated cost"
-    workbook["Client Estimate"]["B12"] = f"=SUM(B8:B11)*(1+{client_lab_markup_percent / 100:g})"
+    workbook["Client Estimate"]["B12"] = "=SUM(B8:B11)*(1+'Assumptions'!B20)"
     workbook["Client Estimate"]["B13"] = "=B12/Assumptions!B9"
     workbook["Client Estimate"]["A17"] = (
         "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "
@@ -1627,7 +1633,10 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else payload
     from shared.toc_quality import toc_delivery_error
     error = toc_delivery_error(toc)
-    if error:
+    # A generated agenda may be shared as a proposed scope during the
+    # automated trainer/client handoff. Its later delivery review must not
+    # prevent preparing the corresponding draft lab workbook.
+    if error and payload.get("draft") is not True:
         raise HTTPException(422, error)
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
     from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
@@ -1650,6 +1659,7 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         for key in ("fx_rate", "fx_rate_source", "fx_rate_date", "fx_rate_fetched_at"):
             assumptions.pop(key, None)
         assumptions = validate_lab_cost_inputs(assumptions, require_fx=False)
+        assumptions["allow_incomplete_draft"] = payload.get("draft") is True
         # Match the trainer-service rule: a fully local course cannot inherit
         # default cloud egress, build-runner, or monitoring charges.
         from shared.lab_planning import local_only_delivery

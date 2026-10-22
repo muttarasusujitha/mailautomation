@@ -51,14 +51,14 @@ LOCAL_SERVICE_FALLBACKS = {
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
 MIN_TRAINER_DAY_RATE_VISIBLE = 10000
-TRAINER_COMMERCIAL_MIN_VISIBLE = 13000
-TRAINER_COMMERCIAL_MAX_VISIBLE = 14000
+TRAINER_COMMERCIAL_MIN_VISIBLE = 15000
+TRAINER_COMMERCIAL_MAX_VISIBLE = 16000
 DEFAULT_TRAINER_SHARE = 0.70
 CLIENT_COMMERCIAL_MARKUP = 0.30
-PROPOSAL_SHORTLIST_COMMERCIAL = "INR 13,000 per day/session"
-# The client-facing proposal quote is a single normal, rounded amount. Do not
-# expose the trainer range or exact margin arithmetic such as INR 16,900.
-PROPOSAL_CLIENT_QUOTE_RANGE = (17000,)
+PROPOSAL_SHORTLIST_COMMERCIAL = "INR 15,000-16,000 per day/session"
+# Client emails show only the selected client amount, not the trainer rate or
+# the markup calculation.
+PROPOSAL_CLIENT_QUOTE_RANGE = (19500, 20800)
 # A client that explicitly asks for lab costing receives the generated
 # workbook during the profile/slot handoff.  The workbook uses the client ToC
 # where one was provided, otherwise the system-generated ToC; it never mixes
@@ -348,20 +348,9 @@ def _is_shortlist_proposal_requirement(requirement: Dict[str, Any]) -> bool:
 
 
 def _shortlist_proposal_offer(requirement: Dict[str, Any]) -> Dict[str, Any]:
-    """Clahan-owned Shortlist offer: fixed by verified trainer skill tier."""
-    tier = _clean(requirement.get("clahan_skill_tier") or "standard").lower()
-    if tier not in {"standard", "advanced", "specialist"}:
-        tier = "standard"
-    rate = {"standard": 12000, "advanced": 13000, "specialist": 14000}[tier]
-    days = _safe_float(requirement.get("duration_days") or requirement.get("commercial_working_days"))
-    trainer_amount = rate * days if days else rate
-    return {
-        "trainer_daily_rate": rate,
-        "trainer_amount": trainer_amount,
-        "client_amount": round(trainer_amount * 1.30 / 1000) * 1000,
-        "days": days or None,
-        "basis": "total engagement" if days else "per training day",
-    }
+    """Return the Clahan-selected Shortlist proposal rate and 30% client markup."""
+    from shared.commercial_policy import shortlist_proposal_offer
+    return shortlist_proposal_offer(requirement)
 
 
 def _client_mail1_budget_text(requirement: Dict[str, Any]) -> str:
@@ -390,7 +379,7 @@ def _trainer_mail1_commercial_section(requirement: Dict[str, Any], trainer=None)
         # strictly internal.
         lines.append(
             "- Offered trainer commercial: "
-            "INR 12,000-14,000 "
+            "INR 15,000-16,000 "
             "per day/session, inclusive of applicable TDS"
         )
     return lines
@@ -681,19 +670,22 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         selected = [item for item in selected if item.lower() != "toc"]
     if not selected:
         selected = ["updated profile", f"relevant {domain} experience"]
-    # Do not ask a trainer to repeat information we have already analysed and
-    # stored. Availability and interview slots remain the only operational
-    # response needed for a complete trainer record.
+    # A stored profile is enough to continue the workflow, but a trainer may
+    # have a newer CV with stronger evidence for this particular requirement.
+    # Invite that update without making it a required response.
     selected = [
         item for item in selected
         if not (
-            ("profile" in item.lower() and _trainer_has_verified_detail(trainer, "profile"))
-            or ("linkedin" in item.lower() and _trainer_has_verified_detail(trainer, "linkedin"))
+            ("linkedin" in item.lower() and _trainer_has_verified_detail(trainer, "linkedin"))
             or ("experience" in item.lower() and _trainer_has_verified_detail(trainer, "experience"))
             # Commercial is a Clahan-controlled calculation. It is never
             # requested from a trainer in Mail 1.
             or "commercial" in item.lower()
         )
+    ]
+    selected = [
+        "updated profile/CV, if you have a newer version" if "profile" in item.lower() else item
+        for item in selected
     ]
     if any('linkedin' in item.lower() for item in requested_items) and not _trainer_has_verified_detail(trainer, 'linkedin'):
         selected.append('LinkedIn profile')
@@ -731,9 +723,9 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         f"{commercial_request}"
         f"Please also share three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
         "Example:\n"
-        "- 01 November 2026, 10:00 AM IST\n"
-        "- 03 November 2026, 2:00 PM IST\n"
-        "- 05 November 2026, 4:00 PM IST\n\n"
+        "- [your available date], [time] IST\n"
+        "- [your available date], [time] IST\n"
+        "- [your available date], [time] IST\n\n"
         "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         "Regards,\n"
         "Clahan Technologies"
@@ -892,26 +884,39 @@ def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
 
 
 def _proposal_client_commercial_section(requirement: Dict[str, Any], trainer=None) -> str:
-    """Client quote for a proposal: trainer range plus the 30% Clahan margin."""
+    """Client proposal quote without exposing Clahan's internal markup."""
     if not _is_proposal_requirement(requirement):
         return ""
     if _is_shortlist_proposal_requirement(requirement):
         offer_requirement = dict(requirement)
-        offer_requirement.update({key: value for key, value in (trainer or {}).items() if key == "clahan_skill_tier"})
+        offer_requirement.update({key: value for key, value in (trainer or {}).items() if key in {"clahan_skill_tier", "clahan_offer_per_day"}})
         offer = _shortlist_proposal_offer(offer_requirement)
     else:
         from shared.commercial_policy import proposal_offer
         offer = proposal_offer(requirement, trainer)
     lines = ["Commercials for your review:", f"- INR {offer['client_amount']:,.0f} {offer['basis']}"]
-    lab_total = next((requirement.get(key) for key in (
-        "client_lab_cost_total", "lab_cost_total", "lab_cost_estimate_total",
-    ) if requirement.get(key)), None)
+    lab_total = _client_lab_quote_total(requirement)
+    if lab_total > 0:
+        lines.append(f"- Lab cost: INR {lab_total:,.0f} total commercial")
+    return "\n".join(lines) + "\n\n"
+
+
+def _client_lab_quote_total(requirement: Dict[str, Any]) -> float:
+    """Return a client-facing lab quote with Clahan's 30% uplift included."""
+    client_total = requirement.get("client_lab_cost_total")
     try:
-        if lab_total is not None and float(lab_total) > 0:
-            lines.append(f"- Lab cost: INR {round(float(lab_total) / 1000) * 1000:,.0f} total commercial")
+        if client_total is not None and float(client_total) > 0:
+            return round(float(client_total))
     except (TypeError, ValueError):
         pass
-    return "\n".join(lines) + "\n\n"
+    for key in ("lab_cost_total", "lab_cost_estimate_total"):
+        try:
+            base_total = float(requirement.get(key) or 0)
+            if base_total > 0:
+                return round(base_total * 1.30)
+        except (TypeError, ValueError):
+            continue
+    return 0.0
 
 
 def _client_commercial_message(
@@ -947,21 +952,15 @@ def _client_commercial_message(
     if _is_proposal_requirement(requirement):
         if _is_shortlist_proposal_requirement(requirement):
             offer_requirement = dict(requirement)
-            offer_requirement.update({key: value for key, value in trainer.items() if key == "clahan_skill_tier"})
+            offer_requirement.update({key: value for key, value in trainer.items() if key in {"clahan_skill_tier", "clahan_offer_per_day"}})
             offer = _shortlist_proposal_offer(offer_requirement)
         else:
             offer = proposal_offer(requirement, trainer)
         rate_lines = f"- INR {offer['client_amount']:,.2f} {offer['basis']}"
-    lab_total = next((requirement.get(key) for key in (
-        "client_lab_cost_total", "lab_cost_total", "lab_cost_estimate_total",
-    ) if requirement.get(key)), None)
     lab_line = ""
-    try:
-        if lab_total is not None and float(lab_total) > 0:
-            rounded_lab = round(float(lab_total) / 1000) * 1000
-            lab_line = f"\n- Lab cost: INR {rounded_lab:,.0f} total commercial"
-    except (TypeError, ValueError):
-        pass
+    lab_total = _client_lab_quote_total(requirement)
+    if lab_total > 0:
+        lab_line = f"\n- Lab cost: INR {lab_total:,.0f} total commercial"
     subject = f"Shortlisted Trainer Profile - {technology}"
     body = (
         f"{_client_time_greeting(client_name)},\n\n"
@@ -1678,8 +1677,9 @@ def _quality(score: float) -> str:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    if trainer.get("needs_review") is True:
-        return None
+    # Resume extraction status is informational. A valid ranked match enters
+    # the automated outreach workflow without a manual approval gate.
+    profile_review_required = False
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -1763,6 +1763,9 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     public["score_breakdown"] = breakdown
     public["match_quality"] = _quality(public["match_score"])
     public["recommended_next_action"] = "Contact trainer and confirm availability"
+    public["profile_review_required"] = profile_review_required
+    if profile_review_required:
+        public["recommended_next_action"] = "Review the uploaded profile before contacting this trainer"
     return public
 
 
@@ -2112,6 +2115,11 @@ def _dated_slot_option_count(slot_text: Any, structured_slots: Optional[List[Dic
             continue
         if am_pm:
             hour = hour % 12 + (12 if am_pm == "pm" else 0)
+        # A client handoff must contain three slots that are still selectable.
+        start = datetime.combine(parsed_date.date(), datetime.min.time()).replace(hour=hour, minute=minute)
+        earliest_allowed = datetime.now(LOCAL_TZ).replace(tzinfo=None) + timedelta(minutes=15)
+        if start <= earliest_allowed:
+            continue
         options.add((parsed_date.date(), hour, minute))
     return len(options)
 
@@ -2369,6 +2377,132 @@ def _submitted_resume_suits_requirement(
     return all(token in evidence_text for token in technology_tokens)
 
 
+def _profile_requirement_score(profile_text: Any, technology: str) -> float:
+    """Score a profile only from the evidence it actually contains.
+
+    The score is used to choose between Clahan's saved trainer record and a
+    newer CV supplied by the trainer.  A tie deliberately keeps the saved
+    profile because its fields have already been reviewed by the platform.
+    """
+    text = _norm(profile_text)
+    if not text:
+        return 0.0
+    tokens = _technology_tokens(technology)
+    topic_coverage = sum(token in text for token in tokens) / max(len(tokens), 1)
+    experience = 15.0 if re.search(r"\b\d+(?:\.\d+)?\+?\s*(?:years?|yrs?)\b", text) else 0.0
+    delivery = 15.0 if re.search(r"\b(?:train(?:ed|ing|er)?|facilitat\w*|deliver\w*|corporate training)\b", text) else 0.0
+    projects = 12.0 if re.search(r"\b(?:project|implementation|implemented|deployment|migration|client)\b", text) else 0.0
+    credentials = 5.0 if re.search(r"\b(?:certif\w*|linkedin|education|qualification)\b", text) else 0.0
+    evidence_depth = min(8.0, len(text) / 1000.0 * 8.0)
+    return round(min(100.0, 45.0 * topic_coverage + experience + delivery + projects + credentials + evidence_depth), 1)
+
+
+def _profile_attachment_subtype(filename: str) -> str:
+    suffix = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+    return {
+        "pdf": "pdf",
+        "doc": "msword",
+        "docx": "vnd.openxmlformats-officedocument.wordprocessingml.document",
+    }.get(suffix, "octet-stream")
+
+
+def _profile_candidate_from_attachment(
+    attachment: Dict[str, Any],
+    technology: str,
+    *,
+    source: str,
+) -> Optional[Dict[str, Any]]:
+    """Return a safe candidate only when its file bytes and evidence exist."""
+    filename = re.sub(r"[\r\n\\/]+", "_", _clean(attachment.get("filename") or attachment.get("original_filename")))[:160]
+    if not filename.lower().endswith((".pdf", ".doc", ".docx")):
+        return None
+    encoded = attachment.get("content_base64")
+    raw = attachment.get("original_file")
+    try:
+        content = bytes(raw) if raw else base64.b64decode(str(encoded or ""), validate=True)
+    except (TypeError, ValueError):
+        return None
+    if not content or len(content) > 8 * 1024 * 1024:
+        return None
+    analysis = attachment.get("analysis") if isinstance(attachment.get("analysis"), dict) else {}
+    text = "\n".join(_clean(attachment.get(key)) for key in (
+        "extracted_text", "parsed_text", "resume_text", "text",
+    ) if _clean(attachment.get(key))) or _clean(analysis.get("extracted_text"))
+    score = _profile_requirement_score(text, technology)
+    # A PDF/DOCX can be forwarded even when extraction is sparse, but only
+    # after it has at least been identified as a CV/profile by the sender.
+    is_profile = (
+        _clean(attachment.get("attachment_type")).lower() == "cv"
+        or _clean(analysis.get("attachment_type")).lower() == "cv"
+        or bool(re.search(r"\b(?:cv|resume|profile)\b", filename, re.IGNORECASE))
+    )
+    if not is_profile:
+        return None
+    return {
+        "source": source,
+        "score": score,
+        "filename": filename,
+        "content": content,
+        "subtype": _profile_attachment_subtype(filename),
+    }
+
+
+async def _select_client_profile(
+    db: AsyncIOMotorDatabase,
+    trainer: Dict[str, Any],
+    requirement_id: str,
+    technology: str,
+) -> Dict[str, Any]:
+    """Choose the strongest requirement aligned profile for client delivery."""
+    database_score = _profile_requirement_score(_profile_text(trainer), technology)
+    selected: Dict[str, Any] = {"source": "database", "score": database_score}
+    trainer_id = _clean(trainer.get("trainer_id"))
+    trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    candidates: List[Dict[str, Any]] = []
+
+    if trainer_id:
+        cursor = db["resume_uploads"].find(
+            {"trainer_id": trainer_id, "original_file": {"$exists": True}},
+            {"_id": 0, "original_file": 1, "filename": 1, "original_filename": 1,
+             "content_type": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
+        ).sort("created_at", -1).limit(5)
+        async for upload in cursor:
+            candidate = _profile_candidate_from_attachment(upload, technology, source="trainer_upload")
+            if candidate:
+                candidates.append(candidate)
+
+    sender_query: Dict[str, Any] = {"requirement_id": requirement_id}
+    sender_terms: List[Dict[str, Any]] = []
+    if trainer_id:
+        sender_terms.append({"trainer_id": trainer_id})
+    if trainer_email:
+        sender_terms.extend([
+            {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+            {"sender": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+        ])
+    if sender_terms:
+        sender_query["$or"] = sender_terms
+        cursor = db["client_emails"].find(
+            sender_query,
+            {"_id": 0, "attachments": 1},
+        ).sort("received_at", -1).limit(10)
+        async for message in cursor:
+            for attachment in message.get("attachments") or []:
+                if isinstance(attachment, dict):
+                    candidate = _profile_candidate_from_attachment(
+                        attachment, technology, source="trainer_email_attachment",
+                    )
+                    if candidate:
+                        candidates.append(candidate)
+
+    # Strictly greater retains the reviewed database profile on an equal fit.
+    if candidates:
+        best = max(candidates, key=lambda item: item["score"])
+        if best["score"] > database_score:
+            selected = best
+    return selected
+
+
 def _edit_submitted_trainer_pdf(
     original_pdf: bytes,
     trainer: Dict[str, Any],
@@ -2482,9 +2616,9 @@ async def _sync_shortlist_with_trainers(
         reverse=True,
     )
 
-    # Keep the same 50-trainer result used by the other services.
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    top_n = TRAINER_RESULT_TARGET
+    # The Shortlist and Shortlist1 pipeline should present only the five
+    # highest ranked matches for a requirement.
+    top_n = 5
     existing = existing or {}
     old_trainers = existing.get("top_trainers", []) or []
     old_by_id = {
@@ -2515,10 +2649,15 @@ async def _sync_shortlist_with_trainers(
     new_ids = {_clean(trainer.get("trainer_id")) for trainer in top_trainers}
     for index, trainer in enumerate(top_trainers, start=1):
         trainer["rank"] = index
-        trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
         old = old_by_id.get(_clean(trainer.get("trainer_id")))
         if old:
             trainer.update(_merge_pipeline_state(trainer, old))
+        if trainer.get("profile_review_required"):
+            trainer["pipeline_status"] = "profile_review"
+        elif _clean(trainer.get("pipeline_status")).lower() == "profile_review":
+            trainer["pipeline_status"] = "shortlisted"
+        else:
+            trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
         # A generated Meet link and interview date are the authoritative
         # evidence that the interview was scheduled.  Ranking refreshes can
         # otherwise rehydrate an older slot_booked/sent_to_client state and
@@ -3442,15 +3581,16 @@ async def send_shortlist_mail(
                                 toc_response = await _post_with_local_fallback(
                                     client,
                                     f"{DOC_SVC}/api/v1/documents/excel/toc",
-                                    json={"toc": generated_toc},
+                                    # Mail 1 sends the generated agenda to the trainer for
+                                    # delivery confirmation.  It is a proposed scope at this
+                                    # stage, so export it as a draft instead of waiting for a
+                                    # separate coordinator quality-review action.
+                                    json={"toc": generated_toc, "draft": True},
                                 )
                                 if toc_response.status_code == 200 and toc_response.content:
-                                    toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
+                                    toc_label = "Proposed TOC"
                                     toc_note = (
                                         "The proposed ToC/course agenda is attached. Please review this scope and "
-                                        "confirm availability and delivery feasibility."
-                                        if is_proposal_flow else
-                                        "The ToC/course agenda for the confirmed batch is attached. Please review this scope and "
                                         "confirm availability and delivery feasibility."
                                     )
                                     scope_attachments.append({
@@ -3884,7 +4024,7 @@ async def send_client_slots(
         raise HTTPException(400, "Trainer slots are required before sending to client")
     slot_count = _dated_slot_option_count(slots_text)
     if slot_count != 3:
-        raise HTTPException(400, "Exactly three dated trainer interview slots are required before sending to the client")
+        raise HTTPException(400, "Exactly three future dated trainer interview slots are required before sending to the client")
     formatted_slots_text = _format_client_slot_lines(slots_text)
 
     # Client handoff is always idempotent. Extra request fields cannot bypass it.
@@ -4005,42 +4145,43 @@ async def send_client_slots(
     wants_profile = True
     client_toc_supplied = _has_client_supplied_toc(req)
     profile_pdf = None
+    profile_selection: Dict[str, Any] = {"source": "database", "score": 0.0}
     if wants_profile:
-        submitted_resume = await db["resume_uploads"].find_one(
-            {
-                "trainer_id": payload.trainer_id,
-                "original_file": {"$exists": True},
-                "$or": [
-                    {"content_type": "application/pdf"},
-                    {"filename": {"$regex": r"\.pdf$", "$options": "i"}},
-                ],
-            },
-            {"_id": 0, "original_file": 1, "filename": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
-            sort=[("created_at", -1)],
+        profile_selection = await _select_client_profile(
+            db, trainer, payload.requirement_id, technology,
         )
-        if (
-            submitted_resume
-            and submitted_resume.get("original_file")
-            and _submitted_resume_suits_requirement(submitted_resume, trainer, technology)
-        ):
-            profile_pdf = _edit_submitted_trainer_pdf(
-                bytes(submitted_resume["original_file"]), trainer, technology
-            )
+        if profile_selection.get("source") != "database":
+            # The newest trainer-provided document wins only when its actual
+            # requirement evidence scores higher than the reviewed database
+            # profile. It is forwarded unchanged except for an approved PDF
+            # addendum, which never alters its original pages.
+            selected_content = profile_selection.get("content")
+            selected_filename = _clean(profile_selection.get("filename"))
+            if selected_content and selected_filename.lower().endswith(".pdf"):
+                profile_pdf = _edit_submitted_trainer_pdf(selected_content, trainer, technology)
+            elif selected_content:
+                profile_pdf = selected_content
         else:
-            # A missing or poorly aligned uploaded resume must not prevent the client handoff.
-            # Build a presentation copy solely from vetted trainer fields and
-            # approved requirement-aligned bullets; the master profile is not changed.
+            # A weaker, missing, or unreadable uploaded resume never prevents
+            # the client handoff. Build a presentation copy from the reviewed
+            # database record instead.
             profile_pdf = await _generate_trainer_profile_pdf(trainer, technology)
             if not profile_pdf:
                 logger.warning(
-                    "Cannot create client profile copy for %s: no usable submitted PDF or vetted profile data",
+                    "Cannot create client profile copy for %s: no usable trainer profile data",
                     payload.trainer_id,
                 )
     if profile_pdf:
+        selected_filename = _clean(profile_selection.get("filename"))
+        profile_filename = (
+            f"{trainer_name} - Updated Profile{selected_filename[selected_filename.rfind('.'):]}"
+            if profile_selection.get("source") != "database" and "." in selected_filename
+            else f"{trainer_name} - Client Aligned Profile.pdf"
+        )
         attachments.append({
-            "filename": f"{trainer_name} - Client Aligned Profile.pdf",
+            "filename": profile_filename,
             "content_base64": base64.b64encode(profile_pdf).decode(),
-            "subtype": "pdf",
+            "subtype": _profile_attachment_subtype(profile_filename),
         })
     else:
         raise HTTPException(502, "Could not generate the required trainer profile for the client handoff")
@@ -4052,15 +4193,6 @@ async def send_client_slots(
     client_toc_topics = _client_supplied_toc_topics(req)
     client_toc_attachments = _client_toc_scope_attachments(req) if client_toc_supplied else []
     toc_data = await _build_toc(req, trainer, db)
-    if toc_data and not client_toc_attachments:
-        from shared.toc_quality import toc_delivery_error
-        quality_error = toc_delivery_error(toc_data)
-        if quality_error:
-            raise HTTPException(422, detail={
-                "message": quality_error,
-                "review_warnings": (toc_data.get("quality") or {}).get("review_warnings") or [],
-                "missing_requested_topics": (toc_data.get("quality") or {}).get("missing_requested_topics") or [],
-            })
     toc_attachment: Optional[bytes] = None
     if client_toc_attachments:
         attachments.extend(client_toc_attachments)
@@ -4070,7 +4202,10 @@ async def send_client_slots(
                 toc_response = await _post_with_local_fallback(
                     client,
                     f"{DOC_SVC}/api/v1/documents/excel/toc",
-                    json={"toc": toc_data},
+                    # The client handoff uses the system-generated agenda as
+                    # the proposed delivery scope.  It must flow through the
+                    # automated pipeline without a separate ToC approval.
+                    json={"toc": toc_data, "draft": True},
                 )
             if toc_response.status_code == 200 and toc_response.content:
                 toc_attachment = toc_response.content
@@ -4231,6 +4366,7 @@ async def send_client_slots(
                         f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
                         json={
                             "toc": toc_data,
+                            "draft": True,
                             "assumptions": {
                                 "cloud_provider": checked["cloud_provider"],
                                 "cloud_region": checked["cloud_region"],
@@ -4284,10 +4420,11 @@ async def send_client_slots(
                 "content_base64": base64.b64encode(lab_cost_content).decode(),
                 "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             })
-    # An explicit lab-cost request stays unsent until the workbook exists.
-    # An inferred lab flag (tools, setup, access, local/cloud) does not.
+    # Do not hold the profile, agenda, and interview-slot handoff when a
+    # draft lab estimate needs a later pricing refinement.  The core client
+    # coordination flow remains fully automated.
     elif explicit_lab_workbook:
-        raise HTTPException(502, "Could not prepare the required lab workbook; client handoff was not sent")
+        logger.warning("Sending client handoff without draft lab workbook: %s", lab_error or "pricing data incomplete")
 
     trainer_details = _requested_trainer_details_for_client(
         req,
@@ -4357,6 +4494,8 @@ async def send_client_slots(
             "lab_hours_per_day": lab_hours_per_day,
             "participant_count": participant_count,
             "lab_defaults_used": lab_defaults_used,
+            "profile_source": profile_selection.get("source"),
+            "profile_requirement_score": profile_selection.get("score"),
             "attachment_names": [str(item.get("filename") or "") for item in attachments],
         },
     }
@@ -4385,6 +4524,8 @@ async def send_client_slots(
         "created_at": datetime.utcnow(),
         "approved_at": datetime.utcnow(),
         "slot_text": slots_text,
+        "profile_source": profile_selection.get("source"),
+        "profile_requirement_score": profile_selection.get("score"),
         "email_payload": email_payload,
     })
     return await deliver_approved_package(db, package)

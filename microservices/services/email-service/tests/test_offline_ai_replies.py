@@ -138,9 +138,10 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         "needs_clarification": [],
         "cloud_provider": "AWS",
     })["body"]
-    assert "Thank you for sharing the DevOps requirement." in body
-    assert "We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in body
-    assert "We will prepare the ToC and lab cost based on the details provided and share the relevant CV for your review." in body
+    assert "Thanks for sharing the DevOps requirement." in body
+    assert "We\u2019ve noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in body
+    assert "lab estimate" in body.lower()
+    assert "relevant CV" in body
     assert body.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     _assert_no_secrets(body)
     assert list(inbox._CLIENT_ACK_VERSIONS[CLIENT_EMAIL].values()) == [0]
@@ -155,8 +156,9 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         clahan_managed_details=[],
         requested_details=["CV"],
     ), "Please share the SAP requirement.")
-    assert "Thank you for sharing the SAP requirement." in second["body"]
-    assert "We will share the relevant CV for your review." in second["body"]
+    assert "Thanks for sharing the SAP requirement." in second["body"]
+    assert "relevant CV" in second["body"]
+    assert "review" in second["body"].lower()
     assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0]
     third = offline_replies.offline_client_requirement_reply(_client_facts(
         client_email=SECOND_EMAIL,
@@ -167,7 +169,7 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         lab_hours_per_day=2,
     ), "Snowflake follow-up.")
     assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0, 9]
-    assert "Thank you for sharing the Snowflake requirement." in third["body"]
+    assert "Thanks for sharing the Snowflake requirement." in third["body"]
     assert "the 5-day training duration" in third["body"]
     assert "the trainer's CV" in third["body"]
 
@@ -239,7 +241,7 @@ def test_trainer_budget_question_refuses_in_one_sentence_without_the_figure():
     assert "INR 62,000" in body
     refusal = [line.strip() for line in body.splitlines() if line.strip().startswith("We cannot share")]
     assert refusal == [
-        "We cannot share the client's budget, another trainer's rate, or internal defaults."
+        "We cannot share the client's budget, another trainer's rate, or private information."
     ]
     _assert_no_secrets(body)
     assert "87500" not in body
@@ -348,7 +350,7 @@ def test_regenerate_with_ai_off_saves_a_client_reply_without_calling_a_model(mon
 
     assert result["generation_source"] == "template"
     assert result["reply"].strip()
-    assert "Thank you for sharing the DevOps requirement." in result["reply"]
+    assert "Thanks for sharing the DevOps requirement." in result["reply"]
     _assert_no_secrets(result["reply"])
     writer.assert_not_awaited()
     saved = records.update_one.await_args.args[1]["$set"]

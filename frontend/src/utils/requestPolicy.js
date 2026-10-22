@@ -1,5 +1,6 @@
 const RETRYABLE_METHODS = new Set(['get', 'head', 'options'])
-const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504])
+const RETRYABLE_STATUSES = new Set([500, 502, 503, 504])
+const RETRYABLE_NETWORK_CODES = new Set(['ERR_NETWORK', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND'])
 
 export function requestTimeout(config = {}) {
   const explicit = Number(config.timeout)
@@ -8,18 +9,21 @@ export function requestTimeout(config = {}) {
   // Profile search uses the signed-in LinkedIn browser session.
   // Keep the ten-minute budget so Find Profiles is not aborted mid-search.
   if (url.includes('/linkedin-leads/search')) return 600000
-  return 120000
+  const method = String(config.method || 'get').toLowerCase()
+  return method === 'get' || method === 'head' || method === 'options' ? 20000 : 300000
 }
 
 export function shouldRetryRequest(err) {
   const config = err?.config || {}
-  const method = String(config.method || 'get').toLowerCase()
+  const method = String(config.method || '').toLowerCase()
   const status = err?.response?.status
   if (config.retry === false) return false
-  if (err?.code === 'ERR_CANCELED') return false
+  if (config.signal?.aborted) return false
+  if (['ERR_CANCELED', 'ECONNABORTED', 'ETIMEDOUT'].includes(err?.code)) return false
   if (!RETRYABLE_METHODS.has(method)) return false
   if (config.__retryCount >= 1) return false
-  return !status || RETRYABLE_STATUSES.has(status)
+  if (status !== undefined) return RETRYABLE_STATUSES.has(status)
+  return RETRYABLE_NETWORK_CODES.has(err?.code)
 }
 
 export function createRequestGate() {
