@@ -926,6 +926,32 @@ function getTocAccuracy(tocData, form, req) {
     .map(item => item.trim().toLowerCase())
     .filter(item => item.length > 2)
 
+  if (tocData.topic_only) {
+    const topics = tocData.topics || (tocData.days || []).map(day => day.focus_area || day.title).filter(Boolean)
+    const matched = customTopics.filter(topic => text.includes(topic))
+    const checks = [
+      {
+        label: 'Technology match',
+        ok: !technology || text.includes(technology),
+        detail: technology ? `Looks for ${req.technology_needed}` : 'No technology provided',
+      },
+      {
+        label: 'Topic outline',
+        ok: topics.length > 0,
+        detail: `${topics.length} requested topic${topics.length === 1 ? '' : 's'} included without a delivery schedule`,
+      },
+    ]
+    if (customTopics.length) {
+      checks.push({
+        label: 'Custom topic coverage',
+        ok: matched.length === customTopics.length,
+        detail: `${matched.length} of ${customTopics.length} supplied topics included`,
+      })
+    }
+    const score = Math.round((checks.filter(check => check.ok).length / checks.length) * 100)
+    return { score, checks }
+  }
+
   const checks = [
     {
       label: 'Technology match',
@@ -969,14 +995,25 @@ function getTocAccuracy(tocData, form, req) {
 
 // TOC Generator Modal
 function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
+  const proposalBatch = requirementFlowType(req) === 'proposal'
+  const suppliedTopics = [
+    req?.requested_topics,
+    req?.topics,
+    req?.custom_topics,
+    req?.extracted?.requested_topics,
+    req?.extracted?.topics,
+  ].flatMap(value => Array.isArray(value) ? value : (value ? [value] : []))
+    .map(value => String(value).trim())
+    .filter((value, index, values) => value && values.indexOf(value) === index)
+    .join('\n')
   const [form, setForm] = useState({
     duration_days: req?.duration_days || (req?.duration_hours ? Math.max(1, Math.ceil(Number(req.duration_hours) / 8)) : 3),
     training_dates: req?.training_dates || req?.preferred_dates || req?.timeline_start || '',
     timing: req?.timing || req?.schedule || '',
     audience_level: req?.audience_level || req?.level || 'intermediate',
     mode: req?.mode || req?.training_mode || 'Online',
-    toc_type: 'standard',
-    custom_topics: '',
+    toc_type: proposalBatch ? 'topic_only' : 'standard',
+    custom_topics: proposalBatch ? suppliedTopics : '',
     client_notes: req?.client_notes || req?.job_description || req?.description || req?.content_scope || '',
     cloud_provider: req?.cloud_provider || '',
     cloud_region: req?.cloud_region || '',
@@ -1001,7 +1038,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
   const updateCost = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
 
   const handleGenerate = async () => {
-    if (!form.duration_days || Number(form.duration_days) < 1) return toast.error('Enter a valid duration')
+    if (!proposalBatch && (!form.duration_days || Number(form.duration_days) < 1)) return toast.error('Enter a valid duration')
     if (form.toc_type === 'custom' && !form.custom_topics.trim()) return toast.error('Add custom topics for custom TOC mode')
 
     setLoading(true)
@@ -1012,17 +1049,18 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
         trainer_name: trainer.name,
         trainer_email: trainer.email,
         technology: req.technology_needed,
-        duration_days: Number(form.duration_days),
+        duration_days: proposalBatch ? null : Number(form.duration_days),
         level: form.audience_level,
         audience_level: form.audience_level,
         mode: form.mode,
-        training_dates: form.training_dates,
-        timing: form.timing,
+        training_dates: proposalBatch ? null : form.training_dates,
+        timing: proposalBatch ? null : form.timing,
         toc_type: form.toc_type,
+        topic_only: proposalBatch,
         custom_topics: form.custom_topics,
         client_notes: form.client_notes,
         generation_mode: generationMode === 'ai' ? 'ai' : 'template',
-        hours_per_day: form.training_hours_per_day ? Number(form.training_hours_per_day) : null,
+        hours_per_day: proposalBatch ? null : (form.training_hours_per_day ? Number(form.training_hours_per_day) : null),
         participant_count: Number(form.participant_count),
       })
       setTocId(res.data.toc_id)
@@ -1139,6 +1177,12 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
         <div className="flex-1 overflow-y-auto p-5 grid grid-cols-1 lg:grid-cols-[330px_1fr] gap-5">
           <div className="space-y-4">
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+              {proposalBatch && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+                  Proposal batch: this creates a topic outline only. Dates, duration, and daily timings stay out until the client confirms them.
+                </div>
+              )}
+              {!proposalBatch && <>
               <div>
                 <label className="label">Duration Days</label>
                 <input type="number" min="1" max="100" className="input" value={form.duration_days}
@@ -1161,6 +1205,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
                   onChange={e => update('timing', e.target.value)}
                   placeholder="e.g. 9:00 AM - 5:00 PM, 7 hours/day" />
               </div>
+              </>}
               <div>
                 <label className="label">Audience Level</label>
                 <select className="input" value={form.audience_level} onChange={e => update('audience_level', e.target.value)}>
@@ -1181,7 +1226,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
               <div>
                 <label className="label">TOC Type</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {['standard', 'custom'].map(type => (
+                  {(proposalBatch ? ['topic_only'] : ['standard', 'custom']).map(type => (
                     <button key={type} type="button" onClick={() => update('toc_type', type)}
                       className={clsx('rounded-xl border px-3 py-2 text-xs font-bold capitalize',
                         form.toc_type === type ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-200')}>
@@ -1190,10 +1235,10 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
                   ))}
                 </div>
               </div>
-              {form.toc_type === 'custom' && (
+              {(form.toc_type === 'custom' || proposalBatch) && (
                 <div>
-                  <label className="label">Custom Topics</label>
-                  <textarea rows={5} className="input resize-none" placeholder="Comma-separated topics or free text"
+                  <label className="label">Training Topics</label>
+                  <textarea rows={5} className="input resize-none" placeholder="One topic per line, or comma-separated topics"
                     value={form.custom_topics} onChange={e => update('custom_topics', e.target.value)} />
                 </div>
               )}
@@ -1304,7 +1349,14 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
                   </div>
                 </div>
 
-                {(tocData.days || []).map(day => (
+                {tocData.topic_only ? (
+                  <div className="bg-white rounded-xl border border-slate-200 p-4">
+                    <p className="font-bold text-sm text-slate-800 mb-2">Training Topics</p>
+                    <ol className="text-sm text-slate-700 space-y-2 list-decimal pl-5">
+                      {(tocData.topics || tocData.days || []).map((item, index) => <li key={index}>{typeof item === 'string' ? item : (item.focus_area || item.title)}</li>)}
+                    </ol>
+                  </div>
+                ) : (tocData.days || []).map(day => (
                   <div key={day.day} className="space-y-3">
                     <h5 className="font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">{day.title}</h5>
                     {renderSession(day.morning_session)}
