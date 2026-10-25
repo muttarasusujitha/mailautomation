@@ -50,6 +50,50 @@ def _to_excel(rows: List[Dict[str, Any]], sheet_name: str = "Sheet1") -> bytes:
         raise Exception("openpyxl not installed. Add it to requirements.")
 
 
+def _topic_outline_to_excel(toc: Dict[str, Any]) -> bytes:
+    """Export proposal scope without adding dates, timings, or duration."""
+    import openpyxl
+    from openpyxl.styles import Alignment, Font, PatternFill
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Topic Outline"
+    title = str(toc.get("title") or toc.get("domain") or "Training Topic Outline")
+    sheet.merge_cells("A1:B1")
+    sheet["A1"] = title
+    sheet["A1"].font = Font(name="Calibri", size=14, bold=True, color="FFFFFF")
+    sheet["A1"].fill = PatternFill("solid", fgColor="FFFFA500")
+    sheet["A1"].alignment = Alignment(horizontal="center", vertical="center")
+    sheet.row_dimensions[1].height = 28
+    sheet.merge_cells("A3:B3")
+    sheet["A3"] = "Proposal scope only. Duration, dates, and session timings are to be confirmed."
+    sheet["A3"].font = Font(name="Calibri", size=10, italic=True, color="595959")
+    sheet["A3"].alignment = Alignment(wrap_text=True, vertical="center")
+    sheet.row_dimensions[3].height = 30
+    for column, label in enumerate(("S.No.", "Training Topic"), 1):
+        cell = sheet.cell(5, column, label)
+        cell.font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor="FFFFA500")
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    topics = toc.get("topics") or [
+        day.get("focus_area") or day.get("title")
+        for day in toc.get("days") or []
+        if isinstance(day, dict)
+    ]
+    for index, topic in enumerate((item for item in topics if str(item or "").strip()), 1):
+        sheet.cell(index + 5, 1, index).alignment = Alignment(horizontal="center", vertical="top")
+        cell = sheet.cell(index + 5, 2, str(topic).strip())
+        cell.alignment = Alignment(wrap_text=True, vertical="top")
+        sheet.row_dimensions[index + 5].height = 30
+    sheet.column_dimensions["A"].width = 10
+    sheet.column_dimensions["B"].width = 100
+    sheet.freeze_panes = "A6"
+    sheet.auto_filter.ref = f"A5:B{max(5, 5 + len(topics))}"
+    output = io.BytesIO()
+    workbook.save(output)
+    return output.getvalue()
+
+
 def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> bytes:
     """Fill a user-approved eight-column ToC workbook without changing its layout."""
     import openpyxl
@@ -144,6 +188,8 @@ def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> b
 
 def _toc_to_excel(toc: Dict[str, Any]) -> bytes:
     """Export AI and manual ToCs in their respective user-approved templates."""
+    if toc.get("topic_only"):
+        return _topic_outline_to_excel(toc)
     from shared.toc_layouts import REFERENCE_LAYOUTS
     if toc.get("excel_layout") in REFERENCE_LAYOUTS:
         from app.toc_reference_excel import render_reference_toc

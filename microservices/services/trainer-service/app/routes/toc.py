@@ -58,6 +58,10 @@ class TocRequest(BaseModel):
     generation_mode: Optional[str] = "ai"
     allow_ai_enrichment: bool = False
     toc_type: Optional[str] = "standard"
+    # Proposal batches can have a confirmed scope without confirmed duration,
+    # dates, or session timing.  These use a topic outline rather than a
+    # fabricated day-by-day schedule.
+    topic_only: bool = False
     custom_topics: Optional[str] = ""
     client_notes: Optional[str] = ""
     toc_id: Optional[str] = None
@@ -74,7 +78,7 @@ class TocRequest(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_duration_days(cls, values):
         duration_days = values.get("duration_days")
-        if duration_days is None or not 1 <= duration_days <= 30:
+        if not values.get("topic_only") and (duration_days is None or not 1 <= duration_days <= 30):
             raise ValueError("duration_days must be between 1 and 30")
         hours = values.get("hours_per_day")
         if hours is not None and not 1 / 60 <= hours <= 24:
@@ -84,7 +88,7 @@ class TocRequest(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_technology_allocations(cls, values):
         allocations = values.get("technology_allocations") or []
-        if allocations and sum(item.days for item in allocations) != int(values.get("duration_days") or 0):
+        if allocations and (values.get("topic_only") or sum(item.days for item in allocations) != int(values.get("duration_days") or 0)):
             raise ValueError("technology_allocations days must equal duration_days")
         return values
 
@@ -562,6 +566,39 @@ async def _stored_generation_mode(db: AsyncIOMotorDatabase) -> str:
     return mode if mode in {"ai", "template"} else ""
 
 
+def _topic_outline(payload: TocRequest) -> Dict[str, Any]:
+    """Build a proposal ToC from supplied topics without inventing a schedule."""
+    raw_topics = re.split(r"[;,\n]+", str(payload.custom_topics or ""))
+    topics: List[str] = []
+    for raw in raw_topics:
+        topic = str(raw or "").strip(" -•\t")
+        if topic and topic.casefold() not in {item.casefold() for item in topics}:
+            topics.append(topic)
+    if not topics:
+        topics = [str(payload.domain or "Training").strip()]
+
+    return {
+        "title": f"{payload.domain} Training Topic Outline",
+        "subtitle": "Proposal batch — schedule to be confirmed",
+        "domain": payload.domain,
+        "overview": (
+            "This outline records the requested training topics. Duration, dates, "
+            "session timing, and the detailed delivery plan will be agreed after confirmation."
+        ),
+        "topic_only": True,
+        "topics": topics,
+        "days": [
+            {"day": index, "title": topic, "focus_area": topic, "subtopics": []}
+            for index, topic in enumerate(topics, 1)
+        ],
+        "level": payload.level,
+        "mode": payload.mode,
+        "generation_mode": "topic_outline",
+        "requested_generation_mode": "topic_outline",
+        "quality": {"status": "pass", "review_warnings": []},
+    }
+
+
 @router.post("/generate")
 async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
@@ -571,6 +608,42 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     payload.level = resolve_content_level(payload.level, payload.audience_level)
     stored_mode = await _stored_generation_mode(db)
     requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
+    if payload.topic_only:
+        from shared.toc_layouts import normalize_client_email
+        requirement = {}
+        client_email = normalize_client_email(payload.client_email)
+        if not client_email and payload.requirement_id:
+            requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}) or {}
+            client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
+        pipeline = str(requirement.get("pipeline_page") or requirement.get("pipeline_target") or "").strip().lower()
+        batch = str(requirement.get("batch_flow") or requirement.get("batch_type") or requirement.get("requirement_type") or "").strip().lower()
+        if pipeline == "shortlist1" or ("confirmed" in batch and "proposal" not in batch):
+            raise HTTPException(422, "Topic-only outlines are available only for Shortlist proposal batches")
+        toc = _topic_outline(payload)
+        toc_id = payload.toc_id or f"TOC-{uuid.uuid4().hex[:10].upper()}"
+        await db.toc_generations.insert_one({
+            "toc_id": toc_id,
+            "client_email": client_email,
+            "requirement_id": payload.requirement_id,
+            "trainer_id": payload.trainer_id,
+            "trainer_name": payload.trainer_name,
+            "trainer_email": payload.trainer_email,
+            "domain": payload.domain,
+            "duration_days": None,
+            "audience_level": payload.audience_level,
+            "training_dates": None,
+            "timing": None,
+            "generation_mode": "topic_outline",
+            "toc_type": payload.toc_type,
+            "topic_only": True,
+            "custom_topics": payload.custom_topics,
+            "client_notes": payload.client_notes,
+            "technology_allocations": [],
+            "toc": toc,
+            "created_at": datetime.utcnow(),
+        })
+        return {"success": True, "toc_id": toc_id, "toc_data": toc}
+
     used_generation_mode = "template"
     payload._knowledge_db = db
     toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None
