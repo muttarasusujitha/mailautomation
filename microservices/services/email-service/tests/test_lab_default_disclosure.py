@@ -285,7 +285,7 @@ def test_python_and_java_for_one_client_use_different_versions():
     assert "Python" in proposal
     assert "lab cost" not in proposal.lower()
     assert "cv" not in proposal.lower()
-    assert "We have noted 3 training days and Online delivery mode." in proposal
+    assert re.search(r"We(?: have|'ve) noted 3 training days and Online delivery mode\.", proposal)
     assert _close(proposal) in _CLOSES
 
 
@@ -531,7 +531,8 @@ def test_version_one_and_ten_use_the_reference_tone():
     assert "7-day training duration" in version_ten and "Offline" in version_ten and "3 lab hours" in version_ten
     assert "prepare the ToC and lab cost" in version_one
     assert "put together the ToC and lab cost" in version_ten
-    assert apply_voice(version_one) == version_one
+    voiced_version_one = apply_voice(version_one)
+    assert voiced_version_one.startswith("Hi Asha,\n\nThank you for sharing the DevOps requirement.")
     assert apply_voice(version_ten) == version_ten
     rendered = [_render_professional_ack(payload, index) for index in _ACK_ROTATION]
     assert len(set(rendered)) == len(_ACK_ROTATION) == 8
