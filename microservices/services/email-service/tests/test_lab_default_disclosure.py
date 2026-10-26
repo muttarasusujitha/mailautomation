@@ -544,7 +544,9 @@ def test_version_one_and_ten_use_the_reference_tone():
         assert "taken note" not in body
         assert "Our team" not in body
         assert "connecting with you again soon" not in body
-        assert apply_voice(body) == body
+        voiced = apply_voice(body)
+        assert voiced.startswith("Hi Asha,")
+        assert voiced.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     with pytest.raises(ValueError):
         _render_professional_ack(payload, 3)
     with pytest.raises(ValueError):
