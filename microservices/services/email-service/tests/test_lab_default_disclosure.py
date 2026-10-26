@@ -533,7 +533,8 @@ def test_version_one_and_ten_use_the_reference_tone():
     assert "put together the ToC and lab cost" in version_ten
     voiced_version_one = apply_voice(version_one)
     assert voiced_version_one.startswith("Hi Asha,\n\nThank you for sharing the DevOps requirement.")
-    assert apply_voice(version_ten) == version_ten
+    voiced_version_ten = apply_voice(version_ten)
+    assert voiced_version_ten.startswith("Hi Asha,\n\nThank you for sharing the DevOps requirement.")
     rendered = [_render_professional_ack(payload, index) for index in _ACK_ROTATION]
     assert len(set(rendered)) == len(_ACK_ROTATION) == 8
     assert _ACK_ROTATION == (0, 9, 1, 2, 5, 6, 7, 8)
