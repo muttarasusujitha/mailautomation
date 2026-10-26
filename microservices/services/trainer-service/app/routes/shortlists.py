@@ -2461,15 +2461,18 @@ async def _select_client_profile(
     candidates: List[Dict[str, Any]] = []
 
     if trainer_id:
-        cursor = db["resume_uploads"].find(
-            {"trainer_id": trainer_id, "original_file": {"$exists": True}},
-            {"_id": 0, "original_file": 1, "filename": 1, "original_filename": 1,
-             "content_type": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
-        ).sort("created_at", -1).limit(5)
-        async for upload in cursor:
-            candidate = _profile_candidate_from_attachment(upload, technology, source="trainer_upload")
-            if candidate:
-                candidates.append(candidate)
+        resume_collection = db["resume_uploads"]
+        find_resumes = getattr(resume_collection, "find", None)
+        if callable(find_resumes):
+            cursor = find_resumes(
+                {"trainer_id": trainer_id, "original_file": {"$exists": True}},
+                {"_id": 0, "original_file": 1, "filename": 1, "original_filename": 1,
+                 "content_type": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
+            ).sort("created_at", -1).limit(5)
+            async for upload in cursor:
+                candidate = _profile_candidate_from_attachment(upload, technology, source="trainer_upload")
+                if candidate:
+                    candidates.append(candidate)
 
     sender_query: Dict[str, Any] = {"requirement_id": requirement_id}
     sender_terms: List[Dict[str, Any]] = []
