@@ -571,7 +571,7 @@ def test_version_one_and_ten_use_the_reference_tone():
 
     linkedin = {**payload, "requested_details": ["CV", "LinkedIn profile", "ToC"]}
     linkedin_body = _render_professional_ack(linkedin, 0)
-    assert "share the relevant CV and LinkedIn profile for your review." in linkedin_body
+    assert "send the relevant CV and LinkedIn profile for your review." in linkedin_body
     assert linkedin_body.count("for your review") == 1
     assert _OLD_ACK_SENTENCE not in linkedin_body
 
