@@ -26,7 +26,10 @@ def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, exis
     async def post(client, url, **kwargs):
         calls.append((url, kwargs["json"]))
         if "/documents/" in url:
-            return httpx.Response(document_status, content=b"test-workbook")
+            status = document_status.pop(0) if isinstance(document_status, list) else document_status
+            if status == 422:
+                return httpx.Response(422, json={"detail": "TOC requires review before export or delivery"})
+            return httpx.Response(status, content=b"test-workbook")
         return httpx.Response(200, json={"email_id": "EML-TEST"})
 
     monkeypatch.setattr(shortlists, "_post_with_local_fallback", post)
@@ -54,6 +57,7 @@ def test_proposal_generation_instruction_attaches_toc_in_first_mail(monkeypatch,
     assert result["sent"] == 1
     generate.assert_awaited_once()
     assert "/documents/excel/toc" in calls[0][0]
+    assert calls[0][1] == {"toc": {"title": "DevOps"}}
     mail = calls[1][1]
     assert base64.b64decode(mail["attachments"][0]["content_base64"]) == b"test-workbook"
     assert "proposed ToC/course agenda is attached" in mail["body"]
@@ -91,6 +95,29 @@ def test_proposal_without_generation_instruction_still_attaches_generated_toc(mo
     generate.assert_awaited_once()
     assert calls[-1][1]["attachments"]
     assert calls[-1][1]["attachments"][0]["filename"].endswith(" - Proposed TOC.xlsx")
+
+
+def test_mail1_attaches_labeled_draft_for_review_required_toc(monkeypatch):
+    toc = {"title": "DevOps", "quality": {"status": "requires_review", "review_warnings": ["Verify technical fit"],
+                                             "validation_errors": []}, "days": [{"day": 1}]}
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=[422, 200], toc=toc)
+
+    assert result["sent"] == 1
+    assert [payload.get("draft", False) for url, payload in calls if "/documents/" in url] == [False, True]
+    mail = calls[-1][1]
+    assert "DRAFT FOR REVIEW" in mail["attachments"][0]["filename"]
+    assert "draft ToC/course agenda is attached for your review" in mail["body"]
+
+
+def test_mail1_does_not_export_regeneration_required_toc_as_draft(monkeypatch):
+    toc = {"title": "DevOps", "quality": {"status": "requires_regeneration", "validation_errors": ["Missing requested scope"]},
+           "days": [{"day": 1}]}
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)
+
+    assert result["sent"] == 0
+    assert result["failed"] == 1
+    assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
+    assert not any("/email/send" in url for url, _ in calls)
 
 
 def test_existing_client_toc_is_forwarded_without_regeneration(monkeypatch):

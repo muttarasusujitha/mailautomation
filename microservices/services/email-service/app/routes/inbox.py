@@ -2607,8 +2607,8 @@ _ACK_ROTATION = (0, 9, 1, 2, 5, 6, 7, 8)
 _RETIRED_ACK_INDEXES = frozenset((3, 4))
 _ACK_VERSIONS = (
     {
-        "thanks": "Thanks for sharing the {domain} requirement.",
-        "noted": "We’ve noted {facts}.",
+        "thanks": "Thank you for sharing the {domain} requirement.",
+        "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "training_days",
         "mode": "delivery_mode",
@@ -2669,8 +2669,8 @@ _ACK_VERSIONS = (
         "cv": "the CV",
     },
     {
-        "thanks": "Thanks for sharing the {domain} requirement.",
-        "noted": "We’ve noted {facts}.",
+        "thanks": "Thank you for sharing the {domain} requirement.",
+        "noted": "We have noted {facts}.",
         "topics": "the topics",
         "duration": "the_day_training_duration",
         "mode": "mode",
@@ -2951,7 +2951,17 @@ def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
 
 def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
     """Ask for lab inputs only when the client has not shared enough to start."""
-    if not _lab_is_clahan_managed(extracted) or _lab_inputs_complete(extracted):
+    if (
+        not _lab_is_clahan_managed(extracted)
+        or _lab_inputs_complete(extracted)
+        or _topics_were_shared(extracted)
+    ):
+        return ""
+    if (
+        _safe_float(extracted.get("duration_days"), 0)
+        and _clean(extracted.get("mode"))
+        and _known_lab_hours(extracted)
+    ):
         return ""
     missing = []
     if not _safe_int(extracted.get("participant_count"), 0):
@@ -2962,7 +2972,7 @@ def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
         missing.append("preferred cloud provider (AWS, Azure, or GCP)")
     if not missing:
         return ""
-    return f"Could you please confirm the {_join_phrases(missing)}? We’ll prepare the lab estimate once we have those details."
+    return f"Could you please confirm the {_join_phrases(missing)}? We will prepare the lab estimate once confirmed."
 
 
 def _ack_greeting(extracted: Dict[str, Any]) -> str:
@@ -4358,6 +4368,8 @@ def _client_rate_for_trainer_quote(trainer_rate: float, requirement: Dict[str, A
     trainer_target = _trainer_target_from_requirement(requirement)
     if client_budget and trainer_target and trainer_rate <= trainer_target:
         return client_budget
+    if client_budget and trainer_target and trainer_rate > trainer_target:
+        return trainer_rate * 1.30
     # Confirmed batches split the final client commercial 70/30 between
     # trainer and Clahan. Convert the trainer's 70% share back to the
     # client-facing total; proposal pricing keeps its separate 30% markup.
@@ -7366,9 +7378,10 @@ def _question_reply_needs_clarification(reply: Dict[str, Any]) -> bool:
     """Return True when a grounded draft explicitly says the fact is unavailable."""
     text = _plain_text((reply or {}).get("body") or "").lower()
     return bool(re.search(
-        r"\b(?:we (?:are|will be) check(?:ing)?|will (?:check|verify|confirm)|"
+        r"\b(?:we(?: are|['’]re| will be) check(?:ing)?|will (?:check|verify|confirm)|"
         r"requires? confirmation|need(?:s)? (?:to be )?(?:checked|verified|confirmed)|"
-        r"not (?:yet )?(?:available|confirmed|specified)|do not have (?:a )?confirmed)\b",
+        r"not (?:yet )?(?:available|confirmed|specified|on (?:the )?(?:requirement )?record)|"
+        r"do not have (?:a )?confirmed)\b",
         text,
         flags=re.IGNORECASE,
     ))
@@ -7613,6 +7626,7 @@ async def _handle_trainer_general_question(
         return {
             "attempted": True,
             "success": bool(ok),
+            "asked_client": False,
             "query_id": query_id,
             "error": error or "",
             "answer": generated_reply.get("body") or "",

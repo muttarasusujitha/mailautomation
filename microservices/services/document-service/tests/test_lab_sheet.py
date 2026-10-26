@@ -55,7 +55,7 @@ def test_single_provider_workbook_opens_on_lab_plan_and_uses_gb_months():
     assert breakdown['H7'].value == '=B7*D7'
     client = workbook['Client Estimate']
     assert client['A12'].value == 'Final estimated cost'
-    assert client['B12'].value == '=SUM(B8:B11)*(1+0.3)'
+    assert client['B12'].value == "=SUM(B8:B11)*(1+'Internal Calculation'!$B$1)"
     assert client['B13'].value == '=B12/Assumptions!B9'
 
 

@@ -1,4 +1,5 @@
 import asyncio
+import re
 import sys
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def test_shortlist_first_uses_structured_snapshot_not_raw_client_text():
     ))
 
     assert "Training Details:" in reply["body"]
-    assert "We have received a training requirement for DevOps" in reply["body"]
+    assert re.search(r"We(?: have|'ve) received a training requirement for DevOps", reply["body"])
     assert "- Domain/Technology: DevOps" in reply["body"]
     assert "- Training dates: 15 September 2026 to 19 September 2026" in reply["body"]
     assert "- Duration: 5 Days" in reply["body"]

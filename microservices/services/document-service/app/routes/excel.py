@@ -701,10 +701,11 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         raise ValueError("client_lab_markup_percent cannot exceed 100")
     # Keep the markup factor out of visible client cells and the formula bar.
     # The client sees only the resulting estimate on the Client Estimate sheet.
-    assumptions_ws["A20"] = "Client adjustment factor"
-    assumptions_ws["B20"] = client_lab_markup_percent / 100
-    assumptions_ws["B20"].number_format = "0%"
-    assumptions_ws.row_dimensions[20].hidden = True
+    internal_calc_ws = workbook.create_sheet("Internal Calculation")
+    internal_calc_ws["A1"] = "Client adjustment factor"
+    internal_calc_ws["B1"] = client_lab_markup_percent / 100
+    internal_calc_ws["B1"].number_format = "0%"
+    internal_calc_ws.sheet_state = "veryHidden"
 
     # The supplied template owns the entire visual structure.  Replace only
     # its example mapping rows with one accurately mapped row per ToC day.
@@ -1063,7 +1064,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # The final client quote includes the configured uplift, but its internal
     # commercial composition is never displayed in the client workbook.
     workbook["Client Estimate"]["A12"] = "Final estimated cost"
-    workbook["Client Estimate"]["B12"] = "=SUM(B8:B11)*(1+'Assumptions'!B20)"
+    workbook["Client Estimate"]["B12"] = "=SUM(B8:B11)*(1+'Internal Calculation'!$B$1)"
     workbook["Client Estimate"]["B13"] = "=B12/Assumptions!B9"
     workbook["Client Estimate"]["A17"] = (
         "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "
@@ -1160,7 +1161,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # view first so Excel, Google Drive, and LibreOffice open the quote.
     for sheet_index, sheet in enumerate(workbook.worksheets):
         sheet.sheet_view.tabSelected = sheet_index == client_sheet_index
-        if sheet_index != client_sheet_index:
+        if sheet_index != client_sheet_index and sheet.sheet_state != "veryHidden":
             sheet.sheet_state = 'hidden'
     output = io.BytesIO()
     workbook.save(output)

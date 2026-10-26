@@ -204,7 +204,7 @@ async def send_single_email(
     # but cannot change links, attachments, commercials, slots, or stage.
     if payload.ai_generate:
         from app.agents.reply_wording import recent_sent_replies, vary_template
-        recent_bodies = await recent_sent_replies(db, str(payload.to), topic=payload.subject)
+        recent_bodies = await recent_sent_replies(db, str(payload.to))
         wording_context = {
             **(payload.ai_context or {}),
             "recent_replies_to_this_sender": recent_bodies,
@@ -244,7 +244,7 @@ async def send_single_email(
             body = vary_template(body, recent_bodies, seed=payload.idempotency_key or f"{payload.to}:{payload.subject}")
     elif payload.mail_type in {"meet_start_notice", "meet_no_show_notice"}:
         from app.agents.reply_wording import recent_sent_replies, vary_template
-        recent_bodies = await recent_sent_replies(db, str(payload.to), topic=payload.subject)
+        recent_bodies = await recent_sent_replies(db, str(payload.to))
         body = vary_template(body, recent_bodies, seed=payload.idempotency_key or f"{payload.to}:{payload.subject}")
     idempotency_key = str(payload.idempotency_key or "").strip()
     existing_log = None

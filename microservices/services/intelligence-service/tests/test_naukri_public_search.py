@@ -86,4 +86,4 @@ def test_naukri_search_route_uses_public_profiles_without_resdex_flag():
     saved = table.insert_one.await_args.args[0]
     assert saved["source"] == "naukri"
     assert saved["source_url"] == profile["source_url"]
-    search.assert_awaited_once_with("Java developer", "Pune", 10)\n
+    search.assert_awaited_once_with("Java developer", "Pune", 10)
