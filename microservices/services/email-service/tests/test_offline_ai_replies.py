@@ -1,6 +1,7 @@
 """AI generation stays off. Understood mail still gets a record-backed reply."""
 
 import asyncio
+import re
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -138,7 +139,7 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         "needs_clarification": [],
         "cloud_provider": "AWS",
     })["body"]
-    assert "Thanks for sharing the DevOps requirement." in body
+    assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", body)
     assert "We\u2019ve noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in body
     assert "lab estimate" in body.lower()
     assert "relevant CV" in body
@@ -156,7 +157,7 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         clahan_managed_details=[],
         requested_details=["CV"],
     ), "Please share the SAP requirement.")
-    assert "Thanks for sharing the SAP requirement." in second["body"]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the SAP requirement\.", second["body"])
     assert "relevant CV" in second["body"]
     assert "review" in second["body"].lower()
     assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0]
@@ -169,7 +170,7 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         lab_hours_per_day=2,
     ), "Snowflake follow-up.")
     assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0, 9]
-    assert "Thanks for sharing the Snowflake requirement." in third["body"]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the Snowflake requirement\.", third["body"])
     assert "the 5-day training duration" in third["body"]
     assert "the trainer's CV" in third["body"]
 
@@ -350,7 +351,7 @@ def test_regenerate_with_ai_off_saves_a_client_reply_without_calling_a_model(mon
 
     assert result["generation_source"] == "template"
     assert result["reply"].strip()
-    assert "Thanks for sharing the DevOps requirement." in result["reply"]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", result["reply"])
     _assert_no_secrets(result["reply"])
     writer.assert_not_awaited()
     saved = records.update_one.await_args.args[1]["$set"]

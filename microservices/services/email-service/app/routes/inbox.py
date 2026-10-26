@@ -2957,6 +2957,12 @@ def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
         or _topics_were_shared(extracted)
     ):
         return ""
+    if (
+        _safe_float(extracted.get("duration_days"), 0)
+        and _clean(extracted.get("mode"))
+        and _known_lab_hours(extracted)
+    ):
+        return ""
     missing = []
     if not _safe_int(extracted.get("participant_count"), 0):
         missing.append("participant count")
@@ -2966,7 +2972,7 @@ def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
         missing.append("preferred cloud provider (AWS, Azure, or GCP)")
     if not missing:
         return ""
-    return f"Could you please confirm the {_join_phrases(missing)}? We’ll prepare the lab estimate once we have those details."
+    return f"Please share the {_join_phrases(missing)} so we can prepare the lab estimate."
 
 
 def _ack_greeting(extracted: Dict[str, Any]) -> str:
@@ -7619,6 +7625,7 @@ async def _handle_trainer_general_question(
         return {
             "attempted": True,
             "success": bool(ok),
+            "asked_client": False,
             "query_id": query_id,
             "error": error or "",
             "answer": generated_reply.get("body") or "",

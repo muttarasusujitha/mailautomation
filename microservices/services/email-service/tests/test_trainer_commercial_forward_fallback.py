@@ -86,7 +86,7 @@ def test_commercial_body_shows_day_rate_and_total_without_invented_toc():
 
 def test_shared_date_heading_applies_to_markdown_time_only_slots():
     slots = (
-        "For tomorrow, **2 September 2026**, you can use these 3 trainer interview slots:\n\n"
+        "For **2 September 2027**, you can use these 3 trainer interview slots:\n\n"
         "- **10:00 AM – 10:30 AM IST**\n"
         "- **2:00 PM – 2:30 PM IST**\n"
         "- **5:00 PM – 5:30 PM IST**"
@@ -96,13 +96,13 @@ def test_shared_date_heading_applies_to_markdown_time_only_slots():
 
     assert _has_proper_interview_slots(slots)
     assert len(options) == 3
-    assert all(option["start"].date().isoformat() == "2026-09-02" for option in options)
+    assert all(option["start"].date().isoformat() == "2027-09-02" for option in options)
     assert [option["start"].strftime("%H:%M") for option in options] == ["10:00", "14:00", "17:00"]
 
 
 def test_client_time_only_selection_matches_dated_reschedule_slots():
     trainer_slots = (
-        "For tomorrow, 2 September 2026, the available interview slots are:\n"
+        "For 2 September 2027, the available interview slots are:\n"
         "- 10:00 AM - 10:30 AM IST\n"
         "- 2:00 PM - 2:30 PM IST\n"
         "- 5:00 PM - 5:30 PM IST"

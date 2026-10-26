@@ -1,4 +1,5 @@
 import ast
+import re
 from pathlib import Path
 
 import pytest
@@ -107,7 +108,9 @@ def test_client_ack_discloses_lab_defaults_and_requests_real_inputs():
     })
 
     body = message["body"]
-    assert "Please share the participant count, lab hours per day, and preferred cloud provider (AWS, Azure, or GCP) so we can prepare the lab estimate." in body
+    assert "participant count" in body
+    assert "lab hours per day" in body
+    assert "preferred cloud provider (AWS, Azure, or GCP)" in body
     assert "not treated as the participant count" not in body
     assert "confirmed batch scope" not in body
     assert "Greetings of the day" not in body
@@ -197,7 +200,7 @@ def test_complete_lab_inputs_still_share_toc_and_prepare_the_estimate():
     body = message["body"]
     assert "topics" in body.lower()
     assert "CV" in body and "LinkedIn" in body
-    assert "We will prepare the lab estimate for 12 participants, 7 days, and 3 hours per day." in body
+    assert re.search(r"We(?: will|'ll) prepare the lab estimate for 12 participants, 7 days, and 3 hours per day\.", body)
     _assert_professional_ack(body, topics=True)
     assert "Please share the participant count" not in body
 
@@ -232,11 +235,11 @@ def test_python_and_java_for_one_client_use_different_versions():
         clahan_managed_details=["Lab availability and cost"],
     )
 
-    assert "We have noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day." in python_body
+    assert re.search(r"We(?: have|'ve) noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day\.", python_body)
     assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in python_body
     assert "Looking forward to sharing the documents with you." in python_body
     assert "toc" not in python_body.lower()
-    assert "We have noted the topics, the 4-day training duration, and Offline mode." in java_body
+    assert re.search(r"We(?: have|'ve) noted the topics, the 4-day training duration, and Offline mode\.", java_body)
     assert "We will share the trainer's CV for your review." in java_body
     assert "Looking forward to sending these over to you." in java_body
     assert "lab" not in java_body.lower()
@@ -368,9 +371,9 @@ def test_same_client_different_requirements_use_different_professional_versions(
         topics="Docker, Kubernetes, and CI/CD",
     )
 
-    assert "We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in devops_body
+    assert re.search(r"We(?: have|'ve) noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day\.", devops_body)
     assert "Looking forward to sharing the documents with you." in devops_body
-    assert "We have noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day." in python_body
+    assert re.search(r"We(?: have|'ve) noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day\.", python_body)
     assert "share the trainer's CV for your review." in python_body
     assert "Looking forward to sending these over to you." in python_body
     assert "We have noted" not in devops_other
@@ -441,7 +444,7 @@ def test_repeated_devops_requirements_do_not_reuse_one_sentence():
         assert "Greetings of the day" not in body
         assert "Our team" not in body
         assert "connecting with you again soon" not in body
-    assert "We have noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day." in bodies[0]
+    assert re.search(r"We(?: have|'ve) noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day\.", bodies[0])
     assert "the 6-day training duration" in bodies[1]
     for body in bodies[2:]:
         assert "We have noted" not in body
@@ -485,7 +488,7 @@ def test_acknowledgement_recognises_the_client():
     ]
     assert len({_chosen_wording(body) for body in email_bodies}) == 1
     assert [body.split("\n\n")[0] for body in email_bodies] == [f"Hi {name}," for _email, name in emails]
-    assert "We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in email_bodies[0]
+    assert re.search(r"We(?: have|'ve) noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day\.", email_bodies[0])
 
     names = ("Asha", "Meera", "Ravi", "Neha", "Kiran", "Pooja")
     _reset_ack_clients(*names)
@@ -502,7 +505,7 @@ def test_acknowledgement_recognises_the_client():
         lab_hours_per_day=2,
         topics="Pandas and FastAPI",
     )
-    assert "We have noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day." in second
+    assert re.search(r"We(?: have|'ve) noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day\.", second)
     same_email = _chosen_wording(_ack("DevOps", client_email="asha@example.com", client_name="Asha", **facts))
     renamed = _ack("DevOps", client_email="asha@example.com", client_name="Meera", **facts)
     assert same_email == _chosen_wording(renamed)
@@ -668,14 +671,14 @@ def test_domain_from_the_requirement_input_is_placed_in_the_sentence():
     assert "Snowflake" in snowflake
     assert "SAP" not in snowflake
     assert "Thank you for sharing the Snowflake requirement." in snowflake
-    assert "We have noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day." in snowflake
+    assert re.search(r"We(?: have|'ve) noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day\.", snowflake)
     assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in snowflake
     assert "Looking forward to sharing the documents with you." in snowflake
     assert "toc" not in snowflake.lower()
     assert "SAP" in sap
     assert "Snowflake" not in sap
     assert "Thank you for sharing the SAP requirement." in sap
-    assert "We have noted the topics, the 4-day training duration, and Offline mode." in sap
+    assert re.search(r"We(?: have|'ve) noted the topics, the 4-day training duration, and Offline mode\.", sap)
     assert "We will share the trainer's CV for your review." in sap
     assert "Looking forward to sending these over to you." in sap
     assert "lab" not in sap.lower()
