@@ -666,14 +666,15 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     ]:
         if any(needle in item.lower() for item in requested_items):
             selected.append(label)
+    # The reviewed profile is already available for the client handoff; asking
+    # the trainer to send it again is unnecessary. Only request it when absent.
+    if _profile_text(trainer):
+        selected = [item for item in selected if "profile" not in item.lower()]
     if "day-wise TOC" in selected:
         selected = [item for item in selected if item.lower() != "toc"]
     if not selected:
         selected = [] if _profile_text(trainer) else ["updated profile"]
         selected.append(f"relevant {domain} experience")
-    # A stored profile is enough to continue the workflow, but a trainer may
-    # have a newer CV with stronger evidence for this particular requirement.
-    # Invite that update without making it a required response.
     selected = [
         item for item in selected
         if not (
@@ -685,7 +686,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         )
     ]
     selected = [
-        "updated profile/CV, if you have a newer version" if "profile" in item.lower() else item
+        "updated profile/CV" if "profile" in item.lower() else item
         for item in selected
     ]
     if any('linkedin' in item.lower() for item in requested_items) and not _trainer_has_verified_detail(trainer, 'linkedin'):
@@ -1551,6 +1552,7 @@ def _profile_text(trainer: Dict[str, Any]) -> str:
         trainer.get("industry_focus"),
         trainer.get("summary"),
         trainer.get("past_clients"),
+        trainer.get("resume_text"),
         trainer.get("combined_text", "")[:8000] if isinstance(trainer.get("combined_text"), str) else "",
         trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
     ]
@@ -2484,7 +2486,10 @@ async def _select_client_profile(
             {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
             {"sender": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
         ])
-    email_collection = db["client_emails"]
+    try:
+        email_collection = db["client_emails"]
+    except (KeyError, TypeError):
+        email_collection = None
     find_emails = getattr(email_collection, "find", None)
     if sender_terms and callable(find_emails):
         sender_query["$or"] = sender_terms

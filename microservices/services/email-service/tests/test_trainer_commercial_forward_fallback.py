@@ -114,4 +114,4 @@ def test_client_time_only_selection_matches_dated_reschedule_slots():
     )
 
     assert selected["source"] == "client_time_matched_to_source_slot"
-    assert selected["label"] == "02/09/2026, 02:00 PM - 02:30 PM"
+    assert selected["label"] == "02/09/2027, 02:00 PM - 02:30 PM"

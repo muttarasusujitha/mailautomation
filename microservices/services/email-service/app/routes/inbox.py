@@ -2972,7 +2972,7 @@ def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
         missing.append("preferred cloud provider (AWS, Azure, or GCP)")
     if not missing:
         return ""
-    return f"Please share the {_join_phrases(missing)} so we can prepare the lab estimate."
+    return f"Could you please confirm the {_join_phrases(missing)}?"
 
 
 def _ack_greeting(extracted: Dict[str, Any]) -> str:
@@ -7380,7 +7380,8 @@ def _question_reply_needs_clarification(reply: Dict[str, Any]) -> bool:
     return bool(re.search(
         r"\b(?:we (?:are|will be) check(?:ing)?|will (?:check|verify|confirm)|"
         r"requires? confirmation|need(?:s)? (?:to be )?(?:checked|verified|confirmed)|"
-        r"not (?:yet )?(?:available|confirmed|specified)|do not have (?:a )?confirmed)\b",
+        r"not (?:yet )?(?:available|confirmed|specified|on (?:the )?(?:requirement )?record)|"
+        r"do not have (?:a )?confirmed)\b",
         text,
         flags=re.IGNORECASE,
     ))

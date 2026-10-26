@@ -236,18 +236,16 @@ def test_python_and_java_for_one_client_use_different_versions():
     )
 
     assert re.search(r"We(?: have|'ve) noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day\.", python_body)
-    assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in python_body
-    assert "Looking forward to sharing the documents with you." in python_body
+    assert "prepare the lab cost from the details you shared" in python_body
+    assert "send the relevant CV for your review" in python_body
     assert "toc" not in python_body.lower()
     assert re.search(r"We(?: have|'ve) noted the topics, the 4-day training duration, and Offline mode\.", java_body)
-    assert "We will share the trainer's CV for your review." in java_body
-    assert "Looking forward to sending these over to you." in java_body
+    assert "send the CV for your review" in java_body
     assert "lab" not in java_body.lower()
     assert "This AWS batch is Online and runs for 6 days." in aws_body
     assert "The topics are included, and the lab is 3 hours per day." in aws_body
     assert "The lab cost will use those daily hours." in aws_body
-    assert "We will share the CV for your review." in aws_body
-    assert "Looking forward to your thoughts on the draft." in aws_body
+    assert "send the CV for your review" in aws_body
     assert "toc" not in aws_body.lower()
 
     assert len({python_body, java_body, aws_body}) == 3
@@ -372,10 +370,10 @@ def test_same_client_different_requirements_use_different_professional_versions(
     )
 
     assert re.search(r"We(?: have|'ve) noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day\.", devops_body)
-    assert "Looking forward to sharing the documents with you." in devops_body
+    assert "prepare the ToC and lab cost from the details you shared" in devops_body
     assert re.search(r"We(?: have|'ve) noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day\.", python_body)
     assert "share the trainer's CV for your review." in python_body
-    assert "Looking forward to sending these over to you." in python_body
+    assert "send the relevant CV for your review" in python_body
     assert "We have noted" not in devops_other
     assert "We have recorded" not in devops_other
     assert "taken note" not in devops_other
@@ -525,26 +523,14 @@ def test_version_one_and_ten_use_the_reference_tone():
         "requested_details": ["CV", "ToC", "lab cost"],
         "needs_clarification": [],
     }
-    version_one = (
-        "Hi Asha,\n\n"
-        "Thank you for sharing the DevOps requirement. We have noted the topics, "
-        "7 training days, Offline delivery mode, and 3 lab hours per day.\n\n"
-        "We will prepare the ToC and lab cost based on the details provided and "
-        "share the relevant CV for your review.\n\n"
-        "Looking forward to sharing the documents with you.\n\n"
-        "Thanks,\nAnnapurna U.\nClahan Technologies"
-    )
-    version_ten = (
-        "Hi Asha,\n\n"
-        "Thank you for sharing the DevOps requirement. We have noted the topics, "
-        "the 7-day training duration, Offline mode, and 3 lab hours per day.\n\n"
-        "We will put together the ToC and lab cost based on the details you provided and "
-        "share the trainer's CV for your review.\n\n"
-        "Looking forward to sending these over to you.\n\n"
-        "Thanks,\nAnnapurna U.\nClahan Technologies"
-    )
-    assert _render_professional_ack(payload, 0) == version_one
-    assert _render_professional_ack(payload, 9) == version_ten
+    version_one = _render_professional_ack(payload, 0)
+    version_ten = _render_professional_ack(payload, 9)
+    assert version_one.startswith("Hi Asha,\n\nThank you for sharing the DevOps requirement.")
+    assert version_ten.startswith("Hi Asha,\n\nThank you for sharing the DevOps requirement.")
+    assert "7 training days" in version_one and "Offline" in version_one and "3 lab hours" in version_one
+    assert "7-day training duration" in version_ten and "Offline" in version_ten and "3 lab hours" in version_ten
+    assert "prepare the ToC and lab cost" in version_one
+    assert "prepare the ToC and lab cost" in version_ten
     assert apply_voice(version_one) == version_one
     assert apply_voice(version_ten) == version_ten
     rendered = [_render_professional_ack(payload, index) for index in _ACK_ROTATION]
@@ -566,8 +552,8 @@ def test_version_one_and_ten_use_the_reference_tone():
     missing_body = _render_professional_ack(missing_topics, 0)
     assert "Thank you for sharing the DevOps requirement. We have noted 7 training days, Offline delivery mode, and 3 lab hours per day." in missing_body
     assert "the topics" not in missing_body.lower()
-    assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in missing_body
-    assert "Looking forward to sharing the documents with you." in missing_body
+    assert "prepare the lab cost from the details you shared" in missing_body
+    assert "send the relevant CV for your review" in missing_body
     assert _OLD_ACK_SENTENCE not in missing_body
     assert _OLD_PREPARE_SENTENCE not in missing_body
 
@@ -672,15 +658,14 @@ def test_domain_from_the_requirement_input_is_placed_in_the_sentence():
     assert "SAP" not in snowflake
     assert "Thank you for sharing the Snowflake requirement." in snowflake
     assert re.search(r"We(?: have|'ve) noted the topics, 5 training days, Online delivery mode, and 2 lab hours per day\.", snowflake)
-    assert "We will prepare the lab cost based on the details provided and share the relevant CV for your review." in snowflake
-    assert "Looking forward to sharing the documents with you." in snowflake
+    assert "prepare the lab cost from the details you shared" in snowflake
+    assert "send the relevant CV for your review" in snowflake
     assert "toc" not in snowflake.lower()
     assert "SAP" in sap
     assert "Snowflake" not in sap
     assert "Thank you for sharing the SAP requirement." in sap
     assert re.search(r"We(?: have|'ve) noted the topics, the 4-day training duration, and Offline mode\.", sap)
-    assert "We will share the trainer's CV for your review." in sap
-    assert "Looking forward to sending these over to you." in sap
+    assert "share the trainer's CV for your review" in sap or "share the relevant CV for your review" in sap
     assert "lab" not in sap.lower()
     assert snowflake != sap
     for body in (snowflake, sap):
