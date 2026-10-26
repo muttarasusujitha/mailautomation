@@ -127,7 +127,7 @@ jobs:
     needs:
       - build-test
       - frontend-build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       max-parallel: 1
