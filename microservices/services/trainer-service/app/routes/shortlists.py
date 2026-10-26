@@ -669,7 +669,8 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if "day-wise TOC" in selected:
         selected = [item for item in selected if item.lower() != "toc"]
     if not selected:
-        selected = ["updated profile", f"relevant {domain} experience"]
+        selected = [] if _profile_text(trainer) else ["updated profile"]
+        selected.append(f"relevant {domain} experience")
     # A stored profile is enough to continue the workflow, but a trainer may
     # have a newer CV with stronger evidence for this particular requirement.
     # Invite that update without making it a required response.
@@ -2483,9 +2484,11 @@ async def _select_client_profile(
             {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
             {"sender": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
         ])
-    if sender_terms:
+    email_collection = db["client_emails"]
+    find_emails = getattr(email_collection, "find", None)
+    if sender_terms and callable(find_emails):
         sender_query["$or"] = sender_terms
-        cursor = db["client_emails"].find(
+        cursor = find_emails(
             sender_query,
             {"_id": 0, "attachments": 1},
         ).sort("received_at", -1).limit(10)
