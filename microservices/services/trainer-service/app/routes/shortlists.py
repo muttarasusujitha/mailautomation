@@ -3578,21 +3578,46 @@ async def send_shortlist_mail(
                         generated_toc = await _build_toc(requirement, t, db)
                         if generated_toc:
                             try:
+                                toc_url = f"{DOC_SVC}/api/v1/documents/excel/toc"
                                 toc_response = await _post_with_local_fallback(
                                     client,
-                                    f"{DOC_SVC}/api/v1/documents/excel/toc",
-                                    # Mail 1 sends the generated agenda to the trainer for
-                                    # delivery confirmation.  It is a proposed scope at this
-                                    # stage, so export it as a draft instead of waiting for a
-                                    # separate coordinator quality-review action.
-                                    json={"toc": generated_toc, "draft": True},
+                                    toc_url,
+                                    json={"toc": generated_toc},
                                 )
-                                if toc_response.status_code == 200 and toc_response.content:
-                                    toc_label = "Proposed TOC"
-                                    toc_note = (
-                                        "The proposed ToC/course agenda is attached. Please review this scope and "
-                                        "confirm availability and delivery feasibility."
+                                toc_quality = generated_toc.get("quality") or {}
+                                reviewable_draft = (
+                                    toc_quality.get("status") == "requires_review"
+                                    and not toc_quality.get("validation_errors")
+                                    and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
+                                )
+                                is_draft_toc = False
+                                if toc_response.status_code == 422 and reviewable_draft:
+                                    # Mail 1 goes to the trainer for feasibility review.
+                                    # Export a clearly labeled draft for that review;
+                                    # never turn regeneration failures into delivery.
+                                    toc_response = await _post_with_local_fallback(
+                                        client, toc_url,
+                                        json={"toc": generated_toc, "draft": True},
                                     )
+                                    is_draft_toc = True
+                                if toc_response.status_code == 200 and toc_response.content:
+                                    toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
+                                    if is_draft_toc:
+                                        toc_label = "DRAFT FOR REVIEW - " + toc_label
+                                        toc_note = (
+                                            "A draft ToC/course agenda is attached for your review. Please confirm this scope and "
+                                            "confirm availability and delivery feasibility."
+                                        )
+                                    elif not is_proposal_flow:
+                                        toc_note = (
+                                            "The ToC/course agenda for the confirmed batch is attached. Please review this scope and "
+                                            "confirm availability and delivery feasibility."
+                                        )
+                                    else:
+                                        toc_note = (
+                                            "The proposed ToC/course agenda is attached. Please review this scope and "
+                                            "confirm availability and delivery feasibility."
+                                        )
                                     scope_attachments.append({
                                         "filename": f"{domain} - {toc_label}.xlsx",
                                         "content_base64": base64.b64encode(toc_response.content).decode(),
