@@ -2972,7 +2972,7 @@ def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
         missing.append("preferred cloud provider (AWS, Azure, or GCP)")
     if not missing:
         return ""
-    return f"Could you please confirm the {_join_phrases(missing)}?"
+    return f"Could you please confirm the {_join_phrases(missing)}? We will prepare the lab estimate once confirmed."
 
 
 def _ack_greeting(extracted: Dict[str, Any]) -> str:
@@ -7378,7 +7378,7 @@ def _question_reply_needs_clarification(reply: Dict[str, Any]) -> bool:
     """Return True when a grounded draft explicitly says the fact is unavailable."""
     text = _plain_text((reply or {}).get("body") or "").lower()
     return bool(re.search(
-        r"\b(?:we (?:are|will be) check(?:ing)?|will (?:check|verify|confirm)|"
+        r"\b(?:we(?: are|['’]re| will be) check(?:ing)?|will (?:check|verify|confirm)|"
         r"requires? confirmation|need(?:s)? (?:to be )?(?:checked|verified|confirmed)|"
         r"not (?:yet )?(?:available|confirmed|specified|on (?:the )?(?:requirement )?record)|"
         r"do not have (?:a )?confirmed)\b",

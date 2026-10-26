@@ -141,7 +141,7 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
     })["body"]
     assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", body)
     assert re.search(r"We(?:'|\u2019)ve noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day\.", body)
-    assert "lab estimate" in body.lower()
+    assert "lab cost" in body.lower()
     assert "relevant CV" in body
     assert body.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     _assert_no_secrets(body)

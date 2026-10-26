@@ -4460,7 +4460,7 @@ async def send_client_slots(
     # draft lab estimate needs a later pricing refinement.  The core client
     # coordination flow remains fully automated.
     elif explicit_lab_workbook:
-        logger.warning("Sending client handoff without draft lab workbook: %s", lab_error or "pricing data incomplete")
+        raise HTTPException(502, "Could not prepare the required lab workbook; client handoff was not sent")
 
     trainer_details = _requested_trainer_details_for_client(
         req,

@@ -240,12 +240,12 @@ def test_python_and_java_for_one_client_use_different_versions():
     assert "send the relevant CV for your review" in python_body
     assert "toc" not in python_body.lower()
     assert re.search(r"We(?: have|'ve) noted the topics, the 4-day training duration, and Offline mode\.", java_body)
-    assert "send the CV for your review" in java_body
+    assert "share the trainer's CV for your review" in java_body
     assert "lab" not in java_body.lower()
     assert "This AWS batch is Online and runs for 6 days." in aws_body
     assert "The topics are included, and the lab is 3 hours per day." in aws_body
     assert "The lab cost will use those daily hours." in aws_body
-    assert "send the CV for your review" in aws_body
+    assert "share the CV for your review" in aws_body
     assert "toc" not in aws_body.lower()
 
     assert len({python_body, java_body, aws_body}) == 3
@@ -373,7 +373,7 @@ def test_same_client_different_requirements_use_different_professional_versions(
     assert "prepare the ToC and lab cost from the details you shared" in devops_body
     assert re.search(r"We(?: have|'ve) noted the topics, the 5-day training duration, Online mode, and 2 lab hours per day\.", python_body)
     assert "share the trainer's CV for your review." in python_body
-    assert "send the relevant CV for your review" in python_body
+    assert "share the trainer's CV for your review" in python_body
     assert "We have noted" not in devops_other
     assert "We have recorded" not in devops_other
     assert "taken note" not in devops_other
@@ -530,7 +530,7 @@ def test_version_one_and_ten_use_the_reference_tone():
     assert "7 training days" in version_one and "Offline" in version_one and "3 lab hours" in version_one
     assert "7-day training duration" in version_ten and "Offline" in version_ten and "3 lab hours" in version_ten
     assert "prepare the ToC and lab cost" in version_one
-    assert "prepare the ToC and lab cost" in version_ten
+    assert "put together the ToC and lab cost" in version_ten
     assert apply_voice(version_one) == version_one
     assert apply_voice(version_ten) == version_ten
     rendered = [_render_professional_ack(payload, index) for index in _ACK_ROTATION]
@@ -665,7 +665,7 @@ def test_domain_from_the_requirement_input_is_placed_in_the_sentence():
     assert "Snowflake" not in sap
     assert "Thank you for sharing the SAP requirement." in sap
     assert re.search(r"We(?: have|'ve) noted the topics, the 4-day training duration, and Offline mode\.", sap)
-    assert "share the trainer's CV for your review" in sap or "share the relevant CV for your review" in sap
+    assert "share the trainer's CV for your review" in sap
     assert "lab" not in sap.lower()
     assert snowflake != sap
     for body in (snowflake, sap):
