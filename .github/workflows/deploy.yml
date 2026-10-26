@@ -23,7 +23,7 @@ env:
 jobs:
   source-code:
     name: Stage 1 - Checkout
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -34,7 +34,7 @@ jobs:
   build-test:
     name: Stage 2 - Backend Build & Test
     needs: source-code
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +85,7 @@ jobs:
   frontend-build:
     name: Stage 2 - Frontend Build
     needs: source-code
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
