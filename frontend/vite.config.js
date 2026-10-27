@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: devHost,
+      allowedHosts: ['meetclahan.shop'],
       port: devPort,
       strictPort: false,
       proxy: {
