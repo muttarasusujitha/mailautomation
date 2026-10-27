@@ -699,6 +699,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     client_lab_markup_percent = values["clahan_margin_percent"]
     if client_lab_markup_percent > 100:
         raise ValueError("client_lab_markup_percent cannot exceed 100")
+    # Keep the markup factor out of visible client cells and the formula bar.
+    # The client sees only the resulting estimate on the Client Estimate sheet.
     internal_calc_ws = workbook.create_sheet("Internal Calculation")
     internal_calc_ws["A1"] = "Client adjustment factor"
     internal_calc_ws["B1"] = client_lab_markup_percent / 100
@@ -1679,7 +1681,10 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else payload
     from shared.toc_quality import toc_delivery_error
     error = toc_delivery_error(toc)
-    if error:
+    # A generated agenda may be shared as a proposed scope during the
+    # automated trainer/client handoff. Its later delivery review must not
+    # prevent preparing the corresponding draft lab workbook.
+    if error and payload.get("draft") is not True:
         raise HTTPException(422, error)
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
     from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
@@ -1702,6 +1707,7 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         for key in ("fx_rate", "fx_rate_source", "fx_rate_date", "fx_rate_fetched_at"):
             assumptions.pop(key, None)
         assumptions = validate_lab_cost_inputs(assumptions, require_fx=False)
+        assumptions["allow_incomplete_draft"] = payload.get("draft") is True
         # Match the trainer-service rule: a fully local course cannot inherit
         # default cloud egress, build-runner, or monitoring charges.
         from shared.lab_planning import local_only_delivery

@@ -14,7 +14,10 @@ services:
     ports:
       - "5174:5174"
     volumes:
+      - ./frontend/src/App.jsx:/app/src/App.jsx:ro
+      - ./frontend/src/components/Layout.jsx:/app/src/components/Layout.jsx:ro
       - ./frontend/src/pages/Dashboard.jsx:/app/src/pages/Dashboard.jsx:ro
+      - ./frontend/src/pages/NaukriSearch.jsx:/app/src/pages/NaukriSearch.jsx:ro
       - ./frontend/src/pages/Shortlist.jsx:/app/src/pages/Shortlist.jsx:ro
       - ./frontend/src/pages/Shortlist1.jsx:/app/src/pages/Shortlist1.jsx:ro
       - ./frontend/src/pages/Admin.jsx:/app/src/pages/Admin.jsx:ro
@@ -22,8 +25,12 @@ services:
       - ./frontend/src/pages/GmailCallback.jsx:/app/src/pages/GmailCallback.jsx:ro
       - ./frontend/src/pages/LinkedInSearch.jsx:/app/src/pages/LinkedInSearch.jsx:ro
       - ./frontend/src/pages/ClientRequests.jsx:/app/src/pages/ClientRequests.jsx:ro
+      - ./frontend/src/pages/FinanceApprovals.jsx:/app/src/pages/FinanceApprovals.jsx:ro
       - ./frontend/src/components/LeadBot.jsx:/app/src/components/LeadBot.jsx:ro
       - ./frontend/src/utils/leadSearchFeedback.js:/app/src/utils/leadSearchFeedback.js:ro
+      - ./frontend/src/utils/requestPolicy.js:/app/src/utils/requestPolicy.js:ro
+      - ./frontend/src/utils/api.js:/app/src/utils/api.js:ro
+      - ./frontend/src/utils/trainerIdentity.js:/app/src/utils/trainerIdentity.js:ro
     networks:
       - trainersync
 

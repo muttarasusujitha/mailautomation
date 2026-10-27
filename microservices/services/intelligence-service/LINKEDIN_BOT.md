@@ -1,8 +1,8 @@
 # Connected LinkedIn fetching
 
 Select trainer profiles or client posts in LinkedIn Search, enter domains, and
-click Find. Automatic collection and the search page use `auto`: public search
-followed by the connected account when more matches are needed.
+click Find. Automatic collection and the search page use `auto`, which reads
+only the connected LinkedIn account. Public web search is not called.
 Fetches only save leads; they never send email, messages or connection requests.
 Search cards are unverified signals, not confirmation that a requirement remains open.
 

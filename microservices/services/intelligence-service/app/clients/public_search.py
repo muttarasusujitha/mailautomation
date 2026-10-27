@@ -153,12 +153,12 @@ class _DdgLinks(HTMLParser):
             self._buf.append(data)
 
 
-def parse_ddg(content, limit):
+def parse_ddg(content, limit, allowed_domains=None):
     parser = _DdgLinks()
     parser.feed(content.decode('utf-8', 'ignore'))
     results, seen = [], set()
     for row in parser.rows:
-        if _keep_result(row['href'], row['title'], limit, results, seen, row['snippet'] or row['title']):
+        if _keep_result(row['href'], row['title'], limit, results, seen, row['snippet'] or row['title'], allowed_domains):
             break
     return results
 
@@ -184,11 +184,12 @@ def _ddg_challenged(response):
     return response.status_code == 202 or b'anomaly-modal' in response.content
 
 
-def _keep_result(url, title, limit, results, seen, content=None):
+def _keep_result(url, title, limit, results, seen, content=None, allowed_domains=None):
     url = unwrap_result_url(url)
     parts = urlsplit(url)
     host = (parts.hostname or '').lower()
-    if parts.scheme not in ('http', 'https') or not any(host == domain or host.endswith('.' + domain) for domain in ('linkedin.com', 'naukri.com')):
+    domains = allowed_domains or ('linkedin.com', 'naukri.com')
+    if parts.scheme not in ('http', 'https') or not any(host == domain or host.endswith('.' + domain) for domain in domains):
         return False
     if host.endswith('linkedin.com') and not parts.path.startswith(('/in/', '/posts/', '/feed/update/')):
         return False
@@ -202,13 +203,13 @@ def _keep_result(url, title, limit, results, seen, content=None):
     return len(results) >= limit
 
 
-def parse_html(content, limit):
+def parse_html(content, limit, allowed_domains=None):
     parser = _BingLinks()
     parser.feed(content.decode('utf-8', 'ignore'))
     parser._close_block()
     results, seen = [], set()
     for url, title, snippet in parser.links:
-        if _keep_result(url, title, limit, results, seen, snippet or title):
+        if _keep_result(url, title, limit, results, seen, snippet or title, allowed_domains):
             break
     return results
 
@@ -249,17 +250,17 @@ async def _fetch(method, url, retries=1, **kwargs):
     return None, timed_out
 
 
-async def _search_page(query, limit, first):
+async def _search_page(query, limit, first, allowed_domains=None):
     response, timed_out = await _fetch(
         'GET', 'https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
     if timed_out or response is None or response.status_code != 200:
         raise ValueError('Public search is temporarily unavailable or rate limited')
     if len(response.content) > 1_000_000:
         raise ValueError('Public search response is too large')
-    return parse_html(response.content, limit)
+    return parse_html(response.content, limit, allowed_domains)
 
 
-async def _read_ddg_pages(response, limit, found, seen):
+async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None):
     """Page a results response until no new profile links appear. A challenge is not solved."""
     challenged = False
     timed_out = False
@@ -271,7 +272,7 @@ async def _read_ddg_pages(response, limit, found, seen):
             break
         if response.status_code != 200 or len(response.content) > 1_000_000:
             break
-        page = parse_ddg(response.content, limit - len(found))
+        page = parse_ddg(response.content, limit - len(found), allowed_domains)
         added = [row for row in page if row['url'] not in seen]
         if not added:
             break
@@ -299,12 +300,12 @@ async def _search_ddg(query, limit, found=None, seen=None, warm=True):
     return found, challenged
 
 
-async def _search_bing(query, limit):
+async def _search_bing(query, limit, allowed_domains=None):
     found, seen = [], set()
     first = 1
     while len(found) < limit and first <= 41:
         try:
-            page = await _search_page(query, limit - len(found), first)
+            page = await _search_page(query, limit - len(found), first, allowed_domains)
         except ValueError:
             break
         added = [row for row in page if row['url'] not in seen]
@@ -325,9 +326,19 @@ async def search_public(query, limit=10):
     return (await _search_bing(query, limit))[:limit]
 
 
-async def search_public_many(queries, limit=50):
+class SearchBatch(tuple):
+    """Matched rows and attempt count. timed_out is set when nothing was kept."""
+
+    def __new__(cls, found, attempts, timed_out=False):
+        batch = super().__new__(cls, (list(found), attempts))
+        batch.timed_out = bool(timed_out)
+        return batch
+
+
+async def search_public_many(queries, limit=50, allowed_domains=None):
     """Keep reading result pages until the route minimum is filled or the connection stops answering."""
     limit = min(max(int(limit or 1), 1), 60)
+    domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
     found, seen = [], set()
     challenges = 0
     timeouts = 0
@@ -346,7 +357,7 @@ async def search_public_many(queries, limit=50):
                 challenges += 1
                 timeouts = 0
             continue
-        challenged, page_timeout = await _read_ddg_pages(response, limit, found, seen)
+        challenged, page_timeout = await _read_ddg_pages(response, limit, found, seen, domains)
         if page_timeout:
             timeouts += 1
         elif challenged and len(found) == before:
@@ -357,6 +368,13 @@ async def search_public_many(queries, limit=50):
             timeouts = 0
         else:
             timeouts = 0
-    if not found and timeouts < 2 and challenges < 3 and queries:
-        found.extend(await _search_bing(queries[0], limit))
-    return found[:limit], attempts
+    # A DuckDuckGo challenge is not a reason to skip the independent Bing
+    # fallback. Try the remaining query variants as well; this matters for
+    # Naukri, where one narrow path-specific query often has no indexed hits.
+    if not found and timeouts < 2 and queries:
+        for query in queries:
+            if len(found) >= limit:
+                break
+            found.extend(await _search_bing(query, limit - len(found), domains))
+    kept = found[:limit]
+    return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0)

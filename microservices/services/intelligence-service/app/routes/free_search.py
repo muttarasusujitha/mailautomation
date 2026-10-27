@@ -65,25 +65,32 @@ def _normalize_tavily_profiles(results: Any) -> List[Dict[str, Any]]:
     return profiles
 
 
-async def _tavily_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "") -> List[Dict[str, Any]]:
+async def _tavily_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "", include_domains: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     current_year = datetime.utcnow().year
-    query = f'"{search_text}" {current_year} trainer instructor corporate training'
+    domains = include_domains or ["linkedin.com", "naukri.com"]
+    naukri_only = domains == ["naukri.com"]
+    # Naukri CVs are rarely indexed with a current year or corporate-training
+    # wording. Keep the Naukri query broad; retain the more selective LinkedIn query.
+    query = f'"{search_text}"' if naukri_only else f'"{search_text}" {current_year} trainer instructor corporate training'
     if query_suffix:
         query += f" {query_suffix}"
     if location:
         query += f" {location}"
-    query += " site:linkedin.com/in OR site:naukri.com"
+    query += " " + " OR ".join(f"site:{domain}" for domain in domains)
 
     settings = get_settings()
     if not settings.TAVILY_API_KEY:
-        logger.warning("TAVILY_API_KEY is not configured")
-        return []
+        from app.clients.public_search import search_public_many
+        batch = await search_public_many([query], max_results, allowed_domains=domains)
+        rows, attempts = batch
+        logger.info("Public trainer search fallback: domains=%s attempts=%s results=%s", domains, attempts, len(rows))
+        return _normalize_tavily_profiles(rows)
 
     payload = {
         "query": query,
         "max_results": max_results,
         "search_depth": settings.TAVILY_SEARCH_DEPTH,
-        "include_domains": ["linkedin.com", "naukri.com"],
+        "include_domains": domains,
         "time_range": "year",
     }
     headers = {
@@ -108,6 +115,7 @@ class FreeSearchRequest(BaseModel):
     location: Optional[str] = ""
     max_results: int = 50
     save_leads: bool = False
+    include_domains: Optional[List[str]] = None
 
 
 @router.post("/search")
@@ -132,8 +140,13 @@ async def free_search_trainers(
     all_profiles: List[Dict[str, Any]] = []
     seen_slugs: set = set()
 
-    requested = max(1, min(int(payload.max_results or 50), 50))
+    naukri_only = payload.include_domains == ["naukri.com"]
+    requested = min(max(int(payload.max_results or (10 if naukri_only else 50)), 10), 30) if naukri_only else max(1, min(int(payload.max_results or 50), 50))
+    allowed_domains = [str(item).strip().lower() for item in (payload.include_domains or ["linkedin.com", "naukri.com"]) if str(item).strip()]
+    if not allowed_domains or any(item not in {"linkedin.com", "naukri.com"} for item in allowed_domains):
+        return {"success": False, "error": "include_domains must contain linkedin.com and/or naukri.com", "found": 0, "profiles": []}
     per_query = min(max(requested, 20), 50)
+    naukri_only = allowed_domains == ["naukri.com"]
     query_suffixes = [
         "",
         '"corporate trainer"',
@@ -142,8 +155,10 @@ async def free_search_trainers(
         '"online trainer"',
         '"training consultant"',
     ]
+    if naukri_only:
+        query_suffixes = ["", '"trainer"', '"instructor"']
     results = await asyncio.gather(*[
-        _tavily_trainer_search(search_text, payload.location or "", per_query, suffix)
+        _tavily_trainer_search(search_text, payload.location or "", per_query, suffix, allowed_domains)
         for suffix in query_suffixes
     ])
 
@@ -154,12 +169,17 @@ async def free_search_trainers(
                 dedupe_key
                 and dedupe_key not in seen_slugs
                 and matches_requested_skill(p, match_text)
-                and is_current_year_result(p)
+                and (naukri_only or is_current_year_result(p))
+                and any((p.get("source_url", "").lower().split("/", 3)[2] == domain or p.get("source_url", "").lower().split("/", 3)[2].endswith("." + domain)) for domain in allowed_domains)
             ):
                 seen_slugs.add(dedupe_key)
                 all_profiles.append(p)
 
     profiles = all_profiles[:requested]
+
+    search_error = ""
+    if naukri_only and not profiles:
+        search_error = "Public Naukri search returned no profiles."
 
     if payload.save_leads and profiles:
         now = datetime.utcnow()
@@ -182,4 +202,5 @@ async def free_search_trainers(
         "location": payload.location,
         "found": len(profiles),
         "profiles": profiles,
+        "search_error": search_error,
     }

@@ -186,9 +186,9 @@ def test_explicit_client_requested_detail_stays_missing_until_trainer_supplies_i
 
 def test_three_valid_slots_are_preserved_while_only_missing_linkedin_is_requested():
     reply = """I am interested.
-- 10 September 2026, 10:30 AM IST
-- 10 September 2026, 2:00 PM IST
-- 10 September 2026, 4:00 PM IST"""
+- 10 September 2027, 10:30 AM IST
+- 10 September 2027, 2:00 PM IST
+- 10 September 2027, 4:00 PM IST"""
     requirement = {
         "technology_needed": "Advanced DevOps with AWS & Azure",
         "requested_details": ["Updated CV / Trainer Profile", "LinkedIn Profile", "ToC"],

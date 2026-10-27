@@ -1,6 +1,6 @@
 ﻿import { mail1Template, mail2FollowupTemplate, mail3Template, mail3SlotClarificationTemplate, mail3TooManySlotsTemplate, mail4Template, mail5SelectedTemplate, mail5RejectedTemplate, mailTocAutoTemplate, mailTrainingConfirmedTemplate, trainerCommercialNegotiationTemplate } from '../utils/workflowTemplates'
 import { useState, useEffect, useRef } from 'react'
-import api, { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
+import api, { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, refreshShortlist, updateRequirement } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Users, Mail, Clock, MapPin, Phone,
@@ -234,6 +234,7 @@ function assertSendMailDelivered(result = {}, fallback = 'Email delivery failed'
 }
 
 const STAGES = {
+  profile_review:       { label: 'Profile Review Required', color: 'bg-amber-100 text-amber-800', step: 0 },
   pending:              { label: 'Pending',               color: 'bg-slate-100 text-slate-500',     step: 0 },
   mail1_sent:           { label: '1st Mail Sent Ã°Å¸â€œÂ§',      color: 'bg-blue-100 text-blue-700',       step: 1 },
   waiting_reply1:       { label: 'Waiting for Reply Ã¢ÂÂ³',  color: 'bg-sky-100 text-sky-700',         step: 1 },
@@ -253,6 +254,7 @@ const STAGES = {
   client_po_received:   { label: 'Client PO Received',     color: 'bg-cyan-100 text-blue-700',       step: 6 },
   training_confirmed:   { label: 'Training Confirmed',     color: 'bg-green-100 text-green-700',     step: 7 },
   invoice_generated:    { label: 'Invoice Generated',      color: 'bg-emerald-100 text-emerald-700', step: 7 },
+  invoice_draft_sent_for_review: { label: 'Draft Invoice Sent for Review', color: 'bg-amber-100 text-amber-800', step: 8 },
   invoice_sent:         { label: 'Invoice Sent',           color: 'bg-green-100 text-green-700',     step: 7 },
 }
 
@@ -271,6 +273,7 @@ Object.assign(STAGES, {
   po_requested: { ...STAGES.po_requested, step: 7 },
   client_po_received: { ...STAGES.client_po_received, step: 7 },
   invoice_generated: { ...STAGES.invoice_generated, label: 'Invoice Ready', step: 8 },
+  invoice_draft_sent_for_review: { ...STAGES.invoice_draft_sent_for_review, step: 8 },
   invoice_sent: { ...STAGES.invoice_sent, label: 'Invoice Sent to Client', step: 8 },
   toc_requested: { ...STAGES.toc_requested, label: 'ToC Shared', step: 5 },
   toc_received_pending: { ...STAGES.toc_received_pending, label: 'ToC Received', step: 5 },
@@ -330,6 +333,7 @@ const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'stopped_selected',
   'role_filled',
   'requirement_filled',
+  'interview_scheduled',
   'selected',
   'toc_requested',
   'toc_received_pending',
@@ -337,6 +341,7 @@ const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'po_requested',
   'client_po_received',
   'invoice_generated',
+  'invoice_draft_sent_for_review',
   'invoice_sent',
 ])
 
@@ -347,6 +352,7 @@ function normalizeBackendStage(value = '') {
 }
 
 const BACKEND_PIPELINE_STAGE_ALIASES = {
+  profile_review: 'profile_review',
   shortlisted: 'pending',
   new: 'pending',
   mail1: 'waiting_reply1',
@@ -388,6 +394,7 @@ const PIPELINE_STAGE_RANK = {
   client_po_received: 9,
   training_confirmed: 10,
   invoice_generated: 11,
+  invoice_draft_sent_for_review: 12,
   invoice_sent: 12,
   rejected: 99,
   stopped_selected: 99,
@@ -417,10 +424,12 @@ function resolveTrainerStage(trainer, req, state) {
 
 function requirementCommercialStage(req) {
   const invoiceStatus = String(req?.invoice_status || '').toLowerCase()
+  const draftStatus = String(req?.invoice_draft_status || '').toLowerCase()
   const clientPoStatus = String(req?.client_po_status || '').toLowerCase()
   const poRequestStatus = String(req?.po_request_status || '').toLowerCase()
 
   if (invoiceStatus === 'sent' || clientPoStatus === 'invoice_sent') return 'invoice_sent'
+  if (draftStatus === 'sent_for_review') return 'invoice_draft_sent_for_review'
   if (invoiceStatus === 'generated' || clientPoStatus === 'invoice_generated') return 'invoice_generated'
   if (clientPoStatus === 'received') return 'client_po_received'
   if (poRequestStatus === 'requested' || req?.po_requested_at || req?.client_po_requested || req?.client_po_requested_at) return 'po_requested'
@@ -437,12 +446,32 @@ function backendAuthoritativeStage(trainer, req) {
   if (selectedId && trainerId && trainerId !== selectedId) return 'stopped_selected'
   if (selectedId && trainerId === selectedId) {
     if (commercialStage) return commercialStage
-    if (['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(requirementStage)) {
+    if (['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(requirementStage)) {
       return requirementStage
     }
     if (trainerStage && trainerStage !== 'stopped_selected') return trainerStage
     return 'selected'
   }
+  if (commercialStage && ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(trainerStage)) {
+    return commercialStage
+  }
+  const trainerStageName = String(trainer?.pipeline_status || trainer?.status || '').trim().toLowerCase()
+  const hasInterviewDetails = Boolean(
+    trainer?.interview_date || trainer?.interview_at || trainer?.interview_link || trainer?.meet_link
+  )
+  const interviewScheduledFlag = trainer?.interview_scheduled === true ||
+    String(trainer?.interview_scheduled || '').trim().toLowerCase() === 'true'
+  const hasScheduledInterview = hasInterviewDetails && (
+    interviewScheduledFlag ||
+    trainerStageName === 'interview_scheduled' ||
+    String(trainer?.last_mail_type || trainer?.last_automation_mail_type || '').trim().toLowerCase() === 'mail4' ||
+    String(trainer?.slot_status || '').trim().toLowerCase() === 'interview_link_sent'
+  )
+  if (
+    hasScheduledInterview &&
+    !['rejected', 'declined', 'interview_reschedule_requested', 'reschedule_waiting_trainer', 'interview_completed'].includes(trainerStageName) &&
+    !['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(trainerStageName)
+  ) return 'interview_scheduled'
   // Handoff delivery is stronger evidence than a stale/replayed trainer
   // reply status.  The inbox can reprocess a Gmail thread after sending the
   // client-slots email, so keep the visual pipeline at client handoff.
@@ -482,8 +511,6 @@ function greeting(trainer) {
 }
 
 const MIN_TRAINER_DAY_RATE_VISIBLE = 10000
-const SHORT_DURATION_DAYS = 7
-const SHORT_DURATION_TRAINER_SHARE = 0.78
 const DEFAULT_TRAINER_SHARE = 0.70
 
 function durationDaysFromRequirement(req = {}) {
@@ -495,7 +522,7 @@ function durationDaysFromRequirement(req = {}) {
 }
 
 function trainerShareForDays(days) {
-  return days && days <= SHORT_DURATION_DAYS ? SHORT_DURATION_TRAINER_SHARE : DEFAULT_TRAINER_SHARE
+  return DEFAULT_TRAINER_SHARE
 }
 
 function roundCommercialAmount(amount) {
@@ -511,10 +538,11 @@ function trainerBudgetFromClientAmount(amount, unit = 'day', days = 0) {
   if (unit === 'total' && days > 0) {
     const trainerPerDay = (numeric / days) * share
     const trainerTotal = numeric * share
+    const useDailyRate = trainerPerDay >= MIN_TRAINER_DAY_RATE_VISIBLE
     return {
-      amount: trainerPerDay < MIN_TRAINER_DAY_RATE_VISIBLE ? Math.round(trainerTotal) : roundCommercialAmount(trainerPerDay),
-      unit: trainerPerDay < MIN_TRAINER_DAY_RATE_VISIBLE ? 'total' : 'day',
-      clientAmount: numeric,
+      amount: useDailyRate ? roundCommercialAmount(trainerPerDay) : Math.round(trainerTotal),
+      unit: useDailyRate ? 'day' : 'total',
+      clientAmount: useDailyRate ? numeric / days : numeric,
       marginPercent: Math.round((1 - share) * 100),
     }
   }
@@ -2472,7 +2500,7 @@ function InterviewRescheduleStatus({ trainer }) {
 }
 
 function PipelineProgressSummary({ stage, req, trainer }) {
-  const postTrainingStages = ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent']
+  const postTrainingStages = ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent']
   const afterTraining = postTrainingStages.includes(stage)
   const doneStages = {
     mail1: afterTraining || ['mail1_sent', 'waiting_reply1', 'mail1_replied', 'details_requested', 'details_received', 'waiting_reply2', 'slot_booked', 'interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage),
@@ -2482,8 +2510,8 @@ function PipelineProgressSummary({ stage, req, trainer }) {
     mail5: afterTraining || ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage),
     mail6: afterTraining || ['toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage),
     mail7: afterTraining || stage === 'training_confirmed',
-    po: ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(stage),
-    invoice: ['invoice_generated', 'invoice_sent'].includes(stage),
+    po: ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(stage),
+    invoice: ['invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(stage),
     invoiceSent: stage === 'invoice_sent',
   }
 
@@ -2503,6 +2531,7 @@ function PipelineProgressSummary({ stage, req, trainer }) {
   const selectionDelivered = afterTraining || ['interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage)
   const progressPct = stage === 'rejected' ? 100 : stage === 'invoice_sent' ? 100 :
     stage === 'invoice_generated' ? 95 :
+    stage === 'invoice_draft_sent_for_review' ? 94 :
     stage === 'client_po_received' ? 88 :
     stage === 'po_requested' ? 82 :
     stage === 'training_confirmed' ? 75 :
@@ -2520,6 +2549,8 @@ function PipelineProgressSummary({ stage, req, trainer }) {
         ? 'Workflow complete - invoice sent to client'
         : stage === 'invoice_generated'
           ? 'Invoice ready to send to client'
+          : stage === 'invoice_draft_sent_for_review'
+            ? 'Draft invoice sent for review; final invoice is pending confirmation'
           : stage === 'training_confirmed'
             ? 'PO request is next'
           : stage === 'client_po_received'
@@ -2543,8 +2574,10 @@ function PipelineProgressSummary({ stage, req, trainer }) {
                           : 'Trainer request is next'
   const commercialStatus = doneStages.invoiceSent
     ? 'Invoice sent'
-    : doneStages.invoice
-      ? 'Invoice generated'
+    : stage === 'invoice_draft_sent_for_review'
+      ? 'Draft sent for review'
+      : doneStages.invoice
+        ? 'Invoice generated'
       : doneStages.po
         ? stage === 'po_requested' ? 'PO requested' : 'PO received'
         : 'Not started'
@@ -2634,7 +2667,9 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const acceptedClientCommercial = trainerOffer?.amount &&
             trainerOffer.unit === quote.unit &&
             quote.amount <= trainerOffer.amount
-          const clientAmount = clientRateFromTrainerRate(quote.amount)
+          const clientAmount = acceptedClientCommercial && Number(trainerOffer?.clientAmount) > 0
+            ? Math.ceil(Number(trainerOffer.clientAmount))
+            : clientRateFromTrainerRate(quote.amount)
           const unitText = quote.unit === 'hour' ? 'per hour' : quote.unit === 'session' ? 'per session' : 'per day'
           const guardKey = `${req.requirement_id}:${trainer.trainer_id}:client_commercials:${reason}:${acceptedClientCommercial ? 'accepted' : clientAmount}:${messageTime(reply)}`
           if (!shouldSendOnce(guardKey)) return true
@@ -2661,7 +2696,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
               to_email: req.client_email,
               requirement_id: req.requirement_id,
               subject: `Trainer Accepted Your Commercial - ${req.technology_needed} | ${trainer.name}`,
-              body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Commercial:\n- INR ${trainerOffer.amount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nClahan Technologies`,
+              body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Client Commercial:\n- INR ${clientAmount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nClahan Technologies`,
               mail_type: 'client_budget_acknowledgment',
             })
             showSendStatusToast({ trainerName: trainer.name, result: acceptedRes.data, title: 'Client commercial acceptance sent' })
@@ -2707,7 +2742,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
         // The browser stops after the client decision.  The service workflow
         // records PO/final confirmation and invoice events; it must not send
         // the retired post-selection ToC or training-confirmation emails.
-        if (trainers.some(t => ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(getStage(t)))) {
+        if (trainers.some(t => ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(getStage(t)))) {
           runningRef.current = false
           return
         }
@@ -2721,20 +2756,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             .join(',')}`
 
           if (firstOutreachDecisionRef.current !== batchKey) {
-            const mailLabel = pendingTrainers.length === 1 ? 'email' : 'emails'
-            const trainerLabel = pendingTrainers.length === 1 ? 'trainer' : 'trainers'
-            const shouldSend = globalThis.confirm(
-              `AI pipeline is ready to start. It will send ${pendingTrainers.length} ${mailLabel} to ${pendingTrainers.length} shortlisted ${trainerLabel} (Mail 1).\n\nNo emails have been sent yet. Do you want to continue?`
-            )
-
-            // Mark both confirmation and cancellation for this exact batch.
-            // A changed shortlist creates a new key and prompts again.
+            // Mail 1 is fully automated once a valid shortlist exists.
             firstOutreachDecisionRef.current = batchKey
-            if (!shouldSend) {
-              toast('AI pipeline paused. No emails were sent.', { icon: 'i', duration: 5000 })
-              runningRef.current = false
-              return
-            }
           }
 
           const sentResults = []
@@ -2799,7 +2822,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
 }
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Trainer Card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, autoMode, isActive, generationMode }) {
+function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, onProfileApproved, autoMode, isActive, generationMode }) {
   const stage     = resolveTrainerStage(trainer, req, state)
   const stageInfo = STAGES[stage] || STAGES.pending
   const [mailModal, setMailModal] = useState(null)
@@ -2820,6 +2843,20 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const [editedProfileBullets, setEditedProfileBullets] = useState({})
   const [trainerConfirmations, setTrainerConfirmations] = useState({})
   const [trainerConfirmationReference, setTrainerConfirmationReference] = useState('')
+  const [approvingProfile, setApprovingProfile] = useState(false)
+
+  const approveProfileForOutreach = async () => {
+    setApprovingProfile(true)
+    try {
+      await api.post(`/requirements/${req.requirement_id}/trainers/${trainer.trainer_id}/approve-profile`)
+      toast.success(`${trainer.name}'s profile is approved for outreach`)
+      onProfileApproved?.()
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not approve this profile')
+    } finally {
+      setApprovingProfile(false)
+    }
+  }
 
   const BTN = 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all active:scale-95 shadow-sm'
 
@@ -2984,7 +3021,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       })
     }
 
-    if (['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(stage)) {
+    if (['po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(stage)) {
       return renderPostSelectionTools({
         note: stage === 'invoice_sent'
           ? 'Workflow complete. The invoice was sent to the saved client email.'
@@ -3566,7 +3603,17 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               <span className={clsx('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold', stageInfo.color)}>
                 {stageInfo.label}
               </span>
-              {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_sent'].includes(stage) && (
+              {trainer.profile_review_required && (
+                <button
+                  type="button"
+                  onClick={approveProfileForOutreach}
+                  disabled={approvingProfile}
+                  className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+                >
+                  {approvingProfile ? 'Approving…' : 'Approve profile for Mail 1'}
+                </button>
+              )}
+              {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_draft_sent_for_review','invoice_sent'].includes(stage) && (
                 <span className="relative flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-transparent animate-pulse">
                   <span className="absolute inset-0 flex items-center justify-center gap-1 text-violet-700"><Bot className="h-3.5 w-3.5" /> Automation active</span>
                   Ã°Å¸Â¤â€“ Auto Active
@@ -3617,6 +3664,8 @@ function hasRequirementWorkflowChanged(current = {}, incoming = {}) {
     'status', 'batch_flow', 'batch_type', 'requirement_type', 'pipeline_page',
     'selection_status', 'selected_trainer_id', 'selected_trainer_name',
     'client_po_requested', 'client_po_received', 'batch_confirmed', 'invoice_sent',
+    'invoice_status', 'client_po_status', 'invoice_draft_status',
+    'invoice_draft_email_id', 'invoice_draft_sent_at',
   ].some(field => current?.[field] !== incoming?.[field])
 }
 
@@ -3686,7 +3735,7 @@ export default function Shortlist1() {
                 try {
                   const shortlistRes = await getShortlist(targetRequirementId)
                   const shortlist = shortlistRes.data || {}
-                  const trainers = (shortlist.top_trainers || shortlist.trainers || []).slice(0, 3)
+                  const trainers = (shortlist.top_trainers || shortlist.trainers || []).slice(0, 5)
                   const requirement = {
                     requirement_id: targetRequirementId,
                     technology_needed: shortlist.technology_needed || '',
@@ -3746,7 +3795,7 @@ export default function Shortlist1() {
     setTrainers([])
     getShortlist(selectedReq.requirement_id)
       .then(r => {
-        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 3)
+        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 5)
         setTrainers(list)
         const saved = getLS(`sl_v5_${selectedReq.requirement_id}`) || {}
         const merged = { ...saved }
@@ -3768,7 +3817,7 @@ export default function Shortlist1() {
       .finally(() => setLoadingTrainers(false))
   }, [selectedReq])
 
-  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS)
+  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS, 5)
 
   const handleStatusUpdate = (trainerId, newStage, extra = {}) => {
     setStates(prev => {
@@ -3830,32 +3879,45 @@ export default function Shortlist1() {
     }
   }
 
-  const reload = () => {
+  const reload = async () => {
     if (!selectedReq) return
     setLoadingTrainers(true)
-    getShortlist(selectedReq.requirement_id)
-      .then(r => {
-        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 3)
-        setTrainers(list)
-        setStates(prev => {
-          const next = { ...prev }
-          list.forEach(trainer => {
-            const backendStage = backendAuthoritativeStage(trainer, selectedReq)
-            if (backendStage) next[trainer.trainer_id] = { ...(next[trainer.trainer_id] || {}), status: backendStage }
-          })
-          return next
+    try {
+      const [r, requirementResult] = await Promise.all([
+        refreshShortlist(selectedReq.requirement_id),
+        getRequirement(selectedReq.requirement_id).catch(() => null),
+      ])
+      const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 5)
+      const refreshedRequirement = requirementResult?.data || selectedReq
+      setTrainers(list)
+      setSelectedReq(previous => previous ? {
+        ...previous,
+        ...refreshedRequirement,
+        top_count: Number(r.data.total_matched || 0),
+        total_matched: Number(r.data.total_matched || 0),
+      } : previous)
+      setReqs(previous => previous.map(item => item.requirement_id === selectedReq.requirement_id
+        ? { ...item, ...refreshedRequirement }
+        : item))
+      setStates(prev => {
+        const next = { ...prev }
+        list.forEach(trainer => {
+          const backendStage = backendAuthoritativeStage(trainer, refreshedRequirement)
+          if (backendStage) next[trainer.trainer_id] = { ...(next[trainer.trainer_id] || {}), status: backendStage }
         })
+        return next
       })
-      .catch(e => {
-        if (e.response?.status === 404) {
-          setTrainers([])
-          setStates({})
-          toast.error(e.response?.data?.detail || 'No shortlist found for this requirement yet')
-          return
-        }
+    } catch (e) {
+      if (e.response?.status === 404) {
+        setTrainers([])
+        setStates({})
+        toast.error(e.response?.data?.detail || 'No shortlist found for this requirement yet')
+      } else {
         toast.error(e.response?.data?.detail || e.message || 'Could not load shortlist')
-      })
-      .finally(() => setLoadingTrainers(false))
+      }
+    } finally {
+      setLoadingTrainers(false)
+    }
   }
 
   const syncReplyStates = async () => {
@@ -3945,7 +4007,7 @@ export default function Shortlist1() {
     total: trainers.length,
     waiting: trainers.filter(t => ['waiting_reply1', 'waiting_reply2', 'toc_requested'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
     replied: trainers.filter(t => ['mail1_replied', 'details_received', 'slot_booked', 'interview_scheduled', 'selected', 'toc_received_pending'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
-    completed: trainers.filter(t => ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent', 'rejected'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
+    completed: trainers.filter(t => ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent', 'rejected'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
   }
 
   const aiFlowSteps = [
@@ -4094,7 +4156,7 @@ export default function Shortlist1() {
                       const tone = schedule === 'TBD' ? 'text-slate-400' : 'text-amber-600'
                       return <p className={clsx('text-xs', tone)}>Schedule: {schedule}</p>
                     })()}
-                    <p className="text-xs text-slate-400">{r.requirement_id} - Top {r.top_n}</p>
+                    <p className="text-xs text-slate-400">{r.requirement_id} - {Number(r.top_count ?? r.total_matched ?? r.top_n) || 0} matched</p>
                   </div>
                   <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
                   </button>
@@ -4127,7 +4189,7 @@ export default function Shortlist1() {
                   {selectedReq.client_email ? 'Edit' : 'Add'}
                 </button>
               </div>
-              <p className="text-xs text-slate-400">{selectedReq.requirement_id} - {isConfirmedRequirement(selectedReq) ? 'Confirmed batch' : 'Proposal batch'} - Top {selectedReq.top_n}</p>
+              <p className="text-xs text-slate-400">{selectedReq.requirement_id} - {isConfirmedRequirement(selectedReq) ? 'Confirmed batch' : 'Proposal batch'} - {Number(selectedReq.top_count ?? selectedReq.total_matched ?? trainers.length) || 0} matched</p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setSelectedReq(null)}
@@ -4197,6 +4259,7 @@ export default function Shortlist1() {
                   req={selectedReq}
                   onStatusUpdate={handleStatusUpdate}
                   onRequirementPatch={patchSelectedRequirement}
+                  onProfileApproved={reload}
                   autoMode={autoMode}
                   generationMode={generationMode}
                   isActive={trainer.trainer_id === activeTrainerId}

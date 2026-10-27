@@ -555,6 +555,7 @@ def refresh_rates(values):
     if not isinstance(additional_usage, dict):
         raise PricingUnavailable('additional_resource_usage must be an object keyed by additional meter name')
     catalog_validation_only = bool(result.get('catalog_validation_only'))
+    allow_incomplete_draft = bool(result.get('allow_incomplete_draft'))
     from shared.lab_architecture import SERVICE_CATALOG
     from shared.lab_curriculum import cloud_lab_text
     from shared.lab_cost_inputs import SERVICE_METER_REQUIREMENTS as requirements
@@ -583,14 +584,38 @@ def refresh_rates(values):
         meter_names = requirements[service_name]
         missing_meters = sorted(set(meter_names) - set(selections))
         if missing_meters:
-            raise PricingUnavailable(service_name + ': configure pricing selectors for ' + ', '.join(missing_meters))
+            if not allow_incomplete_draft:
+                raise PricingUnavailable(service_name + ': configure pricing selectors for ' + ', '.join(missing_meters))
+            for name in missing_meters:
+                # A standalone estimate may name an optional monitoring or
+                # managed service without specifying any billable usage. Keep
+                # the draft useful by explicitly excluding that meter rather
+                # than inventing an amount or silently omitting the service.
+                unit = 'gb' if 'GB' in name else 'month'
+                selections[name] = {
+                    'auto_zero': True,
+                    'unit_key': unit,
+                    'covers_services': [service_name],
+                    'not_enabled_reason': (
+                        'Excluded from this draft baseline because no billable '
+                        'usage or approved price selector was supplied.'
+                    ),
+                }
+                resource_units[name] = unit
+                additional_usage.setdefault(name, 0)
         incomplete = [] if catalog_validation_only else [name for name in meter_names if name not in additional_usage]
         if incomplete:
-            raise PricingUnavailable(service_name + ': supply quantities for ' + ', '.join(incomplete)
-                                     + ' in additional_resource_usage')
+            if not allow_incomplete_draft:
+                raise PricingUnavailable(service_name + ': supply quantities for ' + ', '.join(incomplete)
+                                         + ' in additional_resource_usage')
+            for name in incomplete:
+                additional_usage[name] = 0
         for name in meter_names:
-            if selections[name].get('auto_zero'):
+            if selections[name].get('auto_zero') and not allow_incomplete_draft:
                 raise PricingUnavailable(service_name + ': a used service meter cannot be marked not billed (' + name + ')')
+    # Persist draft defaults before the common additional-meter validation
+    # below re-reads them from the quote payload.
+    result['additional_resource_usage'] = additional_usage
     unpriced = [name for name, selection in selections.items()
                 if isinstance(selection, dict) and selection.get('auto_zero')
                 and not str(selection.get('not_enabled_reason') or '').strip()]
@@ -623,7 +648,7 @@ def refresh_rates(values):
         additional_usage[name] = _amount(additional_usage[name])
         if selections[name].get('auto_zero') and additional_usage[name] > 0:
             raise PricingUnavailable(f'{name}: a used additional meter cannot be marked not billed')
-    for service_name in (() if catalog_validation_only else configured_services):
+    for service_name in (() if catalog_validation_only or allow_incomplete_draft else configured_services):
         meter_names = requirements[service_name]
         zero_meters = [name for name in meter_names if additional_usage.get(name, 0) <= 0]
         if zero_meters:

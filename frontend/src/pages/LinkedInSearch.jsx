@@ -7,7 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, matchingSavedLeads, mergeSearchLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, outcomeLine, visibleSearchLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
@@ -66,9 +66,12 @@ function leadSearchText(lead) {
 function trainerProfileText(lead) {
   return [
     lead?.trainer_name,
+    lead?.name,
     lead?.headline,
     lead?.profile_text,
     lead?.snippet,
+    lead?.notes,
+    lead?.domain,
   ].join(' ').toLowerCase()
 }
 
@@ -98,11 +101,11 @@ function isTrainerProviderProfile(lead) {
     || lead?.source_url?.includes('linkedin.com/posts/')
     || lead?.source_url?.includes('linkedin.com/feed/update')
     || lead?.lead_type === 'resume_trainer_post'
-  return Boolean(
-    hasTrainerUrl
-    && /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
-    && hasSkillMatch,
-  )
+  const hasName = Boolean(String(lead?.trainer_name || lead?.name || lead?.headline || '').trim())
+  const saysTrainer = /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
+  // People search often returns a trainer whose visible card does not repeat the skill.
+  const skillShown = !terms.length || terms.some(term => text.includes(term)) || saysTrainer || lead?.lead_type === 'trainer_profile'
+  return Boolean(hasTrainerUrl && (hasSkillMatch || skillShown) && (saysTrainer || hasName || lead?.lead_type === 'trainer_profile'))
 }
 
 function leadEmail(lead) {
@@ -161,7 +164,20 @@ export default function LinkedInSearch() {
     searchingRef.current = true
     setSearching(true)
     setSearchReport(null)
+    setSelectedDomain('all')
     try {
+      const savedListEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
+      try {
+        const savedRes = await api.get(savedListEndpoint, { params: { q: '', limit: 150 } })
+        if (token === listToken.current) {
+          const savedNow = trainerSearch
+            ? (savedRes.data.leads || []).filter(isTrainerProviderProfile)
+            : (savedRes.data.leads || [])
+          setLeads(savedNow)
+        }
+      } catch {
+        // The search below still reports its own result. Saved rows stay as they are.
+      }
       const payload = linkedInSearchPayload(searchMode, domainText)
       const res = await api.post('/linkedin-leads/search', payload)
       if (token !== listToken.current) return
@@ -183,10 +199,11 @@ export default function LinkedInSearch() {
           : firstReason === 'duplicate_in_search'
             ? 'duplicate results'
             : 'already saved or duplicate'
-        toast.success(`No new profiles saved; ${skippedCount} result${skippedCount === 1 ? '' : 's'} ${reasonText}`)
+        toast.success(`No new profiles saved. Showing ${skippedCount} ${reasonText} in the list below.`)
       } else if (!automatic) {
         toast.success('No new LinkedIn results saved')
       }
+      if (filter !== 'all') skipFilterLoad.current = true
       setFilter('all')
       setSelectedDomain('all')
       setQ('')
@@ -222,7 +239,6 @@ export default function LinkedInSearch() {
   }, [filter])
   useEffect(() => {
     const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
-    setLeads([])
     setSelectedDomain('all')
     setSearchDomains(domains)
     setSearchReport(null)
@@ -311,13 +327,13 @@ export default function LinkedInSearch() {
   }, [leads])
 
   const visibleLeads = useMemo(() => {
-    if (showSearchMatches && searchReport?.results?.length) {
-      const matched = matchingSavedLeads(leads, searchReport.results)
-      if (matched.length) return matched
-    }
+    const searchHits = (searchReport?.results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
+    if (showSearchMatches && searchHits.length) return visibleSearchLeads([], searchReport.results, true)
     if (selectedDomain === 'all') return leads
     const selected = selectedDomain.toLowerCase()
-    return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    const matched = leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    // A search term that is not a saved domain must not hide the profiles already collected.
+    return matched.length ? matched : leads
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
@@ -406,7 +422,7 @@ export default function LinkedInSearch() {
         {(searchReport.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below.</p>}
         {!searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches); setSelectedDomain('all') }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
         {(searchReport.domain_outcomes || []).map(outcome => <p key={outcome.domain} className="text-sm text-slate-600">
-          {outcome.domain}: {outcome.matched}/{outcome.target} matches.{!outcome.target_met && ' Target not reached.'}
+          {outcomeLine(outcome)}
         </p>)}
         {searchReport.warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
         {searchReport.warnings.length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}
@@ -479,17 +495,19 @@ export default function LinkedInSearch() {
 
       {isTrainer && <TrustLegend />}
 
-      {loading ? (
-        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
-      ) : searching ? (
-        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-16 text-center text-slate-500">
-          <RefreshCw className="mx-auto mb-3 h-10 w-10 animate-spin text-blue-600" />
-          <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
+      {searching && (
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] px-4 py-3 text-center text-sm text-slate-500">
+          <RefreshCw className="mr-2 inline h-4 w-4 animate-spin text-blue-600" />
+          Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search. Saved profiles stay in the list.
         </div>
+      )}
+
+      {loading && !visibleLeads.length ? (
+        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="linkedin-result-list">
           {visibleLeads.map(lead => (
-            <article key={lead.lead_id} className="linkedin-glow-card rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-4 transition-shadow">
+            <article key={lead.lead_id || lead.source_url || lead.linkedin_url} className="linkedin-result-card">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-blue-100 bg-blue-50 text-sm font-bold uppercase text-blue-700">
@@ -501,7 +519,7 @@ export default function LinkedInSearch() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-bold text-slate-900">{isTrainer ? (lead.trainer_name || lead.headline || lead.domain || 'Trainer profile') : (lead.company_name || lead.contact_name || lead.domain || 'Client post')}</h3>
+                      <h3 className="font-bold text-slate-900">{isTrainer ? (lead.trainer_name || lead.name || lead.headline || lead.domain || 'Trainer profile') : (lead.company_name || lead.contact_name || lead.domain || 'Client post')}</h3>
                       <span className={clsx('rounded-lg border px-2 py-0.5 text-xs font-semibold capitalize', statusClass(lead.status))}>{lead.status}</span>
                       {isTrainer && <VerificationBadge tier={lead.verification_tier || 'linkedin_signal'} />}
                       <span className="text-xs text-slate-400">{relativeTime(lead.created_at)}</span>

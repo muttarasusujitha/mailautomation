@@ -20,6 +20,6 @@ export function linkedinProfileUrl(value = '') {
 
 // Details generated/owned by the platform should not be requested from trainers.
 export function trainerOwnedDetails(items = []) {
-  const platformOwned = new Set(['toc', 'lab'])
+  const platformOwned = new Set(['toc', 'lab', 'commercial', 'commercials'])
   return (Array.isArray(items) ? items : []).filter(item => !platformOwned.has(String(item?.key || '').toLowerCase()))
 }

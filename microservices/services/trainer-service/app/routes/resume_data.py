@@ -77,9 +77,27 @@ async def get_resumes_by_domain(
     upload_query = _upload_domain_query(domain)
     cursor = db["trainers"].find(query, {"_id": 0, "resume": 0, "combined_text": 0}).limit(limit)
     items = [d async for d in cursor]
+    # Uploaded source files are BSON binary data. They are useful for a
+    # download endpoint but cannot be returned in a JSON review response.
+    # Returning them here caused the domain-review panel to fail with HTTP 500.
+    upload_projection = {
+        "_id": 0,
+        "upload_id": 1,
+        "trainer_id": 1,
+        "filename": 1,
+        "content_type": 1,
+        "original_file_size": 1,
+        "original_file_preserved": 1,
+        "processing_status": 1,
+        "needs_review": 1,
+        "matched_existing_trainer": 1,
+        "extracted_data": 1,
+        "created_at": 1,
+        "updated_at": 1,
+    }
     uploads = [
         d async for d in db["resume_uploads"]
-        .find(upload_query, {"_id": 0, "extracted_text": 0})
+        .find(upload_query, upload_projection)
         .sort("created_at", -1)
         .limit(limit)
     ]

@@ -547,4 +547,7 @@ def validate_lab_pricing_coverage(toc, assumptions):
     if errors_for_meter_configuration:
         errors.append(errors_for_meter_configuration)
     if errors:
+        if assumptions.get("allow_incomplete_draft") is True:
+            assumptions["pricing_validation_warnings"] = errors
+            return
         raise ValueError('Incomplete lab estimate. ' + '; '.join(errors))

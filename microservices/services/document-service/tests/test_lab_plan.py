@@ -144,16 +144,18 @@ def test_additional_live_meters_are_visible_and_included_in_workbook_total():
 
 
 @pytest.mark.parametrize('settings,expected', [
-    ({}, '=SUM(B8:B11)*(1+0.3)'),
-    ({'clahan_margin_percent': 30}, '=SUM(B8:B11)*(1+0.3)'),
-    ({'clahan_margin_percent': 15}, '=SUM(B8:B11)*(1+0.15)'),
-    ({'clahan_margin_percent': 0}, '=SUM(B8:B11)*(1+0)'),
-    ({'client_lab_markup_percent': 20}, '=SUM(B8:B11)*(1+0.2)'),
-    ({'clahan_margin_percent': 10, 'client_lab_markup_percent': 20}, '=SUM(B8:B11)*(1+0.1)'),
+    ({}, 0.3),
+    ({'clahan_margin_percent': 30}, 0.3),
+    ({'clahan_margin_percent': 15}, 0.15),
+    ({'clahan_margin_percent': 0}, 0),
+    ({'client_lab_markup_percent': 20}, 0.2),
+    ({'clahan_margin_percent': 10, 'client_lab_markup_percent': 20}, 0.1),
 ])
 def test_configured_clahan_markup_reaches_final_quote(settings, expected):
     book = openpyxl.load_workbook(io.BytesIO(sample_estimate(**settings)))
-    assert book['Client Estimate']['B12'].value == expected
+    assert book['Client Estimate']['B12'].value == "=SUM(B8:B11)*(1+'Internal Calculation'!$B$1)"
+    assert book['Internal Calculation']['B1'].value == pytest.approx(expected)
+    assert book['Internal Calculation'].sheet_state == 'veryHidden'
 
 
 def test_confirmed_cost_scope_and_additional_unpriced_services():

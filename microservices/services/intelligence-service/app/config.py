@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
 
+    # "ollama" makes the assistant use only the local Ollama API, with no cloud fallback.
+    AI_PROVIDER: str = "openai"
     # Optional Ollama HTTP API used by the assistant chat route.
     OLLAMA_URL: str = ""
     OLLAMA_MODEL: str = "qwen3:8b"

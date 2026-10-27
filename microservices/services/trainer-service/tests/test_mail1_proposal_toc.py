@@ -57,6 +57,7 @@ def test_proposal_generation_instruction_attaches_toc_in_first_mail(monkeypatch,
     assert result["sent"] == 1
     generate.assert_awaited_once()
     assert "/documents/excel/toc" in calls[0][0]
+    assert calls[0][1] == {"toc": {"title": "DevOps"}}
     mail = calls[1][1]
     assert base64.b64decode(mail["attachments"][0]["content_base64"]) == b"test-workbook"
     assert "proposed ToC/course agenda is attached" in mail["body"]

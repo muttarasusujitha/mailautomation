@@ -45,7 +45,6 @@ const Emails = lazyWithRetry(() => import('./pages/Emails'))
 const ClientRequests = lazyWithRetry(() => import('./pages/ClientRequests'))
 const LinkedInSearch = lazyWithRetry(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazyWithRetry(() => import('./pages/LinkedInPipeline'))
-const LinkedInClientPipeline = lazyWithRetry(() => import('./pages/LinkedInClientPipeline'))
 const NaukriSearch = lazyWithRetry(() => import('./pages/NaukriSearch'))
 const TrainerLocations = lazyWithRetry(() => import('./pages/TrainerLocations'))
 const VoiceAIAssistant = lazyWithRetry(() => import('./pages/VoiceAIAssistant'))
@@ -53,6 +52,7 @@ const ClientPipeline = lazyWithRetry(() => import('./pages/ClientPipeline'))
 const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedules'))
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const PurchaseOrders = lazyWithRetry(() => import('./pages/PurchaseOrders'))
+const FinanceApprovals = lazyWithRetry(() => import('./pages/FinanceApprovals'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
@@ -136,7 +136,6 @@ export default function App() {
             <Route path="client-comms" element={<Navigate to="/dashboard" replace />} />
             <Route path="linkedin-search" element={<LinkedInSearch />} />
             <Route path="linkedin-pipeline" element={<LinkedInPipeline />} />
-            <Route path="linkedin-client-pipeline" element={<LinkedInClientPipeline />} />
             <Route path="naukri-search" element={<NaukriSearch />} />
             <Route path="trainer-locations" element={<TrainerLocations />} />
             <Route path="trainer-locations/*" element={<TrainerLocations />} />
@@ -155,6 +154,7 @@ export default function App() {
             <Route path="scheduled-interviews" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="purchase-orders" element={<PurchaseOrders />} />
+            <Route path="finance-approvals" element={<FinanceApprovals />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<Admin />} />

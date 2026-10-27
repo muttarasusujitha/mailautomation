@@ -1,5 +1,6 @@
 """Annapurna signs coordination mail. Murali signs finance mail."""
 import sys
+import re
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -25,7 +26,7 @@ def _reply(scenario):
     )
 
 
-def test_professional_requirement_thanks_keeps_thank_you():
+def test_professional_requirement_thanks_keeps_a_direct_acknowledgement():
     from app.agents.natural_voice import apply_voice
 
     kept = apply_voice(
@@ -51,7 +52,7 @@ def test_professional_requirement_thanks_keeps_thank_you():
 def test_coordination_template_uses_annapurna():
     reply = _reply("client_sent_details")
     assert reply["body"].startswith("Hi Asha,")
-    assert "Thank you for" in reply["body"]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", reply["body"])
     assert "DevOps" in reply["body"]
     assert "Greetings of the day" not in reply["body"]
     assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
