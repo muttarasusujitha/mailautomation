@@ -1687,6 +1687,7 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     # A pending profile review must remain visible to the recruiter; it is
     # not evidence that the trainer is unsuitable for a new requirement.
     # Keep the flag on the matched profile so the shortlist can show it.
+    profile_review_required = bool(trainer.get("profile_review_required", False))
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -2212,7 +2213,7 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
             training_dates=training_dates,
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
-            hours_per_day=duration_inputs.get("hours_per_day"),
+            hours_per_day=duration_inputs.get("hours_per_day") or 3,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),

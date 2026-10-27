@@ -70,12 +70,12 @@ def test_offline_completion_populates_real_review_fields_without_model():
 
 
 def test_unknown_requested_topic_is_reported():
-    toc = reference_draft(TocRequest(domain="Quality Engineering", custom_topics="Unlisted product", hours_per_day=4))
+    toc = reference_draft(TocRequest(domain="Quality Engineering", duration_days=5, custom_topics="Unlisted product", hours_per_day=4))
     assert any("Unlisted product" in e for e in toc["quality"]["validation_errors"])
 
 
 def test_unrelated_domain_still_uses_existing_dataset_generator():
-    assert reference_draft(TocRequest(domain="Java")) is None
+    assert reference_draft(TocRequest(domain="Java", duration_days=5)) is None
 
 
 def test_ai_off_never_calls_model_even_with_legacy_enrichment_flag(monkeypatch):

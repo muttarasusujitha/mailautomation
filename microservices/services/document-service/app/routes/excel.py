@@ -1065,7 +1065,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # The final client quote includes the configured uplift, but its internal
     # commercial composition is never displayed in the client workbook.
     workbook["Client Estimate"]["A12"] = "Final estimated cost"
-    workbook["Client Estimate"]["B12"] = "=SUM(B8:B10)*(1+'Internal Calculation'!$B$1)+B11"
+    workbook["Client Estimate"]["B12"] = "=SUM(B8:B11)*(1+'Internal Calculation'!$B$1)"
     workbook["Client Estimate"]["B13"] = "=B12/Assumptions!B9"
     workbook["Client Estimate"]["A17"] = (
         "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "

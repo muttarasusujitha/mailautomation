@@ -544,6 +544,7 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     # A pending profile review must remain visible to the recruiter; it is
     # not evidence that the trainer is unsuitable for a new requirement.
     # Keep the flag on the matched profile so the shortlist can show it.
+    profile_review_required = bool(trainer.get("profile_review_required", False))
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):

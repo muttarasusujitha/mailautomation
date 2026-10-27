@@ -13,7 +13,7 @@ class TocSafetyTests(unittest.TestCase):
             "morning_session": {"time": "9:00 AM - 1:00 PM", "topics": [{"time": "9:00", "topic": "Git"}]},
         }]}
         toc._apply_requirement_quality(document, toc.TocRequest(
-            domain="DevOps", custom_topics="Git; Kubernetes", hours_per_day=1,
+            domain="DevOps", duration_days=1, custom_topics="Git; Kubernetes", hours_per_day=1,
         ))
         self.assertEqual(document["quality"]["missing_requested_topics"], ["Kubernetes"])
         self.assertEqual(document["quality"]["status"], "requires_review")
@@ -23,7 +23,7 @@ class TocSafetyTests(unittest.TestCase):
 
     def test_sufficient_hours_and_covered_scope_keep_structural_approval(self):
         document = {"quality": {"status": "approved"}, "days": [{"focus_area": "Git", "subtopics": ["Git branches"]}]}
-        toc._apply_requirement_quality(document, toc.TocRequest(domain="Git", custom_topics="Git", hours_per_day=3))
+        toc._apply_requirement_quality(document, toc.TocRequest(domain="Git", duration_days=1, custom_topics="Git", hours_per_day=3))
         self.assertEqual(document["quality"]["status"], "approved")
         self.assertEqual(document["quality"]["review_warnings"], [])
 

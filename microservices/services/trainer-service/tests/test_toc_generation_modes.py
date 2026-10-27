@@ -11,7 +11,7 @@ def test_ai_failure_falls_back_to_template(monkeypatch):
         return None
     monkeypatch.setattr(toc_route, '_generate_ai_toc', unavailable)
     db = _Db()
-    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(domain='Python', generation_mode='ai'), db))
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(domain='Python', duration_days=5, generation_mode='ai'), db))
     assert result['toc_data']['generation_mode'] == 'template_fallback'
     assert db['toc_generations'].inserted
 
