@@ -62,7 +62,6 @@ services:
       <<: *common-env
       SERVICE_NAME: auth-service
       PORT: "8008"
-      GOOGLE_CLIENT_ID: ${GOOGLE_LOGIN_CLIENT_ID:-}
     env_file: .env
     expose:
       - "8008"
