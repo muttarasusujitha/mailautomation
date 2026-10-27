@@ -1061,6 +1061,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
             assumptions_ws.cell(row, column, value)
             assumptions_ws.cell(row, column)._style = copy(assumptions_ws.cell(19, column)._style)
     workbook["Client Estimate"]["B9"] = "='Assumptions'!B21*'Assumptions'!B9*'Assumptions'!B8"
+    workbook["Client Estimate"]["B11"] = "=SUM(B8:B10)*(1+'Internal Calculation'!$B$1)*'Assumptions'!B17"
     # The final client quote includes the configured uplift, but its internal
     # commercial composition is never displayed in the client workbook.
     workbook["Client Estimate"]["A12"] = "Final estimated cost"

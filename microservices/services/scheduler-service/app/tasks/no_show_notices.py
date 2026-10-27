@@ -141,15 +141,22 @@ async def _send_due_no_show_notices():
                 skipped += 1
             continue
 
-        # Everyone involved receives an awareness notice whenever either party
-        # is missing; the missing participant is asked to join or reschedule.
-        clahan_email = _clean(log.get("clahan_email") or log.get("office_email")
-                              or log.get("coordinator_email") or settings.CLAHAN_NOTIFICATION_EMAIL)
+        # Only alert the trainer if the bot can verify that the trainer missed
+        # the meeting. Client and coordinator receive no duplicate emails.
+        trainer_missing = next((item for item in missing if item["role"] == "trainer"), None)
         missing_roles = [item["role"] for item in missing]
-        notice_recipients = [item for item in participants if item["email"]]
-        if clahan_email and clahan_email.lower() not in {item["email"].lower() for item in notice_recipients}:
-            notice_recipients.append({"role": "clahan", "email": clahan_email, "name": "Clahan Technologies",
-                                      "identity_available": True, "joined": False})
+        notice_recipients = [trainer_missing] if trainer_missing else []
+        if not notice_recipients:
+            await db["email_logs"].update_one(
+                {"email_id": email_id},
+                {"$set": {"no_show_check_completed": True,
+                          "no_show_check_completed_at": now,
+                          "no_show_check_result": "client_missing_trainer_joined",
+                          "updated_at": now},
+                 "$unset": {"no_show_check_claimed": "", "no_show_check_claimed_at": ""}},
+            )
+            skipped += 1
+            continue
         technology = _clean(log.get("technology") or log.get("domain")) or "training"
         interview_link = _clean(log.get("interview_link") or log.get("meet_link"))
         interview_date = _clean(log.get("interview_date") or log.get("date_time_text") or log.get("interview_at"))
@@ -175,7 +182,7 @@ async def _send_due_no_show_notices():
                         "trainer_id": _clean(log.get("trainer_id")),
                         "trainer_name": _clean(log.get("trainer_name")),
                         "idempotency_key": f"interview-no-show:{email_id}:{participant['role']}:{participant['email']}",
-                        "ai_generate": True,
+                        "ai_generate": False,
                         "ai_context": {
                             "workflow": "interview_no_show_notice",
                             "recipient_role": participant["role"],
@@ -205,7 +212,9 @@ async def _send_due_no_show_notices():
                 "$set": {
                     "no_show_check_completed": complete,
                     "no_show_check_completed_at": now if complete else None,
-                    "no_show_check_result": "notice_sent" if complete else "notice_send_failed",
+                    "no_show_check_result": (
+                        "trainer_no_show_notice_sent" if complete else "notice_send_failed"
+                    ),
                     "no_show_notice_roles": [item["role"] for item in missing] if complete else [],
                     "no_show_unverifiable_roles": unverifiable_roles,
                     "followup_suppressed": True,

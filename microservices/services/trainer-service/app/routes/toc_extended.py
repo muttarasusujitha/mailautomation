@@ -840,7 +840,13 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
     domain = payload.domain or req.get("technology_needed") or req.get("job_title") or "Training"
     from shared.requirement_duration import training_duration
     duration_inputs = training_duration(req)
-    duration = payload.duration_days if payload.duration_days is not None else duration_inputs.get("duration_days", 3.0)
+    duration = payload.duration_days if payload.duration_days is not None else duration_inputs.get("duration_days")
+    try:
+        duration = float(duration)
+    except (TypeError, ValueError):
+        duration = None
+    if duration is None or not 1 <= duration <= 30:
+        raise HTTPException(422, "Training duration is required before generating a ToC")
     training_dates = (
         req.get("training_dates")
         or " to ".join(part for part in [req.get("timeline_start"), req.get("timeline_end")] if part)

@@ -168,8 +168,8 @@ const remindersAllowedFromSettings = (settings = {}) => {
 
 function requirementFlowType(req = {}) {
   const explicitTarget = String(req.pipeline_target || req.pipeline_page || '').trim().toLowerCase()
-  if (explicitTarget === 'shortlist1') return 'confirmed'
   if (explicitTarget === 'shortlist') return 'proposal'
+  if (explicitTarget === 'shortlist1') return 'confirmed'
   if (explicitTarget === 'linkedin-pipeline' || explicitTarget === 'linkedin_pipeline') return 'linkedin'
 
   const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || req.source || req.metadata?.source || '').toLowerCase()
@@ -1007,7 +1007,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
     .filter((value, index, values) => value && values.indexOf(value) === index)
     .join('\n')
   const [form, setForm] = useState({
-    duration_days: req?.duration_days || (req?.duration_hours ? Math.max(1, Math.ceil(Number(req.duration_hours) / 8)) : 3),
+    duration_days: req?.duration_days || (req?.duration_hours ? Math.max(1, Math.ceil(Number(req.duration_hours) / 8)) : ''),
     training_dates: req?.training_dates || req?.preferred_dates || req?.timeline_start || '',
     timing: req?.timing || req?.schedule || '',
     audience_level: req?.audience_level || req?.level || 'intermediate',
@@ -2836,8 +2836,12 @@ export default function Shortlist() {
     getAllRequirementsForFlow()
       .then(async r => {
         const list = Array.isArray(r) ? r : []
-        const proposalReqs = list.filter(isProposalRequirement)
-        setReqs(proposalReqs)
+        // The API has already filtered this request to pipeline=shortlist.
+        // Do not hide valid records again with browser-side inference.
+        setReqs(list)
+        if (!targetRequirementId && list.length) {
+          setSelectedReq(list[0])
+        }
         if (targetRequirementId) {
           const match = list.find(req => String(req.requirement_id) === String(targetRequirementId))
           if (match && isProposalRequirement(match)) {

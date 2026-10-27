@@ -47,6 +47,7 @@ def test_quality_checks_combined_technology_phrase_individually():
     }
     toc._apply_requirement_quality(document, toc.TocRequest(
         domain='DevOps including AWS and Azure',
+        duration_days=5,
         custom_topics='DevOps including AWS and Azure',
         hours_per_day=3,
     ))
@@ -58,17 +59,21 @@ def test_quality_checks_combined_technology_phrase_individually():
     ('20 Training Days', None, 20),
     ('15 days', None, 15),
     ('10 working days', None, 10),
-    ('60 hours', None, 3),
+    ('60 hours', None, None),
     ('20 Training Days', 12, 12),
 ])
 def test_mail1_toc_reads_saved_duration_text(monkeypatch, duration_text, numeric, expected):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
     db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
-    asyncio.run(shortlists._build_toc({
+    result = asyncio.run(shortlists._build_toc({
         'technology_needed': 'Advanced DevOps with AWS & Azure',
         'duration_text': duration_text, 'duration_days': numeric,
     }, {}, db))
+    if expected is None:
+        assert result is None
+        generate.assert_not_awaited()
+        return
     assert generate.call_args.args[0].duration_days == expected
 
 
@@ -113,5 +118,5 @@ def test_mail1_toc_inherits_advanced_audience(monkeypatch):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
     db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
-    asyncio.run(shortlists._build_toc({'technology_needed': 'DevOps', 'audience_level': 'advanced'}, {}, db))
+    asyncio.run(shortlists._build_toc({'technology_needed': 'DevOps', 'duration_days': 5, 'audience_level': 'advanced'}, {}, db))
     assert generate.call_args.args[0].level == 'advanced'
