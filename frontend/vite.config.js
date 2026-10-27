@@ -32,6 +32,11 @@ export default defineConfig(({ mode }) => {
     server: {
       host: devHost,
       allowedHosts: ['meetclahan.shop'],
+      hmr: {
+        protocol: 'wss',
+        host: 'meetclahan.shop',
+        clientPort: 443,
+      },
       port: devPort,
       strictPort: false,
       proxy: {
