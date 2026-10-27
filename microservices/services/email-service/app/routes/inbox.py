@@ -1530,7 +1530,13 @@ def _is_lab_cost_only_inquiry(subject: str, body: str) -> bool:
         text,
         flags=re.IGNORECASE,
     )
-    return not bool(trainer_request)
+    proposal_batch_request = re.search(
+        r"\b(?:propose|proposed|proposal)\b.{0,120}\b(?:training|batch|program(?:me)?|workshop)\b"
+        r"|\bproposed\s+batch\s+details\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return not bool(trainer_request or proposal_batch_request)
 
 
 def _is_toc_only_inquiry(subject: str, body: str) -> bool:
@@ -1550,7 +1556,13 @@ def _is_toc_only_inquiry(subject: str, body: str) -> bool:
         text,
         flags=re.IGNORECASE,
     )
-    return not bool(trainer_request)
+    explicit_commercials = re.search(
+        r"\b(?:share|send|provide)\b.{0,100}\b(?:commercials?|pricing|quotation|quote)\b"
+        r"|\b(?:commercials?|pricing|quotation|quote)\b.{0,80}\b(?:trainer|training|batch)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return not bool(trainer_request or explicit_commercials)
 
 
 def _looks_like_general_client_question(subject: str, body: str) -> bool:
@@ -2068,16 +2080,13 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         text,
         [
             "Mode",
-            "Location",
-            "Venue",
-            "Mode/Location",
             "Training Mode",
             "Mode of Training",
-            "Training Location",
             "Training Mode/Location",
             "Delivery Mode",
         ],
     )
+    location = _field_value_loose(text, ["Training Location", "Location", "Venue"])
     if not mode:
         if "online" in lower or "virtual" in lower:
             mode = "Online"
@@ -2086,7 +2095,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         elif "hybrid" in lower:
             mode = "Hybrid"
 
-    audience_level = _field_value_loose(text, ["Participant Level", "Audience Level", "Learner Level", "Level", "Audience", "Batch size", "Batch Size"])
+    audience_level = _field_value_loose(text, ["Participant Level", "Audience Level", "Learner Level", "Training Level", "Level", "Audience", "Batch size", "Batch Size"])
     timing = _field_value_loose(text, ["Training Timings", "Training Time", "Daily Training Timings", "Preferred Timings", "Timings", "Timing", "Time", "Schedule"])
     hands_on_lab = _field_value_loose(text, ["Hands-on Lab", "Hands on Lab", "Daily Lab", "Lab Duration", "Lab Hours"])
     # For a confirmed training requirement, requesting lab requirements,
@@ -2144,7 +2153,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
 
     participants = None
     participant_text = _field_value(text, [
-        "Participants", "Participant Count", "Learners", "Trainees",
+        "Participants", "Participant Count", "Number of Participants", "Learners", "Trainees",
         "No. of Pax", "No of Pax", "Pax", "Batch size", "Batch Size",
     ])
     participant_match = re.search(
@@ -2295,6 +2304,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "domain": technology,
         "required_skills": [technology] if technology else [],
         "mode": mode,
+        "location": location,
         "delivery_mode": mode,
         "audience_level": audience_level,
         "timing": timing,
@@ -3619,6 +3629,45 @@ def _client_reply_for_requirement(extracted: Dict[str, Any]) -> Dict[str, str]:
     return _client_short_requirement_ack(extracted)
 
 
+def _proposal_batch_ack_reply(extracted: Dict[str, Any], subject: str) -> Dict[str, str]:
+    """Acknowledge a proposal without treating its open details as client omissions."""
+    client = _clean(extracted.get("client_name") or "Client").split()[0] or "Client"
+    technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or "training")
+    participants = _safe_int(extracted.get("participant_count"), 0)
+    provider = _clean(extracted.get("cloud_provider"))
+    details = []
+    if participants:
+        details.append(f"{participants} participants")
+    if _clean(extracted.get("audience_level")):
+        details.append(f"{_clean(extracted.get('audience_level'))} level")
+    opening = f"Thank you for sharing the proposed {technology} training batch."
+    if details:
+        opening += " We have noted " + " and ".join(details) + "."
+    documents = []
+    if extracted.get("toc_requested"):
+        documents.append("day-wise ToC")
+    if extracted.get("lab_cost_requested"):
+        documents.append(f"{provider.upper()} lab-cost estimate" if provider else "lab-cost estimate")
+    requested = " ".join(str(item or "").lower() for item in (extracted.get("requested_details") or []))
+    if any(word in requested for word in ("commercial", "pricing", "quote")):
+        documents.append("commercial proposal")
+    if len(documents) > 2:
+        document_text = f"{', '.join(documents[:-1])}, and {documents[-1]}"
+    elif len(documents) == 2:
+        document_text = f"{documents[0]} and {documents[1]}"
+    elif documents:
+        document_text = documents[0]
+    else:
+        document_text = "proposal documents"
+    body = (
+        f"Dear {client},\n\n"
+        f"{opening}\n\n"
+        f"We will prepare the {document_text}. The duration, delivery mode, location, and training dates are marked as to be confirmed, so the final day-wise schedule and lab estimate will be updated once those details are finalized.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
+    )
+    return {"subject": f"Re: {subject or technology + ' Training Proposal'}", "body": body}
+
+
 def _client_full_details_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
     return _client_short_requirement_ack(
         extracted,
@@ -3751,14 +3800,22 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
     tech = raw_tech
     if not tech or re.search(r"\bconduct(?:ing|ed)?\b|\blooking for\b|\brequirement for\b", tech, flags=re.IGNORECASE) or len(tech) > 60:
         tech = "Training"
+    mode = extracted.get("mode") or "To be confirmed"
+    location = extracted.get("location") or "To be confirmed"
+    if str(mode).strip().casefold() == str(location).strip().casefold():
+        mode = "To be confirmed"
 
     lines = [
         f"Technology: {tech}",
-        f"Mode: {extracted.get('mode') or 'To be confirmed'}",
+        f"Mode: {mode}",
+        f"Location: {location}",
         f"Audience Level: {extracted.get('audience_level') or 'To be confirmed'}",
         f"Duration: {extracted.get('duration_text') or (str(extracted.get('duration_days')) + ' days' if extracted.get('duration_days') else 'To be confirmed')}",
         f"Timings: {extracted.get('timing') or 'To be confirmed'}",
     ]
+    training_dates = extracted.get("training_dates") or extracted.get("preferred_dates") or extracted.get("timeline_start")
+    if training_dates:
+        lines.append(f"Training Dates: {training_dates}")
     if extracted.get("participant_count"):
         lines.append(f"Participants: {extracted['participant_count']}")
     if extracted.get("cloud_provider"):
@@ -3777,9 +3834,13 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         + "\n\nPlease share the following details if you are interested and available:\n"
         "- Updated resume/profile\n"
         "- Total experience\n"
-        "- Relevant training experience\n"
+        "- Relevant training and hands-on implementation experience\n"
         "- Availability\n"
         "- LinkedIn profile, if available\n\n"
+        "Please also confirm:\n"
+        "- Relevant certifications, if any\n"
+        "- Your commercials (per hour and/or per day; please specify currency)\n"
+        "- Lab support availability and associated lab cost, if applicable\n\n"
         "Please also share 3 convenient interview/discussion slots with the date, time, and time zone. For example:\n"
         "- [Your available date 1], [time], [time zone]\n"
         "- [Your available date 2], [time], [time zone]\n"
@@ -11373,6 +11434,68 @@ async def _process_client_requirement_email(
     latest_message_body = _strip_quoted_email_history(body) or body
     linked_trainer_thread = _is_linked_trainer_thread(email_doc)
 
+    # Before proposal-batch detection was added, a client message requesting a
+    # ToC together with commercials and cloud lab cost could be completed as a
+    # standalone ToC reply. The client has already received that reply, so
+    # recover the requirement without sending another email. The marker keeps
+    # this correction idempotent and excludes ordinary ToC-only messages.
+    if (
+        not email_doc.get("requirement_id")
+        and email_doc.get("classification_reason") == "toc_only_request"
+        and not email_doc.get("proposal_requirement_recovery_attempted")
+    ):
+        recovery_extracted = _extract_requirement_from_email(
+            subject=subject,
+            body=latest_message_body,
+            sender_email=sender_email,
+            sender_name=email_doc.get("from_name") or "",
+        )
+        is_misclassified_proposal = bool(
+            recovery_extracted.get("is_training_request")
+            and recovery_extracted.get("direct_request_language")
+            and _has_training_domain(recovery_extracted)
+            and _requirement_flow_from_email(recovery_extracted, latest_message_body) == "proposal"
+            and not _is_toc_only_inquiry(subject, latest_message_body)
+        )
+        if is_misclassified_proposal:
+            requirement_result = await _create_requirement(
+                email_doc,
+                recovery_extracted,
+                db,
+                force_new_requirement=True,
+            )
+            requirement_id = requirement_result.get("requirement_id")
+            recovery_now = _now()
+            recovery_update = {
+                "proposal_requirement_recovery_attempted": True,
+                "proposal_requirement_recovered_at": recovery_now,
+                "updated_at": recovery_now,
+            }
+            if requirement_id:
+                recovery_update.update({
+                    "requirement_id": requirement_id,
+                    "processed": True,
+                    "status": "auto_sent",
+                    "reply_status": "sent",
+                    "classification_reason": "proposal_requirement_recovered_after_toc_only_reply",
+                })
+            else:
+                recovery_update.update({
+                    "status": "needs_manual_review",
+                    "reply_status": "needs_manual_review",
+                    "auto_send_error": "Proposal requirement recovery could not create a requirement",
+                })
+            await db["client_emails"].update_one(
+                {"email_id": email_doc.get("email_id")}, {"$set": recovery_update},
+            )
+            return {
+                "processed": bool(requirement_id),
+                "email_id": email_doc.get("email_id"),
+                "requirement_id": requirement_id or "",
+                "status": recovery_update["status"],
+                "reason": "proposal_requirement_recovered_after_toc_only_reply",
+            }
+
     # Questions from a trainer must be resolved without changing shortlist
     # state. This has to run before the content-only and Mail 1 handlers:
     # otherwise a ToC doubt is treated as a client ToC request, while any
@@ -12771,6 +12894,10 @@ async def _process_client_requirement_email(
         and not _is_reply_thread(subject, email_doc)
         and not email_doc.get("requirement_id")
     )
+    is_proposal_batch = bool(
+        is_first_client_mail
+        and _requirement_flow_from_email(extracted, classification_body) == "proposal"
+    )
     details_ready_on_client_reply = bool(
         is_linked_client_requirement_reply
         and client_provided_details
@@ -12796,8 +12923,9 @@ async def _process_client_requirement_email(
         and (
             confirmed_intake_ready
             or (
-                not is_first_client_mail
-                and (explicit_trainer_authorization or details_ready_on_client_reply)
+                is_first_client_mail
+                or explicit_trainer_authorization
+                or details_ready_on_client_reply
             )
         )
         and extracted.get("is_training_request")
@@ -12821,7 +12949,10 @@ async def _process_client_requirement_email(
     reply: Dict[str, str] = {}
     template_reply: Dict[str, Any] = {}
     selected_template_key = ""
-    if client_coordination_intent and not extracted.get("is_non_client_email"):
+    if is_proposal_batch and not extracted.get("is_non_client_email"):
+        reply = _proposal_batch_ack_reply(extracted, subject)
+        selected_template_key = "proposal_batch_ack"
+    elif client_coordination_intent and not extracted.get("is_non_client_email"):
         reply = _client_coordination_reply(client_coordination_intent, extracted, subject)
         selected_template_key = f"client_{client_coordination_intent}"
     elif extracted.get("is_training_request"):
@@ -15270,6 +15401,27 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
             },
         ],
     }
+    # Revisit the narrow historical case where the old ToC-only handler had
+    # already sent its acknowledgement even though the client also requested
+    # commercials and lab cost. The recovery branch creates the proposal
+    # requirement only; it never sends a second client email.
+    legacy_proposal_toc_recovery_query = {
+        "$and": [
+            {"classification_reason": "toc_only_request"},
+            {"requirement_id": {"$in": ["", None]}},
+            {"proposal_requirement_recovery_attempted": {"$ne": True}},
+            {"$or": [
+                {"clean_body": {"$regex": r"(?:commercial|pricing|quotation|quote)", "$options": "i"}},
+                {"raw_body": {"$regex": r"(?:commercial|pricing|quotation|quote)", "$options": "i"}},
+                {"body": {"$regex": r"(?:commercial|pricing|quotation|quote)", "$options": "i"}},
+            ]},
+            {"$or": [
+                {"clean_body": {"$regex": r"(?:aws\s+)?lab(?:\s*cost)?", "$options": "i"}},
+                {"raw_body": {"$regex": r"(?:aws\s+)?lab(?:\s*cost)?", "$options": "i"}},
+                {"body": {"$regex": r"(?:aws\s+)?lab(?:\s*cost)?", "$options": "i"}},
+            ]},
+        ],
+    }
     query = {
         "$and": [
             {"deleted": {"$ne": True}},
@@ -15279,6 +15431,7 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
                     legacy_client_handoff_retry_query,
                     legacy_slot_parser_recheck_query,
                     calendar_slot_retry_query,
+                    legacy_proposal_toc_recovery_query,
                     {"$and": [today_query, {"pending_trainer_automation": True}, retry_due_query]},
                     latest_message_needs_reply_query,
                     pending_work_query,

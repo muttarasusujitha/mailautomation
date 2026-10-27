@@ -35,7 +35,7 @@ class TocRequest(BaseModel):
     _knowledge_db: Any = PrivateAttr(default=None)
     domain: Optional[str] = None
     technology: Optional[str] = None
-    duration_days: float = 5.0
+    duration_days: Optional[float] = None
     level: str = "intermediate"
     mode: str = "Online"
     notes: Optional[str] = ""
@@ -587,6 +587,8 @@ def _topic_outline(payload: TocRequest) -> Dict[str, Any]:
         ),
         "topic_only": True,
         "topics": topics,
+        # Retain the existing ToC data contract while deliberately omitting
+        # dates, timings, labs, and day-based content.
         "days": [
             {"day": index, "title": topic, "focus_area": topic, "subtopics": []}
             for index, topic in enumerate(topics, 1)
@@ -606,8 +608,6 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     Uses the richer TOC generator with curriculum dataset support.
     """
     payload.level = resolve_content_level(payload.level, payload.audience_level)
-    stored_mode = await _stored_generation_mode(db)
-    requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
     if payload.topic_only:
         from shared.toc_layouts import normalize_client_email
         requirement = {}
@@ -644,6 +644,8 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         })
         return {"success": True, "toc_id": toc_id, "toc_data": toc}
 
+    stored_mode = await _stored_generation_mode(db)
+    requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
     payload._knowledge_db = db
     toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None

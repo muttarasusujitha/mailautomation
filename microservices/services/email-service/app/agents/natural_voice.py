@@ -50,10 +50,7 @@ _GREETING_LINE = re.compile(
     r"^(?:hi|hello|dear)\b\s*([^,!\n]{0,70})?[,!]?\s*$",
     re.IGNORECASE,
 )
-# Each professional requirement note opens with its own "Thank you" sentence
-# and stays as written. A line that already starts with "Thanks for sharing"
-# is unchanged here, and apply_voice still prefixes that literal opener with
-# "Greetings of the day!".
+# Requirement acknowledgements can retain their deliberate "Thank you" opener.
 _PROFESSIONAL_ACK_OPENING = re.compile(
     r"Thank you for (?:sharing|sending over|sending us|providing) (?:the|your) (?!required details\b).+?"
     r"(?:training requirements|training requirement|training details|requirement with us|requirement)\.",
@@ -199,14 +196,6 @@ def apply_voice(body: str, voice: str = ANNAPURNA) -> str:
             lines[0] = greeting_line(match.group(1) or "", voice)
         elif re.match(r"^dear\s+team\s*$", lines[0].strip(), re.IGNORECASE):
             lines[0] = greeting_line("", voice)
-    if voice == ANNAPURNA:
-        for index, line in enumerate(lines):
-            stripped = line.strip()
-            if not stripped or _GREETING_LINE.match(stripped):
-                continue
-            if stripped.startswith("Thanks for sharing") and not stripped.lower().startswith("greetings of the day"):
-                lines[index] = f"Greetings of the day! {stripped}"
-            break
     sign_at = next(
         (index for index in range(len(lines) - 1, -1, -1) if _SIGNOFF_LINE.match(lines[index].strip())),
         None,

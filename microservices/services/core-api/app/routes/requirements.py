@@ -541,8 +541,9 @@ def _term_matches(terms: List[str], text: str) -> List[str]:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    if trainer.get("needs_review") is True:
-        return None
+    # A pending profile review must remain visible to the recruiter; it is
+    # not evidence that the trainer is unsuitable for a new requirement.
+    # Keep the flag on the matched profile so the shortlist can show it.
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -674,9 +675,8 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timeline_end"] = _clean(data.get("timeline_end"))
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
-    # Every service keeps the same trainer result size.
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    data["top_n"] = TRAINER_RESULT_TARGET
+    # Shortlist and Shortlist1 use the five highest ranked candidates.
+    data["top_n"] = 5
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     source_text = " ".join(
@@ -834,8 +834,8 @@ async def _build_shortlist_for_requirement(
         reverse=True,
     )
 
-    from shared.trainer_targets import TRAINER_RESULT_TARGET
-    top_trainers = scored[:TRAINER_RESULT_TARGET]
+    # Store the five highest ranked candidates in Shortlist/Shortlist1.
+    top_trainers = scored[:5]
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
     old_by_id = {
         _clean(trainer.get("trainer_id")): trainer
@@ -1179,8 +1179,7 @@ async def update_requirement(
             raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
         data["generation_mode"] = generation_mode
     if "top_n" in data:
-        from shared.trainer_targets import TRAINER_RESULT_TARGET
-        data["top_n"] = TRAINER_RESULT_TARGET
+        data["top_n"] = 5
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
         data = _normalise_requirement_payload(data, current)
     data.pop("_id", None)

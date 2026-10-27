@@ -76,6 +76,9 @@ services:
   core-api:
     container_name: ts-core-api
     image: ghcr.io/muttarasusujitha/trainersync/core-api:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/core-api/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -137,6 +140,9 @@ services:
   trainer-service:
     container_name: ts-trainer-service
     image: ghcr.io/muttarasusujitha/trainersync/trainer-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/trainer-service/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -145,6 +151,8 @@ services:
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./services/trainer-service/app/routes/shortlists.py:/app/app/routes/shortlists.py:ro
     expose:
       - "8004"
     healthcheck:
@@ -198,7 +206,10 @@ services:
 
   scheduler-service:
     container_name: ts-scheduler-api
-    image: ghcr.io/muttarasusujitha/trainersync/scheduler-service:latest
+    image: trainersync-scheduler-service:local
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -220,7 +231,7 @@ services:
 
   celery-worker:
     container_name: ts-celery-worker
-    image: ghcr.io/muttarasusujitha/trainersync/celery-service:latest
+    image: trainersync-scheduler-service:local
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     <<: *service-defaults
     environment:
@@ -244,7 +255,7 @@ services:
 
   celery-beat:
     container_name: ts-celery-beat
-    image: ghcr.io/muttarasusujitha/trainersync/celery-beat-service:latest
+    image: trainersync-scheduler-service:local
     command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:

@@ -3,16 +3,9 @@ from shared.requirement_duration import positive_number, training_duration
 
 
 def margin_percent(requirement):
-    batch = str(requirement.get("batch_flow") or requirement.get("batch_type") or requirement.get("requirement_type") or "").lower()
-    if "proposal" not in batch:
-        return 30.0
-    value = requirement.get("clahan_margin_percent", 30)
-    if isinstance(value, bool):
-        raise ValueError("Clahan margin must be 25 or 30 percent")
-    value = float(value)
-    if value not in (25, 30):
-        raise ValueError("Clahan margin must be 25 or 30 percent")
-    return value
+    """Clahan uses a fixed 30% client uplift for confirmed and proposal batches."""
+    del requirement
+    return 30.0
 
 
 def commercial_days(requirement):
@@ -37,9 +30,9 @@ def proposal_offer(requirement, trainer=None):
     if rate is None:
         if tier not in {"standard", "advanced", "specialist"}:
             raise ValueError("Clahan skill tier must be standard, advanced, or specialist")
-        rate = {"standard": 13000, "advanced": 13500, "specialist": 14000}[tier]
-    if not 13000 <= rate <= 14000:
-        raise ValueError("Proposal trainer daily offer must be between INR 13,000 and INR 14,000")
+        rate = {"standard": 14000, "advanced": 15000, "specialist": 16000}[tier]
+    if not 14000 <= rate <= 16000:
+        raise ValueError("Proposal trainer daily offer must be between INR 14,000 and INR 16,000")
     margin = margin_percent(requirement)
     days = commercial_days(requirement)
     total = bool(days and days >= 5)
