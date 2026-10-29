@@ -545,9 +545,12 @@ def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
     """Only request interview slots when the client explicitly asked for them."""
     client_text = _client_requirement_text(requirement)
     return bool(re.search(
-        r"\b(?:share|provide|send|suggest|propose|give|include|need|want|request)\b"
-        r".{0,80}\b(?:(?:three|3|two|2|four|4|\d+)\s+)?(?:convenient\s+)?"
-        r"(?:interview|discussion|meeting)?\s*slots?\b",
+        # Match explicit slot counts and ordinary requests such as
+        # "Please share three interview slots with the trainer profile".
+        r"\b(?:three|3|two|2|four|4|\d+)\s+(?:convenient\s+)?"
+        r"(?:interview|discussion|meeting)\s+slots?\b"
+        r"|\b(?:share|provide|send|suggest|propose|give|include|need|want|request)\b"
+        r".{0,80}\bslots?\b",
         client_text,
         flags=re.IGNORECASE,
     ))
@@ -894,12 +897,14 @@ def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
         or requirement.get("batch_type")
         or requirement.get("requirement_type")
     ).lower()
+    # An explicit page target takes precedence over a stale batch_flow value.
+    # The legacy shortlist1 page is the confirmed workflow, not the proposal page.
+    if target in {"shortlist", "shortlist1"}:
+        return target == "shortlist"
     if "proposal" in flow_value:
         return True
     if "confirmed" in flow_value:
         return False
-    if target in {"shortlist", "shortlist1"}:
-        return target == "shortlist"
     # Explicit workflow classification is authoritative.  Client prose such
     # as "upcoming corporate training" must not downgrade a confirmed batch
     # and suppress the mandatory Mail 1 ToC attachment.
