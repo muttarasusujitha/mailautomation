@@ -36,12 +36,12 @@ jobs:
       - name: Verify Repository
         run: |
           set -euo pipefail
-          echo "Repository checked out successfully"
           pwd
           ls -la
+          echo "Repository checkout successful"
 
   # ============================================================
-  # STAGE 2A - BACKEND BUILD AND TEST
+  # STAGE 2A - BACKEND TESTS
   # ============================================================
   build-test:
     name: Stage 2 - Backend Build & Test
@@ -70,8 +70,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-          cache-dependency-path: microservices/services/${{ matrix.service }}/requirements.txt
 
       - name: Install Dependencies
         working-directory: microservices/services/${{ matrix.service }}
@@ -81,8 +79,6 @@ jobs:
 
           if [ -f requirements.txt ]; then
             python -m pip install -r requirements.txt
-          else
-            echo "No requirements.txt found for ${{ matrix.service }}"
           fi
 
       - name: Validate Python
@@ -93,7 +89,6 @@ jobs:
         working-directory: microservices/services/${{ matrix.service }}
         run: |
           set -euo pipefail
-
           python -m pip install pytest pytest-asyncio
 
           if [ -d tests ]; then
@@ -114,7 +109,7 @@ jobs:
             -q
 
   # ============================================================
-  # STAGE 2B - FRONTEND BUILD AND TEST
+  # STAGE 2B - FRONTEND TESTS AND BUILD
   # ============================================================
   frontend-build:
     name: Stage 2 - Frontend Build
@@ -152,7 +147,7 @@ jobs:
         run: npm run build
 
   # ============================================================
-  # STAGE 3 - BUILD AND PUSH DOCKER IMAGES
+  # STAGE 3 - DOCKER BUILD AND PUSH
   # ============================================================
   docker-build-push:
     name: Stage 3 - Docker Build & Push
@@ -237,7 +232,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to GitHub Container Registry
+      - name: Login to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
@@ -245,7 +240,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker Metadata
+      - name: Generate Docker Metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -265,7 +260,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
 
   # ============================================================
-  # STAGE 4 - DEPLOY TO SELF-HOSTED UBUNTU SERVER
+  # STAGE 4 - DEPLOY TO SELF-HOSTED UBUNTU
   # ============================================================
   deploy-ec2:
     name: Stage 4 - Deploy to EC2
@@ -300,7 +295,7 @@ jobs:
           docker --version
           docker compose version
           docker info >/dev/null
-          echo "Docker is ready on the self-hosted runner"
+          echo "Docker is ready"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -309,6 +304,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ----------------------------------------------------------
+      # Create backend environment without requiring Python
+      # ----------------------------------------------------------
       - name: Create Backend Environment
         working-directory: ${{ github.workspace }}/deploy-source/microservices
         env:
@@ -334,34 +332,34 @@ jobs:
           set_env() {
             local key="$1"
             local value="$2"
+            export ENV_KEY="$key"
+            export ENV_VALUE="$value"
 
-            KEY="$key" VALUE="$value" python - <<'PY'
-          import os
-          from pathlib import Path
+            awk '
+              BEGIN {
+                key = ENVIRON["ENV_KEY"]
+                value = ENVIRON["ENV_VALUE"]
+                prefix = key "="
+              }
 
-          path = Path(".env")
-          key = os.environ["KEY"]
-          value = os.environ["VALUE"]
+              index($0, prefix) == 1 {
+                if (!found) {
+                  print prefix value
+                  found = 1
+                }
+                next
+              }
 
-          lines = path.read_text().splitlines()
-          replacement = f"{key}={value}"
-          prefix = f"{key}="
-          found = False
-          output = []
+              { print }
 
-          for line in lines:
-              if line.startswith(prefix):
-                  if not found:
-                      output.append(replacement)
-                      found = True
-              else:
-                  output.append(line)
+              END {
+                if (!found) {
+                  print prefix value
+                }
+              }
+            ' .env > .env.tmp
 
-          if not found:
-              output.append(replacement)
-
-          path.write_text("\n".join(output) + "\n")
-          PY
+            mv .env.tmp .env
           }
 
           set_env GMAIL_USER "$GMAIL_USER"
@@ -379,8 +377,12 @@ jobs:
           set_env GOOGLE_CALENDAR_TIMEZONE "$GOOGLE_CALENDAR_TIMEZONE"
           set_env FRONTEND_URL "$FRONTEND_URL"
 
-          echo "Backend environment file created"
+          chmod 600 .env
+          echo "Backend environment file created successfully"
 
+      # ----------------------------------------------------------
+      # Create frontend environment
+      # ----------------------------------------------------------
       - name: Create Frontend Environment
         working-directory: ${{ github.workspace }}/deploy-source
         env:
@@ -389,13 +391,12 @@ jobs:
           set -euo pipefail
           printf 'VITE_GOOGLE_CLIENT_ID=%s\n' \
             "$VITE_GOOGLE_CLIENT_ID" > .env
-          echo "Frontend environment file created"
+          chmod 600 .env
+          echo "Frontend environment file created successfully"
 
-      - name: Check Deployment Disk Space
-        run: |
-          set -euo pipefail
-          bash .github/scripts/check-docker-space.sh
-
+      # ----------------------------------------------------------
+      # Validate both Compose configurations
+      # ----------------------------------------------------------
       - name: Validate Compose Configurations
         run: |
           set -euo pipefail
@@ -412,8 +413,14 @@ jobs:
             -f docker-compose.registry.yml \
             config --quiet
 
-          echo "Backend and frontend Compose files are valid"
+          echo "Both Compose configurations are valid"
 
+      - name: Check Deployment Disk Space
+        run: bash .github/scripts/check-docker-space.sh
+
+      # ----------------------------------------------------------
+      # Pull registry images before replacing running services
+      # ----------------------------------------------------------
       - name: Pull Latest Images
         env:
           COMPOSE_PARALLEL_LIMIT: "1"
@@ -430,14 +437,19 @@ jobs:
             -f docker-compose.registry.yml \
             pull frontend
 
+      # ----------------------------------------------------------
+      # Build the meeting bot locally
+      # ----------------------------------------------------------
       - name: Build Meet Bot
         run: |
           set -euo pipefail
-
           docker compose \
             -f microservices/docker-compose.yml \
             build meet-bot-service
 
+      # ----------------------------------------------------------
+      # Start backend services
+      # ----------------------------------------------------------
       - name: Start Backend Services
         run: |
           set -euo pipefail
@@ -451,6 +463,9 @@ jobs:
             --wait \
             --wait-timeout 180
 
+      # ----------------------------------------------------------
+      # Start frontend
+      # ----------------------------------------------------------
       - name: Start Frontend
         run: |
           set -euo pipefail
@@ -465,6 +480,9 @@ jobs:
             --wait-timeout 120 \
             frontend
 
+      # ----------------------------------------------------------
+      # Verify deployment
+      # ----------------------------------------------------------
       - name: Verify Deployment
         run: |
           set -euo pipefail
