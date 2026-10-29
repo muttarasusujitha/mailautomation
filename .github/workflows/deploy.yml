@@ -1,3 +1,4 @@
+
 name: TrainerSync CI/CD Pipeline
 
 on:
@@ -21,20 +22,32 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/trainersync
 
 jobs:
+  # ============================================================
+  # STAGE 1 - CHECKOUT
+  # ============================================================
   source-code:
     name: Stage 1 - Checkout
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - run: |
-          echo "Repository checked out"
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Repository
+        run: |
+          set -euo pipefail
+          echo "Repository checked out successfully"
           pwd
           ls -la
 
+  # ============================================================
+  # STAGE 2A - BACKEND BUILD AND TEST
+  # ============================================================
   build-test:
     name: Stage 2 - Backend Build & Test
     needs: source-code
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -48,44 +61,66 @@ jobs:
           - document-service
           - scheduler-service
           - meet-bot-service
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: microservices/services/${{ matrix.service }}/requirements.txt
 
       - name: Install Dependencies
         working-directory: microservices/services/${{ matrix.service }}
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
+
           if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
+            python -m pip install -r requirements.txt
+          else
+            echo "No requirements.txt found for ${{ matrix.service }}"
           fi
 
       - name: Validate Python
         working-directory: microservices/services/${{ matrix.service }}
         run: python -m compileall .
 
-      - name: Run Tests
+      - name: Run Service Tests
         working-directory: microservices/services/${{ matrix.service }}
         run: |
+          set -euo pipefail
+
+          python -m pip install pytest pytest-asyncio
+
           if [ -d tests ]; then
-            pip install pytest pytest-asyncio
             PYTHONPATH=.:../.. python -m pytest -v
           else
-            echo "No tests found"
+            echo "No service-specific tests directory found"
           fi
 
       - name: Check Shared Commercial and Identity Rules
         if: matrix.service == 'trainer-service'
         working-directory: microservices
-        run: python -m pytest shared/test_commercial_policy.py shared/test_requirement_duration.py shared/test_trainer_identity.py -q
+        run: |
+          set -euo pipefail
+          python -m pytest \
+            shared/test_commercial_policy.py \
+            shared/test_requirement_duration.py \
+            shared/test_trainer_identity.py \
+            -q
 
+  # ============================================================
+  # STAGE 2B - FRONTEND BUILD AND TEST
+  # ============================================================
   frontend-build:
     name: Stage 2 - Frontend Build
     needs: source-code
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -99,15 +134,10 @@ jobs:
 
       - name: Verify Frontend Files
         run: |
-          echo "Repository Root"
-          pwd
-          ls -la
-          echo "Frontend"
+          set -euo pipefail
+          test -f frontend/package.json
+          test -f frontend/package-lock.json
           ls -la frontend
-          echo "Frontend Source"
-          ls -la frontend/src
-          echo "Pages"
-          ls -la frontend/src/pages
 
       - name: Install Frontend Dependencies
         working-directory: frontend
@@ -121,101 +151,94 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+  # ============================================================
+  # STAGE 3 - BUILD AND PUSH DOCKER IMAGES
+  # ============================================================
   docker-build-push:
-    # Build images for PR validation; push them only from main.
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     name: Stage 3 - Docker Build & Push
+
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+
     needs:
       - build-test
       - frontend-build
+
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       max-parallel: 1
+
       matrix:
         include:
           - image: auth-service
             dockerfile: microservices/services/auth-service/Dockerfile
             context: .
+
           - image: core-api
             dockerfile: microservices/services/core-api/Dockerfile
             context: .
+
           - image: email-service
             dockerfile: microservices/services/email-service/Dockerfile
             context: .
+
           - image: notification-service
             dockerfile: microservices/services/notification-service/Dockerfile
             context: .
+
           - image: trainer-service
             dockerfile: microservices/services/trainer-service/Dockerfile
             context: .
+
           - image: intelligence-service
             dockerfile: microservices/services/intelligence-service/Dockerfile
             context: .
+
           - image: document-service
             dockerfile: microservices/services/document-service/Dockerfile
             context: .
+
           - image: scheduler-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
             context: .
+
           - image: meet-bot-service
             dockerfile: microservices/services/meet-bot-service/Dockerfile
             context: .
+
           - image: gateway-service
             dockerfile: microservices/gateway/Dockerfile
             context: .
+
           - image: celery-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
             context: .
+
           - image: celery-beat-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
             context: .
+
           - image: frontend
             dockerfile: frontend/Dockerfile
             context: frontend
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Verify Docker
-        shell: bash
         run: |
-          set -e
-          if command -v docker >/dev/null 2>&1; then
-            echo "Docker is already installed."
-            docker --version
-          else
-            echo "Docker is not installed. Installing Docker..."
-            curl -fsSL https://get.docker.com | sudo sh
-            sudo systemctl enable --now docker
-            echo "Docker installation completed."
-            docker --version
-          fi
-
-      - name: Verify Docker access
-        shell: bash
-        run: |
-          set -e
-          if docker info >/dev/null 2>&1; then
-            echo "Docker is accessible."
-          else
-            echo "Docker is installed but current runner user cannot access Docker."
-            echo "Adding runner user to docker group..."
-            sudo usermod -aG docker "$USER"
-            echo "Current user: $USER"
-            echo "Docker group membership may require a new runner session."
-            exit 1
-          fi
-
-      - name: Check Docker Disk Space
-        shell: bash
-        run: bash .github/scripts/check-docker-space.sh
+          set -euo pipefail
+          docker --version
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -223,8 +246,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Metadata
-        uses: docker/metadata-action@v5
         id: meta
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
           tags: |
@@ -238,20 +261,46 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
 
+  # ============================================================
+  # STAGE 4 - DEPLOY TO SELF-HOSTED UBUNTU SERVER
+  # ============================================================
   deploy-ec2:
     name: Stage 4 - Deploy to EC2
-    if: github.ref == 'refs/heads/main'
-    needs: docker-build-push
+
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+
+    needs:
+      - docker-build-push
+
     runs-on: self-hosted
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/trainersync
+
     defaults:
       run:
         shell: bash
         working-directory: deploy-source
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           path: deploy-source
+
+      - name: Verify Docker and Compose
+        run: |
+          set -euo pipefail
+          docker --version
+          docker compose version
+          docker info >/dev/null
+          echo "Docker is ready on the self-hosted runner"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -260,67 +309,177 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Backend .env
+      - name: Create Backend Environment
         working-directory: ${{ github.workspace }}/deploy-source/microservices
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_FALLBACK_USER: ${{ secrets.GMAIL_FALLBACK_USER }}
+          STYLE_IMAP_USER: ${{ secrets.STYLE_IMAP_USER }}
+          STYLE_IMAP_PASSWORD: ${{ secrets.STYLE_IMAP_PASSWORD }}
+          GMAIL_FALLBACK_FROM_EMAIL: ${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          FROM_NAME: ${{ secrets.FROM_NAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
+          GOOGLE_CALENDAR_ID: ${{ secrets.GOOGLE_CALENDAR_ID }}
+          GOOGLE_CALENDAR_TIMEZONE: ${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
         run: |
-          cp .env.example .env
-          set_env() {
-            key="$1"
-            value="$2"
-            if grep -q "^${key}=" .env; then
-              sed -i "s|^${key}=.*|${key}=${value}|" .env
-            else
-              printf '\n%s=%s\n' "$key" "$value" >> .env
-            fi
-          }
-          set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
-          set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
-          set_env STYLE_IMAP_USER "${{ secrets.STYLE_IMAP_USER }}"
-          set_env STYLE_IMAP_PASSWORD "${{ secrets.STYLE_IMAP_PASSWORD }}"
-          set_env GMAIL_FALLBACK_FROM_EMAIL "${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}"
-          set_env FROM_EMAIL "${{ secrets.FROM_EMAIL }}"
-          set_env FROM_NAME "${{ secrets.FROM_NAME }}"
-          set_env GOOGLE_TOKEN_FILE "config/token.json"
-          set_env GOOGLE_CLIENT_ID "${{ secrets.GOOGLE_CLIENT_ID }}"
-          set_env GOOGLE_CLIENT_SECRET "${{ secrets.GOOGLE_CLIENT_SECRET }}"
-          set_env GOOGLE_REDIRECT_URI "${{ secrets.GOOGLE_REDIRECT_URI }}"
-          set_env GOOGLE_CALENDAR_ID "${{ secrets.GOOGLE_CALENDAR_ID }}"
-          set_env GOOGLE_CALENDAR_TIMEZONE "${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}"
-          set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
+          set -euo pipefail
 
-      - name: Create Frontend .env
+          test -f .env.example
+          cp .env.example .env
+
+          set_env() {
+            local key="$1"
+            local value="$2"
+
+            KEY="$key" VALUE="$value" python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path(".env")
+          key = os.environ["KEY"]
+          value = os.environ["VALUE"]
+
+          lines = path.read_text().splitlines()
+          replacement = f"{key}={value}"
+          prefix = f"{key}="
+          found = False
+          output = []
+
+          for line in lines:
+              if line.startswith(prefix):
+                  if not found:
+                      output.append(replacement)
+                      found = True
+              else:
+                  output.append(line)
+
+          if not found:
+              output.append(replacement)
+
+          path.write_text("\n".join(output) + "\n")
+          PY
+          }
+
+          set_env GMAIL_USER "$GMAIL_USER"
+          set_env GMAIL_FALLBACK_USER "$GMAIL_FALLBACK_USER"
+          set_env STYLE_IMAP_USER "$STYLE_IMAP_USER"
+          set_env STYLE_IMAP_PASSWORD "$STYLE_IMAP_PASSWORD"
+          set_env GMAIL_FALLBACK_FROM_EMAIL "$GMAIL_FALLBACK_FROM_EMAIL"
+          set_env FROM_EMAIL "$FROM_EMAIL"
+          set_env FROM_NAME "$FROM_NAME"
+          set_env GOOGLE_TOKEN_FILE "config/token.json"
+          set_env GOOGLE_CLIENT_ID "$GOOGLE_CLIENT_ID"
+          set_env GOOGLE_CLIENT_SECRET "$GOOGLE_CLIENT_SECRET"
+          set_env GOOGLE_REDIRECT_URI "$GOOGLE_REDIRECT_URI"
+          set_env GOOGLE_CALENDAR_ID "$GOOGLE_CALENDAR_ID"
+          set_env GOOGLE_CALENDAR_TIMEZONE "$GOOGLE_CALENDAR_TIMEZONE"
+          set_env FRONTEND_URL "$FRONTEND_URL"
+
+          echo "Backend environment file created"
+
+      - name: Create Frontend Environment
         working-directory: ${{ github.workspace }}/deploy-source
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
         run: |
-          cat > .env <<EOF
-          VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          EOF
+          set -euo pipefail
+          printf 'VITE_GOOGLE_CLIENT_ID=%s\n' \
+            "$VITE_GOOGLE_CLIENT_ID" > .env
+          echo "Frontend environment file created"
 
       - name: Check Deployment Disk Space
-        shell: bash
-        run: bash .github/scripts/check-docker-space.sh
+        run: |
+          set -euo pipefail
+          bash .github/scripts/check-docker-space.sh
 
-      # Pull everything before changing running containers. Never prune volumes:
-      # MongoDB data and the authenticated meeting-bot profile must survive.
+      - name: Validate Compose Configurations
+        run: |
+          set -euo pipefail
+
+          export IMAGE_PREFIX="ghcr.io/${GITHUB_REPOSITORY_OWNER}/trainersync"
+
+          docker compose \
+            -f microservices/docker-compose.yml \
+            -f microservices/docker-compose.registry.yml \
+            config --quiet
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.registry.yml \
+            config --quiet
+
+          echo "Backend and frontend Compose files are valid"
+
       - name: Pull Latest Images
         env:
           COMPOSE_PARALLEL_LIMIT: "1"
         run: |
           set -euo pipefail
-          docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml pull
-          docker compose -f docker-compose.yml -f docker-compose.registry.yml pull frontend
+
+          docker compose \
+            -f microservices/docker-compose.yml \
+            -f microservices/docker-compose.registry.yml \
+            pull
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.registry.yml \
+            pull frontend
 
       - name: Build Meet Bot
         run: |
-          docker compose -f microservices/docker-compose.yml build meet-bot-service
+          set -euo pipefail
 
-      - name: Start Backend
+          docker compose \
+            -f microservices/docker-compose.yml \
+            build meet-bot-service
+
+      - name: Start Backend Services
         run: |
-          docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 180
+          set -euo pipefail
+
+          docker compose \
+            -f microservices/docker-compose.yml \
+            -f microservices/docker-compose.registry.yml \
+            up -d \
+            --no-build \
+            --pull never \
+            --wait \
+            --wait-timeout 180
 
       - name: Start Frontend
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 120 frontend
+          set -euo pipefail
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.registry.yml \
+            up -d \
+            --no-build \
+            --pull never \
+            --wait \
+            --wait-timeout 120 \
+            frontend
 
       - name: Verify Deployment
         run: |
+          set -euo pipefail
+
+          echo "===== RUNNING CONTAINERS ====="
           docker ps
+
+          echo "===== BACKEND SERVICES ====="
+          docker compose \
+            -f microservices/docker-compose.yml \
+            -f microservices/docker-compose.registry.yml \
+            ps
+
+          echo "===== FRONTEND SERVICES ====="
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.registry.yml \
+            ps
