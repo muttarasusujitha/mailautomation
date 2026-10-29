@@ -556,6 +556,16 @@ def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
     ))
 
 
+def _proposal_slot_request_flow(requirement: Dict[str, Any]) -> bool:
+    """Use proposal intent for slot requests without overriding page-flow routing."""
+    flow_value = _clean(
+        requirement.get("batch_flow")
+        or requirement.get("batch_type")
+        or requirement.get("requirement_type")
+    ).lower()
+    return "proposal" in flow_value or _is_proposal_requirement(requirement)
+
+
 def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> List[str]:
     """Return only details the platform cannot already source from the trainer record."""
     requested = _mail1_requested_items(requirement)
@@ -575,7 +585,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         label = item.lower()
         if "availability" in label or "slot" in label:
             if not availability:
-                missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
+                missing.append("Tentative availability for the proposed engagement" if _proposal_slot_request_flow(requirement) else "Availability for the specified training dates")
         elif "linkedin" in label or "linked in" in label:
             if not _trainer_has_verified_detail(trainer, "linkedin"):
                 missing.append("LinkedIn profile")
@@ -611,7 +621,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
             or bool(slot_reply)
         )
     )
-    if interested_reply and (not _is_proposal_requirement(requirement) or _client_requested_interview_slots(requirement)):
+    if interested_reply and (not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement)):
         sources = [part for part in (slot_reply, reply_text, availability) if part]
         counts = [_dated_slot_option_count(part) for part in sources]
         combined = _dated_slot_option_count("\n".join(sources)) if sources else 0
@@ -741,7 +751,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         commercial_request = ""
     slot_context = ""
     slot_request = ""
-    if not is_proposal or _client_requested_interview_slots(requirement):
+    if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
             "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
             "Example:\n"
