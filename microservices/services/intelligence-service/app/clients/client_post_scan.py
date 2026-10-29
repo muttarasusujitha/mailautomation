@@ -46,7 +46,9 @@ async def scan_client_posts(domains, db, include_unmatched=False):
         saved += int(await save_client_post(lead, db, now))
     warnings = discovery.get('warnings', [])
     error = '; '.join(warning['error'] for warning in warnings) if discovery['status'] == 'blocked' else ''
+    target = 50
     return {'found': found, 'saved_count': saved, 'scanned_posts': len(rows),
+            'target': target, 'target_met': len(rows) >= target,
             'search_error': error, 'scan_warnings': warnings,
             'domain_outcomes': [{'domain': domain, 'matched': count,
                                  'status': 'matched' if count else 'no_match'}

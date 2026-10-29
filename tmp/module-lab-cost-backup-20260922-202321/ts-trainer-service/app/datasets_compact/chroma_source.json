@@ -1,0 +1,462 @@
+{
+    "domain":  "Chroma",
+    "name":  "Chroma â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "ChromaDB",
+                    "Chroma Vector Store"
+                ],
+    "tools":  [
+                  "ChromaDB",
+                  "Python",
+                  "Embeddings"
+              ],
+    "certifications":  [
+                           "Chroma official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Set up Chroma and run a first working example.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using Chroma.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Prepare representative data for Chroma.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using Chroma.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Implement the core workflow for Chroma.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using Chroma.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Implement an advanced Chroma workflow.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using Chroma.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Create an evaluation harness for Chroma.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using Chroma.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using Chroma.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using Chroma.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Integrate Chroma into an application.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Chroma.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using Chroma.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "Chroma terminology and feature mapping for this topic",
+                                       "Chroma configuration and implementation considerations",
+                                       "Chroma best practices and common mistakes for this topic",
+                                       "collections",
+                                       "documents",
+                                       "embeddings",
+                                       "metadatas",
+                                       "IDs",
+                                       "add",
+                                       "upsert",
+                                       "query",
+                                       "filters",
+                                       "persistence",
+                                       "embedding functions",
+                                       "local development"
+                                   ],
+                     "tools":  [
+                                   "ChromaDB",
+                                   "Python",
+                                   "Embeddings"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using Chroma.",
+                     "technology":  "Chroma",
+                     "technology_id":  "chroma",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of Chroma.",
+                                                 "Configure or implement the key Chroma features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using Chroma.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "chroma"
+}

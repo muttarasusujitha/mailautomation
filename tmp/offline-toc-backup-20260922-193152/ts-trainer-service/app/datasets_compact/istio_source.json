@@ -1,0 +1,418 @@
+{
+    "domain":  "Istio",
+    "name":  "Istio â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Istio Service Mesh",
+                    "Service Mesh"
+                ],
+    "tools":  [
+                  "Istio",
+                  "Kubernetes",
+                  "Envoy",
+                  "Kiali"
+              ],
+    "certifications":  [
+                           "Istio official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy"
+                               ],
+                     "lab_task":  "Set up Istio and run a basic workflow.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Istio.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy"
+                               ],
+                     "lab_task":  "Create reusable Istio configuration for development.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Istio.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy"
+                               ],
+                     "lab_task":  "Build an automated workflow using Istio.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Istio.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy",
+                                   "Kiali"
+                               ],
+                     "lab_task":  "Integrate Istio with source control and external services.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Istio.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy"
+                               ],
+                     "lab_task":  "Harden a Istio setup.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Istio.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Istio setup.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Istio.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Istio workflow.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Istio.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy",
+                                   "Kiali"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Istio.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Istio terminology and feature mapping for this topic",
+                                       "Istio configuration and implementation considerations",
+                                       "Istio best practices and common mistakes for this topic",
+                                       "service mesh",
+                                       "Envoy sidecars",
+                                       "Gateway",
+                                       "VirtualService",
+                                       "DestinationRule",
+                                       "PeerAuthentication",
+                                       "AuthorizationPolicy",
+                                       "mTLS",
+                                       "traffic shifting",
+                                       "retries",
+                                       "circuit breaking",
+                                       "telemetry"
+                                   ],
+                     "tools":  [
+                                   "Istio",
+                                   "Kubernetes",
+                                   "Envoy",
+                                   "Kiali"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Istio.",
+                     "technology":  "Istio",
+                     "technology_id":  "istio",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Istio.",
+                                                 "Configure or implement the key Istio features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Istio.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "istio"
+}

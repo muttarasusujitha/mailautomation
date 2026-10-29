@@ -1,0 +1,941 @@
+{
+  "domain": "Azure AI",
+  "name": "Azure AI Datasets",
+  "icon": "azure",
+  "program_title": "Azure AI Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Azure AI Datasets Expert",
+  "certifications": [
+    "Azure AI Engineer Associate",
+    "Azure Data Scientist Associate",
+    "Azure Solutions Architect Expert",
+    "Microsoft Certified: Azure AI Fundamentals"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Azure Fundamentals",
+      "subtopics": [
+        "Subscriptions",
+        "Resource Groups",
+        "Portal",
+        "CLI"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Azure basics"
+    },
+    {
+      "day": 2,
+      "topic": "Azure Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Subscriptions",
+        "Part 2: Resource Groups",
+        "Part 2: Portal",
+        "Part 2: CLI"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Azure basics"
+    },
+    {
+      "day": 3,
+      "topic": "Azure AI Services Overview",
+      "subtopics": [
+        "Cognitive Services",
+        "OpenAI Service",
+        "Bot Service"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure AI overview"
+    },
+    {
+      "day": 4,
+      "topic": "Azure AI Services Overview - Part 2",
+      "subtopics": [
+        "Part 2: Cognitive Services",
+        "Part 2: OpenAI Service",
+        "Part 2: Bot Service"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Azure AI overview"
+    },
+    {
+      "day": 5,
+      "topic": "Azure Cognitive Services",
+      "subtopics": [
+        "Vision",
+        "Speech",
+        "Language",
+        "Search"
+      ],
+      "tools": [
+        "Azure Cognitive Services"
+      ],
+      "jira_focus": "Sprint planning; review progress for Azure Cognitive Services",
+      "lab_task": "Cognitive services"
+    },
+    {
+      "day": 6,
+      "topic": "Azure Cognitive Services - Part 2",
+      "subtopics": [
+        "Part 2: Vision",
+        "Part 2: Speech",
+        "Part 2: Language",
+        "Part 2: Search"
+      ],
+      "tools": [
+        "Azure Cognitive Services"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Cognitive services"
+    },
+    {
+      "day": 7,
+      "topic": "Azure OpenAI Service",
+      "subtopics": [
+        "Models",
+        "Deployments",
+        "API",
+        "Playground"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure OpenAI setup"
+    },
+    {
+      "day": 8,
+      "topic": "Azure OpenAI Service - Part 2",
+      "subtopics": [
+        "Part 2: Models",
+        "Part 2: Deployments",
+        "Part 2: API",
+        "Part 2: Playground"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Azure OpenAI setup"
+    },
+    {
+      "day": 9,
+      "topic": "Building Chat Applications",
+      "subtopics": [
+        "ChatGPT Integration",
+        "Prompt Engineering",
+        "Conversation Flow"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Chat applications"
+    },
+    {
+      "day": 10,
+      "topic": "Building Chat Applications - Part 2",
+      "subtopics": [
+        "Part 2: ChatGPT Integration",
+        "Part 2: Prompt Engineering",
+        "Part 2: Conversation Flow"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Building Chat Applications",
+      "lab_task": "Part 2 hands-on: Chat applications"
+    },
+    {
+      "day": 11,
+      "topic": "Azure Machine Learning",
+      "subtopics": [
+        "Workspace",
+        "Compute",
+        "Datasets",
+        "Experiments"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure ML workspace"
+    },
+    {
+      "day": 12,
+      "topic": "Azure Machine Learning - Part 2",
+      "subtopics": [
+        "Part 2: Workspace",
+        "Part 2: Compute",
+        "Part 2: Datasets",
+        "Part 2: Experiments"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Azure ML workspace"
+    },
+    {
+      "day": 13,
+      "topic": "Azure ML - Model Training",
+      "subtopics": [
+        "AutoML",
+        "Designer",
+        "Pipelines",
+        "Training"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Model training"
+    },
+    {
+      "day": 14,
+      "topic": "Azure ML - Model Training - Part 2",
+      "subtopics": [
+        "Part 2: AutoML",
+        "Part 2: Designer",
+        "Part 2: Pipelines",
+        "Part 2: Training"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Model training"
+    },
+    {
+      "day": 15,
+      "topic": "Azure ML - Deployment",
+      "subtopics": [
+        "Endpoints",
+        "Inference",
+        "Container",
+        "Batch"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Sprint planning; review progress for Azure ML - Deployment",
+      "lab_task": "Model deployment"
+    },
+    {
+      "day": 16,
+      "topic": "Azure ML - Deployment - Part 2",
+      "subtopics": [
+        "Part 2: Endpoints",
+        "Part 2: Inference",
+        "Part 2: Container",
+        "Part 2: Batch"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Model deployment"
+    },
+    {
+      "day": 17,
+      "topic": "Azure Databricks",
+      "subtopics": [
+        "Clusters",
+        "Notebooks",
+        "Spark Jobs"
+      ],
+      "tools": [
+        "Databricks"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Databricks on Azure"
+    },
+    {
+      "day": 18,
+      "topic": "Azure Databricks - Part 2",
+      "subtopics": [
+        "Part 2: Clusters",
+        "Part 2: Notebooks",
+        "Part 2: Spark Jobs"
+      ],
+      "tools": [
+        "Databricks"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Databricks on Azure"
+    },
+    {
+      "day": 19,
+      "topic": "Data Processing",
+      "subtopics": [
+        "Data Factory",
+        "Data Lake Storage",
+        "Synapse Analytics"
+      ],
+      "tools": [
+        "Azure Data Services"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Data processing"
+    },
+    {
+      "day": 20,
+      "topic": "Data Processing - Part 2",
+      "subtopics": [
+        "Part 2: Data Factory",
+        "Part 2: Data Lake Storage",
+        "Part 2: Synapse Analytics"
+      ],
+      "tools": [
+        "Azure Data Services"
+      ],
+      "jira_focus": "Sprint planning; review progress for Data Processing",
+      "lab_task": "Part 2 hands-on: Data processing"
+    },
+    {
+      "day": 21,
+      "topic": "Search & Retrieval",
+      "subtopics": [
+        "Azure Cognitive Search",
+        "Vector Search",
+        "Indexing"
+      ],
+      "tools": [
+        "Cognitive Search"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Azure search services"
+    },
+    {
+      "day": 22,
+      "topic": "Search & Retrieval - Part 2",
+      "subtopics": [
+        "Part 2: Azure Cognitive Search",
+        "Part 2: Vector Search",
+        "Part 2: Indexing"
+      ],
+      "tools": [
+        "Cognitive Search"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Azure search services"
+    },
+    {
+      "day": 23,
+      "topic": "Computer Vision",
+      "subtopics": [
+        "Image Analysis",
+        "OCR",
+        "Face Recognition"
+      ],
+      "tools": [
+        "Azure Vision"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Vision AI"
+    },
+    {
+      "day": 24,
+      "topic": "Computer Vision - Part 2",
+      "subtopics": [
+        "Part 2: Image Analysis",
+        "Part 2: OCR",
+        "Part 2: Face Recognition"
+      ],
+      "tools": [
+        "Azure Vision"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Vision AI"
+    },
+    {
+      "day": 25,
+      "topic": "Natural Language Processing",
+      "subtopics": [
+        "Text Analysis",
+        "Sentiment",
+        "Entity Recognition"
+      ],
+      "tools": [
+        "Azure Language"
+      ],
+      "jira_focus": "Sprint planning; review progress for Natural Language Processing",
+      "lab_task": "Language AI"
+    },
+    {
+      "day": 26,
+      "topic": "Natural Language Processing - Part 2",
+      "subtopics": [
+        "Part 2: Text Analysis",
+        "Part 2: Sentiment",
+        "Part 2: Entity Recognition"
+      ],
+      "tools": [
+        "Azure Language"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Language AI"
+    },
+    {
+      "day": 27,
+      "topic": "Responsible AI",
+      "subtopics": [
+        "Fairness",
+        "Transparency",
+        "Accountability"
+      ],
+      "tools": [
+        "Responsible AI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Responsible AI practices"
+    },
+    {
+      "day": 28,
+      "topic": "Responsible AI - Part 2",
+      "subtopics": [
+        "Part 2: Fairness",
+        "Part 2: Transparency",
+        "Part 2: Accountability"
+      ],
+      "tools": [
+        "Responsible AI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Responsible AI practices"
+    },
+    {
+      "day": 29,
+      "topic": "Production & Governance",
+      "subtopics": [
+        "MLOps",
+        "Monitoring",
+        "Cost Management"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production deployment"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "MLOps",
+        "Monitoring",
+        "Cost Management"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Sprint planning; review progress for Production & Governance",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Azure AI Services Overview - Part 3",
+      "subtopics": [
+        "Part 3: Azure AI Services Overview concepts",
+        "Part 3: Azure AI Services Overview configuration",
+        "Part 3: Azure AI Services Overview hands-on workflow",
+        "Part 3: Azure AI Services Overview troubleshooting",
+        "Part 3: Azure AI Services Overview best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Part 3 hands-on: Hands-on lab: Azure AI Services Overview"
+    },
+    {
+      "day": 32,
+      "topic": "Azure OpenAI Deep Dive",
+      "subtopics": [
+        "Azure OpenAI Deep Dive concepts",
+        "Azure OpenAI Deep Dive configuration",
+        "Azure OpenAI Deep Dive hands-on workflow",
+        "Azure OpenAI Deep Dive troubleshooting",
+        "Azure OpenAI Deep Dive best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure OpenAI Deep Dive"
+    },
+    {
+      "day": 33,
+      "topic": "Azure AI Foundry",
+      "subtopics": [
+        "Azure AI Foundry concepts",
+        "Azure AI Foundry configuration",
+        "Azure AI Foundry hands-on workflow",
+        "Azure AI Foundry troubleshooting",
+        "Azure AI Foundry best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Azure AI Foundry"
+    },
+    {
+      "day": 34,
+      "topic": "Prompt Engineering on Azure",
+      "subtopics": [
+        "Prompt Engineering on Azure concepts",
+        "Prompt Engineering on Azure configuration",
+        "Prompt Engineering on Azure hands-on workflow",
+        "Prompt Engineering on Azure troubleshooting",
+        "Prompt Engineering on Azure best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Prompt Engineering on Azure"
+    },
+    {
+      "day": 35,
+      "topic": "Azure AI Search",
+      "subtopics": [
+        "Azure AI Search concepts",
+        "Azure AI Search configuration",
+        "Azure AI Search hands-on workflow",
+        "Azure AI Search troubleshooting",
+        "Azure AI Search best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Azure AI Search"
+    },
+    {
+      "day": 36,
+      "topic": "RAG with Azure AI Search",
+      "subtopics": [
+        "RAG with Azure AI Search concepts",
+        "RAG with Azure AI Search configuration",
+        "RAG with Azure AI Search hands-on workflow",
+        "RAG with Azure AI Search troubleshooting",
+        "RAG with Azure AI Search best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: RAG with Azure AI Search"
+    },
+    {
+      "day": 37,
+      "topic": "Azure ML Fundamentals",
+      "subtopics": [
+        "Azure ML Fundamentals concepts",
+        "Azure ML Fundamentals configuration",
+        "Azure ML Fundamentals hands-on workflow",
+        "Azure ML Fundamentals troubleshooting",
+        "Azure ML Fundamentals best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Azure ML Fundamentals"
+    },
+    {
+      "day": 38,
+      "topic": "Azure ML Pipelines",
+      "subtopics": [
+        "Azure ML Pipelines concepts",
+        "Azure ML Pipelines configuration",
+        "Azure ML Pipelines hands-on workflow",
+        "Azure ML Pipelines troubleshooting",
+        "Azure ML Pipelines best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Azure ML Pipelines"
+    },
+    {
+      "day": 39,
+      "topic": "Responsible AI Dashboard",
+      "subtopics": [
+        "Responsible AI Dashboard concepts",
+        "Responsible AI Dashboard configuration",
+        "Responsible AI Dashboard hands-on workflow",
+        "Responsible AI Dashboard troubleshooting",
+        "Responsible AI Dashboard best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Responsible AI Dashboard"
+    },
+    {
+      "day": 40,
+      "topic": "Azure Functions AI Workflows",
+      "subtopics": [
+        "Azure Functions AI Workflows concepts",
+        "Azure Functions AI Workflows configuration",
+        "Azure Functions AI Workflows hands-on workflow",
+        "Azure Functions AI Workflows troubleshooting",
+        "Azure Functions AI Workflows best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure Functions AI Workflows"
+    },
+    {
+      "day": 41,
+      "topic": "Logic Apps for AI",
+      "subtopics": [
+        "Logic Apps for AI concepts",
+        "Logic Apps for AI configuration",
+        "Logic Apps for AI hands-on workflow",
+        "Logic Apps for AI troubleshooting",
+        "Logic Apps for AI best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Logic Apps for AI"
+    },
+    {
+      "day": 42,
+      "topic": "Vector Search on Azure",
+      "subtopics": [
+        "Vector Search on Azure concepts",
+        "Vector Search on Azure configuration",
+        "Vector Search on Azure hands-on workflow",
+        "Vector Search on Azure troubleshooting",
+        "Vector Search on Azure best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Vector Search on Azure"
+    },
+    {
+      "day": 43,
+      "topic": "Security for Azure AI",
+      "subtopics": [
+        "Security for Azure AI concepts",
+        "Security for Azure AI configuration",
+        "Security for Azure AI hands-on workflow",
+        "Security for Azure AI troubleshooting",
+        "Security for Azure AI best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Security for Azure AI"
+    },
+    {
+      "day": 44,
+      "topic": "Managed Identity and RBAC",
+      "subtopics": [
+        "Managed Identity and RBAC concepts",
+        "Managed Identity and RBAC configuration",
+        "Managed Identity and RBAC hands-on workflow",
+        "Managed Identity and RBAC troubleshooting",
+        "Managed Identity and RBAC best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Managed Identity and RBAC"
+    },
+    {
+      "day": 45,
+      "topic": "Monitoring Azure AI Apps",
+      "subtopics": [
+        "Monitoring Azure AI Apps concepts",
+        "Monitoring Azure AI Apps configuration",
+        "Monitoring Azure AI Apps hands-on workflow",
+        "Monitoring Azure AI Apps troubleshooting",
+        "Monitoring Azure AI Apps best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Monitoring Azure AI Apps"
+    },
+    {
+      "day": 46,
+      "topic": "Cost Management for Azure AI",
+      "subtopics": [
+        "Cost Management for Azure AI concepts",
+        "Cost Management for Azure AI configuration",
+        "Cost Management for Azure AI hands-on workflow",
+        "Cost Management for Azure AI troubleshooting",
+        "Cost Management for Azure AI best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Cost Management for Azure AI"
+    },
+    {
+      "day": 47,
+      "topic": "Enterprise GenAI on Azure",
+      "subtopics": [
+        "Enterprise GenAI on Azure concepts",
+        "Enterprise GenAI on Azure configuration",
+        "Enterprise GenAI on Azure hands-on workflow",
+        "Enterprise GenAI on Azure troubleshooting",
+        "Enterprise GenAI on Azure best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Enterprise GenAI on Azure"
+    },
+    {
+      "day": 48,
+      "topic": "Azure AI Capstone Planning",
+      "subtopics": [
+        "Azure AI Capstone Planning concepts",
+        "Azure AI Capstone Planning configuration",
+        "Azure AI Capstone Planning hands-on workflow",
+        "Azure AI Capstone Planning troubleshooting",
+        "Azure AI Capstone Planning best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure AI Capstone Planning"
+    },
+    {
+      "day": 49,
+      "topic": "Azure AI Capstone Build",
+      "subtopics": [
+        "Azure AI Capstone Build concepts",
+        "Azure AI Capstone Build configuration",
+        "Azure AI Capstone Build hands-on workflow",
+        "Azure AI Capstone Build troubleshooting",
+        "Azure AI Capstone Build best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Azure AI Capstone Build"
+    },
+    {
+      "day": 50,
+      "topic": "Azure AI Evaluation",
+      "subtopics": [
+        "Azure AI Evaluation concepts",
+        "Azure AI Evaluation configuration",
+        "Azure AI Evaluation hands-on workflow",
+        "Azure AI Evaluation troubleshooting",
+        "Azure AI Evaluation best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Azure AI Evaluation"
+    },
+    {
+      "day": 51,
+      "topic": "Azure AI Final Demo",
+      "subtopics": [
+        "Azure AI Final Demo concepts",
+        "Azure AI Final Demo configuration",
+        "Azure AI Final Demo hands-on workflow",
+        "Azure AI Final Demo troubleshooting",
+        "Azure AI Final Demo best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Azure AI Final Demo"
+    },
+    {
+      "day": 52,
+      "topic": "Azure AI Capstone Architecture",
+      "subtopics": [
+        "Azure AI Capstone Architecture concepts",
+        "Azure AI Capstone Architecture hands-on workflow",
+        "Azure AI Capstone Architecture validation",
+        "Azure AI Capstone Architecture troubleshooting",
+        "Azure AI Capstone Architecture best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure AI Capstone Architecture"
+    },
+    {
+      "day": 53,
+      "topic": "Azure AI Search and Data Setup",
+      "subtopics": [
+        "Azure AI Search and Data Setup concepts",
+        "Azure AI Search and Data Setup hands-on workflow",
+        "Azure AI Search and Data Setup validation",
+        "Azure AI Search and Data Setup troubleshooting",
+        "Azure AI Search and Data Setup best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Azure AI Search and Data Setup"
+    },
+    {
+      "day": 54,
+      "topic": "Azure OpenAI App Implementation",
+      "subtopics": [
+        "Azure OpenAI App Implementation concepts",
+        "Azure OpenAI App Implementation hands-on workflow",
+        "Azure OpenAI App Implementation validation",
+        "Azure OpenAI App Implementation troubleshooting",
+        "Azure OpenAI App Implementation best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Azure OpenAI App Implementation"
+    },
+    {
+      "day": 55,
+      "topic": "Azure AI Security and RBAC Review",
+      "subtopics": [
+        "Azure AI Security and RBAC Review concepts",
+        "Azure AI Security and RBAC Review hands-on workflow",
+        "Azure AI Security and RBAC Review validation",
+        "Azure AI Security and RBAC Review troubleshooting",
+        "Azure AI Security and RBAC Review best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Azure AI Security and RBAC Review"
+    },
+    {
+      "day": 56,
+      "topic": "Azure AI Evaluation and Monitoring",
+      "subtopics": [
+        "Azure AI Evaluation and Monitoring concepts",
+        "Azure AI Evaluation and Monitoring hands-on workflow",
+        "Azure AI Evaluation and Monitoring validation",
+        "Azure AI Evaluation and Monitoring troubleshooting",
+        "Azure AI Evaluation and Monitoring best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure AI Evaluation and Monitoring"
+    },
+    {
+      "day": 57,
+      "topic": "Azure AI Final Demo and Roadmap",
+      "subtopics": [
+        "Azure AI Final Demo and Roadmap concepts",
+        "Azure AI Final Demo and Roadmap hands-on workflow",
+        "Azure AI Final Demo and Roadmap validation",
+        "Azure AI Final Demo and Roadmap troubleshooting",
+        "Azure AI Final Demo and Roadmap best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Azure AI Final Demo and Roadmap"
+    },
+    {
+      "day": 58,
+      "topic": "Azure Deployment Review",
+      "subtopics": [
+        "Azure Deployment Review concepts",
+        "Azure Deployment Review hands-on workflow",
+        "Azure Deployment Review validation",
+        "Azure Deployment Review troubleshooting",
+        "Azure Deployment Review best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Azure Deployment Review"
+    },
+    {
+      "day": 59,
+      "topic": "Responsible AI Review",
+      "subtopics": [
+        "Responsible AI Review concepts",
+        "Responsible AI Review hands-on workflow",
+        "Responsible AI Review validation",
+        "Responsible AI Review troubleshooting",
+        "Responsible AI Review best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Responsible AI Review"
+    },
+    {
+      "day": 60,
+      "topic": "Azure AI Enterprise Final Demo and Roadmap",
+      "subtopics": [
+        "Azure AI Enterprise Final Demo and Roadmap concepts",
+        "Azure AI Enterprise Final Demo and Roadmap hands-on workflow",
+        "Azure AI Enterprise Final Demo and Roadmap validation",
+        "Azure AI Enterprise Final Demo and Roadmap troubleshooting",
+        "Azure AI Enterprise Final Demo and Roadmap best practices"
+      ],
+      "tools": [
+        "Azure AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure AI Enterprise Final Demo and Roadmap"
+    }
+  ],
+  "aliases": [
+    "Azure AI",
+    "Azure OpenAI",
+    "Azure AI Foundry",
+    "Azure Cognitive Services",
+    "Azure AI Datasets",
+    "Azure Machine Learning"
+  ],
+  "official_sources": [
+    "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

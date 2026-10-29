@@ -7,7 +7,7 @@ import {
   RefreshCw, Send, ShieldCheck, SlidersHorizontal, Trash2, Zap
 } from 'lucide-react'
 import api from '../utils/api'
-import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
+import { getGmailOAuthRedirectUri, normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -369,7 +369,9 @@ export default function Inbox() {
         return
       }
       if (!connected || !gmailStatus?.calendar_connected) {
-        const res = await api.get('/gmail/oauth-url')
+        const res = await api.get('/gmail/oauth-url', {
+          params: { redirect_uri: getGmailOAuthRedirectUri() },
+        })
         const authUrl = res.data.auth_url || res.data.url
         if (!authUrl) throw new Error('Google OAuth service returned no authorization URL')
         saveGmailOAuthPkce(res.data)

@@ -1,0 +1,417 @@
+{
+    "domain":  "Pulumi",
+    "name":  "Pulumi â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Pulumi IaC",
+                    "Infrastructure as Code with Pulumi"
+                ],
+    "tools":  [
+                  "Pulumi",
+                  "TypeScript",
+                  "Python",
+                  "AWS/Azure/GCP"
+              ],
+    "certifications":  [
+                           "Pulumi official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python"
+                               ],
+                     "lab_task":  "Set up Pulumi and run a basic workflow.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Pulumi.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python"
+                               ],
+                     "lab_task":  "Create reusable Pulumi configuration for development.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Pulumi.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python"
+                               ],
+                     "lab_task":  "Build an automated workflow using Pulumi.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Pulumi.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python",
+                                   "AWS/Azure/GCP"
+                               ],
+                     "lab_task":  "Integrate Pulumi with source control and external services.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Pulumi.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python"
+                               ],
+                     "lab_task":  "Harden a Pulumi setup.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Pulumi.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Pulumi setup.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Pulumi.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Pulumi workflow.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Pulumi.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python",
+                                   "AWS/Azure/GCP"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Pulumi.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Pulumi terminology and feature mapping for this topic",
+                                       "Pulumi configuration and implementation considerations",
+                                       "Pulumi best practices and common mistakes for this topic",
+                                       "stacks",
+                                       "projects",
+                                       "resources",
+                                       "providers",
+                                       "state",
+                                       "outputs",
+                                       "config",
+                                       "secrets",
+                                       "components",
+                                       "StackReference",
+                                       "preview",
+                                       "up"
+                                   ],
+                     "tools":  [
+                                   "Pulumi",
+                                   "TypeScript",
+                                   "Python",
+                                   "AWS/Azure/GCP"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Pulumi.",
+                     "technology":  "Pulumi",
+                     "technology_id":  "pulumi",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Pulumi.",
+                                                 "Configure or implement the key Pulumi features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Pulumi.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "pulumi"
+}

@@ -3,6 +3,7 @@ import logging
 import os
 import uuid
 import json
+from urllib.parse import urlsplit
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
@@ -30,6 +31,15 @@ GMAIL_SYNC_LAST_RESULT: Dict[str, Any] = {}
 
 
 def _default_oauth_redirect(request: Request) -> str:
+    origin = request.headers.get("origin", "").strip()
+    origin_host = urlsplit(origin).hostname.lower() if origin else ""
+    forwarded_host = request.headers.get("x-forwarded-host", "").split(",", 1)[0].strip()
+    host = (origin_host or forwarded_host or request.headers.get("host", "")).split(":", 1)[0].lower()
+    if origin_host in {"localhost", "127.0.0.1", "::1"} or host in {"localhost", "127.0.0.1", "::1"}:
+        local_redirect = settings.GOOGLE_REDIRECT_URI_LOCAL.strip()
+        if local_redirect:
+            return local_redirect
+
     configured_redirect = settings.GOOGLE_REDIRECT_URI.strip()
     if configured_redirect:
         return configured_redirect
@@ -39,6 +49,28 @@ def _default_oauth_redirect(request: Request) -> str:
         return f"{frontend_url}/auth/callback"
 
     return str(request.base_url).rstrip("/") + "/api/v1/gmail/oauth-callback"
+
+
+def _configured_oauth_redirects() -> set[str]:
+    return {
+        value
+        for value in (
+            settings.GOOGLE_REDIRECT_URI.strip(),
+            settings.GOOGLE_REDIRECT_URI_LOCAL.strip(),
+        )
+        if value
+    }
+
+
+def _frontend_redirect_url(request: Request) -> str:
+    configured_url = settings.FRONTEND_URL.strip().rstrip("/")
+    host = request.headers.get("host", "").split(":", 1)[0].lower()
+    if host not in {"localhost", "127.0.0.1", "::1"} and configured_url.startswith(
+        ("http://localhost", "http://127.0.0.1", "https://localhost", "https://127.0.0.1")
+    ):
+        forwarded_proto = request.headers.get("x-forwarded-proto", "https").split(",", 1)[0].strip()
+        return f"{forwarded_proto}://{host}"
+    return configured_url or "http://localhost:5174"
 
 
 def _oauth_client_config(redirect_uri: str) -> Dict[str, Any]:
@@ -190,16 +222,18 @@ async def get_gmail_oauth_url(
     try:
         from google_auth_oauthlib.flow import Flow
         _ensure_oauth_configured()
-        # Keep the registered Gmail callback from configuration authoritative.
-        # An older frontend may still send its legacy /api/... callback as a
-        # query parameter; accepting it overrides GOOGLE_REDIRECT_URI and can
-        # cause redirect_uri_mismatch even when the correct URI is configured.
-        redirect_uri = (
-            settings.GOOGLE_REDIRECT_URI.strip()
-            or redirect_uri
-            or request.query_params.get("redirect_uri")
-            or _default_oauth_redirect(request)
-        )
+        # Select the callback from the browser environment. This lets one
+        # Google OAuth client serve both the deployed app and local Vite.
+        # The value is persisted with the OAuth state and reused by the
+        # callback exchange, so both sides use the exact same URI.
+        requested_redirect = (redirect_uri or "").strip()
+        if requested_redirect:
+            allowed_redirects = _configured_oauth_redirects()
+            if requested_redirect not in allowed_redirects:
+                raise HTTPException(400, "The requested Google OAuth redirect URI is not configured")
+            redirect_uri = requested_redirect
+        else:
+            redirect_uri = _default_oauth_redirect(request)
         flow = Flow.from_client_config(
             _oauth_client_config(redirect_uri),
             scopes=GMAIL_SCOPES,
@@ -302,10 +336,10 @@ async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depe
 async def gmail_oauth_callback_get(request: Request, db: AsyncIOMotorDatabase = Depends(get_db)):
     error = request.query_params.get("error")
     if error:
-        frontend_url = settings.FRONTEND_URL.strip().rstrip("/") or "http://localhost:5174"
+        frontend_url = _frontend_redirect_url(request)
         return RedirectResponse(f"{frontend_url}/admin?gmail_error={error}")
     await _exchange_gmail_oauth_code(request, db, {})
-    frontend_url = settings.FRONTEND_URL.strip().rstrip("/") or "http://localhost:5174"
+    frontend_url = _frontend_redirect_url(request)
     return RedirectResponse(f"{frontend_url}/admin?gmail_connected=1")
 
 

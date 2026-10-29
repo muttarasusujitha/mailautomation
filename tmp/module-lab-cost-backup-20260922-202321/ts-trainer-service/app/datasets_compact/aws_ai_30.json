@@ -1,0 +1,456 @@
+{
+  "domain": "AWS AI",
+  "name": "AWS AI Datasets",
+  "icon": "aws",
+  "program_title": "AWS AI Datasets Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "AWS AI Datasets Expert",
+  "certifications": [
+    "AWS Certified Machine Learning - Specialty",
+    "AWS Certified AI Practitioner",
+    "AWS Solutions Architect - Professional",
+    "AWS Certified Data Analytics - Specialty"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "AWS Fundamentals",
+      "subtopics": [
+        "Services",
+        "Regions",
+        "IAM",
+        "Console"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "AWS basics"
+    },
+    {
+      "day": 2,
+      "topic": "AWS Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Services",
+        "Part 2: Regions",
+        "Part 2: IAM",
+        "Part 2: Console"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: AWS basics"
+    },
+    {
+      "day": 3,
+      "topic": "AWS AI Services Overview",
+      "subtopics": [
+        "SageMaker",
+        "Lex",
+        "Polly",
+        "Rekognition"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "AWS AI overview"
+    },
+    {
+      "day": 4,
+      "topic": "AWS AI Services Overview - Part 2",
+      "subtopics": [
+        "Part 2: SageMaker",
+        "Part 2: Lex",
+        "Part 2: Polly",
+        "Part 2: Rekognition"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: AWS AI overview"
+    },
+    {
+      "day": 5,
+      "topic": "Amazon SageMaker Basics",
+      "subtopics": [
+        "Notebooks",
+        "Datasets",
+        "Instances"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Sprint planning; review progress for Amazon SageMaker Basics",
+      "lab_task": "SageMaker setup"
+    },
+    {
+      "day": 6,
+      "topic": "Amazon SageMaker Basics - Part 2",
+      "subtopics": [
+        "Part 2: Notebooks",
+        "Part 2: Datasets",
+        "Part 2: Instances"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: SageMaker setup"
+    },
+    {
+      "day": 7,
+      "topic": "SageMaker Model Development",
+      "subtopics": [
+        "Training",
+        "Hyperparameter Tuning",
+        "Evaluation"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Model development"
+    },
+    {
+      "day": 8,
+      "topic": "SageMaker Model Development - Part 2",
+      "subtopics": [
+        "Part 2: Training",
+        "Part 2: Hyperparameter Tuning",
+        "Part 2: Evaluation"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Model development"
+    },
+    {
+      "day": 9,
+      "topic": "SageMaker Deployment",
+      "subtopics": [
+        "Endpoints",
+        "Batch Transform",
+        "Auto Scaling"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Model deployment"
+    },
+    {
+      "day": 10,
+      "topic": "SageMaker Deployment - Part 2",
+      "subtopics": [
+        "Part 2: Endpoints",
+        "Part 2: Batch Transform",
+        "Part 2: Auto Scaling"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Sprint planning; review progress for SageMaker Deployment",
+      "lab_task": "Part 2 hands-on: Model deployment"
+    },
+    {
+      "day": 11,
+      "topic": "Amazon Rekognition",
+      "subtopics": [
+        "Image Analysis",
+        "Video Analysis",
+        "Face Detection"
+      ],
+      "tools": [
+        "Rekognition"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Computer vision"
+    },
+    {
+      "day": 12,
+      "topic": "Amazon Rekognition - Part 2",
+      "subtopics": [
+        "Part 2: Image Analysis",
+        "Part 2: Video Analysis",
+        "Part 2: Face Detection"
+      ],
+      "tools": [
+        "Rekognition"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Computer vision"
+    },
+    {
+      "day": 13,
+      "topic": "Amazon Textract",
+      "subtopics": [
+        "Document Analysis",
+        "OCR",
+        "Form Recognition"
+      ],
+      "tools": [
+        "Textract"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Document processing"
+    },
+    {
+      "day": 14,
+      "topic": "Amazon Textract - Part 2",
+      "subtopics": [
+        "Part 2: Document Analysis",
+        "Part 2: OCR",
+        "Part 2: Form Recognition"
+      ],
+      "tools": [
+        "Textract"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Document processing"
+    },
+    {
+      "day": 15,
+      "topic": "Amazon Lex",
+      "subtopics": [
+        "Chatbots",
+        "Intents",
+        "Slots",
+        "Integration"
+      ],
+      "tools": [
+        "Lex"
+      ],
+      "jira_focus": "Sprint planning; review progress for Amazon Lex",
+      "lab_task": "Chatbot building"
+    },
+    {
+      "day": 16,
+      "topic": "Amazon Lex - Part 2",
+      "subtopics": [
+        "Part 2: Chatbots",
+        "Part 2: Intents",
+        "Part 2: Slots",
+        "Part 2: Integration"
+      ],
+      "tools": [
+        "Lex"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Chatbot building"
+    },
+    {
+      "day": 17,
+      "topic": "Amazon Polly",
+      "subtopics": [
+        "Text-to-Speech",
+        "Neural Voices",
+        "SSML"
+      ],
+      "tools": [
+        "Polly"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Text-to-speech"
+    },
+    {
+      "day": 18,
+      "topic": "Amazon Polly - Part 2",
+      "subtopics": [
+        "Part 2: Text-to-Speech",
+        "Part 2: Neural Voices",
+        "Part 2: SSML"
+      ],
+      "tools": [
+        "Polly"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Text-to-speech"
+    },
+    {
+      "day": 19,
+      "topic": "Amazon Comprehend",
+      "subtopics": [
+        "NLP",
+        "Sentiment",
+        "Entities",
+        "Key Phrases"
+      ],
+      "tools": [
+        "Comprehend"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "NLP services"
+    },
+    {
+      "day": 20,
+      "topic": "Amazon Comprehend - Part 2",
+      "subtopics": [
+        "Part 2: NLP",
+        "Part 2: Sentiment",
+        "Part 2: Entities",
+        "Part 2: Key Phrases"
+      ],
+      "tools": [
+        "Comprehend"
+      ],
+      "jira_focus": "Sprint planning; review progress for Amazon Comprehend",
+      "lab_task": "Part 2 hands-on: NLP services"
+    },
+    {
+      "day": 21,
+      "topic": "Amazon Forecast",
+      "subtopics": [
+        "Time Series",
+        "Predictions",
+        "Accuracy Metrics"
+      ],
+      "tools": [
+        "Forecast"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Forecasting"
+    },
+    {
+      "day": 22,
+      "topic": "Amazon Forecast - Part 2",
+      "subtopics": [
+        "Part 2: Time Series",
+        "Part 2: Predictions",
+        "Part 2: Accuracy Metrics"
+      ],
+      "tools": [
+        "Forecast"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Forecasting"
+    },
+    {
+      "day": 23,
+      "topic": "Amazon Lookout",
+      "subtopics": [
+        "Anomaly Detection",
+        "Equipment Monitoring"
+      ],
+      "tools": [
+        "Lookout"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Anomaly detection"
+    },
+    {
+      "day": 24,
+      "topic": "Amazon Lookout - Part 2",
+      "subtopics": [
+        "Part 2: Anomaly Detection",
+        "Part 2: Equipment Monitoring"
+      ],
+      "tools": [
+        "Lookout"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Anomaly detection"
+    },
+    {
+      "day": 25,
+      "topic": "Data Preparation",
+      "subtopics": [
+        "Data Pipeline",
+        "ETL",
+        "Feature Engineering"
+      ],
+      "tools": [
+        "Data Wrangler"
+      ],
+      "jira_focus": "Sprint planning; review progress for Data Preparation",
+      "lab_task": "Data preparation"
+    },
+    {
+      "day": 26,
+      "topic": "Data Preparation - Part 2",
+      "subtopics": [
+        "Part 2: Data Pipeline",
+        "Part 2: ETL",
+        "Part 2: Feature Engineering"
+      ],
+      "tools": [
+        "Data Wrangler"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Data preparation"
+    },
+    {
+      "day": 27,
+      "topic": "MLOps on AWS",
+      "subtopics": [
+        "CI/CD",
+        "Monitoring",
+        "Automation"
+      ],
+      "tools": [
+        "AWS MLOps"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "MLOps practices"
+    },
+    {
+      "day": 28,
+      "topic": "MLOps on AWS - Part 2",
+      "subtopics": [
+        "Part 2: CI/CD",
+        "Part 2: Monitoring",
+        "Part 2: Automation"
+      ],
+      "tools": [
+        "AWS MLOps"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: MLOps practices"
+    },
+    {
+      "day": 29,
+      "topic": "Production Deployment",
+      "subtopics": [
+        "Scalability",
+        "Cost Optimization",
+        "Monitoring"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production workflows"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Scalability",
+        "Cost Optimization",
+        "Monitoring"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Sprint planning; review progress for Production Deployment",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ],
+  "aliases": [
+    "AWS AI",
+    "AWS GenAI",
+    "AWS Bedrock",
+    "Amazon Bedrock",
+    "AWS AI Datasets",
+    "AWS Machine Learning",
+    "SageMaker"
+  ],
+  "official_sources": [
+    "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

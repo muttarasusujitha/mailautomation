@@ -1,0 +1,876 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-09-29T09:42:10.987638+00:00",
+  "technical_accuracy_verified": false,
+  "pricing_verified": false,
+  "limitations": [
+    "Passing validates content and resource constraints, not trainer approval.",
+    "No cloud resources were provisioned and no prices were fetched."
+  ],
+  "results": [
+    {
+      "scenario": {
+        "name": "invoice_csv",
+        "domain": "Python",
+        "custom_topics": "CSV; duplicate invoices",
+        "client_notes": "Finance analysts know Python lists and dictionaries. Validate invoice CSV rows; write accepted.csv and rejected.csv with reasons. Use local machines only.",
+        "setup": "local"
+      },
+      "trainer_review_status": "pending",
+      "toc_reused_from": "outputs/ollama_planning_benchmark.json",
+      "toc": {
+        "title": "Python training for intermediate learners",
+        "overview": "This training focuses on validating CSV invoice data using Python, ensuring that finance analysts can process and categorize rows into accepted and rejected files. The course builds on existing knowledge of Python lists and dictionaries, emphasizing file handling, data validation, and error handling.",
+        "prerequisites": [
+          "Knowledge of Python lists and dictionaries",
+          "Basic file handling skills",
+          "Understanding of CSV file structure"
+        ],
+        "learning_outcomes": [
+          "Read and write CSV files using the csv module",
+          "Validate invoice data against required fields and data types",
+          "Separate valid and invalid rows into different files",
+          "Log rejection reasons for invalid rows"
+        ],
+        "assumptions": [],
+        "clarification_questions": [],
+        "domain": "Python",
+        "level": "intermediate",
+        "mode": "Online",
+        "duration_days": 1,
+        "hours_per_day": 6.0,
+        "planning_method": "ollama_client_curriculum",
+        "ai_provider": "ollama",
+        "requirement_brief": {
+          "audience": "intermediate learners",
+          "outcomes": [
+            "Read and write CSV files using the csv module",
+            "Validate invoice data against required fields and data types",
+            "Separate valid and invalid rows into different files",
+            "Log rejection reasons for invalid rows"
+          ],
+          "required_topics": [
+            "CSV",
+            "duplicate invoices"
+          ],
+          "excluded_topics": [],
+          "prior_knowledge": [],
+          "constraints": [],
+          "clarification_questions": []
+        },
+        "coverage_matrix": {
+          "CSV": [
+            1
+          ],
+          "duplicate invoices": []
+        },
+        "retrieval": {
+          "method": "local_dataset_filter",
+          "embedding_model": null,
+          "corpus_records": 3014,
+          "warnings": []
+        },
+        "reference_candidates": [
+          {
+            "domain": "Python",
+            "title": "File Handling & Exceptions",
+            "subtopics": [
+              "csv.DictReader and explicit field conversion",
+              "Required fields and duplicate order IDs",
+              "ISO date validation and rejection reasons",
+              "Separate row validation from file I/O",
+              "Missing file versus invalid row handling",
+              "Regression tests for valid and rejected rows"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "Pandas Data Analysis",
+            "subtopics": [
+              "DataFrames",
+              "Data Cleaning",
+              "Filtering",
+              "GroupBy",
+              "Merge/Join"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "Pandas Data Analysis",
+            "subtopics": [
+              "DataFrames",
+              "Data Cleaning",
+              "Filtering",
+              "GroupBy",
+              "Merge/Join"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "Data Structures",
+            "subtopics": [
+              "Lists",
+              "Tuples",
+              "Sets",
+              "Dictionaries",
+              "Comprehensions"
+            ]
+          }
+        ],
+        "quality": {
+          "status": "requires_regeneration",
+          "validation_errors": [
+            "Missing requested topic: duplicate invoices",
+            "Missing requested topics: duplicate invoices"
+          ],
+          "review_warnings": [
+            "Ollama-designed topics and sequence require trainer review for technical accuracy and client fit",
+            "Missing requested topics: duplicate invoices",
+            "Missing requested topic: duplicate invoices"
+          ],
+          "content_evaluation": {
+            "status": "fail",
+            "score": 100,
+            "issues": [
+              "Missing requested topics: duplicate invoices"
+            ],
+            "strengths": [
+              "Every module has a delivery sequence with participant activity and evidence",
+              "Every module has assessment evidence",
+              "Every module has a timed delivery plan"
+            ],
+            "module_count": 1,
+            "detailed_modules": 1,
+            "assessable_modules": 1,
+            "timed_modules": 1,
+            "ready_modules": 1,
+            "blocking_issues": [
+              "Missing requested topics: duplicate invoices"
+            ],
+            "technical_accuracy_verified": false,
+            "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+          },
+          "content_score": 100
+        },
+        "days": [
+          {
+            "day": 1,
+            "focus_area": "CSV Validation and File Handling",
+            "subtopics": [
+              "Reading and writing CSV files using Python",
+              "Validating required fields and data types",
+              "Handling missing or invalid data",
+              "Separating valid and invalid rows into separate files",
+              "Error handling and logging"
+            ],
+            "lab": "Validate a CSV file of invoices, checking for required fields, data types, and duplicate order IDs. Write valid rows to accepted.csv and invalid rows to rejected.csv with clear rejection reasons.",
+            "learning_objectives": [
+              "Read and write CSV files using the csv module",
+              "Validate invoice data against required fields and data types",
+              "Separate valid and invalid rows into different files",
+              "Log rejection reasons for invalid rows"
+            ],
+            "tools": [
+              "Python 3.x",
+              "CSV files (provided by the client)"
+            ],
+            "prerequisites": [
+              "Knowledge of Python lists and dictionaries",
+              "Basic file handling skills",
+              "Understanding of CSV file structure"
+            ],
+            "preparation_requirements": [
+              "Setup Python environment with csv module",
+              "Access to a CSV file containing invoice data",
+              "Create a directory to store the output files"
+            ],
+            "prerequisite_days": [],
+            "deliverable": "Accepted.csv and Rejected.csv files with valid and invalid rows, respectively, along with rejection reasons for invalid rows.",
+            "assessment": "Verify that the files are created and that the valid and invalid rows are correctly separated with proper rejection reasons.",
+            "acceptance_checks": [
+              {
+                "input_or_condition": "Run the script with a valid CSV file containing correct data.",
+                "expected_result": "Accepted.csv contains all valid rows, and Rejected.csv contains invalid rows.",
+                "evidence": "Check the contents of accepted.csv and rejected.csv for valid and invalid rows."
+              },
+              {
+                "input_or_condition": "Run the script with a CSV file containing missing required fields.",
+                "expected_result": "Rejected.csv contains rows with missing fields, and the rejection reason is recorded.",
+                "evidence": "Verify that the rejected.csv contains the row with the missing field and a recorded reason."
+              },
+              {
+                "input_or_condition": "Run the script with a CSV file containing duplicate order IDs.",
+                "expected_result": "Rejected.csv contains rows with duplicate order IDs, and the rejection reason is recorded.",
+                "evidence": "Check that rejected.csv includes the duplicate rows and the corresponding rejection reason."
+              }
+            ],
+            "title": "Day 1: CSV Validation and File Handling",
+            "minutes": 360,
+            "scenario": "A intermediate participant applies csv validation and file handling to a task described in the client request.",
+            "delivery_steps": [
+              {
+                "method": "Explain and demonstrate",
+                "minutes": 60,
+                "activity": "Introduce CSV Validation and File Handling using the client objectives, then demonstrate a short example.",
+                "evidence": "Participants identify the key steps for Reading and writing CSV files using Python"
+              },
+              {
+                "method": "Guided practice",
+                "minutes": 270,
+                "activity": "Validate a CSV file of invoices, checking for required fields, data types, and duplicate order IDs. Write valid rows to accepted.csv and invalid rows to rejected.csv with clear rejection reasons.",
+                "evidence": "Accepted.csv and Rejected.csv files with valid and invalid rows, respectively, along with rejection reasons for invalid rows."
+              },
+              {
+                "method": "Assessment",
+                "minutes": 30,
+                "activity": "Verify that the files are created and that the valid and invalid rows are correctly separated with proper rejection reasons.",
+                "evidence": "Check the contents of accepted.csv and rejected.csv for valid and invalid rows.; Verify that the rejected.csv contains the row with the missing field and a recorded reason.; Check that rejected.csv includes the duplicate rows and the corresponding rejection reason."
+              }
+            ],
+            "lab_task": "Validate a CSV file of invoices, checking for required fields, data types, and duplicate order IDs. Write valid rows to accepted.csv and invalid rows to rejected.csv with clear rejection reasons.",
+            "morning_session": {
+              "topics": [
+                {
+                  "topic": "Reading and writing CSV files using Python",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Validating required fields and data types",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Handling missing or invalid data",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Separating valid and invalid rows into separate files",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Error handling and logging",
+                  "type": "lecture"
+                }
+              ]
+            },
+            "afternoon_session": {
+              "topics": [
+                {
+                  "topic": "Validate a CSV file of invoices, checking for required fields, data types, and duplicate order IDs. Write valid rows to accepted.csv and invalid rows to rejected.csv with clear rejection reasons.",
+                  "type": "lab"
+                },
+                {
+                  "topic": "Verify that the files are created and that the valid and invalid rows are correctly separated with proper rejection reasons.",
+                  "type": "assessment"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "toc_gate_passed": false,
+      "resources": [
+        {
+          "vm_qty": 0,
+          "vm_profile": "None",
+          "k8s_control_plane": 0,
+          "k8s_worker_nodes": 0,
+          "managed_db": 0,
+          "object_storage_gb": 0.0,
+          "storage_put_requests": 0,
+          "storage_get_requests": 0,
+          "active_days": 1
+        }
+      ],
+      "resource_gate_passed": true,
+      "elapsed_seconds": 0.02
+    },
+    {
+      "scenario": {
+        "name": "containers",
+        "domain": "Docker",
+        "custom_topics": "Dockerfile; healthcheck",
+        "client_notes": "Developers know Linux. Build a small HTTP service image, add a healthcheck and diagnose a failed container. Each learner uses their own AWS EC2 VM.",
+        "setup": "individual"
+      },
+      "trainer_review_status": "pending",
+      "toc_reused_from": "outputs/ollama_planning_benchmark.json",
+      "toc": {
+        "title": "Docker training for intermediate learners",
+        "overview": "This one-day Docker training focuses on building a small HTTP service image using a Dockerfile, adding a healthcheck, and diagnosing a failed container. All learners will use their own AWS EC2 VMs to perform these tasks. The training moves from foundational Dockerfile creation to advanced healthcheck implementation and container diagnostics.",
+        "prerequisites": [
+          "Knowledge of Linux command-line operations",
+          "Basic understanding of Docker concepts such as containers, images, and networking",
+          "Ability to create and manage files and directories"
+        ],
+        "learning_outcomes": [
+          "Construct a Dockerfile that builds a small HTTP service image.",
+          "Implement a healthcheck in the Dockerfile and verify its functionality.",
+          "Diagnose and resolve issues in a failed container using logs and diagnostics tools."
+        ],
+        "assumptions": [],
+        "clarification_questions": [],
+        "domain": "Docker",
+        "level": "intermediate",
+        "mode": "Online",
+        "duration_days": 1,
+        "hours_per_day": 6.0,
+        "planning_method": "ollama_client_curriculum",
+        "ai_provider": "ollama",
+        "requirement_brief": {
+          "audience": "intermediate learners",
+          "outcomes": [
+            "Construct a Dockerfile that builds a small HTTP service image.",
+            "Implement a healthcheck in the Dockerfile and verify its functionality.",
+            "Diagnose and resolve issues in a failed container using logs and diagnostics tools."
+          ],
+          "required_topics": [
+            "Dockerfile",
+            "healthcheck"
+          ],
+          "excluded_topics": [],
+          "prior_knowledge": [],
+          "constraints": [],
+          "clarification_questions": []
+        },
+        "coverage_matrix": {
+          "Dockerfile": [
+            1
+          ],
+          "healthcheck": [
+            1
+          ]
+        },
+        "retrieval": {
+          "method": "local_dataset_filter",
+          "embedding_model": null,
+          "corpus_records": 3014,
+          "warnings": []
+        },
+        "reference_candidates": [
+          {
+            "domain": "Python",
+            "title": "DevOps & Deployment",
+            "subtopics": [
+              "Docker",
+              "Docker Compose",
+              "Environment Variables",
+              "Configuration",
+              "Health Checks"
+            ]
+          },
+          {
+            "domain": "Python",
+            "title": "DevOps & Deployment",
+            "subtopics": [
+              "Docker",
+              "Docker Compose",
+              "Environment Variables",
+              "Configuration",
+              "Health Checks"
+            ]
+          },
+          {
+            "domain": "Java",
+            "title": "Docker & Containerization",
+            "subtopics": [
+              "Docker Basics",
+              "Dockerfile",
+              "Image Creation",
+              "Container Networking",
+              "Orchestration Basics"
+            ]
+          },
+          {
+            "domain": "Docker Compose \u00e2\u20ac\u201c Comprehensive Fundamentals to Advanced Curriculum",
+            "title": "Integration",
+            "subtopics": [
+              "Git integration",
+              "Container integration",
+              "Cloud integration",
+              "API/webhook integration",
+              "Credential management",
+              "Third-party plugins",
+              "Docker Compose terminology and feature mapping for this topic",
+              "Docker Compose configuration and implementation considerations",
+              "Docker Compose best practices and common mistakes for this topic",
+              "compose.yaml",
+              "services",
+              "images",
+              "build",
+              "ports",
+              "volumes",
+              "networks",
+              "environment variables",
+              "depends_on",
+              "healthcheck",
+              "profiles",
+              "secrets"
+            ]
+          }
+        ],
+        "quality": {
+          "status": "requires_review",
+          "validation_errors": [],
+          "review_warnings": [
+            "Ollama-designed topics and sequence require trainer review for technical accuracy and client fit"
+          ],
+          "content_evaluation": {
+            "status": "pass",
+            "score": 100,
+            "issues": [],
+            "strengths": [
+              "Every module has a delivery sequence with participant activity and evidence",
+              "Every module has assessment evidence",
+              "Every module has a timed delivery plan"
+            ],
+            "module_count": 1,
+            "detailed_modules": 1,
+            "assessable_modules": 1,
+            "timed_modules": 1,
+            "ready_modules": 1,
+            "blocking_issues": [],
+            "technical_accuracy_verified": false,
+            "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+          },
+          "content_score": 100
+        },
+        "days": [
+          {
+            "day": 1,
+            "focus_area": "Dockerfile and Healthcheck Implementation",
+            "subtopics": [
+              "Constructing a Dockerfile for an HTTP service",
+              "Adding and configuring healthchecks in Docker",
+              "Troubleshooting and diagnosing failed containers"
+            ],
+            "lab": "Build and test a Docker image with a healthcheck, then simulate a container failure and diagnose the issue.",
+            "learning_objectives": [
+              "Construct a Dockerfile that builds a small HTTP service image.",
+              "Implement a healthcheck in the Dockerfile and verify its functionality.",
+              "Diagnose and resolve issues in a failed container using logs and diagnostics tools."
+            ],
+            "tools": [
+              "AWS EC2 VMs",
+              "Docker CLI",
+              "curl or HTTP client"
+            ],
+            "prerequisites": [
+              "Knowledge of Linux command-line operations",
+              "Basic understanding of Docker concepts such as containers, images, and networking",
+              "Ability to create and manage files and directories"
+            ],
+            "preparation_requirements": [
+              "Each learner must have an AWS EC2 VM configured with Docker installed.",
+              "Trainer should pre-install Docker on all VMs and ensure network access.",
+              "Prepare a sample HTTP service code (e.g., a simple Python Flask app) for use in the lab."
+            ],
+            "prerequisite_days": [],
+            "deliverable": "A working Docker image with a healthcheck and a documented diagnosis of a failed container.",
+            "assessment": "Verify the Dockerfile syntax, healthcheck functionality, and the ability to diagnose and resolve container issues.",
+            "acceptance_checks": [
+              {
+                "input_or_condition": "Run the Docker image and use curl to check the HTTP service endpoint.",
+                "expected_result": "The HTTP service responds with a 200 OK status.",
+                "evidence": "The curl command output shows a successful HTTP response."
+              },
+              {
+                "input_or_condition": "Simulate a container failure by modifying the Dockerfile to remove the healthcheck.",
+                "expected_result": "The container fails to start due to the missing healthcheck.",
+                "evidence": "The Docker CLI output indicates an error during container startup."
+              },
+              {
+                "input_or_condition": "Check the logs of a failed container using docker logs.",
+                "expected_result": "The logs indicate a healthcheck failure or other container error.",
+                "evidence": "The log output clearly shows the error or failure reason."
+              }
+            ],
+            "title": "Day 1: Dockerfile and Healthcheck Implementation",
+            "minutes": 360,
+            "scenario": "A intermediate participant applies dockerfile and healthcheck implementation to a task described in the client request.",
+            "delivery_steps": [
+              {
+                "method": "Explain and demonstrate",
+                "minutes": 60,
+                "activity": "Introduce Dockerfile and Healthcheck Implementation using the client objectives, then demonstrate a short example.",
+                "evidence": "Participants identify the key steps for Constructing a Dockerfile for an HTTP service"
+              },
+              {
+                "method": "Guided practice",
+                "minutes": 270,
+                "activity": "Build and test a Docker image with a healthcheck, then simulate a container failure and diagnose the issue.",
+                "evidence": "A working Docker image with a healthcheck and a documented diagnosis of a failed container."
+              },
+              {
+                "method": "Assessment",
+                "minutes": 30,
+                "activity": "Verify the Dockerfile syntax, healthcheck functionality, and the ability to diagnose and resolve container issues.",
+                "evidence": "The curl command output shows a successful HTTP response.; The Docker CLI output indicates an error during container startup.; The log output clearly shows the error or failure reason."
+              }
+            ],
+            "lab_task": "Build and test a Docker image with a healthcheck, then simulate a container failure and diagnose the issue.",
+            "morning_session": {
+              "topics": [
+                {
+                  "topic": "Constructing a Dockerfile for an HTTP service",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Adding and configuring healthchecks in Docker",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Troubleshooting and diagnosing failed containers",
+                  "type": "lecture"
+                }
+              ]
+            },
+            "afternoon_session": {
+              "topics": [
+                {
+                  "topic": "Build and test a Docker image with a healthcheck, then simulate a container failure and diagnose the issue.",
+                  "type": "lab"
+                },
+                {
+                  "topic": "Verify the Dockerfile syntax, healthcheck functionality, and the ability to diagnose and resolve container issues.",
+                  "type": "assessment"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "toc_gate_passed": true,
+      "resource_gate_passed": false,
+      "resource_error": "ValueError: Day 1: storage requests require an object-storage allocation",
+      "template_fallback_resources": [
+        {
+          "vm_qty": 12,
+          "vm_profile": "Heavy",
+          "k8s_control_plane": 0,
+          "k8s_worker_nodes": 0,
+          "managed_db": 0,
+          "object_storage_gb": 0.0,
+          "storage_put_requests": 0,
+          "storage_get_requests": 0,
+          "active_days": 1
+        }
+      ],
+      "elapsed_seconds": 22.3
+    },
+    {
+      "scenario": {
+        "name": "managed_kubernetes",
+        "domain": "AWS EKS",
+        "custom_topics": "EKS; deployment; rollback",
+        "client_notes": "Engineers know containers and Kubernetes basics. Use a shared Amazon EKS cluster to deploy an HTTP service, detect a bad image rollout and roll back.",
+        "setup": "shared"
+      },
+      "trainer_review_status": "pending",
+      "toc_reused_from": "outputs/ollama_planning_benchmark.json",
+      "toc": {
+        "title": "AWS EKS training for intermediate learners",
+        "overview": "This one-day training focuses on deploying an HTTP service on AWS EKS, detecting a bad image rollout, and performing a rollback. Engineers will work with a shared Amazon EKS cluster and use tools like kubectl, AWS CLI, and Git to manage the deployment process. The training emphasizes hands-on practice with rollback scenarios to ensure a robust CI/CD workflow.",
+        "prerequisites": [
+          "Familiarity with containers and Kubernetes basics.",
+          "Basic understanding of AWS EKS cluster structure.",
+          "Knowledge of deploying services using kubectl."
+        ],
+        "learning_outcomes": [
+          "Deploy a service to an AWS EKS cluster using kubectl.",
+          "Monitor the deployment process for any errors or failures.",
+          "Perform a rollback to a previous deployment version if a bad rollout occurs."
+        ],
+        "assumptions": [],
+        "clarification_questions": [],
+        "domain": "AWS EKS",
+        "level": "intermediate",
+        "mode": "Online",
+        "duration_days": 1,
+        "hours_per_day": 6.0,
+        "planning_method": "ollama_client_curriculum",
+        "ai_provider": "ollama",
+        "requirement_brief": {
+          "audience": "intermediate learners",
+          "outcomes": [
+            "Deploy a service to an AWS EKS cluster using kubectl.",
+            "Monitor the deployment process for any errors or failures.",
+            "Perform a rollback to a previous deployment version if a bad rollout occurs."
+          ],
+          "required_topics": [
+            "EKS",
+            "deployment",
+            "rollback"
+          ],
+          "excluded_topics": [],
+          "prior_knowledge": [],
+          "constraints": [],
+          "clarification_questions": []
+        },
+        "coverage_matrix": {
+          "EKS": [
+            1
+          ],
+          "deployment": [
+            1
+          ],
+          "rollback": [
+            1
+          ]
+        },
+        "retrieval": {
+          "method": "local_dataset_filter",
+          "embedding_model": null,
+          "corpus_records": 3014,
+          "warnings": []
+        },
+        "reference_candidates": [
+          {
+            "domain": "Istio \u00e2\u20ac\u201c Comprehensive Fundamentals to Advanced Curriculum",
+            "title": "CI/CD or Deployment Project",
+            "subtopics": [
+              "Source control",
+              "Build",
+              "Test",
+              "Artifact",
+              "Deploy",
+              "Rollback",
+              "Approval gates",
+              "Documentation",
+              "Istio terminology and feature mapping for this topic",
+              "Istio configuration and implementation considerations",
+              "Istio best practices and common mistakes for this topic",
+              "service mesh",
+              "Envoy sidecars",
+              "Gateway",
+              "VirtualService",
+              "DestinationRule",
+              "PeerAuthentication",
+              "AuthorizationPolicy",
+              "mTLS",
+              "traffic shifting",
+              "retries",
+              "circuit breaking",
+              "telemetry"
+            ]
+          },
+          {
+            "domain": "Consul \u00e2\u20ac\u201c Comprehensive Fundamentals to Advanced Curriculum",
+            "title": "CI/CD or Deployment Project",
+            "subtopics": [
+              "Source control",
+              "Build",
+              "Test",
+              "Artifact",
+              "Deploy",
+              "Rollback",
+              "Approval gates",
+              "Documentation",
+              "Consul terminology and feature mapping for this topic",
+              "Consul configuration and implementation considerations",
+              "Consul best practices and common mistakes for this topic",
+              "service discovery",
+              "service registry",
+              "health checks",
+              "DNS interface",
+              "HTTP API",
+              "KV store",
+              "datacenters",
+              "agents",
+              "servers",
+              "Connect service mesh",
+              "ACLs",
+              "sessions"
+            ]
+          },
+          {
+            "domain": "DevOps",
+            "title": "AWS EKS Operations",
+            "subtopics": [
+              "cluster setup",
+              "node groups",
+              "IAM roles",
+              "ingress",
+              "CloudWatch"
+            ]
+          },
+          {
+            "domain": "Azure DevOps \u00e2\u20ac\u201c Comprehensive Fundamentals to Advanced Curriculum",
+            "title": "CI/CD or Deployment Project",
+            "subtopics": [
+              "Source control",
+              "Build",
+              "Test",
+              "Artifact",
+              "Deploy",
+              "Rollback",
+              "Approval gates",
+              "Documentation",
+              "Azure DevOps terminology and feature mapping for this topic",
+              "Azure DevOps configuration and implementation considerations",
+              "Azure DevOps best practices and common mistakes for this topic",
+              "Azure Boards",
+              "Repos",
+              "Pipelines",
+              "Artifacts",
+              "Test Plans",
+              "YAML pipelines",
+              "agents",
+              "service connections",
+              "variable groups",
+              "environments",
+              "approvals",
+              "branch policies"
+            ]
+          }
+        ],
+        "quality": {
+          "status": "requires_review",
+          "validation_errors": [],
+          "review_warnings": [
+            "Ollama-designed topics and sequence require trainer review for technical accuracy and client fit"
+          ],
+          "content_evaluation": {
+            "status": "pass",
+            "score": 100,
+            "issues": [],
+            "strengths": [
+              "Every module has a delivery sequence with participant activity and evidence",
+              "Every module has assessment evidence",
+              "Every module has a timed delivery plan"
+            ],
+            "module_count": 1,
+            "detailed_modules": 1,
+            "assessable_modules": 1,
+            "timed_modules": 1,
+            "ready_modules": 1,
+            "blocking_issues": [],
+            "technical_accuracy_verified": false,
+            "score_meaning": "Completeness of assessable delivery evidence, not technical accuracy"
+          },
+          "content_score": 100
+        },
+        "days": [
+          {
+            "day": 1,
+            "focus_area": "EKS Deployment and Rollback",
+            "subtopics": [
+              "Deploying a service to an EKS cluster",
+              "Detecting failed deployments",
+              "Implementing rollback strategies"
+            ],
+            "lab": "Deploy an HTTP service using kubectl, monitor the rollout, and rollback to a previous version if issues arise.",
+            "learning_objectives": [
+              "Deploy a service to an AWS EKS cluster using kubectl.",
+              "Monitor the deployment process for any errors or failures.",
+              "Perform a rollback to a previous deployment version if a bad rollout occurs."
+            ],
+            "tools": [
+              "kubectl",
+              "AWS CLI",
+              "Git"
+            ],
+            "prerequisites": [
+              "Familiarity with containers and Kubernetes basics.",
+              "Basic understanding of AWS EKS cluster structure.",
+              "Knowledge of deploying services using kubectl."
+            ],
+            "preparation_requirements": [
+              "Shared EKS cluster with necessary permissions.",
+              "Access to a Git repository containing the HTTP service source code.",
+              "Pre-configured AWS CLI and kubectl on all participant machines."
+            ],
+            "prerequisite_days": [],
+            "deliverable": "A functional HTTP service deployed to EKS with rollback capability.",
+            "assessment": "Verify that the service is running, and confirm that a rollback was successfully executed.",
+            "acceptance_checks": [
+              {
+                "input_or_condition": "Deploy the HTTP service using the latest image.",
+                "expected_result": "The service is up and running with no errors.",
+                "evidence": "kubectl get pods -n default and kubectl get svc -n default show the service is running."
+              },
+              {
+                "input_or_condition": "Introduce a faulty image in the deployment.",
+                "expected_result": "The service fails to start or becomes unresponsive.",
+                "evidence": "kubectl get pods -n default shows the pod is in CrashLoopBackOff or Error state."
+              },
+              {
+                "input_or_condition": "Rollback to a previous deployment version.",
+                "expected_result": "The service resumes normal operation using the previous, stable image.",
+                "evidence": "kubectl get pods -n default shows the pod is in Running state and the service is accessible."
+              }
+            ],
+            "title": "Day 1: EKS Deployment and Rollback",
+            "minutes": 360,
+            "scenario": "A intermediate participant applies eks deployment and rollback to a task described in the client request.",
+            "delivery_steps": [
+              {
+                "method": "Explain and demonstrate",
+                "minutes": 60,
+                "activity": "Introduce EKS Deployment and Rollback using the client objectives, then demonstrate a short example.",
+                "evidence": "Participants identify the key steps for Deploying a service to an EKS cluster"
+              },
+              {
+                "method": "Guided practice",
+                "minutes": 270,
+                "activity": "Deploy an HTTP service using kubectl, monitor the rollout, and rollback to a previous version if issues arise.",
+                "evidence": "A functional HTTP service deployed to EKS with rollback capability."
+              },
+              {
+                "method": "Assessment",
+                "minutes": 30,
+                "activity": "Verify that the service is running, and confirm that a rollback was successfully executed.",
+                "evidence": "kubectl get pods -n default and kubectl get svc -n default show the service is running.; kubectl get pods -n default shows the pod is in CrashLoopBackOff or Error state.; kubectl get pods -n default shows the pod is in Running state and the service is accessible."
+              }
+            ],
+            "lab_task": "Deploy an HTTP service using kubectl, monitor the rollout, and rollback to a previous version if issues arise.",
+            "morning_session": {
+              "topics": [
+                {
+                  "topic": "Deploying a service to an EKS cluster",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Detecting failed deployments",
+                  "type": "lecture"
+                },
+                {
+                  "topic": "Implementing rollback strategies",
+                  "type": "lecture"
+                }
+              ]
+            },
+            "afternoon_session": {
+              "topics": [
+                {
+                  "topic": "Deploy an HTTP service using kubectl, monitor the rollout, and rollback to a previous version if issues arise.",
+                  "type": "lab"
+                },
+                {
+                  "topic": "Verify that the service is running, and confirm that a rollback was successfully executed.",
+                  "type": "assessment"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "toc_gate_passed": true,
+      "resource_gate_passed": false,
+      "resource_error": "ValueError: Day 1: storage requests require an object-storage allocation",
+      "template_fallback_resources": [
+        {
+          "vm_qty": 1,
+          "vm_profile": "Light",
+          "k8s_control_plane": 1,
+          "k8s_worker_nodes": 1,
+          "managed_db": 0,
+          "object_storage_gb": 0.0,
+          "storage_put_requests": 0,
+          "storage_get_requests": 0,
+          "active_days": 1
+        }
+      ],
+      "elapsed_seconds": 19.69
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "case": "simple_acknowledgement",
+    "body": "You're all set for the interview. We look forward to meeting you.",
+    "words": 12,
+    "needs_human_review": false
+  },
+  {
+    "case": "missing_azure_syllabus",
+    "body": "We will check the availability of the Azure syllabus and get back to you shortly.",
+    "words": 15,
+    "needs_human_review": true
+  }
+]

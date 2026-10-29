@@ -1,0 +1,372 @@
+{
+    "domain":  "SAML",
+    "name":  "SAML â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Security Assertion Markup Language",
+                    "SAML 2.0"
+                ],
+    "tools":  [
+                  "SAML 2.0",
+                  "Keycloak",
+                  "Browser DevTools"
+              ],
+    "certifications":  [
+                           "SAML official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate SAML fundamentals.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using SAML.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Inspect and configure core SAML components.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using SAML.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for SAML.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using SAML.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using SAML.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated SAML issue.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using SAML.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Automate a repeatable SAML configuration task.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using SAML.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using SAML.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "SAML terminology and feature mapping for this topic",
+                                       "SAML configuration and implementation considerations",
+                                       "SAML best practices and common mistakes for this topic",
+                                       "Identity Provider",
+                                       "Service Provider",
+                                       "assertions",
+                                       "AuthnRequest",
+                                       "Response",
+                                       "NameID",
+                                       "metadata",
+                                       "ACS URL",
+                                       "signing certificates",
+                                       "bindings",
+                                       "SSO",
+                                       "SLO"
+                                   ],
+                     "tools":  [
+                                   "SAML 2.0",
+                                   "Keycloak",
+                                   "Browser DevTools"
+                               ],
+                     "lab_task":  "Build and document an end-to-end SAML solution.",
+                     "technology":  "SAML",
+                     "technology_id":  "saml",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of SAML.",
+                                                 "Configure or implement the key SAML features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using SAML.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "saml"
+}

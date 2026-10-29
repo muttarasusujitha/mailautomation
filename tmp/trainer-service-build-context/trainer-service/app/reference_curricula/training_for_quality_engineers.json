@@ -1,0 +1,709 @@
+{
+  "name": "Training for Quality Engineers",
+  "audience": "Quality engineers",
+  "version": "reference-import-v2",
+  "source_file": "Training for Quality Engineers.xlsx",
+  "source_sha256": "3fc7adca38feea155de4bcaba5ad90e2571c475977f6575e123aa444c985af4b",
+  "review_status": "unreviewed",
+  "review_warnings": [],
+  "usage": "Reference examples only; original client brief and subject-matter approval not supplied.",
+  "modules": [
+    {
+      "topic": "1. Modern Quality Engineering & AI-Led Testing",
+      "minutes": 240,
+      "subtopics": [
+        "Evolution from QA to QE",
+        "shift-left and shift-right testing",
+        "quality engineering mindset",
+        "AI impact on testing",
+        "test pyramid and quality strategy."
+      ],
+      "deliverable": "Shared view of the future QE landscape and role expectations.",
+      "track": "core",
+      "source_locator": "M1 to M5!A2:D2",
+      "lab": "Map a sample application's risks to unit, API, UI and production checks, explaining shift-left and shift-right choices.",
+      "assessment": "Check that every high-priority sample risk has a test level, owner and feedback point.",
+      "learning_objectives": [
+        "Demonstrate 1. Modern Quality Engineering & AI-Led Testing through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Evolution from QA to QE; shift-left and shift-right testing; quality engineering mindset",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Map a sample application's risks to unit, API, UI and production checks, explaining shift-left and shift-right choices.",
+          "evidence": "Shared view of the future QE landscape and role expectations."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Check that every high-priority sample risk has a test level, owner and feedback point.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "2. Python for Test Automation",
+      "minutes": 720,
+      "subtopics": [
+        "PyTest fixtures and independent test data",
+        "Parameterised valid, invalid and boundary cases",
+        "Page objects and separation of assertions",
+        "Explicit browser waits and reliable selectors",
+        "Failure diagnostics and report interpretation",
+        "Cleanup and repeatable execution"
+      ],
+      "deliverable": "PyTest suite, cart fixtures, checkout page object, failure diagnostics and reports for faulty and corrected builds",
+      "track": "core",
+      "source_locator": "M1 to M5!A3:D3",
+      "lab": "Extend a supplied local shop and test skeleton. Create independent cart fixtures, page objects and parameterised quantity tests for -1, 0, 1, 5 and 6 under an allowed range of 1 to 5. Run against a seeded faulty build and a corrected build. Capture failure diagnostics and rerun in reverse case order.",
+      "assessment": "The faulty build fails the designated invalid-quantity cases. The corrected build passes all five cases. Reversing execution order preserves results. Each failed case reports input, expected behaviour and observed behaviour; no fixed sleep is used as the only readiness check.",
+      "learning_objectives": [
+        "Detect acceptance of invalid checkout quantities through observable assertions",
+        "Eliminate shared-cart state so case order does not affect results",
+        "Separate application defects from test setup failures using captured diagnostics"
+      ],
+      "delivery_steps": [
+        {
+          "minutes": 120,
+          "method": "Demonstration",
+          "activity": "Inspect the starter and trace fixtures, selectors and assertions",
+          "evidence": "One isolated checkout test"
+        },
+        {
+          "minutes": 300,
+          "method": "Guided lab",
+          "activity": "Build parameterised cases, page objects and failure diagnostics",
+          "evidence": "Executable suite and faulty-build report"
+        },
+        {
+          "minutes": 210,
+          "method": "Independent exercise",
+          "activity": "Remove state leakage and test corrected build in reverse order",
+          "evidence": "Stable comparison reports"
+        },
+        {
+          "minutes": 90,
+          "method": "Assessment",
+          "activity": "Explain every seeded failure and demonstrate cleanup",
+          "evidence": "Reviewed framework and evidence"
+        }
+      ],
+      "delivery_basis": "Authored scenario and acceptance checks; sample assets must be prepared before delivery",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps",
+        "subtopics",
+        "scenario",
+        "deliverable",
+        "prerequisites",
+        "preparation_requirements",
+        "source_urls",
+        "minutes"
+      ],
+      "preparation_requirements": [
+        "Provide local faulty and corrected shop builds, browser driver, stable test selectors and a starter repository",
+        "Supply the 1-to-5 quantity rule and expected behaviour; reserve Python introduction as prerequisite remediation rather than silently consuming lab time"
+      ],
+      "original_reference_content": {
+        "subtopics": [
+          "Python fundamentals",
+          "OOP for automation",
+          "PyTest",
+          "data-driven testing",
+          "Selenium",
+          "Page Object Model",
+          "reporting and logging."
+        ],
+        "scenario": null,
+        "lab": "Build a PyTest and Selenium starter framework with page objects, parameterised inputs, failure logging and a generated test report.",
+        "deliverable": "Maintainable automation framework for web applications.",
+        "learning_objectives": [
+          "Demonstrate 2. Python for Test Automation through the participant output and explain the validation results."
+        ],
+        "assessment": "Run positive and negative UI cases; confirm a seeded failure appears in the report with diagnostic evidence.",
+        "prerequisites": null,
+        "preparation_requirements": [
+          "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+        ],
+        "source_urls": null
+      },
+      "scenario": "A checkout UI accepts invalid quantities and a shared test cart causes order-dependent failures. The team needs a repeatable test framework that exposes both defects.",
+      "prerequisites": [
+        "Basic Python functions, exceptions and HTTP concepts"
+      ],
+      "source_urls": [
+        "https://pytest.org/en/stable/how-to/parametrize.html"
+      ],
+      "duration_basis": "Proposed pilot teaching budget; trainer feasibility review required",
+      "content_quality_stage": "authored_pilot_pending_lab_validation",
+      "review_status": "unreviewed"
+    },
+    {
+      "topic": "3. API Testing & Validation Frameworks",
+      "minutes": 600,
+      "subtopics": [
+        "REST architecture",
+        "HTTP methods",
+        "Postman",
+        "Python Requests",
+        "authentication",
+        "contract testing",
+        "schema validation",
+        "API automation."
+      ],
+      "deliverable": "Automated API validation scenarios.",
+      "track": "core",
+      "source_locator": "M1 to M5!A4:D4",
+      "lab": "Automate sample API calls with Requests and validate authentication, response schemas and invalid payload handling.",
+      "assessment": "Verify expected status codes and schema checks for authorised, unauthorised and malformed requests.",
+      "learning_objectives": [
+        "Demonstrate 3. API Testing & Validation Frameworks through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: REST architecture; HTTP methods; Postman",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate sample API calls with Requests and validate authentication, response schemas and invalid payload handling.",
+          "evidence": "Automated API validation scenarios."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Verify expected status codes and schema checks for authorised, unauthorised and malformed requests.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "4. Database Testing & SQL for QE",
+      "minutes": 480,
+      "subtopics": [
+        "SQL fundamentals",
+        "complex joins",
+        "subqueries",
+        "CTEs",
+        "window functions",
+        "data reconciliation",
+        "database validation strategies."
+      ],
+      "deliverable": "Validated backend transactions and business rules.",
+      "track": "core",
+      "source_locator": "M1 to M5!A5:D5",
+      "lab": "Use joins, CTEs and window functions to reconcile supplied transaction tables and identify seeded duplicate or missing records.",
+      "assessment": "Compare query results with the seeded discrepancy list and explain every mismatch.",
+      "learning_objectives": [
+        "Demonstrate 4. Database Testing & SQL for QE through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: SQL fundamentals; complex joins; subqueries",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use joins, CTEs and window functions to reconcile supplied transaction tables and identify seeded duplicate or missing records.",
+          "evidence": "Validated backend transactions and business rules."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Compare query results with the seeded discrepancy list and explain every mismatch.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "5. Kafka & Event-Driven Testing",
+      "minutes": 480,
+      "subtopics": [
+        "Kafka architecture",
+        "producers and consumers",
+        "topics and partitions",
+        "event-driven systems",
+        "message validation",
+        "failure scenarios."
+      ],
+      "deliverable": "Validated business event flows.",
+      "track": "core",
+      "source_locator": "M1 to M5!A6:D6",
+      "lab": "Publish labelled sample events to a training Kafka topic and validate consumer output, duplicate handling and a failed-message case.",
+      "assessment": "Reconcile expected event identifiers with observed business outcomes and document the failure behaviour.",
+      "learning_objectives": [
+        "Demonstrate 5. Kafka & Event-Driven Testing through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Kafka architecture; producers and consumers; topics and partitions",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Publish labelled sample events to a training Kafka topic and validate consumer output, duplicate handling and a failed-message case.",
+          "evidence": "Validated business event flows."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reconcile expected event identifiers with observed business outcomes and document the failure behaviour.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "6. DevOps & Quality Engineering in CI/CD",
+      "minutes": 480,
+      "subtopics": [
+        "DevOps fundamentals",
+        "CI/CD lifecycle",
+        "Jenkins",
+        "Git and GitHub",
+        "test automation pipelines",
+        "quality gates",
+        "deployment validation."
+      ],
+      "deliverable": "Automated tests integrated into a CI/CD pipeline.",
+      "track": "core",
+      "source_locator": "M1 to M5!A7:D7",
+      "lab": "Add the sample automation suite to a Jenkins pipeline and configure a release quality gate using its results.",
+      "assessment": "A passing suite clears the gate and a seeded test failure blocks it with a retained report.",
+      "learning_objectives": [
+        "Demonstrate 6. DevOps & Quality Engineering in CI/CD through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: DevOps fundamentals; CI/CD lifecycle; Jenkins",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add the sample automation suite to a Jenkins pipeline and configure a release quality gate using its results.",
+          "evidence": "Automated tests integrated into a CI/CD pipeline."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "A passing suite clears the gate and a seeded test failure blocks it with a retained report.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "7. Cloud Foundations for Testers",
+      "minutes": 480,
+      "subtopics": [
+        "Cloud concepts",
+        "AWS and Azure overview",
+        "containers",
+        "Docker",
+        "Kubernetes introduction",
+        "cloud-native and microservices testing."
+      ],
+      "deliverable": "Test execution against cloud-hosted applications.",
+      "track": "core",
+      "source_locator": "M1 to M5!A8:D8",
+      "lab": "Run the sample test suite against a containerised training application and inspect configuration, connectivity and application logs.",
+      "assessment": "Demonstrate a successful run and diagnose an injected endpoint or configuration error.",
+      "learning_objectives": [
+        "Demonstrate 7. Cloud Foundations for Testers through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Cloud concepts; AWS and Azure overview; containers",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run the sample test suite against a containerised training application and inspect configuration, connectivity and application logs.",
+          "evidence": "Test execution against cloud-hosted applications."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Demonstrate a successful run and diagnose an injected endpoint or configuration error.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "8. AI Maturity for Quality Engineers",
+      "minutes": 480,
+      "subtopics": [
+        "Generative AI fundamentals",
+        "AI-assisted test design",
+        "test case generation",
+        "defect analysis with AI",
+        "prompt engineering",
+        "Copilot for QE",
+        "agentic testing."
+      ],
+      "deliverable": "AI-generated test cases, scripts, and defect insights.",
+      "track": "core",
+      "source_locator": "M1 to M5!A9:D9",
+      "lab": "Generate tests from a sample requirement using an approved AI tool, review the assertions and correct unsupported assumptions before execution.",
+      "assessment": "Trace accepted tests to requirements and record rejected or corrected AI suggestions with reasons.",
+      "learning_objectives": [
+        "Demonstrate 8. AI Maturity for Quality Engineers through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Generative AI fundamentals; AI-assisted test design; test case generation",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Generate tests from a sample requirement using an approved AI tool, review the assertions and correct unsupported assumptions before execution.",
+          "evidence": "AI-generated test cases, scripts, and defect insights."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Trace accepted tests to requirements and record rejected or corrected AI suggestions with reasons.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "9. Integrated QE Capstone Project",
+      "minutes": 360,
+      "subtopics": [
+        "A real-world application covering API testing",
+        "UI automation",
+        "DB validation",
+        "Kafka validation",
+        "CI/CD integration",
+        "and AI-assisted test design."
+      ],
+      "deliverable": "Test strategy, automation framework, pipeline setup, executive demonstration.",
+      "track": "core",
+      "source_locator": "M1 to M5!A10:D10",
+      "lab": "Combine API, UI, database and event checks for one sample business flow and run them through the prepared pipeline.",
+      "assessment": "Demonstrate the end-to-end flow and a seeded cross-layer defect with traceable test and pipeline evidence.",
+      "learning_objectives": [
+        "Demonstrate 9. Integrated QE Capstone Project through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: A real-world application covering API testing; UI automation; DB validation",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Combine API, UI, database and event checks for one sample business flow and run them through the prepared pipeline.",
+          "evidence": "Test strategy, automation framework, pipeline setup, executive demonstration."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Demonstrate the end-to-end flow and a seeded cross-layer defect with traceable test and pipeline evidence.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "A1. Test Architecture & Framework Design",
+      "minutes": 240,
+      "subtopics": [
+        "Designing scalable automation architecture",
+        "framework patterns",
+        "reusable libraries",
+        "test data management",
+        "and environment strategy."
+      ],
+      "deliverable": "Reference test architecture for Ratings Tech.",
+      "track": "advanced_leadership",
+      "source_locator": "Advanced Leadership!A2:D2",
+      "lab": "On a trainer-prepared sample, implement and demonstrate: Designing scalable automation architecture; framework patterns; reusable libraries. Capture configuration or code changes and observed results.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Designing scalable automation architecture; framework patterns; reusable libraries. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate A1. Test Architecture & Framework Design through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Designing scalable automation architecture; framework patterns; reusable libraries",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "On a trainer-prepared sample, implement and demonstrate: Designing scalable automation architecture; framework patterns; reusable libraries. Capture configuration or code changes and observed results.",
+          "evidence": "Reference test architecture for Ratings Tech."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Designing scalable automation architecture; framework patterns; reusable libraries. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "A2. AI-Augmented QE Strategy",
+      "minutes": 240,
+      "subtopics": [
+        "Building an AI adoption roadmap for QE",
+        "agentic and self-healing test approaches",
+        "risk-based test selection",
+        "and governance of AI-generated assets."
+      ],
+      "deliverable": "AI-led QE adoption roadmap.",
+      "track": "advanced_leadership",
+      "source_locator": "Advanced Leadership!A3:D3",
+      "lab": "On a trainer-prepared sample, implement and demonstrate: Building an AI adoption roadmap for QE; agentic and self-healing test approaches; risk-based test selection. Capture configuration or code changes and observed results.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Building an AI adoption roadmap for QE; agentic and self-healing test approaches; risk-based test selection. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate A2. AI-Augmented QE Strategy through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Building an AI adoption roadmap for QE; agentic and self-healing test approaches; risk-based test selection",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "On a trainer-prepared sample, implement and demonstrate: Building an AI adoption roadmap for QE; agentic and self-healing test approaches; risk-based test selection. Capture configuration or code changes and observed results.",
+          "evidence": "AI-led QE adoption roadmap."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Building an AI adoption roadmap for QE; agentic and self-healing test approaches; risk-based test selection. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "A3. Microservices & Performance Engineering",
+      "minutes": 240,
+      "subtopics": [
+        "Testing microservices and distributed flows",
+        "service virtualisation and mocks",
+        "load and performance testing",
+        "and resilience scenarios."
+      ],
+      "deliverable": "Performance and resilience test approach.",
+      "track": "advanced_leadership",
+      "source_locator": "Advanced Leadership!A4:D4",
+      "lab": "On a trainer-prepared sample, implement and demonstrate: Testing microservices and distributed flows; service virtualisation and mocks; load and performance testing. Capture configuration or code changes and observed results.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Testing microservices and distributed flows; service virtualisation and mocks; load and performance testing. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate A3. Microservices & Performance Engineering through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Testing microservices and distributed flows; service virtualisation and mocks; load and performance testing",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "On a trainer-prepared sample, implement and demonstrate: Testing microservices and distributed flows; service virtualisation and mocks; load and performance testing. Capture configuration or code changes and observed results.",
+          "evidence": "Performance and resilience test approach."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Testing microservices and distributed flows; service virtualisation and mocks; load and performance testing. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "A4. Observability, Quality Metrics & QE Leadership",
+      "minutes": 240,
+      "subtopics": [
+        "Shift-right observability",
+        "monitoring and logging for quality",
+        "defect and coverage metrics",
+        "release quality dashboards",
+        "and coaching QE teams."
+      ],
+      "deliverable": "QE metrics and observability blueprint for GAC Tech CoE.",
+      "track": "advanced_leadership",
+      "source_locator": "Advanced Leadership!A5:D5",
+      "lab": "On a trainer-prepared sample, implement and demonstrate: Shift-right observability; monitoring and logging for quality; defect and coverage metrics. Capture configuration or code changes and observed results.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Shift-right observability; monitoring and logging for quality; defect and coverage metrics. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate A4. Observability, Quality Metrics & QE Leadership through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Shift-right observability; monitoring and logging for quality; defect and coverage metrics",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "On a trainer-prepared sample, implement and demonstrate: Shift-right observability; monitoring and logging for quality; defect and coverage metrics. Capture configuration or code changes and observed results.",
+          "evidence": "QE metrics and observability blueprint for GAC Tech CoE."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Shift-right observability; monitoring and logging for quality; defect and coverage metrics. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    }
+  ]
+}

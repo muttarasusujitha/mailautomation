@@ -1,0 +1,954 @@
+{
+  "domain": "Testing & QA",
+  "name": "Testing & QA",
+  "icon": "checkmark",
+  "program_title": "Testing and QA Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Testing & QA Expert",
+  "certifications": [
+    "ISTQB Certified Tester",
+    "AWS Certified DevOps Engineer",
+    "Certified Selenium WebDriver Engineer",
+    "API Testing Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "QA Fundamentals",
+      "subtopics": [
+        "Testing Types",
+        "Test Plan",
+        "Test Cases",
+        "Defect Management"
+      ],
+      "tools": [
+        "TestRail",
+        "Jira"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "QA basics"
+    },
+    {
+      "day": 2,
+      "topic": "QA Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Testing Types",
+        "Part 2: Test Plan",
+        "Part 2: Test Cases",
+        "Part 2: Defect Management"
+      ],
+      "tools": [
+        "TestRail",
+        "Jira"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: QA basics"
+    },
+    {
+      "day": 3,
+      "topic": "Manual Testing",
+      "subtopics": [
+        "Test Design",
+        "Test Execution",
+        "Bug Reporting",
+        "Regression Testing"
+      ],
+      "tools": [
+        "TestLink"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Manual test execution"
+    },
+    {
+      "day": 4,
+      "topic": "Manual Testing - Part 2",
+      "subtopics": [
+        "Part 2: Test Design",
+        "Part 2: Test Execution",
+        "Part 2: Bug Reporting",
+        "Part 2: Regression Testing"
+      ],
+      "tools": [
+        "TestLink"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Manual test execution"
+    },
+    {
+      "day": 5,
+      "topic": "Web Testing",
+      "subtopics": [
+        "Web Elements",
+        "Locators",
+        "Navigation",
+        "Form Testing"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Sprint planning; review progress for Web Testing",
+      "lab_task": "Web app testing"
+    },
+    {
+      "day": 6,
+      "topic": "Web Testing - Part 2",
+      "subtopics": [
+        "Part 2: Web Elements",
+        "Part 2: Locators",
+        "Part 2: Navigation",
+        "Part 2: Form Testing"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Web app testing"
+    },
+    {
+      "day": 7,
+      "topic": "Selenium Basics",
+      "subtopics": [
+        "WebDriver",
+        "Locators",
+        "Actions",
+        "Waits"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Selenium fundamentals"
+    },
+    {
+      "day": 8,
+      "topic": "Selenium Basics - Part 2",
+      "subtopics": [
+        "Part 2: WebDriver",
+        "Part 2: Locators",
+        "Part 2: Actions",
+        "Part 2: Waits"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Selenium fundamentals"
+    },
+    {
+      "day": 9,
+      "topic": "Selenium Advanced",
+      "subtopics": [
+        "Page Object Model",
+        "Data-Driven Testing",
+        "Framework"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced Selenium"
+    },
+    {
+      "day": 10,
+      "topic": "Selenium Advanced - Part 2",
+      "subtopics": [
+        "Part 2: Page Object Model",
+        "Part 2: Data-Driven Testing",
+        "Part 2: Framework"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Sprint planning; review progress for Selenium Advanced",
+      "lab_task": "Part 2 hands-on: Advanced Selenium"
+    },
+    {
+      "day": 11,
+      "topic": "API Testing with Postman",
+      "subtopics": [
+        "REST API",
+        "Request/Response",
+        "Assertions",
+        "Collections"
+      ],
+      "tools": [
+        "Postman"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "API testing"
+    },
+    {
+      "day": 12,
+      "topic": "API Testing with Postman - Part 2",
+      "subtopics": [
+        "Part 2: REST API",
+        "Part 2: Request/Response",
+        "Part 2: Assertions",
+        "Part 2: Collections"
+      ],
+      "tools": [
+        "Postman"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: API testing"
+    },
+    {
+      "day": 13,
+      "topic": "API Testing with RestAssured",
+      "subtopics": [
+        "Java REST Client",
+        "BDD",
+        "Assertions"
+      ],
+      "tools": [
+        "RestAssured",
+        "Cucumber"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "API automation"
+    },
+    {
+      "day": 14,
+      "topic": "API Testing with RestAssured - Part 2",
+      "subtopics": [
+        "Part 2: Java REST Client",
+        "Part 2: BDD",
+        "Part 2: Assertions"
+      ],
+      "tools": [
+        "RestAssured",
+        "Cucumber"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: API automation"
+    },
+    {
+      "day": 15,
+      "topic": "Performance Testing",
+      "subtopics": [
+        "Load Testing",
+        "Stress Testing",
+        "JMeter"
+      ],
+      "tools": [
+        "JMeter",
+        "Gatling"
+      ],
+      "jira_focus": "Sprint planning; review progress for Performance Testing",
+      "lab_task": "Performance testing"
+    },
+    {
+      "day": 16,
+      "topic": "Performance Testing - Part 2",
+      "subtopics": [
+        "Part 2: Load Testing",
+        "Part 2: Stress Testing",
+        "Part 2: JMeter"
+      ],
+      "tools": [
+        "JMeter",
+        "Gatling"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Performance testing"
+    },
+    {
+      "day": 17,
+      "topic": "Mobile Testing",
+      "subtopics": [
+        "AppiumBasics",
+        "iOS/Android",
+        "Native/Hybrid"
+      ],
+      "tools": [
+        "Appium"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Mobile automation"
+    },
+    {
+      "day": 18,
+      "topic": "Mobile Testing - Part 2",
+      "subtopics": [
+        "Part 2: AppiumBasics",
+        "Part 2: iOS/Android",
+        "Part 2: Native/Hybrid"
+      ],
+      "tools": [
+        "Appium"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Mobile automation"
+    },
+    {
+      "day": 19,
+      "topic": "CI/CD Integration",
+      "subtopics": [
+        "Jenkins",
+        "GitLab CI",
+        "GitHub Actions"
+      ],
+      "tools": [
+        "GitHub Actions"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Testing in CI/CD"
+    },
+    {
+      "day": 20,
+      "topic": "CI/CD Integration - Part 2",
+      "subtopics": [
+        "Part 2: Jenkins",
+        "Part 2: GitLab CI",
+        "Part 2: GitHub Actions"
+      ],
+      "tools": [
+        "GitHub Actions"
+      ],
+      "jira_focus": "Sprint planning; review progress for CI/CD Integration",
+      "lab_task": "Part 2 hands-on: Testing in CI/CD"
+    },
+    {
+      "day": 21,
+      "topic": "BDD & Cucumber",
+      "subtopics": [
+        "Gherkin",
+        "Feature Files",
+        "Step Definitions"
+      ],
+      "tools": [
+        "Cucumber",
+        "Selenium"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Behavior-driven testing"
+    },
+    {
+      "day": 22,
+      "topic": "BDD & Cucumber - Part 2",
+      "subtopics": [
+        "Part 2: Gherkin",
+        "Part 2: Feature Files",
+        "Part 2: Step Definitions"
+      ],
+      "tools": [
+        "Cucumber",
+        "Selenium"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Behavior-driven testing"
+    },
+    {
+      "day": 23,
+      "topic": "Test Frameworks",
+      "subtopics": [
+        "TestNG",
+        "Junit",
+        "Fixture Management"
+      ],
+      "tools": [
+        "TestNG"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Java test frameworks"
+    },
+    {
+      "day": 24,
+      "topic": "Test Frameworks - Part 2",
+      "subtopics": [
+        "Part 2: TestNG",
+        "Part 2: Junit",
+        "Part 2: Fixture Management"
+      ],
+      "tools": [
+        "TestNG"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Java test frameworks"
+    },
+    {
+      "day": 25,
+      "topic": "Debugging & Logging",
+      "subtopics": [
+        "Logs Analysis",
+        "Screenshots",
+        "Video Capture"
+      ],
+      "tools": [
+        "Log4j",
+        "SLF4J"
+      ],
+      "jira_focus": "Sprint planning; review progress for Debugging & Logging",
+      "lab_task": "Debugging failures"
+    },
+    {
+      "day": 26,
+      "topic": "Debugging & Logging - Part 2",
+      "subtopics": [
+        "Part 2: Logs Analysis",
+        "Part 2: Screenshots",
+        "Part 2: Video Capture"
+      ],
+      "tools": [
+        "Log4j",
+        "SLF4J"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Debugging failures"
+    },
+    {
+      "day": 27,
+      "topic": "Database Testing",
+      "subtopics": [
+        "SQL Queries",
+        "Data Validation",
+        "JDBC"
+      ],
+      "tools": [
+        "SQL",
+        "JDBC"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Database test automation"
+    },
+    {
+      "day": 28,
+      "topic": "Database Testing - Part 2",
+      "subtopics": [
+        "Part 2: SQL Queries",
+        "Part 2: Data Validation",
+        "Part 2: JDBC"
+      ],
+      "tools": [
+        "SQL",
+        "JDBC"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Database test automation"
+    },
+    {
+      "day": 29,
+      "topic": "Advanced Topics",
+      "subtopics": [
+        "Test Optimization",
+        "Parallel Execution",
+        "Reporting"
+      ],
+      "tools": [
+        "ExtentReports"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced testing"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Test Optimization",
+        "Parallel Execution",
+        "Reporting"
+      ],
+      "tools": [
+        "ExtentReports"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced Topics",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Testing Fundamentals Deep Dive",
+      "subtopics": [
+        "Testing Fundamentals Deep Dive concepts",
+        "Testing Fundamentals Deep Dive configuration",
+        "Testing Fundamentals Deep Dive hands-on workflow",
+        "Testing Fundamentals Deep Dive troubleshooting",
+        "Testing Fundamentals Deep Dive best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Testing Fundamentals Deep Dive"
+    },
+    {
+      "day": 32,
+      "topic": "Test Design Techniques",
+      "subtopics": [
+        "Test Design Techniques concepts",
+        "Test Design Techniques configuration",
+        "Test Design Techniques hands-on workflow",
+        "Test Design Techniques troubleshooting",
+        "Test Design Techniques best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Test Design Techniques"
+    },
+    {
+      "day": 33,
+      "topic": "Requirement Analysis",
+      "subtopics": [
+        "Requirement Analysis concepts",
+        "Requirement Analysis configuration",
+        "Requirement Analysis hands-on workflow",
+        "Requirement Analysis troubleshooting",
+        "Requirement Analysis best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Requirement Analysis"
+    },
+    {
+      "day": 34,
+      "topic": "Test Case Design",
+      "subtopics": [
+        "Test Case Design concepts",
+        "Test Case Design configuration",
+        "Test Case Design hands-on workflow",
+        "Test Case Design troubleshooting",
+        "Test Case Design best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Test Case Design"
+    },
+    {
+      "day": 35,
+      "topic": "Defect Lifecycle",
+      "subtopics": [
+        "Defect Lifecycle concepts",
+        "Defect Lifecycle configuration",
+        "Defect Lifecycle hands-on workflow",
+        "Defect Lifecycle troubleshooting",
+        "Defect Lifecycle best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Defect Lifecycle"
+    },
+    {
+      "day": 36,
+      "topic": "Agile Testing",
+      "subtopics": [
+        "Agile Testing concepts",
+        "Agile Testing configuration",
+        "Agile Testing hands-on workflow",
+        "Agile Testing troubleshooting",
+        "Agile Testing best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Agile Testing"
+    },
+    {
+      "day": 37,
+      "topic": "Web Testing - Part 3",
+      "subtopics": [
+        "Part 3: Web Testing concepts",
+        "Part 3: Web Testing configuration",
+        "Part 3: Web Testing hands-on workflow",
+        "Part 3: Web Testing troubleshooting",
+        "Part 3: Web Testing best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Part 3 hands-on: Hands-on lab: Web Testing"
+    },
+    {
+      "day": 38,
+      "topic": "Mobile Testing Basics",
+      "subtopics": [
+        "Mobile Testing Basics concepts",
+        "Mobile Testing Basics configuration",
+        "Mobile Testing Basics hands-on workflow",
+        "Mobile Testing Basics troubleshooting",
+        "Mobile Testing Basics best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Mobile Testing Basics"
+    },
+    {
+      "day": 39,
+      "topic": "API Testing with Postman - Part 3",
+      "subtopics": [
+        "Part 3: API Testing with Postman concepts",
+        "Part 3: API Testing with Postman configuration",
+        "Part 3: API Testing with Postman hands-on workflow",
+        "Part 3: API Testing with Postman troubleshooting",
+        "Part 3: API Testing with Postman best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Part 3 hands-on: Hands-on lab: API Testing with Postman"
+    },
+    {
+      "day": 40,
+      "topic": "Database Testing - Part 3",
+      "subtopics": [
+        "Part 3: Database Testing concepts",
+        "Part 3: Database Testing configuration",
+        "Part 3: Database Testing hands-on workflow",
+        "Part 3: Database Testing troubleshooting",
+        "Part 3: Database Testing best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 3 hands-on: Hands-on lab: Database Testing"
+    },
+    {
+      "day": 41,
+      "topic": "Selenium WebDriver",
+      "subtopics": [
+        "Selenium WebDriver concepts",
+        "Selenium WebDriver configuration",
+        "Selenium WebDriver hands-on workflow",
+        "Selenium WebDriver troubleshooting",
+        "Selenium WebDriver best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Selenium WebDriver"
+    },
+    {
+      "day": 42,
+      "topic": "TestNG or Pytest",
+      "subtopics": [
+        "TestNG or Pytest concepts",
+        "TestNG or Pytest configuration",
+        "TestNG or Pytest hands-on workflow",
+        "TestNG or Pytest troubleshooting",
+        "TestNG or Pytest best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: TestNG or Pytest"
+    },
+    {
+      "day": 43,
+      "topic": "Page Object Model",
+      "subtopics": [
+        "Page Object Model concepts",
+        "Page Object Model configuration",
+        "Page Object Model hands-on workflow",
+        "Page Object Model troubleshooting",
+        "Page Object Model best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Page Object Model"
+    },
+    {
+      "day": 44,
+      "topic": "Automation Framework Design",
+      "subtopics": [
+        "Automation Framework Design concepts",
+        "Automation Framework Design configuration",
+        "Automation Framework Design hands-on workflow",
+        "Automation Framework Design troubleshooting",
+        "Automation Framework Design best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Automation Framework Design"
+    },
+    {
+      "day": 45,
+      "topic": "Cypress or Playwright",
+      "subtopics": [
+        "Cypress or Playwright concepts",
+        "Cypress or Playwright configuration",
+        "Cypress or Playwright hands-on workflow",
+        "Cypress or Playwright troubleshooting",
+        "Cypress or Playwright best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Cypress or Playwright"
+    },
+    {
+      "day": 46,
+      "topic": "Performance Testing Basics",
+      "subtopics": [
+        "Performance Testing Basics concepts",
+        "Performance Testing Basics configuration",
+        "Performance Testing Basics hands-on workflow",
+        "Performance Testing Basics troubleshooting",
+        "Performance Testing Basics best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Performance Testing Basics"
+    },
+    {
+      "day": 47,
+      "topic": "Security Testing Basics",
+      "subtopics": [
+        "Security Testing Basics concepts",
+        "Security Testing Basics configuration",
+        "Security Testing Basics hands-on workflow",
+        "Security Testing Basics troubleshooting",
+        "Security Testing Basics best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Security Testing Basics"
+    },
+    {
+      "day": 48,
+      "topic": "CI/CD for Tests",
+      "subtopics": [
+        "CI/CD for Tests concepts",
+        "CI/CD for Tests configuration",
+        "CI/CD for Tests hands-on workflow",
+        "CI/CD for Tests troubleshooting",
+        "CI/CD for Tests best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: CI/CD for Tests"
+    },
+    {
+      "day": 49,
+      "topic": "Test Metrics and Reporting",
+      "subtopics": [
+        "Test Metrics and Reporting concepts",
+        "Test Metrics and Reporting configuration",
+        "Test Metrics and Reporting hands-on workflow",
+        "Test Metrics and Reporting troubleshooting",
+        "Test Metrics and Reporting best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Test Metrics and Reporting"
+    },
+    {
+      "day": 50,
+      "topic": "QA Governance",
+      "subtopics": [
+        "QA Governance concepts",
+        "QA Governance configuration",
+        "QA Governance hands-on workflow",
+        "QA Governance troubleshooting",
+        "QA Governance best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: QA Governance"
+    },
+    {
+      "day": 51,
+      "topic": "QA Capstone Planning",
+      "subtopics": [
+        "QA Capstone Planning concepts",
+        "QA Capstone Planning configuration",
+        "QA Capstone Planning hands-on workflow",
+        "QA Capstone Planning troubleshooting",
+        "QA Capstone Planning best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: QA Capstone Planning"
+    },
+    {
+      "day": 52,
+      "topic": "QA Automation Build",
+      "subtopics": [
+        "QA Automation Build concepts",
+        "QA Automation Build configuration",
+        "QA Automation Build hands-on workflow",
+        "QA Automation Build troubleshooting",
+        "QA Automation Build best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: QA Automation Build"
+    },
+    {
+      "day": 53,
+      "topic": "QA Capstone Execution",
+      "subtopics": [
+        "QA Capstone Execution concepts",
+        "QA Capstone Execution configuration",
+        "QA Capstone Execution hands-on workflow",
+        "QA Capstone Execution troubleshooting",
+        "QA Capstone Execution best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: QA Capstone Execution"
+    },
+    {
+      "day": 54,
+      "topic": "QA Final Demo",
+      "subtopics": [
+        "QA Final Demo concepts",
+        "QA Final Demo configuration",
+        "QA Final Demo hands-on workflow",
+        "QA Final Demo troubleshooting",
+        "QA Final Demo best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: QA Final Demo"
+    },
+    {
+      "day": 55,
+      "topic": "QA Capstone Test Strategy",
+      "subtopics": [
+        "QA Capstone Test Strategy concepts",
+        "QA Capstone Test Strategy hands-on workflow",
+        "QA Capstone Test Strategy validation",
+        "QA Capstone Test Strategy troubleshooting",
+        "QA Capstone Test Strategy best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: QA Capstone Test Strategy"
+    },
+    {
+      "day": 56,
+      "topic": "Manual Test Execution Sprint",
+      "subtopics": [
+        "Manual Test Execution Sprint concepts",
+        "Manual Test Execution Sprint hands-on workflow",
+        "Manual Test Execution Sprint validation",
+        "Manual Test Execution Sprint troubleshooting",
+        "Manual Test Execution Sprint best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Manual Test Execution Sprint"
+    },
+    {
+      "day": 57,
+      "topic": "API Automation Sprint",
+      "subtopics": [
+        "API Automation Sprint concepts",
+        "API Automation Sprint hands-on workflow",
+        "API Automation Sprint validation",
+        "API Automation Sprint troubleshooting",
+        "API Automation Sprint best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: API Automation Sprint"
+    },
+    {
+      "day": 58,
+      "topic": "UI Automation Framework Sprint",
+      "subtopics": [
+        "UI Automation Framework Sprint concepts",
+        "UI Automation Framework Sprint hands-on workflow",
+        "UI Automation Framework Sprint validation",
+        "UI Automation Framework Sprint troubleshooting",
+        "UI Automation Framework Sprint best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: UI Automation Framework Sprint"
+    },
+    {
+      "day": 59,
+      "topic": "CI/CD Test Reporting Sprint",
+      "subtopics": [
+        "CI/CD Test Reporting Sprint concepts",
+        "CI/CD Test Reporting Sprint hands-on workflow",
+        "CI/CD Test Reporting Sprint validation",
+        "CI/CD Test Reporting Sprint troubleshooting",
+        "CI/CD Test Reporting Sprint best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: CI/CD Test Reporting Sprint"
+    },
+    {
+      "day": 60,
+      "topic": "QA Final Demo - Part 2",
+      "subtopics": [
+        "Part 2: QA Final Demo concepts",
+        "Part 2: QA Final Demo hands-on workflow",
+        "Part 2: QA Final Demo validation",
+        "Part 2: QA Final Demo troubleshooting",
+        "Part 2: QA Final Demo best practices"
+      ],
+      "tools": [
+        "Testing & QA"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 2 hands-on: Hands-on lab: QA Final Demo"
+    }
+  ],
+  "aliases": [
+    "Testing",
+    "QA",
+    "Quality Assurance",
+    "Manual Testing",
+    "Automation Testing",
+    "Selenium",
+    "API Testing",
+    "Test Automation",
+    "SDET"
+  ],
+  "official_sources": [
+    "https://www.istqb.org/certifications/certified-tester-foundation-level"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

@@ -1,0 +1,966 @@
+{
+  "domain": "Machine Learning",
+  "name": "Machine Learning",
+  "icon": "brain",
+  "program_title": "Machine Learning Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Machine Learning Expert",
+  "certifications": [
+    "AWS Certified Machine Learning - Specialty",
+    "Google Cloud Professional Machine Learning",
+    "TensorFlow Developer Certificate",
+    "Microsoft Certified: Azure Data Scientist Associate"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "ML Fundamentals",
+      "subtopics": [
+        "Supervised Learning",
+        "Unsupervised Learning",
+        "Reinforcement Learning",
+        "Model Types"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "ML basics"
+    },
+    {
+      "day": 2,
+      "topic": "ML Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Supervised Learning",
+        "Part 2: Unsupervised Learning",
+        "Part 2: Reinforcement Learning",
+        "Part 2: Model Types"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: ML basics"
+    },
+    {
+      "day": 3,
+      "topic": "Data Preprocessing",
+      "subtopics": [
+        "Cleaning",
+        "Normalization",
+        "Feature Scaling",
+        "Handling Missing Values"
+      ],
+      "tools": [
+        "Pandas",
+        "NumPy"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Data preparation"
+    },
+    {
+      "day": 4,
+      "topic": "Data Preprocessing - Part 2",
+      "subtopics": [
+        "Part 2: Cleaning",
+        "Part 2: Normalization",
+        "Part 2: Feature Scaling",
+        "Part 2: Handling Missing Values"
+      ],
+      "tools": [
+        "Pandas",
+        "NumPy"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Data preparation"
+    },
+    {
+      "day": 5,
+      "topic": "Feature Engineering",
+      "subtopics": [
+        "Feature Selection",
+        "Feature Creation",
+        "Encoding",
+        "Scaling"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Sprint planning; review progress for Feature Engineering",
+      "lab_task": "Build features"
+    },
+    {
+      "day": 6,
+      "topic": "Feature Engineering - Part 2",
+      "subtopics": [
+        "Part 2: Feature Selection",
+        "Part 2: Feature Creation",
+        "Part 2: Encoding",
+        "Part 2: Scaling"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Build features"
+    },
+    {
+      "day": 7,
+      "topic": "Linear Regression",
+      "subtopics": [
+        "Simple/Multiple Regression",
+        "Regularization",
+        "Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Regression models"
+    },
+    {
+      "day": 8,
+      "topic": "Linear Regression - Part 2",
+      "subtopics": [
+        "Part 2: Simple/Multiple Regression",
+        "Part 2: Regularization",
+        "Part 2: Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Regression models"
+    },
+    {
+      "day": 9,
+      "topic": "Logistic Regression",
+      "subtopics": [
+        "Classification",
+        "Decision Boundary",
+        "Probability"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Binary classification"
+    },
+    {
+      "day": 10,
+      "topic": "Logistic Regression - Part 2",
+      "subtopics": [
+        "Part 2: Classification",
+        "Part 2: Decision Boundary",
+        "Part 2: Probability"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Sprint planning; review progress for Logistic Regression",
+      "lab_task": "Part 2 hands-on: Binary classification"
+    },
+    {
+      "day": 11,
+      "topic": "Decision Trees & Ensemble",
+      "subtopics": [
+        "Decision Trees",
+        "Random Forest",
+        "Gradient Boosting"
+      ],
+      "tools": [
+        "XGBoost",
+        "LightGBM"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Ensemble methods"
+    },
+    {
+      "day": 12,
+      "topic": "Decision Trees & Ensemble - Part 2",
+      "subtopics": [
+        "Part 2: Decision Trees",
+        "Part 2: Random Forest",
+        "Part 2: Gradient Boosting"
+      ],
+      "tools": [
+        "XGBoost",
+        "LightGBM"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Ensemble methods"
+    },
+    {
+      "day": 13,
+      "topic": "SVM & KNN",
+      "subtopics": [
+        "Support Vector Machines",
+        "K-Nearest Neighbors",
+        "Kernel Tricks"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "SVM and KNN"
+    },
+    {
+      "day": 14,
+      "topic": "SVM & KNN - Part 2",
+      "subtopics": [
+        "Part 2: Support Vector Machines",
+        "Part 2: K-Nearest Neighbors",
+        "Part 2: Kernel Tricks"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: SVM and KNN"
+    },
+    {
+      "day": 15,
+      "topic": "Clustering",
+      "subtopics": [
+        "K-Means",
+        "Hierarchical",
+        "DBSCAN",
+        "Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Sprint planning; review progress for Clustering",
+      "lab_task": "Unsupervised learning"
+    },
+    {
+      "day": 16,
+      "topic": "Clustering - Part 2",
+      "subtopics": [
+        "Part 2: K-Means",
+        "Part 2: Hierarchical",
+        "Part 2: DBSCAN",
+        "Part 2: Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Unsupervised learning"
+    },
+    {
+      "day": 17,
+      "topic": "Dimensionality Reduction",
+      "subtopics": [
+        "PCA",
+        "t-SNE",
+        "UMAP",
+        "Feature Selection"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Dimensionality reduction"
+    },
+    {
+      "day": 18,
+      "topic": "Dimensionality Reduction - Part 2",
+      "subtopics": [
+        "Part 2: PCA",
+        "Part 2: t-SNE",
+        "Part 2: UMAP",
+        "Part 2: Feature Selection"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Dimensionality reduction"
+    },
+    {
+      "day": 19,
+      "topic": "Neural Networks",
+      "subtopics": [
+        "Perceptrons",
+        "Backpropagation",
+        "Activation Functions",
+        "Layers"
+      ],
+      "tools": [
+        "TensorFlow",
+        "Keras"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build neural networks"
+    },
+    {
+      "day": 20,
+      "topic": "Neural Networks - Part 2",
+      "subtopics": [
+        "Part 2: Perceptrons",
+        "Part 2: Backpropagation",
+        "Part 2: Activation Functions",
+        "Part 2: Layers"
+      ],
+      "tools": [
+        "TensorFlow",
+        "Keras"
+      ],
+      "jira_focus": "Sprint planning; review progress for Neural Networks",
+      "lab_task": "Part 2 hands-on: Build neural networks"
+    },
+    {
+      "day": 21,
+      "topic": "CNN for Images",
+      "subtopics": [
+        "Convolutional Layers",
+        "Pooling",
+        "Architecture"
+      ],
+      "tools": [
+        "TensorFlow",
+        "PyTorch"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Image classification"
+    },
+    {
+      "day": 22,
+      "topic": "CNN for Images - Part 2",
+      "subtopics": [
+        "Part 2: Convolutional Layers",
+        "Part 2: Pooling",
+        "Part 2: Architecture"
+      ],
+      "tools": [
+        "TensorFlow",
+        "PyTorch"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Image classification"
+    },
+    {
+      "day": 23,
+      "topic": "RNN & NLP",
+      "subtopics": [
+        "RNN",
+        "LSTM",
+        "Transformers",
+        "Text Processing"
+      ],
+      "tools": [
+        "TensorFlow",
+        "NLTK"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Natural language processing"
+    },
+    {
+      "day": 24,
+      "topic": "RNN & NLP - Part 2",
+      "subtopics": [
+        "Part 2: RNN",
+        "Part 2: LSTM",
+        "Part 2: Transformers",
+        "Part 2: Text Processing"
+      ],
+      "tools": [
+        "TensorFlow",
+        "NLTK"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Natural language processing"
+    },
+    {
+      "day": 25,
+      "topic": "Hyperparameter Tuning",
+      "subtopics": [
+        "Grid Search",
+        "Random Search",
+        "Bayesian Optimization"
+      ],
+      "tools": [
+        "Optuna",
+        "Ray"
+      ],
+      "jira_focus": "Sprint planning; review progress for Hyperparameter Tuning",
+      "lab_task": "Model optimization"
+    },
+    {
+      "day": 26,
+      "topic": "Hyperparameter Tuning - Part 2",
+      "subtopics": [
+        "Part 2: Grid Search",
+        "Part 2: Random Search",
+        "Part 2: Bayesian Optimization"
+      ],
+      "tools": [
+        "Optuna",
+        "Ray"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Model optimization"
+    },
+    {
+      "day": 27,
+      "topic": "Model Evaluation & Metrics",
+      "subtopics": [
+        "Precision",
+        "Recall",
+        "F1",
+        "ROC-AUC",
+        "Cross-validation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Model evaluation"
+    },
+    {
+      "day": 28,
+      "topic": "Model Evaluation & Metrics - Part 2",
+      "subtopics": [
+        "Part 2: Precision",
+        "Part 2: Recall",
+        "Part 2: F1",
+        "Part 2: ROC-AUC",
+        "Part 2: Cross-validation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Model evaluation"
+    },
+    {
+      "day": 29,
+      "topic": "Deployment & MLOps",
+      "subtopics": [
+        "Model Serving",
+        "Containers",
+        "Monitoring",
+        "Retraining"
+      ],
+      "tools": [
+        "MLflow",
+        "Docker"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production models"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Model Serving",
+        "Containers",
+        "Monitoring",
+        "Retraining"
+      ],
+      "tools": [
+        "MLflow",
+        "Docker"
+      ],
+      "jira_focus": "Sprint planning; review progress for Deployment & MLOps",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Statistics for ML",
+      "subtopics": [
+        "Statistics for ML concepts",
+        "Statistics for ML configuration",
+        "Statistics for ML hands-on workflow",
+        "Statistics for ML troubleshooting",
+        "Statistics for ML best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Statistics for ML"
+    },
+    {
+      "day": 32,
+      "topic": "Feature Engineering - Part 3",
+      "subtopics": [
+        "Part 3: Feature Engineering concepts",
+        "Part 3: Feature Engineering configuration",
+        "Part 3: Feature Engineering hands-on workflow",
+        "Part 3: Feature Engineering troubleshooting",
+        "Part 3: Feature Engineering best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 3 hands-on: Hands-on lab: Feature Engineering"
+    },
+    {
+      "day": 33,
+      "topic": "Model Selection",
+      "subtopics": [
+        "Model Selection concepts",
+        "Model Selection configuration",
+        "Model Selection hands-on workflow",
+        "Model Selection troubleshooting",
+        "Model Selection best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Model Selection"
+    },
+    {
+      "day": 34,
+      "topic": "Regression Deep Dive",
+      "subtopics": [
+        "Regression Deep Dive concepts",
+        "Regression Deep Dive configuration",
+        "Regression Deep Dive hands-on workflow",
+        "Regression Deep Dive troubleshooting",
+        "Regression Deep Dive best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Regression Deep Dive"
+    },
+    {
+      "day": 35,
+      "topic": "Classification Deep Dive",
+      "subtopics": [
+        "Classification Deep Dive concepts",
+        "Classification Deep Dive configuration",
+        "Classification Deep Dive hands-on workflow",
+        "Classification Deep Dive troubleshooting",
+        "Classification Deep Dive best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Classification Deep Dive"
+    },
+    {
+      "day": 36,
+      "topic": "Tree Models and Ensembles",
+      "subtopics": [
+        "Tree Models and Ensembles concepts",
+        "Tree Models and Ensembles configuration",
+        "Tree Models and Ensembles hands-on workflow",
+        "Tree Models and Ensembles troubleshooting",
+        "Tree Models and Ensembles best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Tree Models and Ensembles"
+    },
+    {
+      "day": 37,
+      "topic": "Unsupervised Learning",
+      "subtopics": [
+        "Unsupervised Learning concepts",
+        "Unsupervised Learning configuration",
+        "Unsupervised Learning hands-on workflow",
+        "Unsupervised Learning troubleshooting",
+        "Unsupervised Learning best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Unsupervised Learning"
+    },
+    {
+      "day": 38,
+      "topic": "Dimensionality Reduction - Part 3",
+      "subtopics": [
+        "Part 3: Dimensionality Reduction concepts",
+        "Part 3: Dimensionality Reduction configuration",
+        "Part 3: Dimensionality Reduction hands-on workflow",
+        "Part 3: Dimensionality Reduction troubleshooting",
+        "Part 3: Dimensionality Reduction best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 3 hands-on: Hands-on lab: Dimensionality Reduction"
+    },
+    {
+      "day": 39,
+      "topic": "Model Evaluation",
+      "subtopics": [
+        "Model Evaluation concepts",
+        "Model Evaluation configuration",
+        "Model Evaluation hands-on workflow",
+        "Model Evaluation troubleshooting",
+        "Model Evaluation best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Model Evaluation"
+    },
+    {
+      "day": 40,
+      "topic": "Imbalanced Learning",
+      "subtopics": [
+        "Imbalanced Learning concepts",
+        "Imbalanced Learning configuration",
+        "Imbalanced Learning hands-on workflow",
+        "Imbalanced Learning troubleshooting",
+        "Imbalanced Learning best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Imbalanced Learning"
+    },
+    {
+      "day": 41,
+      "topic": "Time Series Forecasting",
+      "subtopics": [
+        "Time Series Forecasting concepts",
+        "Time Series Forecasting configuration",
+        "Time Series Forecasting hands-on workflow",
+        "Time Series Forecasting troubleshooting",
+        "Time Series Forecasting best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Time Series Forecasting"
+    },
+    {
+      "day": 42,
+      "topic": "NLP Fundamentals",
+      "subtopics": [
+        "NLP Fundamentals concepts",
+        "NLP Fundamentals configuration",
+        "NLP Fundamentals hands-on workflow",
+        "NLP Fundamentals troubleshooting",
+        "NLP Fundamentals best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: NLP Fundamentals"
+    },
+    {
+      "day": 43,
+      "topic": "Deep Learning Basics",
+      "subtopics": [
+        "Deep Learning Basics concepts",
+        "Deep Learning Basics configuration",
+        "Deep Learning Basics hands-on workflow",
+        "Deep Learning Basics troubleshooting",
+        "Deep Learning Basics best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Deep Learning Basics"
+    },
+    {
+      "day": 44,
+      "topic": "Neural Network Training",
+      "subtopics": [
+        "Neural Network Training concepts",
+        "Neural Network Training configuration",
+        "Neural Network Training hands-on workflow",
+        "Neural Network Training troubleshooting",
+        "Neural Network Training best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Neural Network Training"
+    },
+    {
+      "day": 45,
+      "topic": "Computer Vision Basics",
+      "subtopics": [
+        "Computer Vision Basics concepts",
+        "Computer Vision Basics configuration",
+        "Computer Vision Basics hands-on workflow",
+        "Computer Vision Basics troubleshooting",
+        "Computer Vision Basics best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Computer Vision Basics"
+    },
+    {
+      "day": 46,
+      "topic": "MLOps Fundamentals",
+      "subtopics": [
+        "MLOps Fundamentals concepts",
+        "MLOps Fundamentals configuration",
+        "MLOps Fundamentals hands-on workflow",
+        "MLOps Fundamentals troubleshooting",
+        "MLOps Fundamentals best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: MLOps Fundamentals"
+    },
+    {
+      "day": 47,
+      "topic": "ML Pipelines",
+      "subtopics": [
+        "ML Pipelines concepts",
+        "ML Pipelines configuration",
+        "ML Pipelines hands-on workflow",
+        "ML Pipelines troubleshooting",
+        "ML Pipelines best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: ML Pipelines"
+    },
+    {
+      "day": 48,
+      "topic": "Model Deployment",
+      "subtopics": [
+        "Model Deployment concepts",
+        "Model Deployment configuration",
+        "Model Deployment hands-on workflow",
+        "Model Deployment troubleshooting",
+        "Model Deployment best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Model Deployment"
+    },
+    {
+      "day": 49,
+      "topic": "Model Monitoring",
+      "subtopics": [
+        "Model Monitoring concepts",
+        "Model Monitoring configuration",
+        "Model Monitoring hands-on workflow",
+        "Model Monitoring troubleshooting",
+        "Model Monitoring best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Model Monitoring"
+    },
+    {
+      "day": 50,
+      "topic": "Responsible AI",
+      "subtopics": [
+        "Responsible AI concepts",
+        "Responsible AI configuration",
+        "Responsible AI hands-on workflow",
+        "Responsible AI troubleshooting",
+        "Responsible AI best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Responsible AI"
+    },
+    {
+      "day": 51,
+      "topic": "ML Capstone Planning",
+      "subtopics": [
+        "ML Capstone Planning concepts",
+        "ML Capstone Planning configuration",
+        "ML Capstone Planning hands-on workflow",
+        "ML Capstone Planning troubleshooting",
+        "ML Capstone Planning best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: ML Capstone Planning"
+    },
+    {
+      "day": 52,
+      "topic": "ML Capstone Modeling",
+      "subtopics": [
+        "ML Capstone Modeling concepts",
+        "ML Capstone Modeling configuration",
+        "ML Capstone Modeling hands-on workflow",
+        "ML Capstone Modeling troubleshooting",
+        "ML Capstone Modeling best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: ML Capstone Modeling"
+    },
+    {
+      "day": 53,
+      "topic": "ML Capstone Deployment",
+      "subtopics": [
+        "ML Capstone Deployment concepts",
+        "ML Capstone Deployment configuration",
+        "ML Capstone Deployment hands-on workflow",
+        "ML Capstone Deployment troubleshooting",
+        "ML Capstone Deployment best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: ML Capstone Deployment"
+    },
+    {
+      "day": 54,
+      "topic": "ML Final Demo",
+      "subtopics": [
+        "ML Final Demo concepts",
+        "ML Final Demo configuration",
+        "ML Final Demo hands-on workflow",
+        "ML Final Demo troubleshooting",
+        "ML Final Demo best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: ML Final Demo"
+    },
+    {
+      "day": 55,
+      "topic": "ML Capstone Problem Framing",
+      "subtopics": [
+        "ML Capstone Problem Framing concepts",
+        "ML Capstone Problem Framing hands-on workflow",
+        "ML Capstone Problem Framing validation",
+        "ML Capstone Problem Framing troubleshooting",
+        "ML Capstone Problem Framing best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: ML Capstone Problem Framing"
+    },
+    {
+      "day": 56,
+      "topic": "Feature Engineering Sprint",
+      "subtopics": [
+        "Feature Engineering Sprint concepts",
+        "Feature Engineering Sprint hands-on workflow",
+        "Feature Engineering Sprint validation",
+        "Feature Engineering Sprint troubleshooting",
+        "Feature Engineering Sprint best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Feature Engineering Sprint"
+    },
+    {
+      "day": 57,
+      "topic": "Model Training Sprint",
+      "subtopics": [
+        "Model Training Sprint concepts",
+        "Model Training Sprint hands-on workflow",
+        "Model Training Sprint validation",
+        "Model Training Sprint troubleshooting",
+        "Model Training Sprint best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Model Training Sprint"
+    },
+    {
+      "day": 58,
+      "topic": "Model Evaluation Sprint",
+      "subtopics": [
+        "Model Evaluation Sprint concepts",
+        "Model Evaluation Sprint hands-on workflow",
+        "Model Evaluation Sprint validation",
+        "Model Evaluation Sprint troubleshooting",
+        "Model Evaluation Sprint best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Model Evaluation Sprint"
+    },
+    {
+      "day": 59,
+      "topic": "MLOps Deployment Sprint",
+      "subtopics": [
+        "MLOps Deployment Sprint concepts",
+        "MLOps Deployment Sprint hands-on workflow",
+        "MLOps Deployment Sprint validation",
+        "MLOps Deployment Sprint troubleshooting",
+        "MLOps Deployment Sprint best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: MLOps Deployment Sprint"
+    },
+    {
+      "day": 60,
+      "topic": "ML Final Demo - Part 2",
+      "subtopics": [
+        "Part 2: ML Final Demo concepts",
+        "Part 2: ML Final Demo hands-on workflow",
+        "Part 2: ML Final Demo validation",
+        "Part 2: ML Final Demo troubleshooting",
+        "Part 2: ML Final Demo best practices"
+      ],
+      "tools": [
+        "Machine Learning"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 2 hands-on: Hands-on lab: ML Final Demo"
+    }
+  ],
+  "aliases": [
+    "Machine Learning",
+    "ML",
+    "AI ML",
+    "Data Science",
+    "Predictive Modeling",
+    "Scikit Learn",
+    "MLOps",
+    "Deep Learning"
+  ],
+  "official_sources": [
+    "https://scikit-learn.org/stable/model_selection",
+    "https://pandas.pydata.org/docs/user_guide/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

@@ -1,6 +1,10 @@
 const GMAIL_OAUTH_PKCE_KEY = 'gmail_oauth_pkce'
 const GMAIL_OAUTH_PKCE_MAX_AGE_MS = 20 * 60 * 1000
 
+export function getGmailOAuthRedirectUri() {
+  return `${globalThis.location.origin}/auth/callback`
+}
+
 function getSessionStorage() {
   try {
     return globalThis.sessionStorage

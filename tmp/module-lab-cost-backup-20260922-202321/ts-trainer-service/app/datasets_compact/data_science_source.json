@@ -1,0 +1,435 @@
+{
+    "domain":  "Data Science",
+    "name":  "Data Science â€“ Statistics, Machine Learning, Analytics and Applied Projects",
+    "aliases":  [
+                    "Data Science and Analytics",
+                    "Applied Data Science"
+                ],
+    "tools":  [
+                  "Python",
+                  "Jupyter",
+                  "NumPy",
+                  "Pandas",
+                  "scikit-learn",
+                  "Matplotlib"
+              ],
+    "certifications":  [
+                           "IBM Data Science Professional Certificate",
+                           "Google Advanced Data Analytics Certificate"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Data Science Foundations",
+                     "subtopics":  [
+                                       "Data science lifecycle",
+                                       "Problem framing",
+                                       "Types of analytics",
+                                       "Structured vs unstructured data",
+                                       "Environment setup",
+                                       "Reproducible notebooks",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas"
+                               ],
+                     "lab_task":  "Set up a notebook environment and frame a business problem.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Data Science Foundations concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Data Science Foundations practically using Data Science.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Python for Data Analysis",
+                     "subtopics":  [
+                                       "NumPy arrays",
+                                       "Pandas Series/DataFrames",
+                                       "Indexing",
+                                       "Filtering",
+                                       "Grouping",
+                                       "Merging",
+                                       "Datetime handling",
+                                       "Vectorization",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas"
+                               ],
+                     "lab_task":  "Clean and transform a multi-table dataset.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Python for Data Analysis concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Python for Data Analysis practically using Data Science.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Statistics and Probability",
+                     "subtopics":  [
+                                       "Descriptive statistics",
+                                       "Probability",
+                                       "Distributions",
+                                       "Sampling",
+                                       "Confidence intervals",
+                                       "Hypothesis testing",
+                                       "Correlation",
+                                       "ANOVA concepts",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy"
+                               ],
+                     "lab_task":  "Perform statistical analysis and interpret results.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Statistics and Probability concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Statistics and Probability practically using Data Science.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Data Cleaning and EDA",
+                     "subtopics":  [
+                                       "Missing data",
+                                       "Duplicates",
+                                       "Outliers",
+                                       "Univariate analysis",
+                                       "Bivariate analysis",
+                                       "Multivariate analysis",
+                                       "Visualization",
+                                       "Data quality checks",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Complete EDA on a real-world dataset.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Data Cleaning and EDA concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Data Cleaning and EDA practically using Data Science.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Feature Engineering",
+                     "subtopics":  [
+                                       "Encoding",
+                                       "Scaling",
+                                       "Transformations",
+                                       "Binning",
+                                       "Interactions",
+                                       "Feature selection",
+                                       "Leakage prevention",
+                                       "Pipelines",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Build a reusable preprocessing pipeline.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Feature Engineering concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Feature Engineering practically using Data Science.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Supervised Learning",
+                     "subtopics":  [
+                                       "Linear regression",
+                                       "Logistic regression",
+                                       "Decision trees",
+                                       "Random forests",
+                                       "Gradient boosting concepts",
+                                       "KNN",
+                                       "SVM",
+                                       "Naive Bayes",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Train multiple supervised models.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Supervised Learning concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Supervised Learning practically using Data Science.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Unsupervised Learning",
+                     "subtopics":  [
+                                       "K-means",
+                                       "Hierarchical clustering",
+                                       "DBSCAN concepts",
+                                       "PCA",
+                                       "Dimensionality reduction",
+                                       "Cluster evaluation",
+                                       "Anomaly detection concepts",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Cluster and visualize customer segments.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Unsupervised Learning concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Unsupervised Learning practically using Data Science.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Model Evaluation and Tuning",
+                     "subtopics":  [
+                                       "Train/validation/test split",
+                                       "Cross-validation",
+                                       "Accuracy",
+                                       "Precision",
+                                       "Recall",
+                                       "F1",
+                                       "ROC-AUC",
+                                       "Regression metrics",
+                                       "Hyperparameter tuning",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Compare and tune models.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Model Evaluation and Tuning concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Model Evaluation and Tuning practically using Data Science.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Time Series and Forecasting",
+                     "subtopics":  [
+                                       "Trend",
+                                       "Seasonality",
+                                       "Stationarity",
+                                       "Lag features",
+                                       "Rolling statistics",
+                                       "ARIMA concepts",
+                                       "Forecast validation",
+                                       "Time-aware splits",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Build a forecasting baseline.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Time Series and Forecasting concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Time Series and Forecasting practically using Data Science.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Data Storytelling and Visualization",
+                     "subtopics":  [
+                                       "Matplotlib",
+                                       "Dashboard concepts",
+                                       "Chart selection",
+                                       "Uncertainty",
+                                       "Executive summaries",
+                                       "Data storytelling",
+                                       "Reproducible reports",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas"
+                               ],
+                     "lab_task":  "Create a decision-focused analytical report.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Data Storytelling and Visualization concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Data Storytelling and Visualization practically using Data Science.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  11,
+                     "topic":  "Deployment and MLOps Basics",
+                     "subtopics":  [
+                                       "Model serialization",
+                                       "API serving concepts",
+                                       "Batch scoring",
+                                       "Monitoring",
+                                       "Drift",
+                                       "Experiment tracking",
+                                       "Versioning",
+                                       "CI concepts",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Package a model for deployment.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Deployment and MLOps Basics concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Deployment and MLOps Basics practically using Data Science.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  12,
+                     "topic":  "Capstone Data Science Project",
+                     "subtopics":  [
+                                       "Problem definition",
+                                       "Data collection",
+                                       "EDA",
+                                       "Feature engineering",
+                                       "Modeling",
+                                       "Evaluation",
+                                       "Interpretation",
+                                       "Deployment plan",
+                                       "Data Science terminology and feature mapping for this topic",
+                                       "Data Science configuration and implementation considerations",
+                                       "Data Science best practices and common mistakes for this topic"
+                                   ],
+                     "tools":  [
+                                   "Python",
+                                   "Jupyter",
+                                   "NumPy",
+                                   "Pandas",
+                                   "scikit-learn"
+                               ],
+                     "lab_task":  "Complete an end-to-end data science project.",
+                     "technology":  "Data Science",
+                     "technology_id":  "data-science",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone Data Science Project concepts in the context of Data Science.",
+                                                 "Configure or implement the key Data Science features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone Data Science Project practically using Data Science.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "data-science"
+}

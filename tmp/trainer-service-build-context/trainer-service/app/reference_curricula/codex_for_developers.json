@@ -1,0 +1,1245 @@
+{
+  "name": "Codex for Developers",
+  "audience": "Developers",
+  "version": "reference-import-v2",
+  "source_file": "Codex for developers_XE_TOC (1).pdf",
+  "source_sha256": "2c9cefd8e9befb2f03a84a31de69e92573842cfab9a55efd4b140b5ac459e416",
+  "review_status": "unreviewed",
+  "review_warnings": [
+    "Page 2 contains the unrelated heading 'Bid and Proposal Management'; confirm corrected title.",
+    "24 programme hours are stated, but individual module durations require planning."
+  ],
+  "usage": "Reference examples only; original client brief and subject-matter approval not supplied.",
+  "modules": [
+    {
+      "topic": "Codex Architecture and Operating Model",
+      "code": "M1",
+      "subtopics": [
+        "Codex as an agentic software engineer",
+        "Codex versus traditional coding assistants",
+        "Codex development surfaces:",
+        "CLI",
+        "IDE extension",
+        "Desktop/application experience",
+        "Cloud workflows",
+        "GitHub workflows",
+        "Non-interactive execution",
+        "SDK and App Server",
+        "The Codex execution loop:",
+        "Understand",
+        "Inspect",
+        "Plan",
+        "Execute",
+        "Validate",
+        "Review",
+        "Report",
+        "Repository context versus conversation context",
+        "Tool execution and terminal access",
+        "File modifications and diff generation",
+        "Long-running task management",
+        "Steering an active task",
+        "Checkpoints and recovery",
+        "Plan mode versus implementation mode",
+        "Selecting the right workflow:",
+        "Explain",
+        "Diagnose",
+        "Plan",
+        "Implement",
+        "Review",
+        "Automate",
+        "Engineering Principle",
+        "Codex should not start by writing code. A professional workflow starts with:",
+        "1. Understanding the repository.",
+        "2. Establishing the baseline.",
+        "3. Identifying evidence.",
+        "4. Confirming scope.",
+        "5. Defining success.",
+        "6. Only then implementing changes."
+      ],
+      "reference_text": "Topics\nCodex as an agentic software engineer\nCodex versus traditional coding assistants\nCodex development surfaces:\no CLI\no IDE extension\no Desktop/application experience\no Cloud workflows\no GitHub workflows\no Non-interactive execution\no SDK and App Server\nThe Codex execution loop:\no Understand\no Inspect\no Plan\no Execute\no Validate\no Review\no Report\nRepository context versus conversation context\nTool execution and terminal access\nFile modifications and diff generation\nLong-running task management\nSteering an active task\nCheckpoints and recovery\nPlan mode versus implementation mode\nSelecting the right workflow:\no Explain\no Diagnose\no Plan\no Implement\no Review\no Automate\nEngineering Principle\nCodex should not start by writing code. A professional workflow starts with:\n1. Understanding the repository.\n2. Establishing the baseline.\n3. Identifying evidence.\n4. Confirming scope.\n5. Defining success.\n6. Only then implementing changes.\nLab 1: Repository X-Ray\nParticipants receive an unfamiliar payment-service repository.\nCodex must identify:\nApplication architecture\nEntry points\nAPI request flow\nBuild commands\nTest commands\nDatabase usage\nCache usage\nExternal integrations\nConfiguration structure\nAuthentication and authorization\nError-handling patterns\nLogging and observability\nHigh-risk components\nMissing documentation\nLab Deliverable\nA concise repository intelligence report containing:\nArchitecture summary\nComponent map\nCritical code paths\nBuild/test commands\nRisks\nUnknowns\nRecommended investigation order",
+      "source_locator": "Module 1",
+      "lab": "Repository X-Ray\nParticipants receive an unfamiliar payment-service repository.\nCodex must identify:\nApplication architecture\nEntry points\nAPI request flow\nBuild commands\nTest commands\nDatabase usage\nCache usage\nExternal integrations\nConfiguration structure\nAuthentication and authorization\nError-handling patterns\nLogging and observability\nHigh-risk components\nMissing documentation",
+      "deliverable": "A concise repository intelligence report containing:\nArchitecture summary\nComponent map\nCritical code paths\nBuild/test commands\nRisks\nUnknowns\nRecommended investigation order",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Codex as an agentic software engineer; Codex versus traditional coding assistants; Codex development surfaces:. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Codex Architecture and Operating Model through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Codex as an agentic software engineer; Codex versus traditional coding assistants; Codex development surfaces:",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Repository X-Ray\nParticipants receive an unfamiliar payment-service repository.\nCodex must identify:\nApplication architecture\nEntry points\nAPI request flow\nBuild commands\nTest commands\nDatabase usage\nCache usage\nExternal integrations\nConfiguration structure\nAuthentication and authorization\nError-handling patterns\nLogging and observability\nHigh-risk components\nMissing documentation",
+          "evidence": "A concise repository intelligence report containing:\nArchitecture summary\nComponent map\nCritical code paths\nBuild/test commands\nRisks\nUnknowns\nRecommended investigation order"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Codex as an agentic software engineer; Codex versus traditional coding assistants; Codex development surfaces:. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Advanced Task and Context Engineering",
+      "code": "M2",
+      "subtopics": [
+        "Engineering Task Contracts",
+        "Every professional Codex request should define:",
+        "Business objective",
+        "Current behaviour",
+        "Expected behaviour",
+        "Evidence available",
+        "Scope boundaries",
+        "Technical constraints",
+        "Acceptance criteria",
+        "Test requirements",
+        "Security expectations",
+        "Prohibited changes",
+        "Required deliverables",
+        "Evidence-First Prompting",
+        "Asking Codex to inspect before concluding",
+        "Requiring file and code-path references",
+        "Separating:",
+        "Confirmed facts",
+        "Assumptions",
+        "Hypotheses",
+        "Unknowns",
+        "Preventing unsupported architectural claims",
+        "Requesting missing information",
+        "Requiring reproducible evidence",
+        "Advanced Prompting Patterns",
+        "Plan-before-change",
+        "Reproduce-before-fix",
+        "Test-before-refactor",
+        "Minimal-patch implementation",
+        "Behaviour-preserving migration",
+        "Adversarial review",
+        "Security-focused review",
+        "Performance investigation",
+        "Incident diagnosis",
+        "Contract-first development",
+        "Acceptance-test-driven development",
+        "Context Management",
+        "Providing minimum sufficient context",
+        "Avoiding prompt overload",
+        "Directing Codex toward authoritative files",
+        "Using logs, traces and failed-test output",
+        "Referencing design documents",
+        "Maintaining context across long tasks",
+        "Recovering when context becomes stale",
+        "Using separate threads for independent concerns"
+      ],
+      "reference_text": "Topics\nEngineering Task Contracts\nEvery professional Codex request should define:\nBusiness objective\nCurrent behaviour\nExpected behaviour\nEvidence available\nScope boundaries\nTechnical constraints\nAcceptance criteria\nTest requirements\nSecurity expectations\nProhibited changes\nRequired deliverables\nEvidence-First Prompting\nAsking Codex to inspect before concluding\nRequiring file and code-path references\nSeparating:\no Confirmed facts\no Assumptions\no Hypotheses\no Unknowns\nPreventing unsupported architectural claims\nRequesting missing information\nRequiring reproducible evidence\nAdvanced Prompting Patterns\nPlan-before-change\nReproduce-before-fix\nTest-before-refactor\nMinimal-patch implementation\nBehaviour-preserving migration\nAdversarial review\nSecurity-focused review\nPerformance investigation\nIncident diagnosis\nContract-first development\nAcceptance-test-driven development\nContext Management\nProviding minimum sufficient context\nAvoiding prompt overload\nDirecting Codex toward authoritative files\nUsing logs, traces and failed-test output\nReferencing design documents\nMaintaining context across long tasks\nRecovering when context becomes stale\nUsing separate threads for independent concerns\nLab 2: Convert an Ambiguous Issue\nOriginal requirement:\n“Payments sometimes fail and customers retry. Fix the system.”\nParticipants transform it into a task contract covering:\nFailure symptoms\nRequest lifecycle\nRetry ownership\nIdempotency\nDatabase transaction boundaries\nCache consistency\nConcurrency\nTimeout behaviour\nExpected throughput\nRegression tests\nRollback expectations\nLab Deliverable\nA production-quality task specification that another engineer or Codex session could execute without\nguessing.",
+      "source_locator": "Module 2",
+      "lab": "Convert an Ambiguous Issue\nOriginal requirement:\n“Payments sometimes fail and customers retry. Fix the system.”\nParticipants transform it into a task contract covering:\nFailure symptoms\nRequest lifecycle\nRetry ownership\nIdempotency\nDatabase transaction boundaries\nCache consistency\nConcurrency\nTimeout behaviour\nExpected throughput\nRegression tests\nRollback expectations",
+      "deliverable": "A production-quality task specification that another engineer or Codex session could execute without\nguessing.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Engineering Task Contracts; Every professional Codex request should define:; Business objective. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Advanced Task and Context Engineering through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Engineering Task Contracts; Every professional Codex request should define:; Business objective",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Convert an Ambiguous Issue\nOriginal requirement:\n“Payments sometimes fail and customers retry. Fix the system.”\nParticipants transform it into a task contract covering:\nFailure symptoms\nRequest lifecycle\nRetry ownership\nIdempotency\nDatabase transaction boundaries\nCache consistency\nConcurrency\nTimeout behaviour\nExpected throughput\nRegression tests\nRollback expectations",
+          "evidence": "A production-quality task specification that another engineer or Codex session could execute without\nguessing."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Engineering Task Contracts; Every professional Codex request should define:; Business objective. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Repository Intelligence with AGENTS.md",
+      "code": "M3",
+      "subtopics": [
+        "Purpose of AGENTS.md",
+        "Prompt instructions versus durable repository guidance",
+        "Global instructions",
+        "Repository-level instructions",
+        "Nested component instructions",
+        "Closest-file precedence",
+        "Monorepository instruction design",
+        "Referencing supporting documents",
+        "Keeping instructions short and operational",
+        "Maintaining repository guidance over time",
+        "What Belongs in AGENTS.md",
+        "Architecture boundaries",
+        "Supported build commands",
+        "Required test commands",
+        "Formatting and linting",
+        "Naming standards",
+        "Error-handling requirements",
+        "Security rules",
+        "Dependency restrictions",
+        "Database migration requirements",
+        "API compatibility expectations",
+        "Observability requirements",
+        "Definition of done",
+        "Pull-request requirements",
+        "What Should Not Be Included",
+        "Long theoretical explanations",
+        "Unverified commands",
+        "Conflicting rules",
+        "Temporary task requirements",
+        "Secrets or credentials",
+        "Instructions unrelated to the repository",
+        "Excessive documentation that consumes context"
+      ],
+      "reference_text": "Topics\nPurpose of AGENTS.md\nPrompt instructions versus durable repository guidance\nGlobal instructions\nRepository-level instructions\nNested component instructions\nClosest-file precedence\nMonorepository instruction design\nReferencing supporting documents\nKeeping instructions short and operational\nMaintaining repository guidance over time\nWhat Belongs in AGENTS.md\nArchitecture boundaries\nSupported build commands\nRequired test commands\nFormatting and linting\nNaming standards\nError-handling requirements\nSecurity rules\nDependency restrictions\nDatabase migration requirements\nAPI compatibility expectations\nObservability requirements\nDefinition of done\nPull-request requirements\nWhat Should Not Be Included\nLong theoretical explanations\nUnverified commands\nConflicting rules\nTemporary task requirements\nSecrets or credentials\nInstructions unrelated to the repository\nExcessive documentation that consumes context\nLab 3: Repository Engineering Constitution\nRequired rules:\nPayment changes require idempotency tests.\nDatabase changes require rollback instructions.\nPublic API changes require compatibility review.\nNew external calls require timeout and retry policies.\nSensitive data must not be logged.\nInfrastructure changes require security validation.\nEvery defect fix requires a regression test.\nFinal reports must include commands executed and results.\nLab Deliverable\nA tested instruction hierarchy showing that Codex applies different guidance to backend, frontend and\ninfrastructure components.",
+      "source_locator": "Module 3",
+      "lab": "Repository Engineering Constitution\nRequired rules:\nPayment changes require idempotency tests.\nDatabase changes require rollback instructions.\nPublic API changes require compatibility review.\nNew external calls require timeout and retry policies.\nSensitive data must not be logged.\nInfrastructure changes require security validation.\nEvery defect fix requires a regression test.\nFinal reports must include commands executed and results.",
+      "deliverable": "A tested instruction hierarchy showing that Codex applies different guidance to backend, frontend and\ninfrastructure components.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Purpose of AGENTS.md; Prompt instructions versus durable repository guidance; Global instructions. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Repository Intelligence with AGENTS.md through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Purpose of AGENTS.md; Prompt instructions versus durable repository guidance; Global instructions",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Repository Engineering Constitution\nRequired rules:\nPayment changes require idempotency tests.\nDatabase changes require rollback instructions.\nPublic API changes require compatibility review.\nNew external calls require timeout and retry policies.\nSensitive data must not be logged.\nInfrastructure changes require security validation.\nEvery defect fix requires a regression test.\nFinal reports must include commands executed and results.",
+          "evidence": "A tested instruction hierarchy showing that Codex applies different guidance to backend, frontend and\ninfrastructure components."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Purpose of AGENTS.md; Prompt instructions versus durable repository guidance; Global instructions. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Test-Driven Implementation and Production Debugging",
+      "code": "M4",
+      "subtopics": [
+        "Professional Implementation Workflow",
+        "1. Inspect the issue.",
+        "2. Establish a clean baseline.",
+        "3. Reproduce the problem.",
+        "4. Identify the failing code path.",
+        "5. Form a root-cause hypothesis.",
+        "6. Verify the hypothesis.",
+        "7. Add a failing regression test.",
+        "8. Implement the smallest safe patch.",
+        "9. Run focused tests.",
+        "10. Run broader regression tests.",
+        "11. Review the final diff.",
+        "12. Document evidence and remaining risks.",
+        "Debugging Topics",
+        "Stack-trace analysis",
+        "Log correlation",
+        "Following request flow",
+        "Identifying race conditions",
+        "Deadlock investigation",
+        "Timeout diagnosis",
+        "Retry-storm investigation",
+        "Database connection saturation",
+        "Transaction rollback failures",
+        "Cache consistency",
+        "Memory and resource leaks",
+        "Configuration drift",
+        "Environment-specific failures",
+        "CI-only failures",
+        "Flaky tests",
+        "Separating root causes from secondary symptoms",
+        "Testing Strategies",
+        "Unit tests",
+        "Integration tests",
+        "Contract tests",
+        "Negative tests",
+        "Table-driven tests",
+        "Property-based tests",
+        "Concurrency tests",
+        "Fault-injection tests",
+        "Performance regression tests",
+        "Characterization tests",
+        "Test fixtures and data builders",
+        "Deterministic test design"
+      ],
+      "reference_text": "Professional Implementation Workflow\n1. Inspect the issue.\n2. Establish a clean baseline.\n3. Reproduce the problem.\n4. Identify the failing code path.\n5. Form a root-cause hypothesis.\n6. Verify the hypothesis.\n7. Add a failing regression test.\n8. Implement the smallest safe patch.\n9. Run focused tests.\n10. Run broader regression tests.\n11. Review the final diff.\n12. Document evidence and remaining risks.\nDebugging Topics\nStack-trace analysis\nLog correlation\nFollowing request flow\nIdentifying race conditions\nDeadlock investigation\nTimeout diagnosis\nRetry-storm investigation\nDatabase connection saturation\nTransaction rollback failures\nCache consistency\nMemory and resource leaks\nConfiguration drift\nEnvironment-specific failures\nCI-only failures\nFlaky tests\nSeparating root causes from secondary symptoms\nTesting Strategies\nUnit tests\nIntegration tests\nContract tests\nNegative tests\nTable-driven tests\nProperty-based tests\nConcurrency tests\nFault-injection tests\nPerformance regression tests\nCharacterization tests\nTest fixtures and data builders\nDeterministic test design\nLab 4: Duplicate Payment Defect\nParticipants use Codex to:\nReproduce the duplicate payment.\nWrite a concurrency-focused test.\nIdentify the race window.\nExamine database transaction boundaries.\nDesign an idempotency strategy.\nImplement a minimal fix.\nTest duplicate and concurrent requests.\nValidate rollback behaviour.\nReview performance impact.\nDocument proof of correctness.\nLab Deliverable\nRoot-cause report\nFailing regression test\nMinimal patch\nSuccessful test evidence\nRemaining-risk statement",
+      "source_locator": "Module 4",
+      "lab": "Duplicate Payment Defect\nParticipants use Codex to:\nReproduce the duplicate payment.\nWrite a concurrency-focused test.\nIdentify the race window.\nExamine database transaction boundaries.\nDesign an idempotency strategy.\nImplement a minimal fix.\nTest duplicate and concurrent requests.\nValidate rollback behaviour.\nReview performance impact.\nDocument proof of correctness.",
+      "deliverable": "Root-cause report\nFailing regression test\nMinimal patch\nSuccessful test evidence\nRemaining-risk statement",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Professional Implementation Workflow; 1. Inspect the issue.; 2. Establish a clean baseline.. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Test-Driven Implementation and Production Debugging through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Professional Implementation Workflow; 1. Inspect the issue.; 2. Establish a clean baseline.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Duplicate Payment Defect\nParticipants use Codex to:\nReproduce the duplicate payment.\nWrite a concurrency-focused test.\nIdentify the race window.\nExamine database transaction boundaries.\nDesign an idempotency strategy.\nImplement a minimal fix.\nTest duplicate and concurrent requests.\nValidate rollback behaviour.\nReview performance impact.\nDocument proof of correctness.",
+          "evidence": "Root-cause report\nFailing regression test\nMinimal patch\nSuccessful test evidence\nRemaining-risk statement"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Professional Implementation Workflow; 1. Inspect the issue.; 2. Establish a clean baseline.. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Code Review, Refactoring and Security",
+      "code": "M5",
+      "subtopics": [
+        "Advanced Code Review",
+        "Reviewing working-tree changes",
+        "Reviewing a commit or branch",
+        "Pull-request review",
+        "Correctness analysis",
+        "Regression detection",
+        "API compatibility",
+        "Database migration review",
+        "Concurrency review",
+        "Error-handling review",
+        "Observability review",
+        "Performance impact",
+        "Missing tests",
+        "Dead code and complexity",
+        "Severity-based classification",
+        "Rejecting speculative findings",
+        "Requiring exact evidence",
+        "Safe Refactoring",
+        "Behaviour-preserving refactoring",
+        "Establishing characterization tests",
+        "Breaking large functions",
+        "Reducing duplication",
+        "Improving dependency boundaries",
+        "Interface simplification",
+        "Incremental legacy modernization",
+        "Measuring before-and-after performance",
+        "Avoiding uncontrolled rewrites",
+        "Secure Review",
+        "SQL/command injection",
+        "Broken authentication",
+        "Missing authorization",
+        "Sensitive data exposure",
+        "Secret leakage",
+        "Unsafe deserialization",
+        "Path traversal",
+        "Server-side request forgery",
+        "Dependency and supply-chain risks",
+        "Unsafe build scripts",
+        "Prompt injection through repository content",
+        "Insecure default configuration"
+      ],
+      "reference_text": "Advanced Code Review\nReviewing working-tree changes\nReviewing a commit or branch\nPull-request review\nCorrectness analysis\nRegression detection\nAPI compatibility\nDatabase migration review\nConcurrency review\nError-handling review\nObservability review\nPerformance impact\nMissing tests\nDead code and complexity\nSeverity-based classification\nRejecting speculative findings\nRequiring exact evidence\nSafe Refactoring\nBehaviour-preserving refactoring\nEstablishing characterization tests\nBreaking large functions\nReducing duplication\nImproving dependency boundaries\nInterface simplification\nIncremental legacy modernization\nMeasuring before-and-after performance\nAvoiding uncontrolled rewrites\nSecure Review\nSQL/command injection\nBroken authentication\nMissing authorization\nSensitive data exposure\nSecret leakage\nUnsafe deserialization\nPath traversal\nServer-side request forgery\nDependency and supply-chain risks\nUnsafe build scripts\nPrompt injection through repository content\nInsecure default configuration\nLab 5: Adversarial Pull-Request Review\nThe pull request contains:\nSQL injection\nMissing authorization\nUnbounded goroutine creation\nSensitive customer data in logs\nIncorrect retry behaviour\nBreaking API change\nMissing integration tests\nMisleading error handling\nCodex must report:\nSeverity – Critical, high, medium or low\nEvidence – Exact file and code path\nTrigger – How the issue occurs\nImpact – Technical and business impact\nFix – Smallest safe correction\nTest – Required regression test\nConfidence – Supported or uncertain\nDay 1 Assessment\nParticipants independently diagnose and fix one unseen defect.\nDay 2 – Secure Customization, MCP and Multi-Agent Engineering",
+      "source_locator": "Module 5",
+      "lab": "Adversarial Pull-Request Review\nThe pull request contains:\nSQL injection\nMissing authorization\nUnbounded goroutine creation\nSensitive customer data in logs\nIncorrect retry behaviour\nBreaking API change\nMissing integration tests\nMisleading error handling\nCodex must report:\nSeverity – Critical, high, medium or low\nEvidence – Exact file and code path\nTrigger – How the issue occurs\nImpact – Technical and business impact\nFix – Smallest safe correction\nTest – Required regression test\nConfidence – Supported or uncertain\nDay 1 Assessment\nParticipants independently diagnose and fix one unseen defect.\nDay 2 – Secure Customization, MCP and Multi-Agent Engineering",
+      "deliverable": "Code Review, Refactoring and Security: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Advanced Code Review; Reviewing working-tree changes; Reviewing a commit or branch. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Code Review, Refactoring and Security through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Advanced Code Review; Reviewing working-tree changes; Reviewing a commit or branch",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Adversarial Pull-Request Review\nThe pull request contains:\nSQL injection\nMissing authorization\nUnbounded goroutine creation\nSensitive customer data in logs\nIncorrect retry behaviour\nBreaking API change\nMissing integration tests\nMisleading error handling\nCodex must report:\nSeverity – Critical, high, medium or low\nEvidence – Exact file and code path\nTrigger – How the issue occurs\nImpact – Technical and business impact\nFix – Smallest safe correction\nTest – Required regression test\nConfidence – Supported or uncertain\nDay 1 Assessment\nParticipants independently diagnose and fix one unseen defect.\nDay 2 – Secure Customization, MCP and Multi-Agent Engineering",
+          "evidence": "Code Review, Refactoring and Security: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Advanced Code Review; Reviewing working-tree changes; Reviewing a commit or branch. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Configuration, Permissions and Sandboxing",
+      "code": "M6",
+      "subtopics": [
+        "User-level and project-level configuration",
+        "Trusted and untrusted repositories",
+        "config.toml",
+        "Named configuration profiles",
+        "Model and reasoning defaults",
+        "Permission profiles",
+        "Legacy sandbox modes",
+        "Approval policies",
+        "Granular approval categories",
+        "Human approval",
+        "Automatic approval review",
+        "Filesystem access",
+        "Network access",
+        "Read-only operation",
+        "Workspace-write operation",
+        "Full-access risks",
+        "Managed enterprise requirements",
+        "Security Principles",
+        "Use the smallest permission boundary that completes the task.",
+        "Keep investigation agents read-only.",
+        "Give implementation agents access only to the repository.",
+        "Do not allow unattended access to production.",
+        "Treat repository instructions and external content as untrusted.",
+        "Never expose secrets in prompts or configuration files."
+      ],
+      "reference_text": "Topics\nUser-level and project-level configuration\nTrusted and untrusted repositories\nconfig.toml\nNamed configuration profiles\nModel and reasoning defaults\nPermission profiles\nLegacy sandbox modes\nApproval policies\nGranular approval categories\nHuman approval\nAutomatic approval review\nFilesystem access\nNetwork access\nRead-only operation\nWorkspace-write operation\nFull-access risks\nManaged enterprise requirements\nSecurity Principles\nUse the smallest permission boundary that completes the task.\nKeep investigation agents read-only.\nGive implementation agents access only to the repository.\nDo not allow unattended access to production.\nTreat repository instructions and external content as untrusted.\nNever expose secrets in prompts or configuration files.\nLab 6: Create Secure Operating Profiles\nParticipants design:\nrepo-analyst – Architecture and investigation – Read-only\ndeveloper – Code modification and testing – Workspace write\nsecurity-reviewer – Adversarial code review – Read-only\nci-reviewer – Non-interactive PR analysis – Read-only, no approvals\nisolated-remediator – Controlled patch creation – Workspace write in isolated runner\nLab Test\nParticipants verify that:\nThe analyst cannot modify files.\nThe developer can edit only approved workspace files.\nNetwork operations require the expected authorization.\nUnapproved destructive operations fail.\nCI operation does not pause waiting for a person.",
+      "source_locator": "Module 6",
+      "lab": "Create Secure Operating Profiles\nParticipants design:\nrepo-analyst – Architecture and investigation – Read-only\ndeveloper – Code modification and testing – Workspace write\nsecurity-reviewer – Adversarial code review – Read-only\nci-reviewer – Non-interactive PR analysis – Read-only, no approvals\nisolated-remediator – Controlled patch creation – Workspace write in isolated runner\nLab Test\nParticipants verify that:\nThe analyst cannot modify files.\nThe developer can edit only approved workspace files.\nNetwork operations require the expected authorization.\nUnapproved destructive operations fail.\nCI operation does not pause waiting for a person.",
+      "deliverable": "Configuration, Permissions and Sandboxing: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: User-level and project-level configuration; Trusted and untrusted repositories; config.toml. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Configuration, Permissions and Sandboxing through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: User-level and project-level configuration; Trusted and untrusted repositories; config.toml",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create Secure Operating Profiles\nParticipants design:\nrepo-analyst – Architecture and investigation – Read-only\ndeveloper – Code modification and testing – Workspace write\nsecurity-reviewer – Adversarial code review – Read-only\nci-reviewer – Non-interactive PR analysis – Read-only, no approvals\nisolated-remediator – Controlled patch creation – Workspace write in isolated runner\nLab Test\nParticipants verify that:\nThe analyst cannot modify files.\nThe developer can edit only approved workspace files.\nNetwork operations require the expected authorization.\nUnapproved destructive operations fail.\nCI operation does not pause waiting for a person.",
+          "evidence": "Configuration, Permissions and Sandboxing: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: User-level and project-level configuration; Trusted and untrusted repositories; config.toml. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Skills, Hooks and Rules",
+      "code": "M7",
+      "subtopics": [
+        "Choosing the Right Extension Mechanism",
+        "One-time constraint – Prompt",
+        "Repository standards – AGENTS.md",
+        "Reusable workflow – Skill",
+        "Lifecycle enforcement – Hook",
+        "External information/action – MCP",
+        "Command policy – Rule",
+        "Installable capability bundle – Plugin",
+        "Automated pipeline task – codex exec/GitHub Action",
+        "Skills",
+        "Skill structure",
+        "Trigger descriptions",
+        "Workflow instructions",
+        "Progressive context loading",
+        "Reference documents",
+        "Reusable scripts",
+        "Assets and templates",
+        "Validation requirements",
+        "Fallback behaviour",
+        "Error reporting",
+        "Example Engineering Skills",
+        "Production incident diagnosis",
+        "API migration",
+        "Secure code review",
+        "Release readiness",
+        "Database migration review",
+        "Performance investigation",
+        "Dependency upgrade",
+        "Vulnerability remediation",
+        "Hooks",
+        "Lifecycle events",
+        "Pre-tool-use validation",
+        "Post-tool-use validation",
+        "Blocking unsafe commands",
+        "Running policy checks",
+        "Recording audit events",
+        "Triggering tests and linters",
+        "Hook failure handling",
+        "Keeping hooks fast and deterministic",
+        "User-level versus repository-level hooks",
+        "Rules",
+        "Allowing known-safe commands",
+        "Blocking destructive commands",
+        "Enforcing organization policies",
+        "Protecting deployment and release commands",
+        "Combining rules with sandbox boundaries"
+      ],
+      "reference_text": "Choosing the Right Extension Mechanism\nOne-time constraint – Prompt\nRepository standards – AGENTS.md\nReusable workflow – Skill\nLifecycle enforcement – Hook\nExternal information/action – MCP\nCommand policy – Rule\nInstallable capability bundle – Plugin\nAutomated pipeline task – codex exec/GitHub Action\nSkills\nSkill structure\nTrigger descriptions\nWorkflow instructions\nProgressive context loading\nReference documents\nReusable scripts\nAssets and templates\nValidation requirements\nFallback behaviour\nError reporting\nExample Engineering Skills\nProduction incident diagnosis\nAPI migration\nSecure code review\nRelease readiness\nDatabase migration review\nPerformance investigation\nDependency upgrade\nVulnerability remediation\nHooks\nLifecycle events\nPre-tool-use validation\nPost-tool-use validation\nBlocking unsafe commands\nRunning policy checks\nRecording audit events\nTriggering tests and linters\nHook failure handling\nKeeping hooks fast and deterministic\nUser-level versus repository-level hooks\nRules\nAllowing known-safe commands\nBlocking destructive commands\nEnforcing organization policies\nProtecting deployment and release commands\nCombining rules with sandbox boundaries\nLab 7: Production Readiness Skill\nParticipants create a reusable skill that:\n1. Identifies changed services.\n2. Finds affected tests.\n3. Runs focused validation.\n4. Checks API compatibility.\n5. Reviews database changes.\n6. Checks error handling.\n7. Verifies logs and metrics.\n8. Reviews security risks.\n9. Generates a structured release report.\nA hook prevents task completion when mandatory validation fails.",
+      "source_locator": "Module 7",
+      "lab": "Production Readiness Skill\nParticipants create a reusable skill that:\n1. Identifies changed services.\n2. Finds affected tests.\n3. Runs focused validation.\n4. Checks API compatibility.\n5. Reviews database changes.\n6. Checks error handling.\n7. Verifies logs and metrics.\n8. Reviews security risks.\n9. Generates a structured release report.\nA hook prevents task completion when mandatory validation fails.",
+      "deliverable": "Skills, Hooks and Rules: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Choosing the Right Extension Mechanism; One-time constraint – Prompt; Repository standards – AGENTS.md. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Skills, Hooks and Rules through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Choosing the Right Extension Mechanism; One-time constraint – Prompt; Repository standards – AGENTS.md",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Production Readiness Skill\nParticipants create a reusable skill that:\n1. Identifies changed services.\n2. Finds affected tests.\n3. Runs focused validation.\n4. Checks API compatibility.\n5. Reviews database changes.\n6. Checks error handling.\n7. Verifies logs and metrics.\n8. Reviews security risks.\n9. Generates a structured release report.\nA hook prevents task completion when mandatory validation fails.",
+          "evidence": "Skills, Hooks and Rules: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Choosing the Right Extension Mechanism; One-time constraint – Prompt; Repository standards – AGENTS.md. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "MCP Tool Integration",
+      "code": "M8",
+      "subtopics": [
+        "MCP Architecture",
+        "MCP host",
+        "MCP client",
+        "MCP server",
+        "Tools",
+        "Resources",
+        "Prompts",
+        "Structured results",
+        "Authentication",
+        "Elicitation and approval",
+        "Local and remote servers",
+        "When MCP Should Be Used",
+        "Issue trackers",
+        "Source repositories",
+        "Internal documentation",
+        "Runbooks",
+        "Observability systems",
+        "Incident platforms",
+        "Service catalogues",
+        "Deployment systems",
+        "Test-management tools",
+        "Tool-Design Principles",
+        "Narrow tool responsibility",
+        "Clear names and descriptions",
+        "Typed inputs",
+        "Structured outputs",
+        "Read-only annotations",
+        "Destructive-operation annotations",
+        "Idempotent operations",
+        "Pagination",
+        "Timeouts",
+        "Error contracts",
+        "Retry safety",
+        "Human approval for side effects",
+        "Security Considerations",
+        "Tool-response prompt injection",
+        "Excessive tool permissions",
+        "Credential handling",
+        "Cross-tenant data exposure",
+        "Untrusted external content",
+        "Malicious issue or documentation content",
+        "Confirmation before writes",
+        "Audit logging",
+        "Fail-closed behaviour"
+      ],
+      "reference_text": "MCP Architecture\nMCP host\nMCP client\nMCP server\nTools\nResources\nPrompts\nStructured results\nAuthentication\nElicitation and approval\nLocal and remote servers\nWhen MCP Should Be Used\nIssue trackers\nSource repositories\nInternal documentation\nRunbooks\nObservability systems\nIncident platforms\nService catalogues\nDeployment systems\nTest-management tools\nTool-Design Principles\nNarrow tool responsibility\nClear names and descriptions\nTyped inputs\nStructured outputs\nRead-only annotations\nDestructive-operation annotations\nIdempotent operations\nPagination\nTimeouts\nError contracts\nRetry safety\nHuman approval for side effects\nSecurity Considerations\nTool-response prompt injection\nExcessive tool permissions\nCredential handling\nCross-tenant data exposure\nUntrusted external content\nMalicious issue or documentation content\nConfirmation before writes\nAudit logging\nFail-closed behaviour\nLab 8: Engineering Operations MCP Server\nParticipants build or complete a server exposing:\nget_issue\nsearch_incidents\nget_service_owner\nget_runbook\nget_service_health\ncreate_change_request\nupdate_issue_status\nWorkflow\n1. Retrieve a defect.\n2. Search previous incidents.\n3. Read the service runbook.\n4. Check service ownership.\n5. Investigate the repository.\n6. Produce a patch.\n7. Prepare a change request.\n8. Request approval before any external write.\n9. Update issue status only after verification.",
+      "source_locator": "Module 8",
+      "lab": "Engineering Operations MCP Server\nParticipants build or complete a server exposing:\nget_issue\nsearch_incidents\nget_service_owner\nget_runbook\nget_service_health\ncreate_change_request\nupdate_issue_status\nWorkflow\n1. Retrieve a defect.\n2. Search previous incidents.\n3. Read the service runbook.\n4. Check service ownership.\n5. Investigate the repository.\n6. Produce a patch.\n7. Prepare a change request.\n8. Request approval before any external write.\n9. Update issue status only after verification.",
+      "deliverable": "MCP Tool Integration: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: MCP Architecture; MCP host; MCP client. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate MCP Tool Integration through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: MCP Architecture; MCP host; MCP client",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Engineering Operations MCP Server\nParticipants build or complete a server exposing:\nget_issue\nsearch_incidents\nget_service_owner\nget_runbook\nget_service_health\ncreate_change_request\nupdate_issue_status\nWorkflow\n1. Retrieve a defect.\n2. Search previous incidents.\n3. Read the service runbook.\n4. Check service ownership.\n5. Investigate the repository.\n6. Produce a patch.\n7. Prepare a change request.\n8. Request approval before any external write.\n9. Update issue status only after verification.",
+          "evidence": "MCP Tool Integration: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: MCP Architecture; MCP host; MCP client. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Custom Agents and Worktree Isolation",
+      "code": "M9",
+      "subtopics": [
+        "When to use one agent",
+        "When parallel agents create value",
+        "Bounded task decomposition",
+        "Custom agent configuration",
+        "Read-only specialist agents",
+        "Specialist responsibilities:",
+        "Repository analyst",
+        "Implementation engineer",
+        "Test engineer",
+        "Security reviewer",
+        "Performance reviewer",
+        "Documentation reviewer",
+        "Agent handoffs",
+        "Parent-agent accountability",
+        "Shared-workspace risks",
+        "Worktree-based isolation",
+        "Conflict prevention",
+        "Consolidating duplicate findings",
+        "Independent verification",
+        "Cancelling or steering agents",
+        "Avoiding unnecessary agent fan-out"
+      ],
+      "reference_text": "Topics\nWhen to use one agent\nWhen parallel agents create value\nBounded task decomposition\nCustom agent configuration\nRead-only specialist agents\nSpecialist responsibilities:\no Repository analyst\no Implementation engineer\no Test engineer\no Security reviewer\no Performance reviewer\no Documentation reviewer\nAgent handoffs\nParent-agent accountability\nShared-workspace risks\nWorktree-based isolation\nConflict prevention\nConsolidating duplicate findings\nIndependent verification\nCancelling or steering agents\nAvoiding unnecessary agent fan-out\nLab 9: Parallel Release Review\nCreate five bounded review tasks:\n1. Correctness review\n2. Test-coverage review\n3. Security review\n4. Performance review\n5. API-compatibility review\nEach reviewer works read-only. The primary agent:\nConsolidates findings.\nRemoves duplicates.\nRejects unsupported claims.\nOrders findings by severity.\nProduces one release decision.\nLab Deliverable\nA multi-agent review report with traceable ownership and evidence.",
+      "source_locator": "Module 9",
+      "lab": "Parallel Release Review\nCreate five bounded review tasks:\n1. Correctness review\n2. Test-coverage review\n3. Security review\n4. Performance review\n5. API-compatibility review\nEach reviewer works read-only. The primary agent:\nConsolidates findings.\nRemoves duplicates.\nRejects unsupported claims.\nOrders findings by severity.\nProduces one release decision.",
+      "deliverable": "A multi-agent review report with traceable ownership and evidence.",
+      "assessment": "Reproduce the submitted participant output against these focus areas: When to use one agent; When parallel agents create value; Bounded task decomposition. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Custom Agents and Worktree Isolation through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: When to use one agent; When parallel agents create value; Bounded task decomposition",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Parallel Release Review\nCreate five bounded review tasks:\n1. Correctness review\n2. Test-coverage review\n3. Security review\n4. Performance review\n5. API-compatibility review\nEach reviewer works read-only. The primary agent:\nConsolidates findings.\nRemoves duplicates.\nRejects unsupported claims.\nOrders findings by severity.\nProduces one release decision.",
+          "evidence": "A multi-agent review report with traceable ownership and evidence."
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: When to use one agent; When parallel agents create value; Bounded task decomposition. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Production Incident Integration Lab",
+      "code": "M10",
+      "subtopics": [
+        "Scenario",
+        "The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000",
+        "requests per second.",
+        "Observed Symptoms",
+        "Bank latency rises sharply.",
+        "Timeout rate reaches 20%.",
+        "Retried requests increase incoming load.",
+        "Database connections saturate.",
+        "Kafka lag grows.",
+        "Redis in-flight counters become inconsistent.",
+        "Duplicate-payment risk appears.",
+        "Logs expose sensitive identifiers.",
+        "Alerts do not identify the actual bottleneck.",
+        "Participant Tasks",
+        "Retrieve incident information through MCP.",
+        "Map the complete request path.",
+        "Identify amplification caused by retries.",
+        "Examine timeout and circuit-breaker behaviour.",
+        "Analyse Redis, database and Kafka usage.",
+        "Reproduce the failure under controlled load.",
+        "Propose rate limiting and backpressure.",
+        "Protect payment idempotency.",
+        "Improve metrics and logs.",
+        "Implement one minimal safe correction.",
+        "Add regression and fault-injection tests.",
+        "Produce a rollback plan.",
+        "Day 2 Assessment",
+        "Participants defend their solution against cross-questions from:",
+        "Application engineering",
+        "Security",
+        "Database engineering",
+        "Business operations",
+        "Day 3 – Automation, SDK, Evaluation and Enterprise Deployment"
+      ],
+      "reference_text": "Scenario\nThe payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000\nrequests per second.\nObserved Symptoms\nBank latency rises sharply.\nTimeout rate reaches 20%.\nRetried requests increase incoming load.\nDatabase connections saturate.\nKafka lag grows.\nRedis in-flight counters become inconsistent.\nDuplicate-payment risk appears.\nLogs expose sensitive identifiers.\nAlerts do not identify the actual bottleneck.\nParticipant Tasks\nRetrieve incident information through MCP.\nMap the complete request path.\nIdentify amplification caused by retries.\nExamine timeout and circuit-breaker behaviour.\nAnalyse Redis, database and Kafka usage.\nReproduce the failure under controlled load.\nPropose rate limiting and backpressure.\nProtect payment idempotency.\nImprove metrics and logs.\nImplement one minimal safe correction.\nAdd regression and fault-injection tests.\nProduce a rollback plan.\nDay 2 Assessment\nParticipants defend their solution against cross-questions from:\nApplication engineering\nSRE\nSecurity\nDatabase engineering\nBusiness operations\nDay 3 – Automation, SDK, Evaluation and Enterprise Deployment",
+      "source_locator": "Module 10",
+      "lab": "On a trainer-prepared sample, implement and demonstrate: Scenario; The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000; requests per second.. Capture configuration or code changes and observed results.",
+      "deliverable": "Production Incident Integration Lab: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Scenario; The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000; requests per second.. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Production Incident Integration Lab through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Scenario; The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000; requests per second.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "On a trainer-prepared sample, implement and demonstrate: Scenario; The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000; requests per second.. Capture configuration or code changes and observed results.",
+          "evidence": "Production Incident Integration Lab: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Scenario; The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000; requests per second.. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Non-Interactive Automation with codex exec",
+      "code": "M11",
+      "subtopics": [
+        "Interactive versus non-interactive execution",
+        "When to use codex exec",
+        "Running Codex from:",
+        "Shell scripts",
+        "CI/CD pipelines",
+        "Scheduled jobs",
+        "Internal automation services",
+        "Read-only default behaviour",
+        "Explicit sandbox selection",
+        "Approval limitations in unattended execution",
+        "Standard input and pipeline integration",
+        "Machine-readable JSONL event streams",
+        "Structured final output using JSON Schema",
+        "Exit codes",
+        "Error handling",
+        "Timeouts",
+        "Retries",
+        "Session continuation",
+        "Capturing transcripts and artifacts",
+        "Authentication in automation",
+        "Secret management",
+        "Git-repository safety requirement"
+      ],
+      "reference_text": "Topics\nInteractive versus non-interactive execution\nWhen to use codex exec\nRunning Codex from:\no Shell scripts\no CI/CD pipelines\no Scheduled jobs\no Internal automation services\nRead-only default behaviour\nExplicit sandbox selection\nApproval limitations in unattended execution\nStandard input and pipeline integration\nMachine-readable JSONL event streams\nStructured final output using JSON Schema\nExit codes\nError handling\nTimeouts\nRetries\nSession continuation\nCapturing transcripts and artifacts\nAuthentication in automation\nSecret management\nGit-repository safety requirement\nLab 11: Structured Release-Risk Assessment\nParticipants run Codex non-interactively to review a release and return:\nrelease_status: pass | conditional | fail\ncritical_findings\ntest_evidence\nsecurity_findings\nrollback_readiness\nrecommended_action\nValidation\nOutput must match the schema.\nThe process must run read-only.\nUnsupported claims must be rejected.\nCritical findings must cause a non-successful pipeline decision.\nThe full execution transcript must be retained.",
+      "source_locator": "Module 11",
+      "lab": "Structured Release-Risk Assessment\nParticipants run Codex non-interactively to review a release and return:\nrelease_status: pass | conditional | fail\ncritical_findings\ntest_evidence\nsecurity_findings\nrollback_readiness\nrecommended_action\nValidation\nOutput must match the schema.\nThe process must run read-only.\nUnsupported claims must be rejected.\nCritical findings must cause a non-successful pipeline decision.\nThe full execution transcript must be retained.",
+      "deliverable": "Non-Interactive Automation with codex exec: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Interactive versus non-interactive execution; When to use codex exec; Running Codex from:. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Non-Interactive Automation with codex exec through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Interactive versus non-interactive execution; When to use codex exec; Running Codex from:",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Structured Release-Risk Assessment\nParticipants run Codex non-interactively to review a release and return:\nrelease_status: pass | conditional | fail\ncritical_findings\ntest_evidence\nsecurity_findings\nrollback_readiness\nrecommended_action\nValidation\nOutput must match the schema.\nThe process must run read-only.\nUnsupported claims must be rejected.\nCritical findings must cause a non-successful pipeline decision.\nThe full execution transcript must be retained.",
+          "evidence": "Non-Interactive Automation with codex exec: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Interactive versus non-interactive execution; When to use codex exec; Running Codex from:. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "GitHub Actions and CI/CD Integration",
+      "code": "M12",
+      "subtopics": [
+        "Codex GitHub Action",
+        "Pull-request review",
+        "CI-failure diagnosis",
+        "Patch proposal",
+        "Structured review output",
+        "Workflow triggers",
+        "Trusted versus untrusted events",
+        "Forked pull-request risks",
+        "Runner permissions",
+        "Repository token permissions",
+        "Branch protection",
+        "Artifact retention",
+        "Human approval gates",
+        "Preventing uncontrolled merges",
+        "Preventing production deployment authority",
+        "Cost and execution controls"
+      ],
+      "reference_text": "Topics\nCodex GitHub Action\nPull-request review\nCI-failure diagnosis\nPatch proposal\nStructured review output\nWorkflow triggers\nTrusted versus untrusted events\nForked pull-request risks\nRunner permissions\nRepository token permissions\nBranch protection\nArtifact retention\nHuman approval gates\nPreventing uncontrolled merges\nPreventing production deployment authority\nCost and execution controls\nLab 12: AI-Assisted Pull-Request Pipeline\nThe pipeline must:\n1. Check out the pull request.\n2. Run unit tests and linting.\n3. Invoke Codex in read-only mode.\n4. Review correctness and security.\n5. Generate a structured report.\n6. Upload the transcript as an artifact.\n7. Fail on critical findings.\n8. Request human review.\n9. Prohibit automatic production deployment.\nOptional Extension\nWhen CI fails:\nGather failed logs.\nAsk Codex for root-cause analysis.\nCreate a patch in an isolated branch.\nRun tests.\nOpen a draft pull request.\nRequire human approval before merge.",
+      "source_locator": "Module 12",
+      "lab": "AI-Assisted Pull-Request Pipeline\nThe pipeline must:\n1. Check out the pull request.\n2. Run unit tests and linting.\n3. Invoke Codex in read-only mode.\n4. Review correctness and security.\n5. Generate a structured report.\n6. Upload the transcript as an artifact.\n7. Fail on critical findings.\n8. Request human review.\n9. Prohibit automatic production deployment.\nOptional Extension\nWhen CI fails:\nGather failed logs.\nAsk Codex for root-cause analysis.\nCreate a patch in an isolated branch.\nRun tests.\nOpen a draft pull request.\nRequire human approval before merge.",
+      "deliverable": "GitHub Actions and CI/CD Integration: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Codex GitHub Action; Pull-request review; CI-failure diagnosis. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate GitHub Actions and CI/CD Integration through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Codex GitHub Action; Pull-request review; CI-failure diagnosis",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "AI-Assisted Pull-Request Pipeline\nThe pipeline must:\n1. Check out the pull request.\n2. Run unit tests and linting.\n3. Invoke Codex in read-only mode.\n4. Review correctness and security.\n5. Generate a structured report.\n6. Upload the transcript as an artifact.\n7. Fail on critical findings.\n8. Request human review.\n9. Prohibit automatic production deployment.\nOptional Extension\nWhen CI fails:\nGather failed logs.\nAsk Codex for root-cause analysis.\nCreate a patch in an isolated branch.\nRun tests.\nOpen a draft pull request.\nRequire human approval before merge.",
+          "evidence": "GitHub Actions and CI/CD Integration: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Codex GitHub Action; Pull-request review; CI-failure diagnosis. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Codex SDK and App Server",
+      "code": "M13",
+      "subtopics": [
+        "Selecting the Correct Integration",
+        "Terminal automation – codex exec",
+        "GitHub workflow – Codex GitHub Action",
+        "Application-controlled coding thread – Codex SDK",
+        "Custom rich Codex client – App Server",
+        "Codex as part of a wider agent workflow – Codex MCP + Agents SDK",
+        "Codex SDK Topics",
+        "TypeScript SDK setup",
+        "Starting a Codex thread",
+        "Running a task",
+        "Continuing the same thread",
+        "Resuming a saved thread",
+        "Thread identifiers",
+        "Configuring working directory",
+        "Sandbox and approval configuration",
+        "Structured results",
+        "Error handling",
+        "Long-running task control",
+        "Integrating Codex with internal developer platforms",
+        "App Server Topics",
+        "When App Server is appropriate",
+        "JSONL/JSON-RPC communication",
+        "Initialization",
+        "Thread lifecycle:",
+        "Start",
+        "Resume",
+        "Fork",
+        "Read",
+        "Archive",
+        "Turn lifecycle",
+        "Streaming events",
+        "Agent-message deltas",
+        "Plan updates",
+        "Diff updates",
+        "Tool-execution events",
+        "Approval requests",
+        "File-change approval",
+        "Command-execution approval",
+        "Structured output schemas",
+        "Thread status and failure handling",
+        "Building a custom client safely"
+      ],
+      "reference_text": "Selecting the Correct Integration\nTerminal automation – codex exec\nGitHub workflow – Codex GitHub Action\nApplication-controlled coding thread – Codex SDK\nCustom rich Codex client – App Server\nCodex as part of a wider agent workflow – Codex MCP + Agents SDK\nCodex SDK Topics\nTypeScript SDK setup\nStarting a Codex thread\nRunning a task\nContinuing the same thread\nResuming a saved thread\nThread identifiers\nConfiguring working directory\nSandbox and approval configuration\nStructured results\nError handling\nLong-running task control\nIntegrating Codex with internal developer platforms\nApp Server Topics\nWhen App Server is appropriate\nJSONL/JSON-RPC communication\nInitialization\nThread lifecycle:\no Start\no Resume\no Fork\no Read\no Archive\nTurn lifecycle\nStreaming events\nAgent-message deltas\nPlan updates\nDiff updates\nTool-execution events\nApproval requests\nFile-change approval\nCommand-execution approval\nStructured output schemas\nThread status and failure handling\nBuilding a custom client safely\nLab 13: Engineering Task Console\nUsing starter TypeScript code, participants create a lightweight console that can:\nStart an engineering task.\nDisplay streamed progress.\nShow the active plan.\nDisplay changed files.\nSurface approval requests.\nCapture test results.\nResume an interrupted thread.\nGenerate a final structured report.\nImportant Boundary\nThe App Server lab uses prepared starter code. Building a complete production UI from scratch is outside a\nthree-day course.",
+      "source_locator": "Module 13",
+      "lab": "Engineering Task Console\nUsing starter TypeScript code, participants create a lightweight console that can:\nStart an engineering task.\nDisplay streamed progress.\nShow the active plan.\nDisplay changed files.\nSurface approval requests.\nCapture test results.\nResume an interrupted thread.\nGenerate a final structured report.\nImportant Boundary\nThe App Server lab uses prepared starter code. Building a complete production UI from scratch is outside a\nthree-day course.",
+      "deliverable": "Codex SDK and App Server: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Selecting the Correct Integration; Terminal automation – codex exec; GitHub workflow – Codex GitHub Action. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Codex SDK and App Server through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Selecting the Correct Integration; Terminal automation – codex exec; GitHub workflow – Codex GitHub Action",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Engineering Task Console\nUsing starter TypeScript code, participants create a lightweight console that can:\nStart an engineering task.\nDisplay streamed progress.\nShow the active plan.\nDisplay changed files.\nSurface approval requests.\nCapture test results.\nResume an interrupted thread.\nGenerate a final structured report.\nImportant Boundary\nThe App Server lab uses prepared starter code. Building a complete production UI from scratch is outside a\nthree-day course.",
+          "evidence": "Codex SDK and App Server: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Selecting the Correct Integration; Terminal automation – codex exec; GitHub workflow – Codex GitHub Action. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Evaluation, Observability and Governance",
+      "code": "M14",
+      "subtopics": [
+        "Evaluation Engineering",
+        "Why Evaluations Are Required",
+        "A successful command does not prove that the generated code is correct.",
+        "Evaluation Dimensions",
+        "Build success",
+        "Focused test pass rate",
+        "Full regression pass rate",
+        "Patch correctness",
+        "Scope adherence",
+        "Security findings",
+        "API compatibility",
+        "Performance regression",
+        "Diff size",
+        "Unsupported claims",
+        "Code-review false positives",
+        "Human acceptance rate",
+        "Rollback readiness",
+        "Golden-Task Evaluation Set",
+        "Prepare standard tasks containing:",
+        "Known defects",
+        "Known expected patches",
+        "Mandatory tests",
+        "Prohibited changes",
+        "Security traps",
+        "Performance constraints",
+        "Comparing Configurations",
+        "Participants compare:",
+        "Weak versus structured task descriptions",
+        "Repository instructions versus no instructions",
+        "Read-only review versus implementation mode",
+        "Single-agent versus specialist review",
+        "Different reasoning-effort configurations",
+        "Skill-enabled versus unstructured workflows",
+        "Observability",
+        "OpenTelemetry configuration",
+        "Conversation-start events",
+        "Tool-execution events",
+        "Approval requests and decisions",
+        "MCP call duration",
+        "Hook execution",
+        "Failure events",
+        "Latency",
+        "Token/usage information",
+        "Security and privacy of telemetry",
+        "Redaction",
+        "Retention",
+        "Operational dashboards",
+        "Enterprise Governance",
+        "Managed configuration",
+        "Approved models and capabilities",
+        "Permission profiles",
+        "MCP allowlists",
+        "Skill and plugin controls",
+        "Repository trust",
+        "Logging and auditing",
+        "Data classification",
+        "Secrets handling",
+        "Human approval gates",
+        "Usage and cost controls",
+        "Rollout by engineering-team maturity"
+      ],
+      "reference_text": "Evaluation Engineering\nWhy Evaluations Are Required\nA successful command does not prove that the generated code is correct.\nEvaluation Dimensions\nBuild success\nFocused test pass rate\nFull regression pass rate\nPatch correctness\nScope adherence\nSecurity findings\nAPI compatibility\nPerformance regression\nDiff size\nUnsupported claims\nCode-review false positives\nHuman acceptance rate\nRollback readiness\nGolden-Task Evaluation Set\nPrepare standard tasks containing:\nKnown defects\nKnown expected patches\nMandatory tests\nProhibited changes\nSecurity traps\nPerformance constraints\nComparing Configurations\nParticipants compare:\nWeak versus structured task descriptions\nRepository instructions versus no instructions\nRead-only review versus implementation mode\nSingle-agent versus specialist review\nDifferent reasoning-effort configurations\nSkill-enabled versus unstructured workflows\nObservability\nOpenTelemetry configuration\nConversation-start events\nTool-execution events\nApproval requests and decisions\nMCP call duration\nHook execution\nFailure events\nLatency\nToken/usage information\nSecurity and privacy of telemetry\nRedaction\nRetention\nOperational dashboards\nEnterprise Governance\nManaged configuration\nApproved models and capabilities\nPermission profiles\nMCP allowlists\nSkill and plugin controls\nRepository trust\nLogging and auditing\nData classification\nSecrets handling\nHuman approval gates\nUsage and cost controls\nRollout by engineering-team maturity\nLab 14: Codex Quality Scorecard\nParticipants evaluate five Codex runs:\nFunctional correctness – 25%\nTest quality – 20%\nSecurity – 15%\nScope adherence – 15%\nMaintainability – 10%\nEvidence quality – 10%\nEfficiency – 5%\nThey use telemetry and outputs to identify:\nFailed tool executions\nExcessive approval requests\nRepeated investigations\nSlow MCP calls\nTest failures\nUnsupported conclusions\nExcessive code changes",
+      "source_locator": "Module 14",
+      "lab": "Codex Quality Scorecard\nParticipants evaluate five Codex runs:\nFunctional correctness – 25%\nTest quality – 20%\nSecurity – 15%\nScope adherence – 15%\nMaintainability – 10%\nEvidence quality – 10%\nEfficiency – 5%\nThey use telemetry and outputs to identify:\nFailed tool executions\nExcessive approval requests\nRepeated investigations\nSlow MCP calls\nTest failures\nUnsupported conclusions\nExcessive code changes",
+      "deliverable": "Evaluation, Observability and Governance: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Evaluation Engineering; Why Evaluations Are Required; A successful command does not prove that the generated code is correct.. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Evaluation, Observability and Governance through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Evaluation Engineering; Why Evaluations Are Required; A successful command does not prove that the generated code is correct.",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Codex Quality Scorecard\nParticipants evaluate five Codex runs:\nFunctional correctness – 25%\nTest quality – 20%\nSecurity – 15%\nScope adherence – 15%\nMaintainability – 10%\nEvidence quality – 10%\nEfficiency – 5%\nThey use telemetry and outputs to identify:\nFailed tool executions\nExcessive approval requests\nRepeated investigations\nSlow MCP calls\nTest failures\nUnsupported conclusions\nExcessive code changes",
+          "evidence": "Evaluation, Observability and Governance: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Evaluation Engineering; Why Evaluations Are Required; A successful command does not prove that the generated code is correct.. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    },
+    {
+      "topic": "Enterprise Capstone",
+      "code": "M15",
+      "subtopics": [
+        "Capstone Title",
+        "FinPay Production Incident to Verified Release",
+        "Initial Conditions",
+        "The application contains:",
+        "Payment gateway",
+        "Payment router",
+        "Bank connector",
+        "PostgreSQL",
+        "Redis",
+        "Kafka",
+        "Notification service",
+        "Metrics and logs",
+        "GitHub Actions pipeline",
+        "Production Problems",
+        "Retry amplification",
+        "Destination-bank overload",
+        "Duplicate-payment risk",
+        "Inconsistent Redis counters",
+        "Database saturation",
+        "Kafka backlog",
+        "Missing timeout boundaries",
+        "Sensitive log exposure",
+        "Weak authorization",
+        "Missing integration tests",
+        "Incomplete rollback process",
+        "Required Participant Workflow",
+        "Phase 1: Repository Intelligence",
+        "Analyse the repository.",
+        "Identify services and dependencies.",
+        "Validate build and test commands.",
+        "Create or improve AGENTS.md.",
+        "Phase 2: Incident Investigation",
+        "Retrieve incident and runbook through MCP.",
+        "Analyse logs and metrics.",
+        "Reproduce the failure.",
+        "Identify the root cause.",
+        "Separate primary and secondary symptoms.",
+        "Phase 3: Implementation",
+        "Produce a controlled plan.",
+        "Add a failing regression test.",
+        "Implement the smallest safe fix.",
+        "Validate concurrency and idempotency.",
+        "Improve relevant metrics and logs.",
+        "Phase 4: Independent Review",
+        "Run specialist reviews for:",
+        "Correctness",
+        "Security",
+        "Performance",
+        "Test quality",
+        "API compatibility",
+        "Phase 5: Automation",
+        "Run structured codex exec assessment.",
+        "Execute GitHub Actions.",
+        "Capture machine-readable results.",
+        "Store validation evidence.",
+        "Phase 6: Release Readiness",
+        "Produce:",
+        "Pull-request description",
+        "Root-cause report",
+        "Test evidence",
+        "Security report",
+        "Deployment plan",
+        "Rollback plan",
+        "Monitoring plan",
+        "Known limitations",
+        "Human approval checklist"
+      ],
+      "reference_text": "Capstone Title\nFinPay Production Incident to Verified Release\nInitial Conditions\nThe application contains:\nPayment gateway\nPayment router\nBank connector\nPostgreSQL\nRedis\nKafka\nNotification service\nMetrics and logs\nGitHub Actions pipeline\nProduction Problems\nRetry amplification\nDestination-bank overload\nDuplicate-payment risk\nInconsistent Redis counters\nDatabase saturation\nKafka backlog\nMissing timeout boundaries\nSensitive log exposure\nWeak authorization\nMissing integration tests\nIncomplete rollback process\nRequired Participant Workflow\nPhase 1: Repository Intelligence\nAnalyse the repository.\nIdentify services and dependencies.\nValidate build and test commands.\nCreate or improve AGENTS.md.\nPhase 2: Incident Investigation\nRetrieve incident and runbook through MCP.\nAnalyse logs and metrics.\nReproduce the failure.\nIdentify the root cause.\nSeparate primary and secondary symptoms.\nPhase 3: Implementation\nProduce a controlled plan.\nAdd a failing regression test.\nImplement the smallest safe fix.\nValidate concurrency and idempotency.\nImprove relevant metrics and logs.\nPhase 4: Independent Review\nRun specialist reviews for:\nCorrectness\nSecurity\nPerformance\nTest quality\nAPI compatibility\nPhase 5: Automation\nRun structured codex exec assessment.\nExecute GitHub Actions.\nCapture machine-readable results.\nStore validation evidence.\nPhase 6: Release Readiness\nProduce:\nPull-request description\nRoot-cause report\nTest evidence\nSecurity report\nDeployment plan\nRollback plan\nMonitoring plan\nKnown limitations\nHuman approval checklist",
+      "source_locator": "Module 15",
+      "lab": "On a trainer-prepared sample, implement and demonstrate: Capstone Title; FinPay Production Incident to Verified Release; Initial Conditions. Capture configuration or code changes and observed results.",
+      "deliverable": "Enterprise Capstone: sample implementation, execution notes and validation results",
+      "assessment": "Reproduce the submitted participant output against these focus areas: Capstone Title; FinPay Production Incident to Verified Release; Initial Conditions. Demonstrate an expected case and a failure case; record the observed results.",
+      "learning_objectives": [
+        "Demonstrate Enterprise Capstone through the participant output and explain the validation results."
+      ],
+      "delivery_steps": [
+        {
+          "method": "Trainer demonstration",
+          "minutes": null,
+          "activity": "Demonstrate the sample workflow for: Capstone Title; FinPay Production Incident to Verified Release; Initial Conditions",
+          "evidence": "Annotated example showing inputs, operations and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "On a trainer-prepared sample, implement and demonstrate: Capstone Title; FinPay Production Incident to Verified Release; Initial Conditions. Capture configuration or code changes and observed results.",
+          "evidence": "Enterprise Capstone: sample implementation, execution notes and validation results"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "Reproduce the submitted participant output against these focus areas: Capstone Title; FinPay Production Incident to Verified Release; Initial Conditions. Demonstrate an expected case and a failure case; record the observed results.",
+          "evidence": "Recorded checks of the participant output with trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed teaching sequence; activity timings require trainer planning within the source module duration",
+      "proposed_fields": [
+        "lab",
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "delivery_steps"
+      ],
+      "preparation_requirements": [
+        "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
+      ]
+    }
+  ]
+}

@@ -102,6 +102,7 @@ async def collect_due(db, mode):
         outcome = {'status': 'error' if error else 'completed' if result.get('found') else 'no_results',
                    'last_error': str(error)[:500], 'found': result.get('found', 0),
                    'saved': result.get('saved_count', 0), 'domain_outcomes': result.get('domain_outcomes', []),
+                   'target': result.get('target', 0), 'target_met': result.get('target_met', False),
                    'scanned_posts': result.get('scanned_posts', 0), 'scan_warnings': result.get('scan_warnings', []),
                    **coverage}
     except Exception as exc:

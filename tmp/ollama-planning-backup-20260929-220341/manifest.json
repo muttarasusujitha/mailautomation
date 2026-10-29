@@ -1,0 +1,44 @@
+﻿[
+    {
+        "Hash":  "6960f855a2e2e51ff082eeba8213285b451bb02025b624683c3ecf45fe838361",
+        "Target":  "/app/app/ollama_curriculum.py",
+        "Backup":  "C:\\Users\\sujit\\Desktop\\mail\\tmp\\ollama-planning-backup-20260929-220341\\ts-trainer-service-_app_app_ollama_curriculum.py",
+        "Source":  "services/trainer-service/app/ollama_curriculum.py",
+        "Container":  "ts-trainer-service"
+    },
+    {
+        "Hash":  "55f564c16c4c91586c6880e980ada8e37d6866ac9dca84410f4987f0db4137d2",
+        "Target":  "/app/app/ollama_client.py",
+        "Backup":  "C:\\Users\\sujit\\Desktop\\mail\\tmp\\ollama-planning-backup-20260929-220341\\ts-trainer-service-_app_app_ollama_client.py",
+        "Source":  "services/trainer-service/app/ollama_client.py",
+        "Container":  "ts-trainer-service"
+    },
+    {
+        "Hash":  "fb1647161a39e4f09049259197e32ae048127602af60835bdf1923bc6430b5d3",
+        "Target":  "/app/app/toc_evaluation.py",
+        "Backup":  "C:\\Users\\sujit\\Desktop\\mail\\tmp\\ollama-planning-backup-20260929-220341\\ts-trainer-service-_app_app_toc_evaluation.py",
+        "Source":  "services/trainer-service/app/toc_evaluation.py",
+        "Container":  "ts-trainer-service"
+    },
+    {
+        "Hash":  "ba64078e1ecc58af2f4dee41f99c757f7e9941d55c50f37b6208f4281f29a5ef",
+        "Target":  "/app/app/routes/toc_extended.py",
+        "Backup":  "C:\\Users\\sujit\\Desktop\\mail\\tmp\\ollama-planning-backup-20260929-220341\\ts-trainer-service-_app_app_routes_toc_extended.py",
+        "Source":  "services/trainer-service/app/routes/toc_extended.py",
+        "Container":  "ts-trainer-service"
+    },
+    {
+        "Hash":  "990f91792e09639b4f793584a650038801ec6c874cec3a59a3668ac76d71349b",
+        "Target":  "/app/shared/lab_planning.py",
+        "Backup":  "C:\\Users\\sujit\\Desktop\\mail\\tmp\\ollama-planning-backup-20260929-220341\\ts-trainer-service-_app_shared_lab_planning.py",
+        "Source":  "shared/lab_planning.py",
+        "Container":  "ts-trainer-service"
+    },
+    {
+        "Hash":  "990f91792e09639b4f793584a650038801ec6c874cec3a59a3668ac76d71349b",
+        "Target":  "/app/shared/lab_planning.py",
+        "Backup":  "C:\\Users\\sujit\\Desktop\\mail\\tmp\\ollama-planning-backup-20260929-220341\\ts-document-service-_app_shared_lab_planning.py",
+        "Source":  "shared/lab_planning.py",
+        "Container":  "ts-document-service"
+    }
+]

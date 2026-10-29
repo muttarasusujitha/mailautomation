@@ -22,7 +22,12 @@ services:
       - ./frontend/src/pages/Shortlist1.jsx:/app/src/pages/Shortlist1.jsx:ro
       - ./frontend/src/pages/Admin.jsx:/app/src/pages/Admin.jsx:ro
       - ./frontend/src/pages/Inbox.jsx:/app/src/pages/Inbox.jsx:ro
+      - ./frontend/src/pages/LinkedInSearch.jsx:/app/src/pages/LinkedInSearch.jsx:ro
       - ./frontend/src/pages/GmailCallback.jsx:/app/src/pages/GmailCallback.jsx:ro
+      - ./frontend/src/components/LeadBot.jsx:/app/src/components/LeadBot.jsx:ro
+      - ./frontend/src/utils/gmailOAuth.js:/app/src/utils/gmailOAuth.js:ro
+      - ./frontend/src/utils/leadSearchFeedback.js:/app/src/utils/leadSearchFeedback.js:ro
+      - ./frontend/src/utils/requestPolicy.js:/app/src/utils/requestPolicy.js:ro
       - ./frontend/src/pages/LinkedInSearch.jsx:/app/src/pages/LinkedInSearch.jsx:ro
       - ./frontend/src/pages/ClientRequests.jsx:/app/src/pages/ClientRequests.jsx:ro
       - ./frontend/src/pages/FinanceApprovals.jsx:/app/src/pages/FinanceApprovals.jsx:ro

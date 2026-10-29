@@ -1,0 +1,24 @@
+{
+  "model": "qwen3:8b",
+  "created_at": "2026-09-29T16:37:11.548006+00:00",
+  "technical_accuracy_verified": false,
+  "pricing_verified": false,
+  "limitations": [
+    "Passing validates content and resource constraints, not trainer approval.",
+    "No cloud resources were provisioned and no prices were fetched."
+  ],
+  "results": [
+    {
+      "scenario": {
+        "name": "invoice_csv",
+        "domain": "Python",
+        "custom_topics": "CSV; duplicate invoices",
+        "client_notes": "Finance analysts know Python lists and dictionaries. Validate invoice CSV rows; write accepted.csv and rejected.csv with reasons. Use local machines only.",
+        "setup": "local"
+      },
+      "trainer_review_status": "pending",
+      "error": "TimeoutError: ",
+      "elapsed_seconds": 302.59
+    }
+  ]
+}

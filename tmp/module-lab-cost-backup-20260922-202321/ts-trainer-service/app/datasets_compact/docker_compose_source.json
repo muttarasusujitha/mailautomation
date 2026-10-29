@@ -1,0 +1,412 @@
+{
+    "domain":  "Docker Compose",
+    "name":  "Docker Compose â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Compose",
+                    "Docker Compose"
+                ],
+    "tools":  [
+                  "Docker",
+                  "Docker Compose",
+                  "YAML"
+              ],
+    "certifications":  [
+                           "Docker Compose official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Set up Docker Compose and run a basic workflow.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Docker Compose.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Create reusable Docker Compose configuration for development.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Docker Compose.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Build an automated workflow using Docker Compose.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Docker Compose.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Integrate Docker Compose with source control and external services.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Docker Compose.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Harden a Docker Compose setup.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Docker Compose.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Docker Compose setup.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Docker Compose.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Docker Compose workflow.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Docker Compose.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "build",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Docker Compose.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Docker Compose terminology and feature mapping for this topic",
+                                       "Docker Compose configuration and implementation considerations",
+                                       "Docker Compose best practices and common mistakes for this topic",
+                                       "compose.yaml",
+                                       "services",
+                                       "images",
+                                       "ports",
+                                       "volumes",
+                                       "networks",
+                                       "environment variables",
+                                       "depends_on",
+                                       "healthcheck",
+                                       "profiles",
+                                       "secrets"
+                                   ],
+                     "tools":  [
+                                   "Docker",
+                                   "Docker Compose",
+                                   "YAML"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Docker Compose.",
+                     "technology":  "Docker Compose",
+                     "technology_id":  "docker-compose",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Docker Compose.",
+                                                 "Configure or implement the key Docker Compose features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Docker Compose.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "docker-compose"
+}

@@ -1,0 +1,214 @@
+--- PAGE 1 ---
+JEEVA SWARUPA
+DEVOPS ENGINEER|CORPORATE TRAINER
+BENGALURU, KARNATAKA, INDIA
++91 9490953544
+DETAILS
+ Bengaluru , Karnataka 
+Bengaluru, Karnataka
+India
++91 9490953544
+meetjeevaswarupa@gmail.com
+LINKS
+Github
+LinkedIn
+LANGUAGES
+English
+Hindi
+Telugu
+TECHNICAL SKILLS
+AWS ( VPC, EC2, S3, IAM, 
+Auto Scaling, Cloud Watch, 
+SNS, ECR, NAT Gateway, API 
+Gateway, Security Groups, Launch 
+Template, Load Balancer)
+Jenkins
+Git
+GitHub
+linux
+DevOps
+Docker
+Kubernetes
+Terraform
+Maven
+Nexus
+SonarQube
+Linux
+Windows
+Shell Scripting 
+EDUCATION
+Bachelor of technology, Bapatla Engineering College, Bapatla
+May 2013 — Apr 2017
+Graduated with 65%
+PROFILE
+•  Dynamic AWS & DevOps Trainer with 8+ years of hands-on experience in 
+architecting, implementing, and managing cloud and DevOps solutions that enhance 
+operational efficiency, scalability, and reliability across enterprise environments.
+•  Strong Linux administration expertise, including system configuration, 
+automation of routine tasks, performance optimization, and troubleshooting in 
+production and training environments.
+•  Proficient in PowerShell scripting and automation, with the ability to design and 
+deliver end-to-end automation workflows such as user provisioning, infrastructure 
+setup, log management, and configuration orchestration for Windows and cloud 
+environments.
+•  Deep experience with DevOps toolchains, including Docker, Kubernetes, GitHub 
+Actions, SonarQube, and Maven, enabling seamless CI/CD pipeline implementation, 
+application containerization, quality checks, and automated deployments.
+•  Extensive real-world AWS project experience, having worked on multiple 
+cloud consulting and training assignments involving EC2, S3, IAM, VPC, EKS, 
+CloudFormation, and DevOps services—delivering optimized, cost-effective, and 
+secure cloud architectures.
+•  Proven trainer and collaborator, known for delivering high-quality corporate 
+training programs, simplifying complex DevOps concepts, and empowering teams to 
+adopt automation, best practices, and modern cloud-native technologies effectively.
+•  Advanced Linux shell scripting skills, enabling automation of system maintenance 
+tasks, log rotation, backup processes, permission management, and environment 
+provisioning across diverse server environments.
+•  Expert in PowerShell for infrastructure automation, including writing reusable 
+modules, managing Windows services, automating Azure/AWS tasks, handling 
+system configurations, and integrating scripts with CI/CD pipelines for end-to-end 
+automation.
+•  Strong hands-on experience with Jenkins CI/CD pipelines, including 
+pipeline-as-code (Declarative & Scripted), integration with GitHub, Docker, Maven, 
+SonarQube, and automated deployment workflows to streamline development and 
+release cycles.
+•  Successfully trained multiple fresher batches on DevOps, Cloud Computing, Linux, 
+and Shell Scripting, enabling them to build strong technical foundations.
+•  Delivered hands-on, industry-oriented training programs covering CI/CD, Docker, 
+Kubernetes, Git, Linux, and Cloud fundamentals to make learners job-ready.
+•  Conducted workshops and technology awareness sessions across Tier-1 and Tier-2 
+colleges, helping students understand modern DevOps and cloud practices.
+•  Designed structured training modules with real-time use cases, labs, and 
+project-based learning to bridge the gap between academic learning and industry 
+requirements.
+
+
+--- PAGE 2 ---
+•  Trained internal teams of organizations to enhance their DevOps, Infrastructure, 
+and Cloud skill sets, improving overall team productivity and operational efficiency.
+•  Delivered specialized training on Shell Scripting, focusing on automation, system 
+administration, and real-time problem-solving techniques.
+•  Conducted corporate training programs on DevOps and Cloud Computing-
+, enabling teams to adopt CI/CD, containerization, and cloud-native workflows.
+•  Recognized for clear communication, interactive mentoring, and practical 
+sessions, helping learners confidently understand and implement end-to-end 
+DevOps workflows.
+PROJECTS
+Wipro Infra support, Bengaluru
+Jul 2025 — Sept 2025
+Created and configured IAM users, defined custom IAM policies, and attached them 
+to users based on role and access requirements. Monitored key AWS services, 
+including EC2 instances and EKS clusters, to ensure system performance and 
+availability. Regularly reviewed and analyzed the AWS Billing Dashboard to identify cost 
+optimization opportunities and manage resource utilization effectively. Ensured all IAM 
+user permissions were aligned with organizational security policies and compliance 
+standards. Collaborated with cross-functional teams to resolve access-related issues and 
+maintain secure and efficient cloud operations.
+Jenkins–SonarQube Integration for Automated Code Quality Analysis, Bengaluru
+Installed and configured Jenkins and SonarQube, and integrated both tools to enable 
+automated code quality checks within CI/CD pipelines. Developed Jenkins pipelines 
+to automate end-to-end workflows, including code checkout, dependency installation, 
+linting, and SonarQube analysis with enforced Quality Gates. Created custom SonarQube 
+Quality Profiles tailored to project coding standards and best practices. Generated and 
+exported SonarQube analysis reports in multiple formats (PDF, JSON, XML) for detailed 
+code quality insights. Ensured high code maintainability, adherence to industry coding 
+standards, and early detection of vulnerabilities or code smells.
+Web App Deployment Using CI/CD Pipeline – Travel Booking System, Bengaluru
+Implemented a CI/CD pipeline using Jenkins and GitHub Actions, integrating SonarQube 
+for automated code quality checks and security scanning with fail conditions on 
+critical issues. Built, tagged, and pushed Docker images for both frontend and 
+backend applications to AWS Elastic Container Registry (ECR) and Docker Hub using 
+parameterized pipelines for flexibility and reusability. Configured Docker Compose with 
+custom networks, volumes, and environment variables to enable reproducible and 
+consistent multi-container deployments. Automated the generation of pipeline reports 
+documenting build results, quality gate statuses, security scan findings, and image 
+deployment details for transparency and auditability. Enhanced the overall software 
+delivery process by ensuring quality, security, and reliability through continuous 
+integration and deployment automation.
+3-Tier Architecture Deployment on AWS by (Manual), Bengaluru
+Designed and deployed a 3-tier architecture consisting of Presentation (Frontend), 
+Application (Backend), and Database layers on AWS Cloud. Configured VPC, subnets, 
+route tables, and security groups to establish secure and efficient inter-tier 
+communication while maintaining controlled internet accessibility for the frontend. 
+Deployed EC2 instances for hosting frontend and backend services, and provisioned 
+a managed RDS instance for reliable data storage and persistence. Implemented 
+network segmentation and access control policies to ensure secure, high-performance 
+communication between tiers and prevent unauthorized access. Achieved high 
+availability, scalability, and security compliance across all layers of the architecture 
+through effective AWS resource configuration and best practices.
+
+
+--- PAGE 3 ---
+Project Name : EMDM
+Jun 2022 — Present
+Client: Citi Bank
+Role: DevOps Engineer
+Environment : Git,Maven, SonarQube, Nexus,Jenkins,Tomcat, Docker, Kubernetes, 
+Prometues,Grafana.
+Roles and Responsibilities:
+•  On the role I give support to Git/Github to the development team.
+•  Administration of Github like creating the branches, merging the source code from 
+one branch to another branch and providing the specific permission to the team 
+members.
+•  Merge, build and deployment of the codes to all the environments.
+•  Migrating the Jenkins into Docker container to reduce the server down time and 
+improve the scalability.
+•  Jenkins is used as a Continuous Integration tool for automation of daily process.
+•  I wrote Jenkins file by using Groovy Script.
+•  Involved in installing Jenkins a Linux Machine.
+•  Creating a Master and Slave configuration to implement multiple parallel builds, 
+like pipeline and freestyle projects.
+•  Administration and creation of Individual Jenkins jobs, including automatic 
+generation, reporting and alerting of build failures.
+•  Used Docker Containers for running different individual services and optimizing the 
+infrastructure cost.
+•  Writing Docker Files and building Docker Images, Maintaining those images into 
+Nexus.
+•  Responsible for writing the Manifest and Service set files.
+•  Involved in the release process and Deployed applications in Kubernetes Cluster.
+•  Used AWS services like EC2, S3, EBS, ELB and VPC, AMI for building infrastructure.
+•  Creating snapshot by using volumes, and by using snapshot to create new volume 
+and attaching the snapshot into new volume.
+•  Understanding the resource utilization using the Monitoring Tools like 
+OpenTelemetry,Loki. Performing the log analysis and identify the root cause by 
+setting up the dashboards.
+CERTIFICATES
+AWS Certification from solution architect, Bengaluru
+EXPERIENCE
+DevOps Engineer at Clahan Technologies, Bengaluru
+2021 — 2025
+•  Implemented and managed cloud and DevOps solutions across multiple 
+environments  to ensure efficient  and reliable operations.
+•  Gained hands-on experience with tools such as AWS, Docker, Jenkins, Git, GitHub, 
+SonarQube, and Kubernetes for CI/CD automation, application deployment, and 
+monitoring.
+•  Assisted in configuring Jenkins pipelines to automate build, test, and deployment 
+processes.
+•  Integrated SonarQube into CI/CD workflows for automated code quality analysis 
+and continuous improvement.
+•  Deployed and managed applications on AWS EC2 instances, ensuring scalability 
+and high availability.
+•  Collaborated with the DevOps team to optimize deployment workflows, improve 
+scalability,  and enhance infrastructure reliability.
+
+
+--- PAGE 4 ---
+•  Contributed   to   the   automation   of   operational   tasks   and implementation   of-
+   DevOps   best   practices   to   streamline development and deployment processes.
+Junior DevOps Engineer at Visionet Systems Pvt Ltd 
+Jun 2017 — Jun 2021
+•  Assist in configuring, monitoring, and maintaining CI/CD pipelines using tools like 
+Jenkins, GitHub Actions, and Docker.
+•  Support infrastructure provisioning and environment setup on cloud platforms 
+such as AWS or Azure.
+•  Collaborate with development and operations teams to troubleshoot deployment 
+issues and improve automation workflows.
+•  Contribute to system monitoring, log analysis, and basic scripting tasks using 
+Linux Shell or PowerShell to enhance operational efficiency.
+CLIENTS HANDLED
+ExcelR Solutions
+Kickdrum Technologies Pvt Ltd
+Wipro
+ACL Digitals
+Shell Company
+EverNorth

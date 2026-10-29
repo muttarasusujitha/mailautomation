@@ -1,0 +1,387 @@
+"""Purchase orders and invoices — generate, send, download, acknowledge."""
+import logging
+import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+import base64
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Response
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from pydantic import BaseModel
+
+from app.config import get_settings
+from shared.database.service import get_db
+from shared.generation_mode import application_ai_enabled
+
+router = APIRouter()
+logger = logging.getLogger(__name__)
+settings = get_settings()
+
+DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
+
+
+class POGenerateRequest(BaseModel):
+    requirement_id: str
+    trainer_id: str
+    vendor_name: Optional[str] = ""
+    client_name: Optional[str] = ""
+    client_email: Optional[str] = ""
+    client_po_number: Optional[str] = ""
+    client_po_date: Optional[str] = ""
+    client_billing_address: Optional[str] = ""
+    client_gstin: Optional[str] = ""
+    client_pan: Optional[str] = ""
+    training_domain: Optional[str] = ""
+    training_dates: Optional[str] = ""
+    duration: Optional[str] = ""
+    mode: Optional[str] = ""
+    day_rate: float = 0.0
+    total_amount: float = 0.0
+    gst_rate: float = 18.0
+    payment_terms: Optional[str] = ""
+    items: List[Dict[str, Any]] = []
+    notes: Optional[str] = ""
+    company_name: Optional[str] = ""
+    company_address: Optional[str] = ""
+    company_email: Optional[str] = ""
+    company_contact: Optional[str] = ""
+    company_pan: Optional[str] = ""
+    company_gst: Optional[str] = ""
+    bank_account_no: Optional[str] = ""
+    bank_ifsc: Optional[str] = ""
+    place_of_supply: Optional[str] = ""
+    signatory_name: Optional[str] = ""
+class POSendRequest(BaseModel):
+    to_email: str
+    subject: Optional[str] = ""
+    body: Optional[str] = ""
+
+
+class POAcknowledgeRequest(BaseModel):
+    acknowledged_by: Optional[str] = ""
+    notes: Optional[str] = ""
+
+
+class InvoiceGenerateRequest(BaseModel):
+    invoice_number: Optional[str] = ""
+    gst_number: Optional[str] = ""
+    invoice_date: Optional[str] = ""
+    due_date: Optional[str] = ""
+    invoice_type: Optional[str] = ""
+    tax_type: Optional[str] = ""
+    gst_rate: float = 18.0
+    additional_notes: Optional[str] = ""
+    company_name: Optional[str] = ""
+    company_address: Optional[str] = ""
+    company_email: Optional[str] = ""
+    company_contact: Optional[str] = ""
+    company_pan: Optional[str] = ""
+    company_gst: Optional[str] = ""
+    bank_account_no: Optional[str] = ""
+    bank_ifsc: Optional[str] = ""
+    place_of_supply: Optional[str] = ""
+    signatory_name: Optional[str] = ""
+
+
+class InvoiceSendRequest(BaseModel):
+    to_email: str
+    subject: Optional[str] = ""
+
+
+
+@router.post("/generate")
+async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    po_id = f"PO-{uuid.uuid4().hex[:10].upper()}"
+    now = datetime.utcnow()
+
+    req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    trainer = await db["trainers"].find_one({"trainer_id": payload.trainer_id}, {"_id": 0}) or {}
+
+    doc = {
+        "po_id": po_id,
+        "po_number": payload.client_po_number or po_id,
+        "client_po_number": payload.client_po_number or po_id,
+        "client_po_date": payload.client_po_date or "",
+        "requirement_id": payload.requirement_id,
+        "trainer_id": payload.trainer_id,
+        "vendor_name": payload.vendor_name or trainer.get("name", ""),
+        "client_name": payload.client_name or req.get("client_name") or req.get("client_company", ""),
+        "client_email": payload.client_email or req.get("client_email", ""),
+        "client_billing_address": payload.client_billing_address or req.get("client_billing_address", ""),
+        "client_gstin": payload.client_gstin or req.get("client_gstin", ""),
+        "client_pan": payload.client_pan or req.get("client_pan", ""),
+        "training_domain": payload.training_domain or req.get("technology_needed", ""),
+        "training_dates": payload.training_dates or req.get("training_dates", ""),
+        "duration": payload.duration or str(req.get("duration_days", "")),
+        "mode": payload.mode or req.get("mode", ""),
+        "day_rate": payload.day_rate,
+        "total_amount": payload.total_amount,
+        "gst_rate": payload.gst_rate,
+        "payment_terms": payload.payment_terms or "",
+        "items": payload.items,
+        "notes": payload.notes,
+        "company_name": payload.company_name or "",
+        "company_address": payload.company_address or "",
+        "company_email": payload.company_email or "",
+        "company_contact": payload.company_contact or "",
+        "company_pan": payload.company_pan or "",
+        "company_gst": payload.company_gst or "",
+        "bank_account_no": payload.bank_account_no or "",
+        "bank_ifsc": payload.bank_ifsc or "",
+        "place_of_supply": payload.place_of_supply or "",
+        "signatory_name": payload.signatory_name or "",
+        "status": "draft",
+        "date": now.strftime("%d-%m-%Y"),
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["purchase_orders"].insert_one(doc)
+    doc.pop("_id", None)
+    return {"success": True, "po_id": po_id, "purchase_order": doc}
+
+
+@router.get("/{po_id}/download")
+async def download_po_pdf(po_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Purchase order not found")
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(f"{DOC_SVC}/api/v1/documents/pdf/purchase-order", json={
+                "po_number": doc.get("po_number", po_id),
+                "date": doc.get("date", ""),
+                "vendor_name": doc.get("vendor_name", ""),
+                "client_name": doc.get("client_name", ""),
+                "client_email": doc.get("client_email", ""),
+                "client_billing_address": doc.get("client_billing_address", ""),
+                "client_gstin": doc.get("client_gstin", ""),
+                "training_domain": doc.get("training_domain", ""),
+                "training_dates": doc.get("training_dates", ""),
+                "duration": doc.get("duration", ""),
+                "mode": doc.get("mode", ""),
+                "payment_terms": doc.get("payment_terms", ""),
+                "total_amount": doc.get("total_amount", 0),
+                "items": doc.get("items", []),
+                "notes": doc.get("notes", ""),
+            })
+        return Response(content=r.content, media_type="application/pdf",
+                        headers={"Content-Disposition": f"attachment; filename={po_id}.pdf"})
+    except Exception as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+
+@router.post("/{po_id}/send")
+async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Purchase order not found")
+    if doc.get("status") in {"sent", "acknowledged"}:
+        return {"success": True, "already_sent": True, "po_id": po_id, "sent_to": doc.get("sent_to")}
+
+    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
+    client_name = str(doc.get("client_name") or "").strip()
+    greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
+    body = payload.body or (
+        f"{greeting}\n\n"
+        f"Please find the purchase order {doc.get('po_number', po_id)} attached.\n\n"
+        "Please confirm once you have received it.\n\n"
+        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+    )
+
+    # generate purchase-order PDF and attach to email
+    attachment_payload = None
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            r = await client.post(f"{DOC_SVC}/api/v1/documents/pdf/purchase-order", json={
+                "po_number": doc.get("po_number", po_id),
+                "date": doc.get("date", ""),
+                "vendor_name": doc.get("vendor_name", ""),
+                "client_name": doc.get("client_name", ""),
+                "client_email": doc.get("client_email", ""),
+                "client_billing_address": doc.get("client_billing_address", ""),
+                "client_gstin": doc.get("client_gstin", ""),
+                "training_domain": doc.get("training_domain", ""),
+                "training_dates": doc.get("training_dates", ""),
+                "duration": doc.get("duration", ""),
+                "mode": doc.get("mode", ""),
+                "payment_terms": doc.get("payment_terms", ""),
+                "total_amount": doc.get("total_amount", 0),
+                "items": doc.get("items", []),
+                "notes": doc.get("notes", ""),
+            })
+        if r.status_code == 200 and r.content:
+            attachment_payload = [{
+                "filename": f"{po_id}.pdf",
+                "content_base64": base64.b64encode(r.content).decode(),
+                "subtype": "pdf",
+            }]
+    except Exception:
+        logger.exception("Failed to generate PO PDF for attachment")
+
+    if not attachment_payload:
+        raise HTTPException(502, "PO PDF generation failed; no email was sent")
+
+    try:
+        email_json = {
+            "to": payload.to_email,
+            "subject": subject,
+            "body": body,
+            "mail_type": "purchase_order",
+            "requirement_id": doc.get("requirement_id"),
+            "idempotency_key": f"purchase-order:{po_id}",
+            "ai_generate": await application_ai_enabled(db),
+            "ai_context": {
+                "workflow": "purchase_order",
+                "requirement_id": doc.get("requirement_id") or "",
+                "po_number": doc.get("po_number") or po_id,
+                "client_name": doc.get("client_name") or "",
+                "commercial": doc.get("total_amount") or "",
+                "requested_action": "acknowledge the attached purchase order",
+            },
+        }
+        if attachment_payload:
+            email_json["attachments"] = attachment_payload
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
+            response.raise_for_status()
+            if response.json().get("success") is not True:
+                raise HTTPException(502, "PO email delivery is not confirmed; retry later")
+    except Exception as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+    now = datetime.utcnow()
+    await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": {
+        "status": "sent", "sent_to": payload.to_email, "sent_at": now, "updated_at": now}})
+    return {"success": True, "po_id": po_id, "sent_to": payload.to_email}
+
+
+@router.post("/{po_id}/acknowledge")
+async def acknowledge_po(po_id: str, payload: POAcknowledgeRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    result = await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": {
+        "status": "acknowledged", "acknowledged_by": payload.acknowledged_by,
+        "acknowledgement_notes": payload.notes, "acknowledged_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Purchase order not found")
+    return {"success": True, "po_id": po_id, "status": "acknowledged"}
+
+
+@router.post("/{po_id}/generate-invoice")
+async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    po = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
+    if not po:
+        raise HTTPException(404, "Purchase order not found")
+
+    existing = await db["invoices"].find_one(
+        {"po_id": po_id, "status": {"$nin": ["cancelled", "void"]}},
+        {"_id": 0},
+    )
+    if existing:
+        return {
+            "success": True,
+            "already_generated": True,
+            "invoice_id": existing.get("invoice_id"),
+            "invoice": existing,
+        }
+
+    inv_id = f"INV-{uuid.uuid4().hex[:10].upper()}"
+    now = datetime.utcnow()
+    items = list(po.get("items") or [])
+    subtotal = sum(
+        float(item.get("amount") or (float(item.get("quantity") or 0) * float(item.get("rate") or 0)))
+        for item in items
+    )
+    if subtotal <= 0:
+        subtotal = float(po.get("total_amount") or 0)
+    if subtotal <= 0:
+        try:
+            days = float(po.get("duration") or 0)
+            rate = float(po.get("day_rate") or 0)
+        except (TypeError, ValueError):
+            days, rate = 0.0, 0.0
+        if days > 0 and rate > 0:
+            subtotal = round(days * rate, 2)
+            items = [{
+                "description": f"{po.get('training_domain') or 'Training'} Training",
+                "hsn_sac": "999293",
+                "quantity": days,
+                "rate": rate,
+                "amount": subtotal,
+            }]
+    def issuer_value(key: str) -> str:
+        return str(getattr(payload, key, "") or po.get(key) or "").strip()
+
+    company_name = issuer_value("company_name") or "BEULIX SOLUTIONS PRIVATE LIMITED"
+    company_gst = issuer_value("company_gst") or str(payload.gst_number or "").strip()
+    gst_rate = payload.gst_rate if payload.gst_rate is not None else float(po.get("gst_rate") or 18)
+    gst_amount = round(subtotal * gst_rate / 100, 2)
+    grand_total = round(subtotal + gst_amount, 2)
+    invoice = {
+        "invoice_id": inv_id,
+        "invoice_number": payload.invoice_number or inv_id,
+        "po_id": po_id,
+        "requirement_id": po.get("requirement_id"),
+        "trainer_id": po.get("trainer_id"),
+        "vendor_name": po.get("vendor_name"),
+        "company_name_short": "BEULIX" if company_name.upper().startswith("BEULIX") else company_name.split()[0],
+        "company_name_full": company_name,
+        "company_address": issuer_value("company_address"),
+        "company_email": issuer_value("company_email"),
+        "company_contact": issuer_value("company_contact"),
+        "company_pan": issuer_value("company_pan"),
+        "company_gst": company_gst,
+        "client_name": po.get("client_name"),
+        "client_email": po.get("client_email"),
+        "client_billing_address": po.get("client_billing_address"),
+        "client_address": po.get("client_address") or po.get("client_billing_address"),
+        "client_po_number": po.get("client_po_number") or po.get("po_number"),
+        "client_po_date": po.get("client_po_date"),
+        "client_gstin": po.get("client_gstin"),
+        "client_pan": po.get("client_pan"),
+        "training_domain": po.get("training_domain"),
+        "training_dates": po.get("training_dates"),
+        "duration": po.get("duration"),
+        "mode": po.get("mode"),
+        "day_rate": po.get("day_rate"),
+        "total_amount": subtotal,
+        "gst_rate": gst_rate,
+        "payment_terms": po.get("payment_terms"),
+        "terms_and_conditions": po.get("terms_and_conditions", ""),
+        "place_of_supply": issuer_value("place_of_supply"),
+        "bank_account_no": issuer_value("bank_account_no"),
+        "bank_ifsc": issuer_value("bank_ifsc"),
+        "signatory_name": issuer_value("signatory_name"),
+        "balance_due": grand_total,
+        "items": items,
+        "gst_number": company_gst,
+        "invoice_date": payload.invoice_date or now.strftime("%d-%m-%Y"),
+        "issue_date": payload.invoice_date or now.strftime("%d-%m-%Y"),
+        "due_date": payload.due_date or "",
+        "invoice_type": payload.invoice_type or "",
+        "tax_type": payload.tax_type or "",
+        "commercials": {
+            "subtotal": subtotal,
+            "gst_rate": gst_rate,
+            "gst_amount": gst_amount,
+            "grand_total": grand_total,
+        },
+        "notes": payload.additional_notes,
+        "status": "draft",
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["invoices"].insert_one(invoice)
+    await db["requirements"].update_one(
+        {"requirement_id": po.get("requirement_id")},
+        {"$set": {
+            "invoice_status": "generated",
+            "invoice_id": inv_id,
+            "invoice_number": invoice["invoice_number"],
+            "client_po_status": "invoice_generated",
+            "updated_at": now,
+        }},
+    )
+    invoice.pop("_id", None)
+    return {"success": True, "invoice_id": inv_id, "invoice": invoice}

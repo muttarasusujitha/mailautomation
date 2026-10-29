@@ -1,0 +1,413 @@
+{
+    "domain":  "CircleCI",
+    "name":  "CircleCI â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "CircleCI Pipelines",
+                    "CI/CD with CircleCI"
+                ],
+    "tools":  [
+                  "CircleCI",
+                  "GitHub",
+                  "Docker"
+              ],
+    "certifications":  [
+                           "CircleCI official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Set up CircleCI and run a basic workflow.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using CircleCI.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Create reusable CircleCI configuration for development.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using CircleCI.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "workspaces",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Build an automated workflow using CircleCI.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using CircleCI.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Integrate CircleCI with source control and external services.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using CircleCI.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Harden a CircleCI setup.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using CircleCI.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Design a scalable and resilient CircleCI setup.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using CircleCI.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing CircleCI workflow.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using CircleCI.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using CircleCI.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "CircleCI terminology and feature mapping for this topic",
+                                       "CircleCI configuration and implementation considerations",
+                                       "CircleCI best practices and common mistakes for this topic",
+                                       "config.yml",
+                                       "jobs",
+                                       "workflows",
+                                       "executors",
+                                       "orbs",
+                                       "contexts",
+                                       "caching",
+                                       "workspaces",
+                                       "artifacts",
+                                       "approval jobs",
+                                       "parallelism",
+                                       "Docker executor"
+                                   ],
+                     "tools":  [
+                                   "CircleCI",
+                                   "GitHub",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with CircleCI.",
+                     "technology":  "CircleCI",
+                     "technology_id":  "circleci",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of CircleCI.",
+                                                 "Configure or implement the key CircleCI features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using CircleCI.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "circleci"
+}

@@ -1,0 +1,372 @@
+{
+    "domain":  "JWT",
+    "name":  "JWT â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "JSON Web Token",
+                    "Token-Based Authentication"
+                ],
+    "tools":  [
+                  "JWT",
+                  "OpenSSL",
+                  "Postman"
+              ],
+    "certifications":  [
+                           "JWT official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate JWT fundamentals.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using JWT.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Inspect and configure core JWT components.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using JWT.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for JWT.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using JWT.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using JWT.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated JWT issue.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using JWT.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Automate a repeatable JWT configuration task.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using JWT.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using JWT.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "JWT terminology and feature mapping for this topic",
+                                       "JWT configuration and implementation considerations",
+                                       "JWT best practices and common mistakes for this topic",
+                                       "header",
+                                       "payload",
+                                       "signature",
+                                       "claims",
+                                       "iss",
+                                       "sub",
+                                       "aud",
+                                       "exp",
+                                       "nbf",
+                                       "iat",
+                                       "JWS",
+                                       "JWE concepts"
+                                   ],
+                     "tools":  [
+                                   "JWT",
+                                   "OpenSSL",
+                                   "Postman"
+                               ],
+                     "lab_task":  "Build and document an end-to-end JWT solution.",
+                     "technology":  "JWT",
+                     "technology_id":  "jwt",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of JWT.",
+                                                 "Configure or implement the key JWT features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using JWT.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "jwt"
+}

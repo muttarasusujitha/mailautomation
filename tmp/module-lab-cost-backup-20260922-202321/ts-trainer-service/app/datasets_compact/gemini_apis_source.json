@@ -1,0 +1,460 @@
+{
+    "domain":  "Gemini APIs",
+    "name":  "Gemini APIs â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Google Gemini API",
+                    "Gemini Developer API"
+                ],
+    "tools":  [
+                  "Gemini API",
+                  "Google AI Studio",
+                  "Python/JavaScript SDK"
+              ],
+    "certifications":  [
+                           "Gemini APIs official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Set up Gemini APIs and run a first working example.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using Gemini APIs.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Prepare representative data for Gemini APIs.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using Gemini APIs.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Implement the core workflow for Gemini APIs.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using Gemini APIs.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Implement an advanced Gemini APIs workflow.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using Gemini APIs.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Create an evaluation harness for Gemini APIs.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using Gemini APIs.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using Gemini APIs.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using Gemini APIs.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Integrate Gemini APIs into an application.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Gemini APIs.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using Gemini APIs.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "Gemini APIs terminology and feature mapping for this topic",
+                                       "Gemini APIs configuration and implementation considerations",
+                                       "Gemini APIs best practices and common mistakes for this topic",
+                                       "Google AI Studio",
+                                       "models",
+                                       "content generation",
+                                       "multimodal input",
+                                       "structured output",
+                                       "function calling",
+                                       "embeddings concepts",
+                                       "streaming",
+                                       "safety settings",
+                                       "rate limits",
+                                       "SDKs",
+                                       "usage monitoring"
+                                   ],
+                     "tools":  [
+                                   "Gemini API",
+                                   "Google AI Studio",
+                                   "Python/JavaScript SDK"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using Gemini APIs.",
+                     "technology":  "Gemini APIs",
+                     "technology_id":  "gemini-apis",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of Gemini APIs.",
+                                                 "Configure or implement the key Gemini APIs features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using Gemini APIs.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "gemini-apis"
+}

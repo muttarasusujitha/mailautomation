@@ -1,0 +1,264 @@
+﻿{
+    "_id":  "6a9fd9d70c1075cef0cfee5a",
+    "title":  "DevOps Trainer",
+    "technology_needed":  "DevOps",
+    "domain":  "DevOps",
+    "required_skills":  [
+                            "DevOps"
+                        ],
+    "mode":  "",
+    "audience_level":  "",
+    "duration_days":  20,
+    "duration_text":  "20 Days",
+    "timing":  "",
+    "trainer_commercial_includes_tds":  false,
+    "commercial_working_days":  20,
+    "commercial_calculation":  "",
+    "hands_on_lab":  "to be conformed",
+    "lab_cost_requested":  true,
+    "lab_cost_status":  "requested",
+    "lab_required_tools_requested":  false,
+    "lab_delivery_preference":  "",
+    "trainer_cv_approval_requested":  true,
+    "requirement_items":  [
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "We are looking for a *DevOps Training* program",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "Please share your proposal for the following requirements:",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "training_schedule",
+                                  "source_line":  "Training Duration:* 20 Days",
+                                  "automation":  "record_training_schedule"
+                              },
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "Training Hours:* to be conformed",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "participants",
+                                  "source_line":  "Participants:* to be conformed",
+                                  "automation":  "record_participant_count"
+                              },
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "Training Level:* to be conformed",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "Hands-on Lab:* to be conformed",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "Please share the following details:",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "toc",
+                                  "source_line":  "DevOps *TOC*",
+                                  "automation":  "generate_toc"
+                              },
+                              {
+                                  "category":  "other_requirement",
+                                  "source_line":  "Lab details and lab cost*",
+                                  "automation":  "preserve_for_workflow"
+                              },
+                              {
+                                  "category":  "trainer_profile",
+                                  "source_line":  "Trainer profile*",
+                                  "automation":  "attach_client_aligned_profile"
+                              },
+                              {
+                                  "category":  "trainer_profile",
+                                  "source_line":  "Trainer\u0027s *LinkedIn profile*",
+                                  "automation":  "attach_client_aligned_profile"
+                              },
+                              {
+                                  "category":  "commercials",
+                                  "source_line":  "Complete *commercial quotation*",
+                                  "automation":  "prepare_client_commercials"
+                              },
+                              {
+                                  "category":  "commercials",
+                                  "source_line":  "GST and any additional charges, if applicable",
+                                  "automation":  "prepare_client_commercials"
+                              },
+                              {
+                                  "category":  "commercials",
+                                  "source_line":  "Kindly share your best commercial proposal at the earliest.",
+                                  "automation":  "prepare_client_commercials"
+                              }
+                          ],
+    "client_domain":  "",
+    "client_industry":  "",
+    "topics":  "",
+    "custom_topics":  "",
+    "requested_details":  [
+                              "Updated CV / Trainer Profile",
+                              "Commercials (per hour/day)",
+                              "LinkedIn Profile",
+                              "ToC",
+                              "Training Proposal"
+                          ],
+    "clahan_managed_details":  [
+                                   "Lab availability and cost"
+                               ],
+    "toc_requested":  true,
+    "toc_action":  "generate_by_clahan",
+    "scope_attached":  false,
+    "scope_text":  "",
+    "attachment_names":  [
+
+                         ],
+    "source_attachments":  [
+
+                           ],
+    "client_name":  "reddy sreya",
+    "client_company":  "reddy sreya",
+    "client_email":  "reddysreya551@gmail.com",
+    "requirement_source_text":  "Dear Sir/Madam,\nGreetings!\nWe are looking for a *DevOps Training* program\nPlease share your proposal for the following requirements:\n-\n*Training Duration:* 20 Days\n-\n*Training Hours:* to be conformed\n-\n*Participants:* to be conformed\n-\n*Training Level:* to be conformed\n-\n*Hands-on Lab:* to be conformed\nPlease share the following details:\n-\nDevOps *TOC*\n-\n*Lab details and lab cost*\n-\n*Trainer profile*\n-\nTrainer\u0027s *LinkedIn profile*\n-\nComplete *commercial quotation*\n-\nGST and any additional charges, if applicable\nAll the above requirements are to be *confirmed in the proposal*.\nKindly share your best commercial proposal at the earliest.\nBest Regards,\nVenkata",
+    "client_requirement_text":  "Dear Sir/Madam,\nGreetings!\nWe are looking for a *DevOps Training* program\nPlease share your proposal for the following requirements:\n-\n*Training Duration:* 20 Days\n-\n*Training Hours:* to be conformed\n-\n*Participants:* to be conformed\n-\n*Training Level:* to be conformed\n-\n*Hands-on Lab:* to be conformed\nPlease share the following details:\n-\nDevOps *TOC*\n-\n*Lab details and lab cost*\n-\n*Trainer profile*\n-\nTrainer\u0027s *LinkedIn profile*\n-\nComplete *commercial quotation*\n-\nGST and any additional charges, if applicable\nAll the above requirements are to be *confirmed in the proposal*.\nKindly share your best commercial proposal at the earliest.\nBest Regards,\nVenkata",
+    "batch_flow":  "proposal",
+    "batch_type":  "proposal",
+    "requirement_type":  "proposal_batch",
+    "training_status":  "proposal",
+    "top_n":  1,
+    "send_emails":  true,
+    "status":  "active",
+    "priority":  "high",
+    "customer_id":  "reddysreya551@gmail.com",
+    "metadata":  {
+                     "source":  "client_inbox",
+                     "source_email_id":  "CLH-C3E8C8FD9D",
+                     "gmail_message_id":  "\u003cCAKMn4EJ86penpsJEUng8bQg6gkC0vSAXLwQ-MVVtsnYGdM8Xug@mail.gmail.com\u003e",
+                     "latest_gmail_message_id":  "\u003cCAKMn4EJ86penpsJEUng8bQg6gkC0vSAXLwQ-MVVtsnYGdM8Xug@mail.gmail.com\u003e",
+                     "gmail_thread_id":  null,
+                     "original_subject":  "DEVOPS training requriment",
+                     "original_body":  "Dear Sir/Madam,\nGreetings!\nWe are looking for a *DevOps Training* program\nPlease share your proposal for the following requirements:\n-\n*Training Duration:* 20 Days\n-\n*Training Hours:* to be conformed\n-\n*Participants:* to be conformed\n-\n*Training Level:* to be conformed\n-\n*Hands-on Lab:* to be conformed\nPlease share the following details:\n-\nDevOps *TOC*\n-\n*Lab details and lab cost*\n-\n*Trainer profile*\n-\nTrainer\u0027s *LinkedIn profile*\n-\nComplete *commercial quotation*\n-\nGST and any additional charges, if applicable\nAll the above requirements are to be *confirmed in the proposal*.\nKindly share your best commercial proposal at the earliest.\nBest Regards,\nVenkata",
+                     "requirement_source_text":  "Dear Sir/Madam,\nGreetings!\nWe are looking for a *DevOps Training* program\nPlease share your proposal for the following requirements:\n-\n*Training Duration:* 20 Days\n-\n*Training Hours:* to be conformed\n-\n*Participants:* to be conformed\n-\n*Training Level:* to be conformed\n-\n*Hands-on Lab:* to be conformed\nPlease share the following details:\n-\nDevOps *TOC*\n-\n*Lab details and lab cost*\n-\n*Trainer profile*\n-\nTrainer\u0027s *LinkedIn profile*\n-\nComplete *commercial quotation*\n-\nGST and any additional charges, if applicable\nAll the above requirements are to be *confirmed in the proposal*.\nKindly share your best commercial proposal at the earliest.\nBest Regards,\nVenkata",
+                     "requested_details":  [
+                                               "Updated CV / Trainer Profile",
+                                               "Commercials (per hour/day)",
+                                               "LinkedIn Profile",
+                                               "ToC",
+                                               "Training Proposal"
+                                           ],
+                     "clahan_managed_details":  [
+                                                    "Lab availability and cost"
+                                                ],
+                     "lab_cost_requested":  true,
+                     "requirement_items":  [
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "We are looking for a *DevOps Training* program",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "Please share your proposal for the following requirements:",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "training_schedule",
+                                                   "source_line":  "Training Duration:* 20 Days",
+                                                   "automation":  "record_training_schedule"
+                                               },
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "Training Hours:* to be conformed",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "participants",
+                                                   "source_line":  "Participants:* to be conformed",
+                                                   "automation":  "record_participant_count"
+                                               },
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "Training Level:* to be conformed",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "Hands-on Lab:* to be conformed",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "Please share the following details:",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "toc",
+                                                   "source_line":  "DevOps *TOC*",
+                                                   "automation":  "generate_toc"
+                                               },
+                                               {
+                                                   "category":  "other_requirement",
+                                                   "source_line":  "Lab details and lab cost*",
+                                                   "automation":  "preserve_for_workflow"
+                                               },
+                                               {
+                                                   "category":  "trainer_profile",
+                                                   "source_line":  "Trainer profile*",
+                                                   "automation":  "attach_client_aligned_profile"
+                                               },
+                                               {
+                                                   "category":  "trainer_profile",
+                                                   "source_line":  "Trainer\u0027s *LinkedIn profile*",
+                                                   "automation":  "attach_client_aligned_profile"
+                                               },
+                                               {
+                                                   "category":  "commercials",
+                                                   "source_line":  "Complete *commercial quotation*",
+                                                   "automation":  "prepare_client_commercials"
+                                               },
+                                               {
+                                                   "category":  "commercials",
+                                                   "source_line":  "GST and any additional charges, if applicable",
+                                                   "automation":  "prepare_client_commercials"
+                                               },
+                                               {
+                                                   "category":  "commercials",
+                                                   "source_line":  "Kindly share your best commercial proposal at the earliest.",
+                                                   "automation":  "prepare_client_commercials"
+                                               }
+                                           ],
+                     "toc_requested":  true,
+                     "toc_action":  "generate_by_clahan",
+                     "scope_attached":  false,
+                     "scope_text":  "",
+                     "attachment_names":  [
+
+                                          ],
+                     "parser":  "deterministic_email_parser"
+                 },
+    "preferred_skills":  [
+
+                         ],
+    "required_certifications":  [
+
+                                ],
+    "client_phone":  "",
+    "client_whatsapp":  "",
+    "timeline_start":  "",
+    "timeline_end":  "",
+    "preferred_location":  "",
+    "min_experience_years":  0,
+    "pipeline_target":  "shortlist",
+    "pipeline_page":  "shortlist",
+    "requirement_id":  "REQ-0647D530",
+    "created_at":  "2026-09-08T09:48:07.466000",
+    "updated_at":  "2026-09-08T12:34:07.490000",
+    "top_count":  1,
+    "total_matched":  5,
+    "id":  "6a9fd9d70c1075cef0cfee5a"
+}

@@ -1,0 +1,1050 @@
+{
+  "domain": "Agentic AI",
+  "name": "Agentic AI",
+  "icon": "bot",
+  "program_title": "Agentic AI 60-Day Mastery",
+  "level": "Intermediate",
+  "mode": "Online",
+  "aliases": [
+    "Agentic AI",
+    "AI Agents",
+    "AI Agent",
+    "Agentic AI Agents",
+    "LLM Agents",
+    "LangChain",
+    "LangGraph",
+    "CrewAI",
+    "AutoGen",
+    "OpenAI Agents",
+    "AI Agent Development"
+  ],
+  "certifications": [
+    "AWS Certified ML Specialty",
+    "Google Cloud AI Engineer",
+    "Azure AI Engineer Associate",
+    "LangChain Developer Certification"
+  ],
+  "tools": [
+    "OpenAI Agents SDK",
+    "OpenAI API",
+    "LangChain",
+    "LangGraph",
+    "Vector DB",
+    "Python",
+    "FastAPI",
+    "React",
+    "Docker",
+    "MCP concepts"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "AI and Agentic AI Foundations",
+      "subtopics": [
+        "AI/ML/DL overview",
+        "LLMs vs traditional ML",
+        "agent definition",
+        "autonomy levels",
+        "agent use cases"
+      ],
+      "tools": [
+        "ChatGPT",
+        "OpenAI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Compare chatbot, workflow automation and agentic system behavior"
+    },
+    {
+      "day": 2,
+      "topic": "LLM Fundamentals for Agents",
+      "subtopics": [
+        "tokens",
+        "context windows",
+        "transformers",
+        "sampling parameters",
+        "model limitations"
+      ],
+      "tools": [
+        "OpenAI",
+        "ChatGPT"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Run prompt experiments with temperature, context and output constraints"
+    },
+    {
+      "day": 3,
+      "topic": "Prompt Engineering for Agents",
+      "subtopics": [
+        "system prompts",
+        "developer instructions",
+        "few-shot examples",
+        "task decomposition",
+        "output contracts"
+      ],
+      "tools": [
+        "ChatGPT",
+        "OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Create prompt templates for a support and operations agent"
+    },
+    {
+      "day": 4,
+      "topic": "Structured Outputs and JSON Contracts",
+      "subtopics": [
+        "schemas",
+        "validation",
+        "repair loops",
+        "typed outputs",
+        "business-ready tables"
+      ],
+      "tools": [
+        "OpenAI API",
+        "Pydantic"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Generate and validate structured JSON output from an LLM"
+    },
+    {
+      "day": 5,
+      "topic": "Function Calling and Tool Design",
+      "subtopics": [
+        "tool schema",
+        "arguments",
+        "tool selection",
+        "tool errors",
+        "tool result formatting"
+      ],
+      "tools": [
+        "OpenAI API",
+        "Python"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build an agent that calls calculator, search and database mock tools"
+    },
+    {
+      "day": 6,
+      "topic": "Agent Loop and ReAct Pattern",
+      "subtopics": [
+        "reason-act-observe loop",
+        "tool chaining",
+        "stop conditions",
+        "iteration limits",
+        "failure recovery"
+      ],
+      "tools": [
+        "LangChain",
+        "Python"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Implement a ReAct-style tool-using agent"
+    },
+    {
+      "day": 7,
+      "topic": "RAG Fundamentals",
+      "subtopics": [
+        "chunking",
+        "embeddings",
+        "vector search",
+        "retrieval quality",
+        "citations"
+      ],
+      "tools": [
+        "FAISS",
+        "Chroma",
+        "OpenAI Embeddings"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build a document Q&A assistant with citations"
+    },
+    {
+      "day": 8,
+      "topic": "Agentic RAG",
+      "subtopics": [
+        "query rewriting",
+        "multi-step retrieval",
+        "hybrid retrieval",
+        "reranking",
+        "answer grounding"
+      ],
+      "tools": [
+        "LangChain",
+        "Vector DB"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create agentic RAG flow for policy/document analysis"
+    },
+    {
+      "day": 9,
+      "topic": "Memory and State Management",
+      "subtopics": [
+        "short-term memory",
+        "conversation trimming",
+        "summarization",
+        "user memory",
+        "state stores"
+      ],
+      "tools": [
+        "LangGraph",
+        "Redis concepts"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Add stateful memory to an agent conversation"
+    },
+    {
+      "day": 10,
+      "topic": "LangChain Agent Development",
+      "subtopics": [
+        "create_agent concepts",
+        "tools",
+        "middleware",
+        "structured output",
+        "callbacks"
+      ],
+      "tools": [
+        "LangChain",
+        "Python"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build LangChain agent with tools and structured response"
+    },
+    {
+      "day": 11,
+      "topic": "LangGraph Workflow Basics",
+      "subtopics": [
+        "nodes",
+        "edges",
+        "state",
+        "conditional routing",
+        "checkpointing"
+      ],
+      "tools": [
+        "LangGraph"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Create graph workflow with planner, tool and final response nodes"
+    },
+    {
+      "day": 12,
+      "topic": "Human-in-the-Loop Workflows",
+      "subtopics": [
+        "interrupts",
+        "approval gates",
+        "review/edit tool calls",
+        "resume execution",
+        "audit trail"
+      ],
+      "tools": [
+        "LangGraph"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Add human approval before sensitive tool execution"
+    },
+    {
+      "day": 13,
+      "topic": "Multi-Agent Architecture",
+      "subtopics": [
+        "manager pattern",
+        "specialist agents",
+        "handoffs",
+        "agents as tools",
+        "coordination"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "LangGraph"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build planner, researcher and reviewer agent workflow"
+    },
+    {
+      "day": 14,
+      "topic": "OpenAI Agents SDK Core",
+      "subtopics": [
+        "Agent",
+        "Runner",
+        "tools",
+        "handoffs",
+        "sessions",
+        "structured outputs"
+      ],
+      "tools": [
+        "OpenAI Agents SDK"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Create an OpenAI Agents SDK workflow with handoff and tool call"
+    },
+    {
+      "day": 15,
+      "topic": "Guardrails and Safety",
+      "subtopics": [
+        "input guardrails",
+        "output guardrails",
+        "tool guardrails",
+        "prompt injection",
+        "PII controls"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "Python"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Add guardrails for unsafe input and risky tool output"
+    },
+    {
+      "day": 16,
+      "topic": "Tracing and Observability",
+      "subtopics": [
+        "traces",
+        "spans",
+        "tool call logs",
+        "token usage",
+        "debugging workflows"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "LangSmith concepts"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Trace and debug an agent run end-to-end"
+    },
+    {
+      "day": 17,
+      "topic": "Evaluation of Agents",
+      "subtopics": [
+        "golden datasets",
+        "trajectory evaluation",
+        "tool accuracy",
+        "RAG quality",
+        "rubrics"
+      ],
+      "tools": [
+        "pytest",
+        "OpenAI evals concepts"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build evaluation set for an agentic RAG assistant"
+    },
+    {
+      "day": 18,
+      "topic": "Error Handling and Reliability",
+      "subtopics": [
+        "timeouts",
+        "retries",
+        "fallback models",
+        "idempotency",
+        "tool exceptions"
+      ],
+      "tools": [
+        "Python",
+        "FastAPI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Add robust retry and error handling to agent tools"
+    },
+    {
+      "day": 19,
+      "topic": "Voice and Realtime Agents",
+      "subtopics": [
+        "speech input/output",
+        "streaming",
+        "turn-taking",
+        "latency",
+        "interruptions"
+      ],
+      "tools": [
+        "Realtime API concepts"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design voice agent flow with turn management"
+    },
+    {
+      "day": 20,
+      "topic": "Agent UI and Streaming UX",
+      "subtopics": [
+        "chat interface",
+        "streaming events",
+        "tool trace display",
+        "feedback capture"
+      ],
+      "tools": [
+        "React",
+        "FastAPI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build UI that streams agent progress and final answer"
+    },
+    {
+      "day": 21,
+      "topic": "Backend API for Agents",
+      "subtopics": [
+        "FastAPI routes",
+        "job queues",
+        "sessions",
+        "auth",
+        "rate limits"
+      ],
+      "tools": [
+        "FastAPI",
+        "Redis concepts"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Expose agent as backend API with session state"
+    },
+    {
+      "day": 22,
+      "topic": "Data Connectors and Enterprise Tools",
+      "subtopics": [
+        "CRM/ERP tools",
+        "email/calendar",
+        "databases",
+        "permissions",
+        "audit logs"
+      ],
+      "tools": [
+        "Python",
+        "APIs"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Create safe enterprise tool connector with scoped permissions"
+    },
+    {
+      "day": 23,
+      "topic": "MCP and Tool Ecosystem",
+      "subtopics": [
+        "MCP concepts",
+        "tool discovery",
+        "resources",
+        "prompts",
+        "connector design"
+      ],
+      "tools": [
+        "MCP",
+        "Python/Node concepts"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design MCP-style tool interface for internal systems"
+    },
+    {
+      "day": 24,
+      "topic": "Security for Agentic Systems",
+      "subtopics": [
+        "secret handling",
+        "least privilege",
+        "sandboxing",
+        "approval flows",
+        "data boundaries"
+      ],
+      "tools": [
+        "Vault concepts",
+        "OpenAI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create security checklist and approval workflow for tools"
+    },
+    {
+      "day": 25,
+      "topic": "Cost and Performance Optimization",
+      "subtopics": [
+        "model selection",
+        "caching",
+        "batching",
+        "context reduction",
+        "latency budgets"
+      ],
+      "tools": [
+        "OpenAI API"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Optimize agent workflow for cost and latency"
+    },
+    {
+      "day": 26,
+      "topic": "Deployment and Monitoring",
+      "subtopics": [
+        "Docker",
+        "environment config",
+        "logs",
+        "metrics",
+        "alerts",
+        "rollbacks"
+      ],
+      "tools": [
+        "Docker",
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Deploy agent backend with monitoring checklist"
+    },
+    {
+      "day": 27,
+      "topic": "Enterprise Use Case Workshop",
+      "subtopics": [
+        "support agent",
+        "sales agent",
+        "HR agent",
+        "DevOps agent",
+        "document agent"
+      ],
+      "tools": [
+        "LangGraph",
+        "OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design an enterprise agent solution blueprint"
+    },
+    {
+      "day": 28,
+      "topic": "Capstone Planning and Architecture",
+      "subtopics": [
+        "problem statement",
+        "tools",
+        "data sources",
+        "workflow graph",
+        "success metrics"
+      ],
+      "tools": [
+        "Jira",
+        "Draw.io"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Plan capstone agent architecture and backlog"
+    },
+    {
+      "day": 29,
+      "topic": "Capstone Build Sprint",
+      "subtopics": [
+        "tools",
+        "RAG",
+        "memory",
+        "multi-agent flow",
+        "guardrails"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "LangGraph"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build production-style capstone agent"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Evaluation and Demo",
+      "subtopics": [
+        "test cases",
+        "trace review",
+        "failure analysis",
+        "demo script",
+        "roadmap"
+      ],
+      "tools": [
+        "All Agent Tools"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Evaluate, present and improve final agent project"
+    },
+    {
+      "day": 31,
+      "topic": "Deep Agents Architecture",
+      "subtopics": [
+        "sub-agents",
+        "filesystem state",
+        "long-running tasks",
+        "planning tool",
+        "context engineering"
+      ],
+      "tools": [
+        "LangGraph",
+        "Deep Agents concepts"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build deep agent with planner and specialist sub-agents"
+    },
+    {
+      "day": 32,
+      "topic": "MCP Server and Client Fundamentals",
+      "subtopics": [
+        "MCP tools",
+        "resources",
+        "prompts",
+        "transport",
+        "authorization boundaries"
+      ],
+      "tools": [
+        "MCP",
+        "Python/Node"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Expose internal knowledge/tooling through MCP-style interface"
+    },
+    {
+      "day": 33,
+      "topic": "Hosted Tools and Managed Capabilities",
+      "subtopics": [
+        "web search",
+        "file search",
+        "code interpreter",
+        "computer/tool concepts",
+        "tool choice"
+      ],
+      "tools": [
+        "OpenAI hosted tools"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Design agent workflow using hosted and local tools"
+    },
+    {
+      "day": 34,
+      "topic": "Agent Sessions and Persistence",
+      "subtopics": [
+        "session store",
+        "conversation continuity",
+        "state recovery",
+        "history compaction"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "SQLite/Redis concepts"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Persist and resume agent sessions across runs"
+    },
+    {
+      "day": 35,
+      "topic": "Context Engineering for Agents",
+      "subtopics": [
+        "context budgets",
+        "summarization",
+        "scratchpads",
+        "retrieval context",
+        "handoff filters"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "LangGraph"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Reduce context while preserving task-critical state"
+    },
+    {
+      "day": 36,
+      "topic": "Dynamic Instructions and Runtime Context",
+      "subtopics": [
+        "RunContext",
+        "user profiles",
+        "tenant config",
+        "dynamic policies",
+        "tool context"
+      ],
+      "tools": [
+        "OpenAI Agents SDK"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build agent with dynamic instructions per user/client"
+    },
+    {
+      "day": 37,
+      "topic": "Lifecycle Hooks and Middleware",
+      "subtopics": [
+        "before/after hooks",
+        "tool hooks",
+        "logging",
+        "policy injection",
+        "custom callbacks"
+      ],
+      "tools": [
+        "OpenAI Agents SDK",
+        "LangChain middleware"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Add hooks for logging, policy checks and analytics"
+    },
+    {
+      "day": 38,
+      "topic": "Advanced Handoffs",
+      "subtopics": [
+        "handoff routing",
+        "handoff filters",
+        "history shaping",
+        "handoff safety",
+        "specialist delegation"
+      ],
+      "tools": [
+        "OpenAI Agents SDK"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build triage agent that safely hands off to specialists"
+    },
+    {
+      "day": 39,
+      "topic": "Agents as Tools Pattern",
+      "subtopics": [
+        "manager agent",
+        "specialist tool agents",
+        "tool result contracts",
+        "delegation limits"
+      ],
+      "tools": [
+        "OpenAI Agents SDK"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Expose specialist agents as callable tools"
+    },
+    {
+      "day": 40,
+      "topic": "Workflow Orchestration Patterns",
+      "subtopics": [
+        "sequential workflows",
+        "parallel branches",
+        "conditional routing",
+        "rollback paths"
+      ],
+      "tools": [
+        "LangGraph"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Create resumable workflow with branches and fallback"
+    },
+    {
+      "day": 41,
+      "topic": "Human Approval and Audit Trails",
+      "subtopics": [
+        "approval interrupts",
+        "before-tool approval",
+        "review queues",
+        "audit evidence"
+      ],
+      "tools": [
+        "LangGraph",
+        "OpenAI guardrails"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Add human approval for external actions"
+    },
+    {
+      "day": 42,
+      "topic": "Enterprise Identity and Permissions",
+      "subtopics": [
+        "RBAC",
+        "tenant isolation",
+        "scoped tokens",
+        "least privilege",
+        "permission prompts"
+      ],
+      "tools": [
+        "FastAPI",
+        "OAuth concepts"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Design permission model for enterprise agent tools"
+    },
+    {
+      "day": 43,
+      "topic": "Data Privacy and PII Handling",
+      "subtopics": [
+        "PII detection",
+        "redaction",
+        "retention",
+        "private retrieval",
+        "data minimization"
+      ],
+      "tools": [
+        "Guardrails",
+        "Python"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Add PII redaction and retention controls"
+    },
+    {
+      "day": 44,
+      "topic": "Prompt Injection and Tool Abuse Defense",
+      "subtopics": [
+        "untrusted content",
+        "data exfiltration",
+        "instruction hierarchy",
+        "tool constraints"
+      ],
+      "tools": [
+        "Security tests"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Red-team agent against prompt injection scenarios"
+    },
+    {
+      "day": 45,
+      "topic": "Agent Observability Dashboards",
+      "subtopics": [
+        "traces",
+        "spans",
+        "tool latency",
+        "cost metrics",
+        "failure tags",
+        "SLOs"
+      ],
+      "tools": [
+        "OpenAI tracing",
+        "LangSmith concepts"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Create monitoring dashboard requirements for agent system"
+    },
+    {
+      "day": 46,
+      "topic": "Offline and Online Evaluation",
+      "subtopics": [
+        "golden set",
+        "LLM judge",
+        "human review",
+        "online feedback",
+        "A/B testing"
+      ],
+      "tools": [
+        "pytest",
+        "evals"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build eval pipeline with regression checks"
+    },
+    {
+      "day": 47,
+      "topic": "RAG Evaluation and Retrieval Tuning",
+      "subtopics": [
+        "recall",
+        "precision",
+        "MRR",
+        "faithfulness",
+        "citation accuracy"
+      ],
+      "tools": [
+        "RAGAS concepts",
+        "Vector DB"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Evaluate retrieval and improve chunking/reranking"
+    },
+    {
+      "day": 48,
+      "topic": "Synthetic Data for Agent Testing",
+      "subtopics": [
+        "scenario generation",
+        "edge cases",
+        "adversarial cases",
+        "fixture data"
+      ],
+      "tools": [
+        "OpenAI API",
+        "pytest"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Generate synthetic test set for agent workflow"
+    },
+    {
+      "day": 49,
+      "topic": "Multi-Modal Agents",
+      "subtopics": [
+        "vision inputs",
+        "document images",
+        "audio signals",
+        "multi-modal tool outputs"
+      ],
+      "tools": [
+        "GPT vision",
+        "Realtime concepts"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build agent that reasons over screenshots/documents"
+    },
+    {
+      "day": 50,
+      "topic": "Realtime Voice Agent Engineering",
+      "subtopics": [
+        "VAD",
+        "barge-in",
+        "streaming events",
+        "latency",
+        "conversation repair"
+      ],
+      "tools": [
+        "Realtime API concepts"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Prototype realtime voice assistant flow"
+    },
+    {
+      "day": 51,
+      "topic": "Computer-Use Agent Safety",
+      "subtopics": [
+        "UI observation",
+        "action planning",
+        "confirmation steps",
+        "screen privacy",
+        "rollback"
+      ],
+      "tools": [
+        "Browser automation concepts"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design safe browser/computer-use workflow"
+    },
+    {
+      "day": 52,
+      "topic": "Code Execution Agents",
+      "subtopics": [
+        "sandboxing",
+        "timeouts",
+        "package limits",
+        "artifact handling",
+        "review gates"
+      ],
+      "tools": [
+        "Python sandbox",
+        "Code interpreter concepts"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build safe data-analysis/code-execution agent pattern"
+    },
+    {
+      "day": 53,
+      "topic": "SQL and Data Warehouse Agents",
+      "subtopics": [
+        "schema introspection",
+        "SQL safety",
+        "query validation",
+        "explain plans",
+        "row limits"
+      ],
+      "tools": [
+        "SQL",
+        "Pandas"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Create SQL agent with safety validator"
+    },
+    {
+      "day": 54,
+      "topic": "Document Intelligence Agents",
+      "subtopics": [
+        "PDF parsing",
+        "table extraction",
+        "citation mapping",
+        "document QA",
+        "summaries"
+      ],
+      "tools": [
+        "PDF tools",
+        "Vector DB"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build document-processing agent workflow"
+    },
+    {
+      "day": 55,
+      "topic": "Email and Calendar Workflow Agents",
+      "subtopics": [
+        "classification",
+        "drafting",
+        "approval",
+        "scheduling",
+        "CRM updates"
+      ],
+      "tools": [
+        "Gmail/Calendar API concepts"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design email/calendar automation agent"
+    },
+    {
+      "day": 56,
+      "topic": "DevOps and Incident Agents",
+      "subtopics": [
+        "log triage",
+        "runbooks",
+        "alert context",
+        "RCA drafting",
+        "change tickets"
+      ],
+      "tools": [
+        "Jira",
+        "Grafana logs"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build incident triage agent workflow"
+    },
+    {
+      "day": 57,
+      "topic": "Customer Support Production Agent",
+      "subtopics": [
+        "intent routing",
+        "knowledge retrieval",
+        "case creation",
+        "handoff",
+        "quality review"
+      ],
+      "tools": [
+        "CRM mock",
+        "RAG"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build production support agent blueprint"
+    },
+    {
+      "day": 58,
+      "topic": "Agent Deployment Patterns",
+      "subtopics": [
+        "serverless",
+        "containers",
+        "workers",
+        "queues",
+        "scaling",
+        "blue-green deploy"
+      ],
+      "tools": [
+        "Docker",
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Deploy scalable agent backend architecture"
+    },
+    {
+      "day": 59,
+      "topic": "Cost Governance and Model Routing",
+      "subtopics": [
+        "model tiers",
+        "routing policy",
+        "cache strategy",
+        "budget alerts",
+        "usage reports"
+      ],
+      "tools": [
+        "OpenAI API"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Implement model-routing and cost-control policy"
+    },
+    {
+      "day": 60,
+      "topic": "Final Enterprise Capstone",
+      "subtopics": [
+        "architecture review",
+        "security review",
+        "eval report",
+        "production demo",
+        "roadmap"
+      ],
+      "tools": [
+        "All Agent Tools"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Present enterprise-grade agent with traces, evals and governance"
+    }
+  ],
+  "official_sources": [
+    "https://openai.github.io/openai-agents-python/",
+    "https://openai.github.io/openai-agents-python/agents/",
+    "https://openai.github.io/openai-agents-python/tools/",
+    "https://openai.github.io/openai-agents-python/guardrails/",
+    "https://openai.github.io/openai-agents-python/tracing/",
+    "https://docs.langchain.com/oss/python/deepagents/memory"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

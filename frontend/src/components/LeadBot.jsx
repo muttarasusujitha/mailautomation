@@ -134,6 +134,12 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
       <p className="text-sm font-semibold text-slate-800">
         {config?.enabled ? 'Enabled' : 'Paused'} · Last automatic run: {runLabel} · Found: {config?.found || 0} · Saved: {config?.saved || 0}
       </p>
+      {!isTrainer && Number(config?.target || 0) > 0 && (
+        <p className="text-xs text-slate-600">
+          Overall scan target: {config.target} training-request posts
+          {!config.target_met && ' (target not reached in this run)'}
+        </p>
+      )}
       <p className="text-xs text-slate-500">This panel shows the automatic collection run. Searches started with Find Profiles or Find Client Posts report their results below.</p>
       <CollectionOutcomes outcomes={config?.domain_outcomes} />
       {warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
