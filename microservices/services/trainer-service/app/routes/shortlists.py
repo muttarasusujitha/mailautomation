@@ -541,6 +541,31 @@ def _trainer_has_verified_detail(trainer: Dict[str, Any], detail: str) -> bool:
     return False
 
 
+def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
+    """Only request interview slots when the client explicitly asked for them."""
+    client_text = _client_requirement_text(requirement)
+    return bool(re.search(
+        # Match explicit slot counts and ordinary requests such as
+        # "Please share three interview slots with the trainer profile".
+        r"\b(?:three|3|two|2|four|4|\d+)\s+(?:convenient\s+)?"
+        r"(?:interview|discussion|meeting)\s+slots?\b"
+        r"|\b(?:share|provide|send|suggest|propose|give|include|need|want|request)\b"
+        r".{0,80}\bslots?\b",
+        client_text,
+        flags=re.IGNORECASE,
+    ))
+
+
+def _proposal_slot_request_flow(requirement: Dict[str, Any]) -> bool:
+    """Use proposal intent for slot requests without overriding page-flow routing."""
+    flow_value = _clean(
+        requirement.get("batch_flow")
+        or requirement.get("batch_type")
+        or requirement.get("requirement_type")
+    ).lower()
+    return "proposal" in flow_value or _is_proposal_requirement(requirement)
+
+
 def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> List[str]:
     """Return only details the platform cannot already source from the trainer record."""
     requested = _mail1_requested_items(requirement)
@@ -560,7 +585,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         label = item.lower()
         if "availability" in label or "slot" in label:
             if not availability:
-                missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
+                missing.append("Tentative availability for the proposed engagement" if _proposal_slot_request_flow(requirement) else "Availability for the specified training dates")
         elif "linkedin" in label or "linked in" in label:
             if not _trainer_has_verified_detail(trainer, "linkedin"):
                 missing.append("LinkedIn profile")
@@ -596,7 +621,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
             or bool(slot_reply)
         )
     )
-    if interested_reply:
+    if interested_reply and (not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement)):
         sources = [part for part in (slot_reply, reply_text, availability) if part]
         counts = [_dated_slot_option_count(part) for part in sources]
         combined = _dated_slot_option_count("\n".join(sources)) if sources else 0
@@ -725,6 +750,16 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         # The client amount is informational. Do not ask the trainer to accept a share of it.
         commercial_request = ""
     slot_context = ""
+    slot_request = ""
+    if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
+        slot_request = (
+            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+            "Example:\n"
+            "- [your available date], [time] IST\n"
+            "- [your available date], [time] IST\n"
+            "- [your available date], [time] IST\n\n"
+            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
+        )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
     return (
         f"Hi {trainer_name or 'Trainer'},\n\n"
@@ -734,13 +769,8 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         f"{chr(10).join(details)}\n\n"
         f"{request_line}"
         f"{commercial_request}"
-        f"Please also share three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
-        "Example:\n"
-        "- [your available date], [time] IST\n"
-        "- [your available date], [time] IST\n"
-        "- [your available date], [time] IST\n\n"
-        "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
-        "Regards,\n"
+        f"{slot_request}"
+        "Regards,\\n"
         "Clahan Technologies"
     )
 
@@ -872,15 +902,19 @@ def _client_email_from_requirement(requirement: Dict[str, Any], shortlist: Dict[
 
 def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
     target = _clean(requirement.get("pipeline_target") or requirement.get("pipeline_page")).lower().strip("/")
-    if target in {"shortlist", "shortlist1"}:
-        return target == "shortlist"
     flow_value = _clean(
         requirement.get("batch_flow")
         or requirement.get("batch_type")
         or requirement.get("requirement_type")
     ).lower()
+    # An explicit page target takes precedence over a stale batch_flow value.
+    # The legacy shortlist1 page is the confirmed workflow, not the proposal page.
+    if target in {"shortlist", "shortlist1"}:
+        return target == "shortlist"
     if "proposal" in flow_value:
         return True
+    if "confirmed" in flow_value:
+        return False
     # Explicit workflow classification is authoritative.  Client prose such
     # as "upcoming corporate training" must not downgrade a confirmed batch
     # and suppress the mandatory Mail 1 ToC attachment.
@@ -2213,7 +2247,9 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
             training_dates=training_dates,
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
-            hours_per_day=duration_inputs.get("hours_per_day"),
+            # Default to three training hours when no daily training hours were supplied.
+            # Lab hours describe the lab environment and should not override training hours.
+            hours_per_day=duration_inputs.get("hours_per_day") or 3,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),
