@@ -546,8 +546,8 @@ def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
     client_text = _client_requirement_text(requirement)
     return bool(re.search(
         r"\b(?:share|provide|send|suggest|propose|give|include|need|want|request)\b"
-        r".{0,80}\\b(?:(?:three|3|two|2|four|4|\\d+)\\s+)?(?:convenient\\s+)?"
-        r"(?:interview|discussion|meeting)?\\s*slots?\\b",
+        r".{0,80}\b(?:(?:three|3|two|2|four|4|\d+)\s+)?(?:convenient\s+)?"
+        r"(?:interview|discussion|meeting)?\s*slots?\b",
         client_text,
         flags=re.IGNORECASE,
     ))
@@ -740,12 +740,12 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     slot_request = ""
     if not is_proposal or _client_requested_interview_slots(requirement):
         slot_request = (
-            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\\n"
-            "Example:\\n"
-            "- [your available date], [time] IST\\n"
-            "- [your available date], [time] IST\\n"
-            "- [your available date], [time] IST\\n\\n"
-            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\\n\\n"
+            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+            "Example:\n"
+            "- [your available date], [time] IST\n"
+            "- [your available date], [time] IST\n"
+            "- [your available date], [time] IST\n\n"
+            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
     return (
