@@ -608,7 +608,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
             or bool(slot_reply)
         )
     )
-    if interested_reply and _client_requested_interview_slots(requirement):
+    if interested_reply and (not _is_proposal_requirement(requirement) or _client_requested_interview_slots(requirement)):
         sources = [part for part in (slot_reply, reply_text, availability) if part]
         counts = [_dated_slot_option_count(part) for part in sources]
         combined = _dated_slot_option_count("\n".join(sources)) if sources else 0
@@ -738,7 +738,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         commercial_request = ""
     slot_context = ""
     slot_request = ""
-    if _client_requested_interview_slots(requirement):
+    if not is_proposal or _client_requested_interview_slots(requirement):
         slot_request = (
             "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\\n"
             "Example:\\n"
@@ -889,8 +889,6 @@ def _client_email_from_requirement(requirement: Dict[str, Any], shortlist: Dict[
 
 def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
     target = _clean(requirement.get("pipeline_target") or requirement.get("pipeline_page")).lower().strip("/")
-    if target in {"shortlist", "shortlist1"}:
-        return target == "shortlist"
     flow_value = _clean(
         requirement.get("batch_flow")
         or requirement.get("batch_type")
@@ -898,6 +896,10 @@ def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
     ).lower()
     if "proposal" in flow_value:
         return True
+    if "confirmed" in flow_value:
+        return False
+    if target in {"shortlist", "shortlist1"}:
+        return target == "shortlist"
     # Explicit workflow classification is authoritative.  Client prose such
     # as "upcoming corporate training" must not downgrade a confirmed batch
     # and suppress the mandatory Mail 1 ToC attachment.
