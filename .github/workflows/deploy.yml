@@ -288,15 +288,16 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
-          token="deploy-source/microservices/gmail_config/token.json"
-          if [ -f "$token" ] && [ ! -w "$token" ]; then
-            sudo -n chown "$(id -u):$(id -g)" "$token"
+          config_dir="deploy-source/microservices/gmail_config"
+          if [ -d "$config_dir" ]; then
+            sudo -n chown -R "$(id -u):$(id -g)" "$config_dir"
           fi
 
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           path: deploy-source
+          clean: false
 
       - name: Verify Docker and Compose
         run: |
