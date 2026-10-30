@@ -284,6 +284,15 @@ jobs:
         working-directory: deploy-source
 
     steps:
+      - name: Prepare deployment workspace
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          token="deploy-source/microservices/gmail_config/token.json"
+          if [ -f "$token" ] && [ ! -w "$token" ]; then
+            sudo -n chown "$(id -u):$(id -g)" "$token"
+          fi
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
