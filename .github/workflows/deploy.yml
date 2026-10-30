@@ -473,6 +473,23 @@ jobs:
             --wait \
             --wait-timeout 180
 
+      # Nginx resolves Docker upstream names when it starts. Recreate only the
+      # gateway after backend containers have settled so replaced service IPs
+      # cannot leave the gateway proxying to stale addresses.
+      - name: Refresh Gateway Upstreams
+        run: |
+          set -euo pipefail
+
+          docker compose \
+            -f microservices/docker-compose.yml \
+            -f microservices/docker-compose.registry.yml \
+            up -d \
+            --no-deps \
+            --no-build \
+            --pull never \
+            --force-recreate \
+            gateway
+
       # ----------------------------------------------------------
       # Start frontend
       # ----------------------------------------------------------
