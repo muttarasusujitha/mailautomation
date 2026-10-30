@@ -31,8 +31,9 @@ export default function GmailCallback({ onLogin }) {
       }
 
       try {
-        const codeVerifier = consumeGmailOAuthPkce(state || '')
-        const redirectUri = `${window.location.origin}/auth/callback`
+        const oauthSession = consumeGmailOAuthPkce(state || '')
+        const codeVerifier = oauthSession.code_verifier || ''
+        const redirectUri = oauthSession.redirect_uri || `${window.location.origin}/auth/callback`
         await api.post('/gmail/oauth-callback', {
           code,
           state,

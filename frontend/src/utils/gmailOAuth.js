@@ -20,39 +20,53 @@ export function saveGmailOAuthPkce(data = {}) {
   const storage = getSessionStorage()
   if (!storage) return
 
-  storage.setItem(GMAIL_OAUTH_PKCE_KEY, JSON.stringify({
-    state: data.state || '',
+  const state = data.state || ''
+  const key = state ? `${GMAIL_OAUTH_PKCE_KEY}:${state}` : GMAIL_OAUTH_PKCE_KEY
+  storage.setItem(key, JSON.stringify({
+    state,
     code_verifier: codeVerifier,
+    redirect_uri: data.redirect_uri || '',
     created_at: Date.now(),
   }))
 }
 
 export function consumeGmailOAuthPkce(state = '') {
   const storage = getSessionStorage()
-  if (!storage) return ''
+  if (!storage) return {}
 
-  try {
-    const raw = storage.getItem(GMAIL_OAUTH_PKCE_KEY)
-    if (!raw) return ''
+  const keys = state
+    ? [`${GMAIL_OAUTH_PKCE_KEY}:${state}`, GMAIL_OAUTH_PKCE_KEY]
+    : [GMAIL_OAUTH_PKCE_KEY]
+  for (const key of keys) {
+    try {
+      const raw = storage.getItem(key)
+      if (!raw) continue
 
-    const saved = JSON.parse(raw)
-    storage.removeItem(GMAIL_OAUTH_PKCE_KEY)
+      const saved = JSON.parse(raw)
+      if (state && saved.state && saved.state !== state) continue
+      storage.removeItem(key)
 
-    if (Date.now() - Number(saved.created_at || 0) > GMAIL_OAUTH_PKCE_MAX_AGE_MS) {
-      return ''
+      if (Date.now() - Number(saved.created_at || 0) > GMAIL_OAUTH_PKCE_MAX_AGE_MS) {
+        return {}
+      }
+      return {
+        code_verifier: saved.code_verifier || '',
+        redirect_uri: saved.redirect_uri || '',
+      }
+    } catch {
+      storage.removeItem(key)
     }
-    if (state && saved.state && saved.state !== state) {
-      return ''
-    }
-    return saved.code_verifier || ''
-  } catch {
-    storage.removeItem(GMAIL_OAUTH_PKCE_KEY)
-    return ''
   }
+  return {}
 }
 
 export function clearGmailOAuthPkce() {
-  getSessionStorage()?.removeItem(GMAIL_OAUTH_PKCE_KEY)
+  const storage = getSessionStorage()
+  if (!storage) return
+  for (let index = storage.length - 1; index >= 0; index -= 1) {
+    const key = storage.key(index)
+    if (key?.startsWith(GMAIL_OAUTH_PKCE_KEY)) storage.removeItem(key)
+  }
 }
 
 export function normalizeGmailStatus(status = {}) {

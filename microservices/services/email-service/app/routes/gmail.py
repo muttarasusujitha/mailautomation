@@ -3,7 +3,7 @@ import logging
 import os
 import uuid
 import json
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
@@ -262,6 +262,7 @@ async def get_gmail_oauth_url(
             "auth_url": auth_url,
             "state": state,
             "code_verifier": code_verifier,
+            "redirect_uri": redirect_uri,
             "expires_in": OAUTH_STATE_TTL_MINUTES * 60,
         }
     except Exception as exc:
@@ -338,6 +339,16 @@ async def gmail_oauth_callback_get(request: Request, db: AsyncIOMotorDatabase = 
     if error:
         frontend_url = _frontend_redirect_url(request)
         return RedirectResponse(f"{frontend_url}/admin?gmail_error={error}")
+    code = request.query_params.get("code", "")
+    state = request.query_params.get("state", "")
+    if code and state:
+        oauth_state = await db["gmail_oauth_states"].find_one({"state": state}, {"_id": 0})
+        if not (oauth_state or {}).get("code_verifier"):
+            # The browser still has the PKCE verifier from the start of this
+            # same OAuth flow. Let the frontend submit it if the DB state was
+            # lost (for example, after a service/database restart).
+            callback_url = f"{_frontend_redirect_url(request)}/auth/callback?{urlencode({'code': code, 'state': state})}"
+            return RedirectResponse(callback_url)
     await _exchange_gmail_oauth_code(request, db, {})
     frontend_url = _frontend_redirect_url(request)
     return RedirectResponse(f"{frontend_url}/admin?gmail_connected=1")
