@@ -9,7 +9,7 @@ import {
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import api, { clearDatabase } from '../utils/api'
-import { getGmailOAuthRedirectUri, normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
+import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
 
@@ -408,9 +408,7 @@ export default function Admin() {
         return
       }
       if (!gmailStatus.connected || !gmailStatus.calendar_connected) {
-        const oauthRes = await api.get('/gmail/oauth-url', {
-          params: { redirect_uri: getGmailOAuthRedirectUri() },
-        })
+        const oauthRes = await api.get('/gmail/oauth-url')
         const oauthData = oauthRes.data || {}
         const authUrl = oauthData.auth_url || oauthData.url
         if (!authUrl) throw new Error('Google OAuth service returned no authorization URL')
@@ -438,9 +436,7 @@ export default function Admin() {
         toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
         return
       }
-      const oauthRes = await api.get('/gmail/oauth-url', {
-        params: { redirect_uri: getGmailOAuthRedirectUri() },
-      })
+      const oauthRes = await api.get('/gmail/oauth-url')
       const oauthData = oauthRes.data || {}
       const authUrl = oauthData.auth_url || oauthData.url
       if (!authUrl) throw new Error('Google OAuth service returned no authorization URL')
