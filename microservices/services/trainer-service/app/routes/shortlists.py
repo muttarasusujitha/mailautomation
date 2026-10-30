@@ -3640,6 +3640,7 @@ async def send_shortlist_mail(
                     # A generated ToC needs a client-confirmed duration. A
                     # client-supplied agenda can still be sent as provided.
                     requires_toc = True
+                    review_toc_held = False
                     duration_confirmed = _confirmed_training_duration_days(requirement) is not None
                     if _has_client_supplied_toc(requirement):
                         if "approved toc/course agenda is attached" not in body.lower():
@@ -3678,7 +3679,27 @@ async def send_shortlist_mail(
                                         json={"toc": generated_toc, "draft": True},
                                     )
                                     is_draft_toc = True
-                                if toc_response.status_code == 200 and toc_response.content:
+                                if toc_response.status_code == 422 and reviewable_draft:
+                                    # A quality warning is a review task, not a
+                                    # reason to fail the entire trainer email.
+                                    # Keep the proposed scope in the message and
+                                    # let the trainer review it in the workflow.
+                                    review_note = (
+                                        "The proposed ToC/course agenda is being held for quality review. "
+                                        "Please confirm availability and delivery feasibility; we will share the agenda after review."
+                                    )
+                                    if review_note.lower() not in body.lower():
+                                        body = _insert_before_signature(body, review_note)
+                                        send_payload["body"] = body
+                                    logger.warning(
+                                        "Skipping review-required ToC attachment for Mail 1 to %s after draft export returned 422",
+                                        trainer_email,
+                                    )
+                                    review_toc_held = True
+                                    toc_response = None
+                                if toc_response is None:
+                                    pass
+                                elif toc_response.status_code == 200 and toc_response.content:
                                     toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
                                     if is_draft_toc:
                                         toc_label = "DRAFT FOR REVIEW - " + toc_label
@@ -3729,7 +3750,7 @@ async def send_shortlist_mail(
                             if duration_note.lower() not in body.lower():
                                 body = _insert_before_signature(body, duration_note)
                                 send_payload["body"] = body
-                    if requires_toc and not scope_attachments and duration_confirmed:
+                    if requires_toc and not scope_attachments and duration_confirmed and not review_toc_held:
                         raise RuntimeError("Mail 1 requires a client or generated ToC attachment")
                     if scope_attachments:
                         send_payload["attachments"] = scope_attachments
