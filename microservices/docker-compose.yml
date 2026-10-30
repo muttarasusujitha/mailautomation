@@ -245,8 +245,6 @@ services:
       EMAIL_SERVICE_URL: http://email-service:8002
       NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
-    healthcheck:
-      disable: true
     depends_on:
       redis:
         condition: service_healthy
@@ -269,8 +267,6 @@ services:
     env_file: .env
     volumes:
       - celery_beat_data:/app/celerybeat-schedule
-    healthcheck:
-      disable: true
     depends_on:
       redis:
         condition: service_healthy
