@@ -3679,7 +3679,16 @@ async def send_shortlist_mail(
                                         json={"toc": generated_toc, "draft": True},
                                     )
                                     is_draft_toc = True
-                                if toc_response.status_code == 422 and reviewable_draft:
+                                quality_review_rejected = False
+                                if toc_response.status_code == 422:
+                                    try:
+                                        export_detail = (toc_response.json() or {}).get("detail", "")
+                                    except Exception:
+                                        export_detail = toc_response.text
+                                    quality_review_rejected = (
+                                        "TOC requires review before export or delivery" in str(export_detail)
+                                    )
+                                if toc_response.status_code == 422 and quality_review_rejected:
                                     # A quality warning is a review task, not a
                                     # reason to fail the entire trainer email.
                                     # Keep the proposed scope in the message and
@@ -3692,7 +3701,7 @@ async def send_shortlist_mail(
                                         body = _insert_before_signature(body, review_note)
                                         send_payload["body"] = body
                                     logger.warning(
-                                        "Skipping review-required ToC attachment for Mail 1 to %s after draft export returned 422",
+                                        "Skipping review-required ToC attachment for Mail 1 to %s after export returned 422",
                                         trainer_email,
                                     )
                                     review_toc_held = True
