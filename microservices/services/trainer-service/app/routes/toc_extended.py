@@ -1222,7 +1222,12 @@ async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = De
 
     title = toc.get("title", "Training Programme TOC")
     from shared.toc_quality import toc_delivery_error
-    delivery_error = toc_delivery_error(toc)
+    quality = toc.get("quality") or {}
+    delivery_error = (
+        toc_delivery_error(toc)
+        if quality.get("status") or quality.get("content_evaluation")
+        else ""
+    )
     if delivery_error:
         raise HTTPException(422, delivery_error)
     body = payload.body or (
