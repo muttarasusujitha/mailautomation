@@ -2258,6 +2258,23 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         if not toc_data:
             return None
         toc_data = dict(toc_data)
+        quality = toc_data.get("quality") or {}
+        evaluation = quality.get("content_evaluation") or {}
+        score = evaluation.get("score")
+        if (
+            quality.get("status") == "requires_review"
+            and not quality.get("validation_errors")
+            and not evaluation.get("blocking_issues")
+            and evaluation.get("status") != "fail"
+            and isinstance(score, (int, float))
+            and score >= 85
+        ):
+            quality = {
+                **quality,
+                "automatic_review": True,
+                "reviewed_by": "automatic_quality_review",
+            }
+            toc_data["quality"] = quality
         client_toc_topics = _client_supplied_toc_topics(requirement)
         if client_toc_topics:
             # This object is used only by the lab-cost engine.  Preserve the

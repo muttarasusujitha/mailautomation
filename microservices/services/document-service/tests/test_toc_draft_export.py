@@ -24,3 +24,17 @@ def test_draft_is_downloadable_and_labelled_without_changing_delivery_status():
 def test_draft_does_not_allow_empty_curriculum():
     with pytest.raises(HTTPException):
         asyncio.run(export_toc_workbook({"toc": {"days": []}, "draft": True}))
+
+
+def test_automatically_reviewed_toc_is_exportable():
+    toc = {
+        "title": "Automatically reviewed",
+        "quality": {
+            "status": "requires_review",
+            "automatic_review": True,
+            "content_evaluation": {"status": "pass", "score": 90},
+        },
+        "days": [{"day": 1, "focus_area": "Python", "minutes": 60}],
+    }
+    response = asyncio.run(export_toc_workbook({"toc": toc}))
+    assert response.status_code == 200

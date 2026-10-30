@@ -1221,8 +1221,10 @@ async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = De
         raise HTTPException(400, "to_email is required")
 
     title = toc.get("title", "Training Programme TOC")
-    if (toc.get("quality") or {}).get("status") in {"requires_regeneration", "requires_review"}:
-        raise HTTPException(422, "TOC requires review before delivery; resolve its quality warnings first")
+    from shared.toc_quality import toc_delivery_error
+    delivery_error = toc_delivery_error(toc)
+    if delivery_error:
+        raise HTTPException(422, delivery_error)
     body = payload.body or (
         f"Dear {trainer_name},\n\n"
         f"Please find attached the Table of Contents workbook for {title}.\n\n"
