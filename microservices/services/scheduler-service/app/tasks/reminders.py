@@ -232,9 +232,9 @@ async def _do_send_missing_toc_followups():
     sent = pending_review = failed = attempted = 0
     cursor = db["email_logs"].find(query, {
         "_id": 0, "email_id": 1, "requirement_id": 1, "trainer_id": 1,
-    }).sort("sent_at", 1).limit(100)
+    }).sort("sent_at", 1).limit(25)
 
-    async with httpx.AsyncClient(timeout=180) as client:
+    async with httpx.AsyncClient(timeout=300) as client:
         async for original in cursor:
             email_id = original.get("email_id")
             requirement_id = str(original.get("requirement_id") or "").strip()
