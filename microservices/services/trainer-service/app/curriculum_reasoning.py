@@ -387,7 +387,7 @@ async def generate_reasoned_toc(request, client, settings, db=None):
         _ai_level_contract(request.level) + " "
         "Design a fresh client-specific curriculum from the requirement brief and locally matched dataset examples. "
         "Choose and sequence modules for this audience; do not copy a fixed template or pad days. "
-        "Include every required topic, exclude forbidden topics, honor explicit allocations and duration. "
+        "Include every required topic verbatim in a relevant module title or subtopic, exclude forbidden topics, and honor explicit allocations and duration. "
         "Order prerequisites before dependent modules, accounting for prior knowledge. "
         "Each day contains a modules array of individually timed teaching modules; use multiple modules where the scope benefits, as in an execution plan. "
         "Module minutes must sum exactly to day minutes. Each module needs its own topics, tools, practical lab, outcomes, scenario, deliverable, assessment and source_ids. "
@@ -401,7 +401,7 @@ async def generate_reasoned_toc(request, client, settings, db=None):
         "Deliverables name tangible participant artifacts; assessments specify how those artifacts are checked against expected behaviour or seeded cases. Avoid generic 'understand', 'hands-on practice' or 'quiz' as complete descriptions. "
         "Use prepared starter assets where needed and disclose that prerequisite. When scope cannot fit, ask for clarification rather than compressing labs or promising production readiness. "
         "Day-level fields summarize the modules, not extra unallocated content. Do not copy source client/company names or source certification thresholds into a new client's plan. "
-        "Use source minutes as reference estimates, never silently compress multi-hour modules. Separate advanced leadership tracks unless explicitly requested. "
+        "Use source minutes as reference estimates, never silently compress multi-hour modules. Keep every day at or below hours_per_day * 60 by reallocating topics across the requested days. Separate advanced leadership tracks unless explicitly requested. "
         "Every day needs source_ids supporting its scope, specific subtopics, practical lab with observable deliverable, "
         "measurable objectives, a concrete participant deliverable, a realistic scenario and an assessment. Cite only supplied source IDs. Never invent evidence or product capabilities. "
         "Use at least ten minutes per subtopic plus 45 minutes lab and 15 minutes assessment, within supplied daily hours. "
@@ -413,9 +413,21 @@ async def generate_reasoned_toc(request, client, settings, db=None):
                      else min(40000, 3000 + int(request.duration_days)*1400))
     plan = await structured(client, model, CurriculumPlan, instructions, data, output_budget)
     errors, coverage = validate_plan(plan, brief, request, sources)
-    if errors:
-        data.update({"previous_plan": plan.model_dump(), "validation_errors": errors})
-        plan = await structured(client, model, CurriculumPlan, instructions + " Repair the listed validation failures; do not claim success when constraints conflict.", data, output_budget)
+    for repair_attempt in range(2):
+        if not errors:
+            break
+        data.update({
+            "previous_plan": plan.model_dump(),
+            "validation_errors": errors,
+            "repair_attempt": repair_attempt + 1,
+        })
+        repair_instructions = (
+            " Repair every listed validation failure before returning. Put every required topic verbatim in a relevant module title or subtopic; "
+            "do not substitute a broad umbrella topic. Keep each day's module minutes at or below hours_per_day * 60, and make delivery-step minutes sum exactly to each module. "
+            "Reallocate the content across the requested days instead of exceeding the daily budget or silently extending the course. "
+            "Use the supplied sources for topic-specific labs. If a requested topic or the workload cannot fit, state that conflict in clarification_questions and do not claim it is covered."
+        )
+        plan = await structured(client, model, CurriculumPlan, instructions + repair_instructions, data, output_budget)
         errors, coverage = validate_plan(plan, brief, request, sources)
     review = await structured(client, model, CurriculumReview,
         "Review this proposed curriculum against the ORIGINAL client request, interpreted brief and supplied source records. "

@@ -2241,9 +2241,10 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
             training_dates=training_dates,
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
-            # Default to three training hours when no daily training hours were supplied.
+            # Default to a standard seven-hour teaching day. The workbook uses
+            # a 9-to-5 schedule with a lunch break; lab-access hours are separate.
             # Lab hours describe the lab environment and should not override training hours.
-            hours_per_day=duration_inputs.get("hours_per_day") or 3,
+            hours_per_day=duration_inputs.get("hours_per_day") or 7,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),
@@ -3641,7 +3642,6 @@ async def send_shortlist_mail(
                     # A generated ToC needs a client-confirmed duration. A
                     # client-supplied agenda can still be sent as provided.
                     requires_toc = True
-                    review_toc_held = False
                     duration_confirmed = _confirmed_training_duration_days(requirement) is not None
                     if _has_client_supplied_toc(requirement):
                         if "approved toc/course agenda is attached" not in body.lower():
@@ -3690,23 +3690,14 @@ async def send_shortlist_mail(
                                         "TOC requires review before export or delivery" in str(export_detail)
                                     )
                                 if toc_response.status_code == 422 and quality_review_rejected:
-                                    # A quality warning is a review task, not a
-                                    # reason to fail the entire trainer email.
-                                    # Keep the proposed scope in the message and
-                                    # let the trainer review it in the workflow.
-                                    review_note = (
-                                        "The proposed ToC/course agenda is being held for quality review. "
-                                        "Please confirm availability and delivery feasibility; we will share the agenda after review."
-                                    )
-                                    if review_note.lower() not in body.lower():
-                                        body = _insert_before_signature(body, review_note)
-                                        send_payload["body"] = body
                                     logger.warning(
-                                        "Skipping review-required ToC attachment for Mail 1 to %s after export returned 422",
-                                        trainer_email,
+                                        "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
+                                        trainer_email, export_detail,
                                     )
-                                    review_toc_held = True
-                                    toc_response = None
+                                    raise RuntimeError(
+                                        "Mail 1 was not sent because its ToC failed quality review: "
+                                        + str(export_detail)[:300]
+                                    )
                                 if toc_response is None:
                                     pass
                                 elif toc_response.status_code == 200 and toc_response.content:
@@ -3760,7 +3751,7 @@ async def send_shortlist_mail(
                             if duration_note.lower() not in body.lower():
                                 body = _insert_before_signature(body, duration_note)
                                 send_payload["body"] = body
-                    if requires_toc and not scope_attachments and duration_confirmed and not review_toc_held:
+                    if requires_toc and not scope_attachments and duration_confirmed:
                         raise RuntimeError("Mail 1 requires a client or generated ToC attachment")
                     if scope_attachments:
                         send_payload["attachments"] = scope_attachments
