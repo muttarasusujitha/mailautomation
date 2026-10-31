@@ -86,4 +86,10 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute=0),
         "args": [],
     },
+    # Retry failed first trainer outreach without requiring the AI Pipeline page to be open.
+    "trainer-mail1-retry-every-five-minutes": {
+        "task": "app.tasks.reminders.retry_failed_mail1",
+        "schedule": crontab(minute="*/5"),
+        "args": [],
+    },
 }
