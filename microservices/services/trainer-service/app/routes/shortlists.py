@@ -3521,6 +3521,7 @@ async def send_shortlist_mail(
 
         error_message = ""
         sent_email_id = ""
+        delivery_pending = False
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 domain = _clean(
@@ -3803,19 +3804,49 @@ async def send_shortlist_mail(
                 except Exception:
                     email_result = {}
                 already_in_progress = bool(email_result.get("already_in_progress")) if isinstance(email_result, dict) else False
+                if r.status_code < 400 and already_in_progress:
+                    # The browser and the backend scheduler may race to send
+                    # the same Mail 1. The email service owns the idempotency
+                    # key, so wait for its canonical log result instead of
+                    # reporting a concurrent send as a delivery failure.
+                    idempotency_key = send_payload.get("idempotency_key")
+                    for _ in range(40):
+                        await asyncio.sleep(0.5)
+                        delivery_log = await db["email_logs"].find_one(
+                            {"idempotency_key": idempotency_key},
+                            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
+                        ) if idempotency_key else None
+                        delivery_status = (delivery_log or {}).get("status")
+                        if delivery_status == "sent":
+                            email_result = {
+                                "success": True,
+                                "email_id": delivery_log.get("email_id"),
+                                "sent_at": delivery_log.get("sent_at"),
+                            }
+                            already_in_progress = False
+                            break
+                        if delivery_status == "failed":
+                            email_result = {
+                                "success": False,
+                                "email_id": delivery_log.get("email_id"),
+                                "error": delivery_log.get("error_message") or "Email delivery failed",
+                            }
+                            already_in_progress = False
+                            break
                 delivery_confirmed = (
                     isinstance(email_result, dict)
                     and email_result.get("success") is not False
                     and not already_in_progress
                 )
+                delivery_pending = already_in_progress
                 ok = r.status_code < 400 and delivery_confirmed
                 if not ok:
                     if r.status_code >= 400:
                         error_message = f"{r.status_code}: {r.text[:300]}"
                     elif already_in_progress:
-                        error_message = "Email delivery is already in progress; delivery is not confirmed yet"
+                        error_message = "Email is still being processed; delivery is not confirmed yet"
                     else:
-                        error_message = "Email service did not confirm delivery"
+                        error_message = email_result.get("error") or "Email service did not confirm delivery"
                 else:
                     sent_email_id = email_result.get("email_id", "")
                     if not sent_email_id:
@@ -3844,7 +3875,7 @@ async def send_shortlist_mail(
         results.append({
             "trainer_id": t.get("trainer_id"),
             "email": trainer_email,
-            "status": "sent" if ok else "failed",
+            "status": "sent" if ok else ("sending" if delivery_pending else "failed"),
             "email_id": sent_email_id,
             "error_message": error_message,
         })
@@ -3907,7 +3938,7 @@ async def send_shortlist_mail(
                     "top_trainers.$.last_mail_type": "mail4_reschedule_request",
                 })
         else:
-            set_fields["top_trainers.$.last_mail_error"] = error_message or "Email delivery failed"
+            set_fields["top_trainers.$.last_mail_error"] = "" if delivery_pending else (error_message or "Email delivery failed")
             if payload.mail_type in ("mail1", "first"):
                 # Keep a failed first outreach eligible for the AI Pipeline's
                 # automatic retry instead of leaving a stale waiting_reply1 state.
@@ -3919,12 +3950,14 @@ async def send_shortlist_mail(
         )
 
     sent = sum(1 for r in results if r["status"] == "sent")
-    failed = len(results) - sent
-    success = sent > 0 and failed == 0
+    pending = sum(1 for r in results if r["status"] == "sending")
+    failed = len(results) - sent - pending
+    success = sent > 0 and failed == 0 and pending == 0
     return {
         "success": success,
         "sent": sent,
         "failed": failed,
+        "pending": pending,
         "total": len(results),
         "error": "" if success else (results[0].get("error_message") if results else "No emails were sent"),
         "results": results,

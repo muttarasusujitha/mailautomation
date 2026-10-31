@@ -115,11 +115,12 @@ function channelStatus(label, result, successLabel = 'sent') {
 }
 
 function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
+  const deliveryPending = result?.status === 'sending'
   const email = {
     label: 'Email',
-    value: result?.success ? 'sent' : 'failed',
-    tone: result?.success ? 'ok' : 'bad',
-    detail: result?.success ? (result?.email_id || '') : (result?.error || 'Unknown error'),
+    value: result?.success ? 'sent' : deliveryPending ? 'processing' : 'failed',
+    tone: result?.success ? 'ok' : deliveryPending ? 'warn' : 'bad',
+    detail: result?.success ? (result?.email_id || '') : deliveryPending ? (result?.error || 'Delivery is still being confirmed') : (result?.error || 'Unknown error'),
   }
   const channels = [
     email,
@@ -166,13 +167,16 @@ function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
 function showBulkSendStatusToast({ title = 'Bulk messages sent', results = [] }) {
   const countOk = (items, pick) => items.filter(item => pick(item)?.success === true).length
   const emailOk = results.filter(item => isSendMailDelivered(item.result)).length
-  if (emailOk < results.length) title = title.replace(/sent$/i, emailOk ? 'partially sent' : 'failed')
+  const emailPending = results.filter(item => firstSendMailResult(item.result)?.status === 'sending').length
+  if (emailOk + emailPending < results.length) title = title.replace(/sent$/i, emailOk ? 'partially sent' : 'failed')
+  else if (emailPending) title = title.replace(/sent$/i, 'still processing')
   const whatsappOk = countOk(results, item => item.result?.whatsapp)
   const teamsDirectOk = countOk(results, item => item.result?.teams_direct)
   const teamsOk = countOk(results, item => item.result?.teams)
   const rows = [
     { label: 'Trainers', value: results.length, tone: 'muted' },
     { label: 'Email sent', value: `${emailOk}/${results.length}`, tone: emailOk === results.length ? 'ok' : 'warn' },
+    { label: 'Email processing', value: `${emailPending}/${results.length}`, tone: emailPending ? 'warn' : 'muted' },
     { label: 'WhatsApp queued', value: `${whatsappOk}/${results.length}`, tone: whatsappOk === results.length ? 'ok' : 'warn' },
     { label: 'Teams DM sent', value: `${teamsDirectOk}/${results.length}`, tone: teamsDirectOk ? 'ok' : 'muted' },
     { label: 'Teams channel', value: `${teamsOk}/${results.length}`, tone: teamsOk ? 'ok' : 'muted' },
@@ -2793,7 +2797,12 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             sentResults.push({ trainer, result: res.data })
             if (delivered) {
               setStage(trainer, 'waiting_reply1', { mail1SentAt: Date.now(), reminders: 0 })
-
+            } else if (firstSendMailResult(res?.data)?.status === 'sending') {
+              showSendStatusToast({
+                trainerName: trainer.name,
+                result: { status: 'sending', error: sendMailError(res?.data) },
+                title: 'Mail 1 is still processing',
+              })
             } else {
               showSendStatusToast({
                 trainerName: trainer.name,
@@ -2806,9 +2815,12 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const deliveredCount = sentResults.filter(item => {
             return isSendMailDelivered(item.result)
           }).length
-          const failedCount = pendingTrainers.length - deliveredCount
+          const processingCount = sentResults.filter(item => firstSendMailResult(item.result)?.status === 'sending').length
+          const failedCount = pendingTrainers.length - deliveredCount - processingCount
           if (failedCount) {
-            toast.error(`Sent ${deliveredCount} of ${pendingTrainers.length} emails. ${failedCount} failed.`)
+            toast.error(`Sent ${deliveredCount} of ${pendingTrainers.length} emails. ${failedCount} failed; ${processingCount} still processing.`)
+          } else if (processingCount) {
+            toast(`Sent ${deliveredCount} of ${pendingTrainers.length} emails; ${processingCount} still processing.`, { duration: 6000 })
           } else {
             toast.success(`Sent ${deliveredCount} email${deliveredCount === 1 ? '' : 's'} successfully.`, { duration: 5000 })
           }
