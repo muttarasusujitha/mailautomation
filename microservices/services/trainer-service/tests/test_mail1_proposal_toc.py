@@ -121,15 +121,17 @@ def test_mail1_sends_without_toc_when_review_gate_422_has_missing_quality_metada
     assert "being held for quality review" in mail["body"]
 
 
-def test_mail1_does_not_export_regeneration_required_toc_as_draft(monkeypatch):
+def test_mail1_sends_without_regeneration_required_toc_after_review_gate_422(monkeypatch):
     toc = {"title": "DevOps", "quality": {"status": "requires_regeneration", "validation_errors": ["Missing requested scope"]},
            "days": [{"day": 1}]}
     result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)
 
-    assert result["sent"] == 0
-    assert result["failed"] == 1
+    assert result["sent"] == 1
+    assert result["failed"] == 0
     assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
-    assert not any("/email/send" in url for url, _ in calls)
+    mail = next(payload for url, payload in calls if "/email/send" in url)
+    assert not mail.get("attachments")
+    assert "being held for quality review" in mail["body"]
 
 
 def test_existing_client_toc_is_forwarded_without_regeneration(monkeypatch):
