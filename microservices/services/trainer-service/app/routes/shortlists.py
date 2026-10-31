@@ -123,6 +123,11 @@ class SendMailRequest(BaseModel):
     smtp_config: Optional[Dict[str, Any]] = None
 
 
+class TocCorrectionRequest(BaseModel):
+    requirement_id: str
+    trainer_id: str
+
+
 class GenerateAiMailRequest(BaseModel):
     requirement_id: str
     trainer_id: Optional[str] = ""
@@ -2241,9 +2246,10 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
             training_dates=training_dates,
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
-            # Default to three training hours when no daily training hours were supplied.
+            # Default to a standard seven-hour teaching day. The workbook uses
+            # a 9-to-5 schedule with a lunch break; lab-access hours are separate.
             # Lab hours describe the lab environment and should not override training hours.
-            hours_per_day=duration_inputs.get("hours_per_day") or 3,
+            hours_per_day=duration_inputs.get("hours_per_day") or 7,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),
@@ -3521,6 +3527,7 @@ async def send_shortlist_mail(
 
         error_message = ""
         sent_email_id = ""
+        delivery_pending = False
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 domain = _clean(
@@ -3640,7 +3647,6 @@ async def send_shortlist_mail(
                     # A generated ToC needs a client-confirmed duration. A
                     # client-supplied agenda can still be sent as provided.
                     requires_toc = True
-                    review_toc_held = False
                     duration_confirmed = _confirmed_training_duration_days(requirement) is not None
                     if _has_client_supplied_toc(requirement):
                         if "approved toc/course agenda is attached" not in body.lower():
@@ -3689,23 +3695,14 @@ async def send_shortlist_mail(
                                         "TOC requires review before export or delivery" in str(export_detail)
                                     )
                                 if toc_response.status_code == 422 and quality_review_rejected:
-                                    # A quality warning is a review task, not a
-                                    # reason to fail the entire trainer email.
-                                    # Keep the proposed scope in the message and
-                                    # let the trainer review it in the workflow.
-                                    review_note = (
-                                        "The proposed ToC/course agenda is being held for quality review. "
-                                        "Please confirm availability and delivery feasibility; we will share the agenda after review."
-                                    )
-                                    if review_note.lower() not in body.lower():
-                                        body = _insert_before_signature(body, review_note)
-                                        send_payload["body"] = body
                                     logger.warning(
-                                        "Skipping review-required ToC attachment for Mail 1 to %s after export returned 422",
-                                        trainer_email,
+                                        "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
+                                        trainer_email, export_detail,
                                     )
-                                    review_toc_held = True
-                                    toc_response = None
+                                    raise RuntimeError(
+                                        "Mail 1 was not sent because its ToC failed quality review: "
+                                        + str(export_detail)[:300]
+                                    )
                                 if toc_response is None:
                                     pass
                                 elif toc_response.status_code == 200 and toc_response.content:
@@ -3759,7 +3756,7 @@ async def send_shortlist_mail(
                             if duration_note.lower() not in body.lower():
                                 body = _insert_before_signature(body, duration_note)
                                 send_payload["body"] = body
-                    if requires_toc and not scope_attachments and duration_confirmed and not review_toc_held:
+                    if requires_toc and not scope_attachments and duration_confirmed:
                         raise RuntimeError("Mail 1 requires a client or generated ToC attachment")
                     if scope_attachments:
                         send_payload["attachments"] = scope_attachments
@@ -3803,19 +3800,49 @@ async def send_shortlist_mail(
                 except Exception:
                     email_result = {}
                 already_in_progress = bool(email_result.get("already_in_progress")) if isinstance(email_result, dict) else False
+                if r.status_code < 400 and already_in_progress:
+                    # The browser and the backend scheduler may race to send
+                    # the same Mail 1. The email service owns the idempotency
+                    # key, so wait for its canonical log result instead of
+                    # reporting a concurrent send as a delivery failure.
+                    idempotency_key = send_payload.get("idempotency_key")
+                    for _ in range(40):
+                        await asyncio.sleep(0.5)
+                        delivery_log = await db["email_logs"].find_one(
+                            {"idempotency_key": idempotency_key},
+                            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
+                        ) if idempotency_key else None
+                        delivery_status = (delivery_log or {}).get("status")
+                        if delivery_status == "sent":
+                            email_result = {
+                                "success": True,
+                                "email_id": delivery_log.get("email_id"),
+                                "sent_at": delivery_log.get("sent_at"),
+                            }
+                            already_in_progress = False
+                            break
+                        if delivery_status == "failed":
+                            email_result = {
+                                "success": False,
+                                "email_id": delivery_log.get("email_id"),
+                                "error": delivery_log.get("error_message") or "Email delivery failed",
+                            }
+                            already_in_progress = False
+                            break
                 delivery_confirmed = (
                     isinstance(email_result, dict)
                     and email_result.get("success") is not False
                     and not already_in_progress
                 )
+                delivery_pending = already_in_progress
                 ok = r.status_code < 400 and delivery_confirmed
                 if not ok:
                     if r.status_code >= 400:
                         error_message = f"{r.status_code}: {r.text[:300]}"
                     elif already_in_progress:
-                        error_message = "Email delivery is already in progress; delivery is not confirmed yet"
+                        error_message = "Email is still being processed; delivery is not confirmed yet"
                     else:
-                        error_message = "Email service did not confirm delivery"
+                        error_message = email_result.get("error") or "Email service did not confirm delivery"
                 else:
                     sent_email_id = email_result.get("email_id", "")
                     if not sent_email_id:
@@ -3844,7 +3871,7 @@ async def send_shortlist_mail(
         results.append({
             "trainer_id": t.get("trainer_id"),
             "email": trainer_email,
-            "status": "sent" if ok else "failed",
+            "status": "sent" if ok else ("sending" if delivery_pending else "failed"),
             "email_id": sent_email_id,
             "error_message": error_message,
         })
@@ -3907,7 +3934,7 @@ async def send_shortlist_mail(
                     "top_trainers.$.last_mail_type": "mail4_reschedule_request",
                 })
         else:
-            set_fields["top_trainers.$.last_mail_error"] = error_message or "Email delivery failed"
+            set_fields["top_trainers.$.last_mail_error"] = "" if delivery_pending else (error_message or "Email delivery failed")
             if payload.mail_type in ("mail1", "first"):
                 # Keep a failed first outreach eligible for the AI Pipeline's
                 # automatic retry instead of leaving a stale waiting_reply1 state.
@@ -3919,16 +3946,139 @@ async def send_shortlist_mail(
         )
 
     sent = sum(1 for r in results if r["status"] == "sent")
-    failed = len(results) - sent
-    success = sent > 0 and failed == 0
+    pending = sum(1 for r in results if r["status"] == "sending")
+    failed = len(results) - sent - pending
+    success = sent > 0 and failed == 0 and pending == 0
     return {
         "success": success,
         "sent": sent,
         "failed": failed,
+        "pending": pending,
         "total": len(results),
         "error": "" if success else (results[0].get("error_message") if results else "No emails were sent"),
         "results": results,
     }
+
+
+@router.post("/send-toc-correction")
+async def send_missing_toc_followup(
+    payload: TocCorrectionRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Send a corrected ToC separately when Mail 1 went out without its workbook."""
+    requirement_id = _clean(payload.requirement_id)
+    trainer_id = _clean(payload.trainer_id)
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    trainer = next(
+        (item for item in shortlist.get("top_trainers") or [] if _clean(item.get("trainer_id")) == trainer_id),
+        None,
+    )
+    if not requirement or not trainer:
+        raise HTTPException(404, "Requirement or shortlisted trainer not found")
+
+    prior_mail1 = await db["email_logs"].find({
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "mail_type": {"$in": ["mail1", "first"]},
+        "direction": "outbound",
+        "status": "sent",
+    }, {"_id": 0, "attachment_names": 1}).to_list(20)
+    if not prior_mail1:
+        return {"success": False, "status": "skipped", "message": "No successfully sent Mail 1 was found"}
+    has_toc_attachment = any(
+        any("toc" in str(name).lower() for name in (item.get("attachment_names") or []))
+        for item in prior_mail1
+    )
+    if has_toc_attachment:
+        return {"success": True, "status": "already_attached", "message": "A ToC workbook was already sent"}
+
+    existing_followup = await db["email_logs"].find_one({
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "mail_type": "mail1_toc_correction",
+        "direction": "outbound",
+        "status": "sent",
+    }, {"_id": 0, "email_id": 1, "sent_at": 1})
+    if existing_followup:
+        return {"success": True, "status": "already_sent", **existing_followup}
+
+    trainer_email = _clean(trainer.get("email") or trainer.get("trainer_email"))
+    if not trainer_email:
+        return {"success": False, "status": "needs_email", "message": "Trainer email is missing"}
+
+    generated_toc = await _build_toc(requirement, trainer, db)
+    if not generated_toc:
+        return {"success": False, "status": "quality_review", "message": "ToC generation did not return a curriculum"}
+    quality = generated_toc.get("quality") or {}
+    evaluation = quality.get("content_evaluation") or {}
+    toc_is_approved = quality.get("status") == "approved" or (
+        quality.get("automatic_review") is True
+        and not quality.get("validation_errors")
+        and not evaluation.get("blocking_issues")
+        and evaluation.get("status") != "fail"
+    )
+    if not toc_is_approved:
+        return {
+            "success": False,
+            "status": "quality_review",
+            "message": "ToC still has unresolved quality warnings",
+            "quality": {
+                "status": quality.get("status"),
+                "validation_errors": quality.get("validation_errors") or [],
+                "blocking_issues": evaluation.get("blocking_issues") or [],
+            },
+        }
+
+    toc_id = _clean(generated_toc.get("toc_id") or quality.get("toc_id"))
+    async with httpx.AsyncClient(timeout=60) as client:
+        export = await _post_with_local_fallback(
+            client,
+            f"{DOC_SVC}/api/v1/documents/excel/toc",
+            json={"toc": generated_toc},
+        )
+        if export.status_code != 200 or not export.content:
+            return {"success": False, "status": "export_failed", "message": export.text[:300]}
+
+        filename = f"{_clean(requirement.get('technology_needed') or requirement.get('domain') or 'Training')} - Course ToC.xlsx"
+        send_payload = {
+            "to": trainer_email,
+            "subject": f"Course ToC - {_clean(requirement.get('technology_needed') or requirement.get('domain') or 'Training')}",
+            "body": (
+                f"Dear {_clean(trainer.get('name') or trainer.get('trainer_name')) or 'Trainer'},\n\n"
+                "Please find the corrected course ToC attached for the training requirement. "
+                "Please review the scope and confirm feasibility.\n\nRegards,\nClahan Technologies"
+            ),
+            "mail_type": "mail1_toc_correction",
+            "trainer_id": trainer_id,
+            "trainer_name": _clean(trainer.get("name") or trainer.get("trainer_name")),
+            "requirement_id": requirement_id,
+            "idempotency_key": f"trainer-toc-correction:{requirement_id}:{trainer_id}:{toc_id or 'latest'}",
+            "attachments": [{
+                "filename": filename,
+                "content_base64": base64.b64encode(export.content).decode(),
+                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }],
+        }
+        response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
+        try:
+            result = response.json() or {}
+        except Exception:
+            result = {}
+        if response.status_code >= 400 or result.get("success") is not True:
+            return {"success": False, "status": "send_failed", "message": result.get("error") or response.text[:300]}
+
+    sent_at = result.get("sent_at") or datetime.utcnow()
+    email_id = result.get("email_id") or ""
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.toc_correction_email_id": email_id,
+            "top_trainers.$.toc_correction_sent_at": sent_at,
+            "top_trainers.$.toc_delivery_status": "sent",
+        }},
+    )
+    return {"success": True, "status": "sent", "email_id": email_id, "sent_at": sent_at}
 
 
 async def _legacy_send_interview_link(
