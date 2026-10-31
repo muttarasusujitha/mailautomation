@@ -3798,14 +3798,26 @@ async def send_shortlist_mail(
                     base_key = f"trainer-mail1:{payload.requirement_id}:{trainer_id or trainer_email.lower()}"
                     send_payload["idempotency_key"] = base_key
                 r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
-                ok = r.status_code < 400
+                try:
+                    email_result = r.json() or {}
+                except Exception:
+                    email_result = {}
+                already_in_progress = bool(email_result.get("already_in_progress")) if isinstance(email_result, dict) else False
+                delivery_confirmed = (
+                    isinstance(email_result, dict)
+                    and email_result.get("success") is not False
+                    and not already_in_progress
+                )
+                ok = r.status_code < 400 and delivery_confirmed
                 if not ok:
-                    error_message = f"{r.status_code}: {r.text[:300]}"
+                    if r.status_code >= 400:
+                        error_message = f"{r.status_code}: {r.text[:300]}"
+                    elif already_in_progress:
+                        error_message = "Email delivery is already in progress; delivery is not confirmed yet"
+                    else:
+                        error_message = "Email service did not confirm delivery"
                 else:
-                    try:
-                        sent_email_id = (r.json() or {}).get("email_id", "")
-                    except Exception:
-                        sent_email_id = ""
+                    sent_email_id = email_result.get("email_id", "")
                     if not sent_email_id:
                         sent_log = await db["email_logs"].find_one(
                             {
