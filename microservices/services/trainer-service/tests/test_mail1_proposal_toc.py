@@ -9,7 +9,7 @@ import pytest
 from app.routes import shortlists
 
 
-def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, existing=None):
+def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, existing=None, email_response=None):
     trainer = {"trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com"}
     shortlist = {"top_trainers": [trainer]}
     db = {
@@ -30,7 +30,7 @@ def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, exis
             if status == 422:
                 return httpx.Response(422, json={"detail": "TOC requires review before export or delivery"})
             return httpx.Response(status, content=b"test-workbook")
-        return httpx.Response(200, json={"email_id": "EML-TEST"})
+        return httpx.Response(200, json=email_response or {"email_id": "EML-TEST"})
 
     monkeypatch.setattr(shortlists, "_post_with_local_fallback", post)
     result = asyncio.run(shortlists.send_shortlist_mail(
@@ -107,6 +107,20 @@ def test_mail1_attaches_labeled_draft_for_review_required_toc(monkeypatch):
     mail = calls[-1][1]
     assert "DRAFT FOR REVIEW" in mail["attachments"][0]["filename"]
     assert "draft ToC/course agenda is attached for your review" in mail["body"]
+
+
+def test_mail1_does_not_report_sent_when_email_service_says_in_progress(monkeypatch):
+    result, _, _ = setup_delivery(
+        monkeypatch,
+        requirement(),
+        toc={"title": "DevOps"},
+        email_response={"success": False, "already_in_progress": True},
+    )
+
+    assert result["sent"] == 0
+    assert result["failed"] == 1
+    assert result["results"][0]["status"] == "failed"
+    assert "already in progress" in result["results"][0]["error_message"]
 
 
 def test_mail1_sends_without_toc_when_review_gate_422_has_missing_quality_metadata(monkeypatch):
