@@ -110,7 +110,7 @@ services:
     expose:
       - "8002"
     volumes:
-      - ./gmail_config:/app/config
+      - gmail_oauth_data:/app/config
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
@@ -348,6 +348,8 @@ volumes:
   celery_beat_data:
   meet_bot_profile:
   linkedin_bot_profile:
+  gmail_oauth_data:
+    name: trainersync_gmail_oauth
 
 networks:
   trainersync:

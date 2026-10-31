@@ -448,6 +448,38 @@ jobs:
             pull frontend
 
       # ----------------------------------------------------------
+      # Preserve Gmail OAuth token when migrating from the old bind mount
+      # ----------------------------------------------------------
+      - name: Preserve Gmail OAuth token
+        run: |
+          set -euo pipefail
+
+          mkdir -p microservices/gmail_config
+          docker volume create trainersync_gmail_oauth >/dev/null
+          migration_script=$(cat <<'PY'
+          from pathlib import Path
+          import shutil
+
+          source = Path("/source/token.json")
+          target = Path("/target/token.json")
+          if target.exists():
+              print("Gmail OAuth token is already persistent")
+          elif source.is_file():
+              shutil.copy2(source, target)
+              print("Copied legacy Gmail OAuth token")
+          else:
+              print("No legacy Gmail token found; reconnect Gmail once after deployment")
+          PY
+          )
+
+          docker run --rm \
+            -v trainersync_gmail_oauth:/target \
+            -v "$PWD/microservices/gmail_config:/source:ro" \
+            --entrypoint python \
+            "$IMAGE_PREFIX/email-service:latest" \
+            -c "$migration_script"
+
+      # ----------------------------------------------------------
       # Build the meeting bot locally
       # ----------------------------------------------------------
       - name: Build Meet Bot
