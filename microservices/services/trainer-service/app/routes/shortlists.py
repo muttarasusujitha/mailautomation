@@ -123,6 +123,11 @@ class SendMailRequest(BaseModel):
     smtp_config: Optional[Dict[str, Any]] = None
 
 
+class TocCorrectionRequest(BaseModel):
+    requirement_id: str
+    trainer_id: str
+
+
 class GenerateAiMailRequest(BaseModel):
     requirement_id: str
     trainer_id: Optional[str] = ""
@@ -3953,6 +3958,127 @@ async def send_shortlist_mail(
         "error": "" if success else (results[0].get("error_message") if results else "No emails were sent"),
         "results": results,
     }
+
+
+@router.post("/send-toc-correction")
+async def send_missing_toc_followup(
+    payload: TocCorrectionRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Send a corrected ToC separately when Mail 1 went out without its workbook."""
+    requirement_id = _clean(payload.requirement_id)
+    trainer_id = _clean(payload.trainer_id)
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    trainer = next(
+        (item for item in shortlist.get("top_trainers") or [] if _clean(item.get("trainer_id")) == trainer_id),
+        None,
+    )
+    if not requirement or not trainer:
+        raise HTTPException(404, "Requirement or shortlisted trainer not found")
+
+    prior_mail1 = await db["email_logs"].find({
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "mail_type": {"$in": ["mail1", "first"]},
+        "direction": "outbound",
+        "status": "sent",
+    }, {"_id": 0, "attachment_names": 1}).to_list(20)
+    if not prior_mail1:
+        return {"success": False, "status": "skipped", "message": "No successfully sent Mail 1 was found"}
+    has_toc_attachment = any(
+        any("toc" in str(name).lower() for name in (item.get("attachment_names") or []))
+        for item in prior_mail1
+    )
+    if has_toc_attachment:
+        return {"success": True, "status": "already_attached", "message": "A ToC workbook was already sent"}
+
+    existing_followup = await db["email_logs"].find_one({
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "mail_type": "mail1_toc_correction",
+        "direction": "outbound",
+        "status": "sent",
+    }, {"_id": 0, "email_id": 1, "sent_at": 1})
+    if existing_followup:
+        return {"success": True, "status": "already_sent", **existing_followup}
+
+    trainer_email = _clean(trainer.get("email") or trainer.get("trainer_email"))
+    if not trainer_email:
+        return {"success": False, "status": "needs_email", "message": "Trainer email is missing"}
+
+    generated_toc = await _build_toc(requirement, trainer, db)
+    if not generated_toc:
+        return {"success": False, "status": "quality_review", "message": "ToC generation did not return a curriculum"}
+    quality = generated_toc.get("quality") or {}
+    evaluation = quality.get("content_evaluation") or {}
+    toc_is_approved = quality.get("status") == "approved" or (
+        quality.get("automatic_review") is True
+        and not quality.get("validation_errors")
+        and not evaluation.get("blocking_issues")
+        and evaluation.get("status") != "fail"
+    )
+    if not toc_is_approved:
+        return {
+            "success": False,
+            "status": "quality_review",
+            "message": "ToC still has unresolved quality warnings",
+            "quality": {
+                "status": quality.get("status"),
+                "validation_errors": quality.get("validation_errors") or [],
+                "blocking_issues": evaluation.get("blocking_issues") or [],
+            },
+        }
+
+    toc_id = _clean(generated_toc.get("toc_id") or quality.get("toc_id"))
+    async with httpx.AsyncClient(timeout=60) as client:
+        export = await _post_with_local_fallback(
+            client,
+            f"{DOC_SVC}/api/v1/documents/excel/toc",
+            json={"toc": generated_toc},
+        )
+        if export.status_code != 200 or not export.content:
+            return {"success": False, "status": "export_failed", "message": export.text[:300]}
+
+        filename = f"{_clean(requirement.get('technology_needed') or requirement.get('domain') or 'Training')} - Course ToC.xlsx"
+        send_payload = {
+            "to": trainer_email,
+            "subject": f"Course ToC - {_clean(requirement.get('technology_needed') or requirement.get('domain') or 'Training')}",
+            "body": (
+                f"Dear {_clean(trainer.get('name') or trainer.get('trainer_name')) or 'Trainer'},\n\n"
+                "Please find the corrected course ToC attached for the training requirement. "
+                "Please review the scope and confirm feasibility.\n\nRegards,\nClahan Technologies"
+            ),
+            "mail_type": "mail1_toc_correction",
+            "trainer_id": trainer_id,
+            "trainer_name": _clean(trainer.get("name") or trainer.get("trainer_name")),
+            "requirement_id": requirement_id,
+            "idempotency_key": f"trainer-toc-correction:{requirement_id}:{trainer_id}:{toc_id or 'latest'}",
+            "attachments": [{
+                "filename": filename,
+                "content_base64": base64.b64encode(export.content).decode(),
+                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }],
+        }
+        response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
+        try:
+            result = response.json() or {}
+        except Exception:
+            result = {}
+        if response.status_code >= 400 or result.get("success") is not True:
+            return {"success": False, "status": "send_failed", "message": result.get("error") or response.text[:300]}
+
+    sent_at = result.get("sent_at") or datetime.utcnow()
+    email_id = result.get("email_id") or ""
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.toc_correction_email_id": email_id,
+            "top_trainers.$.toc_correction_sent_at": sent_at,
+            "top_trainers.$.toc_delivery_status": "sent",
+        }},
+    )
+    return {"success": True, "status": "sent", "email_id": email_id, "sent_at": sent_at}
 
 
 async def _legacy_send_interview_link(

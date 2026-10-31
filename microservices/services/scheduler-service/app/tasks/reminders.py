@@ -16,6 +16,7 @@ SECOND_FOLLOWUP_AFTER_FIRST_HOURS = 24
 GMAIL_QUOTA_COOLDOWN_HOURS = 6
 MAIL1_RETRY_INTERVAL_MINUTES = 5
 MAIL1_RETRY_STALE_CLAIM_MINUTES = 15
+TOC_CORRECTION_RETRY_HOURS = 1
 
 
 def _coerce_bool(value, default=True):
@@ -196,6 +197,93 @@ async def _do_retry_failed_mail1():
                     )
 
     return {"attempted": attempted, "sent": sent, "failed": failed}
+
+
+async def _do_send_missing_toc_followups():
+    """Attach a corrected, quality-approved ToC to previously sent Mail 1s."""
+    db = get_db()
+    if not await _mail1_automation_enabled(db):
+        return {"sent": 0, "pending_review": 0, "skipped": True, "reason": "auto_send_disabled"}
+
+    now = datetime.utcnow()
+    recent_cutoff = now - timedelta(days=30)
+    retry_before = now - timedelta(hours=TOC_CORRECTION_RETRY_HOURS)
+    missing_toc_attachment = {
+        "$or": [
+            {"attachment_names": {"$exists": False}},
+            {"attachment_names": {"$not": {"$elemMatch": {"$regex": "toc", "$options": "i"}}}},
+        ]
+    }
+    query = {
+        "direction": "outbound",
+        "status": "sent",
+        "mail_type": {"$in": ["mail1", "first"]},
+        "sent_at": {"$gte": recent_cutoff},
+        "requirement_id": {"$exists": True, "$nin": [None, ""]},
+        "trainer_id": {"$exists": True, "$nin": [None, ""]},
+        "$and": [
+            missing_toc_attachment,
+            {"$or": [
+                {"toc_correction_attempted_at": {"$exists": False}},
+                {"toc_correction_attempted_at": {"$lte": retry_before}},
+            ]},
+        ],
+    }
+    sent = pending_review = failed = attempted = 0
+    cursor = db["email_logs"].find(query, {
+        "_id": 0, "email_id": 1, "requirement_id": 1, "trainer_id": 1,
+    }).sort("sent_at", 1).limit(100)
+
+    async with httpx.AsyncClient(timeout=180) as client:
+        async for original in cursor:
+            email_id = original.get("email_id")
+            requirement_id = str(original.get("requirement_id") or "").strip()
+            trainer_id = str(original.get("trainer_id") or "").strip()
+            if not email_id or not requirement_id or not trainer_id:
+                continue
+            claimed = await db["email_logs"].find_one_and_update(
+                {"email_id": email_id, **query},
+                {"$set": {"toc_correction_attempted_at": now, "toc_correction_status": "processing"}},
+                projection={"_id": 0, "email_id": 1},
+            )
+            if not claimed:
+                continue
+            attempted += 1
+            try:
+                response = await client.post(
+                    f"{settings.TRAINER_SERVICE_URL.rstrip('/')}/api/v1/shortlists/send-toc-correction",
+                    json={"requirement_id": requirement_id, "trainer_id": trainer_id},
+                )
+                response.raise_for_status()
+                result = response.json() or {}
+                status = str(result.get("status") or "")
+                if result.get("success") is True and status in {"sent", "already_sent", "already_attached"}:
+                    sent += 1
+                    await db["email_logs"].update_one(
+                        {"email_id": email_id},
+                        {"$set": {"toc_correction_status": "sent", "toc_correction_email_id": result.get("email_id") or "", "toc_correction_updated_at": datetime.utcnow()}, "$unset": {"toc_correction_last_error": ""}},
+                    )
+                elif status in {"quality_review", "export_failed", "needs_email"}:
+                    pending_review += 1
+                    await db["email_logs"].update_one(
+                        {"email_id": email_id},
+                        {"$set": {"toc_correction_status": status, "toc_correction_last_error": str(result.get("message") or result.get("quality") or "")[:1000], "toc_correction_updated_at": datetime.utcnow()}},
+                    )
+                else:
+                    failed += 1
+                    await db["email_logs"].update_one(
+                        {"email_id": email_id},
+                        {"$set": {"toc_correction_status": "failed", "toc_correction_last_error": str(result.get("message") or status)[:1000], "toc_correction_updated_at": datetime.utcnow()}},
+                    )
+            except Exception as exc:
+                failed += 1
+                logger.error("ToC correction follow-up failed: requirement=%s trainer=%s error=%s", requirement_id, trainer_id, exc)
+                await db["email_logs"].update_one(
+                    {"email_id": email_id},
+                    {"$set": {"toc_correction_status": "failed", "toc_correction_last_error": str(exc)[:1000], "toc_correction_updated_at": datetime.utcnow()}},
+                )
+
+    return {"attempted": attempted, "sent": sent, "pending_review": pending_review, "failed": failed}
 
 
 async def _do_followup_reminders():
@@ -467,6 +555,17 @@ def retry_failed_mail1(self):
     except Exception as exc:
         logger.error("Automatic Mail 1 retry task failed: %s", exc)
         raise self.retry(exc=exc, countdown=300)
+
+
+@celery_app.task(name="app.tasks.reminders.send_missing_toc_followups", bind=True, max_retries=2)
+def send_missing_toc_followups(self):
+    try:
+        result = run_async(_do_send_missing_toc_followups())
+        logger.info("Missing ToC follow-ups: %s", result)
+        return result
+    except Exception as exc:
+        logger.error("Missing ToC follow-up task failed: %s", exc)
+        raise self.retry(exc=exc, countdown=600)
 
 
 @celery_app.task(name="app.tasks.reminders.send_followup3_reminders", bind=True, max_retries=2)
