@@ -222,6 +222,7 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       EMAIL_SERVICE_URL: http://email-service:8002
+      TRAINER_SERVICE_URL: http://trainer-service:8004
       NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
     expose:
@@ -243,6 +244,7 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       EMAIL_SERVICE_URL: http://email-service:8002
+      TRAINER_SERVICE_URL: http://trainer-service:8004
       NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
     healthcheck:
@@ -257,6 +259,8 @@ services:
       mongo:
         condition: service_healthy
       email-service:
+        condition: service_healthy
+      trainer-service:
         condition: service_healthy
       notification-service:
         condition: service_healthy

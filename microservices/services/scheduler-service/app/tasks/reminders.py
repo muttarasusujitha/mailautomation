@@ -14,6 +14,8 @@ settings = get_settings()
 FIRST_FOLLOWUP_AFTER_HOURS = 6
 SECOND_FOLLOWUP_AFTER_FIRST_HOURS = 24
 GMAIL_QUOTA_COOLDOWN_HOURS = 6
+MAIL1_RETRY_INTERVAL_MINUTES = 5
+MAIL1_RETRY_STALE_CLAIM_MINUTES = 15
 
 
 def _coerce_bool(value, default=True):
@@ -61,6 +63,139 @@ async def _gmail_quota_cooldown_active(db) -> dict:
         retry_after = recent_quota.get("created_at") + timedelta(hours=GMAIL_QUOTA_COOLDOWN_HOURS)
         return {"active": True, "retry_after": retry_after, "source": "recent_quota_failure"}
     return {"active": False}
+
+
+async def _mail1_automation_enabled(db) -> bool:
+    doc = await db["admin_settings"].find_one(
+        {"settings_id": "default"}, {"_id": 0, "pipeline": 1}
+    ) or {}
+    pipeline = doc.get("pipeline") or {}
+    return _coerce_bool(pipeline.get("autoSend"), False)
+
+
+async def _do_retry_failed_mail1():
+    """Send eligible first outreach and retry failures without requiring the UI."""
+    db = get_db()
+    if not await _mail1_automation_enabled(db):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "auto_send_disabled"}
+
+    cooldown = await _gmail_quota_cooldown_active(db)
+    if cooldown.get("active"):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "gmail_quota_cooldown", **cooldown}
+
+    now = datetime.utcnow()
+    retry_before = now - timedelta(minutes=MAIL1_RETRY_INTERVAL_MINUTES)
+    stale_claim_before = now - timedelta(minutes=MAIL1_RETRY_STALE_CLAIM_MINUTES)
+    retry_failure = {
+        "last_mail_error": {"$exists": True, "$nin": [None, ""]},
+        "last_mail_type_attempted": {"$in": ["mail1", "first"]},
+        "last_mail_attempted_at": {"$lte": retry_before},
+    }
+    first_attempt = {
+        "pipeline_status": {"$in": ["shortlisted", "pending"]},
+        "last_mail_attempted_at": {"$exists": False},
+        "last_mail_type_attempted": {"$exists": False},
+    }
+    eligible = {
+        "$and": [
+            {"$or": [retry_failure, first_attempt]},
+            {"$or": [
+                {"mail1_retry_claimed_at": {"$exists": False}},
+                {"mail1_retry_claimed_at": None},
+                {"mail1_retry_claimed_at": {"$lte": stale_claim_before}},
+            ]},
+        ],
+    }
+    sent = failed = attempted = 0
+    cursor = db["shortlists"].find(
+        {"top_trainers": {"$elemMatch": eligible}},
+        {"_id": 0, "requirement_id": 1, "top_trainers": 1},
+    ).limit(100)
+
+    async with httpx.AsyncClient(timeout=120) as client:
+        async for shortlist in cursor:
+            requirement_id = str(shortlist.get("requirement_id") or "").strip()
+            if not requirement_id:
+                continue
+
+            requirement = await db["requirements"].find_one(
+                {"requirement_id": requirement_id},
+                {"_id": 0, "client_email": 1, "client_contact_email": 1, "client_details.email": 1},
+            ) or {}
+            client_email = (
+                requirement.get("client_email")
+                or requirement.get("client_contact_email")
+                or (requirement.get("client_details") or {}).get("email")
+                or shortlist.get("client_email")
+                or shortlist.get("client_contact_email")
+            )
+            if not str(client_email or "").strip():
+                continue
+
+            for trainer in shortlist.get("top_trainers") or []:
+                trainer_id = str(trainer.get("trainer_id") or "").strip()
+                if not trainer_id:
+                    continue
+                candidate_filter = {
+                    "requirement_id": requirement_id,
+                    "top_trainers": {"$elemMatch": {"trainer_id": trainer_id, **eligible}},
+                }
+                claim = await db["shortlists"].find_one_and_update(
+                    candidate_filter,
+                    {"$set": {"top_trainers.$.mail1_retry_claimed_at": now}},
+                    projection={"_id": 0, "requirement_id": 1},
+                )
+                if not claim:
+                    continue
+
+                attempted += 1
+                try:
+                    response = await client.post(
+                        f"{settings.TRAINER_SERVICE_URL.rstrip('/')}/api/v1/shortlists/send-mail",
+                        json={
+                            "requirement_id": requirement_id,
+                            "trainer_id": trainer_id,
+                            "mail_type": "mail1",
+                        },
+                    )
+                    response.raise_for_status()
+                    result = response.json() or {}
+                    trainer_result = next(
+                        (item for item in result.get("results", []) if str(item.get("trainer_id") or "") == trainer_id),
+                        {},
+                    )
+                    if trainer_result.get("status") == "sent":
+                        sent += 1
+                    elif trainer_result.get("status") == "skipped_already_sent":
+                        # The existing send log is authoritative if an earlier
+                        # request completed but its response was lost.
+                        sent += 1
+                    else:
+                        failed += 1
+                        logger.warning(
+                            "Automatic Mail 1 retry failed: requirement=%s trainer=%s detail=%s",
+                            requirement_id,
+                            trainer_id,
+                            trainer_result.get("error_message") or result.get("error") or trainer_result.get("status"),
+                        )
+                except Exception as exc:
+                    failed += 1
+                    logger.error(
+                        "Automatic Mail 1 retry request failed: requirement=%s trainer=%s error=%s",
+                        requirement_id,
+                        trainer_id,
+                        exc,
+                    )
+                finally:
+                    await db["shortlists"].update_one(
+                        {
+                            "requirement_id": requirement_id,
+                            "top_trainers.trainer_id": trainer_id,
+                        },
+                        {"$unset": {"top_trainers.$.mail1_retry_claimed_at": ""}},
+                    )
+
+    return {"attempted": attempted, "sent": sent, "failed": failed}
 
 
 async def _do_followup_reminders():
@@ -320,6 +455,17 @@ def send_followup2_reminders(self):
         return result
     except Exception as exc:
         logger.error("Follow-up2 reminder task failed: %s", exc)
+        raise self.retry(exc=exc, countdown=300)
+
+
+@celery_app.task(name="app.tasks.reminders.retry_failed_mail1", bind=True, max_retries=2)
+def retry_failed_mail1(self):
+    try:
+        result = run_async(_do_retry_failed_mail1())
+        logger.info("Automatic Mail 1 retries: %s", result)
+        return result
+    except Exception as exc:
+        logger.error("Automatic Mail 1 retry task failed: %s", exc)
         raise self.retry(exc=exc, countdown=300)
 
 
