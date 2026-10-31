@@ -3687,9 +3687,6 @@ async def send_shortlist_mail(
                                         export_detail = toc_response.text
                                     quality_review_rejected = (
                                         "TOC requires review before export or delivery" in str(export_detail)
-                                        and toc_quality.get("status") != "requires_regeneration"
-                                        and not toc_quality.get("validation_errors")
-                                        and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
                                     )
                                 if toc_response.status_code == 422 and quality_review_rejected:
                                     # A quality warning is a review task, not a
