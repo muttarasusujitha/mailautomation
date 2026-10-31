@@ -3908,6 +3908,10 @@ async def send_shortlist_mail(
                 })
         else:
             set_fields["top_trainers.$.last_mail_error"] = error_message or "Email delivery failed"
+            if payload.mail_type in ("mail1", "first"):
+                # Keep a failed first outreach eligible for the AI Pipeline's
+                # automatic retry instead of leaving a stale waiting_reply1 state.
+                set_fields["top_trainers.$.pipeline_status"] = "pending"
 
         await db["shortlists"].update_one(
             {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": t.get("trainer_id")},

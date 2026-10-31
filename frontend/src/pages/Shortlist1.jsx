@@ -281,6 +281,7 @@ Object.assign(STAGES, {
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Reminder intervals for Mail 1 (in ms) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const SHORTLIST_REFRESH_INTERVAL_MS = 10000
+const MAIL1_RETRY_COOLDOWN_MS = 60 * 1000
 // The inbox workflow is the sole automatic client-handoff sender. Keeping a
 // second sender in this page could race with inbox processing and duplicate mail.
 const AUTO_SEND_CLIENT_SLOTS = false
@@ -2747,8 +2748,24 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           return
         }
 
-        // First outreach is now a broadcast: every shortlisted trainer gets Mail 1.
-        const pendingTrainers = trainers.filter(t => getStage(t) === 'pending')
+        // First outreach is now a broadcast: every pending trainer gets Mail 1.
+        // A failed attempt can leave a stale waiting_reply1 stage from an older
+        // false-positive response, so retry those failures after a cooldown.
+        const retryableMail1Failure = trainer => {
+          const failedMail1 = Boolean(trainer?.last_mail_error) &&
+            ['mail1', 'first'].includes(String(trainer?.last_mail_type_attempted || '').toLowerCase())
+          const attemptedAt = Date.parse(trainer?.last_mail_attempted_at || '')
+          return failedMail1 && Number.isFinite(attemptedAt) &&
+            Date.now() - attemptedAt >= MAIL1_RETRY_COOLDOWN_MS
+        }
+        const pendingTrainers = trainers.filter(trainer => {
+          const stage = getStage(trainer)
+          if (stage === 'pending') {
+            return !trainer?.last_mail_error || retryableMail1Failure(trainer)
+          }
+          return retryableMail1Failure(trainer) &&
+            ['waiting_reply1', 'mail1', 'mail1_sent'].includes(stage)
+        })
         if (pendingTrainers.length) {
           const batchKey = `${req.requirement_id || 'requirement'}:${pendingTrainers
             .map(trainer => trainer.trainer_id)
