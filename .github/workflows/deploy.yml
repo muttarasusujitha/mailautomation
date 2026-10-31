@@ -321,7 +321,9 @@ jobs:
         working-directory: ${{ github.workspace }}/deploy-source/microservices
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           GMAIL_FALLBACK_USER: ${{ secrets.GMAIL_FALLBACK_USER }}
+          GMAIL_FALLBACK_APP_PASSWORD: ${{ secrets.GMAIL_FALLBACK_APP_PASSWORD }}
           STYLE_IMAP_USER: ${{ secrets.STYLE_IMAP_USER }}
           STYLE_IMAP_PASSWORD: ${{ secrets.STYLE_IMAP_PASSWORD }}
           GMAIL_FALLBACK_FROM_EMAIL: ${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}
@@ -373,7 +375,9 @@ jobs:
           }
 
           set_env GMAIL_USER "$GMAIL_USER"
+          set_env GMAIL_APP_PASSWORD "$GMAIL_APP_PASSWORD"
           set_env GMAIL_FALLBACK_USER "$GMAIL_FALLBACK_USER"
+          set_env GMAIL_FALLBACK_APP_PASSWORD "$GMAIL_FALLBACK_APP_PASSWORD"
           set_env STYLE_IMAP_USER "$STYLE_IMAP_USER"
           set_env STYLE_IMAP_PASSWORD "$STYLE_IMAP_PASSWORD"
           set_env GMAIL_FALLBACK_FROM_EMAIL "$GMAIL_FALLBACK_FROM_EMAIL"
