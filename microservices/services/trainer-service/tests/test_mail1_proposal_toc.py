@@ -109,6 +109,18 @@ def test_mail1_attaches_labeled_draft_for_review_required_toc(monkeypatch):
     assert "draft ToC/course agenda is attached for your review" in mail["body"]
 
 
+def test_mail1_sends_without_toc_when_review_gate_422_has_missing_quality_metadata(monkeypatch):
+    toc = {"title": "DevOps", "days": [{"day": 1}]}
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)
+
+    assert result["sent"] == 1
+    assert result["failed"] == 0
+    assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
+    mail = next(payload for url, payload in calls if "/email/send" in url)
+    assert not mail.get("attachments")
+    assert "being held for quality review" in mail["body"]
+
+
 def test_mail1_does_not_export_regeneration_required_toc_as_draft(monkeypatch):
     toc = {"title": "DevOps", "quality": {"status": "requires_regeneration", "validation_errors": ["Missing requested scope"]},
            "days": [{"day": 1}]}
