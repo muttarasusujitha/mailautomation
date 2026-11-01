@@ -572,10 +572,15 @@ async def search_linkedin_leads(
                         'warnings': [search_warning('public', exc)],
                     }
                 raw_results = account_results + fallback_results
-                linkedin_fallback_message = (
-                    'LinkedIn limited this session. Public indexed LinkedIn results were used as a fallback; '
-                    'review them as unverified.'
-                )
+                if fallback_results:
+                    linkedin_fallback_message = (
+                        'LinkedIn limited this session. Public indexed LinkedIn results were used as a fallback; '
+                        'review them as unverified.'
+                    )
+                else:
+                    linkedin_fallback_message = (
+                        'LinkedIn limited this session. Public search returned no additional eligible indexed LinkedIn trainer profiles.'
+                    )
                 linkedin_warning = search_warning(
                     'linkedin_account',
                     linkedin_fallback_message,

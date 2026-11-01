@@ -260,7 +260,7 @@ async def _search_page(query, limit, first, allowed_domains=None):
     return parse_html(response.content, limit, allowed_domains)
 
 
-async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None):
+async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None, query=''):
     """Page a results response until no new profile links appear. A challenge is not solved."""
     challenged = False
     timed_out = False
@@ -276,6 +276,8 @@ async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None):
         added = [row for row in page if row['url'] not in seen]
         if not added:
             break
+        for row in added:
+            row['search_query'] = query
         seen.update(row['url'] for row in added)
         found.extend(added)
         fields = _ddg_next_fields(response.content)
@@ -335,9 +337,9 @@ class SearchBatch(tuple):
         return batch
 
 
-async def search_public_many(queries, limit=50, allowed_domains=None):
+async def search_public_many(queries, limit=50, allowed_domains=None, supplement_with_bing=False):
     """Keep reading result pages until the route minimum is filled or the connection stops answering."""
-    limit = min(max(int(limit or 1), 1), 60)
+    limit = min(max(int(limit or 1), 1), 120)
     domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
     found, seen = [], set()
     challenges = 0
@@ -357,7 +359,8 @@ async def search_public_many(queries, limit=50, allowed_domains=None):
                 challenges += 1
                 timeouts = 0
             continue
-        challenged, page_timeout = await _read_ddg_pages(response, limit, found, seen, domains)
+        challenged, page_timeout = await _read_ddg_pages(
+            response, limit, found, seen, domains, query)
         if page_timeout:
             timeouts += 1
         elif challenged and len(found) == before:
@@ -368,13 +371,20 @@ async def search_public_many(queries, limit=50, allowed_domains=None):
             timeouts = 0
         else:
             timeouts = 0
-    # A DuckDuckGo challenge is not a reason to skip the independent Bing
-    # fallback. Try the remaining query variants as well; this matters for
-    # Naukri, where one narrow path-specific query often has no indexed hits.
-    if not found and timeouts < 2 and queries:
+    # Search Bing for additional candidates even when DuckDuckGo returned some:
+    # the later trainer relevance filters may discard much of that first batch.
+    if (not found or supplement_with_bing) and len(found) < limit and timeouts < 2 and queries:
         for query in queries:
             if len(found) >= limit:
                 break
-            found.extend(await _search_bing(query, limit - len(found), domains))
+            bing_rows = await _search_bing(query, limit - len(found), domains)
+            for row in bing_rows:
+                if row['url'] in seen:
+                    continue
+                row['search_query'] = query
+                seen.add(row['url'])
+                found.append(row)
+                if len(found) >= limit:
+                    break
     kept = found[:limit]
     return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0)

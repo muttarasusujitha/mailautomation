@@ -6,7 +6,12 @@ from app.clients.public_search import search_public
 async def discover_public(domain, mode, target=20, location=''):
     from app.clients.lead_discovery import public_queries
     from app.clients.public_search import search_public_many
-    from app.clients.search_accuracy import canonical_public_url, select_accurate_profiles
+    from app.clients.search_accuracy import (
+        canonical_public_url,
+        has_trainer_language,
+        matches_requested_skill,
+        select_accurate_profiles,
+    )
     from app.routes.linkedin_leads import _normalize_result
     target = min(100, max(50 if mode == 'trainer' else 20, target))
     queries = public_queries(domain, mode, location)
@@ -15,17 +20,23 @@ async def discover_public(domain, mode, target=20, location=''):
                     for phrase in ('need a trainer', 'freelance trainer required', 'corporate training requirement', 'seeking training partner')]
     if mode == 'trainer':
         try:
-            batch, attempts = await search_public_many(queries, target)
+            candidate_limit = min(120, target * 2)
+            batch, attempts = await search_public_many(
+                queries, candidate_limit, supplement_with_bing=True)
         except Exception as exc:
             batch, attempts = [], 1
             warnings = [str(exc) or type(exc).__name__]
         else:
             warnings = []
-        batch = select_accurate_profiles(batch, domain)
+        batch = select_accurate_profiles(batch, domain, require_current=False)
         rows, seen = [], set()
         for item in batch:
             url = canonical_public_url(item.get('url', ''))
-            item = {**item, 'url': url}
+            query_qualified = (
+                matches_requested_skill(item, domain)
+                and has_trainer_language(item)
+            )
+            item = {**item, 'url': url, 'keyword_qualified': query_qualified}
             if url and url not in seen and _normalize_result(item, domain, mode):
                 seen.add(url)
                 rows.append(item)
