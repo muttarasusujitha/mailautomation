@@ -10835,12 +10835,7 @@ async def _send_initial_trainer_mail(
         shortlist_result = response.json()
     shortlist = shortlist_result.get("shortlist") if isinstance(shortlist_result, dict) else {}
     trainers = (shortlist or {}).get("top_trainers") or []
-    pending_trainers = [
-        trainer for trainer in trainers
-        if _clean(trainer.get("pipeline_status")).lower() in {"", "shortlisted"}
-        and _clean(trainer.get("last_mail_type")).lower() not in {"mail1", "mail1_reminder"}
-        and not trainer.get("mail1_sent_at")
-    ]
+    pending_trainers = _pending_initial_trainer_mail_targets(trainers)
     if not trainers:
         return {
             "success": True,
@@ -10850,11 +10845,16 @@ async def _send_initial_trainer_mail(
             "requirement_id": requirement_id,
         }
     if not pending_trainers:
+        all_mail1_sent = bool(trainers) and all(trainer.get("mail1_sent_at") for trainer in trainers)
         return {
             "success": True,
             "sent": 0,
             "total": len(trainers),
-            "message": "Mail1 already sent or in progress for all shortlisted trainers.",
+            "message": (
+                "Mail 1 was already sent to all shortlisted trainers."
+                if all_mail1_sent
+                else "No trainers are currently eligible for the initial Mail 1 send; review their pipeline status."
+            ),
             "requirement_id": requirement_id,
         }
 
@@ -10885,6 +10885,22 @@ async def _send_initial_trainer_mail(
         "error": "Trainer send-mail returned an invalid response",
         "requirement_id": requirement_id,
     }
+
+
+def _pending_initial_trainer_mail_targets(trainers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Select unsent trainers, including retryable pending records.
+
+    Failed Mail 1 attempts are persisted with ``pipeline_status=pending``.
+    ``last_mail_type`` can also retain a previous attempt, so neither field is
+    reliable evidence of delivery. Only ``mail1_sent_at`` suppresses a retry;
+    the trainer-service idempotency key protects concurrent in-flight sends.
+    """
+    retryable_stages = {"", "shortlisted", "pending", "mail1_failed", "delivery_failed"}
+    return [
+        trainer for trainer in trainers
+        if _clean(trainer.get("pipeline_status")).lower() in retryable_stages
+        and not trainer.get("mail1_sent_at")
+    ]
 
 
 async def _call_intelligence_search(

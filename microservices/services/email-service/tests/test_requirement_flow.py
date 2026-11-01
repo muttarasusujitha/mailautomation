@@ -1,6 +1,7 @@
 import asyncio
 
 from app.routes.inbox import (
+    _pending_initial_trainer_mail_targets,
     _requirement_flow_from_email,
     _update_existing_requirement_from_extracted,
 )
@@ -56,6 +57,16 @@ We will share the final dates and delivery details shortly.
 """
 
     assert _requirement_flow_from_email({}, text) == "proposal"
+
+
+def test_initial_trainer_mail_retries_pending_failed_attempts_but_skips_delivered():
+    trainers = [
+        {"trainer_id": "failed", "pipeline_status": "pending", "last_mail_type": "mail1"},
+        {"trainer_id": "new", "pipeline_status": "shortlisted"},
+        {"trainer_id": "sent", "pipeline_status": "waiting_reply1", "mail1_sent_at": "2026-10-31T10:00:00Z"},
+    ]
+
+    assert [trainer["trainer_id"] for trainer in _pending_initial_trainer_mail_targets(trainers)] == ["failed", "new"]
 
 
 def test_extractor_confirmed_label_cannot_override_client_message():

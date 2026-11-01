@@ -3035,7 +3035,7 @@ export default function Shortlist() {
       const [requirementRes, res] = await Promise.all([
         getRequirement(selectedReq.requirement_id),
         api.get('/emails', {
-        params: { requirement_id: selectedReq.requirement_id, page: 1, limit: 200 },
+        params: { requirement_id: selectedReq.requirement_id, page: 1, page_size: 100 },
         }),
       ])
       const refreshedRequirement = requirementRes.data || selectedReq
