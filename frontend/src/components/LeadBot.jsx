@@ -98,8 +98,8 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
           </h2>
           <p className="mt-1 text-xs text-slate-500">
             {isTrainer
-              ? 'Searches trainer profiles every hour while enabled. Uses your connected LinkedIn account. No public web search, paid API, or outreach emails. Matches require review.'
-              : 'Searches training-request posts every ten minutes while enabled. Uses your connected LinkedIn account. No public web search, paid API, or outreach emails. Matches require review.'}
+              ? 'Automatic collection uses your connected LinkedIn account. Manual LinkedIn searches fall back to public indexed results if LinkedIn limits the session. No paid API or outreach emails. Matches require review.'
+              : 'Automatic collection uses your connected LinkedIn account. Manual LinkedIn searches fall back to public indexed results if LinkedIn limits the session. No paid API or outreach emails. Matches require review.'}
           </p>
         </div>
       </div>
