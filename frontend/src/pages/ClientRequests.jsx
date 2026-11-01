@@ -230,6 +230,7 @@ function DetailModal({
 }) {
   const [trainerMails, setTrainerMails] = useState([])
   const [loadingMails, setLoadingMails] = useState(false)
+  const [trainerMailsError, setTrainerMailsError] = useState('')
   const detailScrollRef = useRef(null)
 
   useEffect(() => {
@@ -237,21 +238,32 @@ function DetailModal({
     const loadTrainerMails = async () => {
       if (!request?.requirement_id) {
         setTrainerMails([])
+        setTrainerMailsError('')
         return
       }
       setLoadingMails(true)
+      setTrainerMailsError('')
       try {
         const res = await api.get('/emails', {
-          params: { requirement_id: request.requirement_id, direction: 'outbound', limit: 200 },
+          // The email-service endpoint accepts page_size, not limit. Load all
+          // recent records for this requirement and identify trainer messages
+          // from their mail type/trainer fields so legacy logs without a
+          // direction field are still visible.
+          params: { requirement_id: request.requirement_id, page: 1, page_size: 100 },
         })
         const trainerMailTypes = new Set(['mail1', 'first', 'mail1_reminder', 'mail2', 'mail2_followup'])
-        const emails = (res.data.emails || []).filter(mail =>
-          trainerMailTypes.has(String(mail.mail_type || '').toLowerCase()) ||
-          Boolean(mail.trainer_id || mail.trainer_name)
-        )
+        const emails = (res.data?.emails || []).filter(mail => {
+          const direction = String(mail.direction || '').toLowerCase()
+          const isTrainerMail = trainerMailTypes.has(String(mail.mail_type || '').toLowerCase()) ||
+            Boolean(mail.trainer_id || mail.trainer_name)
+          return isTrainerMail && (!direction || direction === 'outbound')
+        })
         if (!cancelled) setTrainerMails(emails)
-      } catch {
-        if (!cancelled) setTrainerMails([])
+      } catch (error) {
+        if (!cancelled) {
+          setTrainerMails([])
+          setTrainerMailsError(error?.response?.data?.detail || error?.message || 'Could not load trainer email history.')
+        }
       } finally {
         if (!cancelled) setLoadingMails(false)
       }
@@ -430,6 +442,10 @@ function DetailModal({
             ) : loadingMails ? (
               <div className="mt-4 flex items-center gap-2 rounded-lg bg-slate-50 p-4 text-sm text-slate-500">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading trainer mails...
+              </div>
+            ) : trainerMailsError ? (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                Could not load trainer mail history: {trainerMailsError}
               </div>
             ) : trainerMails.length === 0 ? (
               <div className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-slate-500">
