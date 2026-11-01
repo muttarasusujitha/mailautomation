@@ -76,8 +76,8 @@ def test_interested_reply_without_three_dated_slots_is_one_followup_item():
 
 def test_three_dated_slots_are_not_added_to_the_followup():
     reply = "\n".join([
-        "01 November 2026, 10:00 AM IST",
-        "03 November 2026, 2:00 PM IST",
-        "05 November 2026, 4:00 PM IST",
+        "02 November 2026, 10:00 AM IST",
+        "04 November 2026, 2:00 PM IST",
+        "06 November 2026, 4:00 PM IST",
     ])
     assert _with_missing_dated_slots([], reply) == []

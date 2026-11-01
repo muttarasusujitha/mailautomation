@@ -10,7 +10,7 @@ from app.routes import shortlists
 from handoff_store import PackageStore
 
 
-SLOTS = "01 November 2026, 10:00 AM IST\n03 November 2026, 2:00 PM IST\n05 November 2026, 4:00 PM IST"
+SLOTS = "02 November 2026, 10:00 AM IST\n04 November 2026, 2:00 PM IST\n06 November 2026, 4:00 PM IST"
 
 
 def test_ai_handoff_passes_ai_resource_mapping_to_workbook(monkeypatch):

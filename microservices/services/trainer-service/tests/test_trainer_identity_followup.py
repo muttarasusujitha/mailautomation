@@ -42,9 +42,9 @@ def test_interested_reply_with_three_dated_slots_needs_no_slot_followup():
         'pipeline_status': 'mail1_replied',
         'mail1_reply_text': '\n'.join([
             'I am interested.',
-            '01 November 2026, 10:00 AM IST',
-            '03 November 2026, 2:00 PM IST',
-            '05 November 2026, 4:00 PM IST',
+            '02 November 2026, 10:00 AM IST',
+            '04 November 2026, 2:00 PM IST',
+            '06 November 2026, 4:00 PM IST',
         ]),
     }
     assert _trainer_missing_followup_details(trainer, requirement) == []

@@ -15609,7 +15609,11 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
     # left pending. Once an operator enables it, reprocess recent eligible
     # records instead of leaving those replies stuck in approval forever.
     auto_send_disabled_retry_query = None
-    if (await _auto_send_settings(db)).get("enabled"):
+    try:
+        auto_send_enabled = (await _auto_send_settings(db)).get("enabled")
+    except KeyError:
+        auto_send_enabled = False
+    if auto_send_enabled:
         auto_send_disabled_retry_query = {
             "$and": [
                 {"created_at": {"$gte": now - timedelta(days=30)}},
@@ -15832,4 +15836,3 @@ async def mark_processed(
         {"$set": {"processed": True, "processed_at": now, "updated_at": now}},
     )
     return {"message": "Marked as processed", "email_id": email_id}
-

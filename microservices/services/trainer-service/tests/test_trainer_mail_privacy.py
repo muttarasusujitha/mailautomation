@@ -82,12 +82,12 @@ Please review the requirement.
 Please review the requirement.
 
 Example:
-- 01 November 2026, 10:00 AM IST
 - 02 November 2026, 10:00 AM IST
 - 03 November 2026, 10:00 AM IST
 - 04 November 2026, 10:00 AM IST
 - 05 November 2026, 10:00 AM IST
 - 06 November 2026, 10:00 AM IST
+- 07 November 2026, 10:00 AM IST
 
 Regards,
 Clahan Technologies"""
