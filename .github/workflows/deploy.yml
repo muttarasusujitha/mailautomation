@@ -318,6 +318,20 @@ jobs:
       - name: Start Frontend
         working-directory: ${{ github.workspace }}
         run: |
+          set -euo pipefail
+          frontend_image="${IMAGE_PREFIX}/frontend:latest"
+          while IFS= read -r container_id; do
+            [ -n "$container_id" ] || continue
+            running_image="$(docker inspect --format '{{.Config.Image}}' "$container_id")"
+            running_service="$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.service" }}' "$container_id")"
+            if [ "$running_image" = "$frontend_image" ] || { [ "$running_service" = "frontend" ] && [[ "$running_image" == *trainersync/frontend* ]]; }; then
+              echo "Stopping the previous TrainerSync frontend container $container_id ($running_image) to release port 5174."
+              docker stop "$container_id"
+            else
+              echo "Port 5174 is held by unrelated container $container_id ($running_image, service=$running_service); refusing to stop it."
+              exit 1
+            fi
+          done < <(docker ps --filter publish=5174 --format '{{.ID}}')
           docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 120 frontend
 
       - name: Verify Deployment
