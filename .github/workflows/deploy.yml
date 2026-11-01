@@ -307,10 +307,12 @@ jobs:
       - name: Build Meet Bot
         working-directory: ${{ github.workspace }}
         run: |
+          set -euo pipefail
           docker compose -f microservices/docker-compose.yml build meet-bot-service
 
-            - name: Start Backend
-      -  run: |
+      - name: Start Backend
+        working-directory: ${{ github.workspace }}
+        run: |
           set -euo pipefail
           docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never
       - name: Start Frontend
