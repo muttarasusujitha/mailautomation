@@ -25,7 +25,7 @@ def test_day_enrichment_omits_unsupported_sampling_parameter():
     assert create.call_args.kwargs['model'] == 'gpt-5.5'
 
 
-@pytest.mark.parametrize('hours,expected', [(None, 3), (3, 3), (5, 5), (8, 8)])
+@pytest.mark.parametrize('hours,expected', [(None, 7), (3, 3), (5, 5), (8, 8)])
 def test_handoff_preserves_training_hours_and_individual_topics(monkeypatch, hours, expected):
     generate = AsyncMock(return_value={'toc_data': {'days': []}})
     monkeypatch.setattr(toc, 'generate_toc', generate)
@@ -108,7 +108,7 @@ def test_partial_topics_prepare_toc_without_headcount_or_cloud(monkeypatch):
     request = generate.call_args.args[0]
     assert request.duration_days == 7
     assert request.mode == 'Offline'
-    assert request.hours_per_day == 3
+    assert request.hours_per_day == 7
     assert request.participant_count is None
     assert request.cloud_provider == ''
     assert request.custom_topics.split('; ') == ['DevOps', 'Docker', 'Kubernetes', 'CI/CD']

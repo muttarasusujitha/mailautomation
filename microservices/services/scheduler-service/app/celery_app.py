@@ -92,4 +92,10 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute="*/5"),
         "args": [],
     },
+    # Deliver a corrected ToC to trainers whose Mail 1 succeeded without a workbook.
+    "trainer-toc-correction-hourly": {
+        "task": "app.tasks.reminders.send_missing_toc_followups",
+        "schedule": crontab(minute=15),
+        "args": [],
+    },
 }
