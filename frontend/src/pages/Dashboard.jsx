@@ -349,7 +349,7 @@ export default function Dashboard() {
     { icon: Mail,              label: 'Emails Sent',     value: totalEmails, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp,        label: 'Replies',         value: totalReplies, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
     { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? stats?.requirements?.total ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
-    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
+    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist' },
     { icon: Send,              label: 'WhatsApp Activity', value: whatsappAttempted, sub: `${whatsappSent} sent, ${whatsappFailed} failed, ${whatsappSkipped} skipped`, tone: whatsappFailed ? 'red' : 'green' },
   ]
   const primaryCards = [statCards[1], statCards[0], statCards[4], statCards[2]]

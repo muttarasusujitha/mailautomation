@@ -480,7 +480,13 @@ export default function Admin() {
     setLoadingReminders(true)
     try {
       const res = await fetch('/api/interview-reminders?limit=25')
-      if (!res.ok) throw new Error('Could not load reminders')
+      if (!res.ok) {
+        const detail = await res.json().catch(() => null)
+        const message = typeof detail?.detail === 'string'
+          ? detail.detail
+          : `Could not load reminders (${res.status})`
+        throw new Error(message)
+      }
       const data = await res.json()
       setReminders(data.reminders || [])
     } catch (e) {

@@ -3740,7 +3740,7 @@ export default function Shortlist1() {
               globalThis.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(match.requirement_id)}&domain=${encodeURIComponent(match.technology_needed || match.domain || '')}`)
             } else {
               toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
-              globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+              globalThis.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(match.requirement_id)}`)
             }
           } else {
             try {
@@ -3753,7 +3753,7 @@ export default function Shortlist1() {
               }
               if (!isConfirmedRequirement(requirement)) {
                 toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
-                globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
+                globalThis.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
                 return
               }
               setSelectedReq(requirement)

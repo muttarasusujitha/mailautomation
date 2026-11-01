@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import { createInterviewAlarm } from '../utils/interviewAlarm'
-import { isMeetingReminderDue, reminderKey } from '../utils/meetingReminder'
+import { isMeetingFollowUpAlarmDue, isMeetingReminderDue, reminderKey } from '../utils/meetingReminder'
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
@@ -937,6 +937,9 @@ export default function InterviewSchedules() {
         }
         if (diff <= 0 && diff > -2 * 60 * 1000 && !nextNotified[`${key}:start`]) {
           nextNotified[`${key}:start`] = true
+          if (alarmEnabled) {
+            if (!alarmRef.current.play()) setAlarmEnabled(false)
+          }
           setSelectedKey(`${item.email_id || ''}-${item.calendar_event_id || ''}`)
           setFilter('starting')
           setHostPrompt(item)
@@ -952,6 +955,19 @@ export default function InterviewSchedules() {
             if (!opened) {
               toast.error('Browser blocked auto-open. Click Start Hosting in the popup.')
             }
+          }
+        }
+        if (alarmEnabled && isMeetingFollowUpAlarmDue(item, time) && !nextNotified[`${key}:follow-up:audio`]) {
+          if (alarmRef.current.play()) nextNotified[`${key}:follow-up:audio`] = true
+          else setAlarmEnabled(false)
+        }
+        if (isMeetingFollowUpAlarmDue(item, time) && !nextNotified[`${key}:follow-up`]) {
+          nextNotified[`${key}:follow-up`] = true
+          const title = 'Meeting started 10 minutes ago'
+          const body = `${item.trainer_name || 'Trainer'} interview still needs your attention.`
+          toast.error(`${title}: ${body}`, { duration: 15000 })
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body })
           }
         }
       })
@@ -1098,8 +1114,8 @@ export default function InterviewSchedules() {
                 onChange={event => { const value = Number(event.target.value); setAlarmVolume(value); alarmRef.current.setVolume(value / 100) }} />
             </label>
           </div>
-          <p className="mt-1 text-xs text-slate-500">{alarmEnabled ? 'Music alarm enabled on this device.' : 'Enable music on this device.'} Plays 5 minutes before the meeting. Keep this Interviews page open, your device awake and the tab unmuted.</p>
-          <p className="mt-1 text-xs text-slate-500">Client and trainer calendar invitations include a 5-minute reminder. They must enable calendar notifications and sound on their own devices.</p>
+          <p className="mt-1 text-xs text-slate-500">{alarmEnabled ? 'Music alarm enabled on this device.' : 'Enable music on this device.'} It rings 10 minutes before, at the start, and 10 minutes after the meeting until dismissed. Keep this Interviews page open, your device awake and the tab unmuted.</p>
+          <p className="mt-1 text-xs text-slate-500">Client and trainer calendar invitations include a 10-minute reminder. They must enable calendar notifications and sound on their own devices.</p>
         </div>
         <button onClick={() => load()} disabled={loading} className="btn-secondary w-fit text-sm">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
@@ -1110,7 +1126,7 @@ export default function InterviewSchedules() {
       {reminderMeetings.length > 0 && (
         <section role="alert" aria-label="Meeting reminder" className="rounded-xl border border-blue-300 bg-blue-50 p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-bold text-blue-950">Meeting in 5 minutes or less — client and trainer, join now</h2>
+            <h2 className="font-bold text-blue-950">Meeting in 10 minutes or less — client and trainer, join now</h2>
             <button type="button" onClick={dismissReminder} className="btn-secondary text-sm">Dismiss & stop music</button>
           </div>
           {reminderMeetings.map(item => <div key={reminderKey(item, meetingStartTime(item))} className="mt-3 flex flex-wrap items-center justify-between gap-3">
@@ -1321,7 +1337,7 @@ export default function InterviewSchedules() {
                       </div>
                     )}
                     <p className="mt-3 rounded-lg border border-slate-200 bg-white p-3 text-xs font-semibold text-slate-500">
-                      Reminder notification appears 5 minutes before the interview starts.
+                      Reminder notification appears 10 minutes before the interview starts.
                     </p>
                   </div>
 
