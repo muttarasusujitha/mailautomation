@@ -281,6 +281,8 @@ jobs:
           set_env GOOGLE_CALENDAR_ID "${{ secrets.GOOGLE_CALENDAR_ID }}"
           set_env GOOGLE_CALENDAR_TIMEZONE "${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}"
           set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
+          # The dedicated EC2 LinkedIn profile has been signed in and verified.
+          set_env LINKEDIN_BOT_ENABLED "true"
 
       - name: Create Frontend .env
         working-directory: ${{ github.workspace }}
