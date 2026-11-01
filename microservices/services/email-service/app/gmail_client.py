@@ -639,9 +639,12 @@ def check_imap_replies(
                             html_text = _html_to_text(_decode_message_part(msg))
                         else:
                             body_text = _decode_message_part(msg)
+                    # A multipart/alternative email contains equivalent
+                    # plain-text and HTML renderings of one message. Prefer
+                    # the authored plain-text body; appending the HTML
+                    # alternative can pollute intent extraction with layout,
+                    # navigation, and promotional copy from the email design.
                     body_text = body_text or html_text
-                    if body_text and html_text and html_text not in body_text:
-                        body_text = f"{body_text}\n\n{html_text}"
 
                     try:
                         date_hdr = msg.get("Date", "")
