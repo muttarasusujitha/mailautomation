@@ -15605,20 +15605,41 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
             ]},
         ],
     }
+    # When auto-send was disabled, older client requests are deliberately
+    # left pending. Once an operator enables it, reprocess recent eligible
+    # records instead of leaving those replies stuck in approval forever.
+    auto_send_disabled_retry_query = None
+    try:
+        auto_send_enabled = (await _auto_send_settings(db)).get("enabled")
+    except KeyError:
+        auto_send_enabled = False
+    if auto_send_enabled:
+        auto_send_disabled_retry_query = {
+            "$and": [
+                {"created_at": {"$gte": now - timedelta(days=30)}},
+                {"reply_sent": {"$ne": True}},
+                {"auto_send_block_reason": "auto_send_disabled"},
+                {"status": {"$in": ["pending_approval", "pending_review"]}},
+                retry_due_query,
+            ],
+        }
+    pending_email_queries = [
+        linked_trainer_reply_query,
+        legacy_client_handoff_retry_query,
+        legacy_slot_parser_recheck_query,
+        calendar_slot_retry_query,
+        legacy_proposal_toc_recovery_query,
+        {"$and": [today_query, {"pending_trainer_automation": True}, retry_due_query]},
+        latest_message_needs_reply_query,
+        pending_work_query,
+    ]
+    if auto_send_disabled_retry_query:
+        pending_email_queries.append(auto_send_disabled_retry_query)
     query = {
         "$and": [
             {"deleted": {"$ne": True}},
             {
-                "$or": [
-                    linked_trainer_reply_query,
-                    legacy_client_handoff_retry_query,
-                    legacy_slot_parser_recheck_query,
-                    calendar_slot_retry_query,
-                    legacy_proposal_toc_recovery_query,
-                    {"$and": [today_query, {"pending_trainer_automation": True}, retry_due_query]},
-                    latest_message_needs_reply_query,
-                    pending_work_query,
-                ],
+                "$or": pending_email_queries,
             },
         ]
     }
@@ -15815,4 +15836,3 @@ async def mark_processed(
         {"$set": {"processed": True, "processed_at": now, "updated_at": now}},
     )
     return {"message": "Marked as processed", "email_id": email_id}
-
