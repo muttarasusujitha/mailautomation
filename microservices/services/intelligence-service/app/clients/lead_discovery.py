@@ -14,10 +14,7 @@ def search_warning(source, error):
 
 def linkedin_requires_public_fallback(error):
     message = str(error or '').lower()
-    return any(marker in message for marker in (
-        'linkedin limited this session',
-        'linkedin sign-in or verification required',
-    ))
+    return 'linkedin limited this session' in message
 
 
 async def discover_public_fallback(domain, mode, target, location=''):

@@ -572,16 +572,10 @@ async def search_linkedin_leads(
                         'warnings': [search_warning('public', exc)],
                     }
                 raw_results = account_results + fallback_results
-                if 'sign-in or verification required' in blocked_reason.lower():
-                    linkedin_fallback_message = (
-                        'LinkedIn requires sign-in or verification. Public indexed LinkedIn results were used as a fallback; '
-                        'review them as unverified.'
-                    )
-                else:
-                    linkedin_fallback_message = (
-                        'LinkedIn limited this session. Public indexed LinkedIn results were used as a fallback; '
-                        'review them as unverified.'
-                    )
+                linkedin_fallback_message = (
+                    'LinkedIn limited this session. Public indexed LinkedIn results were used as a fallback; '
+                    'review them as unverified.'
+                )
                 linkedin_warning = search_warning(
                     'linkedin_account',
                     linkedin_fallback_message,
