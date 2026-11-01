@@ -47,6 +47,23 @@ def _clean(value: Any) -> str:
     return str(value or "").strip()
 
 
+def _has_confirmed_requirement_value(value: Any) -> bool:
+    """Ignore inbox placeholders when deciding whether a batch is confirmed."""
+    text = _clean(value).lower().strip(" .,:;-")
+    if not text:
+        return False
+    placeholders = {
+        "tbd", "to be decided", "to be confirmed", "not confirmed", "pending",
+        "pending confirmation", "awaiting confirmation", "not finalized", "not finalised",
+        "to be finalized", "to be finalised", "flexible", "not shared", "not provided",
+        "not available", "n/a", "na", "-",
+    }
+    return text not in placeholders and not bool(re.fullmatch(
+        r"(?:to be|awaiting|pending)\s+(?:confirmed|confirmation|finali[sz]ed|decided|shared|provided)",
+        text,
+    ))
+
+
 def _amounts_from_text(value: Any) -> List[int]:
     text = str(value or "")
     if not text:
@@ -727,11 +744,11 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             if _clean(data.get(field))
         )
         has_training_dates = any(
-            _clean(data.get(field))
+            _has_confirmed_requirement_value(data.get(field))
             for field in ("training_dates", "preferred_dates", "timeline_start", "timeline_end")
         )
         has_commercials = any(
-            _clean(data.get(field))
+            _has_confirmed_requirement_value(data.get(field))
             for field in (
                 "budget", "budget_total", "budget_per_day", "client_budget_per_day",
                 "budget_min", "budget_max", "budget_range", "commercial", "commercials",
