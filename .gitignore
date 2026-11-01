@@ -71,6 +71,8 @@ Thumbs.db
 !/frontend/src/utils/useLiveShortlist.js
 !/frontend/src/utils/pipelineRecords.js
 !/frontend/src/utils/pipelineRecords.test.js
+!/frontend/src/utils/navigation.js
+!/frontend/src/utils/navigation.test.js
 !/frontend/src/utils/usePipelineRecords.js
 !/frontend/src/components/
 /frontend/src/components/*

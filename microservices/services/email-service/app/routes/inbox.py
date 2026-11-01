@@ -4826,7 +4826,7 @@ def _requested_detail_matches_category(detail: Any, key: str) -> bool:
     if key == "cv" and re.search(r"\b(?:linkedin|linked\s*in)\b", text):
         return False
     checks = {
-        "cv": r"\b(?:cv|resume|trainer profile|updated profile|trainer biodata|biodata)\b",
+        "cv": r"\b(?:cv|resume|trainer profile|client profile|updated profile|trainer biodata|biodata)\b",
         "linkedin": r"\b(?:linkedin|linked\s*in)\b",
         "experience": r"\b(?:experience|implementation|hands[-\s]?on|batches delivered|trainings delivered|similar trainings?)\b",
         "certifications": r"\b(?:certification|certifications|certificate|certified)\b",
@@ -4961,7 +4961,7 @@ def _trainer_missing_requested_details(
     request_context = f"{explicit_requests} {source}".strip()
     technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "training")
     requested = [
-        ("cv", "Updated CV / Trainer Profile", r"\b(?:cv|resume|trainer profile|profile attached|attached profile|attached my profile|updated profile|attachment|attached)\b"),
+        ("cv", "Updated CV / Trainer Profile", r"\b(?:cv|resume|trainer profile|client profile|profile attached|attached profile|attached my profile|updated profile|attachment|attached)\b"),
         ("linkedin", "LinkedIn Profile", r"linkedin\.com|linked\s*in|linkedin profile|linkedin"),
         ("experience", f"{technology} implementation and training experience", r"\b(?:experience|implementation|hands[-\s]?on|training experience|trained|delivered|worked on|years?|yrs?)\b"),
         ("certifications", "Relevant certifications", r"\b(?:certification|certifications|certified|certificate|not certified|no certification|none)\b"),
