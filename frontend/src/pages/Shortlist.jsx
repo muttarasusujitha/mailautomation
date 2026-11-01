@@ -2852,7 +2852,7 @@ export default function Shortlist() {
               window.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(match.requirement_id)}&domain=${encodeURIComponent(match.technology_needed || match.domain || '')}`)
             } else {
               toast('This is a confirmed requirement. Opening Confirmed Flow.', { icon: 'i' })
-              window.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+              window.location.replace(`/shortlist?requirement_id=${encodeURIComponent(match.requirement_id)}`)
             }
           } else {
             const reqRes = await getRequirement(targetRequirementId)
@@ -2865,12 +2865,14 @@ export default function Shortlist() {
               window.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}&domain=${encodeURIComponent(requirement.technology_needed || requirement.domain || '')}`)
             } else {
               toast('This is a confirmed requirement. Opening Confirmed Flow.', { icon: 'i' })
-              window.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
+              window.location.replace(`/shortlist?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
             }
           }
         }
       })
-      .catch(() => {})
+      .catch(error => {
+        toast.error(error?.message || 'Could not load requirements')
+      })
       .finally(() => setLoadingReqs(false))
   }, [])
 

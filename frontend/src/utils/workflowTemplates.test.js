@@ -32,7 +32,7 @@ test('confirmed Mail 1 asks for a CV only when none is stored', () => {
 test('proposal Mail 1 still uses the trainer offer', () => {
   const mail = mail1Template(
     { name: 'Asha' },
-    { batch_flow: 'proposal', pipeline_target: 'shortlist', technology_needed: 'Java', duration_days: 10 },
+    { batch_flow: 'proposal', pipeline_target: 'shortlist1', technology_needed: 'Java', duration_days: 10 },
     false,
     {},
   )

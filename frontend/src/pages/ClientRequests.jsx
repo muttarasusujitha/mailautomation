@@ -23,6 +23,17 @@ const FILTERS = [
 
 const REQUEST_REFRESH_INTERVAL_MS = 15000
 
+function shortlistPath(request = {}) {
+  const extracted = request.extracted || {}
+  const raw = String(
+    request.pipeline_target || request.pipeline_page || request.batch_flow || request.batch_type ||
+    request.requirement_type || extracted.pipeline_target || extracted.pipeline_page ||
+    extracted.batch_flow || extracted.batch_type || extracted.requirement_type || ''
+  ).toLowerCase()
+  // Intake requests are proposal enquiries unless their saved requirement says confirmed.
+  return raw.includes('confirmed') || raw.includes('shortlist1') ? '/shortlist1' : '/shortlist'
+}
+
 const STATUS_META = {
   pending_approval: { label: 'Pending Approval', tone: 'amber' },
   pending_review: { label: 'Pending Approval', tone: 'amber' },
@@ -418,7 +429,7 @@ function DetailModal({
               </div>
               {request.requirement_id ? (
                 <button
-                  onClick={() => window.open(`/shortlist1?requirement_id=${encodeURIComponent(request.requirement_id)}`, '_blank')}
+                  onClick={() => window.open(`${shortlistPath(request)}?requirement_id=${encodeURIComponent(request.requirement_id)}`, '_blank')}
                   className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
                 >
                   Open Shortlist
@@ -662,6 +673,9 @@ export default function ClientRequests() {
           ...current,
           requirement_id: reqId,
           requirement_created: true,
+          pipeline_target: res.data?.pipeline_target || res.data?.pipeline_page || current.pipeline_target,
+          pipeline_page: res.data?.pipeline_page || res.data?.pipeline_target || current.pipeline_page,
+          batch_flow: res.data?.batch_flow || current.batch_flow,
           mail_automation: res.data?.mail_automation || current.mail_automation,
           status: res.data?.status || current.status,
         } : current)

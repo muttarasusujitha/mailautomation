@@ -51,14 +51,14 @@ LOCAL_SERVICE_FALLBACKS = {
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
 MIN_TRAINER_DAY_RATE_VISIBLE = 10000
-TRAINER_COMMERCIAL_MIN_VISIBLE = 14000
+TRAINER_COMMERCIAL_MIN_VISIBLE = 15000
 TRAINER_COMMERCIAL_MAX_VISIBLE = 16000
 DEFAULT_TRAINER_SHARE = 0.70
 CLIENT_COMMERCIAL_MARKUP = 0.30
-PROPOSAL_SHORTLIST_COMMERCIAL = "INR 14,000-16,000 per day/session"
-# The client-facing proposal quote is a single normal, rounded amount. Do not
-# expose the trainer range or exact margin arithmetic such as INR 16,900.
-PROPOSAL_CLIENT_QUOTE_RANGE = (18200, 19500, 20800)
+PROPOSAL_SHORTLIST_COMMERCIAL = "INR 15,000-16,000 per day/session"
+# Client emails show only the selected client amount, not the trainer rate or
+# the markup calculation.
+PROPOSAL_CLIENT_QUOTE_RANGE = (19500, 20800)
 # A client that explicitly asks for lab costing receives the generated
 # workbook during the profile/slot handoff.  The workbook uses the client ToC
 # where one was provided, otherwise the system-generated ToC; it never mixes
@@ -121,11 +121,6 @@ class SendMailRequest(BaseModel):
     subject: Optional[str] = ""
     body: Optional[str] = ""
     smtp_config: Optional[Dict[str, Any]] = None
-
-
-class TocCorrectionRequest(BaseModel):
-    requirement_id: str
-    trainer_id: str
 
 
 class GenerateAiMailRequest(BaseModel):
@@ -353,20 +348,9 @@ def _is_shortlist_proposal_requirement(requirement: Dict[str, Any]) -> bool:
 
 
 def _shortlist_proposal_offer(requirement: Dict[str, Any]) -> Dict[str, Any]:
-    """Clahan-owned Shortlist offer: fixed by verified trainer skill tier."""
-    tier = _clean(requirement.get("clahan_skill_tier") or "standard").lower()
-    if tier not in {"standard", "advanced", "specialist"}:
-        tier = "standard"
-    rate = {"standard": 14000, "advanced": 15000, "specialist": 16000}[tier]
-    days = _safe_float(requirement.get("duration_days") or requirement.get("commercial_working_days"))
-    trainer_amount = rate * days if days else rate
-    return {
-        "trainer_daily_rate": rate,
-        "trainer_amount": trainer_amount,
-        "client_amount": round(trainer_amount * 1.30 / 1000) * 1000,
-        "days": days or None,
-        "basis": "total engagement" if days else "per training day",
-    }
+    """Return the Clahan-selected Shortlist proposal rate and 30% client markup."""
+    from shared.commercial_policy import shortlist_proposal_offer
+    return shortlist_proposal_offer(requirement)
 
 
 def _client_mail1_budget_text(requirement: Dict[str, Any]) -> str:
@@ -546,29 +530,6 @@ def _trainer_has_verified_detail(trainer: Dict[str, Any], detail: str) -> bool:
     return False
 
 
-def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
-    """Only request interview slots when the client explicitly asked for them."""
-    client_text = _client_requirement_text(requirement)
-    return bool(re.search(
-        r"\b(?:three|3|two|2|four|4|\d+)\s+(?:convenient\s+)?"
-        r"(?:interview|discussion|meeting)\s+slots?\b"
-        r"|\b(?:share|provide|send|suggest|propose|give|include|need|want|request)\b"
-        r".{0,80}\bslots?\b",
-        client_text,
-        flags=re.IGNORECASE,
-    ))
-
-
-def _proposal_slot_request_flow(requirement: Dict[str, Any]) -> bool:
-    """Identify proposal flow even when a legacy page target says shortlist1."""
-    flow_value = _clean(
-        requirement.get("batch_flow")
-        or requirement.get("batch_type")
-        or requirement.get("requirement_type")
-    ).lower()
-    return "proposal" in flow_value or _is_proposal_requirement(requirement)
-
-
 def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> List[str]:
     """Return only details the platform cannot already source from the trainer record."""
     requested = _mail1_requested_items(requirement)
@@ -588,7 +549,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         label = item.lower()
         if "availability" in label or "slot" in label:
             if not availability:
-                missing.append("Tentative availability for the proposed engagement" if _proposal_slot_request_flow(requirement) else "Availability for the specified training dates")
+                missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
         elif "linkedin" in label or "linked in" in label:
             if not _trainer_has_verified_detail(trainer, "linkedin"):
                 missing.append("LinkedIn profile")
@@ -624,7 +585,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
             or bool(slot_reply)
         )
     )
-    if interested_reply and (not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement)):
+    if interested_reply:
         sources = [part for part in (slot_reply, reply_text, availability) if part]
         counts = [_dated_slot_option_count(part) for part in sources]
         combined = _dated_slot_option_count("\n".join(sources)) if sources else 0
@@ -705,15 +666,13 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     ]:
         if any(needle in item.lower() for item in requested_items):
             selected.append(label)
-    # The reviewed profile is already available for the client handoff; asking
-    # the trainer to send it again is unnecessary. Only request it when absent.
-    if _profile_text(trainer):
-        selected = [item for item in selected if "profile" not in item.lower()]
     if "day-wise TOC" in selected:
         selected = [item for item in selected if item.lower() != "toc"]
     if not selected:
-        selected = [] if _profile_text(trainer) else ["updated profile"]
-        selected.append(f"relevant {domain} experience")
+        selected = ["updated profile", f"relevant {domain} experience"]
+    # A stored profile is enough to continue the workflow, but a trainer may
+    # have a newer CV with stronger evidence for this particular requirement.
+    # Invite that update without making it a required response.
     selected = [
         item for item in selected
         if not (
@@ -725,7 +684,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         )
     ]
     selected = [
-        "updated profile/CV" if "profile" in item.lower() else item
+        "updated profile/CV, if you have a newer version" if "profile" in item.lower() else item
         for item in selected
     ]
     if any('linkedin' in item.lower() for item in requested_items) and not _trainer_has_verified_detail(trainer, 'linkedin'):
@@ -753,16 +712,6 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         # The client amount is informational. Do not ask the trainer to accept a share of it.
         commercial_request = ""
     slot_context = ""
-    slot_request = ""
-    if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
-        slot_request = (
-            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
-            "Example:\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n\n"
-            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
-        )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
     return (
         f"Hi {trainer_name or 'Trainer'},\n\n"
@@ -772,7 +721,12 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         f"{chr(10).join(details)}\n\n"
         f"{request_line}"
         f"{commercial_request}"
-        f"{slot_request}"
+        f"Please also share three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
+        "Example:\n"
+        "- [your available date], [time] IST\n"
+        "- [your available date], [time] IST\n"
+        "- [your available date], [time] IST\n\n"
+        "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         "Regards,\n"
         "Clahan Technologies"
     )
@@ -930,7 +884,7 @@ def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
 
 
 def _proposal_client_commercial_section(requirement: Dict[str, Any], trainer=None) -> str:
-    """Build client-facing proposal prices without exposing internal pricing."""
+    """Client proposal quote without exposing Clahan's internal markup."""
     if not _is_proposal_requirement(requirement):
         return ""
     if _is_shortlist_proposal_requirement(requirement):
@@ -942,22 +896,27 @@ def _proposal_client_commercial_section(requirement: Dict[str, Any], trainer=Non
         offer = proposal_offer(requirement, trainer)
     lines = ["Commercials for your review:", f"- INR {offer['client_amount']:,.0f} {offer['basis']}"]
     lab_total = _client_lab_quote_total(requirement)
-    if lab_total:
+    if lab_total > 0:
         lines.append(f"- Lab cost: INR {lab_total:,.0f} total commercial")
     return "\n".join(lines) + "\n\n"
 
 
-def _client_lab_quote_total(requirement: Dict[str, Any]) -> int:
-    """Return only the client-facing lab total, applying Clahan's 30% uplift to raw costs."""
-    client_total = _safe_float(requirement.get("client_lab_cost_total"), 0)
-    if client_total > 0:
-        return int(round(client_total))
-    raw_total = next((
-        _safe_float(requirement.get(key), 0)
-        for key in ("lab_cost_total", "lab_cost_estimate_total")
-        if _safe_float(requirement.get(key), 0) > 0
-    ), 0)
-    return int(round(raw_total * 1.30)) if raw_total > 0 else 0
+def _client_lab_quote_total(requirement: Dict[str, Any]) -> float:
+    """Return a client-facing lab quote with Clahan's 30% uplift included."""
+    client_total = requirement.get("client_lab_cost_total")
+    try:
+        if client_total is not None and float(client_total) > 0:
+            return round(float(client_total))
+    except (TypeError, ValueError):
+        pass
+    for key in ("lab_cost_total", "lab_cost_estimate_total"):
+        try:
+            base_total = float(requirement.get(key) or 0)
+            if base_total > 0:
+                return round(base_total * 1.30)
+        except (TypeError, ValueError):
+            continue
+    return 0.0
 
 
 def _client_commercial_message(
@@ -998,8 +957,10 @@ def _client_commercial_message(
         else:
             offer = proposal_offer(requirement, trainer)
         rate_lines = f"- INR {offer['client_amount']:,.2f} {offer['basis']}"
+    lab_line = ""
     lab_total = _client_lab_quote_total(requirement)
-    lab_line = f"\n- Lab cost: INR {lab_total:,.0f} total commercial" if lab_total else ""
+    if lab_total > 0:
+        lab_line = f"\n- Lab cost: INR {lab_total:,.0f} total commercial"
     subject = f"Shortlisted Trainer Profile - {technology}"
     body = (
         f"{_client_time_greeting(client_name)},\n\n"
@@ -1088,13 +1049,12 @@ def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bo
         if _clean(item)
     ]
     request_text = "\n".join([*requested, _client_requirement_text(requirement).lower()])
-    wants_profile = any(term in request_text for term in ("trainer profile", "client profile", "profile/cv", "profile / cv", "resume", "curriculum vitae", "cv"))
+    wants_profile = any(term in request_text for term in ("trainer profile", "profile/cv", "profile / cv", "resume", "curriculum vitae", "cv"))
     wants_toc = any(term in request_text for term in ("toc", "table of content", "table of contents", "course agenda", "curriculum"))
     explicit_lab_cost_request = any(
         term in request_text for term in (
             "lab cost", "lab-cost", "lab charges", "lab estimate", "lab quotation",
-            "lab quote", "lab pricing", "lab workbook", "workbook for lab",
-            "cost for lab", "price for lab", "lab price",
+            "lab quote", "lab pricing", "cost for lab", "price for lab", "lab price",
         )
     )
     # In a confirmed batch, a request for lab requirements/tools, lab access,
@@ -1147,10 +1107,6 @@ def _explicit_lab_workbook_required(requirement: Dict[str, Any]) -> bool:
         r"|\b(?:cost|price|charges?|quote|quotation|estimate)\b.{0,50}\blab(?:oratory)?\b",
         request_text,
         flags=re.IGNORECASE | re.DOTALL,
-    )) or bool(re.search(
-        r"\blab(?:oratory)?\s+workbooks?\b|\bworkbooks?\s+for\s+(?:the\s+)?lab(?:oratory)?\b",
-        request_text,
-        flags=re.IGNORECASE,
     ))
     if explicit_phrase:
         return True
@@ -1594,7 +1550,6 @@ def _profile_text(trainer: Dict[str, Any]) -> str:
         trainer.get("industry_focus"),
         trainer.get("summary"),
         trainer.get("past_clients"),
-        trainer.get("resume_text"),
         trainer.get("combined_text", "")[:8000] if isinstance(trainer.get("combined_text"), str) else "",
         trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
     ]
@@ -1722,10 +1677,9 @@ def _quality(score: float) -> str:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    # A pending profile review must remain visible to the recruiter; it is
-    # not evidence that the trainer is unsuitable for a new requirement.
-    # Keep the flag on the matched profile so the shortlist can show it.
-    profile_review_required = bool(trainer.get("profile_review_required", False))
+    # Resume extraction status is informational. A valid ranked match enters
+    # the automated outreach workflow without a manual approval gate.
+    profile_review_required = False
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -2195,18 +2149,6 @@ def _client_topic_phrases(value: Any) -> List[str]:
     ]
 
 
-def _confirmed_training_duration_days(requirement: Dict[str, Any]) -> Optional[float]:
-    """Return the stated training duration; never invent one for a ToC."""
-    from shared.requirement_duration import training_duration
-
-    duration = training_duration(requirement).get("duration_days")
-    try:
-        duration = float(duration)
-    except (TypeError, ValueError):
-        return None
-    return duration if 1 <= duration <= 30 else None
-
-
 async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
     try:
         from app.routes.toc import TocRequest, generate_toc, _required_technologies
@@ -2215,19 +2157,13 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         domain = _clean(requirement.get("technology_needed") or requirement.get("domain") or requirement.get("title") or requirement.get("job_title") or "Training")
         from shared.requirement_duration import training_duration
         duration_inputs = training_duration(requirement)
-        duration = _confirmed_training_duration_days(requirement)
-        if duration is None:
-            logger.info(
-                "Deferring ToC generation for %s because training duration is not confirmed",
-                _clean(requirement.get("requirement_id")),
-            )
-            return None
+        duration = duration_inputs.get("duration_days") or 3
         training_dates = (
             _clean(requirement.get("training_dates"))
             or " to ".join(part for part in [requirement.get("timeline_start"), requirement.get("timeline_end")] if part)
             or _clean(requirement.get("preferred_dates"))
         )
-        topics = _required_technologies(TocRequest(domain=domain, duration_days=duration))
+        topics = _required_technologies(TocRequest(domain=domain))
         for key in ("skills", "required_skills", "requested_topics"):
             value = requirement.get(key)
             topics.extend(value if isinstance(value, list) else [value] if value else [])
@@ -2251,10 +2187,7 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
             training_dates=training_dates,
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
-            # Default to a standard seven-hour teaching day. The workbook uses
-            # a 9-to-5 schedule with a lunch break; lab-access hours are separate.
-            # Lab hours describe the lab environment and should not override training hours.
-            hours_per_day=duration_inputs.get("hours_per_day") or 7,
+            hours_per_day=duration_inputs.get("hours_per_day") or 3,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),
@@ -2269,23 +2202,6 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         if not toc_data:
             return None
         toc_data = dict(toc_data)
-        quality = toc_data.get("quality") or {}
-        evaluation = quality.get("content_evaluation") or {}
-        score = evaluation.get("score")
-        if (
-            quality.get("status") == "requires_review"
-            and not quality.get("validation_errors")
-            and not evaluation.get("blocking_issues")
-            and evaluation.get("status") != "fail"
-            and isinstance(score, (int, float))
-            and score >= 85
-        ):
-            quality = {
-                **quality,
-                "automatic_review": True,
-                "reviewed_by": "automatic_quality_review",
-            }
-            toc_data["quality"] = quality
         client_toc_topics = _client_supplied_toc_topics(requirement)
         if client_toc_topics:
             # This object is used only by the lab-cost engine.  Preserve the
@@ -2545,18 +2461,15 @@ async def _select_client_profile(
     candidates: List[Dict[str, Any]] = []
 
     if trainer_id:
-        resume_collection = db["resume_uploads"]
-        find_resumes = getattr(resume_collection, "find", None)
-        if callable(find_resumes):
-            cursor = find_resumes(
-                {"trainer_id": trainer_id, "original_file": {"$exists": True}},
-                {"_id": 0, "original_file": 1, "filename": 1, "original_filename": 1,
-                 "content_type": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
-            ).sort("created_at", -1).limit(5)
-            async for upload in cursor:
-                candidate = _profile_candidate_from_attachment(upload, technology, source="trainer_upload")
-                if candidate:
-                    candidates.append(candidate)
+        cursor = db["resume_uploads"].find(
+            {"trainer_id": trainer_id, "original_file": {"$exists": True}},
+            {"_id": 0, "original_file": 1, "filename": 1, "original_filename": 1,
+             "content_type": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
+        ).sort("created_at", -1).limit(5)
+        async for upload in cursor:
+            candidate = _profile_candidate_from_attachment(upload, technology, source="trainer_upload")
+            if candidate:
+                candidates.append(candidate)
 
     sender_query: Dict[str, Any] = {"requirement_id": requirement_id}
     sender_terms: List[Dict[str, Any]] = []
@@ -2567,14 +2480,9 @@ async def _select_client_profile(
             {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
             {"sender": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
         ])
-    try:
-        email_collection = db["client_emails"]
-    except (KeyError, TypeError):
-        email_collection = None
-    find_emails = getattr(email_collection, "find", None)
-    if sender_terms and callable(find_emails):
+    if sender_terms:
         sender_query["$or"] = sender_terms
-        cursor = find_emails(
+        cursor = db["client_emails"].find(
             sender_query,
             {"_id": 0, "attachments": 1},
         ).sort("received_at", -1).limit(10)
@@ -3532,7 +3440,6 @@ async def send_shortlist_mail(
 
         error_message = ""
         sent_email_id = ""
-        delivery_pending = False
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 domain = _clean(
@@ -3649,10 +3556,12 @@ async def send_shortlist_mail(
                         requirement.get("toc_action")
                         or (requirement.get("extracted") or {}).get("toc_action")
                     ).lower()
-                    # A generated ToC needs a client-confirmed duration. A
-                    # client-supplied agenda can still be sent as provided.
+                    # Mail 1 must include a ToC for both proposal and
+                    # confirmed Shortlist batches.  A proposal uses a
+                    # Clahan-generated *proposed* ToC when the client has
+                    # not supplied one, so the trainer can assess the scope
+                    # before confirming interest and availability.
                     requires_toc = True
-                    duration_confirmed = _confirmed_training_duration_days(requirement) is not None
                     if _has_client_supplied_toc(requirement):
                         if "approved toc/course agenda is attached" not in body.lower():
                             body = _insert_before_signature(
@@ -3662,73 +3571,50 @@ async def send_shortlist_mail(
                             )
                             send_payload["body"] = body
                     elif requires_toc:
-                        # A proposed scope can only be generated after the client
-                        # has stated its duration. Do not send a guessed agenda.
+                        review_toc_held = False
+                        # No client agenda was supplied. Generate the ToC once
+                        # for Mail 1 so the trainer receives the proposed scope
+                        # before responding. The same approved ToC is also
+                        # included with the later client profile/slot handoff.
                         generated_toc = await _build_toc(requirement, t, db)
                         if generated_toc:
                             try:
-                                toc_url = f"{DOC_SVC}/api/v1/documents/excel/toc"
                                 toc_response = await _post_with_local_fallback(
                                     client,
-                                    toc_url,
-                                    json={"toc": generated_toc},
+                                    f"{DOC_SVC}/api/v1/documents/excel/toc",
+                                    # Mail 1 sends the generated agenda to the trainer for
+                                    # delivery confirmation.  It is a proposed scope at this
+                                    # stage, so export it as a draft instead of waiting for a
+                                    # separate coordinator quality-review action.
+                                    json={"toc": generated_toc, "draft": True},
                                 )
-                                toc_quality = generated_toc.get("quality") or {}
-                                reviewable_draft = (
-                                    toc_quality.get("status") == "requires_review"
-                                    and not toc_quality.get("validation_errors")
-                                    and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
-                                )
-                                is_draft_toc = False
-                                if toc_response.status_code == 422 and reviewable_draft:
-                                    # Mail 1 goes to the trainer for feasibility review.
-                                    # Export a clearly labeled draft for that review;
-                                    # never turn regeneration failures into delivery.
-                                    toc_response = await _post_with_local_fallback(
-                                        client,
-                                        f"{DOC_SVC}/api/v1/documents/excel/toc",
-                                        json={"toc": generated_toc, "draft": True},
-                                    )
-                                    is_draft_toc = True
-                                quality_review_rejected = False
                                 if toc_response.status_code == 422:
                                     try:
                                         export_detail = (toc_response.json() or {}).get("detail", "")
                                     except Exception:
                                         export_detail = toc_response.text
-                                    quality_review_rejected = (
+                                    toc_quality = generated_toc.get("quality") or {}
+                                    review_toc_held = (
                                         "TOC requires review before export or delivery" in str(export_detail)
+                                        and toc_quality.get("status") != "requires_regeneration"
+                                        and not toc_quality.get("validation_errors")
+                                        and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
                                     )
-                                if toc_response.status_code == 422 and quality_review_rejected:
-                                    logger.warning(
-                                        "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
-                                        trainer_email, export_detail,
-                                    )
-                                    raise RuntimeError(
-                                        "Mail 1 was not sent because its ToC failed quality review: "
-                                        + str(export_detail)[:300]
-                                    )
-                                if toc_response is None:
+                                    if review_toc_held:
+                                        review_note = (
+                                            "The proposed ToC/course agenda is being held for quality review. "
+                                            "Please confirm availability and delivery feasibility; we will share the agenda after review."
+                                        )
+                                        body = _insert_before_signature(body, review_note)
+                                        send_payload["body"] = body
+                                if review_toc_held:
                                     pass
                                 elif toc_response.status_code == 200 and toc_response.content:
-                                    toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
-                                    if is_draft_toc:
-                                        toc_label = "DRAFT FOR REVIEW - " + toc_label
-                                    if is_draft_toc:
-                                        toc_note = (
-                                            "A draft ToC/course agenda is attached for your review. Please confirm this scope and "
-                                            "confirm availability and delivery feasibility."
-                                        )
-                                    elif is_proposal_flow:
-                                        toc_note = (
-                                            "The proposed ToC/course agenda is attached. Please review this scope and "
-                                            "confirm availability and delivery feasibility."
-                                        )
-                                    else:
-                                        toc_note = (
-                                            "The ToC/course agenda for the confirmed batch is attached. Please review this scope and "
-                                            "confirm availability and delivery feasibility."
-                                        )
+                                    toc_label = "Proposed TOC"
+                                    toc_note = (
+                                        "The proposed ToC/course agenda is attached. Please review this scope and "
+                                        "confirm availability and delivery feasibility."
+                                    )
                                     scope_attachments.append({
                                         "filename": f"{domain} - {toc_label}.xlsx",
                                         "content_base64": base64.b64encode(toc_response.content).decode(),
@@ -3751,17 +3637,9 @@ async def send_shortlist_mail(
                                 # partial email and creating a duplicate follow-up.
                                 logger.exception("Could not attach generated ToC to Mail 1")
                                 raise
-                        elif duration_confirmed:
-                            raise RuntimeError("Mail 1 ToC generation returned no ToC data")
                         else:
-                            duration_note = (
-                                "The training duration is still being confirmed. We will share the course agenda "
-                                "once the duration is finalised."
-                            )
-                            if duration_note.lower() not in body.lower():
-                                body = _insert_before_signature(body, duration_note)
-                                send_payload["body"] = body
-                    if requires_toc and not scope_attachments and duration_confirmed:
+                            raise RuntimeError("Mail 1 ToC generation returned no ToC data")
+                    if requires_toc and not scope_attachments and not review_toc_held:
                         raise RuntimeError("Mail 1 requires a client or generated ToC attachment")
                     if scope_attachments:
                         send_payload["attachments"] = scope_attachments
@@ -3800,56 +3678,14 @@ async def send_shortlist_mail(
                     base_key = f"trainer-mail1:{payload.requirement_id}:{trainer_id or trainer_email.lower()}"
                     send_payload["idempotency_key"] = base_key
                 r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
-                try:
-                    email_result = r.json() or {}
-                except Exception:
-                    email_result = {}
-                already_in_progress = bool(email_result.get("already_in_progress")) if isinstance(email_result, dict) else False
-                if r.status_code < 400 and already_in_progress:
-                    # The browser and the backend scheduler may race to send
-                    # the same Mail 1. The email service owns the idempotency
-                    # key, so wait for its canonical log result instead of
-                    # reporting a concurrent send as a delivery failure.
-                    idempotency_key = send_payload.get("idempotency_key")
-                    for _ in range(40):
-                        await asyncio.sleep(0.5)
-                        delivery_log = await db["email_logs"].find_one(
-                            {"idempotency_key": idempotency_key},
-                            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
-                        ) if idempotency_key else None
-                        delivery_status = (delivery_log or {}).get("status")
-                        if delivery_status == "sent":
-                            email_result = {
-                                "success": True,
-                                "email_id": delivery_log.get("email_id"),
-                                "sent_at": delivery_log.get("sent_at"),
-                            }
-                            already_in_progress = False
-                            break
-                        if delivery_status == "failed":
-                            email_result = {
-                                "success": False,
-                                "email_id": delivery_log.get("email_id"),
-                                "error": delivery_log.get("error_message") or "Email delivery failed",
-                            }
-                            already_in_progress = False
-                            break
-                delivery_confirmed = (
-                    isinstance(email_result, dict)
-                    and email_result.get("success") is not False
-                    and not already_in_progress
-                )
-                delivery_pending = already_in_progress
-                ok = r.status_code < 400 and delivery_confirmed
+                ok = r.status_code < 400
                 if not ok:
-                    if r.status_code >= 400:
-                        error_message = f"{r.status_code}: {r.text[:300]}"
-                    elif already_in_progress:
-                        error_message = "Email is still being processed; delivery is not confirmed yet"
-                    else:
-                        error_message = email_result.get("error") or "Email service did not confirm delivery"
+                    error_message = f"{r.status_code}: {r.text[:300]}"
                 else:
-                    sent_email_id = email_result.get("email_id", "")
+                    try:
+                        sent_email_id = (r.json() or {}).get("email_id", "")
+                    except Exception:
+                        sent_email_id = ""
                     if not sent_email_id:
                         sent_log = await db["email_logs"].find_one(
                             {
@@ -3876,7 +3712,7 @@ async def send_shortlist_mail(
         results.append({
             "trainer_id": t.get("trainer_id"),
             "email": trainer_email,
-            "status": "sent" if ok else ("sending" if delivery_pending else "failed"),
+            "status": "sent" if ok else "failed",
             "email_id": sent_email_id,
             "error_message": error_message,
         })
@@ -3939,11 +3775,7 @@ async def send_shortlist_mail(
                     "top_trainers.$.last_mail_type": "mail4_reschedule_request",
                 })
         else:
-            set_fields["top_trainers.$.last_mail_error"] = "" if delivery_pending else (error_message or "Email delivery failed")
-            if payload.mail_type in ("mail1", "first"):
-                # Keep a failed first outreach eligible for the AI Pipeline's
-                # automatic retry instead of leaving a stale waiting_reply1 state.
-                set_fields["top_trainers.$.pipeline_status"] = "pending"
+            set_fields["top_trainers.$.last_mail_error"] = error_message or "Email delivery failed"
 
         await db["shortlists"].update_one(
             {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": t.get("trainer_id")},
@@ -3951,139 +3783,16 @@ async def send_shortlist_mail(
         )
 
     sent = sum(1 for r in results if r["status"] == "sent")
-    pending = sum(1 for r in results if r["status"] == "sending")
-    failed = len(results) - sent - pending
-    success = sent > 0 and failed == 0 and pending == 0
+    failed = len(results) - sent
+    success = sent > 0 and failed == 0
     return {
         "success": success,
         "sent": sent,
         "failed": failed,
-        "pending": pending,
         "total": len(results),
         "error": "" if success else (results[0].get("error_message") if results else "No emails were sent"),
         "results": results,
     }
-
-
-@router.post("/send-toc-correction")
-async def send_missing_toc_followup(
-    payload: TocCorrectionRequest,
-    db: AsyncIOMotorDatabase = Depends(get_db),
-):
-    """Send a corrected ToC separately when Mail 1 went out without its workbook."""
-    requirement_id = _clean(payload.requirement_id)
-    trainer_id = _clean(payload.trainer_id)
-    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
-    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
-    trainer = next(
-        (item for item in shortlist.get("top_trainers") or [] if _clean(item.get("trainer_id")) == trainer_id),
-        None,
-    )
-    if not requirement or not trainer:
-        raise HTTPException(404, "Requirement or shortlisted trainer not found")
-
-    prior_mail1 = await db["email_logs"].find({
-        "requirement_id": requirement_id,
-        "trainer_id": trainer_id,
-        "mail_type": {"$in": ["mail1", "first"]},
-        "direction": "outbound",
-        "status": "sent",
-    }, {"_id": 0, "attachment_names": 1}).to_list(20)
-    if not prior_mail1:
-        return {"success": False, "status": "skipped", "message": "No successfully sent Mail 1 was found"}
-    has_toc_attachment = any(
-        any("toc" in str(name).lower() for name in (item.get("attachment_names") or []))
-        for item in prior_mail1
-    )
-    if has_toc_attachment:
-        return {"success": True, "status": "already_attached", "message": "A ToC workbook was already sent"}
-
-    existing_followup = await db["email_logs"].find_one({
-        "requirement_id": requirement_id,
-        "trainer_id": trainer_id,
-        "mail_type": "mail1_toc_correction",
-        "direction": "outbound",
-        "status": "sent",
-    }, {"_id": 0, "email_id": 1, "sent_at": 1})
-    if existing_followup:
-        return {"success": True, "status": "already_sent", **existing_followup}
-
-    trainer_email = _clean(trainer.get("email") or trainer.get("trainer_email"))
-    if not trainer_email:
-        return {"success": False, "status": "needs_email", "message": "Trainer email is missing"}
-
-    generated_toc = await _build_toc(requirement, trainer, db)
-    if not generated_toc:
-        return {"success": False, "status": "quality_review", "message": "ToC generation did not return a curriculum"}
-    quality = generated_toc.get("quality") or {}
-    evaluation = quality.get("content_evaluation") or {}
-    toc_is_approved = quality.get("status") == "approved" or (
-        quality.get("automatic_review") is True
-        and not quality.get("validation_errors")
-        and not evaluation.get("blocking_issues")
-        and evaluation.get("status") != "fail"
-    )
-    if not toc_is_approved:
-        return {
-            "success": False,
-            "status": "quality_review",
-            "message": "ToC still has unresolved quality warnings",
-            "quality": {
-                "status": quality.get("status"),
-                "validation_errors": quality.get("validation_errors") or [],
-                "blocking_issues": evaluation.get("blocking_issues") or [],
-            },
-        }
-
-    toc_id = _clean(generated_toc.get("toc_id") or quality.get("toc_id"))
-    async with httpx.AsyncClient(timeout=60) as client:
-        export = await _post_with_local_fallback(
-            client,
-            f"{DOC_SVC}/api/v1/documents/excel/toc",
-            json={"toc": generated_toc},
-        )
-        if export.status_code != 200 or not export.content:
-            return {"success": False, "status": "export_failed", "message": export.text[:300]}
-
-        filename = f"{_clean(requirement.get('technology_needed') or requirement.get('domain') or 'Training')} - Course ToC.xlsx"
-        send_payload = {
-            "to": trainer_email,
-            "subject": f"Course ToC - {_clean(requirement.get('technology_needed') or requirement.get('domain') or 'Training')}",
-            "body": (
-                f"Dear {_clean(trainer.get('name') or trainer.get('trainer_name')) or 'Trainer'},\n\n"
-                "Please find the corrected course ToC attached for the training requirement. "
-                "Please review the scope and confirm feasibility.\n\nRegards,\nClahan Technologies"
-            ),
-            "mail_type": "mail1_toc_correction",
-            "trainer_id": trainer_id,
-            "trainer_name": _clean(trainer.get("name") or trainer.get("trainer_name")),
-            "requirement_id": requirement_id,
-            "idempotency_key": f"trainer-toc-correction:{requirement_id}:{trainer_id}:{toc_id or 'latest'}",
-            "attachments": [{
-                "filename": filename,
-                "content_base64": base64.b64encode(export.content).decode(),
-                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            }],
-        }
-        response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
-        try:
-            result = response.json() or {}
-        except Exception:
-            result = {}
-        if response.status_code >= 400 or result.get("success") is not True:
-            return {"success": False, "status": "send_failed", "message": result.get("error") or response.text[:300]}
-
-    sent_at = result.get("sent_at") or datetime.utcnow()
-    email_id = result.get("email_id") or ""
-    await db["shortlists"].update_one(
-        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
-        {"$set": {
-            "top_trainers.$.toc_correction_email_id": email_id,
-            "top_trainers.$.toc_correction_sent_at": sent_at,
-            "top_trainers.$.toc_delivery_status": "sent",
-        }},
-    )
-    return {"success": True, "status": "sent", "email_id": email_id, "sent_at": sent_at}
 
 
 async def _legacy_send_interview_link(
@@ -4531,7 +4240,7 @@ async def send_client_slots(
             logger.exception("Could not generate the required client-handoff ToC")
             raise HTTPException(502, "Could not generate the required ToC attachment for the client handoff")
     else:
-        raise HTTPException(422, "Training duration is required before generating or sending a ToC")
+        raise HTTPException(502, "Could not generate the required ToC for the client handoff")
     if toc_attachment:
         attachments.append({
             "filename": f"{technology} - Training ToC.xlsx",
@@ -4737,7 +4446,7 @@ async def send_client_slots(
     # draft lab estimate needs a later pricing refinement.  The core client
     # coordination flow remains fully automated.
     elif explicit_lab_workbook:
-        raise HTTPException(502, "Could not prepare the required lab workbook; client handoff was not sent")
+        logger.warning("Sending client handoff without draft lab workbook: %s", lab_error or "pricing data incomplete")
 
     trainer_details = _requested_trainer_details_for_client(
         req,

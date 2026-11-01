@@ -45,6 +45,19 @@ function pickExtracted(item = {}) {
   return item.extracted || item.client_email_doc?.extracted || {}
 }
 
+function shortlistPath(item = {}) {
+  const extracted = pickExtracted(item)
+  const raw = String(
+    item.pipeline_target || item.pipeline_page || item.batch_flow || item.batch_type || item.requirement_type ||
+    extracted.pipeline_target || extracted.pipeline_page || extracted.batch_flow || extracted.batch_type || extracted.requirement_type || ''
+  ).toLowerCase()
+  return raw.includes('confirmed') || raw.includes('shortlist1') ? '/shortlist1' : '/shortlist'
+}
+
+function shortlistName(item = {}) {
+  return shortlistPath(item) === '/shortlist' ? 'Shortlist' : 'Shortlist1'
+}
+
 function pickTechnology(item = {}) {
   const extracted = pickExtracted(item)
   return clean(
@@ -570,7 +583,7 @@ export default function ClientPipeline() {
     setProcessing(true)
     try {
       const res = await api.post(`/inbox/${selected.email_id}/create-requirement`)
-      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue trainer outreach from Shortlist1.' : 'Client request processed.')
+      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue trainer outreach from the assigned batch pipeline.' : 'Client request processed.')
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Could not create requirement')
@@ -588,7 +601,7 @@ export default function ClientPipeline() {
           </div>
           <h1 className="mt-3 page-title">Client Request Auto-Finding Pipeline</h1>
           <p className="mt-1 max-w-3xl text-sm text-slate-500">
-            One place to verify that every client request is captured, details are filled, missing fields are visible, trainer auto-finding starts, and top 5 shortlist is ready for Shortlist1.
+            One place to verify that every client request is captured, details are filled, missing fields are visible, trainer auto-finding starts, and the top 5 shortlist is ready in its assigned batch pipeline.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -690,7 +703,7 @@ export default function ClientPipeline() {
                 {selected.requirement_id && (
                   <button
                     type="button"
-                    onClick={() => navigate(`/shortlist1?requirement_id=${encodeURIComponent(selected.requirement_id)}`)}
+                    onClick={() => navigate(`${shortlistPath(selected)}?requirement_id=${encodeURIComponent(selected.requirement_id)}`)}
                     className="btn-secondary text-sm"
                   >
                     <UsersRound className="h-4 w-4" />
@@ -726,7 +739,7 @@ export default function ClientPipeline() {
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Domain available</span><strong>{hasDomain(selected) ? 'Yes' : 'No'}</strong></p>
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Pending automation</span><strong>{selected.pending_trainer_automation ? 'Yes' : 'No'}</strong></p>
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Handoff status</span><strong className="capitalize">{clean(selected.trainer_automation_status || selected.client_email_doc?.trainer_automation_status, 'shortlist1')}</strong></p>
-                      <p className="flex justify-between gap-3"><span className="text-slate-500">Mail sender</span><strong>Shortlist1</strong></p>
+                      <p className="flex justify-between gap-3"><span className="text-slate-500">Batch pipeline</span><strong>{shortlistName(selected)}</strong></p>
                     </div>
                     {trainerMailStats(selected).error && (
                       <p className="mt-3 rounded-lg bg-red-50 p-2 text-xs font-semibold text-red-700">{trainerMailStats(selected).error}</p>

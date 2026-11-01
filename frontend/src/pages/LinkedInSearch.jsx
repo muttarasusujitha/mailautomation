@@ -505,9 +505,18 @@ export default function LinkedInSearch() {
       {loading && !visibleLeads.length ? (
         <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
-        <div className="linkedin-result-list">
+        <div className="flex flex-col gap-5">
           {visibleLeads.map(lead => (
-            <article key={lead.lead_id || lead.source_url || lead.linkedin_url} className="linkedin-result-card">
+            <article
+              key={lead.lead_id || lead.source_url || lead.linkedin_url}
+              className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm"
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.10)',
+                marginBottom: '1.25rem',
+              }}
+            >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-blue-100 bg-blue-50 text-sm font-bold uppercase text-blue-700">
