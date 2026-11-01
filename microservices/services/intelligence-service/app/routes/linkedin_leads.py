@@ -548,8 +548,59 @@ async def search_linkedin_leads(
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome['warnings'][-1]})
         if payload.search_provider == "auto":
-            from app.clients.lead_discovery import discover
+            from app.clients.lead_discovery import (
+                discover,
+                discover_public_fallback,
+                linkedin_requires_public_fallback,
+                search_warning,
+            )
             raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
+            blocked_reason = outcome.get('primary_error') or ''
+            if len(raw_results) < domain_goal and linkedin_requires_public_fallback(blocked_reason):
+                account_results = list(raw_results)
+                try:
+                    fallback_results, fallback_outcome = await discover_public_fallback(
+                        domain, mode, domain_goal, payload.location or '')
+                except Exception as exc:
+                    fallback_results = []
+                    fallback_outcome = {
+                        'domain': domain,
+                        'target': domain_goal,
+                        'matched': 0,
+                        'target_met': False,
+                        'status': 'blocked',
+                        'warnings': [search_warning('public', exc)],
+                    }
+                raw_results = account_results + fallback_results
+                if 'sign-in or verification required' in blocked_reason.lower():
+                    linkedin_fallback_message = (
+                        'LinkedIn requires sign-in or verification. Public indexed LinkedIn results were used as a fallback; '
+                        'review them as unverified.'
+                    )
+                else:
+                    linkedin_fallback_message = (
+                        'LinkedIn limited this session. Public indexed LinkedIn results were used as a fallback; '
+                        'review them as unverified.'
+                    )
+                linkedin_warning = search_warning(
+                    'linkedin_account',
+                    linkedin_fallback_message,
+                )
+                outcome = {
+                    **fallback_outcome,
+                    'domain': domain,
+                    'target': domain_goal,
+                    'matched': len(raw_results),
+                    'target_met': len(raw_results) >= domain_goal,
+                    'status': (
+                        'target_met' if len(raw_results) >= domain_goal
+                        else 'partial' if raw_results
+                        else fallback_outcome.get('status', 'no_results')
+                    ),
+                    'fallback_source': 'public_search',
+                    'primary_error': linkedin_warning['error'],
+                    'warnings': [linkedin_warning, *(fallback_outcome.get('warnings') or [])],
+                }
             domain_outcomes.append(outcome)
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome.get('primary_error') or outcome['warnings'][0]['error']})

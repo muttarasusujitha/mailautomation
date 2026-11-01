@@ -12,6 +12,32 @@ def search_warning(source, error):
     return {'source': source, 'error': message}
 
 
+def linkedin_requires_public_fallback(error):
+    message = str(error or '').lower()
+    return any(marker in message for marker in (
+        'linkedin limited this session',
+        'linkedin sign-in or verification required',
+    ))
+
+
+async def discover_public_fallback(domain, mode, target, location=''):
+    """Use public indexed LinkedIn pages after LinkedIn blocks an account search."""
+    from urllib.parse import urlsplit
+    from app.clients.public_discovery import discover_public
+
+    rows, outcome = await discover_public(domain, mode, target, location)
+    linkedin_rows = []
+    for row in rows:
+        url = row.get('url') or row.get('source_url') or ''
+        host = (urlsplit(url).hostname or '').lower()
+        if host == 'linkedin.com' or host.endswith('.linkedin.com'):
+            linkedin_rows.append({**row, 'discovery_provider': 'public_fallback'})
+    outcome = {**outcome, 'matched': len(linkedin_rows), 'target_met': len(linkedin_rows) >= target}
+    if len(linkedin_rows) < target:
+        outcome['status'] = 'partial' if linkedin_rows else 'no_results'
+    return linkedin_rows, outcome
+
+
 def public_queries(domain, mode, location=''):
     if mode == 'trainer':
         from app.clients.search_accuracy import trainer_public_queries

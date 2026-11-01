@@ -535,7 +535,7 @@ export default function LinkedInSearch() {
                     </div>
                     <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                       <span className="font-semibold text-slate-800">{lead.domain || 'Domain pending'}</span>
-                      <span>from {lead.source || 'Public Search'}</span>
+                      <span>from {lead.discovery_provider === 'public_fallback' ? 'Public indexed search fallback' : lead.source || 'Public Search'}</span>
                     </p>
                   </div>
                 </div>

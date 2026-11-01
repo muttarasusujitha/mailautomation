@@ -1,10 +1,13 @@
 # Connected LinkedIn fetching
 
 Select trainer profiles or client posts in LinkedIn Search, enter domains, and
-click Find. Automatic collection and the search page use `auto`, which reads
-only the connected LinkedIn account. Public web search is not called.
-Fetches only save leads; they never send email, messages or connection requests.
-Search cards are unverified signals, not confirmation that a requirement remains open.
+click Find. Searches use the connected LinkedIn account first. If LinkedIn
+explicitly limits the session or requires sign-in verification, the manual
+search falls back to public indexed LinkedIn results and labels them as a public
+search fallback. Scheduled background collection remains account-only. The
+fallback uses no paid API. Fetches only save leads; they never send email,
+messages or connection requests. Search cards are unverified signals, not
+confirmation that a requirement remains open.
 
 ## One-time connection on a desktop host
 
