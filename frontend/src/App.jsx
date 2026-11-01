@@ -42,6 +42,7 @@ const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'))
 const Trainers = lazyWithRetry(() => import('./pages/Trainers'))
 const Requirements = lazyWithRetry(() => import('./pages/Requirements'))
 const Emails = lazyWithRetry(() => import('./pages/Emails'))
+const Inbox = lazyWithRetry(() => import('./pages/Inbox'))
 const ClientRequests = lazyWithRetry(() => import('./pages/ClientRequests'))
 const LinkedInSearch = lazyWithRetry(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazyWithRetry(() => import('./pages/LinkedInPipeline'))
@@ -130,7 +131,7 @@ export default function App() {
             <Route path="trainers"     element={<Trainers />} />
             <Route path="requirements" element={<Requirements />} />
             <Route path="emails"       element={<Emails />} />
-            <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />
+            <Route path="inbox"        element={<Inbox />} />
             <Route path="client-requests" element={<ClientRequests />} />
             <Route path="trainer-comms" element={<Navigate to="/dashboard" replace />} />
             <Route path="client-comms" element={<Navigate to="/dashboard" replace />} />

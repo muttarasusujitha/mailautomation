@@ -172,6 +172,22 @@ def test_linkedin_profile_request_does_not_require_cv_profile_document():
     assert _trainer_missing_requested_details(reply, requirement, email_doc) == []
 
 
+def test_client_profile_and_linkedin_id_are_checked_as_trainer_details():
+    requirement = {
+        "technology_needed": "DevOps",
+        "requested_details": ["Client Profile", "LinkedIn ID"],
+    }
+    assert _trainer_missing_requested_details("I am interested.", requirement, {}) == [
+        "Updated CV / Trainer Profile",
+        "LinkedIn Profile",
+    ]
+    assert _trainer_missing_requested_details(
+        "Client profile attached. LinkedIn ID: https://www.linkedin.com/in/karthik-menon/",
+        requirement,
+        {},
+    ) == []
+
+
 def test_explicit_client_requested_detail_stays_missing_until_trainer_supplies_it():
     reply = "I am interested.\nLinkedIn: https://www.linkedin.com/in/karthik-menon/"
     requirement = {

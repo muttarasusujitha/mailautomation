@@ -1088,12 +1088,13 @@ def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bo
         if _clean(item)
     ]
     request_text = "\n".join([*requested, _client_requirement_text(requirement).lower()])
-    wants_profile = any(term in request_text for term in ("trainer profile", "profile/cv", "profile / cv", "resume", "curriculum vitae", "cv"))
+    wants_profile = any(term in request_text for term in ("trainer profile", "client profile", "profile/cv", "profile / cv", "resume", "curriculum vitae", "cv"))
     wants_toc = any(term in request_text for term in ("toc", "table of content", "table of contents", "course agenda", "curriculum"))
     explicit_lab_cost_request = any(
         term in request_text for term in (
             "lab cost", "lab-cost", "lab charges", "lab estimate", "lab quotation",
-            "lab quote", "lab pricing", "cost for lab", "price for lab", "lab price",
+            "lab quote", "lab pricing", "lab workbook", "workbook for lab",
+            "cost for lab", "price for lab", "lab price",
         )
     )
     # In a confirmed batch, a request for lab requirements/tools, lab access,
@@ -1146,6 +1147,10 @@ def _explicit_lab_workbook_required(requirement: Dict[str, Any]) -> bool:
         r"|\b(?:cost|price|charges?|quote|quotation|estimate)\b.{0,50}\blab(?:oratory)?\b",
         request_text,
         flags=re.IGNORECASE | re.DOTALL,
+    )) or bool(re.search(
+        r"\blab(?:oratory)?\s+workbooks?\b|\bworkbooks?\s+for\s+(?:the\s+)?lab(?:oratory)?\b",
+        request_text,
+        flags=re.IGNORECASE,
     ))
     if explicit_phrase:
         return True

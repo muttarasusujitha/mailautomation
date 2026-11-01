@@ -23,3 +23,32 @@ def test_client_proposal_wording_beats_tentative_schedule_details():
     })
     assert result['batch_flow'] == 'proposal'
     assert result['pipeline_target'] == 'shortlist'
+
+
+def test_placeholder_schedule_and_commercial_do_not_turn_request_into_confirmed_batch():
+    result = _normalise_requirement_payload({
+        'technology_needed': 'WhatsApp Business API',
+        'training_dates': 'To be confirmed',
+        'timeline_start': 'TBD',
+        'budget_total': 'Pending confirmation',
+        'client_requirement_text': 'Please prepare a training proposal for WhatsApp Business API.',
+    })
+
+    assert result['batch_flow'] == 'proposal'
+    assert result['requirement_type'] == 'proposal_batch'
+    assert result['pipeline_target'] == 'shortlist'
+
+
+def test_real_schedule_or_commercial_can_identify_confirmed_batch():
+    for details in (
+        {'training_dates': 'November 2 to November 6, 2026'},
+        {'budget_total': 250000},
+    ):
+        result = _normalise_requirement_payload({
+            'technology_needed': 'DevOps',
+            'client_requirement_text': 'We need a trainer for a corporate batch.',
+            **details,
+        })
+        assert result['batch_flow'] == 'confirmed'
+        assert result['requirement_type'] == 'confirmed_batch'
+        assert result['pipeline_target'] == 'shortlist1'

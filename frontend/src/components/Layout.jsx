@@ -14,6 +14,7 @@ import PageLoader from './PageLoader'
 import ErrorBoundary from './ErrorBoundary'
 import FloatingIntegrations from './FloatingIntegrations'
 import ChatAssistant from './ChatAssistant'
+import { resolveNavigationRoute } from '../utils/navigation'
 
 const NAV_GROUPS = [
   {
@@ -40,9 +41,9 @@ const NAV_GROUPS = [
     items: [
       { to: '/client-requests',      label: 'Client Requests',  icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
       { to: '/interview-scheduled',  label: 'Interviews',       icon: CalendarCheck,     keywords: ['interview','schedule','meeting','meet link'] },
-      { to: '/client-mail-pipeline', label: 'Client Pipeline',  icon: Kanban,            keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
+      { to: '/client-mail-pipeline', label: 'Client Pipeline',  icon: Kanban,            keywords: ['client pipeline','client mail pipeline','client mails'] },
       { to: '/invoices',             label: 'Invoices',         icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
-      { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['purchase order','purchase orders','generate po','po generator'] },
+      { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['po','client po','client purchase order','purchase order','purchase orders','generate po','po generator'] },
       { to: '/finance-approvals',    label: 'PO PDF Approvals', icon: ClipboardCheck,    keywords: ['po pdf','finance approvals','purchase order approval','client po review'] },
     ],
     more: [
@@ -65,15 +66,8 @@ const NAV_GROUPS = [
 
 const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(g => [...g.items, ...(g.more || [])])
 
-function norm(v) {
-  return String(v || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
-}
 function routeForQuery(q) {
-  const n = norm(q)
-  if (!n) return null
-  return ALL_NAV_ITEMS.find(item =>
-    item.keywords.some(k => n === norm(k) || n.includes(norm(k)))
-  )?.to || null
+  return resolveNavigationRoute(q, NAV_GROUPS)
 }
 function pageTitle(pathname) {
   if (pathname === '/dashboard') return 'Dashboard'

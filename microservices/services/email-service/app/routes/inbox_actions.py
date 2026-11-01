@@ -154,6 +154,18 @@ CLIENT_REQUEST_SIGNAL = {
         {"extracted.is_training_request": True},
         {"extracted.direct_request_language": True},
         {"requirement_id": {"$exists": True, "$nin": ["", None]}},
+        {
+            "$and": [
+                {"reply_status": {"$in": PENDING_STATUSES}},
+                {
+                    "$or": [
+                        {"draft_reply": {"$exists": True, "$nin": ["", None]}},
+                        {"ai_reply": {"$exists": True, "$nin": ["", None]}},
+                        {"generated_reply.body": {"$exists": True, "$nin": ["", None]}},
+                    ]
+                },
+            ]
+        },
     ]
 }
 

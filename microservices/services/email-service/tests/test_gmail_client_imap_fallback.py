@@ -1,5 +1,6 @@
 import imaplib
 import sys
+from email.message import EmailMessage
 from pathlib import Path
 
 import pytest
@@ -62,3 +63,46 @@ def test_check_imap_replies_uses_fallback_credentials(monkeypatch):
         [("primary@gmail.com", "primary-pass")],
         [("fallback@gmail.com", "fallback-pass")],
     ]
+
+
+def test_check_imap_replies_prefers_plain_text_over_html_alternative(monkeypatch):
+    message = EmailMessage()
+    message["From"] = "Kavya Kashish <kavya@emovur.com>"
+    message["Subject"] = "Whatsapp Business Api"
+    message["Message-ID"] = "<client-request@example.com>"
+    plain_body = "Best Regards,\nKavya\n8904186364 | emovur.com\n"
+    message.set_content(plain_body)
+    message.add_alternative(
+        "<html><body><p>Get the best price for your used car.</p>"
+        "<p>Get Finance Quote</p><p>Best Regards, Kavya</p></body></html>",
+        subtype="html",
+    )
+    raw_message = message.as_bytes()
+
+    class MessageMailbox(FakeIMAPMailbox):
+        def login(self, user, pwd):
+            self.login_calls.append((user, pwd))
+            return "OK", b""
+
+        def search(self, *args, **kwargs):
+            return "OK", [b"1"]
+
+        def fetch(self, *args, **kwargs):
+            return "OK", [(b"1 (RFC822)", raw_message)]
+
+    monkeypatch.setattr(gmail_client.imaplib, "IMAP4_SSL", lambda *args, **kwargs: MessageMailbox())
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_USER", "primary@gmail.com")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_APP_PASSWORD", "primary-pass")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_PASS", "")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_USER", "")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_APP_PASSWORD", "")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_PASS", "")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_FROM_EMAIL", "")
+    monkeypatch.setattr(gmail_client.settings, "FROM_EMAIL", "")
+
+    replies = gmail_client.check_imap_replies(since_days=3, max_messages=5)
+
+    assert len(replies) == 1
+    assert replies[0]["body"].strip() == plain_body.strip()
+    assert "used car" not in replies[0]["body"].lower()
+    assert "finance quote" not in replies[0]["body"].lower()
