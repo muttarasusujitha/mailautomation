@@ -2,7 +2,12 @@
 import re
 from datetime import datetime
 
-from app.clients.lead_discovery import discover
+from app.clients.lead_discovery import (
+    discover,
+    discover_public_fallback,
+    linkedin_requires_public_fallback,
+    search_warning,
+)
 from app.routes.linkedin_leads import _normalize_result, _result_text
 from app.clients.client_post_identity import post_identity, save_client_post
 
@@ -10,6 +15,51 @@ from app.clients.client_post_identity import post_identity, save_client_post
 async def scan_client_posts(domains, db, include_unmatched=False):
     # Empty domain deliberately makes discovery search only for request intent.
     rows, discovery = await discover('', 'client', 50)
+    if linkedin_requires_public_fallback(discovery.get('primary_error')):
+        account_rows = list(rows)
+        try:
+            public_rows, public_outcome = await discover_public_fallback('', 'client', 50)
+        except Exception as exc:
+            public_rows = []
+            public_outcome = {
+                'status': 'blocked',
+                'warnings': [search_warning('public', exc)],
+            }
+
+        seen_urls = set()
+        combined_rows = []
+        for row in [*account_rows, *public_rows]:
+            url = row.get('url') or row.get('source_url') or ''
+            try:
+                identity = post_identity(url)
+            except ValueError:
+                continue
+            if identity not in seen_urls:
+                seen_urls.add(identity)
+                combined_rows.append(row)
+
+        limited_warning = search_warning(
+            'linkedin_account',
+            'LinkedIn limited this session. Public indexed LinkedIn posts were used as a fallback.'
+            if public_rows else
+            'LinkedIn limited this session. Public search returned no eligible indexed LinkedIn posts.',
+        )
+        fallback_warnings = [limited_warning, *(public_outcome.get('warnings') or [])]
+        discovery = {
+            **public_outcome,
+            'status': (
+                'target_met' if len(combined_rows) >= 50
+                else 'partial' if combined_rows
+                else 'blocked'
+            ),
+            'matched': len(combined_rows),
+            'target_met': len(combined_rows) >= 50,
+            'fallback_source': 'public_search',
+            'warnings': fallback_warnings,
+            'primary_error': fallback_warnings[0]['error'],
+        }
+        rows = combined_rows
+
     domains = list(dict.fromkeys(domain.strip() for domain in domains if domain.strip()))
     counts = dict.fromkeys(domains, 0)
     found = saved = 0
