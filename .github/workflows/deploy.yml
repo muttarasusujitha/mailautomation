@@ -284,6 +284,10 @@ jobs:
           set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
           # The dedicated EC2 LinkedIn profile has been signed in and verified.
           set_env LINKEDIN_BOT_ENABLED "true"
+          # The dedicated Google Meet profile is persisted in meet_bot_profile.
+          # Enable the bot in production while retaining auto-admit's safe default.
+          set_env MEET_BOT_ENABLED "true"
+          set_env MEET_BOT_AUTO_ADMIT "false"
 
       - name: Create Frontend .env
         working-directory: ${{ github.workspace }}
@@ -340,3 +344,27 @@ jobs:
       - name: Verify Deployment
         run: |
           docker ps
+          docker exec -i ts-meet-bot python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          deadline = time.monotonic() + 180
+          health = {}
+          while time.monotonic() < deadline:
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8010/health', timeout=5) as response:
+                      health = json.load(response)
+                  if health.get('status') == 'ok':
+                      break
+              except Exception:
+                  pass
+              time.sleep(5)
+
+          print(json.dumps(health, sort_keys=True))
+          if not health.get('enabled') or health.get('status') != 'ok':
+              raise SystemExit('Meet bot did not become ready and enabled.')
+          account = health.get('google_account') or {}
+          if account.get('status') != 'signed_in':
+              raise SystemExit(f"Meet bot Google profile is not signed in: {account.get('status', 'unknown')}")
+          PY
