@@ -18,6 +18,8 @@ export default function GmailCallback({ onLogin }) {
       const error = params.get('error')
       const code = params.get('code')
       const state = params.get('state')
+      const oauthSession = consumeGmailOAuthPkce(state || '')
+      const personalConnection = oauthSession.account_scope === 'personal'
 
       if (error) {
         clearGmailOAuthPkce()
@@ -31,36 +33,47 @@ export default function GmailCallback({ onLogin }) {
       }
 
       try {
-        const oauthSession = consumeGmailOAuthPkce(state || '')
         const codeVerifier = oauthSession.code_verifier || ''
         const redirectUri = oauthSession.redirect_uri || `${window.location.origin}/auth/callback`
-        await api.post('/gmail/oauth-callback', {
+        const callbackPath = personalConnection ? '/gmail/me/oauth-callback' : '/gmail/oauth-callback'
+        await api.post(callbackPath, {
           code,
           state,
           code_verifier: codeVerifier,
           redirect_uri: redirectUri,
         })
 
-        try {
-          await api.post('/gmail/renew-watch')
-          const statusRes = await api.get('/gmail/auth-status')
-          const normalized = normalizeGmailStatus(statusRes.data || {})
-          const calendarReady = Boolean(normalized.calendar_connected)
+        if (personalConnection) {
+          const statusRes = await api.get('/gmail/me/auth-status')
+          const email = statusRes.data?.email || ''
           setStatus({
-            type: calendarReady ? 'success' : 'warning',
-            message: calendarReady
-              ? 'Gmail and Google Calendar connected. Inbox watch renewed.'
-              : 'Gmail connected. Google Calendar scope is still being confirmed.',
+            type: 'success',
+            message: email ? `Your Gmail account (${email}) is connected and ready for a test send.` : 'Your personal Gmail account is connected.',
           })
-        } catch (watchError) {
-          setStatus({
-            type: 'warning',
-            message: `Gmail connected. Watch renewal still needs setup: ${watchError.message}`,
-          })
+        } else {
+          try {
+            await api.post('/gmail/renew-watch')
+            const statusRes = await api.get('/gmail/auth-status')
+            const normalized = normalizeGmailStatus(statusRes.data || {})
+            const calendarReady = Boolean(normalized.calendar_connected)
+            setStatus({
+              type: calendarReady ? 'success' : 'warning',
+              message: calendarReady
+                ? 'Gmail and Google Calendar connected. Inbox watch renewed.'
+                : 'Gmail connected. Google Calendar scope is still being confirmed.',
+            })
+          } catch (watchError) {
+            setStatus({
+              type: 'warning',
+              message: `Gmail connected. Watch renewal still needs setup: ${watchError.message}`,
+            })
+          }
         }
 
         // Connecting a mailbox never creates an application identity.
-        if (typeof onLogin === 'function') {
+        if (personalConnection) {
+          setTimeout(() => navigate('/profile', { replace: true }), 1400)
+        } else if (typeof onLogin === 'function') {
           await onLogin()
           navigate('/admin', { replace: true })
         } else {

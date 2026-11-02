@@ -261,9 +261,11 @@ export default function Layout({ onLogout }) {
       pending = true
       try {
         const config = { signal: controller.signal, timeout: 10000, retry: false }
+        let accountRole = ''
+        try { accountRole = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role || '' } catch { /* use recruiter-safe status */ }
         const [inboxRes, gmailRes] = await Promise.allSettled([
           api.get('/inbox', { ...config, params: { status: 'pending_approval', limit: 1 } }),
-          api.get('/gmail/auth-status', config),
+          api.get(accountRole === 'admin' ? '/gmail/auth-status' : '/gmail/me/auth-status', config),
         ])
         if (cancelled) return
         if (inboxRes.status === 'fulfilled') {

@@ -26,6 +26,7 @@ export function saveGmailOAuthPkce(data = {}) {
     state,
     code_verifier: codeVerifier,
     redirect_uri: data.redirect_uri || '',
+    account_scope: data.account_scope || 'company',
     created_at: Date.now(),
   }))
 }
@@ -52,6 +53,7 @@ export function consumeGmailOAuthPkce(state = '') {
       return {
         code_verifier: saved.code_verifier || '',
         redirect_uri: saved.redirect_uri || '',
+        account_scope: saved.account_scope || 'company',
       }
     } catch {
       storage.removeItem(key)

@@ -141,19 +141,31 @@ async def logout(request: Request, response: Response, db=Depends(get_db)):
 @router.get('/verify')
 async def verify_access(request: Request, db=Depends(get_db)):
     # This endpoint receives trusted metadata only from nginx's internal subrequest.
-    user, _ = await authenticate(db, request, method=request.headers.get('x-original-method', 'GET'))
+    method = request.headers.get('x-original-method', 'GET').upper()
+    user, _ = await authenticate(db, request, method=method)
     path = urlsplit(request.headers.get('x-original-uri', '')).path
     if path.startswith('/api/') and not path.startswith('/api/v1/'):
         path = '/api/v1/' + path[len('/api/'):]
     path = path.rstrip('/')
     admin_paths = ('/api/v1/admin', '/api/v1/database', '/api/v1/gmail', '/api/v1/teams-direct', '/api/v1/scheduler')
+    personal_gmail_actions = {
+        ('GET', '/api/v1/gmail/me/auth-status'),
+        ('GET', '/api/v1/gmail/me/oauth-url'),
+        ('POST', '/api/v1/gmail/me/oauth-callback'),
+        ('POST', '/api/v1/gmail/me/disconnect'),
+        ('POST', '/api/v1/gmail/me/test-send'),
+    }
     if user.get('role') not in {'admin', 'recruiter'}:
         raise HTTPException(403, 'This workspace requires staff access')
-    if any(path == p or path.startswith(p + '/') for p in admin_paths) and user.get('role') != 'admin':
+    is_admin_path = any(path == p or path.startswith(p + '/') for p in admin_paths)
+    if is_admin_path and user.get('role') != 'admin' and (method, path) not in personal_gmail_actions:
         raise HTTPException(403, 'Administrator access required')
     if path.startswith('/api/v1/auth/'):
         raise HTTPException(403, 'Invalid authorization subrequest')
-    return Response(status_code=204, headers={'Cache-Control': 'no-store'})
+    return Response(status_code=204, headers={
+        'Cache-Control': 'no-store',
+        'X-Authenticated-User-ID': str(user.get('user_id') or ''),
+    })
 
 
 @router.post('/forgot-password')
