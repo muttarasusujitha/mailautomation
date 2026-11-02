@@ -1,6 +1,17 @@
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from app.routes.shortlists import (
     _trainer_missing_followup_details, _requested_trainer_details_for_client,
 )
+
+
+def _future_slots():
+    today = datetime.now(ZoneInfo('Asia/Kolkata')).date()
+    return '\n'.join(
+        f"{(today + timedelta(days=day)).strftime('%d %B %Y')}, {hour:02d}:00 {period} IST"
+        for day, hour, period in ((3, 10, 'AM'), (4, 2, 'PM'), (5, 4, 'PM'))
+    )
 
 
 def test_linkedin_request_is_not_replaced_with_cv_request():
@@ -40,11 +51,6 @@ def test_interested_reply_with_three_dated_slots_needs_no_slot_followup():
         'linkedin_profile': 'https://www.linkedin.com/in/trainer-name',
         'reply_sentiment': 'positive',
         'pipeline_status': 'mail1_replied',
-        'mail1_reply_text': '\n'.join([
-            'I am interested.',
-            '02 November 2026, 10:00 AM IST',
-            '04 November 2026, 2:00 PM IST',
-            '06 November 2026, 4:00 PM IST',
-        ]),
+        'mail1_reply_text': 'I am interested.\n' + _future_slots(),
     }
     assert _trainer_missing_followup_details(trainer, requirement) == []
