@@ -152,7 +152,12 @@ def _load_user_creds(user_id: str, refresh_expired: bool = True):
     try:
         from google.auth.transport.requests import Request as GReq
         from google.oauth2.credentials import Credentials
-        credentials = Credentials.from_authorized_user_file(token_path)
+        with open(token_path, "r", encoding="utf-8") as token_file:
+            token_info = json.load(token_file)
+        credentials = Credentials.from_authorized_user_info(
+            token_info,
+            scopes=token_info.get("scopes"),
+        )
         if refresh_expired and credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(GReq())
             _save_credentials(token_path, credentials)
