@@ -1,7 +1,9 @@
 import asyncio
 import json
+from datetime import datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from zoneinfo import ZoneInfo
 
 import httpx
 import pytest
@@ -10,7 +12,15 @@ from app.routes import shortlists
 from handoff_store import PackageStore
 
 
-SLOTS = "02 November 2026, 10:00 AM IST\n04 November 2026, 2:00 PM IST\n06 November 2026, 4:00 PM IST"
+def _future_slot_text():
+    today = datetime.now(ZoneInfo("Asia/Kolkata")).date()
+    return "\n".join(
+        f"{(today + timedelta(days=day)).strftime('%d %B %Y')}, {hour:02d}:00 {period} IST"
+        for day, hour, period in ((3, 10, "AM"), (4, 2, "PM"), (5, 4, "PM"))
+    )
+
+
+SLOTS = _future_slot_text()
 
 
 def test_ai_handoff_passes_ai_resource_mapping_to_workbook(monkeypatch):

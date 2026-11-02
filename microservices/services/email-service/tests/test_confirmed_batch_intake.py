@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from app.routes.inbox import (
     _confirmed_intake_ready_for_trainer_mail,
     _with_missing_dated_slots,
@@ -75,9 +78,9 @@ def test_interested_reply_without_three_dated_slots_is_one_followup_item():
 
 
 def test_three_dated_slots_are_not_added_to_the_followup():
-    reply = "\n".join([
-        "02 November 2026, 10:00 AM IST",
-        "04 November 2026, 2:00 PM IST",
-        "06 November 2026, 4:00 PM IST",
-    ])
+    today = datetime.now(ZoneInfo("Asia/Kolkata")).date()
+    reply = "\n".join(
+        f"{(today + timedelta(days=day)).strftime('%d %B %Y')}, {hour:02d}:00 {period} IST"
+        for day, hour, period in ((3, 10, "AM"), (4, 2, "PM"), (5, 4, "PM"))
+    )
     assert _with_missing_dated_slots([], reply) == []
