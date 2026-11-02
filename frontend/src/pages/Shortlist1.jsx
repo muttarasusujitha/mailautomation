@@ -3725,9 +3725,6 @@ export default function Shortlist1() {
         // The API has already filtered this request to pipeline=shortlist1.
         // Do not hide valid records again with browser-side inference.
         setReqs(list)
-        if (!targetRequirementId && list.length) {
-          setSelectedReq(list[0])
-        }
 
         if (targetRequirementId) {
           const match = list.find(req => String(req.requirement_id) === String(targetRequirementId))
