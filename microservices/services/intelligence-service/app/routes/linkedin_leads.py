@@ -556,11 +556,15 @@ async def search_linkedin_leads(
                 discover,
                 discover_public_fallback,
                 linkedin_requires_public_fallback,
+                linkedin_session_requires_public_fallback,
                 search_warning,
             )
             raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
             blocked_reason = outcome.get('primary_error') or ''
-            if len(raw_results) < domain_goal and linkedin_requires_public_fallback(blocked_reason):
+            should_use_public_fallback = linkedin_requires_public_fallback(blocked_reason) or (
+                mode == 'client' and linkedin_session_requires_public_fallback(blocked_reason)
+            )
+            if len(raw_results) < domain_goal and should_use_public_fallback:
                 account_results = list(raw_results)
                 try:
                     fallback_results, fallback_outcome = await discover_public_fallback(

@@ -17,6 +17,11 @@ def linkedin_requires_public_fallback(error):
     return 'linkedin limited this session' in message
 
 
+def linkedin_session_requires_public_fallback(error):
+    message = str(error or '').lower()
+    return linkedin_requires_public_fallback(message) or 'linkedin sign-in or verification required' in message
+
+
 async def discover_public_fallback(domain, mode, target, location=''):
     """Use public indexed LinkedIn pages after LinkedIn blocks an account search."""
     from urllib.parse import urlsplit
