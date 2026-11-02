@@ -289,7 +289,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     started = asyncio.get_running_loop().time()
     # People pages and the content fallback have separate budgets, so a slow
     # page cannot consume the fallback or raise a time limit before it runs.
-    people_budget = 160 if limit >= 20 else 45
+    people_budget = 180 if limit >= 20 else 45
     content_budget = 40 if limit >= 20 else 20
     people_deadline = started + people_budget
     deadline = started + people_budget + content_budget

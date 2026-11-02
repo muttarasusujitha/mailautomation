@@ -314,6 +314,10 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
         if source == "linkedin" and not (is_profile or is_resume_post):
             return None
         if keyword_qualified:
+            # LinkedIn returned this card from an explicit trainer people search;
+            # its headline often omits both the skill and the word "trainer".
+            # The helper accepts role-free cards returned by a keyword search,
+            # while rejecting hiring posts and obvious non-trainer job roles.
             if source == "linkedin" and not _keyword_card_is_trainer(combined_text):
                 return None
         else:
