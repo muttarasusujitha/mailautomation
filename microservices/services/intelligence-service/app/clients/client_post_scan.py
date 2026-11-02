@@ -5,7 +5,7 @@ from datetime import datetime
 from app.clients.lead_discovery import (
     discover,
     discover_public_fallback,
-    linkedin_requires_public_fallback,
+    linkedin_session_requires_public_fallback,
     search_warning,
 )
 from app.routes.linkedin_leads import _normalize_result, _result_text
@@ -15,7 +15,7 @@ from app.clients.client_post_identity import post_identity, save_client_post
 async def scan_client_posts(domains, db, include_unmatched=False):
     # Empty domain deliberately makes discovery search only for request intent.
     rows, discovery = await discover('', 'client', 50)
-    if linkedin_requires_public_fallback(discovery.get('primary_error')):
+    if linkedin_session_requires_public_fallback(discovery.get('primary_error')):
         account_rows = list(rows)
         try:
             public_rows, public_outcome = await discover_public_fallback('', 'client', 50)
