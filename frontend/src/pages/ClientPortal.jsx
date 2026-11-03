@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CalendarDays, CheckCircle2, LogOut, Mail, ArrowDown, ArrowUpRight } from 'lucide-react'
+import { CalendarDays, CheckCircle2, LogOut, Mail, ArrowDown, ArrowUpRight, Home, FileText, ListChecks } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../utils/api'
 import BrandMark from '../components/BrandMark'
@@ -176,10 +176,20 @@ export default function ClientPortal({ onLogout, user }) {
     finally { setBusy(false) }
   }
 
-  return <main className="min-h-screen bg-[#F7F8FA] text-slate-900">
+  return <main className="min-h-screen bg-[#F7F8FA] text-slate-900 lg:pl-64">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 bg-white px-5 py-6 lg:flex">
+      <BrandMark size="md" />
+      <p className="mt-8 px-3 text-[11px] font-bold uppercase tracking-[.16em] text-slate-400">Client workspace</p>
+      <nav aria-label="Client portal sidebar" className="mt-3 space-y-1">
+        <a href="#portal-home" className="flex items-center gap-3 rounded-xl bg-blue-50 px-3 py-2.5 text-sm font-semibold text-blue-700"><Home size={17} /> Home</a>
+        <a href="#request-builder" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700"><FileText size={17} /> New request</a>
+        <a href="#request-tracker" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-blue-700"><ListChecks size={17} /> My requests</a>
+      </nav>
+      <div className="mt-auto"><button onClick={onLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"><LogOut size={17} /> Sign out</button></div>
+    </aside>
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#E5E8EE] bg-white/95 px-5 py-4 shadow-sm backdrop-blur-xl sm:px-10"><BrandMark size="md" /><div className="flex items-center gap-2 sm:gap-4"><nav aria-label="Client navigation" className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 text-sm font-semibold"><Link to="/home" className="rounded-lg px-3 py-2 text-slate-600 hover:bg-white hover:text-blue-700">Home</Link><Link to="/client-portal" aria-current="page" className="rounded-lg bg-white px-3 py-2 text-blue-700 shadow-sm">My portal</Link></nav><span className="hidden text-sm font-medium text-slate-500 xl:block">{profile.company || profile.name || profile.email}</span><button onClick={onLogout} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"><LogOut size={16} /> <span className="hidden sm:inline">Sign out</span></button></div></header>
     <div className="mx-auto max-w-6xl space-y-7 px-4 py-6 sm:px-8 sm:py-9">
-      <section className="grid overflow-hidden rounded-[28px] border border-[#E5E8EE] bg-white shadow-[0_22px_60px_-40px_rgba(15,23,42,.35)] lg:grid-cols-[1.05fr_.95fr]">
+      <section id="portal-home" className="scroll-mt-24 grid overflow-hidden rounded-[28px] border border-[#E5E8EE] bg-white shadow-[0_22px_60px_-40px_rgba(15,23,42,.35)] lg:grid-cols-[1.05fr_.95fr]">
         <div className="relative min-h-[330px] overflow-hidden bg-gradient-to-br from-[#F8FBFF] via-[#EAF3FF] to-white sm:min-h-[440px]">
           <img src="/images/office-girl.png" alt="Client planning a training program" className="absolute inset-0 h-full w-full object-contain object-center" />
           <div className="absolute inset-0 bg-gradient-to-r from-white/55 via-white/5 to-blue-50/50" />
