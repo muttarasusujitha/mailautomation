@@ -256,6 +256,9 @@ jobs:
 
       - name: Create Backend .env
         working-directory: ${{ github.workspace }}/microservices
+        env:
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
         run: |
           cp .env.example .env
           set_env() {
@@ -268,6 +271,8 @@ jobs:
             fi
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
+          set_env RAZORPAY_KEY_ID "$RAZORPAY_KEY_ID"
+          set_env RAZORPAY_KEY_SECRET "$RAZORPAY_KEY_SECRET"
           set_env GMAIL_APP_PASSWORD "${{ secrets.GMAIL_APP_PASSWORD }}"
           set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
           set_env STYLE_IMAP_USER "${{ secrets.STYLE_IMAP_USER }}"
