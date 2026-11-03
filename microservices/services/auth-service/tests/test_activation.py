@@ -50,14 +50,15 @@ def test_trainer_registration_creates_active_trainer_session(monkeypatch):
 def test_pending_account_is_activated_on_valid_password_login(monkeypatch):
     collection = AsyncMock()
     user = {'user_id': 'u1', 'email': 'user@example.com', 'status': 'pending',
-            'role': 'recruiter', 'auth_version': 0,
+            'role': 'trainer', 'auth_version': 0,
             'password_hash': security.hash_password('correct-password')}
     collection.find_one.return_value = user
     collection.update_one.return_value = SimpleNamespace(matched_count=1)
     monkeypatch.setattr(accounts, 'rate_limit', AsyncMock())
     monkeypatch.setattr(accounts, 'issue_session', AsyncMock(return_value={'success': True}))
+    monkeypatch.setattr(accounts, '_send_trainer_email', AsyncMock())
     response = Response()
-    result = asyncio.run(accounts.login(accounts.Credentials(email='user@example.com', password='correct-password'),
+    result = asyncio.run(accounts.login(accounts.LoginCredentials(email='user@example.com', password='correct-password', desired_role='trainer'),
                                        request(), response, {'auth_users': collection}))
     assert result['success'] is True
     assert user['status'] == 'active'
@@ -67,11 +68,11 @@ def test_pending_account_is_activated_on_valid_password_login(monkeypatch):
 
 def test_disabled_account_cannot_login(monkeypatch):
     collection = AsyncMock()
-    collection.find_one.return_value = {'status': 'disabled', 'password_hash': security.hash_password('correct-password')}
+    collection.find_one.return_value = {'status': 'disabled', 'role': 'admin', 'password_hash': security.hash_password('correct-password')}
     monkeypatch.setattr(accounts, 'rate_limit', AsyncMock())
     response = Response()
     with pytest.raises(HTTPException) as error:
-        asyncio.run(accounts.login(accounts.Credentials(email='user@example.com', password='correct-password'),
+        asyncio.run(accounts.login(accounts.LoginCredentials(email='user@example.com', password='correct-password', desired_role='admin'),
                                    request(), response, {'auth_users': collection}))
     assert error.value.status_code == 401
     assert 'set-cookie' not in response.headers
@@ -80,31 +81,31 @@ def test_disabled_account_cannot_login(monkeypatch):
 def test_social_login_creates_standard_account_for_verified_identity():
     users = AsyncMock()
     users.find_one.side_effect = [None, {
-        'user_id': 'USR-new', 'email_normalized': 'new@example.com', 'role': 'recruiter',
+        'user_id': 'USR-new', 'email_normalized': 'new@example.com', 'role': 'trainer',
         'status': 'active', 'auth_version': 0,
     }]
     result = asyncio.run(accounts._resolve_social_user(
-        {'auth_users': users}, {'email': 'New@example.com', 'name': 'New User'}))
+        {'auth_users': users}, {'email': 'New@example.com', 'name': 'New User'}, 'trainer'))
     created = users.insert_one.call_args.args[0]
     assert created['email_normalized'] == 'new@example.com'
-    assert created['role'] == 'recruiter'
+    assert created['role'] == 'trainer'
     assert created['status'] == 'active'
     assert result['status'] == 'active'
 
 
 def test_social_login_activates_pending_account_but_not_disabled_account():
     users = AsyncMock()
-    pending = {'user_id': 'u1', 'email_normalized': 'user@example.com', 'role': 'recruiter', 'status': 'pending'}
+    pending = {'user_id': 'u1', 'email_normalized': 'user@example.com', 'role': 'trainer', 'status': 'pending'}
     users.find_one.return_value = pending
     users.update_one.return_value = SimpleNamespace(matched_count=1)
     activated = asyncio.run(accounts._resolve_social_user(
-        {'auth_users': users}, {'email': 'user@example.com', 'name': 'User'}))
+        {'auth_users': users}, {'email': 'user@example.com', 'name': 'User'}, 'trainer'))
     assert activated['status'] == 'active'
 
     disabled_users = AsyncMock()
     disabled_users.find_one.return_value = {'user_id': 'u2', 'status': 'disabled'}
     disabled = asyncio.run(accounts._resolve_social_user(
-        {'auth_users': disabled_users}, {'email': 'disabled@example.com'}))
+        {'auth_users': disabled_users}, {'email': 'disabled@example.com'}, 'trainer'))
     assert disabled is None
     disabled_users.update_one.assert_not_awaited()
 
@@ -131,7 +132,7 @@ def test_operator_commands(monkeypatch, action):
     monkeypatch.setattr(manage_users, 'AsyncIOMotorClient', lambda *a, **kw: mongo)
     monkeypatch.setattr(manage_users, 'ensure_indexes', AsyncMock())
     monkeypatch.setattr(manage_users, 'read_password', lambda: 'operator-test-password')
-    asyncio.run(manage_users.run(SimpleNamespace(action=action, email='User@example.com', name='User', role='recruiter')))
+    asyncio.run(manage_users.run(SimpleNamespace(action=action, email='User@example.com', name='User', role='trainer')))
     if action == 'create-admin':
         stored = users.insert_one.call_args.args[0]
         assert stored['role'] == 'admin' and stored['status'] == 'active'
