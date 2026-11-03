@@ -12989,9 +12989,16 @@ async def _process_client_requirement_email(
         now = _now()
         source_email_id = email_doc.get("email_id") or f"INB-{uuid.uuid4().hex[:10].upper()}"
         existing_approval = await db["finance_approvals"].find_one(
-            {"source_email_id": source_email_id}, {"_id": 0, "finance_id": 1},
+            {"source_email_id": source_email_id}, {"_id": 0, "finance_id": 1, "status": 1, "invoice_id": 1},
         ) or {}
         finance_id = existing_approval.get("finance_id") or f"FIN-{uuid.uuid4().hex[:10].upper()}"
+        if existing_approval.get("status") in {"invoice_sent", "processing_invoice", "rejected"}:
+            already_sent = existing_approval.get("status") == "invoice_sent"
+            await db["client_emails"].update_one(
+                {"email_id": email_doc.get("email_id")},
+                {"$set": {"processed": True, "status": "processed" if already_sent else "pending_approval", "reply_status": existing_approval.get("status"), "office_mail_category": "finance_invoice_sent" if already_sent else "finance_approval_required", "finance_approval_id": finance_id, "invoice_id": existing_approval.get("invoice_id"), "updated_at": _now()}},
+            )
+            return {"processed": True, "email_id": email_doc.get("email_id"), "status": existing_approval.get("status"), "reason": "finance_item_already_handled", "finance_id": finance_id, "invoice_id": existing_approval.get("invoice_id")}
         extracted_po = po_extraction.get("fields") or {}
         if is_client_po:
             if email_doc.get("requirement_id"):
@@ -13022,7 +13029,7 @@ async def _process_client_requirement_email(
                 "trainer_id": email_doc.get("trainer_id") or "",
                 "status": "pending_human_approval",
                 "notification_title": "PO / Invoice Approval Required",
-                "notification_message": "PO PDF details extracted where possible. Review the source PDF and correct fields before approving an invoice.",
+                "notification_message": "Final, complete POs are processed automatically. Incomplete or ambiguous documents remain in the review queue.",
                 "attachment_names": [str(x.get("filename") or "") for x in attachments if isinstance(x, dict)],
                 "purchase_order_extraction": po_extraction if is_client_po else {},
                 "extracted_po_fields": extracted_po if is_client_po else {},
@@ -13030,10 +13037,16 @@ async def _process_client_requirement_email(
                 "updated_at": now,
             }, "$setOnInsert": {"created_at": now}}, upsert=True,
         )
-        # A readable PO is the trigger for the next pipeline stage: create a
-        # draft invoice from its extracted values. It remains a draft until
-        # Finance checks the source PDF and explicitly sends it.
-        if is_client_po and extracted_po.get("po_number") and (extracted_po.get("total_amount") or 0) > 0:
+        # Create an invoice only from a final, non-placeholder PO. Draft and
+        # indicative samples stay in the finance queue without creating a
+        # misleading invoice record.
+        if (
+            is_client_po
+            and extracted_po.get("po_number")
+            and (extracted_po.get("total_amount") or 0) > 0
+            and not extracted_po.get("draft_document")
+            and not extracted_po.get("placeholder_fields")
+        ):
             existing_invoice = await db["invoices"].find_one(
                 {"source_finance_id": finance_id}, {"_id": 0, "invoice_id": 1, "po_id": 1},
             ) or {}
@@ -13080,6 +13093,93 @@ async def _process_client_requirement_email(
                     await db["shortlists"].update_one(
                         {"requirement_id": email_doc.get("requirement_id"), "top_trainers.trainer_id": email_doc.get("trainer_id")},
                         {"$set": {"top_trainers.$.pipeline_status": "invoice_generated", "top_trainers.$.client_po_status": "invoice_generated", "updated_at": now}},
+                    )
+
+            auto_blockers = list(extracted_po.get("auto_processing_blockers") or [])
+            sender_email = _email_address(email_doc.get("from_email") or "")
+            linked_requirement = {}
+            if email_doc.get("requirement_id"):
+                linked_requirement = await db["requirements"].find_one(
+                    {"requirement_id": email_doc.get("requirement_id")},
+                    {"_id": 0, "requirement_id": 1, "status": 1, "client_email": 1},
+                ) or {}
+            if not sender_email:
+                auto_blockers.append("Client sender email is missing")
+            if not linked_requirement:
+                auto_blockers.append("PO is not linked to a known training requirement")
+            elif str(linked_requirement.get("status") or "").lower() in {"cancelled", "canceled", "rejected", "closed"}:
+                auto_blockers.append("Linked training requirement is not active")
+            elif _email_address(linked_requirement.get("client_email") or "").lower() != sender_email.lower():
+                auto_blockers.append("PO sender does not match the linked client's email")
+            auto_blockers = list(dict.fromkeys(auto_blockers))
+            auto_eligible = bool(extracted_po.get("auto_processing_eligible") and not auto_blockers)
+            await db["finance_approvals"].update_one(
+                {"finance_id": finance_id},
+                {"$set": {
+                    "automation_status": "ready" if auto_eligible else "review_required",
+                    "auto_processing_eligible": auto_eligible,
+                    "auto_processing_blockers": auto_blockers,
+                    "updated_at": now,
+                }},
+            )
+            if auto_eligible:
+                auto_payload = {
+                    "client_name": extracted_po.get("client_name"),
+                    "client_email": sender_email,
+                    "po_number": extracted_po.get("po_number"),
+                    "po_date": extracted_po.get("po_date") or "",
+                    "total_amount": float(extracted_po["total_amount"]),
+                    "gst_rate": float(extracted_po.get("gst_rate") or 0),
+                    "billing_address": extracted_po.get("billing_address") or "",
+                    "gstin": extracted_po.get("gstin") or "",
+                    "payment_terms": extracted_po.get("payment_terms") or "",
+                    "description": extracted_po.get("description") or extracted_po.get("training_dates") or f"Training services for {email_doc.get('requirement_id')}",
+                    "due_date": extracted_po.get("due_date") or "",
+                }
+                try:
+                    async with httpx.AsyncClient(timeout=90) as client:
+                        response = await client.post(
+                            f"{TRAINER_SERVICE_URL}/api/v1/finance/approvals/{finance_id}/approve-send",
+                            json=auto_payload,
+                        )
+                    response.raise_for_status()
+                    result = response.json()
+                    if result.get("status") != "invoice_sent":
+                        raise RuntimeError("Invoice send was not confirmed by the finance service")
+                    await db["client_emails"].update_one(
+                        {"email_id": email_doc.get("email_id")},
+                        {"$set": {
+                            "processed": True,
+                            "status": "processed",
+                            "reply_status": "invoice_sent",
+                            "office_mail_category": "finance_invoice_sent",
+                            "classification_reason": "official_client_po_auto_invoiced",
+                            "finance_approval_id": finance_id,
+                            "purchase_order_extraction": po_extraction,
+                            "invoice_id": result.get("invoice_id"),
+                            "updated_at": _now(),
+                        }},
+                    )
+                    return {
+                        "processed": True,
+                        "email_id": email_doc.get("email_id"),
+                        "status": "invoice_sent",
+                        "reason": "official_client_po_auto_invoiced",
+                        "finance_id": finance_id,
+                        "invoice_id": result.get("invoice_id"),
+                        "purchase_order_extraction": po_extraction,
+                    }
+                except Exception as exc:
+                    logger.exception("Automatic invoice processing failed for finance item %s", finance_id)
+                    await db["finance_approvals"].update_one(
+                        {"finance_id": finance_id, "status": {"$ne": "invoice_sent"}},
+                        {"$set": {
+                            "status": "pending_human_approval",
+                            "automation_status": "review_required",
+                            "auto_processing_eligible": False,
+                            "auto_processing_error": str(exc)[:500],
+                            "updated_at": _now(),
+                        }},
                     )
         await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "pending_approval", "reply_status": "pending_review", "office_mail_category": "finance_approval_required", "classification_reason": "po_invoice_human_approval", "finance_approval_id": finance_id, "purchase_order_extraction": po_extraction if is_client_po else {}, "updated_at": now}})
         return {"processed": True, "email_id": email_doc.get("email_id"), "status": "pending_approval", "reason": "finance_human_approval_required", "finance_id": finance_id, "invoice_generated": bool(is_client_po and extracted_po.get("po_number") and (extracted_po.get("total_amount") or 0) > 0), "purchase_order_extraction": po_extraction if is_client_po else {}}
