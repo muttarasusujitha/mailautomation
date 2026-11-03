@@ -27,14 +27,15 @@ def request(path='/api/v1/auth/login', cookie=None):
 
 def test_trainer_registration_creates_active_trainer_session(monkeypatch):
     db = MagicMock()
-    db.__getitem__.return_value = AsyncMock()
+    users, sessions = AsyncMock(), AsyncMock()
+    db.__getitem__.side_effect = lambda collection: {'auth_users': users, 'auth_sessions': sessions}[collection]
     monkeypatch.setattr(accounts, 'rate_limit', AsyncMock())
     monkeypatch.setattr(accounts, '_send_trainer_email', AsyncMock())
     payload = accounts.Registration(email='User@example.com', name='User',
                                     password='long-test-password', role='trainer')
     response = Response()
     result = asyncio.run(accounts.register(payload, request(), db, response=response))
-    stored = db['auth_users'].insert_one.call_args.args[0]
+    stored = users.insert_one.call_args.args[0]
     assert stored['status'] == 'active'
     assert stored['role'] == 'trainer'
     assert stored['requested_role'] == 'trainer'
