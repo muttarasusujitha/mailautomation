@@ -356,7 +356,7 @@ def validate_plan(plan, brief, request, sources):
 
 
 async def generate_reasoned_toc(request, client, settings, db=None):
-    raw = request.model_dump(exclude={"toc_id", "trainer_email", "trainer_name", "trainer_id"})
+    raw = request.model_dump(exclude={"toc_id", "trainer_email", "trainer_name", "trainer_id", "client_email"})
     using_ollama = str(getattr(settings, "AI_PROVIDER", "openai")).lower() == "ollama"
     model = settings.OLLAMA_MODEL if using_ollama else settings.OPENAI_MODEL
     brief = await structured(client, model, Brief,
@@ -386,6 +386,7 @@ async def generate_reasoned_toc(request, client, settings, db=None):
     instructions = (
         _ai_level_contract(request.level) + " "
         "Design a fresh client-specific curriculum from the requirement brief and locally matched dataset examples. "
+        "When client_context states a company industry, business workflow, problem, or goal, personalize scenarios, sample data, exercises, and final deliverables to that stated context while teaching the requested technology. Do not infer company facts or claim access to the client's systems; if no usable business context was provided, keep examples neutral and flag that context is missing. "
         "Choose and sequence modules for this audience; do not copy a fixed template or pad days. "
         "Include every required topic verbatim in a relevant module title or subtopic, exclude forbidden topics, and honor explicit allocations and duration. "
         "Order prerequisites before dependent modules, accounting for prior knowledge. "

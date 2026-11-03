@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api, { acceptSession, forgotPassword } from '../utils/api'
 import {
   Mail, Lock, User, Eye, EyeOff,
-  CheckCircle, Briefcase, Users, GraduationCap,
+  CheckCircle, ShieldCheck, GraduationCap,
   Building2, Phone, Sparkles, Linkedin,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -65,13 +65,13 @@ function ParticleCanvas() {
 /* ─── Role definitions ─────────────────────────────────────── */
 const ROLES = [
   {
-    id: 'recruiter', label: 'Recruiter', icon: Briefcase,
-    tagline: 'Find & hire the best trainers',
+    id: 'admin', label: 'Administrator', icon: ShieldCheck,
+    tagline: 'Manage the TrainerSync workspace',
     features: [
-      'AI-powered trainer matching in seconds',
-      'Automated 7-stage email pipeline',
-      'Reply tracking & shortlist management',
-      'Interview scheduling with Zoom/Teams/Meet',
+      'Review trainer applications and resumes',
+      'Manage client requests and matching',
+      'Coordinate interviews and handoffs',
+      'Access staff dashboards and tools',
     ],
   },
   {
@@ -89,19 +89,9 @@ const ROLES = [
     tagline: 'Find and choose a trainer',
     features: [
       'Describe your training requirement',
-      'Compare matched trainer profiles',
-      'Choose Premium priority or skip',
-      'Track your trainer request',
-    ],
-  },
-  {
-    id: 'employee', label: 'Employee', icon: Building2,
-    tagline: "Track your team's training",
-    features: [
-      "View your team's training schedule",
-      'Access training materials & resources',
-      'Track completion and progress metrics',
-      'Communicate with assigned trainers',
+      'Work with the TrainerSync matching team',
+      'Keep trainer details private until handoff',
+      'Track your request in your client portal',
     ],
   },
 ]
@@ -126,9 +116,9 @@ function Field({ icon: Icon, type = 'text', placeholder, value, onChange, right,
 
 
 /* ─── Main component ───────────────────────────────────────── */
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, initialRole = 'admin', allowSignup = true }) {
   const [mode, setMode]           = useState('login')
-  const [role, setRole]           = useState('recruiter')
+  const [role, setRole]           = useState(initialRole)
   const [showPass, setShowPass]   = useState(false)
   const [loading, setLoading]     = useState(false)
   const [resetting, setResetting] = useState(false)
@@ -161,7 +151,7 @@ export default function Login({ onLogin }) {
   const handleGoogleCredentialResponse = async response => {
     if (!response?.credential) { toast.error('Google login failed.'); return }
     try {
-      const { data } = await api.post('/auth/google', { credential: response.credential })
+      const { data } = await api.post('/auth/google', { credential: response.credential, desired_role: role })
       await finalizeLogin(data)
     } catch (error) { toast.error(error.message) }
   }
@@ -182,7 +172,7 @@ export default function Login({ onLogin }) {
 
   const handleLinkedInButtonClick = async () => {
     try {
-      const { data } = await api.post('/auth/linkedin/start')
+      const { data } = await api.post('/auth/linkedin/start', { desired_role: role })
       window.location.assign(data.url)
     } catch (error) { toast.error(error.message) }
   }
@@ -248,6 +238,13 @@ export default function Login({ onLogin }) {
   }, [googleClientId])
 
   const selectedRole = ROLES.find(r => r.id === role)
+  const loginTheme = role === 'admin'
+    ? { panel: 'from-slate-950 via-indigo-950 to-slate-800', accent: 'bg-slate-900 hover:bg-slate-800' }
+    : role === 'client'
+      ? { panel: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'bg-emerald-700 hover:bg-emerald-800' }
+      : { panel: 'from-blue-800 via-blue-600 to-cyan-600', accent: 'bg-blue-700 hover:bg-blue-800' }
+  const roleOptions = initialRole ? ROLES.filter(item => item.id === initialRole) : ROLES
+  const signupOptions = roleOptions.filter(item => item.id !== 'admin')
 
   const handleForgotPassword = async () => {
     if (!form.email.trim()) { toast.error('Enter your email address first'); return }
@@ -265,6 +262,7 @@ export default function Login({ onLogin }) {
     try {
       const { data } = await api.post(mode === 'signup' ? '/auth/register' : '/auth/login', {
         email: form.email.trim(), password: form.password,
+        ...(mode === 'login' ? { desired_role: role } : {}),
         ...(mode === 'signup' ? { name: form.name, role, domain: form.domain, company: form.company, phone: form.phone } : {}),
       })
       if (mode === 'signup') {
@@ -282,12 +280,16 @@ export default function Login({ onLogin }) {
   }
 
   return (
-    <div className="min-h-screen flex overflow-hidden bg-white">
+    <div className="relative min-h-screen flex overflow-hidden bg-white">
+      <nav aria-label="Login navigation" className="absolute inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/90 px-5 backdrop-blur sm:px-8">
+        <a href="/home" className="text-sm font-semibold text-slate-700 hover:text-blue-700">Home</a>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{selectedRole.label} access</span>
+      </nav>
 
       {/* ── Left panel ─────────────────────────────────── */}
       <div className={clsx(
         'hidden lg:flex flex-col w-[46%] relative overflow-hidden transition-all duration-700',
-        'bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500',
+        `bg-gradient-to-br ${loginTheme.panel}`,
         mounted ? 'opacity-100' : 'opacity-0'
       )}>
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent" />
@@ -297,24 +299,22 @@ export default function Login({ onLogin }) {
         <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5" />
         <div className="absolute bottom-20 -left-16 h-48 w-48 rounded-full bg-white/5" />
 
-        <div className="relative z-10 flex flex-col h-full p-12">
+        <div className="relative z-10 flex flex-col h-full p-12 pt-20">
           <BrandMark size="lg" theme="dark" />
 
           <div className="flex-1 flex flex-col justify-center space-y-8 mt-12">
             {/* Role badge */}
             <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-lg px-3 py-1.5 w-fit">
               <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
-              <span className="text-white/90 text-sm font-semibold">For {selectedRole.label}s</span>
+              <span className="text-white/90 text-sm font-semibold">For {role === 'admin' ? 'administrators' : `${selectedRole.label}s`}</span>
             </div>
 
             {/* Headline */}
             <div>
               <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
-                {role === 'recruiter' && <>Find the right trainer,<br /><span className="text-blue-200">close faster.</span></>}
+                {role === 'admin'     && <>Run your trainer<br /><span className="text-blue-200">operations.</span></>}
                 {role === 'trainer'   && <>Get matched to<br /><span className="text-blue-200">opportunities.</span></>}
-                  {role === 'client'    && <>Find a trainer,<br /><span className="text-blue-200">on your terms.</span></>}
                 {role === 'client'    && <>Find a trainer,<br /><span className="text-blue-200">on your terms.</span></>}
-                {role === 'employee'  && <>Track your team's<br /><span className="text-blue-200">training journey.</span></>}
               </h1>
               <p className="text-white/70 text-base mt-4 leading-relaxed max-w-xs">
                 {selectedRole.tagline}
@@ -347,7 +347,7 @@ export default function Login({ onLogin }) {
       </div>
 
       {/* ── Right panel — form ──────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-8 bg-slate-50">
+      <div className="flex-1 flex items-center justify-center px-6 pb-8 pt-20 bg-slate-50">
         <div className={clsx(
           'w-full max-w-[440px] transition-all duration-700',
           mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
@@ -374,7 +374,7 @@ export default function Login({ onLogin }) {
                 {mode === 'login' ? 'Sign in as' : 'I am a'}
               </p>
               <div className="flex gap-2">
-                {ROLES.map(r => {
+                {(mode === 'signup' ? signupOptions : roleOptions).map(r => {
                   const Icon = r.icon
                   const active = role === r.id
                   return (
@@ -401,7 +401,7 @@ export default function Login({ onLogin }) {
             </div>
 
             {/* Mode tabs */}
-            <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+            {allowSignup && role !== 'admin' && <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
               {['login', 'signup'].map(m => (
                 <button key={m} type="button" onClick={() => { setMode(m); setStep(1) }}
                   className={clsx(
@@ -411,7 +411,7 @@ export default function Login({ onLogin }) {
                   {m === 'login' ? 'Sign In' : 'Sign Up'}
                 </button>
               ))}
-            </div>
+            </div>}
 
             {/* Social login */}
             {mode === 'login' && <div className="grid grid-cols-1 gap-2">
@@ -492,17 +492,14 @@ export default function Login({ onLogin }) {
                 <>
                   <Field icon={User} placeholder="Full name" value={form.name} onChange={set('name')} />
                   <Field icon={Mail} type="email" placeholder="Email address" value={form.email} onChange={set('email')} />
-                  {role === 'recruiter' && <Field icon={Building2} placeholder="Company name" value={form.company} onChange={set('company')} required={false} />}
                   {role === 'client'    && <Field icon={Building2} placeholder="Company / organization" value={form.company} onChange={set('company')} />}
                   {role === 'trainer'   && <Field icon={GraduationCap} placeholder="Domain (e.g. Python, AWS)" value={form.domain} onChange={set('domain')} required={false} />}
-                  {role === 'employee'  && <Field icon={Building2} placeholder="Company / Organization" value={form.company} onChange={set('company')} required={false} />}
                 </>
               )}
 
               {mode === 'signup' && step === 2 && (
                 <>
                   <Field icon={Phone} type="tel" placeholder="Phone number" value={form.phone} onChange={set('phone')} required={role === 'client'} />
-                  {role === 'employee' && <Field icon={Users} placeholder="Department (e.g. Engineering)" value={form.department} onChange={set('department')} required={false} />}
                   <Field icon={Lock} type={showPass ? 'text' : 'password'} placeholder="Create password"
                     value={form.password} onChange={set('password')}
                     right={<button type="button" onClick={() => setShowPass(!showPass)} className="text-slate-400 hover:text-slate-600">{showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>} />
@@ -530,9 +527,9 @@ export default function Login({ onLogin }) {
               )}
 
               <button type="submit" disabled={loading}
-                className="w-full py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold text-sm text-white
+                className={`w-full py-2.5 rounded-2xl ${loginTheme.accent} font-bold text-sm text-white
                            flex items-center justify-center gap-2 transition-all duration-150
-                           hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0">
+                           hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0`}>
                 {loading
                   ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   : <>
@@ -543,13 +540,18 @@ export default function Login({ onLogin }) {
               </button>
             </form>
 
-            <p className="text-center text-slate-500 text-xs">
+            {allowSignup && role !== 'admin' && <p className="text-center text-slate-500 text-xs">
               {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
               <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setStep(1) }}
                 className="font-semibold text-blue-600 hover:text-blue-800">
                 {mode === 'login' ? 'Sign up free' : 'Sign in'}
               </button>
-            </p>
+            </p>}
+            <div className="flex justify-center gap-4 border-t border-slate-100 pt-3 text-xs font-semibold">
+              {role !== 'trainer' && <a className="text-blue-700 hover:underline" href="/trainer-login">Trainer login</a>}
+              {role !== 'client' && <a className="text-emerald-700 hover:underline" href="/client-login">Client login</a>}
+              {role !== 'admin' && <a className="text-slate-700 hover:underline" href="/admin-login">Administrator</a>}
+            </div>
           </div>
 
           <p className="text-center text-slate-400 text-[11px] mt-4">

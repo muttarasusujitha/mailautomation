@@ -64,6 +64,7 @@ class TocRequest(BaseModel):
     topic_only: bool = False
     custom_topics: Optional[str] = ""
     client_notes: Optional[str] = ""
+    client_context: Optional[Dict[str, str]] = None
     toc_id: Optional[str] = None
     technology_allocations: List[TechnologyAllocation] = []
 
@@ -120,7 +121,35 @@ _GENERIC_LAB_TEXT = {
 def _scope_text(payload: TocRequest) -> str:
     return " ".join(str(value or "").strip() for value in (
         payload.domain, payload.custom_topics, payload.client_notes, payload.notes,
+        json.dumps(payload.client_context or {}, ensure_ascii=False),
     ) if str(value or "").strip())
+
+
+def _saved_client_context(requirement: Dict[str, Any]) -> Dict[str, str]:
+    """Return client-provided organization/use-case facts for curriculum planning.
+
+    Requirements often come from imported email and contain the only source of
+    industry and business context. Keep that context attached when downstream
+    screens (such as Lab Cost) generate a ToC from a requirement ID.
+    """
+    fields = {
+        "company": ("client_company", "company_name", "client_name"),
+        "industry": ("client_industry", "company_industry", "industry"),
+        "business_context": ("client_business_context", "company_description", "business_context", "client_use_case", "business_challenge"),
+        "goals": ("client_goals", "training_outcomes", "expected_outcomes"),
+        "scope_evidence": ("client_requirement_text", "client_request", "original_body"),
+        "notes": ("client_notes", "notes"),
+    }
+    result = {}
+    for label, keys in fields.items():
+        value = next((requirement.get(key) for key in keys if requirement.get(key)), None)
+        if not isinstance(value, (str, int, float)):
+            continue
+        value = re.sub(r"\s+", " ", str(value)).strip()
+        if not value:
+            continue
+        result[label] = value[:1200 if label != "scope_evidence" else 1800]
+    return result
 
 
 def _toc_knowledge_key(value: str) -> str:
@@ -595,6 +624,7 @@ def _topic_outline(payload: TocRequest) -> Dict[str, Any]:
         ],
         "level": payload.level,
         "mode": payload.mode,
+        "client_context": payload.client_context or {},
         "generation_mode": "topic_outline",
         "requested_generation_mode": "topic_outline",
         "quality": {"status": "pass", "review_warnings": []},
@@ -608,12 +638,23 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     Uses the richer TOC generator with curriculum dataset support.
     """
     payload.level = resolve_content_level(payload.level, payload.audience_level)
+    requirement = {}
+    if payload.requirement_id:
+        requirement = await db["requirements"].find_one(
+            {"requirement_id": payload.requirement_id}, {"_id": 0},
+        ) or {}
+    if not payload.client_email:
+        payload.client_email = (
+            requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email")
+        )
+    saved_context = _saved_client_context(requirement)
+    payload.client_context = {**(payload.client_context or {}), **saved_context}
     if payload.topic_only:
         from shared.toc_layouts import normalize_client_email
-        requirement = {}
         client_email = normalize_client_email(payload.client_email)
-        if not client_email and payload.requirement_id:
+        if not requirement and payload.requirement_id:
             requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}) or {}
+        if not client_email:
             client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
         pipeline = str(requirement.get("pipeline_page") or requirement.get("pipeline_target") or "").strip().lower()
         batch = str(requirement.get("batch_flow") or requirement.get("batch_type") or requirement.get("requirement_type") or "").strip().lower()
@@ -638,6 +679,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             "topic_only": True,
             "custom_topics": payload.custom_topics,
             "client_notes": payload.client_notes,
+            "client_context": payload.client_context,
             "technology_allocations": [],
             "toc": toc,
             "created_at": datetime.utcnow(),
@@ -721,6 +763,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         "duration_days": int(payload.duration_days),
         "level": payload.level,
         "mode": payload.mode,
+        "client_context": payload.client_context or {},
         "generation_mode": used_generation_mode,
         "requested_generation_mode": requested_mode,
         "participant_count": payload.participant_count,
@@ -755,7 +798,6 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     from shared.toc_layouts import normalize_client_email, select_toc_layout
     client_email = normalize_client_email(payload.client_email)
     if not client_email and payload.requirement_id:
-        requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}) or {}
         client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
     toc["excel_layout"] = await select_toc_layout(db, payload.excel_layout, client_email, payload.toc_id)
 
@@ -775,6 +817,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         "toc_type": payload.toc_type,
         "custom_topics": payload.custom_topics,
         "client_notes": payload.client_notes,
+        "client_context": payload.client_context,
         "technology_allocations": toc.get("technology_allocations") or [],
         "toc": toc,
         "created_at": datetime.utcnow(),

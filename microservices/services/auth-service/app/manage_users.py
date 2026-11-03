@@ -1,6 +1,6 @@
 """Trusted operator CLI: python -m app.manage_users create-admin EMAIL
 
-Also: activate EMAIL --role recruiter, or disable EMAIL.
+Also: activate EMAIL --role admin|trainer|client, or disable EMAIL.
 Passwords are read from a hidden prompt, never command-line arguments or logs.
 """
 import argparse
@@ -47,7 +47,7 @@ async def run(args):
                 'auth_version': 0, 'created_at': datetime.utcnow()})
         else:
             changes = {'status': 'disabled' if args.action == 'disable' else 'active', 'updated_at': datetime.utcnow()}
-            if args.action == 'activate':
+            if args.action == 'activate' and args.role:
                 changes['role'] = args.role
             result = await db.auth_users.update_one({'email_normalized': email}, {'$set': changes, '$inc': {'auth_version': 1}})
             if not result.matched_count:
@@ -62,5 +62,5 @@ if __name__ == '__main__':
     parser.add_argument('action', choices=['create-admin', 'activate', 'disable'])
     parser.add_argument('email')
     parser.add_argument('--name')
-    parser.add_argument('--role', choices=['admin', 'recruiter'], default='recruiter')
+    parser.add_argument('--role', choices=['admin', 'trainer', 'client'])
     asyncio.run(run(parser.parse_args()))

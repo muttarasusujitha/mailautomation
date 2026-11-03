@@ -550,7 +550,7 @@ def _term_matches(terms: List[str], text: str) -> List[str]:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    # A pending profile review must remain visible to the recruiter; it is
+    # A pending profile review must remain visible to the administrator; it is
     # not evidence that the trainer is unsuitable for a new requirement.
     # Keep the flag on the matched profile so the shortlist can show it.
     profile_review_required = bool(trainer.get("profile_review_required", False))
@@ -846,6 +846,9 @@ async def _build_shortlist_for_requirement(
         ]
     scored.sort(
         key=lambda trainer: (
+            _safe_float(trainer.get("match_score"), 0)
+            + (5.0 if trainer.get("trainer_priority") is True else 0.0),
+            1 if trainer.get("trainer_priority") is True else 0,
             _safe_float(trainer.get("match_score"), 0),
             _safe_float(trainer.get("experience_years"), 0),
             1 if trainer.get("email") else 0,
@@ -1050,7 +1053,7 @@ async def list_commercial_analyses(
     limit: int = Query(50, ge=1, le=100),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Commercial comparison for the requirements the recruiter is working."""
+    """Commercial comparison for requirements managed by the administrator."""
     items = []
     cursor = db.requirements.find({}).sort("updated_at", -1).limit(limit)
     async for doc in cursor:

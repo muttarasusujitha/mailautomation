@@ -42,6 +42,7 @@ export default function LabCost() {
   const [deliveryLoading, setDeliveryLoading] = useState(true)
   const [clientKey, setClientKey] = useState('')
   const [deliveryEmailId, setDeliveryEmailId] = useState('')
+  const [tocPreview, setTocPreview] = useState(null)
   const [pricingProfile, setPricingProfile] = useState({ status: 'idle', detail: '' })
   const [form, setForm] = useState({
     cloud_provider: '',
@@ -113,6 +114,7 @@ export default function LabCost() {
 
   useEffect(() => {
     if (!selected) return
+    setTocPreview(null)
     setForm(previous => ({
       ...previous,
       participant_count: selected.participant_count || selected.participants || selected.batch_size || '',
@@ -220,6 +222,9 @@ export default function LabCost() {
         training_dates: selected.training_dates || selected.preferred_dates || '',
         timing: selected.timing || selected.schedule || '',
       })
+      const toc = tocResponse.data?.toc_data || tocResponse.data?.toc
+      if (!toc || !Array.isArray(toc.days)) throw new Error('The ToC service returned no day-wise curriculum to review')
+      setTocPreview(toc)
       const response = await api.post('/toc/generate-lab-cost', {
         ...usage,
         lab_generation_mode: labMode,
@@ -346,6 +351,18 @@ export default function LabCost() {
           <div><p className="font-bold">Live pricing profile {pricingProfile.status === 'ready' ? 'ready' : pricingProfile.status === 'checking' ? 'checking' : 'needs setup'}</p><p className="mt-0.5 leading-5">{pricingProfile.detail}</p></div>
         </div>}
       </section>
+
+      {tocPreview && <section aria-live="polite" className="rounded-lg border border-blue-200 bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><h2 className="text-lg font-bold text-slate-900">ToC used for this lab estimate</h2><p className="mt-1 text-sm text-slate-600">{tocPreview.domain || selected?.technology_needed || 'Training'} · {tocPreview.days.length} days · {tocPreview.generation_mode || 'draft'}{tocPreview.quality?.status ? ` · ${tocPreview.quality.status.replaceAll('_', ' ')}` : ''}</p></div>
+          {(tocPreview.client_application_context?.industry || tocPreview.client_context?.industry || tocPreview.client_application_context?.business_context || tocPreview.client_context?.business_context) && <span className="max-w-md rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">Client context: {tocPreview.client_application_context?.industry || tocPreview.client_context?.industry || tocPreview.client_application_context?.business_context || tocPreview.client_context?.business_context}</span>}
+        </div>
+        {tocPreview.overview && <p className="mt-3 text-sm leading-6 text-slate-700">{tocPreview.overview}</p>}
+        {tocPreview.quality?.review_warnings?.length > 0 && <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><p className="font-semibold">Review notes</p><ul className="mt-1 list-inside list-disc">{tocPreview.quality.review_warnings.slice(0, 4).map((warning, index) => <li key={`${index}-${warning}`}>{warning}</li>)}</ul></div>}
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {tocPreview.days.map((day, index) => <article key={day.day || index} className="rounded-lg border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-blue-700">Day {day.day || index + 1}</p><h3 className="mt-1 font-semibold text-slate-900">{day.focus_area || day.title || day.category || `Training module ${index + 1}`}</h3><p className="mt-2 text-sm text-slate-700">{day.lab || day.lab_task || day.scenario || (day.modules || []).map(module => module.lab || module.title).filter(Boolean).join(' · ') || (day.subtopics || []).join(' · ')}</p></article>)}
+        </div>
+      </section>}
 
       <button type="button" onClick={downloadLabCost} disabled={!selected || generating || pricingProfile.status !== 'ready'} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
         {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}

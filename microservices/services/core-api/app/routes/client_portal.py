@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 import logging
+import secrets
 import re
 import uuid
 from datetime import datetime, timedelta
@@ -46,6 +47,21 @@ class ClientRequestText(BaseModel):
     text: str = Field(min_length=20, max_length=12000)
 
 
+class ClientProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    company: str = Field(min_length=1, max_length=160)
+    phone: str = Field(min_length=5, max_length=40)
+
+
+class ClientEmailCode(BaseModel):
+    code: str = Field(pattern=r'^\d{6}$')
+
+
+class ClientRequestStage(BaseModel):
+    stage: str = Field(max_length=40)
+    note: str = Field(default='', max_length=1000)
+
+
 class ClientRequest(BaseModel):
     request_text: str = Field(min_length=20, max_length=12000)
     domain: str = Field(default='', max_length=120)
@@ -61,6 +77,7 @@ class ClientRequest(BaseModel):
     commercial_amount: Optional[float] = Field(default=None, ge=0, le=1000000000)
     lab_hours_per_day: Optional[float] = Field(default=None, ge=0, le=24)
     training_approach: str = Field(default='', max_length=2000)
+    business_context: str = Field(default='', max_length=1200)
     requested_deliverables: list[str] = Field(default_factory=list, max_length=20)
 
 
@@ -149,7 +166,77 @@ async def client_profile(x_authenticated_user_id: str = Header(default=''), db=D
     return {'profile': {
         'name': user.get('name', ''), 'email': user.get('email', ''),
         'company': user.get('company', ''), 'phone': user.get('phone', ''),
+        'email_verified': user.get('client_email_verified') is True,
     }}
+
+
+@router.patch('/profile')
+async def update_client_profile(payload: ClientProfileUpdate,
+                                x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
+    user = await _client(x_authenticated_user_id, db)
+    values = {'name': payload.name.strip(), 'company': payload.company.strip(), 'phone': payload.phone.strip()}
+    if any(not value for value in values.values()):
+        raise HTTPException(400, 'Name, company, and contact phone are required')
+    await db['auth_users'].update_one({'user_id': user['user_id']}, {'$set': {**values, 'updated_at': datetime.utcnow()}})
+    await db['requirements'].update_many({'client_portal_user_id': user['user_id']}, {'$set': {
+        'client_name': values['name'], 'client_company': values['company'], 'client_phone': values['phone'],
+    }})
+    return {'success': True, 'profile': {**values, 'email': user.get('email', ''),
+                                        'email_verified': user.get('client_email_verified') is True}}
+
+
+@router.post('/email-verification/send')
+async def send_client_email_code(x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
+    user = await _client(x_authenticated_user_id, db)
+    if user.get('client_email_verified') is True:
+        return {'success': True, 'verified': True}
+    now = datetime.utcnow()
+    last_sent = user.get('client_email_code_sent_at')
+    if last_sent and last_sent > now - timedelta(minutes=1):
+        raise HTTPException(429, 'Wait one minute before requesting another verification code')
+    code = f'{secrets.randbelow(1_000_000):06d}'
+    code_hash = hashlib.sha256((user['user_id'] + ':' + code).encode()).hexdigest()
+    await db['auth_users'].update_one({'user_id': user['user_id']}, {'$set': {
+        'client_email_code_hash': code_hash, 'client_email_code_expires_at': now + timedelta(minutes=10),
+        'client_email_code_sent_at': now, 'client_email_code_attempts': 0,
+    }})
+    settings = get_settings()
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            result = await client.post(settings.EMAIL_SERVICE_URL.rstrip('/') + '/api/v1/email/send', json={
+                'to': user['email'], 'subject': 'Verify your TrainerSync client email',
+                'body': f"Your TrainerSync verification code is {code}. It expires in 10 minutes. If you did not request this, ignore this email.",
+                'mail_type': 'client_email_verification',
+                'idempotency_key': f"client-verify:{user['user_id']}:{int(now.timestamp()) // 60}",
+                'ai_generate': False,
+            })
+        if result.status_code >= 400 or not result.json().get('success'):
+            raise RuntimeError('Verification mail was not accepted')
+    except Exception:
+        await db['auth_users'].update_one({'user_id': user['user_id'], 'client_email_code_hash': code_hash},
+                                          {'$unset': {'client_email_code_hash': '', 'client_email_code_expires_at': ''}})
+        logger.warning('Client email verification delivery failed')
+        raise HTTPException(502, 'Could not send the verification email. Try again shortly.')
+    return {'success': True, 'message': 'Verification code sent to your account email'}
+
+
+@router.post('/email-verification/verify')
+async def verify_client_email_code(payload: ClientEmailCode,
+                                   x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
+    user = await _client(x_authenticated_user_id, db)
+    now = datetime.utcnow()
+    expected = hashlib.sha256((user['user_id'] + ':' + payload.code).encode()).hexdigest()
+    record = await db['auth_users'].find_one({'user_id': user['user_id'], 'client_email_code_expires_at': {'$gt': now}})
+    if not record or record.get('client_email_code_attempts', 0) >= 5:
+        raise HTTPException(400, 'Verification code is invalid or expired. Request a new one.')
+    if not hmac.compare_digest(record.get('client_email_code_hash', ''), expected):
+        await db['auth_users'].update_one({'user_id': user['user_id']}, {'$inc': {'client_email_code_attempts': 1}})
+        raise HTTPException(400, 'Verification code is incorrect')
+    await db['auth_users'].update_one({'user_id': user['user_id']}, {'$set': {
+        'client_email_verified': True, 'client_email_verified_at': now,
+    }, '$unset': {'client_email_code_hash': '', 'client_email_code_expires_at': '',
+                  'client_email_code_attempts': '', 'client_email_code_sent_at': ''}})
+    return {'success': True, 'verified': True}
 
 
 @router.get('/subscription')
@@ -162,7 +249,7 @@ async def subscription_status(x_authenticated_user_id: str = Header(default=''),
         'expires_at': expiry.isoformat() if expiry else None,
         'amount': 999, 'currency': SUBSCRIPTION_CURRENCY,
         # Browser checkout is verified with the signed Razorpay callback and a
-        # server-side captured-payment lookup; webhooks are an optional fallback.
+        # server-side captured-payment lookup; webhooks are optional fallback.
         'checkout_enabled': bool(get_settings().RAZORPAY_KEY_ID and get_settings().RAZORPAY_KEY_SECRET),
         'requests_unlimited': _subscription_is_active(user),
     }
@@ -179,6 +266,8 @@ async def parse_request(payload: ClientRequestText, x_authenticated_user_id: str
 @router.post('/requests', status_code=201)
 async def create_client_request(payload: ClientRequest, x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
     user = await _client(x_authenticated_user_id, db)
+    if user.get('client_email_verified') is not True:
+        raise HTTPException(403, 'Verify your account email before submitting a client request.')
     if not _subscription_is_active(user):
         raise HTTPException(402, 'An active one-year client subscription is required to submit requests.')
     domain = payload.domain.strip()
@@ -207,6 +296,7 @@ async def create_client_request(payload: ClientRequest, x_authenticated_user_id:
         'training_commercial_amount': payload.commercial_amount,
         'lab_hours_per_day': payload.lab_hours_per_day,
         'training_approach': payload.training_approach,
+        'client_business_context': payload.business_context,
         'requested_deliverables': payload.requested_deliverables,
         'priority': 'medium', 'status': 'active', 'send_emails': False,
         'client_subscription_paid': True, 'client_subscription_expires_at': user['client_subscription_expires_at'],
@@ -228,9 +318,88 @@ async def list_client_requests(x_authenticated_user_id: str = Header(default='')
     cursor = db['requirements'].find({'client_portal_user_id': user['user_id']}, {
         '_id': 0, 'requirement_id': 1, 'title': 1, 'domain': 1, 'technology_needed': 1,
         'duration_days': 1, 'timeline_start': 1, 'delivery_mode': 1, 'created_at': 1,
-        'client_selection_status': 1,
+        'client_selection_status': 1, 'client_portal_stage': 1, 'client_portal_stage_note': 1,
+        'client_portal_stage_updated_at': 1,
     }).sort('created_at', -1).limit(500)
-    return {'items': [item async for item in cursor]}
+    items = [item async for item in cursor]
+    if not items:
+        return {'items': []}
+
+    requirement_ids = [item['requirement_id'] for item in items if item.get('requirement_id')]
+    shortlist_cursor = db['shortlists'].find({'requirement_id': {'$in': requirement_ids}}, {
+        '_id': 0, 'requirement_id': 1, 'total_matched': 1,
+        'pipeline_summary.status': 1, 'selection_status': 1,
+    })
+    shortlist_by_requirement = {
+        row['requirement_id']: row async for row in shortlist_cursor if row.get('requirement_id')
+    }
+    for item in items:
+        shortlist = shortlist_by_requirement.get(item.get('requirement_id'), {})
+        matching_complete = shortlist.get('pipeline_summary', {}).get('status') == 'completed'
+        selection = str(item.get('client_selection_status') or shortlist.get('selection_status') or '').lower()
+        stored_stage = str(item.get('client_portal_stage') or '').lower()
+        if stored_stage in {'received', 'matching', 'team_review', 'client_review', 'confirmed', 'closed'}:
+            stage = stored_stage
+            label = {'received': 'Request received', 'matching': 'Finding trainers', 'team_review': 'TrainerSync team review',
+                     'client_review': 'Client review', 'confirmed': 'Confirmed', 'closed': 'Closed'}[stage]
+        elif selection in {'selected', 'confirmed', 'client_review'}:
+            stage, label = 'client_review', 'Client review'
+        elif matching_complete:
+            stage, label = 'team_review', 'TrainerSync team review'
+        elif shortlist:
+            stage, label = 'matching', 'Finding trainers'
+        else:
+            stage, label = 'received', 'Request received'
+        item.update({
+            'tracking_stage': stage,
+            'tracking_label': label,
+            'matching_complete': matching_complete,
+            'matched_count': int(shortlist.get('total_matched') or 0),
+            'tracking_note': item.get('client_portal_stage_note') or '',
+            'tracking_updated_at': item.get('client_portal_stage_updated_at'),
+        })
+    return {'items': items}
+
+
+@router.patch('/requests/{requirement_id}/stage')
+async def update_client_request_stage(requirement_id: str, payload: ClientRequestStage,
+                                     x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
+    user = await db['auth_users'].find_one({'user_id': x_authenticated_user_id, 'status': 'active'})
+    if not user or user.get('role') != 'admin':
+        raise HTTPException(403, 'Staff access required')
+    stage = payload.stage.strip().lower()
+    allowed = {'received', 'matching', 'team_review', 'client_review', 'confirmed', 'closed'}
+    if stage not in allowed:
+        raise HTTPException(400, 'Choose a valid client tracking stage')
+    now = datetime.utcnow()
+    result = await db['requirements'].update_one({'requirement_id': requirement_id, 'client_portal_source': True}, {'$set': {
+        'client_portal_stage': stage, 'client_portal_stage_note': payload.note.strip(),
+        'client_portal_stage_updated_at': now, 'client_portal_stage_updated_by': user['user_id'], 'updated_at': now,
+    }})
+    if not result.matched_count:
+        raise HTTPException(404, 'Client portal request not found')
+    request = await db['requirements'].find_one({'requirement_id': requirement_id}, {'client_portal_user_id': 1}) or {}
+    client = await db['auth_users'].find_one({'user_id': request.get('client_portal_user_id')}, {'email': 1, 'name': 1})
+    if client and client.get('email'):
+        label = {'received': 'Request received', 'matching': 'Finding trainers', 'team_review': 'TrainerSync team review',
+                 'client_review': 'Client review', 'confirmed': 'Confirmed', 'closed': 'Closed'}[stage]
+        body = f"Hello {client.get('name') or 'Client'},\n\nYour TrainerSync request {requirement_id} is now at: {label}.\n"
+        if payload.note.strip():
+            body += f"\nTeam update: {payload.note.strip()}\n"
+        body += '\nSign in to your client portal to follow the request.\n\nTrainerSync'
+        try:
+            async with httpx.AsyncClient(timeout=12) as email_client:
+                response = await email_client.post(get_settings().EMAIL_SERVICE_URL.rstrip('/') + '/api/v1/email/send', json={
+                    'to': client['email'], 'subject': f'TrainerSync request update: {requirement_id}',
+                    'body': body, 'mail_type': 'client_request_stage_update',
+                    'idempotency_key': f'client-request-stage:{requirement_id}:{stage}:{int(now.timestamp())}',
+                    'ai_generate': False,
+                })
+            if response.status_code >= 400 or not response.json().get('success'):
+                logger.warning('Client request stage notification was not accepted')
+        except Exception:
+            logger.warning('Client request stage notification could not be delivered')
+    return {'success': True, 'stage': stage, 'updated_at': now.isoformat()}
 
 
 @router.post('/subscription/order')
@@ -340,8 +509,14 @@ async def razorpay_webhook(request: Request, db=Depends(get_db)):
     if payload.get('event') == 'payment.captured':
         entity = payload.get('payload', {}).get('payment', {}).get('entity', {})
         if (entity.get('order_id') and entity.get('id') and entity.get('status') == 'captured'
-                and entity.get('amount') == SUBSCRIPTION_AMOUNT_PAISE and entity.get('currency') == SUBSCRIPTION_CURRENCY):
-            payment_order = await db['client_subscriptions'].find_one({'razorpay_order_id': entity['order_id']})
-            if payment_order:
-                await _activate_subscription(db, payment_order, entity['id'])
+                and entity.get('currency') == SUBSCRIPTION_CURRENCY):
+            if entity.get('amount') == SUBSCRIPTION_AMOUNT_PAISE:
+                payment_order = await db['client_subscriptions'].find_one({'razorpay_order_id': entity['order_id']})
+                if payment_order:
+                    await _activate_subscription(db, payment_order, entity['id'])
+            elif entity.get('amount') == 9900:
+                trainer_order = await db['trainer_memberships'].find_one({'razorpay_order_id': entity['order_id']})
+                if trainer_order:
+                    from app.routes.trainer_membership import _activate
+                    await _activate(db, trainer_order, entity['id'])
     return {'success': True}

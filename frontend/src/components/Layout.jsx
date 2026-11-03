@@ -199,7 +199,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
           className="nav-item"
         >
           <UserCircle className="h-4 w-4 flex-shrink-0 text-slate-400" />
-          <span className="text-[13.5px]">Recruiter Profile</span>
+          <span className="text-[13.5px]">Admin Profile</span>
         </NavLink>
         {onLogout && (
           <button
@@ -268,7 +268,7 @@ export default function Layout({ onLogout, isAdmin = false }) {
       try {
         const config = { signal: controller.signal, timeout: 10000, retry: false }
         let accountRole = ''
-        try { accountRole = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role || '' } catch { /* use recruiter-safe status */ }
+        try { accountRole = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role || '' } catch { /* use safe status fallback */ }
         const [inboxRes, gmailRes] = await Promise.allSettled([
           api.get('/inbox', { ...config, params: { status: 'pending_approval', limit: 1 } }),
           api.get(accountRole === 'admin' ? '/gmail/auth-status' : '/gmail/me/auth-status', config),

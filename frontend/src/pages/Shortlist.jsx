@@ -15,6 +15,7 @@ import { isClientHandoffDelivered, pipelineStepComplete } from '../utils/handoff
 import { useLiveShortlist } from '../utils/useLiveShortlist'
 import { formatRequirementSchedule } from '../utils/requirementDates'
 import ClientHandoffReview from '../components/ClientHandoffReview'
+import ClientRequestStage from '../components/ClientRequestStage'
 import { linkedinProfileUrl, trainerOwnedDetails } from '../utils/trainerIdentity'
 
 // Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
@@ -3332,6 +3333,8 @@ export default function Shortlist() {
               </button>
             </div>
           </div>
+
+          <ClientRequestStage requirement={selectedReq} />
 
           <div className="grid gap-2 rounded-2xl border border-slate-200 bg-white p-3 text-xs sm:grid-cols-3">
             <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">

@@ -23,10 +23,14 @@ class Credentials(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
+class LoginCredentials(Credentials):
+    desired_role: Literal['admin', 'trainer', 'client'] = 'admin'
+
+
 class Registration(Credentials):
     name: str = Field(min_length=1, max_length=120)
     password: str = Field(min_length=12, max_length=128)
-    role: Literal['recruiter', 'trainer', 'client', 'employee'] = 'recruiter'
+    role: Literal['trainer', 'client'] = 'trainer'
     domain: str = Field(default='', max_length=120)
     company: str = Field(default='', max_length=160)
     phone: str = Field(default='', max_length=40)
@@ -57,9 +61,9 @@ async def register(payload: Registration, request: Request, db=Depends(get_db), 
         user = {
             'user_id': 'USR-' + secrets.token_hex(12), 'email': email, 'email_normalized': email,
             'name': payload.name.strip(), 'password_hash': password_hash, 'requested_role': payload.role,
-            # Public signup can create trainer or recruiter accounts; employees and
-            # administrators still require operator provisioning.
-            'role': payload.role if payload.role in {'trainer', 'client', 'recruiter'} else 'recruiter',
+            # Public registration is limited to trainer and client portals.
+            # Administrators are provisioned by an operator, never self-selected.
+            'role': payload.role,
             'registration_domain': payload.domain.strip(), 'status': 'active',
             'company': payload.company.strip(),
             'phone': payload.phone.strip(),
@@ -97,7 +101,7 @@ async def _send_trainer_email(user, mail_type, subject, body):
 
 
 @router.post('/login')
-async def login(payload: Credentials, request: Request, response: Response, db=Depends(get_db)):
+async def login(payload: LoginCredentials, request: Request, response: Response, db=Depends(get_db)):
     require_origin(request)
     email = str(payload.email).lower()
     await rate_limit(db, request, 'login', email)
@@ -105,6 +109,8 @@ async def login(payload: Credentials, request: Request, response: Response, db=D
     valid = await asyncio.to_thread(verify_password, payload.password, (user or {}).get('password_hash') or DUMMY_HASH)
     if not valid or not user:
         raise HTTPException(401, "We couldn't sign you in. Check your email and password, or contact support for help.")
+    if user.get('role') != payload.desired_role or user.get('role') not in {'admin', 'trainer', 'client'}:
+        raise HTTPException(403, 'This account does not have access to the selected portal. Choose the correct sign-in page or contact the administrator.')
     if user.get('status') == 'pending':
         activation = await db['auth_users'].update_one(
             {'user_id': user['user_id'], 'status': 'pending'},
@@ -123,11 +129,11 @@ async def login(payload: Credentials, request: Request, response: Response, db=D
     return session
 
 
-async def _resolve_social_user(db, identity):
-    """Find or create a standard account for a verified email identity.
+async def _resolve_social_user(db, identity, desired_role):
+    """Find or create the selected trainer/client account for a verified identity.
 
     Existing pending signups are activated on verified social sign-in. Explicitly
-    disabled accounts stay disabled, and social sign-in never grants the admin role.
+    disabled accounts stay disabled, and social sign-in never grants admin access.
     """
     email = str(identity.get('email') or '').strip().lower()
     if not email:
@@ -135,12 +141,14 @@ async def _resolve_social_user(db, identity):
 
     user = await db['auth_users'].find_one({'email_normalized': email})
     if user is None:
+        if desired_role not in {'trainer', 'client'}:
+            return None
         user = {
             'user_id': 'USR-' + secrets.token_hex(12),
             'email': email,
             'email_normalized': email,
             'name': str(identity.get('name') or email.split('@')[0]).strip(),
-            'role': 'recruiter',
+            'role': desired_role,
             'status': 'active',
             'auth_version': 0,
             'created_at': datetime.utcnow(),
@@ -153,6 +161,8 @@ async def _resolve_social_user(db, identity):
         user = await db['auth_users'].find_one({'email_normalized': email})
 
     if not user or user.get('status') == 'disabled':
+        return None
+    if user.get('role') != desired_role or user.get('role') not in {'admin', 'trainer', 'client'}:
         return None
     if user.get('status') == 'pending':
         activation = await db['auth_users'].update_one(
@@ -191,6 +201,9 @@ async def verify_access(request: Request, db=Depends(get_db)):
         path = '/api/v1/' + path[len('/api/'):]
     path = path.rstrip('/')
     trainer_portal_paths = {
+        ('GET', '/api/v1/trainer-membership/status'),
+        ('POST', '/api/v1/trainer-membership/order'),
+        ('POST', '/api/v1/trainer-membership/verify'),
         ('GET', '/api/v1/trainers/portal/profile'),
         ('POST', '/api/v1/trainers/portal/profile'),
         ('GET', '/api/v1/trainers/portal/opportunities'),
@@ -209,6 +222,9 @@ async def verify_access(request: Request, db=Depends(get_db)):
     if user.get('role') == 'client':
         client_portal_paths = {
             ('GET', '/api/v1/client-portal/profile'),
+            ('PATCH', '/api/v1/client-portal/profile'),
+            ('POST', '/api/v1/client-portal/email-verification/send'),
+            ('POST', '/api/v1/client-portal/email-verification/verify'),
             ('GET', '/api/v1/client-portal/subscription'),
             ('POST', '/api/v1/client-portal/requests'),
             ('GET', '/api/v1/client-portal/requests'),
@@ -222,9 +238,9 @@ async def verify_access(request: Request, db=Depends(get_db)):
             'Cache-Control': 'no-store',
             'X-Authenticated-User-ID': str(user.get('user_id') or ''),
         })
-    if user.get('role') not in {'admin', 'recruiter'}:
+    if user.get('role') != 'admin':
         raise HTTPException(403, 'This workspace requires staff access')
-    if path.startswith('/api/v1/trainers/portal/applications') and user.get('role') not in {'admin', 'recruiter'}:
+    if path.startswith('/api/v1/trainers/portal/applications') and user.get('role') != 'admin':
         raise HTTPException(403, 'Staff access required')
     admin_paths = ('/api/v1/admin', '/api/v1/database', '/api/v1/gmail', '/api/v1/teams-direct', '/api/v1/scheduler')
     personal_gmail_actions = {
@@ -297,6 +313,7 @@ async def reset_password(payload: Reset, request: Request, response: Response, d
 
 class GoogleCredential(BaseModel):
     credential: str = Field(min_length=1, max_length=8192)
+    desired_role: Literal['admin', 'trainer', 'client'] = 'admin'
 
 
 @router.post('/google')
@@ -314,7 +331,7 @@ async def google_login(payload: GoogleCredential, request: Request, response: Re
             raise ValueError('Unverified email')
     except Exception:
         raise HTTPException(401, 'Google credential could not be verified')
-    user = await _resolve_social_user(db, info)
+    user = await _resolve_social_user(db, info, payload.desired_role)
     if not user:
         raise HTTPException(403, 'Sign-in is unavailable for this account. Contact support if you need help.')
     session = await issue_session(db, request, response, user)
@@ -324,15 +341,20 @@ async def google_login(payload: GoogleCredential, request: Request, response: Re
     return session
 
 
+class OAuthStart(BaseModel):
+    desired_role: Literal['admin', 'trainer', 'client'] = 'admin'
+
+
 @router.post('/linkedin/start')
-async def linkedin_start(request: Request, response: Response, db=Depends(get_db)):
+async def linkedin_start(payload: OAuthStart, request: Request, response: Response, db=Depends(get_db)):
     require_origin(request)
     settings = get_settings()
     if not settings.LINKEDIN_CLIENT_ID or not settings.LINKEDIN_REDIRECT_URI:
         raise HTTPException(503, 'LinkedIn sign-in is not configured')
     await rate_limit(db, request, 'linkedin', maximum=20)
     state = secrets.token_urlsafe(32)
-    await db['auth_oauth_states'].insert_one({'_id': digest(state), 'expires_at': datetime.utcnow() + timedelta(minutes=10)})
+    await db['auth_oauth_states'].insert_one({'_id': digest(state), 'desired_role': payload.desired_role,
+                                             'expires_at': datetime.utcnow() + timedelta(minutes=10)})
     response.set_cookie('ts_oauth_state', state, httponly=True, secure=settings.AUTH_COOKIE_SECURE, samesite='lax', max_age=600, path='/')
     return {'url': 'https://www.linkedin.com/oauth/v2/authorization?' + urlencode({
         'response_type': 'code', 'client_id': settings.LINKEDIN_CLIENT_ID, 'redirect_uri': settings.LINKEDIN_REDIRECT_URI,
@@ -369,7 +391,7 @@ async def linkedin_callback(payload: LinkedInCode, request: Request, response: R
                 raise ValueError('Unverified email')
     except Exception:
         raise HTTPException(401, 'LinkedIn identity could not be verified')
-    user = await _resolve_social_user(db, info)
+    user = await _resolve_social_user(db, info, state.get('desired_role') or 'admin')
     if not user:
         raise HTTPException(403, 'Sign-in is unavailable for this account. Contact support if you need help.')
     response.delete_cookie('ts_oauth_state', path='/')
