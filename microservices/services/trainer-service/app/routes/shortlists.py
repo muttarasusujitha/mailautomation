@@ -1681,16 +1681,8 @@ def _category_text(trainer: Dict[str, Any]) -> str:
 
 
 def _trainer_experience(trainer: Dict[str, Any]) -> float:
-    direct = _safe_float(trainer.get("experience_years"), -1)
-    if direct >= 0:
-        return direct
-    raw = " ".join([
-        _clean(trainer.get("experience_raw")),
-        _clean(trainer.get("summary")),
-        _clean(trainer.get("resume")),
-    ])
-    match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", raw, flags=re.IGNORECASE)
-    return _safe_float(match.group(1), 0.0) if match else 0.0
+    from shared.trainer_experience import profile_experience_years
+    return profile_experience_years(trainer) or 0.0
 
 
 def _has_resume(trainer: Dict[str, Any]) -> bool:
@@ -1737,7 +1729,13 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         or requirement.get("title")
         or requirement.get("job_title")
     )
-    required_skills = _as_list(requirement.get("required_skills") or requirement.get("skills"))
+    required_skills = list(dict.fromkeys(
+        _as_list(requirement.get("required_skills"))
+        + _as_list(requirement.get("skills"))
+        + _as_list(requirement.get("requested_topics"))
+        + _as_list(requirement.get("topics"))
+        + _as_list(requirement.get("custom_topics"))
+    ))
     preferred_skills = _as_list(requirement.get("preferred_skills"))
     required_terms = [term for term in [technology, *required_skills] if term]
 
@@ -1759,7 +1757,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         score += tech_score
         breakdown["technology"] = round(tech_score, 2)
 
-    required_matches = _term_matches(required_skills, profile)
+    from shared.toc_quality import topic_is_covered
+    required_matches = [skill for skill in required_skills if topic_is_covered(skill, profile)]
     preferred_matches = _term_matches(preferred_skills, profile)
     skill_score = 25.0 * (len(required_matches) / max(len(required_skills), 1)) if required_skills else 0.0
     skill_score += min(8.0, 2.0 * len(preferred_matches))
@@ -1771,6 +1770,13 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
     if min_exp > 0 and exp < min_exp:
+        return None
+    # Domain and explicit required topics are eligibility criteria, not just
+    # ranking signals. Never fill a five-person shortlist with underqualified
+    # profiles when fewer than five candidates meet the stated scope.
+    if technology and not topic_is_covered(technology, profile):
+        return None
+    if len(required_matches) != len(required_skills):
         return None
     exp_score = 15.0 if min_exp and exp >= min_exp else min(exp * 1.5, 15.0)
     score += exp_score
@@ -1794,9 +1800,6 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     credibility_score += min(_safe_float(trainer.get("resume_rank_score"), 0.0) * 0.1, 3.0)
     score += credibility_score
     breakdown["credibility"] = round(credibility_score, 2)
-
-    if required_terms and not _term_matches(required_terms, profile) and score < 20:
-        return None
 
     public = {k: v for k, v in trainer.items() if k not in {"_id", "combined_text"}}
     public["trainer_id"] = _clean(public.get("trainer_id")) or f"TR-{uuid.uuid4().hex[:8].upper()}"
@@ -2227,19 +2230,60 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             or " to ".join(part for part in [requirement.get("timeline_start"), requirement.get("timeline_end")] if part)
             or _clean(requirement.get("preferred_dates"))
         )
-        topics = _required_technologies(TocRequest(domain=domain, duration_days=duration))
+        extracted = requirement.get("extracted") if isinstance(requirement.get("extracted"), dict) else {}
+        topic_sources = [requirement, extracted]
+        explicit_topics: List[str] = []
+        for source in topic_sources:
+            for key in ("skills", "required_skills", "requested_topics", "topics", "custom_topics"):
+                value = source.get(key)
+                explicit_topics.extend(_client_topic_phrases(value))
+        explicit_topics = list(dict.fromkeys(value for value in explicit_topics if value))
+        # Let the TOC planner see every explicitly requested topic before it
+        # loads a generic domain curriculum. This prevents unrelated default
+        # platforms from displacing the client's stated scope.
+        domain_topics = _required_technologies(TocRequest(
+            domain=domain,
+            duration_days=duration,
+        ))
+        detected_topics = _required_technologies(TocRequest(
+            domain=domain,
+            duration_days=duration,
+            custom_topics="; ".join(explicit_topics),
+        ))
+        # Keep the client's ordering visible: domain first, then explicitly
+        # requested topics, followed by any supporting topics inferred for a
+        # coherent curriculum.
+        topics = domain_topics + explicit_topics + detected_topics
         for key in ("skills", "required_skills", "requested_topics"):
             value = requirement.get(key)
             topics.extend(value if isinstance(value, list) else [value] if value else [])
         # A confirmed batch often arrives with only a topic list plus duration,
         # mode, and lab hours. Those topics are the scope the ToC is built from.
-        topic_sources = [requirement]
-        nested = requirement.get("extracted")
-        if isinstance(nested, dict):
-            topic_sources.append(nested)
         for source in topic_sources:
             for key in ("topics", "custom_topics"):
                 topics.extend(_client_topic_phrases(source.get(key)))
+        topics = list(dict.fromkeys(str(value).strip() for value in topics if str(value or "").strip()))
+        client_context_fields = (
+            "client_company", "client_name", "client_industry", "client_domain",
+            "company_profile", "company_context", "client_business_context",
+            "business_context", "client_goals", "business_challenges", "client_notes",
+        )
+        personalization_lines = [
+            f"{key.replace('_', ' ').title()}: {_clean(source.get(key))}"
+            for source in topic_sources
+            for key in client_context_fields
+            if _clean(source.get(key))
+        ]
+        client_brief = next((
+            _clean(source.get(key))
+            for source in topic_sources
+            for key in ("client_requirement_text", "requirement_source_text", "original_body", "client_request")
+            if _clean(source.get(key))
+        ), "")
+        if client_brief:
+            personalization_lines.append("Original client brief (scope evidence): " + client_brief[:5000])
+        personalization_lines = list(dict.fromkeys(personalization_lines))
+        client_notes = "\n".join(personalization_lines)[:8000]
         toc_req = TocRequest(
             domain=domain,
             duration_days=duration,
@@ -2261,8 +2305,8 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             lab_type=_clean(requirement.get("lab_type") or requirement.get("lab_environment_type")),
             # Follow the same pipeline-wide AI switch as the Shortlist UI.
             generation_mode=generation_mode,
-            custom_topics="; ".join(dict.fromkeys(str(value).strip() for value in topics if value)),
-            client_notes=_clean(requirement.get("client_notes") or requirement.get("notes") or requirement.get("description")),
+            custom_topics="; ".join(topics),
+            client_notes=client_notes or _clean(requirement.get("notes") or requirement.get("description")),
         )
         response = await generate_toc(toc_req, db)
         toc_data = response.get("toc_data") or response.get("toc")
@@ -4311,6 +4355,8 @@ async def send_client_slots(
     """Build and automatically deliver a complete client handoff package."""
     req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     shortlist = await db["shortlists"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    generation_setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    handoff_generation_mode = "ai" if _clean(generation_setting.get("value")).lower() == "ai" else "template"
     trainer = next(
         (t for t in shortlist.get("top_trainers") or [] if str(t.get("trainer_id") or "") == str(payload.trainer_id or "")),
         {},
@@ -4657,11 +4703,10 @@ async def send_client_slots(
                     "storage_gb": 10,
                 })
                 lab_mappings[checked["cloud_provider"]] = mapping
-            mode_setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
-            if str(mode_setting.get("value") or "").lower() == "ai":
-                from openai import AsyncOpenAI
-                from shared.lab_planning import plan_resources
+            if handoff_generation_mode == "ai":
                 try:
+                    from openai import AsyncOpenAI
+                    from shared.lab_planning import plan_resources
                     async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
                         for checked in checked_provider_inputs:
                             lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', toc_data, {
@@ -4792,15 +4837,39 @@ async def send_client_slots(
         "trainer_id": payload.trainer_id,
         "trainer_name": trainer_name,
 
-        # Preserve the exact wording that the reviewer approves.
-        "ai_generate": False,
+        # Use AI wording only when the dashboard selected AI mode. The
+        # verified body and attachment set remain authoritative either way.
+        "ai_generate": handoff_generation_mode == "ai",
         "ai_context": {
             "workflow": "client_handoff",
             "batch_type": "proposal" if _is_proposal_requirement(req) else "confirmed",
             "requirement_id": payload.requirement_id,
             "client_name": client_name,
             "trainer_name": trainer_name,
+            "trainer_evidence": _clean(trainer_details)[:4000],
             "technology": technology,
+            "client_company": _clean(req.get("client_company") or req.get("company_name")),
+            "client_industry": _clean(req.get("client_industry") or req.get("client_domain")),
+            "client_business_context": _clean(
+                req.get("client_business_context") or req.get("company_context")
+                or req.get("company_profile") or req.get("business_context")
+            )[:2000],
+            "client_goals": _clean(req.get("client_goals"))[:1200],
+            "business_challenges": _clean(req.get("business_challenges"))[:1200],
+            "client_scope": _clean(
+                req.get("client_requirement_text") or req.get("requirement_source_text")
+                or req.get("scope_text") or req.get("client_notes")
+            )[:4000],
+            "requested_topics": list(dict.fromkeys(
+                _as_list(req.get("required_skills")) + _as_list(req.get("requested_topics"))
+                + _as_list(req.get("topics")) + _as_list(req.get("custom_topics"))
+            )),
+            "personalization_rule": (
+                "Connect the attached trainer using only trainer_evidence, and connect the ToC and verified lab estimate, "
+                "to the client's explicit domain, goals and scope. "
+                "Use only stated company context. Do not claim unverified company systems, outcomes, or business problems. "
+                "Do not change slot details, prices, assumptions, attachment claims, or any workflow status."
+            ),
             "available_slots": slots_text,
             "toc_attached": bool(toc_attachment or client_toc_attachments),
             "lab_cost_attached": bool(lab_cost_attachments),
@@ -4910,8 +4979,9 @@ async def _deliver_client_handoff(package, db):
     if package.get("status") != "approved":
         raise HTTPException(409, "Package approval is required")
     email_payload = dict(package["email_payload"])
-    # The reviewer already approved this wording. Do not ask the model to rewrite it on send.
-    email_payload["ai_generate"] = False
+    # Keep the dashboard's AI wording choice through approved delivery. The
+    # AI writer receives the verified scope and is constrained to wording only;
+    # package attachments, slots, pricing, and workflow state stay frozen.
     legacy_settings = await db["admin_settings"].find_one({"_id": "default"}) or {}
     settings_doc = await db["admin_settings"].find_one({"settings_id": "default"}) or {}
     # Keep credentials out of stored/reviewed packages. Use current settings.

@@ -120,3 +120,24 @@ def test_mail1_toc_inherits_advanced_audience(monkeypatch):
     db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
     asyncio.run(shortlists._build_toc({'technology_needed': 'DevOps', 'duration_days': 5, 'audience_level': 'advanced'}, {}, db))
     assert generate.call_args.args[0].level == 'advanced'
+
+
+def test_handoff_toc_uses_all_explicit_topics_and_client_business_context(monkeypatch):
+    generate = AsyncMock(return_value={'toc_data': {'days': []}})
+    monkeypatch.setattr(toc, 'generate_toc', generate)
+    db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={}))}
+    asyncio.run(shortlists._build_toc({
+        'technology_needed': 'DevOps',
+        'required_skills': ['DevOps', 'AWS'],
+        'requested_topics': ['CI/CD', 'Terraform'],
+        'duration_days': 8,
+        'client_company': 'Northstar Health',
+        'client_industry': 'Healthcare',
+        'client_business_context': 'Modernize secure cloud deployment for clinical analytics.',
+        'client_requirement_text': 'The team needs DevOps and AWS training for its clinical analytics platform.',
+    }, {}, db))
+    request = generate.call_args.args[0]
+    assert {'DevOps', 'AWS', 'CI/CD', 'Terraform'} <= set(request.custom_topics.split('; '))
+    assert 'Northstar Health' in request.client_notes
+    assert 'Healthcare' in request.client_notes
+    assert 'clinical analytics platform' in request.client_notes

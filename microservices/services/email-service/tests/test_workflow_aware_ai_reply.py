@@ -252,3 +252,34 @@ def test_workflow_context_loads_toc_profile_po_invoice_and_document_state():
     assert features["purchase_order"]["status"] == "sent"
     assert features["invoice"]["invoice_number"] == "INV-001"
     assert features["documents_and_pdfs"]["generation_available"] is True
+
+
+def test_workflow_context_exposes_company_scope_and_goals_for_personalized_replies():
+    import asyncio
+
+    db = FakeDb({
+        "requirements": FakeCollection({
+            "requirement_id": "REQ-1",
+            "client_company": "Northstar Health",
+            "client_industry": "Healthcare",
+            "client_business_context": "Modernize secure cloud deployment for clinical analytics.",
+            "client_goals": "Improve repeatable deployment workflows.",
+            "required_skills": ["DevOps", "AWS"],
+            "client_requirement_text": "Training for the clinical analytics team using DevOps and AWS.",
+        }),
+        "shortlists": FakeCollection({}),
+        "toc_generations": FakeCollection({}),
+        "purchase_orders": FakeCollection({}),
+        "invoices": FakeCollection({}),
+    })
+    context = asyncio.run(_load_reply_workflow_context(
+        db,
+        {"requirement_id": "REQ-1", "from_name": "Mira"},
+        {"person_type": "corporate_client", "scenario": "new_training_requirement"},
+        {"technology_needed": "DevOps"},
+        "Please share the ToC and lab estimate.",
+    ))
+    assert context["client_personalization"]["company"] == "Northstar Health"
+    assert context["client_personalization"]["industry"] == "Healthcare"
+    assert "clinical analytics" in context["client_personalization"]["scope_evidence"]
+    assert "AWS" in context["requirement"]["required_skills"]

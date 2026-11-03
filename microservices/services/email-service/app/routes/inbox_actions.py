@@ -1147,6 +1147,10 @@ async def _load_reply_workflow_context(
             "duration_days", "duration_hours", "training_dates", "preferred_dates", "timing", "mode",
             "location", "participant_count", "audience_level", "budget_range", "budget_total",
             "budget_per_day", "currency", "requested_details", "clahan_managed_details",
+            "client_company", "client_domain", "client_industry", "client_business_context",
+            "company_context", "company_profile", "business_context", "client_goals",
+            "business_challenges", "required_skills", "requested_topics", "topics", "custom_topics",
+            "client_requirement_text", "requirement_source_text",
             "needs_clarification", "latest_coordination_intent", "toc_requested", "toc_action",
             "scope_attached", "attachment_names", "source_attachments",
         ]),
@@ -1156,7 +1160,32 @@ async def _load_reply_workflow_context(
             "audience_level", "budget_range", "budget_total", "budget_per_day", "currency",
             "client_name", "company_name", "workflow_stage", "shortlist_status", "interview_status",
             "selected_trainer_id", "commercial_status", "payment_status", "toc_status", "lab_cost",
+            "client_company", "client_domain", "client_industry", "client_business_context",
+            "company_context", "company_profile", "business_context", "client_goals",
+            "business_challenges", "required_skills", "requested_topics", "topics", "custom_topics",
+            "client_requirement_text", "requirement_source_text", "scope_text", "scope_of_work",
         ]),
+        "client_personalization": {
+            "company": _clean_incoming_email(extracted.get("client_company") or extracted.get("company_name") or requirement.get("client_company") or requirement.get("company_name")),
+            "industry": _clean_incoming_email(extracted.get("client_industry") or extracted.get("client_domain") or requirement.get("client_industry") or requirement.get("client_domain")),
+            "business_context": _clean_incoming_email(
+                extracted.get("client_business_context") or extracted.get("company_context")
+                or extracted.get("company_profile") or extracted.get("business_context")
+                or requirement.get("client_business_context") or requirement.get("company_context")
+                or requirement.get("company_profile") or requirement.get("business_context")
+            )[:2000],
+            "stated_goals": _clean_incoming_email(extracted.get("client_goals") or requirement.get("client_goals"))[:1200],
+            "stated_challenges": _clean_incoming_email(extracted.get("business_challenges") or requirement.get("business_challenges"))[:1200],
+            "scope_evidence": _clean_incoming_email(
+                extracted.get("client_requirement_text") or extracted.get("requirement_source_text")
+                or requirement.get("client_requirement_text") or requirement.get("requirement_source_text")
+            )[:4000],
+            "rule": (
+                "Personalize the benefit around the stated company context, domain, and requested scope. "
+                "If no company or business context is explicitly available, personalize only to the named domain and client goals. "
+                "Never infer the company's systems, projects, pain points, customers, or strategy from its name or email domain."
+            ),
+        },
         "shortlist": {
             **_pick(shortlist, ["status", "workflow_stage", "client_status", "selected_trainer_id"]),
             "trainer_count": len(shortlist.get("top_trainers") or []),
@@ -1428,6 +1457,10 @@ async def _ai_draft_reply(
         + "\n\nWriting requirement: " + guidance +
         "Reply to the latest message in plain, natural language. The sender may have multiple unrelated training requirements. "
         "Use the current technology/domain and current requirement only; treat older replies about another domain as unrelated. "
+        "Personalize the wording to the explicit company, industry, business context, goals, and requested training scope in the workflow context. "
+        "Briefly connect the requested training to the client's stated work or outcome when that evidence is present. "
+        "When only a domain is known, tailor to that domain without pretending to know the company's internal systems or challenges. "
+        "Do not infer business facts from a company name or email address. "
         "A receipt-only acknowledgement needs just one brief sentence. A direct question needs its answer; "
         "several questions need each answer. Stop when those needs are met, then the signature from the writing rules. "
         "Remove generic offers of further help and anticipation. Do not add 'shortly', 'soon', or any other "

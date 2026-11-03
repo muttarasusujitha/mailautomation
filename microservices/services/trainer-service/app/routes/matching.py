@@ -15,7 +15,10 @@ router = APIRouter()
 STOP_WORDS = {"and", "or", "the", "a", "an", "in", "with", "for", "to", "of", "on", "at", "by"}
 
 
-def _score_trainer(trainer: Dict[str, Any], skills: List[str], domain: str, location: str) -> float:
+def _score_trainer(
+    trainer: Dict[str, Any], skills: List[str], domain: str, location: str,
+    min_experience_years: float = 0,
+) -> float:
     from shared.toc_quality import topic_is_covered
     score = 0.0
     t_text = " ".join([
@@ -28,7 +31,13 @@ def _score_trainer(trainer: Dict[str, Any], skills: List[str], domain: str, loca
 
     matched_skills = [skill for skill in skills if topic_is_covered(skill, t_text)]
     domain_match = bool(domain and topic_is_covered(domain, t_text))
-    if (skills and not matched_skills) or (not skills and not domain_match):
+    if (skills and len(matched_skills) != len(skills)) or (not skills and not domain_match):
+        return 0.0
+    if domain and not domain_match:
+        return 0.0
+    from shared.trainer_experience import profile_experience_years
+    experience = profile_experience_years(trainer) or 0.0
+    if experience < min_experience_years:
         return 0.0
     for skill in matched_skills:
         if skill:
@@ -43,8 +52,7 @@ def _score_trainer(trainer: Dict[str, Any], skills: List[str], domain: str, loca
             return max(0, min(maximum, value)) if math.isfinite(value) else 0
         except (TypeError, ValueError):
             return 0
-    exp = number(trainer.get("experience_years"), 60)
-    score += min(exp * 1.5, 15.0)
+    score += min(experience * 1.5, 15.0)
 
     if location and location.lower() in str(trainer.get("location") or "").lower():
         score += 5.0
@@ -60,6 +68,7 @@ class MatchRequest(BaseModel):
     skills: List[str] = []
     domain: Optional[str] = ""
     location: Optional[str] = ""
+    min_experience_years: Optional[float] = Field(None, ge=0)
     # `budget` remains a backwards-compatible per-day ceiling. New callers
     # should say explicitly whether their ceiling is daily or for the course.
     budget: Optional[float] = Field(None, ge=0)
@@ -126,6 +135,12 @@ async def match_trainers(
     skills = payload.skills or [s for s in re.split(r"[,\s]+", str(req.get("skills") or "")) if s and s not in STOP_WORDS]
     domain = payload.domain or str(req.get("technology_needed") or req.get("domain") or "")
     location = payload.location or str(req.get("location") or "")
+    min_experience_years = payload.min_experience_years
+    if min_experience_years is None:
+        try:
+            min_experience_years = max(0.0, float(req.get("min_experience_years") or 0))
+        except (TypeError, ValueError):
+            min_experience_years = 0.0
     budget_limit, budget_basis = _budget_per_day(payload, req)
     budget_basis_unresolved = budget_basis in {"total_missing_duration", "invalid_budget"}
 
@@ -138,7 +153,7 @@ async def match_trainers(
     scored = []
     unpriced = []
     for t in trainers:
-        s = _score_trainer(t, skills, domain, location)
+        s = _score_trainer(t, skills, domain, location, min_experience_years)
         if s > 0:
             try:
                 day_rate = float(t.get("day_rate")) if t.get("day_rate") is not None else None

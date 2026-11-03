@@ -129,6 +129,31 @@ def test_client_gets_profile_toc_lab_and_three_slots(monkeypatch):
     assert db["shortlists"].update_one.await_count == 1
 
 
+def test_ai_mode_personalizes_client_handoff_from_explicit_context(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        'client_company': 'Northstar Health',
+        'client_industry': 'Healthcare',
+        'client_business_context': 'Modernize secure cloud deployment for clinical analytics.',
+        'client_requirement_text': 'DevOps and AWS training for clinical analytics teams.',
+        'required_skills': ['DevOps', 'AWS'],
+    })
+    db['automation_settings'].find_one.return_value = {'value': 'ai'}
+    monkeypatch.setattr(shortlists, '_build_toc', AsyncMock(return_value={
+        'title': 'DevOps and AWS', 'days': [{'day': 1}],
+        'generation_mode': 'ai', 'requested_generation_mode': 'ai',
+    }))
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id='REQ-TEST', trainer_id='T-TEST', slot_text=SLOTS,
+    ), db))
+    mail = next(body for path, body in requests if path.endswith('/email/send'))
+    assert mail['ai_generate'] is True
+    assert mail['ai_context']['client_company'] == 'Northstar Health'
+    assert mail['ai_context']['client_industry'] == 'Healthcare'
+    assert 'clinical analytics' in mail['ai_context']['client_business_context']
+    assert 'AWS' in mail['ai_context']['requested_topics']
+    assert 'Do not claim unverified company systems' in mail['ai_context']['personalization_rule']
+
+
 def test_inferred_lab_flag_sends_handoff_without_workbook(monkeypatch):
     db, requests = prepare(monkeypatch, failure="lab", requirement_overrides={
         "lab_cost_requested": True,

@@ -224,7 +224,10 @@ async def send_single_email(
                         "reference exactly, including links, dates, times, requested next action, and attachments. "
                         "Do not invent commercial, availability, trainer details, or completion status. When the "
                         "workflow context includes batch_email_rules, treat them as non-negotiable rules for this "
-                        "email; they govern every workflow stage, not only the first outreach."
+                        "email; they govern every workflow stage, not only the first outreach. Use any explicit "
+                        "client_personalization and personalization_rule context to explain the fit to the client's "
+                        "stated goals and domain. For trainer handoffs, use trainer_evidence only; for lab estimates, "
+                        "preserve the stated participant count, lab hours, assumptions, and attached-file status."
                     ),
                     workflow_context=wording_context,
                     reference_reply={"body": body},

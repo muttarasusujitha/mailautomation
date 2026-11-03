@@ -166,6 +166,34 @@ KNOWN_TECHNOLOGIES = (
     "Machine Learning",
     "Generative AI",
     "Gen AI",
+    "Kubernetes",
+    "Docker",
+    "Terraform",
+    "Jenkins",
+    "Linux",
+    "Git",
+    "CI/CD",
+    "React",
+    "Angular",
+    "Node.js",
+    "JavaScript",
+    "TypeScript",
+    "Java",
+    "Python",
+    "SQL",
+    "PostgreSQL",
+    "MongoDB",
+    "Kafka",
+    "Spark",
+    "Databricks",
+    "Airflow",
+    "Power BI",
+    "Tableau",
+    "ServiceNow",
+    "Salesforce",
+    "SAP",
+    "Cybersecurity",
+    "SRE",
 )
 NON_TECH_CANDIDATE_WORDS = {
     "availability",
@@ -1194,6 +1222,7 @@ def _infer_technology(subject: str, body: str) -> str:
         if re.search(rf"\b{re.escape(tech)}\b", text, flags=re.IGNORECASE):
             candidates.append(tech)
 
+    known_technology_names = {item.lower() for item in KNOWN_TECHNOLOGIES}
     for candidate in candidates:
         candidate = re.split(r"[.;,\n\r]|\bplease\b", _clean(candidate), maxsplit=1, flags=re.IGNORECASE)[0]
         candidate = re.sub(
@@ -1203,6 +1232,13 @@ def _infer_technology(subject: str, body: str) -> str:
             flags=re.IGNORECASE,
         )
         candidate_words = {word.lower() for word in re.findall(r"[A-Za-z]+", candidate)}
+        if candidate.lower() not in known_technology_names and not re.search(r"\b(?:advanced|beginner|intermediate|expert|foundation|fundamentals|professional|associate|certified|level)\b", candidate, flags=re.IGNORECASE):
+            for known in KNOWN_TECHNOLOGIES:
+                match = re.search(rf"(?<![A-Za-z0-9+#]){re.escape(known)}(?![A-Za-z0-9+#])", candidate, flags=re.IGNORECASE)
+                if match:
+                    candidate = match.group(0)
+                    candidate_words = {word.lower() for word in re.findall(r"[A-Za-z]+", candidate)}
+                    break
         if candidate_words <= {"below", "mentioned", "training", "requirement", "details", "detail"}:
             continue
         if candidate_words & NON_TECH_CANDIDATE_WORDS:
@@ -1210,6 +1246,24 @@ def _infer_technology(subject: str, body: str) -> str:
         if 1 < len(candidate) <= 60:
             return candidate
     return ""
+
+
+def _extract_required_scope_skills(subject: str, body: str, technology: str, topics: str = "") -> List[str]:
+    """Extract named technologies from client scope while retaining the primary domain."""
+    source = "\n".join(part for part in (subject, body, topics) if part)
+    found: List[Tuple[int, str]] = []
+    for skill in KNOWN_TECHNOLOGIES:
+        pattern = rf"(?<![A-Za-z0-9+#]){re.escape(skill)}(?![A-Za-z0-9+#])"
+        for match in re.finditer(pattern, source, flags=re.IGNORECASE):
+            found.append((match.start(), skill))
+    found.sort(key=lambda item: item[0])
+    result = [technology] if technology else []
+    seen = {item.lower() for item in result}
+    for _, skill in found:
+        if skill.lower() not in seen:
+            seen.add(skill.lower())
+            result.append(skill)
+    return result
 
 
 def _extract_duration(text: str) -> Dict[str, Any]:
@@ -1884,6 +1938,9 @@ async def _humanize_verified_client_reply(
                 "Annapurna U signs ToC, lab cost, and coordination. Murali Mohan M signs invoice, payment, and purchase order. "
                 "When the reference includes both a ToC and a lab cost, keep both in this email. "
                 "When the request is only a ToC, only a lab cost, or both, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
+                "Personalize the explanation to explicit company, industry, business context, and requested scope in workflow context. "
+                "Explain briefly how the requested ToC or lab work supports the client's stated domain or goal. "
+                "If only the domain is known, tailor to that domain and do not pretend to know company-specific systems, projects, or problems. "
                 "Do not write a second email, a generic acknowledgement, or the other person's signature. "
                 "Do not add facts or promises."
             ),
@@ -2150,8 +2207,17 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
                 "duration_text": f"{inferred_days} working days",
                 "duration_inferred_from_dates": True,
             }
-    client_domain = _field_value_loose(text, ["Client Domain", "Client Industry", "Industry", "Business Domain", "Client Name"])
+    client_company = _field_value_loose(text, [
+        "Client Company", "Company Name", "Company", "Organization Name", "Organisation Name", "Organization", "Organisation",
+    ]) or _client_company_from_email(sender_email, sender_name)
+    client_domain = _field_value_loose(text, ["Client Domain", "Client Industry", "Industry", "Business Domain"])
+    client_business_context = _field_block_value(text, [
+        "Company Context", "Client Business Context", "Business Context", "Company Profile", "Business Profile",
+    ])
+    client_goals = _field_block_value(text, ["Client Goals", "Business Goals", "Desired Outcomes", "Training Outcomes", "Objectives"])
+    business_challenges = _field_block_value(text, ["Business Challenges", "Client Challenges", "Current Challenges", "Pain Points"])
     topics = _field_block_value(text, ["Topics to be Covered", "Topics", "Tools", "Scope", "Scope of the delivery", "Table of Content", "TOC"])
+    requested_skills = _extract_required_scope_skills(subject, field_body, technology, topics)
 
     participants = None
     participant_text = _field_value(text, [
@@ -2304,7 +2370,8 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "technology_needed": technology,
         "technology": technology,
         "domain": technology,
-        "required_skills": [technology] if technology else [],
+        "required_skills": requested_skills,
+        "requested_topics": requested_skills[1:],
         "mode": mode,
         "location": location,
         "delivery_mode": mode,
@@ -2325,7 +2392,13 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "topics": topics,
         "custom_topics": topics,
         "participant_count": participants,
-        "client_company": _client_company_from_email(sender_email, sender_name),
+        "client_company": client_company,
+        "client_business_context": client_business_context,
+        "company_context": client_business_context,
+        "company_profile": _field_block_value(text, ["Company Profile", "Business Profile"]),
+        "business_context": client_business_context,
+        "client_goals": client_goals,
+        "business_challenges": business_challenges,
         "client_name": inferred_client_name or "Client",
         "client_email": _clean(sender_email),
         "requirement_source_text": requirement_source_text,
@@ -10379,6 +10452,12 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "requirement_items": extracted.get("requirement_items", []),
         "client_domain": extracted.get("client_domain"),
         "client_industry": extracted.get("client_industry"),
+        "client_business_context": extracted.get("client_business_context"),
+        "company_context": extracted.get("company_context"),
+        "company_profile": extracted.get("company_profile"),
+        "business_context": extracted.get("business_context"),
+        "client_goals": extracted.get("client_goals"),
+        "business_challenges": extracted.get("business_challenges"),
         "topics": extracted.get("topics"),
         "custom_topics": extracted.get("custom_topics"),
         "requested_details": extracted.get("requested_details", []),
@@ -10599,6 +10678,12 @@ async def _update_existing_requirement_from_extracted(
         "requirement_items",
         "client_domain",
         "client_industry",
+        "client_business_context",
+        "company_context",
+        "company_profile",
+        "business_context",
+        "client_goals",
+        "business_challenges",
         "topics",
         "custom_topics",
         "client_name",

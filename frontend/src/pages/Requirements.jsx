@@ -412,7 +412,7 @@ export default function Requirements() {
     technology_needed: '',
     job_title: '',
     job_description: '',
-    min_experience_years: 2,
+    min_experience_years: 5,
     required_skills: [],
     preferred_skills: [],
     required_certifications: [],
@@ -427,7 +427,7 @@ export default function Requirements() {
     timing: '',
     must_have_linkedin: false,
     must_have_resume: false,
-    top_n: 50,
+    top_n: 5,
     batch_flow: 'confirmed',
     batch_type: 'confirmed',
     requirement_type: 'confirmed_batch',
@@ -765,6 +765,7 @@ export default function Requirements() {
                   <option key={y} value={y}>{y}+ year{y > 1 ? 's' : ''}</option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-slate-500">Candidates below this experience are excluded.</p>
             </div>
             <div className="field-module">
               <label className="label">Preferred Location <span className="text-slate-400 font-normal">(optional)</span></label>
@@ -776,7 +777,7 @@ export default function Requirements() {
               <label className="label">Shortlist Top</label>
               <select className="input" value={form.top_n}
                 onChange={e => setForm(f => ({ ...f, top_n: parseInt(e.target.value) }))}>
-                {[1,3,5,8,10].map(n => <option key={n} value={n}>Top {n} Trainer{n > 1 ? 's' : ''}</option>)}
+                {[1,3,5].map(n => <option key={n} value={n}>Top {n} Trainer{n > 1 ? 's' : ''}</option>)}
               </select>
             </div>
             <div className="field-module">
@@ -800,7 +801,7 @@ export default function Requirements() {
 
           {/* Required Skills with autocomplete suggestions */}
           <div className="mt-4 px-6">
-            <label className="label">Required Skills</label>
+            <label className="label">Required Skills <span className="text-slate-400 font-normal">(all must match)</span></label>
             <div className="flex gap-2 mb-2">
               <div className="relative flex-1">
                 <input className="input w-full" placeholder="Type skill + Enter or click suggestion"

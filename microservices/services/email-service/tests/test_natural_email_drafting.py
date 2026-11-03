@@ -54,6 +54,30 @@ def test_brief_acknowledgement_is_not_padded_with_default_template(monkeypatch):
     assert "initial trainer search" not in prompt
 
 
+def test_ai_reply_prompt_personalizes_to_stated_company_and_scope(monkeypatch):
+    writer = use_ollama(monkeypatch, "Hi Mira,\n\nWe can tailor the AWS labs to your clinical analytics deployment goals.")
+    asyncio.run(inbox_actions._ai_draft_reply(
+        "DevOps ToC and lab estimate",
+        "Please share the ToC and lab estimate.",
+        workflow_context={
+            "client_personalization": {
+                "company": "Northstar Health",
+                "industry": "Healthcare",
+                "business_context": "Modernize secure cloud deployment for clinical analytics.",
+                "stated_goals": "Improve repeatable deployment workflows.",
+                "rule": "Do not infer company systems or challenges.",
+            },
+        },
+        reference_reply={"body": "The DevOps and AWS ToC and lab estimate are attached."},
+        require_openai=True,
+    ))
+    prompt = writer.call_args.args[1]
+    assert "Northstar Health" in prompt
+    assert "clinical analytics" in prompt
+    assert "Do not infer company systems or challenges" in prompt
+    assert "Personalize the wording to the explicit company" in prompt
+
+
 def test_large_business_context_does_not_hide_thread_or_prior_replies(monkeypatch):
     writer = use_ollama(monkeypatch, "Hi Mira,\n\nYes, the confirmed session is online.")
     context = {

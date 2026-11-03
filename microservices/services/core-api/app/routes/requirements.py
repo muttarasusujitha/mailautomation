@@ -517,16 +517,8 @@ def _category_text(trainer: Dict[str, Any]) -> str:
 
 
 def _trainer_experience(trainer: Dict[str, Any]) -> float:
-    direct = _safe_float(trainer.get("experience_years"), -1)
-    if direct >= 0:
-        return direct
-    raw = " ".join([
-        _clean(trainer.get("experience_raw")),
-        _clean(trainer.get("summary")),
-        _clean(trainer.get("resume")),
-    ])
-    match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", raw, flags=re.IGNORECASE)
-    return _safe_float(match.group(1), 0.0) if match else 0.0
+    from shared.trainer_experience import profile_experience_years
+    return profile_experience_years(trainer) or 0.0
 
 
 def _has_resume(trainer: Dict[str, Any]) -> bool:
@@ -577,6 +569,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         _as_list(requirement.get("required_skills"))
         + _as_list(requirement.get("skills"))
         + _as_list(requirement.get("requested_topics"))
+        + _as_list(requirement.get("topics"))
+        + _as_list(requirement.get("custom_topics"))
     ))
     preferred_skills = _as_list(requirement.get("preferred_skills"))
     required_terms = [term for term in [technology, *required_skills] if term]
@@ -601,7 +595,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         score += tech_score
         breakdown["technology"] = round(tech_score, 2)
 
-    required_matches = _term_matches(required_skills, profile)
+    from shared.toc_quality import topic_is_covered
+    required_matches = [skill for skill in required_skills if topic_is_covered(skill, profile)]
     if required_skills:
         skill_score = 25.0 * (len(required_matches) / max(len(required_skills), 1))
     elif not technology:
@@ -618,6 +613,13 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
     if min_exp > 0 and exp < min_exp:
+        return None
+    # Treat the requested domain and every explicit required skill/topic as
+    # eligibility gates. Rank only candidates who meet the stated experience
+    # and scope; return fewer than five when fewer than five qualify.
+    if technology and not topic_is_covered(technology, profile):
+        return None
+    if len(required_matches) != len(required_skills):
         return None
     if min_exp > 0:
         exp_score = 15.0 if exp >= min_exp else 10.0 * (exp / max(min_exp, 1.0))
@@ -646,10 +648,6 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     credibility_score += min(_safe_float(trainer.get("resume_rank_score"), 0.0) * 0.1, 3.0)
     score += credibility_score
     breakdown["credibility"] = round(credibility_score, 2)
-
-    scope_tokens = technology_tokens - {"advanced", "intermediate", "beginner", "training", "trainer", "with", "and", "including", "course"}
-    if required_terms and not required_matches and not (scope_tokens & profile_tokens):
-        return None
 
     public = {k: v for k, v in trainer.items() if k not in {"_id", "combined_text"}}
     public["trainer_id"] = _clean(public.get("trainer_id")) or f"TR-{uuid.uuid4().hex[:8].upper()}"

@@ -14,6 +14,52 @@ def test_requested_topics_contribute_to_matching():
     assert result['score_breakdown']['matched_required_skills'] == ['Python', 'Docker', 'AWS']
 
 
+def test_shortlist_requires_minimum_experience_and_every_required_topic():
+    requirement = {
+        'technology_needed': 'DevOps',
+        'required_skills': ['Docker', 'Kubernetes'],
+        'min_experience_years': 5,
+    }
+    qualified = {
+        'technology_category': 'DevOps',
+        'skills': ['Docker', 'Kubernetes'],
+        'experience_years': 5,
+    }
+    assert _score_trainer(qualified, requirement) is not None
+    assert _score_trainer({**qualified, 'experience_years': 4}, requirement) is None
+    assert _score_trainer({**qualified, 'skills': ['Docker']}, requirement) is None
+
+
+def test_shortlist_reads_experience_from_resume_when_numeric_field_is_empty():
+    trainer = {
+        'technology_category': 'DevOps',
+        'skills': ['Docker', 'Kubernetes'],
+        'experience_years': 0,
+        'resume': 'Total experience: 8 years. Docker and Kubernetes trainer.',
+    }
+    result = _score_trainer(trainer, {
+        'technology_needed': 'DevOps',
+        'required_skills': ['Docker', 'Kubernetes'],
+        'min_experience_years': 5,
+    })
+    assert result is not None
+    assert result['experience_years'] == 8
+
+
+def test_shortlist_trusts_resume_over_conflicting_stored_years():
+    trainer = {
+        'technology_category': 'DevOps',
+        'skills': ['Docker', 'Kubernetes'],
+        'experience_years': 10,
+        'resume': 'DevOps trainer with 3 years of experience.',
+    }
+    assert _score_trainer(trainer, {
+        'technology_needed': 'DevOps',
+        'required_skills': ['Docker', 'Kubernetes'],
+        'min_experience_years': 5,
+    }) is None
+
+
 def test_client_proposal_wording_beats_tentative_schedule_details():
     result = _normalise_requirement_payload({
         'technology_needed': 'DevOps',
