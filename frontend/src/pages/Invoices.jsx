@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import { ArrowLeft, Download, Loader2, Plus, ReceiptText, RefreshCw, Search, Send, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import { usePipelineRecords } from '../utils/usePipelineRecords'
 
@@ -44,6 +45,12 @@ function nextDueDate() {
   const date = new Date()
   date.setDate(date.getDate() + 30)
   return date.toISOString().slice(0, 10)
+}
+
+function financeClientName(item = {}) {
+  const extractedName = String(item.extracted_po_fields?.client_name || '').trim()
+  if (extractedName && !/^\/?\s*bill\s*to\s*$/i.test(extractedName) && !/^(client|customer|unknown)$/i.test(extractedName)) return extractedName
+  return item.client_name || item.client_email || 'Client'
 }
 
 function defaultItem(item = {}) {
@@ -115,6 +122,7 @@ function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
 }
 
 export default function Invoices() {
+  const navigate = useNavigate()
   const [selectedId, setSelectedId] = useState('')
   const [q, setQ] = useState('')
   const { items, loading, refreshing, error, load } = usePipelineRecords(q)
@@ -158,28 +166,8 @@ export default function Invoices() {
     setFinanceVersion(version => version + 1)
   }
 
-  const approveFinance = async (item) => {
-    const extracted = item.extracted_po_fields || {}
-    const amount = Number(window.prompt('Approved PO amount (before GST):', extracted.total_amount || '') || 0)
-    const poNumber = window.prompt('PO number:', extracted.po_number || '') || ''
-    if (!amount || !poNumber) return toast.error('PO number and approved amount are required')
-    try {
-      await api.post(`/finance/approvals/${item.finance_id}/approve-send`, {
-        client_name: extracted.client_name || item.client_name || 'Client',
-        client_email: item.client_email,
-        po_number: poNumber,
-        po_date: extracted.po_date || '',
-        total_amount: amount,
-        gst_rate: extracted.gst_rate ?? 18,
-        billing_address: extracted.billing_address || '',
-        gstin: extracted.gstin || '',
-        payment_terms: extracted.payment_terms || '',
-        description: extracted.description || extracted.training_dates || 'Services as specified in the client purchase order',
-        due_date: extracted.due_date || '',
-      })
-      toast.success('Invoice generated and sent')
-      refreshAll()
-    } catch (e) { toast.error(e.message || 'Could not approve invoice') }
+  const reviewFinance = (item) => {
+    navigate(`/finance-approvals?finance_id=${encodeURIComponent(item.finance_id)}`)
   }
   const rejectFinance = async (item) => {
     const reason = window.prompt('Reason for rejection / clarification:')
@@ -347,8 +335,8 @@ export default function Invoices() {
           <p className="mt-1 text-xs text-amber-900">Eligible final POs are processed automatically. Review is needed when required details are missing or unclear.</p>
           <div className="mt-3 space-y-2">
             {financeApprovals.filter(item => item.status === 'pending_human_approval').map(item => <div key={item.finance_id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-3 text-sm">
-              <span className="min-w-0"><b>{item.extracted_po_fields?.client_name || item.client_name || item.client_email}</b> - {item.request_type === 'po_to_invoice' ? `PO ${item.extracted_po_fields?.po_number || 'details pending'}` : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}<span className="mt-1 block text-xs text-slate-600">{item.auto_processing_error || item.auto_processing_blockers?.[0] || 'Waiting for automatic processing.'}</span></span>
-              <span className="flex gap-2"><button onClick={() => approveFinance(item)} className="btn-primary text-xs">Approve & Send Invoice</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
+              <span className="min-w-0"><b>{financeClientName(item)}</b> - {item.request_type === 'po_to_invoice' ? `PO ${item.extracted_po_fields?.po_number || 'details pending'}` : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}<span className="mt-1 block text-xs text-slate-600">{item.auto_processing_error || item.auto_processing_blockers?.join(' · ') || 'Open PO review to verify the source document and invoice details.'}</span></span>
+              <span className="flex gap-2"><button onClick={() => reviewFinance(item)} className="btn-primary text-xs">Review PO</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
             </div>)}
           </div>
         </section>

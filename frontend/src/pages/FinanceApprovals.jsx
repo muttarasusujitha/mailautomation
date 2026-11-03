@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import { CheckCircle2, FileSearch, Loader2, RefreshCw, XCircle } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import api from '../utils/api'
 
 const emptyForm = {
@@ -9,11 +10,17 @@ const emptyForm = {
   billing_address: '', gstin: '', payment_terms: '', description: 'Professional training services', due_date: '',
 }
 
+function clientNameFor(item = {}, fields = item.extracted_po_fields || {}) {
+  const extractedName = String(fields.client_name || '').trim()
+  if (extractedName && !/^\/?\s*bill\s*to\s*$/i.test(extractedName) && !/^(client|customer|unknown)$/i.test(extractedName)) return extractedName
+  return item.client_name || ''
+}
+
 function formFor(item = {}) {
   const fields = item.extracted_po_fields || {}
   return {
     ...emptyForm,
-    client_name: fields.client_name || item.client_name || '',
+    client_name: clientNameFor(item, fields),
     client_email: item.client_email || '',
     po_number: fields.po_number || '',
     po_date: fields.po_date || '',
@@ -28,8 +35,10 @@ function formFor(item = {}) {
 }
 
 export default function FinanceApprovals() {
+  const [searchParams] = useSearchParams()
+  const requestedFinanceId = searchParams.get('finance_id') || ''
   const [items, setItems] = useState([])
-  const [selectedId, setSelectedId] = useState('')
+  const [selectedId, setSelectedId] = useState(requestedFinanceId)
   const [form, setForm] = useState(emptyForm)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState('')
@@ -43,7 +52,7 @@ export default function FinanceApprovals() {
       const response = await api.get('/finance/approvals')
       const rows = response.data.approvals || []
       setItems(rows)
-      setSelectedId(current => rows.some(item => item.finance_id === current) ? current : rows.find(item => item.status === 'pending_human_approval')?.finance_id || rows[0]?.finance_id || '')
+      setSelectedId(current => rows.some(item => item.finance_id === current) ? current : rows.some(item => item.finance_id === requestedFinanceId) ? requestedFinanceId : rows.find(item => item.status === 'pending_human_approval')?.finance_id || rows[0]?.finance_id || '')
     } catch (error) {
       toast.error(error.message || 'Could not load finance approvals')
     } finally { setLoading(false) }
