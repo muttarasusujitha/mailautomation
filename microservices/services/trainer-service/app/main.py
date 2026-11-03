@@ -13,6 +13,7 @@ from app.routes import (
     interview_reminders, purchase_orders, invoices, finance_approvals,
     toc_extended, trainer_automation, voice_ai, profile_enhancements,
 )
+from app.routes import trainer_portal
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -32,6 +33,13 @@ async def _ensure_indexes(db) -> None:
         ("trainers", [("domain", 1), ("status", 1)], {}),
         ("trainers", [("category", 1), ("status", 1)], {}),
         ("trainers", [("created_at", -1)], {}),
+        ("trainer_profiles", [("owner_user_id", 1)], {"unique": True}),
+        ("trainer_profiles", [("domains", 1), ("status", 1)], {}),
+        ("trainer_profiles", [("updated_at", -1)], {}),
+        ("partner_opportunities", [("opportunity_id", 1)], {"unique": True}),
+        ("partner_opportunities", [("status", 1), ("created_at", -1)], {}),
+        ("trainer_opportunity_interests", [("user_id", 1), ("opportunity_id", 1)], {"unique": True}),
+        ("trainer_opportunity_interests", [("opportunity_id", 1), ("created_at", -1)], {}),
         ("requirements", [("requirement_id", 1)], {}),
         ("requirements", [("technology_needed", 1), ("status", 1)], {}),
         ("requirements", [("domain", 1), ("status", 1)], {}),
@@ -91,6 +99,7 @@ app.add_middleware(
 
 # Core trainer CRUD + matching
 app.include_router(trainers.router,           prefix="/api/v1/trainers",             tags=["trainers"])
+app.include_router(trainer_portal.router,      prefix="/api/v1/trainers",             tags=["trainer-portal"])
 app.include_router(matching.router,           prefix="/api/v1/trainers",             tags=["matching"])
 app.include_router(trainer_automation.router, prefix="/api/v1/trainers",             tags=["trainer-automation"])
 

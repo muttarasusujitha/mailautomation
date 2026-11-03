@@ -27,6 +27,8 @@ const NAV_GROUPS = [
       { to: '/shortlist',       label: 'Shortlist',        icon: ListChecks,      keywords: ['shortlist','trainer shortlist'] },
       { to: '/profile-reviews', label: 'Profile Reviews',  icon: ClipboardCheck,  keywords: ['profile review','trainer rating','document review','skill fit'] },
       { to: '/trainers',        label: 'Trainer Database', icon: Users,           keywords: ['trainers','database'] },
+      { to: '/trainer-applications', label: 'Trainer Applications', icon: Linkedin, keywords: ['trainer applications','linkedin profiles','trainer resumes'] },
+      { to: '/partner-opportunities', label: 'Trainer Opportunities', icon: BriefcaseBusiness, keywords: ['partner companies','trainer opportunities','openings'] },
     ],
     more: [
       { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Mic,        keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
@@ -111,7 +113,11 @@ function moreGroupsForPath(pathname) {
   )
 }
 
-function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
+function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAdmin }) {
+  const navGroups = NAV_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item => item.to !== '/admin' || isAdmin),
+  }))
   const [openMore, setOpenMore] = useState(() => moreGroupsForPath(pathname))
 
   useEffect(() => {
@@ -154,7 +160,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
         </NavLink>
 
         <div className="space-y-5">
-          {NAV_GROUPS.map(group => (
+          {navGroups.map(group => (
             <div key={group.label}>
               <p className="sidebar-group-label">{group.label}</p>
               <div className="space-y-0.5">
@@ -211,7 +217,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
 }
 
 
-export default function Layout({ onLogout }) {
+export default function Layout({ onLogout, isAdmin = false }) {
   const [query, setQuery]         = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pendingInbox, setPendingInbox] = useState(0)
@@ -298,7 +304,7 @@ export default function Layout({ onLogout }) {
     <div className="app-shell">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
-        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} connected={connected} pathname={location.pathname} />
+        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} connected={connected} pathname={location.pathname} isAdmin={isAdmin} />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -310,7 +316,7 @@ export default function Layout({ onLogout }) {
             aria-label="Close navigation"
           />
           <div className="mobile-drawer absolute inset-y-0 left-0 shadow-2xl">
-            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} connected={connected} pathname={location.pathname} />
+            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} connected={connected} pathname={location.pathname} isAdmin={isAdmin} />
           </div>
           <button
             type="button"

@@ -98,7 +98,8 @@ async def list_resume_uploads(
     status: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    query: Dict[str, Any] = {}
+    # Trainer self-service resumes have their own directory and review workflow.
+    query: Dict[str, Any] = {"source_category": {"$ne": "trainer_registration"}}
     if status:
         query["processing_status"] = status
     total = await db["resume_uploads"].count_documents(query)
@@ -123,7 +124,7 @@ async def list_resume_uploads(
 
 @router.get("/by-upload/{upload_id}")
 async def get_trainer_by_upload(upload_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    upload = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0, "extracted_text": 0})
+    upload = await db["resume_uploads"].find_one({"upload_id": upload_id, "source_category": {"$ne": "trainer_registration"}}, {"_id": 0, "extracted_text": 0})
     if not upload:
         raise HTTPException(404, "Upload not found")
     trainer_id = upload.get("trainer_id")
@@ -135,7 +136,7 @@ async def get_trainer_by_upload(upload_id: str, db: AsyncIOMotorDatabase = Depen
 
 @router.get("/{upload_id}")
 async def get_resume_upload(upload_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    doc = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0, "extracted_text": 0})
+    doc = await db["resume_uploads"].find_one({"upload_id": upload_id, "source_category": {"$ne": "trainer_registration"}}, {"_id": 0, "extracted_text": 0})
     if not doc:
         raise HTTPException(404, "Upload not found")
     return {"success": True, "upload": _json_safe(doc)}
@@ -162,6 +163,8 @@ async def confirm_resume(
     upload = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0})
     if not upload:
         raise HTTPException(404, "Upload not found")
+    if upload.get("source_category") == "trainer_registration":
+        raise HTTPException(409, "Trainer registration resumes are reviewed from Trainer Applications")
 
     trainer_id = upload.get("trainer_id")
     now = datetime.utcnow()

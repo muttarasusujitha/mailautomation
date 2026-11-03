@@ -7,7 +7,7 @@ from urllib.parse import urlencode, urlsplit
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from pymongo.errors import DuplicateKeyError
 from shared.database.service import get_db
 from app.config import get_settings
@@ -26,7 +26,16 @@ class Credentials(BaseModel):
 class Registration(Credentials):
     name: str = Field(min_length=1, max_length=120)
     password: str = Field(min_length=12, max_length=128)
-    role: Literal['recruiter', 'trainer', 'employee'] = 'recruiter'
+    role: Literal['recruiter', 'trainer', 'client', 'employee'] = 'recruiter'
+    domain: str = Field(default='', max_length=120)
+    company: str = Field(default='', max_length=160)
+    phone: str = Field(default='', max_length=40)
+
+    @model_validator(mode='after')
+    def require_client_contact(self):
+        if self.role == 'client' and (not self.company.strip() or not self.phone.strip()):
+            raise ValueError('Client registration requires a company name and contact phone number')
+        return self
 
 
 class Forgot(BaseModel):
@@ -39,22 +48,52 @@ class Reset(BaseModel):
 
 
 @router.post('/register', status_code=201)
-async def register(payload: Registration, request: Request, db=Depends(get_db)):
+async def register(payload: Registration, request: Request, db=Depends(get_db), response: Response = None):
     require_origin(request)
     email = str(payload.email).strip().lower()
     await rate_limit(db, request, 'register', email, maximum=5)
     password_hash = await asyncio.to_thread(hash_password, payload.password)
     try:
-        await db['auth_users'].insert_one({
+        user = {
             'user_id': 'USR-' + secrets.token_hex(12), 'email': email, 'email_normalized': email,
             'name': payload.name.strip(), 'password_hash': password_hash, 'requested_role': payload.role,
-            # Self-service signup grants the standard recruiter role only.
-            # Elevated admin access remains operator-managed.
-            'role': 'recruiter', 'status': 'active', 'auth_version': 0, 'created_at': datetime.utcnow(),
-        })
+            # Public signup can create trainer or recruiter accounts; employees and
+            # administrators still require operator provisioning.
+            'role': payload.role if payload.role in {'trainer', 'client', 'recruiter'} else 'recruiter',
+            'registration_domain': payload.domain.strip(), 'status': 'active',
+            'company': payload.company.strip(),
+            'phone': payload.phone.strip(),
+            'auth_version': 0, 'created_at': datetime.utcnow(),
+        }
+        await db['auth_users'].insert_one(user)
     except DuplicateKeyError:
-        pass
+        return {'success': True, 'message': 'If this is a new account, it is ready to use. If you already have an account, sign in as usual.'}
+    if user['role'] == 'trainer':
+        await _send_trainer_email(user, 'trainer_welcome', 'Welcome to TrainerSync',
+                                  f"Hi {user['name']},\n\nThank you for registering as a trainer with TrainerSync. Sign in to complete your trainer profile and upload your resume.\n\nTrainerSync")
+        session = await issue_session(db, request, response, user)
+        return {**session, 'message': 'Welcome to TrainerSync. Complete your trainer profile to get started.'}
+    if user['role'] == 'client':
+        session = await issue_session(db, request, response, user)
+        return {**session, 'message': 'Your client account is ready. Create a training request to find trainers.'}
     return {'success': True, 'message': 'If this is a new account, it is ready to use. If you already have an account, sign in as usual.'}
+
+
+async def _send_trainer_email(user, mail_type, subject, body):
+    settings = get_settings()
+    try:
+        async with httpx.AsyncClient(timeout=12) as client:
+            result = await client.post(settings.EMAIL_SERVICE_URL.rstrip('/') + '/api/v1/email/send', json={
+                'to': user['email'], 'subject': subject, 'body': body,
+                'mail_type': mail_type,
+                'idempotency_key': f"{mail_type}:{user['user_id']}:{datetime.utcnow().strftime('%Y%m%d%H%M') if mail_type == 'trainer_login' else 'welcome'}",
+                'ai_generate': False,
+            })
+            if result.status_code >= 400 or not result.json().get('success'):
+                logger.warning('Trainer account email was not accepted (%s)', mail_type)
+    except Exception:
+        # Sending confirmation mail should not lock a trainer out of their account.
+        logger.warning('Trainer account email delivery failed (%s)', mail_type)
 
 
 @router.post('/login')
@@ -77,7 +116,11 @@ async def login(payload: Credentials, request: Request, response: Response, db=D
             user = await db['auth_users'].find_one({'email_normalized': email})
     if not user or user.get('status') != 'active':
         raise HTTPException(401, "We couldn't sign you in. Check your email and password, or contact support for help.")
-    return await issue_session(db, request, response, user)
+    session = await issue_session(db, request, response, user)
+    if user.get('role') == 'trainer':
+        await _send_trainer_email(user, 'trainer_login', 'Thank you for signing in to TrainerSync',
+                                  f"Hi {user.get('name') or 'Trainer'},\n\nThank you for signing in to TrainerSync. Your trainer profile is ready whenever you are.\n\nTrainerSync")
+    return session
 
 
 async def _resolve_social_user(db, identity):
@@ -147,6 +190,42 @@ async def verify_access(request: Request, db=Depends(get_db)):
     if path.startswith('/api/') and not path.startswith('/api/v1/'):
         path = '/api/v1/' + path[len('/api/'):]
     path = path.rstrip('/')
+    trainer_portal_paths = {
+        ('GET', '/api/v1/trainers/portal/profile'),
+        ('POST', '/api/v1/trainers/portal/profile'),
+        ('GET', '/api/v1/trainers/portal/opportunities'),
+        ('POST', '/api/v1/trainers/portal/opportunities/{opportunity_id}/interest'),
+    }
+    if user.get('role') == 'trainer':
+        allowed = (method, path) in trainer_portal_paths or (
+            method == 'POST' and path.startswith('/api/v1/trainers/portal/opportunities/') and path.endswith('/interest')
+        )
+        if not allowed:
+            raise HTTPException(403, 'Trainer accounts can only access the trainer profile portal')
+        return Response(status_code=204, headers={
+            'Cache-Control': 'no-store',
+            'X-Authenticated-User-ID': str(user.get('user_id') or ''),
+        })
+    if user.get('role') == 'client':
+        client_portal_paths = {
+            ('GET', '/api/v1/client-portal/profile'),
+            ('GET', '/api/v1/client-portal/subscription'),
+            ('POST', '/api/v1/client-portal/requests'),
+            ('GET', '/api/v1/client-portal/requests'),
+            ('POST', '/api/v1/client-portal/parse-request'),
+            ('POST', '/api/v1/client-portal/subscription/order'),
+            ('POST', '/api/v1/client-portal/subscription/verify'),
+        }
+        if (method, path) not in client_portal_paths:
+            raise HTTPException(403, 'Client accounts can only access the client request portal')
+        return Response(status_code=204, headers={
+            'Cache-Control': 'no-store',
+            'X-Authenticated-User-ID': str(user.get('user_id') or ''),
+        })
+    if user.get('role') not in {'admin', 'recruiter'}:
+        raise HTTPException(403, 'This workspace requires staff access')
+    if path.startswith('/api/v1/trainers/portal/applications') and user.get('role') not in {'admin', 'recruiter'}:
+        raise HTTPException(403, 'Staff access required')
     admin_paths = ('/api/v1/admin', '/api/v1/database', '/api/v1/gmail', '/api/v1/teams-direct', '/api/v1/scheduler')
     personal_gmail_actions = {
         ('GET', '/api/v1/gmail/me/auth-status'),
@@ -155,8 +234,6 @@ async def verify_access(request: Request, db=Depends(get_db)):
         ('POST', '/api/v1/gmail/me/disconnect'),
         ('POST', '/api/v1/gmail/me/test-send'),
     }
-    if user.get('role') not in {'admin', 'recruiter'}:
-        raise HTTPException(403, 'This workspace requires staff access')
     is_admin_path = any(path == p or path.startswith(p + '/') for p in admin_paths)
     if is_admin_path and user.get('role') != 'admin' and (method, path) not in personal_gmail_actions:
         raise HTTPException(403, 'Administrator access required')
@@ -240,7 +317,11 @@ async def google_login(payload: GoogleCredential, request: Request, response: Re
     user = await _resolve_social_user(db, info)
     if not user:
         raise HTTPException(403, 'Sign-in is unavailable for this account. Contact support if you need help.')
-    return await issue_session(db, request, response, user)
+    session = await issue_session(db, request, response, user)
+    if user.get('role') == 'trainer':
+        await _send_trainer_email(user, 'trainer_login', 'Thank you for signing in to TrainerSync',
+                                  f"Hi {user.get('name') or 'Trainer'},\n\nThank you for signing in to TrainerSync. Your trainer profile is ready whenever you are.\n\nTrainerSync")
+    return session
 
 
 @router.post('/linkedin/start')
@@ -292,4 +373,8 @@ async def linkedin_callback(payload: LinkedInCode, request: Request, response: R
     if not user:
         raise HTTPException(403, 'Sign-in is unavailable for this account. Contact support if you need help.')
     response.delete_cookie('ts_oauth_state', path='/')
-    return await issue_session(db, request, response, user)
+    session = await issue_session(db, request, response, user)
+    if user.get('role') == 'trainer':
+        await _send_trainer_email(user, 'trainer_login', 'Thank you for signing in to TrainerSync',
+                                  f"Hi {user.get('name') or 'Trainer'},\n\nThank you for signing in to TrainerSync. Your trainer profile is ready whenever you are.\n\nTrainerSync")
+    return session
