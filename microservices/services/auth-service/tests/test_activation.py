@@ -14,7 +14,8 @@ from app.routes import accounts
 @pytest.fixture(autouse=True)
 def isolated_settings(monkeypatch):
     settings = SimpleNamespace(allowed_origins_list=[], FRONTEND_URL='http://localhost',
-                               MONGODB_URL='mongodb://unused', MONGODB_DB_NAME='test')
+                               MONGODB_URL='mongodb://unused', MONGODB_DB_NAME='test',
+                               AUTH_SESSION_HOURS=12, AUTH_COOKIE_SECURE=False)
     monkeypatch.setattr(security, 'get_settings', lambda: settings)
     monkeypatch.setattr(manage_users, 'get_settings', lambda: settings)
 
@@ -24,21 +25,26 @@ def request(path='/api/v1/auth/login', cookie=None):
     return Request({'type': 'http', 'method': 'GET', 'path': path, 'headers': headers})
 
 
-def test_registration_is_ready_without_admin_activation(monkeypatch):
+def test_trainer_registration_creates_active_trainer_session(monkeypatch):
     db = MagicMock()
-    db.__getitem__.return_value = AsyncMock()
+    users, sessions = AsyncMock(), AsyncMock()
+    db.__getitem__.side_effect = lambda collection: {'auth_users': users, 'auth_sessions': sessions}[collection]
     monkeypatch.setattr(accounts, 'rate_limit', AsyncMock())
+    monkeypatch.setattr(accounts, '_send_trainer_email', AsyncMock())
     payload = accounts.Registration(email='User@example.com', name='User',
                                     password='long-test-password', role='trainer')
-    result = asyncio.run(accounts.register(payload, request(), db))
-    stored = db['auth_users'].insert_one.call_args.args[0]
+    response = Response()
+    result = asyncio.run(accounts.register(payload, request(), db, response=response))
+    stored = users.insert_one.call_args.args[0]
     assert stored['status'] == 'active'
-    assert stored['role'] == 'recruiter'
+    assert stored['role'] == 'trainer'
     assert stored['requested_role'] == 'trainer'
     assert security.verify_password(payload.password, stored['password_hash'])
     assert 'password' not in stored
-    assert 'csrf_token' not in result
-    assert 'ready to use' in result['message']
+    assert result['user']['role'] == 'trainer'
+    assert result['csrf_token']
+    assert 'Complete your trainer profile' in result['message']
+    assert response.headers.get('set-cookie')
 
 
 def test_pending_account_is_activated_on_valid_password_login(monkeypatch):

@@ -73,7 +73,8 @@ async def issue_session(db, request, response, user):
         await db['auth_sessions'].delete_one({'_id': digest(old)})
     token, csrf = secrets.token_urlsafe(48), secrets.token_urlsafe(32)
     settings = get_settings()
-    seconds = max(1, min(settings.AUTH_SESSION_HOURS, 168)) * 3600
+    session_hours = getattr(settings, 'AUTH_SESSION_HOURS', 12)
+    seconds = max(1, min(session_hours, 168)) * 3600
     await db['auth_sessions'].insert_one({
         '_id': digest(token), 'user_id': user['user_id'], 'csrf': csrf,
         'auth_version': user.get('auth_version', 0), 'created_at': datetime.utcnow(),

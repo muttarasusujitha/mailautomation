@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     INTELLIGENCE_SERVICE_URL: str = "http://intelligence-service:8005"
     INTERNAL_SERVICE_TOKEN: str = ""
     SECRET_KEY: str = "change-me-in-production"
+    RAZORPAY_KEY_ID: str = ""
+    RAZORPAY_KEY_SECRET: str = ""
+    RAZORPAY_WEBHOOK_SECRET: str = ""
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000,https://localhost:8080"
 

@@ -961,6 +961,8 @@ export default function Requirements() {
                     {r.client_email ? `Client: ${r.client_email}` : 'Client email missing'}
                   </p>
                   <p className="text-xs text-slate-400">{r.requirement_id} • {r.min_experience_years}+ yrs exp • Top {r.top_n}</p>
+                  {r.client_portal_source && <p className="mt-1 text-xs font-semibold text-blue-700">Client portal · Premium {r.premium_priority_paid ? 'paid' : r.premium_choice === 'skipped' ? 'skipped' : 'not selected'}</p>}
+                  {r.client_selected_trainer_name && <p className="mt-1 text-xs font-semibold text-emerald-700">Client first choice: {r.client_selected_trainer_name} · awaiting staff confirmation</p>}
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="badge-blue">{r.total_matched || 0} matched</span>

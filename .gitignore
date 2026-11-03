@@ -85,6 +85,10 @@ Thumbs.db
 /frontend/src/pages/*
 !/frontend/src/pages/PurchaseOrders.jsx
 !/frontend/src/pages/FinanceApprovals.jsx
+!/frontend/src/pages/TrainerPortal.jsx
+!/frontend/src/pages/TrainerApplications.jsx
+!/frontend/src/pages/ClientPortal.jsx
+!/frontend/src/pages/PartnerOpportunities.jsx
 
 # Logs and runtime
 .scannerwork/

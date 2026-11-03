@@ -85,6 +85,16 @@ const ROLES = [
     ],
   },
   {
+    id: 'client', label: 'Client', icon: Building2,
+    tagline: 'Find and choose a trainer',
+    features: [
+      'Describe your training requirement',
+      'Compare matched trainer profiles',
+      'Choose Premium priority or skip',
+      'Track your trainer request',
+    ],
+  },
+  {
     id: 'employee', label: 'Employee', icon: Building2,
     tagline: "Track your team's training",
     features: [
@@ -142,9 +152,10 @@ export default function Login({ onLogin }) {
 
   const finalizeLogin = async data => {
     acceptSession(data)
-    if (onLogin) await onLogin()
+    const account = onLogin ? await onLogin() : data.user
     toast.success(`Signed in as ${data.user.email}`)
-    navigate('/dashboard')
+    const role = (account || data.user)?.role
+    navigate(role === 'trainer' ? '/trainer-portal' : role === 'client' ? '/client-portal' : '/dashboard')
   }
 
   const handleGoogleCredentialResponse = async response => {
@@ -254,9 +265,13 @@ export default function Login({ onLogin }) {
     try {
       const { data } = await api.post(mode === 'signup' ? '/auth/register' : '/auth/login', {
         email: form.email.trim(), password: form.password,
-        ...(mode === 'signup' ? { name: form.name, role } : {}),
+        ...(mode === 'signup' ? { name: form.name, role, domain: form.domain, company: form.company, phone: form.phone } : {}),
       })
       if (mode === 'signup') {
+        if (data.user && data.csrf_token) {
+          await finalizeLogin(data)
+          return
+        }
         toast.success(data.message, { duration: 8000 })
         setMode('login')
         setStep(1)
@@ -297,6 +312,8 @@ export default function Login({ onLogin }) {
               <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
                 {role === 'recruiter' && <>Find the right trainer,<br /><span className="text-blue-200">close faster.</span></>}
                 {role === 'trainer'   && <>Get matched to<br /><span className="text-blue-200">opportunities.</span></>}
+                  {role === 'client'    && <>Find a trainer,<br /><span className="text-blue-200">on your terms.</span></>}
+                {role === 'client'    && <>Find a trainer,<br /><span className="text-blue-200">on your terms.</span></>}
                 {role === 'employee'  && <>Track your team's<br /><span className="text-blue-200">training journey.</span></>}
               </h1>
               <p className="text-white/70 text-base mt-4 leading-relaxed max-w-xs">
@@ -397,7 +414,7 @@ export default function Login({ onLogin }) {
             </div>
 
             {/* Social login */}
-            <div className="grid grid-cols-1 gap-2">
+            {mode === 'login' && <div className="grid grid-cols-1 gap-2">
               <button
                 type="button"
                 onClick={handleGoogleButtonClick}
@@ -430,7 +447,7 @@ export default function Login({ onLogin }) {
                   <p className="mt-1 text-xs text-amber-600">Click the button to continue with your Google account or use the email/password form.</p>
                 </div>
               )}
-            </div>
+            </div>}
 
             <div className="divider-label">or email</div>
 
@@ -476,6 +493,7 @@ export default function Login({ onLogin }) {
                   <Field icon={User} placeholder="Full name" value={form.name} onChange={set('name')} />
                   <Field icon={Mail} type="email" placeholder="Email address" value={form.email} onChange={set('email')} />
                   {role === 'recruiter' && <Field icon={Building2} placeholder="Company name" value={form.company} onChange={set('company')} required={false} />}
+                  {role === 'client'    && <Field icon={Building2} placeholder="Company / organization" value={form.company} onChange={set('company')} />}
                   {role === 'trainer'   && <Field icon={GraduationCap} placeholder="Domain (e.g. Python, AWS)" value={form.domain} onChange={set('domain')} required={false} />}
                   {role === 'employee'  && <Field icon={Building2} placeholder="Company / Organization" value={form.company} onChange={set('company')} required={false} />}
                 </>
@@ -483,7 +501,7 @@ export default function Login({ onLogin }) {
 
               {mode === 'signup' && step === 2 && (
                 <>
-                  <Field icon={Phone} type="tel" placeholder="Phone number" value={form.phone} onChange={set('phone')} required={false} />
+                  <Field icon={Phone} type="tel" placeholder="Phone number" value={form.phone} onChange={set('phone')} required={role === 'client'} />
                   {role === 'employee' && <Field icon={Users} placeholder="Department (e.g. Engineering)" value={form.department} onChange={set('department')} required={false} />}
                   <Field icon={Lock} type={showPass ? 'text' : 'password'} placeholder="Create password"
                     value={form.password} onChange={set('password')}
