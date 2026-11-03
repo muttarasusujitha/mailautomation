@@ -153,7 +153,7 @@ def test_additional_live_meters_are_visible_and_included_in_workbook_total():
 ])
 def test_configured_clahan_markup_reaches_final_quote(settings, expected):
     book = openpyxl.load_workbook(io.BytesIO(sample_estimate(**settings)))
-    assert book['Client Estimate']['B12'].value == "=SUM(B8:B11)*(1+'Internal Calculation'!$B$1)"
+    assert book['Client Estimate']['B12'].value == "=SUM(B8:B10)*(1+'Internal Calculation'!$B$1)+B11"
     assert book['Internal Calculation']['B1'].value == pytest.approx(expected)
     assert book['Internal Calculation'].sheet_state == 'veryHidden'
 
