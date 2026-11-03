@@ -48,23 +48,32 @@ def shortlist_proposal_offer(requirement, trainer=None):
     """Clahan-selected trainer offer for proposals entered through Shortlist.
 
     Proposal markup pricing is separate from confirmed-batch 70/30 shares.
-    The trainer rate is constrained to INR 15,000-16,000/day, and the client
-    rate is exactly 30% above that Clahan-set amount.
+    Clahan's explicit rate/tier wins; otherwise verified experience selects
+    the base (0-4 years), advanced (5-9 years), or specialist (10+ years)
+    rate. The client rate is exactly 30% above the trainer amount.
     """
     trainer = trainer or {}
     rate = positive_number(trainer.get("clahan_offer_per_day")) or positive_number(requirement.get("clahan_offer_per_day"))
     tier = str(trainer.get("clahan_skill_tier") or requirement.get("clahan_skill_tier") or "standard").lower()
     if rate is None:
+        if not (trainer.get("clahan_skill_tier") or requirement.get("clahan_skill_tier")):
+            from shared.trainer_experience import profile_experience_years
+            experience = profile_experience_years(trainer) if trainer else None
+            if experience is None:
+                experience = profile_experience_years(requirement)
+            tier = "specialist" if experience is not None and experience >= 10 else (
+                "advanced" if experience is not None and experience >= 5 else "standard"
+            )
         if tier not in {"standard", "advanced", "specialist"}:
             raise ValueError("Clahan skill tier must be standard, advanced, or specialist")
-        rate = {"standard": 15000, "advanced": 15500, "specialist": 16000}[tier]
-    if not 15000 <= rate <= 16000:
-        raise ValueError("Shortlist proposal trainer offer must be between INR 15,000 and INR 16,000 per day")
+        rate = {"standard": 12000, "advanced": 14000, "specialist": 16000}[tier]
+    if not 12000 <= rate <= 16000:
+        raise ValueError("Shortlist proposal trainer offer must be between INR 12,000 and INR 16,000 per day")
     days = commercial_days(requirement)
     trainer_amount = rate * days if days else rate
     total = bool(days)
     return {"trainer_amount": trainer_amount,
-            "client_amount": trainer_amount * 1.30,
+            "client_amount": round(trainer_amount * 1.30, 2),
             "trainer_daily_rate": rate,
             "client_daily_rate": rate * 1.30,
             "days": days,
