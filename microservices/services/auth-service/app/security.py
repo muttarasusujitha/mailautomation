@@ -95,6 +95,8 @@ async def authenticate(db, request, *, method=None):
     user = await db['auth_users'].find_one({'user_id': session['user_id'], 'status': 'active'})
     if not user or user.get('auth_version', 0) != session.get('auth_version', 0):
         raise HTTPException(401, 'Session revoked. Sign in again.')
+    if user.get('role') not in {'admin', 'trainer', 'client'}:
+        raise HTTPException(403, 'This account role is no longer supported. Contact the administrator.')
     if (method or request.method).upper() not in {'GET', 'HEAD', 'OPTIONS'}:
         require_origin(request)
         if not hmac.compare_digest(request.headers.get('x-csrf-token', ''), session['csrf']):

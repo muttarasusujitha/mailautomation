@@ -6,6 +6,26 @@ def complete_offline_programme(toc, request):
     """Add concrete proposed training activities; never assert they were approved."""
     from app.toc_generation_agent import _business_dates, _training_start_date
     days = toc.get("days") or []
+    context = getattr(request, "client_context", None) or {}
+    industry = str(context.get("industry") or "").strip()
+    business_context = str(context.get("business_context") or "").strip()
+    goals = str(context.get("goals") or "").strip()
+    application_context = "; ".join(value[:240] for value in (industry, business_context, goals) if value)
+    if application_context:
+        toc["client_application_context"] = {
+            "industry": industry,
+            "business_context": business_context,
+            "goals": goals,
+            "basis": "Client-provided requirement details; examples use synthetic data and require confirmation before using client systems.",
+        }
+    else:
+        quality = toc.setdefault("quality", {})
+        warnings = quality.setdefault("review_warnings", [])
+        warning = "No client industry or business-use context was provided; offline examples remain domain-specific but generic."
+        if warning not in warnings:
+            warnings.append(warning)
+        if quality.get("status") != "requires_regeneration":
+            quality["status"] = "requires_review"
     dates = _business_dates(_training_start_date(request.training_dates or ""), len(days))
     derived = False
     for index, day in enumerate(days):
@@ -41,6 +61,15 @@ def complete_offline_programme(toc, request):
                 module["assessment"] = ("\n".join(s["evidence"] for s in scenarios if s.get("evidence"))
                     or f"Review the submitted {title} artefact against: {scope}. Require a reproducible demonstration, one failure-case check and an explanation of the result.")
                 suggested.append("assessment")
+            if application_context:
+                proposed_application = (
+                    f"Proposed client application for {title}: use a synthetic example grounded in the client-provided "
+                    f"context ({application_context}). Confirm the actual systems, data, and workflow with the client "
+                    "before delivery."
+                )
+                module["scenario"] = "\n\n".join(part for part in (module.get("scenario", ""), proposed_application) if part)
+                module["lab"] = "\n\n".join(part for part in (module.get("lab", ""), proposed_application) if part)
+                module["client_application"] = proposed_application
             if not module.get("scenario") and not scenarios:
                 module["scenario"] = f"A team must demonstrate {title} on a representative sample before applying it to its own environment."
                 suggested.append("scenario")

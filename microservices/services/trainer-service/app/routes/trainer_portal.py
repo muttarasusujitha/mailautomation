@@ -2,15 +2,19 @@
 import json
 import re
 import secrets
+import logging
 from datetime import datetime
 from typing import Any
 
+import httpx
 from fastapi import APIRouter, Body, Depends, File, Form, Header, HTTPException, Query, UploadFile
 from fastapi.responses import Response
 from shared.database.service import get_db
 from app.routes.trainers import _UploadPart, _post_to_document_service
+from app.config import get_settings
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 MAX_RESUME_BYTES = 10 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'.pdf', '.doc', '.docx'}
 
@@ -22,6 +26,22 @@ async def _account(user_id: str, db):
     if not user:
         raise HTTPException(401, 'Account is unavailable')
     return user
+
+
+async def _notify_trainer(profile, subject, body):
+    settings = get_settings()
+    try:
+        async with httpx.AsyncClient(timeout=12) as client:
+            response = await client.post(settings.EMAIL_SERVICE_URL.rstrip('/') + '/api/v1/email/send', json={
+                'to': profile.get('email'), 'subject': subject, 'body': body,
+                'mail_type': 'trainer_application_update',
+                'idempotency_key': f"trainer-application:{profile.get('owner_user_id')}:{profile.get('status')}:{int(datetime.utcnow().timestamp()) // 60}",
+                'ai_generate': False,
+            })
+        if response.status_code >= 400 or not response.json().get('success'):
+            logger.warning('Trainer application update email was not accepted')
+    except Exception:
+        logger.warning('Trainer application update email could not be delivered')
 
 
 def _json_field(value: str, field: str, fallback: Any):
@@ -56,7 +76,9 @@ async def save_my_profile(
     profile_name: str = Form(...), experience_years: float = Form(...),
     linkedin_url: str = Form(default=''), domains_json: str = Form(...),
     skills_json: str = Form(...), certifications_json: str = Form(default='[]'),
-    summary: str = Form(default=''), file: UploadFile | None = File(default=None),
+    summary: str = Form(default=''), availability: str = Form(default=''),
+    timezone: str = Form(default=''), preferred_delivery_modes_json: str = Form(default='[]'),
+    expected_day_rate: str = Form(default=''), file: UploadFile | None = File(default=None),
     x_authenticated_user_id: str = Header(default=''), db=Depends(get_db),
 ):
     user = await _account(x_authenticated_user_id, db)
@@ -89,6 +111,19 @@ async def save_my_profile(
     certifications = _clean_list(raw_certs, 'Certifications')
     if any(len(item) > 120 for item in certifications):
         raise HTTPException(400, 'Certification names must be 120 characters or fewer')
+    delivery_modes = _clean_list(_json_field(preferred_delivery_modes_json, 'delivery mode', []), 'Delivery modes')
+    if len(delivery_modes) > 10 or any(len(item) > 80 for item in delivery_modes):
+        raise HTTPException(400, 'Use up to 10 delivery modes, each 80 characters or fewer')
+    if len(availability.strip()) > 500 or len(timezone.strip()) > 80:
+        raise HTTPException(400, 'Availability or timezone is too long')
+    day_rate = None
+    if expected_day_rate.strip():
+        try:
+            day_rate = float(expected_day_rate)
+        except ValueError:
+            raise HTTPException(400, 'Expected day rate must be a number')
+        if day_rate < 0 or day_rate > 10000000:
+            raise HTTPException(400, 'Expected day rate must be between 0 and 10,000,000')
 
     existing = await db['trainer_profiles'].find_one({'owner_user_id': user['user_id']})
     upload_id = existing.get('resume_upload_id') if existing else None
@@ -118,12 +153,17 @@ async def save_my_profile(
         'experience_years': experience_years, 'linkedin_url': linkedin_url,
         'domains': domains, 'skills': skills, 'certifications': certifications,
         'summary': summary.strip()[:2000], 'resume_upload_id': upload_id,
+        'availability': availability.strip(), 'timezone': timezone.strip(),
+        'preferred_delivery_modes': delivery_modes, 'expected_day_rate': day_rate,
         'resume_filename': resume_filename, 'source_category': 'trainer_registration',
+        'trainer_membership_status': user.get('trainer_membership_status') or 'free',
+        'trainer_priority': user.get('trainer_membership_status') == 'active',
         'status': 'pending_review', 'updated_at': now,
     }
     if not existing:
         doc['created_at'] = now
-    await db['trainer_profiles'].update_one({'owner_user_id': user['user_id']}, {'$set': doc}, upsert=True)
+    await db['trainer_profiles'].update_one({'owner_user_id': user['user_id']},
+        {'$set': doc, '$unset': {'review_note': ''}}, upsert=True)
     return {'success': True, 'profile': {**doc, 'created_at': (existing or {}).get('created_at', now)}}
 
 
@@ -133,7 +173,7 @@ async def list_trainer_applications(
     x_authenticated_user_id: str = Header(default=''), db=Depends(get_db),
 ):
     user = await _account(x_authenticated_user_id, db)
-    if user.get('role') not in {'admin', 'recruiter'}:
+    if user.get('role') != 'admin':
         raise HTTPException(403, 'Staff access required')
     query = {}
     if domain.strip():
@@ -151,7 +191,7 @@ async def list_trainer_applications(
 @router.get('/portal/applications/{profile_id}/resume')
 async def get_trainer_resume(profile_id: str, x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
     user = await _account(x_authenticated_user_id, db)
-    if user.get('role') not in {'admin', 'recruiter'}:
+    if user.get('role') != 'admin':
         raise HTTPException(403, 'Staff access required')
     profile = await db['trainer_profiles'].find_one({'owner_user_id': profile_id}, {'resume_upload_id': 1})
     if not profile or not profile.get('resume_upload_id'):
@@ -169,7 +209,7 @@ async def get_trainer_resume(profile_id: str, x_authenticated_user_id: str = Hea
 @router.post('/portal/applications/{profile_id}/approve')
 async def approve_trainer_application(profile_id: str, x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
     reviewer = await _account(x_authenticated_user_id, db)
-    if reviewer.get('role') not in {'admin', 'recruiter'}:
+    if reviewer.get('role') != 'admin':
         raise HTTPException(403, 'Staff access required')
     profile = await db['trainer_profiles'].find_one({'owner_user_id': profile_id})
     if not profile:
@@ -197,8 +237,13 @@ async def approve_trainer_application(profile_id: str, x_authenticated_user_id: 
         'linkedin': profile.get('linkedin_url') or extracted.get('linkedin') or '',
         'skills': skills, 'technology_category': domains[0] if domains else 'Multi-Skillset',
         'secondary_categories': domains[1:], 'certifications': profile.get('certifications') or [],
+        'availability': profile.get('availability') or '', 'timezone': profile.get('timezone') or '',
+        'preferred_delivery_modes': profile.get('preferred_delivery_modes') or [],
+        'expected_day_rate': profile.get('expected_day_rate'),
         'bio': profile.get('summary') or extracted.get('summary') or '',
         'resume': str(upload.get('extracted_text') or '')[:50000],
+        'trainer_priority': profile.get('trainer_priority') is True,
+        'trainer_membership_status': profile.get('trainer_membership_status') or 'free',
         'source': 'trainer_registration', 'category': 'trainer_registration',
         'needs_review': False, 'profile_reviewed_by': reviewer.get('user_id'),
         'profile_reviewed_at': datetime.utcnow(), 'status': (existing or {}).get('status') or 'new',
@@ -212,11 +257,45 @@ async def approve_trainer_application(profile_id: str, x_authenticated_user_id: 
         'status': 'approved', 'trainer_id': trainer_id, 'reviewed_by': reviewer.get('user_id'),
         'reviewed_at': datetime.utcnow(), 'updated_at': datetime.utcnow(),
     }})
+    await _notify_trainer(profile, 'Your TrainerSync application is approved',
+                          f"Hi {profile.get('profile_name') or 'Trainer'},\n\nYour trainer profile has been approved and added to matching.\n\nTrainerSync")
     return {'success': True, 'status': 'approved', 'trainer_id': trainer_id}
 
 
+@router.patch('/portal/applications/{profile_id}/status')
+async def update_trainer_application_status(profile_id: str, payload: dict = Body(...),
+                                            x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
+    reviewer = await _account(x_authenticated_user_id, db)
+    if reviewer.get('role') != 'admin':
+        raise HTTPException(403, 'Staff access required')
+    status = str(payload.get('status') or '').strip().lower()
+    note = str(payload.get('note') or '').strip()[:1000]
+    if status not in {'needs_information', 'rejected'}:
+        raise HTTPException(400, 'Choose needs_information or rejected')
+    if status == 'needs_information' and not note:
+        raise HTTPException(400, 'Add a note describing the information needed')
+    profile = await db['trainer_profiles'].find_one({'owner_user_id': profile_id})
+    if not profile:
+        raise HTTPException(404, 'Trainer application not found')
+    if profile.get('status') == 'approved':
+        raise HTTPException(409, 'Approved trainer applications cannot be changed here')
+    now = datetime.utcnow()
+    await db['trainer_profiles'].update_one({'owner_user_id': profile_id}, {'$set': {
+        'status': status, 'review_note': note, 'reviewed_by': reviewer.get('user_id'),
+        'reviewed_at': now, 'updated_at': now,
+    }})
+    updated = {**profile, 'status': status, 'review_note': note}
+    label = 'More information is needed' if status == 'needs_information' else 'Your application was not approved'
+    body = f"Hi {profile.get('profile_name') or 'Trainer'},\n\n{label}.\n"
+    if note:
+        body += f"\nTeam note: {note}\n"
+    body += '\nSign in to your TrainerSync portal to see the update.\n\nTrainerSync'
+    await _notify_trainer(updated, 'Update on your TrainerSync application', body)
+    return {'success': True, 'status': status, 'review_note': note, 'updated_at': now.isoformat()}
+
+
 def _staff_account(user):
-    if user.get('role') not in {'admin', 'recruiter'}:
+    if user.get('role') != 'admin':
         raise HTTPException(403, 'Staff access required')
 
 
@@ -242,6 +321,8 @@ async def list_my_opportunities(x_authenticated_user_id: str = Header(default=''
     user = await _account(x_authenticated_user_id, db)
     if user.get('role') != 'trainer':
         raise HTTPException(403, 'Trainer account required')
+    if user.get('trainer_membership_status') != 'active':
+        raise HTTPException(403, 'A one-time Trainer Priority membership is required to view opportunities.')
     profile = await db['trainer_profiles'].find_one({'owner_user_id': user['user_id']}) or {}
     profile_domains = profile.get('domains') or ([user.get('registration_domain')] if user.get('registration_domain') else [])
     domains = [str(value).casefold() for value in profile_domains if value]
@@ -272,6 +353,8 @@ async def express_opportunity_interest(opportunity_id: str, x_authenticated_user
     user = await _account(x_authenticated_user_id, db)
     if user.get('role') != 'trainer':
         raise HTTPException(403, 'Trainer account required')
+    if user.get('trainer_membership_status') != 'active':
+        raise HTTPException(403, 'A one-time Trainer Priority membership is required to express interest.')
     opportunity = await db['partner_opportunities'].find_one(
         {'opportunity_id': opportunity_id, 'status': 'active'}, {'_id': 0, 'opportunity_id': 1})
     if not opportunity:

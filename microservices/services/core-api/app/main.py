@@ -18,6 +18,7 @@ from app.routes import (
     database,
     agent_orchestrator,
     client_portal,
+    trainer_membership,
 )
 
 settings = get_settings()
@@ -43,6 +44,8 @@ async def _ensure_indexes(db) -> None:
         ("client_subscriptions", [("razorpay_order_id", 1)], {"unique": True}),
         ("client_subscriptions", [("client_user_id", 1), ("created_at", -1)], {}),
         ("client_portal_webhook_events", [("event_id", 1)], {"unique": True}),
+        ("trainer_memberships", [("razorpay_order_id", 1)], {"unique": True}),
+        ("trainer_memberships", [("trainer_user_id", 1), ("created_at", -1)], {}),
         ("shortlists", [("requirement_id", 1)], {}),
         ("shortlists", [("updated_at", -1)], {}),
         ("email_logs", [("requirement_id", 1), ("created_at", -1)], {}),
@@ -89,6 +92,7 @@ app.add_middleware(
 app.include_router(customers.router,       prefix="/api/v1/customers",       tags=["customers"])
 app.include_router(requirements.router,    prefix="/api/v1/requirements",    tags=["requirements"])
 app.include_router(client_portal.router,   prefix="/api/v1/client-portal",   tags=["client-portal"])
+app.include_router(trainer_membership.router, prefix="/api/v1/trainer-membership", tags=["trainer-membership"])
 app.include_router(client_portal.webhook_router, prefix="/api/v1/webhooks", tags=["payment-webhooks"])
 app.include_router(journeys.router,        prefix="/api/v1/journeys",        tags=["journeys"])
 app.include_router(automations.router,     prefix="/api/v1/automations",     tags=["automations"])

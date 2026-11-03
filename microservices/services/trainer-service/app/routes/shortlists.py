@@ -1714,7 +1714,7 @@ def _quality(score: float) -> str:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    # A pending profile review must remain visible to the recruiter; it is
+    # A pending profile review must remain visible to the administrator; it is
     # not evidence that the trainer is unsuitable for a new requirement.
     # Keep the flag on the matched profile so the shortlist can show it.
     profile_review_required = bool(trainer.get("profile_review_required", False))
@@ -2745,6 +2745,9 @@ async def _sync_shortlist_with_trainers(
         ]
     scored.sort(
         key=lambda trainer: (
+            _safe_float(trainer.get("match_score"), 0)
+            + (5.0 if trainer.get("trainer_priority") is True else 0.0),
+            1 if trainer.get("trainer_priority") is True else 0,
             _safe_float(trainer.get("match_score"), 0),
             _safe_float(trainer.get("experience_years"), 0),
             1 if trainer.get("email") else 0,

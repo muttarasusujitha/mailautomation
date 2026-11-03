@@ -5660,6 +5660,48 @@ async def _client_pipeline_email_body(
     try:
         from app.routes.inbox_actions import _ai_draft_reply
 
+        ai_context = {
+            **context,
+            "workflow": workflow,
+            "requirement_id": requirement.get("requirement_id"),
+            "technology": requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain"),
+        }
+        if workflow.startswith("client_"):
+            ai_context["client_personalization"] = {
+                "company": _clean(requirement.get("client_company") or requirement.get("company_name") or requirement.get("client_name")),
+                "industry": _clean(requirement.get("client_industry") or requirement.get("client_domain") or requirement.get("industry")),
+                "business_context": _clean(requirement.get("client_business_context") or requirement.get("company_context") or requirement.get("business_context"))[:2000],
+                "stated_goals": _clean(requirement.get("client_goals") or requirement.get("training_outcomes"))[:1200],
+                "scope_evidence": _clean(requirement.get("client_requirement_text") or requirement.get("requirement_source_text"))[:3000],
+                "rule": "Use only these client-stated facts to connect the training domain to their work. Do not infer company systems, pain points, or strategy from its name or email domain.",
+            }
+            client_email = _clean(requirement.get("client_email")).lower()
+            requirement_id = _clean(requirement.get("requirement_id"))
+            if client_email and requirement_id:
+                address = {"$regex": "^" + re.escape(client_email) + "$", "$options": "i"}
+                history_query = {
+                    "requirement_id": requirement_id,
+                    "$or": [
+                        {"to_email": address}, {"recipient": address},
+                        {"from_email": address}, {"sender_email": address},
+                        {"client_email": address},
+                    ],
+                }
+                cursor = db["email_logs"].find(history_query, {
+                    "_id": 0, "direction": 1, "subject": 1, "body": 1,
+                    "body_snippet": 1, "sent_reply_body": 1, "created_at": 1, "sent_at": 1,
+                }).sort("created_at", -1).limit(6)
+                history = await cursor.to_list(length=6)
+                ai_context["verified_conversation_history"] = [
+                    {
+                        "direction": "Client message" if item.get("direction") == "inbound" else "Clahan message",
+                        "subject": _clean(item.get("subject"))[:180],
+                        "body": _clean(item.get("body") or item.get("sent_reply_body") or item.get("body_snippet"))[:1000],
+                    }
+                    for item in reversed(history)
+                    if _clean(item.get("body") or item.get("sent_reply_body") or item.get("body_snippet"))
+                ]
+
         generated = await _ai_draft_reply(
             subject=subject,
             body=reference_body,
@@ -5670,12 +5712,7 @@ async def _client_pipeline_email_body(
                 "next action. Do not invent trainer availability, commercial values, documents, decisions, "
                 "or completion status. Do not add a second email or the other person's signature."
             ),
-            workflow_context={
-                **context,
-                "workflow": workflow,
-                "requirement_id": requirement.get("requirement_id"),
-                "technology": requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain"),
-            },
+            workflow_context=ai_context,
             reference_reply={"body": reference_body},
             require_openai=True,
         )

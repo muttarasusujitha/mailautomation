@@ -15,6 +15,7 @@ import { isClientHandoffDelivered, pipelineStepComplete } from '../utils/handoff
 import { useLiveShortlist } from '../utils/useLiveShortlist'
 import { formatRequirementSchedule } from '../utils/requirementDates'
 import ClientHandoffReview from '../components/ClientHandoffReview'
+import ClientRequestStage from '../components/ClientRequestStage'
 import { linkedinProfileUrl, trainerOwnedDetails } from '../utils/trainerIdentity'
 
 // Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
@@ -526,7 +527,7 @@ function durationDaysFromRequirement(req = {}) {
   return match ? Number(match[1]) : 0
 }
 
-function trainerShareForDays(days) {
+function trainerShareForDays(_days) {
   return DEFAULT_TRAINER_SHARE
 }
 
@@ -4228,6 +4229,8 @@ export default function Shortlist1() {
               </button>
             </div>
           </div>
+
+          <ClientRequestStage requirement={selectedReq} />
 
           <div className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-sm sm:grid-cols-3">
             <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">

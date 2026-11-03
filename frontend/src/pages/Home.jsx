@@ -1612,8 +1612,10 @@ function ConversationThread() {
 }
 
 // ─── MAIN HOME ────────────────────────────────────────────────
-export default function Home() {
+export default function Home({ user, onLogout }) {
   const navigate = useNavigate()
+  const portalPath = user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'
+  const portalLabel = user?.role === 'trainer' ? 'My trainer portal' : user?.role === 'client' ? 'My client portal' : 'Open Clahan'
   const [navScrolled, setNavScrolled] = useState(false)
   const [featurePaused, setFeaturePaused] = useState(false)
   const featureScrollRef = useRef(null)
@@ -1677,7 +1679,7 @@ export default function Home() {
         padding: '0 28px',
       }}>
         {/* Logo */}
-        <BrandMark size="sm" onClick={() => navigate('/dashboard')} />
+        <BrandMark size="sm" onClick={() => navigate('/home')} />
 
         {/* Desktop nav */}
         <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -1687,12 +1689,15 @@ export default function Home() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '7px 16px', fontSize: 13 }}>
-            Dashboard <ArrowRight size={13} />
+          <button onClick={() => navigate(user ? portalPath : '/login')} className="btn-primary" style={{ padding: '7px 16px', fontSize: 13 }}>
+            {user ? portalLabel : 'Staff sign in'} <ArrowRight size={13} />
           </button>
-          <button onClick={() => navigate('/login')} className="hide-mobile btn-secondary" style={{ padding: '7px 14px', fontSize: 13 }}>
-            Sign in
-          </button>
+          {user && onLogout
+            ? <button onClick={onLogout} className="hide-mobile btn-secondary" style={{ padding: '7px 14px', fontSize: 13 }}>Sign out</button>
+            : <>
+              <button onClick={() => navigate('/trainer-login')} className="hide-mobile btn-secondary" style={{ padding: '7px 14px', fontSize: 13 }}>Trainer sign up</button>
+              <button onClick={() => navigate('/client-login')} className="hide-mobile btn-secondary" style={{ padding: '7px 14px', fontSize: 13 }}>Client sign up</button>
+            </>}
         </div>
       </nav>
 
@@ -1748,8 +1753,8 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="fade-up" style={{ animationDelay: '0.24s', display: 'flex', gap: 9, flexWrap: 'wrap', marginBottom: 20 }}>
-              <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '9px 18px', fontSize: 13.5 }}>
-                <LayoutDashboard size={14} /> Open Dashboard
+              <button onClick={() => navigate(user ? portalPath : '/login')} className="btn-primary" style={{ padding: '9px 18px', fontSize: 13.5 }}>
+                <LayoutDashboard size={14} /> {user ? portalLabel : 'Sign in to TrainerSync'}
               </button>
               <a href="#workflow" className="btn-secondary" style={{ padding: '9px 17px', fontSize: 13.5, textDecoration: 'none' }}>
                 <Play size={13} /> See Workflow
