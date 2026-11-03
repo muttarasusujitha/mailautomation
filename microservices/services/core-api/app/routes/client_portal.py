@@ -161,7 +161,9 @@ async def subscription_status(x_authenticated_user_id: str = Header(default=''),
         'status': user.get('client_subscription_status', 'inactive'),
         'expires_at': expiry.isoformat() if expiry else None,
         'amount': 999, 'currency': SUBSCRIPTION_CURRENCY,
-        'checkout_enabled': bool(get_settings().RAZORPAY_KEY_ID and get_settings().RAZORPAY_KEY_SECRET and get_settings().RAZORPAY_WEBHOOK_SECRET),
+        # Browser checkout is verified with the signed Razorpay callback and a
+        # server-side captured-payment lookup; webhooks are an optional fallback.
+        'checkout_enabled': bool(get_settings().RAZORPAY_KEY_ID and get_settings().RAZORPAY_KEY_SECRET),
         'requests_unlimited': _subscription_is_active(user),
     }
 
@@ -235,7 +237,7 @@ async def list_client_requests(x_authenticated_user_id: str = Header(default='')
 async def create_subscription_order(x_authenticated_user_id: str = Header(default=''), db=Depends(get_db)):
     user = await _client(x_authenticated_user_id, db)
     settings = get_settings()
-    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET or not settings.RAZORPAY_WEBHOOK_SECRET:
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
         raise HTTPException(503, 'Annual plan checkout is not configured yet.')
     if _subscription_is_active(user):
         raise HTTPException(409, 'Your client subscription is already active.')
