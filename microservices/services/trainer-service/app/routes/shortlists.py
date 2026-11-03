@@ -51,13 +51,12 @@ LOCAL_SERVICE_FALLBACKS = {
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
 MIN_TRAINER_DAY_RATE_VISIBLE = 10000
-TRAINER_COMMERCIAL_MIN_VISIBLE = 14000
+TRAINER_COMMERCIAL_MIN_VISIBLE = 12000
 TRAINER_COMMERCIAL_MAX_VISIBLE = 16000
 DEFAULT_TRAINER_SHARE = 0.70
 CLIENT_COMMERCIAL_MARKUP = 0.30
-PROPOSAL_SHORTLIST_COMMERCIAL = "INR 14,000-16,000 per day/session"
-# The client-facing proposal quote is a single normal, rounded amount. Do not
-# expose the trainer range or exact margin arithmetic such as INR 16,900.
+PROPOSAL_SHORTLIST_COMMERCIAL = "INR 12,000-16,000 per day/session, based on verified experience"
+# The client-facing quote uses the trainer rate plus the exact 30% uplift.
 PROPOSAL_CLIENT_QUOTE_RANGE = (18200, 19500, 20800)
 # A client that explicitly asks for lab costing receives the generated
 # workbook during the profile/slot handoff.  The workbook uses the client ToC
@@ -353,19 +352,15 @@ def _is_shortlist_proposal_requirement(requirement: Dict[str, Any]) -> bool:
 
 
 def _shortlist_proposal_offer(requirement: Dict[str, Any]) -> Dict[str, Any]:
-    """Clahan-owned Shortlist offer: fixed by verified trainer skill tier."""
-    tier = _clean(requirement.get("clahan_skill_tier") or "standard").lower()
-    if tier not in {"standard", "advanced", "specialist"}:
-        tier = "standard"
-    rate = {"standard": 14000, "advanced": 15000, "specialist": 16000}[tier]
-    days = _safe_float(requirement.get("duration_days") or requirement.get("commercial_working_days"))
-    trainer_amount = rate * days if days else rate
+    """Experience-based Shortlist offer; explicit Clahan rate/tier takes priority."""
+    from shared.commercial_policy import shortlist_proposal_offer
+    offer = shortlist_proposal_offer(requirement)
     return {
-        "trainer_daily_rate": rate,
-        "trainer_amount": trainer_amount,
-        "client_amount": round(trainer_amount * 1.30 / 1000) * 1000,
-        "days": days or None,
-        "basis": "total engagement" if days else "per training day",
+        "trainer_daily_rate": offer["trainer_daily_rate"],
+        "trainer_amount": offer["trainer_amount"],
+        "client_amount": offer["client_amount"],
+        "days": offer["days"],
+        "basis": offer["basis"],
     }
 
 
@@ -382,7 +377,10 @@ def _trainer_mail1_commercial_section(requirement: Dict[str, Any], trainer=None)
         return [f"- Client commercial: {client_commercial}"] if client_commercial else []
     lines: List[str] = []
     offer_requirement = dict(requirement)
-    for key in ("clahan_offer_per_day", "clahan_skill_tier"):
+    for key in (
+        "clahan_offer_per_day", "clahan_skill_tier", "experience_years",
+        "experience_raw", "resume", "combined_text", "summary",
+    ):
         if (trainer or {}).get(key) is not None:
             offer_requirement[key] = trainer[key]
     trainer_allocation = _trainer_mail1_commercial_text(offer_requirement)
@@ -395,7 +393,7 @@ def _trainer_mail1_commercial_section(requirement: Dict[str, Any], trainer=None)
         # strictly internal.
         lines.append(
             "- Offered trainer commercial: "
-            "INR 15,000-16,000 "
+            "INR 12,000-16,000 "
             "per day/session, inclusive of applicable TDS"
         )
     return lines
@@ -935,7 +933,10 @@ def _proposal_client_commercial_section(requirement: Dict[str, Any], trainer=Non
         return ""
     if _is_shortlist_proposal_requirement(requirement):
         offer_requirement = dict(requirement)
-        offer_requirement.update({key: value for key, value in (trainer or {}).items() if key in {"clahan_skill_tier", "clahan_offer_per_day"}})
+        offer_requirement.update({key: value for key, value in (trainer or {}).items() if key in {
+            "clahan_skill_tier", "clahan_offer_per_day", "experience_years",
+            "experience_raw", "resume", "combined_text", "summary",
+        }})
         offer = _shortlist_proposal_offer(offer_requirement)
     else:
         from shared.commercial_policy import proposal_offer
@@ -993,7 +994,10 @@ def _client_commercial_message(
     if _is_proposal_requirement(requirement):
         if _is_shortlist_proposal_requirement(requirement):
             offer_requirement = dict(requirement)
-            offer_requirement.update({key: value for key, value in trainer.items() if key in {"clahan_skill_tier", "clahan_offer_per_day"}})
+            offer_requirement.update({key: value for key, value in trainer.items() if key in {
+                "clahan_skill_tier", "clahan_offer_per_day", "experience_years",
+                "experience_raw", "resume", "combined_text", "summary",
+            }})
             offer = _shortlist_proposal_offer(offer_requirement)
         else:
             offer = proposal_offer(requirement, trainer)
@@ -2208,6 +2212,27 @@ def _confirmed_training_duration_days(requirement: Dict[str, Any]) -> Optional[f
     except (TypeError, ValueError):
         return None
     return duration if 1 <= duration <= 30 else None
+
+
+def _confirmed_training_dates(requirement: Dict[str, Any]) -> str:
+    """Return actual training dates only; shortlist placeholders are not confirmation."""
+    extracted = requirement.get("extracted") if isinstance(requirement.get("extracted"), dict) else {}
+    for source in (requirement, extracted):
+        for key in ("training_dates", "dates", "date_range", "training_date", "preferred_dates", "date_time_text"):
+            value = _clean(source.get(key))
+            if not value or re.search(r"to be confirmed|\btbc\b|\btbd\b|not confirmed|unknown|flexible", value, re.I):
+                continue
+            confirmed_flag = source.get("training_dates_confirmed", source.get("dates_confirmed"))
+            if confirmed_flag is False:
+                continue
+            return value
+        start = _clean(source.get("timeline_start"))
+        end = _clean(source.get("timeline_end"))
+        if start and end:
+            confirmed_flag = source.get("training_dates_confirmed", source.get("dates_confirmed"))
+            if confirmed_flag is not False and not re.search(r"to be confirmed|\btbc\b|\btbd\b|unknown|flexible", f"{start} {end}", re.I):
+                return f"{start} to {end}"
+    return ""
 
 
 async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
@@ -4440,6 +4465,12 @@ async def send_client_slots(
             "slots_count": slot_count,
         }
 
+    if not _confirmed_training_dates(req):
+        raise HTTPException(
+            422,
+            "Client handoff is waiting for confirmed training dates. The requirement will resume automatically when dates are added.",
+        )
+
     from app.handoff import package_key, package_response, deliver_approved_package
     cached = await db["client_handoff_packages"].find_one({
         "_id": package_key(payload.requirement_id, payload.trainer_id),
@@ -4733,6 +4764,8 @@ async def send_client_slots(
                                 "cloud_region": checked["cloud_region"],
                                 "hours_per_day": lab_hours_per_day,
                                 "participant_count": participant_count,
+                                "clahan_margin_percent": 30,
+                                "client_lab_markup_percent": 30,
                             "include_default_hour_options": False,
                             "lab_day_mapping": lab_mappings.get(checked["cloud_provider"]),
                             "egress_gb": 0,
