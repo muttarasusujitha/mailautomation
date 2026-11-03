@@ -176,6 +176,23 @@ async def _resolve_social_user(db, identity, desired_role):
     return user if user and user.get('status') == 'active' else None
 
 
+async def _social_login_denial(db, identity, desired_role, provider):
+    """Return a useful denial reason after the provider has verified the identity."""
+    email = str(identity.get('email') or '').strip().lower()
+    user = await db['auth_users'].find_one({'email_normalized': email}) if email else None
+    if not user:
+        return f'{provider} sign-in could not be linked to an active account. Contact support if you need help.'
+    if user.get('status') == 'disabled':
+        return 'This account is disabled. Contact support to restore access.'
+    role = user.get('role')
+    if role != desired_role:
+        labels = {'admin': 'Administrator', 'trainer': 'Trainer', 'client': 'Client'}
+        current = labels.get(role, 'a legacy or unsupported role')
+        requested = labels.get(desired_role, 'selected')
+        return f'This email is registered for the {current} portal, so it cannot sign in to the {requested} portal. Contact support to update this account’s access.'
+    return 'This account is not active. Contact support if you need help.'
+
+
 @router.get('/me')
 async def me(request: Request, response: Response, db=Depends(get_db)):
     user, session = await authenticate(db, request)
@@ -333,7 +350,7 @@ async def google_login(payload: GoogleCredential, request: Request, response: Re
         raise HTTPException(401, 'Google credential could not be verified')
     user = await _resolve_social_user(db, info, payload.desired_role)
     if not user:
-        raise HTTPException(403, 'Sign-in is unavailable for this account. Contact support if you need help.')
+        raise HTTPException(403, await _social_login_denial(db, info, payload.desired_role, 'Google'))
     session = await issue_session(db, request, response, user)
     if user.get('role') == 'trainer':
         await _send_trainer_email(user, 'trainer_login', 'Thank you for signing in to TrainerSync',
@@ -393,7 +410,7 @@ async def linkedin_callback(payload: LinkedInCode, request: Request, response: R
         raise HTTPException(401, 'LinkedIn identity could not be verified')
     user = await _resolve_social_user(db, info, state.get('desired_role') or 'admin')
     if not user:
-        raise HTTPException(403, 'Sign-in is unavailable for this account. Contact support if you need help.')
+        raise HTTPException(403, await _social_login_denial(db, info, state.get('desired_role') or 'admin', 'LinkedIn'))
     response.delete_cookie('ts_oauth_state', path='/')
     session = await issue_session(db, request, response, user)
     if user.get('role') == 'trainer':

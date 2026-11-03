@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LogOut, Plus, Trash2, UploadCloud, UserRound, Linkedin, Award, BriefcaseBusiness, MapPin, CalendarDays, Sparkles, ArrowDown, ShieldCheck, ArrowUpRight } from 'lucide-react'
+import { LogOut, Plus, Trash2, UploadCloud, UserRound, Linkedin, Award, BriefcaseBusiness, MapPin, CalendarDays, ArrowDown, ShieldCheck, ArrowUpRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../utils/api'
 import BrandMark from '../components/BrandMark'
@@ -131,26 +131,30 @@ export default function TrainerPortal({ onLogout, user }) {
     finally { setSaving(false) }
   }
 
-  return <main className="min-h-screen bg-[#f4f6fb] text-slate-900" style={{ backgroundImage: 'radial-gradient(ellipse at 8% 0%, rgba(191,219,254,.42), transparent 34%), radial-gradient(ellipse at 94% 28%, rgba(221,214,254,.34), transparent 28%)' }}>
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/70 bg-white/85 px-5 py-4 shadow-sm backdrop-blur-xl sm:px-10">
+  return <main className="min-h-screen bg-[#F7F8FA] text-slate-900">
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#E5E8EE] bg-white/95 px-5 py-4 shadow-sm backdrop-blur-xl sm:px-10">
       <BrandMark size="md" />
       <div className="flex items-center gap-2 sm:gap-4"><nav aria-label="Trainer navigation" className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 text-sm font-semibold"><Link to="/home" className="rounded-lg px-3 py-2 text-slate-600 hover:bg-white hover:text-blue-700">Home</Link><Link to="/trainer-portal" aria-current="page" className="rounded-lg bg-white px-3 py-2 text-blue-700 shadow-sm">My portal</Link></nav><button onClick={onLogout} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"><LogOut size={16} /> <span className="hidden sm:inline">Sign out</span></button></div>
     </header>
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-9">
-      <section className="relative isolate mb-8 overflow-hidden rounded-[28px] bg-[#101a38] px-6 py-8 text-white shadow-[0_28px_80px_-34px_rgba(24,39,82,.65)] sm:px-10 sm:py-10">
-        <div className="pointer-events-none absolute -right-12 -top-32 -z-10 h-80 w-80 rounded-full bg-blue-500/30 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-[-140px] right-[28%] -z-10 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
-        <div className="grid items-end gap-8 lg:grid-cols-[1.3fr_.7fr]">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3 py-1.5 text-xs font-semibold uppercase tracking-[.16em] text-blue-100"><Sparkles size={14} /> Your TrainerSync space</span>
-            <h1 className="mt-5 max-w-2xl text-3xl font-bold leading-tight tracking-[-.035em] text-white sm:text-5xl">Welcome{firstName !== 'Trainer' ? `, ${firstName}` : ''}.<br className="hidden sm:block" /> Your next opportunity starts here.</h1>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-blue-100/80 sm:text-base">Upload your CV and LinkedIn profile for review. Your trainer account stays in its own private workspace.</p>
-            <div className="mt-7 flex flex-wrap items-center gap-3"><a href="#trainer-profile" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#16254c] shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:bg-blue-50">Build your profile <ArrowDown size={16} /></a>{membership?.active && <a href="#trainer-opportunities" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[.07] px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/[.13]">Explore opportunities <ArrowUpRight size={16} /></a>}</div>
+      <section className="mb-8 grid overflow-hidden rounded-[28px] border border-[#E5E8EE] bg-white shadow-[0_22px_60px_-40px_rgba(15,23,42,.35)] lg:grid-cols-[1.05fr_.95fr]">
+        <div className="relative min-h-[330px] overflow-hidden bg-gradient-to-br from-[#F8FBFF] via-[#EAF3FF] to-white sm:min-h-[440px]">
+          <img src="/images/office-girl.png" alt="Professional trainer using a laptop" className="absolute inset-0 h-full w-full object-contain object-center" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/55 via-white/5 to-blue-50/50" />
+          <div className="absolute bottom-5 left-5 right-5 grid gap-2 sm:bottom-7 sm:left-7 sm:right-7">
+            <div className="flex w-[88%] items-center gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur sm:p-3.5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-sm font-bold text-blue-700">{(firstName[0] || 'T').toUpperCase()}</span><span className="min-w-0 flex-1"><span className="block text-xs font-extrabold text-slate-900">Trainer profile</span><span className="mt-0.5 block truncate text-[11px] font-semibold text-slate-600">{form.profile_name || firstName}</span></span><span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-700">{profileProgress}/5</span></div>
+            <div className="ml-auto flex w-[82%] items-center gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-lg backdrop-blur sm:p-3.5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-xs font-bold text-emerald-700">CV</span><span className="min-w-0 flex-1"><span className="block text-xs font-extrabold text-slate-900">Resume and expertise</span><span className="mt-0.5 block truncate text-[11px] font-semibold text-slate-600">{resumeName || (resume ? resume.name : 'Add your CV to complete your profile')}</span></span><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${resumeName || resume ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{resumeName || resume ? 'Ready' : 'Add CV'}</span></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {membership?.active && <div className="rounded-2xl border border-white/10 bg-white/[.08] p-4 backdrop-blur-sm"><p className="text-xs font-medium uppercase tracking-wider text-blue-100/65">Matching openings</p><p className="mt-2 text-3xl font-bold text-white">{opportunitiesLoading ? '—' : opportunities.length}</p><p className="mt-1 text-xs text-blue-100/65">in your areas of expertise</p></div>}
-            <div className="rounded-2xl border border-white/10 bg-white/[.08] p-4 backdrop-blur-sm"><p className="text-xs font-medium uppercase tracking-wider text-blue-100/65">Profile status</p><p className="mt-2 text-lg font-bold text-white">{status === 'approved' ? 'Approved' : status === 'needs_information' ? 'Needs information' : status === 'rejected' ? 'Not approved' : status === 'pending_review' ? 'In review' : 'Getting started'}</p><p className="mt-1 text-xs text-blue-100/65">{status === 'approved' ? 'You are in the trainer network' : status === 'needs_information' ? 'See the team note below and update your profile' : status === 'rejected' ? 'See the application update below' : 'Complete your profile to be considered'}</p></div>
-            <div className="col-span-2 rounded-2xl border border-white/10 bg-white/[.08] p-4 backdrop-blur-sm"><div className="flex items-center justify-between gap-3"><p className="text-xs font-medium uppercase tracking-wider text-blue-100/65">Profile checklist</p><span className="text-xs font-semibold text-white">{profileProgress} of 5 ready</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-blue-400 transition-all duration-500" style={{ width: `${profileProgress * 20}%` }} /></div></div>
+        </div>
+        <div className="flex flex-col justify-center p-6 sm:p-9 lg:p-10">
+          <p className="text-xs font-bold uppercase tracking-[.18em] text-blue-700">Your trainer workspace</p>
+          <h1 className="mt-3 max-w-2xl text-3xl font-bold leading-tight tracking-[-.035em] text-slate-950 sm:text-4xl">Welcome{firstName !== 'Trainer' ? `, ${firstName}` : ''}.<br />Your next opportunity starts here.</h1>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">Share your experience, CV, and LinkedIn profile. TrainerSync reviews your profile and contacts you when a relevant opportunity comes up.</p>
+          <div className="mt-6 flex flex-wrap items-center gap-3"><a href="#trainer-profile" className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800">Complete your profile <ArrowDown size={16} /></a>{membership?.active && <a href="#trainer-opportunities" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Explore opportunities <ArrowUpRight size={16} /></a>}</div>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Profile status</p><p className="mt-1.5 font-bold text-slate-900">{status === 'approved' ? 'Approved' : status === 'needs_information' ? 'Needs information' : status === 'rejected' ? 'Not approved' : status === 'pending_review' ? 'In review' : 'Getting started'}</p></div>
+            <div className="rounded-2xl bg-slate-50 p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Profile checklist</p><span className="text-xs font-bold text-blue-700">{profileProgress}/5</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-blue-700 transition-all" style={{ width: `${profileProgress * 20}%` }} /></div></div>
+            {membership?.active && <div className="rounded-2xl bg-blue-50 p-4 sm:col-span-2"><p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Matching openings</p><p className="mt-1.5 font-bold text-slate-900">{opportunitiesLoading ? 'Loading opportunities...' : `${opportunities.length} opportunities in your areas`}</p></div>}
           </div>
         </div>
       </section>
