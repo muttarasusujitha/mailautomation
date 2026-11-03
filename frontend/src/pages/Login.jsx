@@ -8,7 +8,6 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
-import { randomBetween } from '../utils/random'
 import BrandMark from '../components/BrandMark'
 
 const GoogleLogo = () => (
@@ -21,47 +20,6 @@ const GoogleLogo = () => (
 )
 
 /* ─── Particle canvas ──────────────────────────────────────── */
-function ParticleCanvas() {
-  const ref = useRef(null)
-  useEffect(() => {
-    const canvas = ref.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    let raf
-    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight }
-    resize()
-    window.addEventListener('resize', resize)
-    const dots = Array.from({ length: 40 }, () => ({
-      x: randomBetween(0, canvas.width), y: randomBetween(0, canvas.height),
-      vx: randomBetween(-0.15, 0.15), vy: randomBetween(-0.15, 0.15),
-      r: randomBetween(1, 2.5), pulse: randomBetween(0, Math.PI * 2),
-    }))
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      dots.forEach(d => {
-        d.x += d.vx; d.y += d.vy; d.pulse += 0.01
-        if (d.x < 0 || d.x > canvas.width) d.vx *= -1
-        if (d.y < 0 || d.y > canvas.height) d.vy *= -1
-        const r = d.r + Math.sin(d.pulse) * 0.3
-        ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fill()
-      })
-      dots.forEach((a, i) => dots.slice(i + 1).forEach(b => {
-        const dist = Math.hypot(a.x - b.x, a.y - b.y)
-        if (dist < 100) {
-          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y)
-          ctx.strokeStyle = `rgba(255,255,255,${0.08 * (1 - dist / 100)})`
-          ctx.lineWidth = 0.5; ctx.stroke()
-        }
-      }))
-      raf = requestAnimationFrame(draw)
-    }
-    draw()
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize) }
-  }, [])
-  return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none" />
-}
-
 /* ─── Role definitions ─────────────────────────────────────── */
 const ROLES = [
   {
@@ -239,10 +197,10 @@ export default function Login({ onLogin, initialRole = 'admin', allowSignup = tr
 
   const selectedRole = ROLES.find(r => r.id === role)
   const loginTheme = role === 'admin'
-    ? { panel: 'from-slate-950 via-indigo-950 to-slate-800', accent: 'bg-slate-900 hover:bg-slate-800' }
+    ? { accent: 'bg-slate-900 hover:bg-slate-800' }
     : role === 'client'
-      ? { panel: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'bg-emerald-700 hover:bg-emerald-800' }
-      : { panel: 'from-blue-800 via-blue-600 to-cyan-600', accent: 'bg-blue-700 hover:bg-blue-800' }
+      ? { accent: 'bg-emerald-700 hover:bg-emerald-800' }
+      : { accent: 'bg-blue-700 hover:bg-blue-800' }
   const roleOptions = initialRole ? ROLES.filter(item => item.id === initialRole) : ROLES
   const signupOptions = roleOptions.filter(item => item.id !== 'admin')
 
@@ -280,80 +238,49 @@ export default function Login({ onLogin, initialRole = 'admin', allowSignup = tr
   }
 
   return (
-    <div className="relative min-h-screen flex overflow-hidden bg-white">
-      <nav aria-label="Login navigation" className="absolute inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/90 px-5 backdrop-blur sm:px-8">
+    <div className="relative min-h-screen flex overflow-hidden bg-[#f7f7f5]">
+      <nav aria-label="Login navigation" className="absolute inset-x-0 top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-[#f7f7f5]/90 px-5 backdrop-blur sm:px-8 lg:bg-transparent lg:border-0">
         <a href="/home" className="text-sm font-semibold text-slate-700 hover:text-blue-700">Home</a>
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{selectedRole.label} access</span>
       </nav>
 
-      {/* ── Left panel ─────────────────────────────────── */}
-      <div className={clsx(
-        'hidden lg:flex flex-col w-[46%] relative overflow-hidden transition-all duration-700',
-        `bg-gradient-to-br ${loginTheme.panel}`,
-        mounted ? 'opacity-100' : 'opacity-0'
-      )}>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent" />
-        <ParticleCanvas />
-
-        {/* Decorative circles */}
-        <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5" />
-        <div className="absolute bottom-20 -left-16 h-48 w-48 rounded-full bg-white/5" />
-
-        <div className="relative z-10 flex flex-col h-full p-12 pt-20">
-          <BrandMark size="lg" theme="dark" />
-
-          <div className="flex-1 flex flex-col justify-center space-y-8 mt-12">
-            {/* Role badge */}
-            <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-lg px-3 py-1.5 w-fit">
-              <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
-              <span className="text-white/90 text-sm font-semibold">For {role === 'admin' ? 'administrators' : `${selectedRole.label}s`}</span>
-            </div>
-
-            {/* Headline */}
-            <div>
-              <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
-                {role === 'admin'     && <>Run your trainer<br /><span className="text-blue-200">operations.</span></>}
-                {role === 'trainer'   && <>Get matched to<br /><span className="text-blue-200">opportunities.</span></>}
-                {role === 'client'    && <>Find a trainer,<br /><span className="text-blue-200">on your terms.</span></>}
-              </h1>
-              <p className="text-white/70 text-base mt-4 leading-relaxed max-w-xs">
-                {selectedRole.tagline}
-              </p>
-            </div>
-
-            {/* Feature list */}
-            <ul className="space-y-3">
-              {selectedRole.features.map((f, i) => (
-                <li key={i} className="flex items-start gap-3 text-white/85 text-sm">
-                  <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/20">
-                    <CheckCircle className="h-3 w-3 text-white" />
-                  </div>
-                  {f}
-                </li>
-              ))}
-            </ul>
+      <div className={clsx('hidden lg:flex w-[55%] min-h-screen flex-col bg-[#111114] p-5 pt-[76px] transition-opacity duration-700', mounted ? 'opacity-100' : 'opacity-0')}>
+        <div className="relative flex-1 overflow-hidden rounded-[26px] bg-[#171719]">
+          <img src="/images/office-girl.png" alt="TrainerSync professional using a laptop" className="absolute inset-0 h-full w-full object-cover object-[center_20%] opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/35 to-black/5" />
+          <div className="absolute left-8 top-7 z-20 xl:left-10"><BrandMark size="lg" theme="dark" /></div>
+          <div className="absolute left-8 right-8 top-28 z-20 max-w-lg xl:left-10 xl:top-32">
+            <p className="text-xs font-bold uppercase tracking-[.22em] text-blue-200">TrainerSync / {selectedRole.label}</p>
+            <h1 className="mt-3 text-3xl font-bold leading-[1.08] tracking-tight text-white xl:text-5xl">
+              {role === 'admin' && <>Training talent,<br />better connected.</>}
+              {role === 'trainer' && <>Your experience<br />opens new doors.</>}
+              {role === 'client' && <>Make learning<br />work for your team.</>}
+            </h1>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-white/80 xl:text-base">{selectedRole.tagline}</p>
           </div>
 
-          {/* Stats row */}
-          <div className="flex gap-8 pt-6 border-t border-white/15">
-            {[['500+', 'Trainers'], ['98%', 'Match Rate'], ['3×', 'Faster']].map(([v, l]) => (
-              <div key={l}>
-                <p className="text-2xl font-bold text-white tracking-tight">{v}</p>
-                <p className="text-xs text-white/55 mt-0.5 font-medium">{l}</p>
-              </div>
-            ))}
+          <div className="absolute -bottom-2 left-[8%] z-10 w-[88%] rotate-[-4deg] rounded-t-[20px] border border-slate-300/80 bg-[#fbfbfa] p-3 shadow-[0_30px_80px_rgba(0,0,0,.45)] sm:p-5 xl:left-[9%] xl:w-[82%]">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+              <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#e38c83]"/><span className="h-2 w-2 rounded-full bg-[#e7bd6f]"/><span className="h-2 w-2 rounded-full bg-[#79b88c]"/></div>
+              <div className="hidden h-5 w-1/2 rounded-full bg-slate-100 sm:block" />
+              <span className="rounded-md bg-blue-700 px-2 py-1 text-[9px] font-bold text-white">TrainerSync</span>
+            </div>
+            <div className="grid min-h-[170px] grid-cols-[1.1fr_.9fr] items-center gap-3 pt-3 sm:min-h-[220px] sm:gap-5 sm:pt-5">
+              <div className="pl-1 sm:pl-3"><p className="text-[9px] font-bold uppercase tracking-[.18em] text-blue-700 sm:text-[11px]">{role === 'client' ? 'Training, thoughtfully matched' : 'People. Skills. Opportunity.'}</p><h2 className="mt-2 font-serif text-xl font-semibold leading-tight text-slate-950 sm:text-3xl xl:text-4xl">{role === 'client' ? 'Find the right person to move your team forward.' : 'A smarter space for your next chapter.'}</h2><p className="mt-2 max-w-xs text-[9px] leading-4 text-slate-500 sm:mt-3 sm:text-xs sm:leading-5">{selectedRole.features[0]}</p><div className="mt-3 inline-flex rounded-md bg-[#17213a] px-2.5 py-1.5 text-[9px] font-semibold text-white sm:mt-5 sm:px-3 sm:py-2 sm:text-[11px]">Explore your workspace</div></div>
+              <div className="relative h-full min-h-[150px] overflow-hidden rounded-xl bg-slate-200 sm:min-h-[195px]"><img src="/images/office-girl.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[center_22%]"/><div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 to-transparent"/><div className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-semibold text-slate-700 sm:bottom-3 sm:left-3 sm:text-[10px]">{selectedRole.label} portal</div></div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Right panel — form ──────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 pb-8 pt-20 bg-slate-50">
+      {/* Right panel - form */}
+      <div className="flex-1 flex items-center justify-center px-5 pb-8 pt-20 bg-[#f7f7f5] sm:px-8">
         <div className={clsx(
           'w-full max-w-[440px] transition-all duration-700',
           mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         )}>
           {/* Mobile logo */}
-          <BrandMark className="mb-6 lg:hidden" />
+          <div className="relative mb-5 h-36 overflow-hidden rounded-2xl bg-slate-900 lg:hidden"><img src="/images/office-girl.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[center_20%]"/><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-transparent"/><div className="absolute left-4 top-3"><BrandMark size="sm" theme="dark" /></div><div className="absolute bottom-3 left-4 right-4"><p className="text-[10px] font-bold uppercase tracking-[.17em] text-blue-100">TrainerSync / {selectedRole.label}</p><p className="mt-1 text-lg font-bold leading-tight text-white">{role === 'client' ? 'Find the right trainer for your team.' : role === 'trainer' ? 'Your expertise opens new doors.' : 'Training talent, better connected.'}</p></div></div>
 
           {/* Heading */}
           <div className="mb-5">
@@ -366,7 +293,7 @@ export default function Login({ onLogin, initialRole = 'admin', allowSignup = tr
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-6 space-y-4">
+          <div className="bg-white rounded-[24px] border border-slate-200/80 shadow-[0_24px_70px_-40px_rgba(15,23,42,.45)] p-6 space-y-4 sm:p-8">
 
             {/* Role selector */}
             <div>
