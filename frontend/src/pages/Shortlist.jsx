@@ -3181,11 +3181,12 @@ export default function Shortlist() {
       )}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Users className="w-6 h-6 text-blue-500" /> Shortlist Proposal Pipeline
+          <Users className="w-6 h-6 text-blue-500" /> Shortlist
         </h1>
         <p className="text-sm text-slate-500 mt-0.5">
-          AI wording is controlled from Dashboard. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
+          Review and compare matched trainers, check their profiles and scores, select suitable trainers, and move them toward interview or client approval.
         </p>
+        <p className="mt-2 text-xs font-medium text-slate-500">Trainer Pipeline <span className="px-1 text-slate-300">/</span> Find Trainers <span className="px-1 text-slate-300">/</span> Shortlist <span className="px-1 text-slate-300">/</span> Interviews</p>
       </div>
 
       <div className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-800">
@@ -3371,6 +3372,10 @@ export default function Shortlist() {
             </div>
           ) : (
             <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3 px-1">
+                <p className="text-sm font-semibold text-slate-700">Compare matched trainers <span className="font-normal text-slate-400">(ranked by match score)</span></p>
+                <p className="text-xs text-slate-400">Profiles and rates show when verified</p>
+              </div>
               {trainers.map((trainer, i) => (
                 <TrainerCard
                   key={trainer.trainer_id}

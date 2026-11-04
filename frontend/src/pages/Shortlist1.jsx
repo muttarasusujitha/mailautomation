@@ -4092,9 +4092,9 @@ export default function Shortlist1() {
               <Bot className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Shortlist AI Pipeline</h1>
+              <h1 className="text-2xl font-bold text-slate-900">Shortlist</h1>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
-                AI wording is controlled from Dashboard. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
+                Review and compare matched trainers, check their profiles and scores, select suitable trainers, and move them toward interview or client approval.
               </p>
             </div>
           </div>
