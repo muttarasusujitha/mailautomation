@@ -67,6 +67,7 @@ def prepare(monkeypatch, failure=None, requirement_overrides=None):
     req = {
         "client_email": "client@example.com", "technology_needed": "DevOps",
         "batch_flow": "proposal", "lab_cost_requested": True,
+        "training_dates": "2027-01-15 to 2027-01-16",
         "participant_count": 1, "lab_hours_per_day": 3,
         "cloud_provider": "aws", "cloud_region": "ap-south-1", "fx_rate": 84,
     }
