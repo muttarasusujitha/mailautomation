@@ -105,7 +105,7 @@ def test_ai_logistics_wording_can_restate_verified_commitment():
     )
 
 
-def test_client_reply_without_logistics_keyword_is_relayed(monkeypatch):
+def test_incomplete_client_reply_is_held_for_confirmation(monkeypatch):
     database = _Database()
     delivered = {}
 
@@ -130,7 +130,11 @@ def test_client_reply_without_logistics_keyword_is_relayed(monkeypatch):
     }))
 
     assert result["success"] is True
-    assert delivered["to"] == "asha@example.com"
+    assert result["waiting_for_client_confirmation"] is True
+    assert "the exact training address" in result["missing_confirmations"]
+    assert "the client-confirmed Google Maps pin" in result["missing_confirmations"]
+    assert delivered["to"] == "client@example.com"
+    assert "final travel package is on hold" in delivered["body"]
 
 
 def test_client_logistics_reply_forwards_booking_pdf_and_confirmed_maps_link(monkeypatch):
@@ -155,7 +159,7 @@ def test_client_logistics_reply_forwards_booking_pdf_and_confirmed_maps_link(mon
     result = asyncio.run(inbox._relay_client_logistics_answer(database, {
         "from_email": "client@example.com",
         "subject": "Re: Travel / Stay Clarification Required - DevOps",
-        "body": f"Confirmed training address: 42 Main Road, Bengaluru\nExact Google Maps pin: {client_map}\nThe train ticket is attached.",
+        "body": f"Confirmed training address: 42 Main Road, Bengaluru\nExact Google Maps pin: {client_map}\nTravel / stay budget and terms: INR 12,000 round trip, client books; stay limit INR 3,000 per night.\nThe train ticket is attached.",
         "attachments": [{
             "filename": "train-ticket.pdf",
             "content_base64": base64.b64encode(ticket).decode("ascii"),

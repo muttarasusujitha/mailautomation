@@ -7539,22 +7539,103 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         return {"attempted": False}
     req = await db["requirements"].find_one({"requirement_id": query.get("requirement_id")}, {"_id": 0}) or {}
     subject = f"Client Update: Travel / Stay Details - {_clean(req.get('technology_needed') or req.get('technology') or 'Training')}"
-    logistics = query.get("logistics_snapshot") or {}
-    venue = _clean(logistics.get("venue_address") or req.get("location"))
-    client_venue = _client_confirmed_venue(text)
-    confirmed_venue = client_venue or venue
-    map_url = _clean(logistics.get("venue_maps_url"))
-    client_map_url = _client_confirmed_google_maps_url(text)
-    trainer_map_url = client_map_url or map_url
+    client_venue = _client_confirmed_venue(text) or _clean(query.get("partial_client_venue"))
+    client_map_url = _client_confirmed_google_maps_url(text) or _clean(query.get("partial_client_maps_url"))
+    client_travel_terms = _client_confirmed_travel_terms(text) or _clean(query.get("partial_client_travel_terms"))
+    missing_confirmations = []
+    if not client_venue:
+        missing_confirmations.append("the exact training address")
+    if not client_map_url:
+        missing_confirmations.append("the client-confirmed Google Maps pin")
+    if not client_travel_terms:
+        missing_confirmations.append("the agreed travel/stay budget and who will pay or book")
+
+    # Keep the trainer's final travel package on hold until every required
+    # client confirmation is explicit. Partial replies stay linked to this
+    # open query so the client can answer the clarification in the same thread.
+    if missing_confirmations:
+        missing_text = ", ".join(missing_confirmations)
+        # Keep the same subject so the client's clarification reply remains
+        # attached to this open logistics query.
+        clarification_subject = _clean(query.get("clarification_subject") or email_doc.get("subject") or "Travel and venue confirmation")
+        clarification_body = (
+            "Hi there,\n\n"
+            "Thanks for the update. The final travel package is on hold until we have the following client confirmations:\n"
+            f"- {missing_text}\n\n"
+            "Please reply with these lines (fill in the details):\n"
+            "Confirmed training address: [full address]\n"
+            "Google Maps pin: [exact Google Maps link]\n"
+            "Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]\n"
+            "Booking PDFs: [attach tickets/hotel PDFs if booked, or say Not booked yet]\n\n"
+            "We will share the final confirmed details with the selected trainer after the required items are complete.\n\n"
+            "Regards,\nClahan Technologies"
+        )
+        settings_doc = await _load_admin_settings(db)
+        clarify_ok, clarify_error = await _send_verified_workflow_email(
+            db, query.get("requirement_id"), query.get("trainer_id"), "client_reply",
+            to=query["client_email"], subject=clarification_subject, body=clarification_body,
+            smtp_config=settings_doc.get("emailCfg") or None,
+            message_id_header=generate_message_id(),
+        )
+        now = _now()
+        pending_documents = list(query.get("pending_booking_documents") or [])
+        pending_contents = {item.get("content_base64") for item in pending_documents if isinstance(item, dict)}
+        pending_documents.extend(
+            item for item in _safe_client_logistics_pdfs(email_doc.get("attachments"))
+            if item.get("content_base64") not in pending_contents
+        )
+        bounded_documents: List[Dict[str, Any]] = []
+        total_pending_bytes = 0
+        for item in pending_documents:
+            if not isinstance(item, dict):
+                continue
+            try:
+                item_size = len(base64.b64decode(_clean(item.get("content_base64")), validate=True))
+            except (ValueError, TypeError):
+                continue
+            if item_size <= 4 * 1024 * 1024 and total_pending_bytes + item_size <= 6 * 1024 * 1024:
+                bounded_documents.append(item)
+                total_pending_bytes += item_size
+        pending_documents = bounded_documents
+        await db["trainer_logistics_queries"].update_one({"query_id": query["query_id"]}, {"$set": {
+            "status": "client_asked",
+            "partial_client_answer": text[:5000],
+            "partial_client_venue": client_venue,
+            "partial_client_maps_url": client_map_url,
+            "partial_client_travel_terms": client_travel_terms,
+            "pending_booking_documents": pending_documents,
+            "missing_confirmations": missing_confirmations,
+            "updated_at": now,
+        }})
+        await db["shortlists"].update_one(
+            {"requirement_id": query.get("requirement_id"), "top_trainers.trainer_id": query.get("trainer_id")},
+            {"$set": {
+                "top_trainers.$.post_interview_logistics.client_partial_answer": text[:5000],
+                "top_trainers.$.post_interview_logistics.missing_client_confirmations": missing_confirmations,
+                "top_trainers.$.post_interview_logistics.client_confirmed_venue": client_venue,
+                "top_trainers.$.post_interview_logistics.client_confirmed_maps_url": client_map_url,
+                "top_trainers.$.post_interview_logistics.client_confirmed_travel_terms": client_travel_terms,
+                "top_trainers.$.post_interview_logistics.map_pin_confirmed": bool(client_map_url),
+                "top_trainers.$.post_interview_logistics.status": "awaiting_client_confirmation",
+                "top_trainers.$.updated_at": now,
+            }},
+        )
+        return {
+            "attempted": True,
+            "success": bool(clarify_ok),
+            "waiting_for_client_confirmation": True,
+            "missing_confirmations": missing_confirmations,
+            "error": clarify_error or "",
+        }
+
+    confirmed_venue = client_venue
+    trainer_map_url = client_map_url
     venue_details = f"\nConfirmed training venue: {confirmed_venue}" if confirmed_venue else ""
-    map_details = (
-        f"\nClient-confirmed Google Maps pin: {client_map_url}"
-        if client_map_url else f"\nGoogle Maps venue search: {map_url}" if map_url else ""
-    )
+    map_details = f"\nClient-confirmed Google Maps pin: {client_map_url}"
     reference = (
         f"Hi {query.get('trainer_name') or 'Trainer'},\n\n"
         "The client has shared the following response to the post-interview venue and travel coordination:\n\n"
-        f"{text}{venue_details}{map_details}\n\n"
+        f"{text}{venue_details}{map_details}\nTravel / stay budget and terms confirmed by client: {client_travel_terms}\n\n"
         "Any attached ticket or stay booking PDFs are included for your reference. Please follow only the confirmed details in the client's message.\n\n"
         "Regards,\nClahan Technologies"
     )
@@ -7563,7 +7644,9 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     forwarded_attachments: List[Dict[str, Any]] = []
     forwarded_names: List[str] = []
     forwarded_size = 0
-    for attachment in email_doc.get("attachments") or []:
+    booking_attachments = list(query.get("pending_booking_documents") or []) + list(email_doc.get("attachments") or [])
+    seen_booking_pdfs = set()
+    for attachment in booking_attachments:
         if not isinstance(attachment, dict):
             continue
         filename = _clean(attachment.get("filename"))
@@ -7577,6 +7660,10 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
             continue
         if not content or len(content) > 4 * 1024 * 1024 or forwarded_size + len(content) > 6 * 1024 * 1024:
             continue
+        digest = hashlib.sha256(content).hexdigest()
+        if digest in seen_booking_pdfs:
+            continue
+        seen_booking_pdfs.add(digest)
         forwarded_size += len(content)
         forwarded_names.append(filename)
         forwarded_attachments.append({"filename": filename, "content_type": "application/pdf", "subtype": "pdf", "content": content})
@@ -7594,20 +7681,30 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         "generation_source": source,
         "updated_at": now,
     }})
+    shortlist_logistics_update = {
+        "top_trainers.$.post_interview_logistics.client_answer": text[:5000],
+        "top_trainers.$.post_interview_logistics.client_answer_received_at": now,
+        "top_trainers.$.post_interview_logistics.status": "client_details_forwarded" if ok else "client_details_forward_failed",
+        "top_trainers.$.post_interview_logistics.client_confirmed_venue": client_venue,
+        "top_trainers.$.post_interview_logistics.client_confirmed_travel_terms": client_travel_terms,
+        "top_trainers.$.post_interview_logistics.venue_maps_url": trainer_map_url,
+        "top_trainers.$.post_interview_logistics.client_confirmed_maps_url": client_map_url,
+        "top_trainers.$.post_interview_logistics.map_pin_confirmed": bool(client_map_url),
+        "top_trainers.$.post_interview_logistics.travel_budget_confirmed": True,
+        "top_trainers.$.post_interview_logistics.final_package_ready": bool(ok),
+        "top_trainers.$.post_interview_logistics.missing_client_confirmations": [],
+        "top_trainers.$.updated_at": now,
+    }
     if ok:
-        await db["shortlists"].update_one(
-            {"requirement_id": query.get("requirement_id"), "top_trainers.trainer_id": query.get("trainer_id")},
-            {"$set": {
-                "top_trainers.$.post_interview_logistics.client_answer": text[:5000],
-                "top_trainers.$.post_interview_logistics.client_answer_received_at": now,
-                "top_trainers.$.post_interview_logistics.forwarded_booking_documents": forwarded_names,
-                "top_trainers.$.post_interview_logistics.status": "client_details_forwarded",
-                "top_trainers.$.post_interview_logistics.client_confirmed_venue": client_venue,
-                "top_trainers.$.post_interview_logistics.venue_maps_url": trainer_map_url,
-                "top_trainers.$.post_interview_logistics.client_confirmed_maps_url": client_map_url,
-                "top_trainers.$.post_interview_logistics.map_pin_confirmed": bool(client_map_url),
-                "top_trainers.$.updated_at": now,
-            }},
+        shortlist_logistics_update["top_trainers.$.post_interview_logistics.forwarded_booking_documents"] = forwarded_names
+    await db["shortlists"].update_one(
+        {"requirement_id": query.get("requirement_id"), "top_trainers.trainer_id": query.get("trainer_id")},
+        {"$set": shortlist_logistics_update},
+    )
+    if ok:
+        await db["trainer_logistics_queries"].update_one(
+            {"query_id": query["query_id"]},
+            {"$set": {"pending_booking_documents": []}},
         )
     return {"attempted": True, "success": bool(ok), "error": error or "", "forwarded_attachment_names": forwarded_names, "venue_address": confirmed_venue, "venue_maps_url": trainer_map_url, "map_pin_confirmed": bool(client_map_url)}
 
@@ -7625,6 +7722,32 @@ def _client_confirmed_google_maps_url(text: Any) -> str:
     return ""
 
 
+def _safe_client_logistics_pdfs(attachments: Any) -> List[Dict[str, Any]]:
+    """Keep only explicitly scoped, size-limited client booking PDFs for a later complete reply."""
+    accepted: List[Dict[str, Any]] = []
+    total_size = 0
+    for attachment in attachments or []:
+        if not isinstance(attachment, dict) or attachment.get("safe_client_scope") is not True:
+            continue
+        filename = _clean(attachment.get("filename"))
+        encoded = _clean(attachment.get("content_base64"))
+        if not filename.lower().endswith(".pdf") or not encoded:
+            continue
+        try:
+            content = base64.b64decode(encoded, validate=True)
+        except (ValueError, TypeError):
+            continue
+        if not content or len(content) > 4 * 1024 * 1024 or total_size + len(content) > 6 * 1024 * 1024:
+            continue
+        total_size += len(content)
+        accepted.append({
+            "filename": filename,
+            "content_base64": base64.b64encode(content).decode("ascii"),
+            "safe_client_scope": True,
+        })
+    return accepted
+
+
 def _client_confirmed_venue(text: Any) -> str:
     """Read an explicitly labeled venue line; do not guess an address from prose."""
     for line in str(text or "").splitlines():
@@ -7637,6 +7760,20 @@ def _client_confirmed_venue(text: Any) -> str:
             value = _clean(match.group(1))
             if not re.match(r"https?://", value, flags=re.IGNORECASE):
                 return value
+    return ""
+
+
+def _client_confirmed_travel_terms(text: Any) -> str:
+    """Read explicit client-approved travel/stay terms from a labeled reply line."""
+    for line in str(text or "").splitlines():
+        match = re.match(
+            r"^\s*(?:confirmed\s+)?(?:travel(?:\s*/\s*stay|\s+and\s+stay)?\s+(?:budget|terms|expenses?)(?:\s+and\s+terms)?|"
+            r"ticket\s+budget|expense\s+terms|reimbursement\s+terms)\s*[:\-]\s*(.{4,1000})\s*$",
+            line,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            return _clean(match.group(1))
     return ""
 
 
