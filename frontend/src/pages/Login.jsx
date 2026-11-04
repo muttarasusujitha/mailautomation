@@ -238,11 +238,10 @@ export default function Login({ onLogin, initialRole = 'admin', allowSignup = tr
   }, [googleClientId])
 
   const selectedRole = ROLES.find(r => r.id === role)
-  const loginTheme = role === 'admin'
-    ? { panel: 'from-slate-950 via-indigo-950 to-slate-800', accent: 'bg-slate-900 hover:bg-slate-800' }
-    : role === 'client'
-      ? { panel: 'from-emerald-700 via-teal-600 to-cyan-600', accent: 'bg-emerald-700 hover:bg-emerald-800' }
-      : { panel: 'from-blue-800 via-blue-600 to-cyan-600', accent: 'bg-blue-700 hover:bg-blue-800' }
+  const loginTheme = {
+    panel: 'from-blue-700 via-blue-600 to-blue-500',
+    accent: 'bg-blue-600 hover:bg-blue-700',
+  }
   const roleOptions = initialRole ? ROLES.filter(item => item.id === initialRole) : ROLES
   const signupOptions = roleOptions.filter(item => item.id !== 'admin')
 
