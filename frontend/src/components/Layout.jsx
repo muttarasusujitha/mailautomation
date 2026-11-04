@@ -139,10 +139,10 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
 
         <div className={clsx(
           'mt-4 flex items-center gap-2 rounded-lg border px-3 py-2',
-          connected ? 'border-green-100 bg-green-50' : 'border-amber-100 bg-amber-50'
+          connected ? 'border-blue-100 bg-blue-50' : 'border-amber-100 bg-amber-50'
         )}>
-          <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
-          <span className={clsx('text-[12px] font-semibold', connected ? 'text-green-700' : 'text-amber-700')}>
+          <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
+          <span className={clsx('text-[12px] font-semibold', connected ? 'text-blue-700' : 'text-amber-700')}>
             {connected ? 'Gmail connected' : 'Gmail not connected'}
           </span>
         </div>
@@ -379,11 +379,11 @@ export default function Layout({ onLogout, isAdmin = false }) {
               className={clsx(
                 'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
                 connected
-                  ? 'border-green-200 bg-green-50 text-green-700'
+                  ? 'border-blue-200 bg-blue-50 text-blue-700'
                   : 'border-amber-200 bg-amber-50 text-amber-700'
               )}
             >
-              <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
+              <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
               {connected ? 'Gmail ready' : 'Connect Gmail'}
             </NavLink>
 

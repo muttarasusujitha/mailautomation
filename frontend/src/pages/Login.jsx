@@ -548,7 +548,7 @@ export default function Login({ onLogin, initialRole = 'admin', allowSignup = tr
             </p>}
             <div className="flex justify-center gap-4 border-t border-slate-100 pt-3 text-xs font-semibold">
               {role !== 'trainer' && <a className="text-blue-700 hover:underline" href="/trainer-login">Trainer login</a>}
-              {role !== 'client' && <a className="text-emerald-700 hover:underline" href="/client-login">Client login</a>}
+              {role !== 'client' && <a className="text-blue-700 hover:underline" href="/client-login">Client login</a>}
               {role !== 'admin' && <a className="text-slate-700 hover:underline" href="/admin-login">Administrator</a>}
             </div>
           </div>
