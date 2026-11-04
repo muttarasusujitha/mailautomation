@@ -71,6 +71,7 @@ class LabCostRequest(BaseModel):
     required_unpriced_costs: Optional[List[str]] = None
     toc: Optional[Dict[str, Any]] = None
     toc_id: Optional[str] = None
+    request_summary: Optional[Dict[str, Any]] = None
     cloud_provider: Optional[str] = None
     cloud_region: Optional[str] = None
     # Use the standard three-hour daily lab block when the requirement omits
@@ -207,13 +208,22 @@ async def list_client_lab_cost_deliveries(db: AsyncIOMotorDatabase = Depends(get
     query = {
         "direction": "outbound",
         "status": "sent",
-        "mail_type": {"$in": ["client_slots", "client_lab_cost_revised"]},
+        "mail_type": {"$in": ["client_slots", "client_lab_cost_revised", "client_lab_cost_estimate", "client_toc_and_lab_cost"]},
         "lab_cost_workbooks.0": {"$exists": True},
     }
     logs = [doc async for doc in db["email_logs"].find(query, {"_id": 0, "lab_cost_workbooks.content_base64": 0}).sort("sent_at", -1).limit(200)]
     requirement_ids = list({str(doc.get("requirement_id") or "") for doc in logs if doc.get("requirement_id")})
     requirements = [doc async for doc in db["requirements"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0})]
     by_id = {str(item.get("requirement_id")): item for item in requirements}
+    standalone = [doc async for doc in db["lab_cost_requests"].find(
+        {"requirement_id": {"$in": requirement_ids}},
+        {"_id": 0, "requirement_id": 1, "client_name": 1, "client_email": 1,
+         "technology_needed": 1, "domain": 1, "duration_days": 1, "training_dates": 1},
+    )]
+    for item in standalone:
+        by_id.setdefault(str(item.get("requirement_id")), {
+            **item, "technology_needed": item.get("technology_needed") or item.get("domain"),
+        })
     items = []
     for log in logs:
         requirement = by_id.get(str(log.get("requirement_id"))) or {"requirement_id": log.get("requirement_id")}
@@ -221,6 +231,84 @@ async def list_client_lab_cost_deliveries(db: AsyncIOMotorDatabase = Depends(get
             display_workbook = {**workbook, "_available": True}
             items.append(_lab_cost_delivery_summary(requirement, log, display_workbook))
     return {"items": items, "total": len(items)}
+
+
+@router.get("/lab-cost/requests")
+async def list_lab_cost_requests(limit: int = Query(default=100, ge=1, le=250), db=Depends(get_db)):
+    """List standalone lab-only requests for the Lab Cost review queue."""
+    requests = [doc async for doc in db["lab_cost_requests"].find(
+        {"lab_cost_only": True},
+        {"_id": 0, "source_email_id": 1, "requirement_id": 1, "client_name": 1,
+         "client_email": 1, "technology_needed": 1, "technology": 1, "domain": 1,
+         "duration_days": 1, "training_dates": 1, "participant_count": 1,
+         "hours_per_day": 1, "cloud_provider": 1, "cloud_region": 1, "status": 1,
+         "lab_context": 1, "created_at": 1, "updated_at": 1, "workbook_filename": 1,
+         "pricing_review_required": 1, "rate_change_summary": 1},
+    ).sort("updated_at", -1).limit(limit)]
+    items = []
+    for request in requests:
+        context = request.get("lab_context") or {}
+        items.append({
+            **request,
+            "technology": request.get("technology_needed") or request.get("technology") or request.get("domain") or "Training",
+            "missing_inputs": context.get("missing_quote_inputs") or [],
+        })
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/lab-cost/requests/{requirement_id}")
+async def get_lab_cost_request(requirement_id: str, db=Depends(get_db)):
+    """Return a saved request and its original inbound message for review."""
+    request = await db["lab_cost_requests"].find_one(
+        {"requirement_id": requirement_id, "lab_cost_only": True}, {"_id": 0}
+    )
+    if not request:
+        raise HTTPException(404, "Lab-cost request not found")
+    source_id = request.get("source_email_id")
+    source = await db["client_emails"].find_one(
+        {"email_id": source_id},
+        {"_id": 0, "email_id": 1, "from_name": 1, "from_email": 1, "subject": 1,
+         "body": 1, "clean_body": 1, "raw_body": 1, "classification_body": 1,
+         "received_at": 1, "created_at": 1},
+    ) if source_id else None
+    source = source or {}
+    context = request.get("lab_context") or {}
+    return {
+        "request": {
+            key: request.get(key) for key in (
+                "requirement_id", "client_name", "client_email", "technology_needed", "technology",
+                "domain", "duration_days", "training_dates", "participant_count", "hours_per_day",
+                "cloud_provider", "cloud_region", "mode", "topics", "custom_topics", "toc_or_topics",
+                "status", "created_at", "updated_at", "workbook_filename", "pricing_review_required",
+                "rate_change_summary",
+            ) if request.get(key) is not None
+        } | {"missing_inputs": context.get("missing_quote_inputs") or [], "known_inputs": context.get("known_inputs") or {}},
+        "original_message": {
+            "email_id": source.get("email_id") or source_id or "",
+            "from_name": source.get("from_name") or request.get("client_name") or "",
+            "from_email": source.get("from_email") or request.get("client_email") or "",
+            "subject": source.get("subject") or "",
+            "body": source.get("classification_body") or source.get("clean_body") or source.get("body") or source.get("raw_body") or request.get("requirement_source_text") or "",
+            "received_at": source.get("received_at") or source.get("created_at"),
+        },
+    }
+
+
+@router.get("/lab-cost/requests/{requirement_id}/workbook")
+async def download_pending_lab_cost_workbook(requirement_id: str, db=Depends(get_db)):
+    request = await db["lab_cost_requests"].find_one(
+        {"requirement_id": requirement_id, "lab_cost_only": True, "status": "awaiting_review"},
+        {"_id": 0, "pending_attachments": 1},
+    )
+    workbook = next((item for item in (request or {}).get("pending_attachments", []) if item.get("subtype", "").endswith("spreadsheetml.sheet")), None)
+    if not workbook or not workbook.get("content_base64"):
+        raise HTTPException(404, "Pending workbook not found")
+    try:
+        content = base64.b64decode(workbook["content_base64"])
+    except Exception as exc:
+        raise HTTPException(500, "Pending workbook is invalid") from exc
+    filename = str(workbook.get("filename") or "Lab Cost Estimate.xlsx").replace('"', "")
+    return Response(content=content, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
 
 
 @router.get("/lab-cost/pricing-catalog/{cloud_provider}/{cloud_region}")

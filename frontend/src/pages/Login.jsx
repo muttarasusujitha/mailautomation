@@ -65,7 +65,7 @@ function ParticleCanvas() {
 /* ─── Role definitions ─────────────────────────────────────── */
 const ROLES = [
   {
-    id: 'admin', label: 'Administrator', icon: ShieldCheck,
+    id: 'admin', label: 'Admin', icon: ShieldCheck,
     tagline: 'Manage the TrainerSync workspace',
     features: [
       'Review trainer applications and resumes',
@@ -118,7 +118,7 @@ function Field({ icon: Icon, type = 'text', placeholder, value, onChange, right,
 /* ─── Main component ───────────────────────────────────────── */
 export default function Login({ onLogin, initialRole = 'admin', allowSignup = true }) {
   const [mode, setMode]           = useState('login')
-  const [role, setRole]           = useState(initialRole)
+  const [role, setRole]           = useState(initialRole || 'admin')
   const [showPass, setShowPass]   = useState(false)
   const [loading, setLoading]     = useState(false)
   const [resetting, setResetting] = useState(false)

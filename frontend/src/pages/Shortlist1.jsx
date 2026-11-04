@@ -2487,10 +2487,12 @@ function InterviewRescheduleStatus({ trainer }) {
   const slotStatus = String(trainer?.slot_status || '').toLowerCase()
   const failed = slotStatus.includes('failed') || slotStatus.includes('missing') || slotStatus.includes('invalid')
   const completed = Boolean(trainer?.reschedule_completed_at)
+  const phoneResults = trainer?.reschedule_phone_notifications || []
+  const phoneSent = phoneResults.filter(result => result?.success === true).length
   const slotsSent = Boolean(trainer?.reschedule_slots_sent_at)
   const requestedBy = String(trainer?.reschedule_requested_by || '').toLowerCase()
   const message = completed
-    ? 'Updated interview link sent to both client and trainer.'
+    ? `Updated interview link sent to both client and trainer.${phoneResults.length ? ` Phone updates: ${phoneSent}/${phoneResults.length} sent.` : ' Phone update was not recorded.'}`
     : failed
       ? 'Reschedule needs attention. Check the delivery error before sending again.'
       : slotsSent
@@ -2503,6 +2505,126 @@ function InterviewRescheduleStatus({ trainer }) {
   return <div className={clsx('mt-3 rounded-xl border px-3 py-2 text-xs font-semibold', tone)}>
     <span className="font-bold">Interview reschedule: </span>{message}
   </div>
+}
+
+function TrainerRequirementReview({ trainer, req }) {
+  const review = trainer?.document_review || {}
+  const fit = trainer?.requirement_fit || review.requirement_fit || {}
+  const skills = fit.skills || {}
+  const projects = fit.projects || {}
+  const linkedin = linkedinProfileUrl(trainer?.linkedin_url || trainer?.linkedin_profile_url || trainer?.linkedin)
+  const hasReview = Object.keys(review).length > 0 || Object.keys(fit).length > 0
+  if (!hasReview && !linkedin) return null
+  const status = String(fit.status || review.match_status || 'review pending').replaceAll('_', ' ')
+  return <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3 text-xs text-slate-700">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="font-semibold text-indigo-900">Profile review for {req?.client_name || req?.client_company || 'this client'} · {req?.technology_needed || 'current requirement'}</div>
+      {linkedin && <a href={linkedin} target="_blank" rel="noreferrer" className="font-semibold text-blue-700 underline">Open LinkedIn profile</a>}
+    </div>
+    {hasReview && <details className="mt-2">
+      <summary className="cursor-pointer font-semibold capitalize">{status} · {fit.score ?? review.match_score ?? '—'}% fit — view evidence and gaps</summary>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <div><b>Matched skills:</b> {(skills.matched || review.matched_profile_topics || []).join(', ') || 'No matched skills were extracted'}</div>
+        <div><b>Missing skills:</b> {(skills.missing || review.profile_gaps || []).join(', ') || 'No documented skill gaps'}</div>
+        <div><b>Experience:</b> {fit.seniority?.evidenced_years ?? 'Not evidenced'} years evidenced; {fit.seniority?.required_years ?? 'No minimum'} required</div>
+        <div><b>Project evidence:</b> {projects.status || review.project_status || 'Not found'}{projects.relevant_count != null ? ` (${projects.relevant_count} relevant)` : ''}</div>
+        {review.recommended_actions?.length > 0 && <div className="sm:col-span-2"><b>Next checks:</b> {review.recommended_actions.join('; ')}</div>}
+        {fit.context_review?.summary && <div className="sm:col-span-2"><b>AI finding (advisory):</b> {fit.context_review.summary}</div>}
+      </div>
+    </details>}
+  </div>
+}
+
+function OfflineTravelAgent({ trainer, req }) {
+  const saved = trainer?.post_interview_logistics || req?.post_interview_logistics || {}
+  const [form, setForm] = useState(() => ({
+    delivery_mode: saved.delivery_mode || req?.delivery_mode || req?.mode || 'Offline',
+    venue_address: saved.venue_address || req?.training_location || req?.venue_address || req?.location || req?.preferred_location || '',
+    venue_maps_url: saved.venue_maps_url || '',
+    trainer_origin: saved.trainer_origin || trainer?.current_location || trainer?.location || '',
+    commute_radius_km: saved.commute_radius_km || '',
+    preferred_travel_mode: saved.preferred_travel_mode || '',
+    trainer_ticket_budget_inr: saved.trainer_ticket_budget_inr || '',
+    trainer_stay_budget_inr: saved.trainer_stay_budget_inr || '',
+    client_travel_policy: saved.client_travel_policy || req?.travel_policy || req?.travel_reimbursement || '',
+    client_stay_policy: saved.client_stay_policy || req?.accommodation_policy || req?.stay_details || '',
+    training_dates: saved.training_dates || req?.training_dates || req?.timeline_start || '',
+  }))
+  const [busy, setBusy] = useState('')
+  const [sent, setSent] = useState({ trainer: saved.trainer_request_status === 'sent', client: saved.client_request_status === 'sent' })
+  const offline = /offline|onsite|classroom|in[\s-]?person/i.test(String(form.delivery_mode || ''))
+  const mapUrl = form.venue_maps_url || (form.venue_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(form.venue_address)}` : '')
+  const hotelMapUrl = form.venue_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`hotels near ${form.venue_address}`)}` : ''
+  const travelSearch = mode => `https://www.google.com/search?q=${encodeURIComponent(`${mode} tickets from ${form.trainer_origin || 'trainer city'} to ${form.venue_address || 'training city'} ${form.training_dates} India`)}`
+  const patchField = (key, value) => setForm(current => ({ ...current, [key]: value }))
+
+  const save = async () => {
+    setBusy('save')
+    try {
+      const result = await api.patch(`/shortlists/logistics/${encodeURIComponent(req.requirement_id)}/${encodeURIComponent(trainer.trainer_id)}`, { ...form, venue_maps_url: mapUrl })
+      setForm(current => ({ ...current, ...(result.data?.logistics || {}), venue_maps_url: mapUrl }))
+      toast.success('Offline travel details saved to this selected trainer and requirement.')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not save logistics')
+    } finally {
+      setBusy('')
+    }
+  }
+
+  const sendRequest = async recipient => {
+    if (!form.venue_address.trim()) {
+      toast.error('Enter the exact offline training address first.')
+      return
+    }
+    setBusy(recipient)
+    try {
+      const result = await api.post(`/shortlists/logistics/${encodeURIComponent(req.requirement_id)}/${encodeURIComponent(trainer.trainer_id)}/request-${recipient}`, { ...form, venue_maps_url: mapUrl })
+      setSent(current => ({ ...current, [recipient]: true }))
+      toast.success(`${recipient === 'trainer' ? 'Trainer' : 'Client'} logistics request sent to ${result.data?.sent_to || 'the saved contact'}.`)
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || `Could not send the ${recipient} logistics request`)
+    } finally {
+      setBusy('')
+    }
+  }
+
+  return <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div><h4 className="font-bold text-amber-950">Post-interview travel coordinator</h4><p className="mt-1 text-xs text-slate-600">For the selected trainer only. Confirm the offline venue and costs before anyone books.</p></div>
+      <select value={form.delivery_mode} onChange={event => patchField('delivery_mode', event.target.value)} className="rounded-lg border border-amber-200 bg-white px-2 py-1.5 text-xs font-semibold">
+        <option>Offline</option><option>Onsite</option><option>Classroom</option><option>Online</option>
+      </select>
+    </div>
+    {!offline ? <p className="mt-3 text-xs text-slate-600">Online delivery is selected, so travel coordination is paused. Choose Offline, Onsite, or Classroom if the client changes the delivery mode.</p> : <>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <label className="text-xs font-semibold text-slate-700">Exact training venue<input value={form.venue_address} onChange={event => { patchField('venue_address', event.target.value); patchField('venue_maps_url', '') }} placeholder="Building, street, area, city, PIN code" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer starting city<input value={form.trainer_origin} onChange={event => patchField('trainer_origin', event.target.value)} placeholder="City or PIN code" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer comfortable travel range<input value={form.commute_radius_km} onChange={event => patchField('commute_radius_km', event.target.value)} placeholder="Distance in km, or 'overnight travel required'" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Preferred travel mode<select value={form.preferred_travel_mode} onChange={event => patchField('preferred_travel_mode', event.target.value)} className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal"><option value="">Ask trainer to choose</option><option>Train</option><option>Flight</option><option>Bus</option><option>Own vehicle</option></select></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer round-trip ticket budget (INR)<input value={form.trainer_ticket_budget_inr} onChange={event => patchField('trainer_ticket_budget_inr', event.target.value)} placeholder="Trainer estimate; client approval needed" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer stay budget (INR)<input value={form.trainer_stay_budget_inr} onChange={event => patchField('trainer_stay_budget_inr', event.target.value)} placeholder="Estimate per night or total" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Client travel / ticket terms<input value={form.client_travel_policy} onChange={event => patchField('client_travel_policy', event.target.value)} placeholder="Who books/pays, cap, class, receipt rules" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Client hotel / stay terms<input value={form.client_stay_policy} onChange={event => patchField('client_stay_policy', event.target.value)} placeholder="Hotel provided or reimbursed, nightly cap" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        {mapUrl && <a href={mapUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-200 bg-white px-3 py-2 font-semibold text-blue-700">Open venue in Google Maps</a>}
+        {form.trainer_origin && form.venue_address && <a href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(form.trainer_origin)}&destination=${encodeURIComponent(form.venue_address)}`} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-200 bg-white px-3 py-2 font-semibold text-blue-700">Check route and distance</a>}
+        {hotelMapUrl && <a href={hotelMapUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-200 bg-white px-3 py-2 font-semibold text-blue-700">Find nearby stays</a>}
+        {form.venue_address && ['train', 'flight', 'bus'].map(mode => <a key={mode} href={travelSearch(mode)} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 bg-white px-3 py-2 font-semibold capitalize text-slate-700">Compare {mode} fares</a>)}
+      </div>
+      <p className="mt-2 text-[11px] text-slate-500">Search links open current provider results for comparison; no fare is reserved and no ticket is bought without your approval. Confirm the Google Maps pin with the client before sharing it as final.</p>
+      {saved.trainer_reply && <details className="mt-2 rounded-lg border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-xs font-bold text-slate-800">Trainer travel and stay response</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.trainer_reply}</p></details>}
+      {saved.client_answer && <details className="mt-2 rounded-lg border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-xs font-bold text-slate-800">Client-confirmed venue and expense terms</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.client_answer}</p></details>}
+      {saved.client_confirmed_venue && <p className="mt-2 text-xs font-semibold text-emerald-800">Client-confirmed address: {saved.client_confirmed_venue}</p>}
+      {saved.client_confirmed_maps_url && <a href={saved.client_confirmed_maps_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-800">Open client-confirmed Google Maps pin</a>}
+      {saved.forwarded_booking_documents?.length > 0 && <p className="mt-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-800">Booking PDFs shared with trainer: {saved.forwarded_booking_documents.join(', ')}</p>}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" disabled={Boolean(busy)} onClick={save} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'save' ? 'Saving…' : 'Save travel plan'}</button>
+        <button type="button" disabled={Boolean(busy) || !mapUrl} onClick={() => sendRequest('trainer')} className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'trainer' ? 'Sending…' : sent.trainer ? 'Ask trainer again' : 'Ask trainer for travel and stay limits'}</button>
+        <button type="button" disabled={Boolean(busy) || !mapUrl} onClick={() => sendRequest('client')} className="rounded-lg bg-amber-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'client' ? 'Sending…' : sent.client ? 'Ask client again' : 'Confirm venue and travel budget with client'}</button>
+      </div>
+    </>}
+  </section>
 }
 
 function PipelineProgressSummary({ stage, req, trainer }) {
@@ -3019,14 +3141,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     }
   }
 
-  const renderPostSelectionTools = ({ note = '', waiting = false } = {}) => (
-    <div className="flex flex-wrap gap-2 mt-3">
+  const renderPostSelectionTools = ({ note = '', waiting = false, children = null } = {}) => (
+    <div className="mt-3">
       {note && (
         <div className="w-full flex items-center gap-2 px-3 py-2 bg-teal-50 border border-teal-200 rounded-xl">
           {waiting && <Loader2 className="w-3.5 h-3.5 text-teal-500 animate-spin flex-shrink-0" />}
           <span className="text-xs text-teal-700 font-semibold">{note}</span>
         </div>
       )}
+      {children}
     </div>
   )
 
@@ -3067,7 +3190,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
     if (stage === 'selected') {
       return renderPostSelectionTools({
-        note: 'Trainer selected. The system now waits for the client PO/final confirmation; the ToC was already included in Mail 1 and client handoff.',
+        note: 'Trainer selected. Confirm the offline venue and travel/stay terms before bookings; the ToC was already included in Mail 1 and client handoff.',
+        children: <OfflineTravelAgent trainer={trainer} req={req} />,
       })
     }
 
@@ -3675,6 +3799,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             <StepBar stage={stage} trainer={trainer} />
             <PipelineProgressSummary stage={stage} req={req} trainer={trainer} />
             <InterviewRescheduleStatus trainer={trainer} />
+            <TrainerRequirementReview trainer={trainer} req={req} />
             {renderActions()}
           </div>
 

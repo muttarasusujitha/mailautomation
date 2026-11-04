@@ -1072,6 +1072,50 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "
         "India GST defaults to 18%. VM profile rate rows marked as template fallback must be replaced with a current provider SKU rate and URL before client approval."
     )
+    request_summary = values.get("request_summary")
+    if isinstance(request_summary, dict) and request_summary:
+        from openpyxl.styles import Alignment, Font, PatternFill
+
+        summary_ws = workbook.create_sheet("Request Summary")
+        summary_ws.sheet_view.showGridLines = False
+        summary_ws.merge_cells("A1:B1")
+        summary_ws["A1"] = "Client Lab Request Summary"
+        summary_ws["A1"].font = Font(bold=True, size=16, color="FFFFFFFF")
+        summary_ws["A1"].fill = PatternFill("solid", fgColor="FF1F4E78")
+        summary_ws["A1"].alignment = Alignment(vertical="center")
+        summary_ws.row_dimensions[1].height = 28
+        summary_rows = [
+            ("Request ID", request_summary.get("request_id")),
+            ("Client", request_summary.get("client_name")),
+            ("Training", request_summary.get("technology")),
+            ("Scope", request_summary.get("scope")),
+            ("Training days", request_summary.get("duration_days")),
+            ("Training dates", request_summary.get("training_dates")),
+            ("Participants", request_summary.get("participant_count")),
+            ("Lab access hours per day", request_summary.get("hours_per_day")),
+            ("Cloud provider", request_summary.get("cloud_provider")),
+            ("Cloud region", request_summary.get("cloud_region")),
+            ("Delivery mode", request_summary.get("mode")),
+            ("Estimate status", "Draft estimate — review assumptions and rates before approval"),
+        ]
+        for row, (label, value) in enumerate(summary_rows, start=3):
+            summary_ws.cell(row, 1, label)
+            summary_ws.cell(row, 2, str(value) if value not in (None, "") else "Not provided")
+            summary_ws.cell(row, 1).font = Font(bold=True, color="FF344054")
+            summary_ws.cell(row, 1).fill = PatternFill("solid", fgColor="FFF2F4F7")
+            summary_ws.cell(row, 1).alignment = Alignment(vertical="top", wrap_text=True)
+            summary_ws.cell(row, 2).alignment = Alignment(vertical="top", wrap_text=True)
+        summary_ws.column_dimensions["A"].width = 30
+        summary_ws.column_dimensions["B"].width = 82
+        summary_ws.freeze_panes = "A3"
+        estimate_ws = workbook["Client Estimate"]
+        if "A2:D2" not in {str(item) for item in estimate_ws.merged_cells.ranges}:
+            estimate_ws.merge_cells("A2:D2")
+        request_link = estimate_ws["A2"]
+        request_link.value = "View request summary and estimate assumptions"
+        request_link.hyperlink = "#'Request Summary'!A1"
+        request_link.style = "Hyperlink"
+        request_link.alignment = Alignment(horizontal="right", vertical="center")
 
     if values.get('price_changes'):
         audit_ws = workbook.create_sheet('Live Price Check')
@@ -1837,6 +1881,11 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         "X-Lab-Cost-Quote-ID": assumptions["rate_snapshot_id"],
         "X-Lab-Cost-Quote-Valid-Until": assumptions["quote_valid_until"],
         "X-Lab-Cost-Pricing-Status": assumptions["pricing_status"],
+        "X-Lab-Cost-Review-Required": "true" if any(change["review_required"] for change in changes) else "false",
+        "X-Lab-Cost-Review-Reason": "; ".join(
+            f"{change['resource']}: {change['change_percent']:.1f}%"
+            for change in changes if change["review_required"] and change.get("change_percent") is not None
+        ),
     }
     if final_inr is not None:
         headers["X-Lab-Cost-Final-INR"] = f"{final_inr:.2f}"
