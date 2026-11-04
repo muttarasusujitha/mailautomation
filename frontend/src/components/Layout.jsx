@@ -73,6 +73,8 @@ function routeForQuery(q) {
 }
 function pageTitle(pathname) {
   if (pathname === '/dashboard') return 'Dashboard'
+  if (pathname === '/trainer-portal') return 'Trainer Portal'
+  if (pathname === '/client-portal') return 'Client Portal'
   const item = ALL_NAV_ITEMS.find(e => pathname === e.to || pathname.startsWith(`${e.to}/`))
   return item?.label || 'TrainerSync'
 }
@@ -119,6 +121,14 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
     items: group.items.filter(item => item.to !== '/admin' || isAdmin),
   }))
   const [openMore, setOpenMore] = useState(() => moreGroupsForPath(pathname))
+  const portalHome = (() => {
+    try {
+      const role = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role
+      return role === 'trainer' ? '/trainer-portal' : role === 'recruiter' ? '/client-portal' : '/dashboard'
+    } catch {
+      return '/dashboard'
+    }
+  })()
 
   useEffect(() => {
     setOpenMore(prev => {
@@ -151,12 +161,12 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
       <div className="sidebar-body">
         {/* Home */}
         <NavLink
-          to="/home"
+          to={portalHome}
           onClick={onNavigate}
           className={({ isActive }) => clsx('nav-item mb-2', isActive && 'active')}
         >
           <span className="nav-icon"><Home className="h-[15px] w-[15px]" /></span>
-          <span className="text-[13.5px]">Home</span>
+          <span className="text-[13.5px]">Portal Home</span>
         </NavLink>
 
         <div className="space-y-5">
