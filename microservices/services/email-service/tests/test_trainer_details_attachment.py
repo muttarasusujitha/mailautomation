@@ -303,6 +303,7 @@ def test_requirement_fit_is_saved_on_the_exact_shortlisted_trainer():
     shortlist = SimpleNamespace(update_one=AsyncMock())
     db = {"shortlists": shortlist}
     email_doc = {"requirement_id": "REQ-1", "trainer_id": "TR-1", "body": "I am interested."}
+    email_doc["body"] += "\nLinkedIn: https://www.linkedin.com/in/karthik-menon/"
     requirement = {"requirement_id": "REQ-1", "technology_needed": "DevOps"}
 
     validation = asyncio.run(_persist_trainer_requirement_fit(db, email_doc, requirement, {}))
@@ -312,6 +313,7 @@ def test_requirement_fit_is_saved_on_the_exact_shortlisted_trainer():
     }
     stored = shortlist.update_one.await_args.args[1]["$set"]
     assert stored["top_trainers.$.requirement_fit"] == validation["requirement_fit"]
+    assert stored["top_trainers.$.linkedin_url"] == "https://www.linkedin.com/in/karthik-menon/"
 
 
 def test_previous_trainer_state_satisfies_requested_details_without_reasking():

@@ -34,7 +34,6 @@ function lazyWithRetry(importer) {
 
 const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'))
 const Login = lazyWithRetry(() => import('./pages/Login'))
-const LoginChoice = lazyWithRetry(() => import('./pages/LoginChoice'))
 const Home = lazyWithRetry(() => import('./pages/Home'))
 const Contact = lazyWithRetry(() => import('./pages/Contact'))
 const Feedback = lazyWithRetry(() => import('./pages/Feedback'))
@@ -127,7 +126,7 @@ export default function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/login" element={
-            isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <LoginChoice />
+            isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <Login key="login-page" onLogin={handleLogin} initialRole={null} />
           } />
           <Route path="/admin-login" element={isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <Login key="admin-login-page" onLogin={handleLogin} initialRole="admin" allowSignup={false} />} />
           <Route path="/trainer-login" element={isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <Login key="trainer-login" onLogin={handleLogin} initialRole="trainer" />} />
