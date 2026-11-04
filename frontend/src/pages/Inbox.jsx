@@ -102,6 +102,12 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
   const company = extracted.client_company || email.from_email?.split('@')[1] || 'Client'
   const officeLabel = OFFICE_CATEGORY_LABELS[email.office_mail_category] || ''
   const attachmentValidation = email.attachment_validation || {}
+  const replyAnalysis = email.reply_analysis || reply.reply_analysis || {}
+  const purchaseOrderReview = email.purchase_order_extraction || {}
+  const purchaseOrderFields = email.extracted_po_fields || purchaseOrderReview.fields || {}
+  const purchaseOrderDocuments = purchaseOrderReview.documents || []
+  const hasReplyAgentReview = Boolean(replyAnalysis.sender_intent || replyAnalysis.reply_strategy || replyAnalysis.verified_facts?.length || replyAnalysis.unresolved_questions?.length || replyAnalysis.human_review_reason)
+  const hasDocumentAgentReview = Boolean(attachmentValidation.match_status || purchaseOrderReview.status || purchaseOrderDocuments.length)
 
   useEffect(() => {
     setBody(email.generated_reply?.body || '')
@@ -211,7 +217,7 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
         {attachmentValidation.match_status && (
           <div className="mt-4 rounded-lg border border-violet-200 bg-violet-50 p-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="flex items-center gap-1.5 text-sm font-bold text-violet-900"><FileText className="h-4 w-4" /> Profile & TOC validation</p>
+              <p className="flex items-center gap-1.5 text-sm font-bold text-violet-900"><FileText className="h-4 w-4" /> Document Agent · Profile & TOC</p>
               <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-violet-800">{attachmentValidation.match_score || 0}% match</span>
             </div>
             <p className="mt-1 text-xs font-medium capitalize text-violet-700">Status: {String(attachmentValidation.match_status).replace('_', ' ')}</p>
@@ -226,6 +232,39 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
             {!!attachmentValidation.profile_gaps?.length && <p className="mt-2 text-xs text-violet-800">Profile gaps: {attachmentValidation.profile_gaps.join(', ')}</p>}
             {!!attachmentValidation.toc_gaps?.length && <p className="mt-1 text-xs text-violet-800">TOC gaps: {attachmentValidation.toc_gaps.join(', ')}</p>}
             {!!attachmentValidation.recommended_actions?.length && <p className="mt-2 text-xs text-violet-900">Next: {attachmentValidation.recommended_actions[0]}</p>}
+          </div>
+        )}
+
+        {open && (hasReplyAgentReview || hasDocumentAgentReview) && (
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {hasReplyAgentReview && (
+              <section className="rounded-lg border border-blue-200 bg-blue-50/70 p-4" aria-label="Inbox reply agent findings">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="flex items-center gap-2 text-sm font-bold text-blue-950"><Bot className="h-4 w-4" /> Inbox Reply Agent</h4>
+                  <span className={clsx('rounded-full border px-2.5 py-1 text-xs font-semibold', replyAnalysis.needs_human_review ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-blue-200 bg-white text-blue-800')}>
+                    {replyAnalysis.needs_human_review ? 'Human review needed' : `${Math.round(Math.max(0, Math.min(1, Number(replyAnalysis.confidence ?? confidence) || 0)) * 100)}% confidence`}
+                  </span>
+                </div>
+                {replyAnalysis.sender_intent && <p className="mt-2 text-sm text-slate-700"><strong>Understood:</strong> {String(replyAnalysis.sender_intent).replaceAll('_', ' ')}</p>}
+                {replyAnalysis.communication_stage && <p className="mt-1 text-xs text-slate-600"><strong>Stage:</strong> {String(replyAnalysis.communication_stage).replaceAll('_', ' ')}</p>}
+                {!!replyAnalysis.verified_facts?.length && <div className="mt-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Facts found</p><ul className="mt-1 list-inside list-disc space-y-1 text-xs text-slate-700">{replyAnalysis.verified_facts.slice(0, 5).map((fact, index) => <li key={`${fact}-${index}`}>{fact}</li>)}</ul></div>}
+                {!!replyAnalysis.unresolved_questions?.length && <div className="mt-3"><p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Still needs an answer</p><ul className="mt-1 list-inside list-disc space-y-1 text-xs text-amber-900">{replyAnalysis.unresolved_questions.slice(0, 5).map((question, index) => <li key={`${question}-${index}`}>{question}</li>)}</ul></div>}
+                {replyAnalysis.reply_strategy && <p className="mt-3 text-xs text-slate-700"><strong>Draft approach:</strong> {replyAnalysis.reply_strategy}</p>}
+                {replyAnalysis.human_review_reason && <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">Review before sending: {replyAnalysis.human_review_reason}</p>}
+              </section>
+            )}
+            {hasDocumentAgentReview && (
+              <section className="rounded-lg border border-violet-200 bg-violet-50/70 p-4" aria-label="Document agent findings">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="flex items-center gap-2 text-sm font-bold text-violet-950"><FileText className="h-4 w-4" /> Document Agent</h4>
+                  {purchaseOrderReview.status && <span className="rounded-full border border-violet-200 bg-white px-2.5 py-1 text-xs font-semibold capitalize text-violet-800">PO PDF: {String(purchaseOrderReview.status).replaceAll('_', ' ')}</span>}
+                </div>
+                {!!purchaseOrderDocuments.length && <ul className="mt-2 space-y-1 text-xs text-slate-700">{purchaseOrderDocuments.slice(0, 4).map((document, index) => <li key={`${document.filename || 'document'}-${index}`}><strong>{document.filename || 'PDF'}:</strong> {String(document.status || 'not reviewed').replaceAll('_', ' ')}{document.ocr_used ? ' · OCR used' : ''}{document.error ? ` · ${document.error}` : ''}</li>)}</ul>}
+                {(purchaseOrderFields.po_number || purchaseOrderFields.client_name || purchaseOrderFields.total_amount) && <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-700"><p><strong>PO:</strong> {purchaseOrderFields.po_number || 'Not found'}</p><p><strong>Client:</strong> {purchaseOrderFields.client_name || 'Not found'}</p><p><strong>Amount:</strong> {purchaseOrderFields.total_amount ? `${purchaseOrderFields.currency || ''} ${purchaseOrderFields.total_amount}`.trim() : 'Not found'}</p><p><strong>Tax basis:</strong> {String(purchaseOrderFields.amount_basis || 'unclear').replaceAll('_', ' ')}</p></div>}
+                {!!purchaseOrderFields.missing_fields?.length && <p className="mt-2 text-xs text-amber-900"><strong>Missing from PO:</strong> {purchaseOrderFields.missing_fields.join(', ').replaceAll('_', ' ')}</p>}
+                {purchaseOrderReview.status && <p className="mt-3 text-xs text-violet-900">Extracted document values are suggestions. Check them against the original PDF before approving finance or invoice actions.</p>}
+              </section>
+            )}
           </div>
         )}
 
