@@ -1579,6 +1579,63 @@ async def _trainer_has_date_conflict(db: AsyncIOMotorDatabase, trainer_id: str, 
     return False
 
 
+async def _already_selected_trainer_ids(
+    db: AsyncIOMotorDatabase,
+    requirement: Dict[str, Any],
+) -> set[str]:
+    """Find trainers already selected for another requirement."""
+    requirement_id = _clean(requirement.get("requirement_id"))
+    selected_stages = {
+        "selected",
+        "toc_requested",
+        "toc_received_pending",
+        "training_confirmed",
+        "po_requested",
+        "client_po_received",
+        "invoice_generated",
+        "invoice_draft_sent_for_review",
+        "invoice_sent",
+    }
+
+    selected_ids: set[str] = set()
+    requirements = db["requirements"].find(
+        {
+            "requirement_id": {"$ne": requirement_id},
+            "selected_trainer_id": {"$exists": True, "$nin": [None, ""]},
+        },
+        {"_id": 0, "selected_trainer_id": 1},
+    )
+    async for item in requirements:
+        selected_id = _clean(item.get("selected_trainer_id"))
+        if selected_id:
+            selected_ids.add(selected_id)
+
+    shortlists = db["shortlists"].find(
+        {
+            "requirement_id": {"$ne": requirement_id},
+            "$or": [
+                {"top_trainers.selected": True},
+                {"top_trainers.selection_status": "selected"},
+                {"top_trainers.pipeline_status": {"$in": list(selected_stages)}},
+                {"top_trainers.status": {"$in": list(selected_stages)}},
+            ],
+        },
+        {"_id": 0, "requirement_id": 1, "top_trainers": 1},
+    )
+    async for shortlist in shortlists:
+        for trainer in shortlist.get("top_trainers") or []:
+            stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
+            if (
+                trainer.get("selected") is True
+                or _clean(trainer.get("selection_status")).lower() == "selected"
+                or stage in selected_stages
+            ):
+                trainer_id = _clean(trainer.get("trainer_id"))
+                if trainer_id:
+                    selected_ids.add(trainer_id)
+    return selected_ids
+
+
 def _profile_text(trainer: Dict[str, Any]) -> str:
     parts = [
         trainer.get("name"),
@@ -2758,6 +2815,13 @@ async def _sync_shortlist_with_trainers(
             and _clean(trainer.get("email") or trainer.get("trainer_email")).lower() not in client_emails
         )
     ]
+    if available_trainers:
+        already_selected_ids = await _already_selected_trainer_ids(db, requirement)
+        available_trainers = [
+            trainer
+            for trainer in available_trainers
+            if _clean(trainer.get("trainer_id")) not in already_selected_ids
+        ]
     scored = [
         scored_trainer
         for trainer in available_trainers
