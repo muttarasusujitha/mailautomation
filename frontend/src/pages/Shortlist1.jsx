@@ -2552,6 +2552,13 @@ function OfflineTravelAgent({ trainer, req }) {
   }))
   const [busy, setBusy] = useState('')
   const [sent, setSent] = useState({ trainer: saved.trainer_request_status === 'sent', client: saved.client_request_status === 'sent' })
+  const finalPackageChecklist = [
+    { label: 'Client confirmed the exact training address', done: Boolean(saved.client_confirmed_venue), optional: false },
+    { label: 'Client confirmed the Google Maps pin', done: Boolean(saved.client_confirmed_maps_url && saved.map_pin_confirmed), optional: false },
+    { label: 'Travel/stay budget and payer terms confirmed', done: Boolean(saved.client_confirmed_travel_terms || saved.travel_budget_confirmed), optional: false },
+    { label: 'Ticket or hotel booking PDFs shared (if booked)', done: Boolean(saved.forwarded_booking_documents?.length), optional: true },
+  ]
+  const finalPackageReady = finalPackageChecklist.filter(item => !item.optional).every(item => item.done)
   const offline = /offline|onsite|classroom|in[\s-]?person/i.test(String(form.delivery_mode || ''))
   const mapUrl = form.venue_maps_url || (form.venue_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(form.venue_address)}` : '')
   const hotelMapUrl = form.venue_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`hotels near ${form.venue_address}`)}` : ''
@@ -2615,9 +2622,15 @@ function OfflineTravelAgent({ trainer, req }) {
       <p className="mt-2 text-[11px] text-slate-500">Search links open current provider results for comparison; no fare is reserved and no ticket is bought without your approval. Confirm the Google Maps pin with the client before sharing it as final.</p>
       {saved.trainer_reply && <details className="mt-2 rounded-lg border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-xs font-bold text-slate-800">Trainer travel and stay response</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.trainer_reply}</p></details>}
       {saved.client_answer && <details className="mt-2 rounded-lg border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-xs font-bold text-slate-800">Client-confirmed venue and expense terms</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.client_answer}</p></details>}
+      {saved.client_partial_answer && <details className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3"><summary className="cursor-pointer text-xs font-bold text-amber-900">Client reply received — awaiting required confirmations</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.client_partial_answer}</p></details>}
       {saved.client_confirmed_venue && <p className="mt-2 text-xs font-semibold text-emerald-800">Client-confirmed address: {saved.client_confirmed_venue}</p>}
       {saved.client_confirmed_maps_url && <a href={saved.client_confirmed_maps_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-800">Open client-confirmed Google Maps pin</a>}
       {saved.forwarded_booking_documents?.length > 0 && <p className="mt-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-800">Booking PDFs shared with trainer: {saved.forwarded_booking_documents.join(', ')}</p>}
+      <div className={`mt-3 rounded-xl border p-3 ${finalPackageReady ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-white'}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-slate-900">Final travel package checklist</p><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${saved.final_package_ready || finalPackageReady && saved.status !== 'client_details_forward_failed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{saved.final_package_ready ? 'Sent to selected trainer' : saved.status === 'client_details_forward_failed' ? 'Trainer email failed — retry needed' : finalPackageReady ? 'Required details complete' : 'On hold — awaiting client confirmation'}</span></div>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">{finalPackageChecklist.map(item => <li key={item.label} className="flex items-start gap-2 text-xs text-slate-700"><span className={`font-bold ${item.done ? 'text-emerald-700' : item.optional ? 'text-slate-400' : 'text-amber-700'}`}>{item.done ? '✓' : item.optional ? '○' : '○'}</span><span>{item.label}{item.optional && !item.done ? ' — optional until booked' : ''}</span></li>)}</ul>
+        <p className="mt-2 text-[11px] text-slate-600">The app holds the final trainer handoff until the client confirms the address, exact pin, and travel/stay terms. Booking PDFs are included when available.</p>
+      </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" disabled={Boolean(busy)} onClick={save} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'save' ? 'Saving…' : 'Save travel plan'}</button>
         <button type="button" disabled={Boolean(busy) || !mapUrl} onClick={() => sendRequest('trainer')} className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'trainer' ? 'Sending…' : sent.trainer ? 'Ask trainer again' : 'Ask trainer for travel and stay limits'}</button>
