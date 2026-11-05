@@ -780,7 +780,8 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     slot_request = ""
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
-            "Please share three convenient interview/discussion slots that you are actually available for.\n"
+            "Please share three convenient interview/discussion slots that you are actually available for, "
+            "including the date, time, and time zone.\n"
             "Example format only; the sample dates and times below are illustrative, not booked appointments. "
             "Please replace them with your actual availability:\n"
             f"{_sample_availability_slots()}\n\n"
@@ -2180,7 +2181,10 @@ def _ensure_mail1_slot_examples(body: str) -> str:
         cleaned_lines.append(line.rstrip())
     text = "\n".join(cleaned_lines).strip()
     if not re.search(r"\b(?:three|3)\b.{0,100}\bslots\b", text, flags=re.IGNORECASE):
-        text = f"{text}\n\nPlease share three convenient interview/discussion slots that you are actually available for.".strip()
+        text = (
+            f"{text}\n\nPlease share three convenient interview/discussion slots that you are actually available for, "
+            "including the date, time, and time zone."
+        ).strip()
     slot_examples = (
         "\n\nExample format only; these sample dates and times are illustrative, not booked appointments. "
         "Please replace them with your actual availability:\n"

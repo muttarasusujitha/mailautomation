@@ -302,7 +302,8 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
     )
     needs_slots = True  # Mail 1 collects interview availability for both shortlist flows.
     slot_request = (
-        "\n\nPlease share three convenient interview/discussion slots that you are actually available for.\n"
+        "\n\nPlease share three convenient interview/discussion slots that you are actually available for, "
+        "including the date, time, and time zone.\n"
         "Example format only; the sample dates and times below are illustrative, not booked appointments. "
         "Please replace them with your actual availability:\n"
         f"{_sample_availability_slots()}\n"
@@ -830,7 +831,8 @@ async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
     subject = f"Interview Slot Booking - {technology}"
     polished_body = _spoken(
         f"Hello {payload.name or 'Trainer'},\n\n"
-        "Please share three convenient interview/discussion slots that you are actually available for.\n"
+        "Please share three convenient interview/discussion slots that you are actually available for, "
+        "including the date, time, and time zone.\n"
         "Example format only; the sample dates and times below are illustrative, not booked appointments. "
         "Please replace them with your actual availability:\n"
         f"{_sample_availability_slots()}\n\n"
