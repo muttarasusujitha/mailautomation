@@ -441,12 +441,14 @@ def offline_client_requirement_reply(extracted: Optional[Dict[str, Any]], messag
         lower,
     ))
     opening = (
-        "I’m sorry you’ve had to follow up; I understand this needs attention"
-        if empathetic else f"Thanks for sharing the {domain} training request."
+        "I'm sorry for the delay; I understand you need a clear next step."
+        if empathetic else f"Thanks for sharing the {domain} requirement."
     )
 
-    # Reflect only a few high-value, verified details in plain language.
+    # Reflect a few high-value, verified details in natural wording.
     noted = []
+    if _first_text(safe, ("topics", "custom_topics")):
+        noted.append("the topics you shared")
     participants = _text(safe.get("participant_count"))
     if participants and participants not in {"0", "0.0"}:
         noted.append(f"{participants} participants")
@@ -469,6 +471,9 @@ def offline_client_requirement_reply(extracted: Optional[Dict[str, Any]], messag
             duration = f"a {hour_match.group(1)}-hour session"
     if duration and duration.lower() not in {"tbd", "to be confirmed", "unknown"}:
         noted.append(duration if duration.lower().startswith(("a ", "the ")) else f"a duration of {duration}")
+    hours = _text(safe.get("lab_hours_per_day") or safe.get("hours_per_day"))
+    if hours and hours not in {"0", "0.0"}:
+        noted.append(f"{hours} lab hours per day")
     dates = _first_text(safe, ("training_dates", "preferred_dates", "timeline_start", "timing"))
     if dates and dates.lower() not in {"tbd", "to be confirmed", "unknown"}:
         noted.append(f"preferred dates of {dates}")
@@ -476,22 +481,35 @@ def offline_client_requirement_reply(extracted: Optional[Dict[str, Any]], messag
     if mode and mode.lower() not in {"tbd", "to be confirmed", "unknown"}:
         noted.append(f"{mode.lower()} delivery")
     if noted:
-        opening = opening.rstrip(".") + "; I’ve noted " + _join_request_items(noted[:3]) + "."
+        details = f"I've noted {_join_request_items(noted[:4])}."
     else:
-        opening = opening.rstrip(".") + "."
+        details = ""
 
-    if asks_toc and asks_lab:
-        offer = f"We can prepare the {domain} course outline and lab-cost estimate together for your review."
-    elif asks_toc:
-        offer = f"We can prepare a day-wise {domain} course outline for your review."
-    elif asks_lab:
-        provider = _first_text(safe, ("cloud_provider",))
-        provider_text = f" for {provider}" if provider else ""
-        offer = f"We can prepare a lab-cost estimate{provider_text} for the {domain} training."
-    elif asks_profile or safe.get("is_training_request"):
-        offer = f"We can identify trainers who fit the {domain} scope and share their profiles for your review."
+    prepare_items = []
+    if asks_toc:
+        prepare_items.append("a day-wise ToC")
+    if asks_lab:
+        prepare_items.append("a lab-cost estimate")
+    share_items = []
+    if asks_profile:
+        asks_cv = bool(re.search(r"\b(?:cv|resume)\b", requested))
+        asks_linkedin = bool(re.search(r"\blinked\s*in\b", requested))
+        if asks_cv:
+            share_items.append("a relevant trainer CV")
+        if asks_linkedin:
+            share_items.append("the trainer's LinkedIn profile")
+        if not asks_cv and not asks_linkedin:
+            share_items.append("suitable trainer profiles")
+    if prepare_items and share_items:
+        offer = f"we can share {_join_request_items(share_items)} and prepare {_join_request_items(prepare_items)} for your review"
+    elif prepare_items:
+        offer = f"we can prepare {_join_request_items(prepare_items)} for your review"
+    elif share_items:
+        offer = f"we can share {_join_request_items(share_items)} for your review"
+    elif safe.get("is_training_request"):
+        offer = f"we can identify suitable trainers and share profiles matched to the {domain} scope for your review"
     else:
-        offer = f"We’ll review the {domain} request and confirm the relevant next step."
+        offer = f"we'll review your {domain} request and confirm the relevant next step"
 
     missing_labels = {
         "training duration": "the training duration",
@@ -506,20 +524,38 @@ def offline_client_requirement_reply(extracted: Optional[Dict[str, Any]], messag
         and "budget" not in str(item).lower()
         and "commercial" not in str(item).lower()
     ))
-    # Avoid asking for a date when a timing field is already populated and
-    # keep the next step specific instead of repeating every intake field.
+    # Ask only for the concrete facts that remain missing.
     next_step = ""
     if missing:
-        next_step = f"Could you share {_join_request_items(missing)} so we can shortlist accurately?"
+        next_step = f"Could you confirm {_join_request_items(missing)}?"
         if asks_toc and not asks_profile:
-            next_step = f"To tailor the outline, could you share {_join_request_items(missing)}?"
+            next_step = f"To tailor the outline, could you confirm {_join_request_items(missing)}?"
         elif asks_lab and not asks_profile:
-            next_step = f"To estimate the lab cost accurately, could you share {_join_request_items(missing)}?"
-        if asks_profile or safe.get("is_training_request"):
-            offer = f"With those details, we can share trainer profiles matched to the {domain} scope."
+            next_step = f"To estimate the lab cost accurately, could you confirm {_join_request_items(missing)}?"
+
+    protected = _refusal_sentence(client_secret_kinds(latest))
+    if protected:
+        if offer.startswith("we can "):
+            protected_offer = f"{protected.rstrip('.')}, but we can still {offer.removeprefix('we can ')}."
+        else:
+            protected_offer = f"{protected.rstrip('.')}; {offer}."
+        offer = protected_offer
+    elif missing and (asks_profile or safe.get("is_training_request")):
+        offer = f"Once you confirm the remaining details, {offer}."
+    else:
+        offer = offer[:1].upper() + offer[1:] + "."
+    if protected:
+        offer = offer[:1].upper() + offer[1:]
+
+    # Keep the main reply to three sentences: acknowledgment, relevant facts
+    # plus offer, and a question only when the sender can provide what's missing.
+    context_and_offer = (
+        f"{details[:-1]}; {offer[:1].lower() + offer[1:]}"
+        if details and not protected else offer
+    )
     body = "\n\n".join((
         greeting_line(display_name, ANNAPURNA),
-        " ".join(part for part in (opening, offer, next_step) if part),
+        " ".join(part for part in (opening, context_and_offer, next_step) if part),
         signature_for(ANNAPURNA),
     ))
     reply = {
