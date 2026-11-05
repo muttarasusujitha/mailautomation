@@ -90,7 +90,7 @@ def test_mail1_requests_real_slots_for_both_flows_even_for_profile_only_request(
             client_request="Please share an updated CV.", request_interview_slots=False,
         )))
         body = reply["body"]
-        assert "three interview/discussion slots that you are actually available for" in body
+        assert "three convenient interview/discussion slots that you are actually available for" in body
         assert "[Your available date" not in body
         assert "illustrative, not booked appointments" in body
         sample_lines = re.findall(

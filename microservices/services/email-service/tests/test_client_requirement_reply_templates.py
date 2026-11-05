@@ -268,8 +268,9 @@ def test_total_client_commercial_uses_duration_without_fifteen_thousand_cap():
 def test_first_trainer_mail_requests_three_dated_interview_slots():
     mail = _trainer_mail_for_requirement({"technology_needed": "DevOps"}, "REQ-1")
 
-    assert "3 convenient interview/discussion slots" in mail["body"]
+    assert "three convenient interview/discussion slots that you are actually available for" in mail["body"]
     assert "date, time, and time zone" in mail["body"]
+    assert "illustrative, not booked appointments" in mail["body"]
 
 
 def test_date_first_training_dates_are_extracted_from_recent_client_request():

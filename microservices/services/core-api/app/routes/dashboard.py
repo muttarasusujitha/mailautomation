@@ -155,6 +155,11 @@ async def _reply_thread_count(
     inbound_query: Dict[str, Any],
     outbound_query: Dict[str, Any],
 ) -> int:
+    email_logs = db["email_logs"]
+    if not hasattr(email_logs, "distinct"):
+        inbound_count = await email_logs.count_documents(inbound_query)
+        outbound_count = await email_logs.count_documents(outbound_query)
+        return max(inbound_count, outbound_count)
     inbound_source_ids = await db["email_logs"].distinct(
         "source_outbound_email_id", inbound_query
     )
