@@ -665,15 +665,18 @@ async def reply_for_stored_message(db: Any, email_doc: Dict[str, Any]) -> Dict[s
     sender_name = email_doc.get("from_name") or ""
     thread_extracted: Dict[str, Any] = {}
     try:
-        # The history loader labels each item by direction and removes quoted
-        # copies. Fold inbound messages oldest-to-newest so later corrections
-        # override earlier requirement facts; sent messages remain context,
-        # but are not treated as new client-provided facts.
+        # The history loader returns one oldest-to-newest timeline with role
+        # labels. Only the current correspondent's inbound messages can update
+        # this reply's facts; a trainer's answer must not become a client fact.
         from app.routes.inbox import _verified_question_history
 
         history = await _verified_question_history(db, email_doc, limit=30)
-        for item in reversed(history):
+        normalized_sender = (parseaddr(str(sender_email))[1] or str(sender_email)).strip().lower()
+        for item in history:
             if _text(item.get("direction")).lower() != "inbound":
+                continue
+            historical_sender = (parseaddr(str(item.get("from") or ""))[1] or str(item.get("from") or "")).strip().lower()
+            if normalized_sender and historical_sender != normalized_sender:
                 continue
             historical = _extract_requirement_from_email(
                 item.get("subject") or subject,
