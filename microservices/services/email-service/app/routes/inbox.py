@@ -1853,14 +1853,35 @@ async def _generate_verified_question_reply(
     return None
 
 
+def _history_datetime(value: Any) -> datetime:
+    if isinstance(value, datetime):
+        moment = value
+    else:
+        raw = _clean(value)
+        if not raw:
+            return datetime.min
+        try:
+            moment = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            return datetime.min
+    if moment.tzinfo:
+        return moment.astimezone(timezone.utc).replace(tzinfo=None)
+    return moment
+
+
 async def _verified_question_history(
-    db: AsyncIOMotorDatabase, email_doc: Dict[str, Any], limit: int = 8
-) -> List[Dict[str, str]]:
-    """Load a small, requirement-scoped history with explicit source labels."""
+    db: AsyncIOMotorDatabase, email_doc: Dict[str, Any], limit: int = 12
+) -> List[Dict[str, Any]]:
+    """Load recent client, trainer, and Clahan messages as one labeled timeline."""
     requirement_id = _clean(email_doc.get("requirement_id"))
-    trainer_id = _clean(email_doc.get("trainer_id"))
     thread_id = _clean(email_doc.get("gmail_thread_id") or email_doc.get("thread_id"))
     current_email_id = _clean(email_doc.get("email_id"))
+    current_sender = _email_address(email_doc.get("from_email") or email_doc.get("sender"))
+    current_classification = email_doc.get("email_classification") or {}
+    if not isinstance(current_classification, dict):
+        current_classification = {}
+    current_type = _clean(current_classification.get("person_type")).lower()
+    current_role = "trainer" if "trainer" in current_type else "client" if "client" in current_type else "external sender"
     identity_clauses: List[Dict[str, Any]] = []
     if requirement_id:
         identity_clauses.append({"requirement_id": requirement_id})
@@ -1870,64 +1891,100 @@ async def _verified_question_history(
     if not identity_clauses:
         return []
 
-    history: List[Dict[str, str]] = []
-    query: Dict[str, Any] = {"$or": identity_clauses}
-    if trainer_id:
-        query["$and"] = [{"$or": [
-            {"trainer_id": trainer_id},
-            {"trainer_id": {"$in": [None, ""]}},
-            {"trainer_id": {"$exists": False}},
-        ]}]
+    filters: List[Dict[str, Any]] = [{"$or": identity_clauses}]
+    if current_email_id:
+        filters.extend((
+            {"email_id": {"$ne": current_email_id}},
+            {"source_email_id": {"$ne": current_email_id}},
+        ))
+    query: Dict[str, Any] = {"$and": filters}
+    history: List[Dict[str, Any]] = []
+
+    def append_message(message: Dict[str, Any], *, default_direction: str) -> None:
+        body = _strip_quoted_email_history(
+            message.get("clean_body") or message.get("body") or message.get("body_snippet") or ""
+        )
+        if not body:
+            return
+        direction = _clean(message.get("direction")).lower() or default_direction
+        sender = _email_address(message.get("from_email"))
+        recipient = _email_address(message.get("to_email") or message.get("recipient"))
+        mail_type = _clean(message.get("mail_type"))
+        if direction == "outbound":
+            client_recipient = _email_address(message.get("client_email"))
+            if client_recipient and recipient == client_recipient:
+                role = "Clahan to client"
+            elif "client" in mail_type.lower():
+                role = "Clahan to client"
+            elif "trainer" in mail_type.lower() or _clean(message.get("trainer_id")):
+                role = "Clahan to trainer"
+            else:
+                role = "Clahan"
+            source = "sent_clahan_email"
+        else:
+            classification = message.get("email_classification") or {}
+            if not isinstance(classification, dict):
+                classification = {}
+            person_type = _clean(classification.get("person_type")).lower()
+            role = "trainer" if "trainer" in person_type else (
+                "client" if "client" in person_type else "external sender"
+            )
+            if current_sender and sender == current_sender:
+                role = current_role
+            source = "inbound_email"
+        if direction == "outbound" and _clean(message.get("status")).lower() in {"failed", "send_failed"}:
+            return
+        timestamp_value = message.get("created_at") or message.get("sent_at") or message.get("received_at")
+        moment = _history_datetime(timestamp_value)
+        history.append({
+            "source": source,
+            "direction": direction or ("inbound" if source == "inbound_email" else "outbound"),
+            "role": role,
+            "from": sender,
+            "to": recipient,
+            "subject": _clean(message.get("subject"))[:300],
+            "mail_type": mail_type,
+            "timestamp": moment.isoformat() if moment != datetime.min else "",
+            "text": body[:1200],
+            "_sort_at": moment,
+        })
+
     try:
         cursor = db["email_logs"].find(
             query,
-            {"_id": 0, "direction": 1, "body": 1, "subject": 1, "mail_type": 1, "status": 1, "from_email": 1, "to_email": 1},
+            {"_id": 0, "email_id": 1, "source_email_id": 1, "direction": 1, "body": 1,
+             "subject": 1, "mail_type": 1, "status": 1, "from_email": 1, "to_email": 1,
+             "recipient": 1, "client_email": 1, "trainer_id": 1, "body_snippet": 1,
+             "created_at": 1, "sent_at": 1},
         ).sort("created_at", -1).limit(limit)
         async for message in cursor:
-            message_body = _strip_quoted_email_history(message.get("body") or "")
-            if not message_body:
-                continue
-            direction = _clean(message.get("direction")).lower()
-            history.append({
-                "source": "sent_clahan_email" if direction == "outbound" else "inbound_email",
-                "direction": direction,
-                "from": _email_address(message.get("from_email")),
-                "to": _email_address(message.get("to_email")),
-                "subject": _clean(message.get("subject"))[:300],
-                "mail_type": _clean(message.get("mail_type")),
-                "text": message_body[:1200],
-            })
+            append_message(message, default_direction="outbound")
     except Exception:
         logger.exception("Unable to load email-log history for question %s", current_email_id)
 
-    # Some Gmail inbound messages have not yet been copied to email_logs. Add
-    # those records too, but label them as inbound rather than treating every
-    # previous draft as authoritative.
-    remaining = max(0, limit - len(history))
-    if remaining:
-        inbox_query: Dict[str, Any] = {"$or": identity_clauses}
-        if current_email_id:
-            inbox_query["email_id"] = {"$ne": current_email_id}
-        try:
-            cursor = db["client_emails"].find(
-                inbox_query,
-                {"_id": 0, "body": 1, "clean_body": 1, "subject": 1, "from_email": 1},
-            ).sort("received_at", -1).limit(remaining)
-            async for message in cursor:
-                message_body = _strip_quoted_email_history(
-                    message.get("clean_body") or message.get("body") or ""
-                )
-                if message_body:
-                    history.append({
-                        "source": "inbound_email",
-                        "direction": "inbound",
-                        "from": _email_address(message.get("from_email")),
-                        "subject": _clean(message.get("subject"))[:300],
-                        "text": message_body[:1200],
-                    })
-        except Exception:
-            logger.exception("Unable to load inbox history for question %s", current_email_id)
-    return history[:limit]
+    # Fetch inbound records independently of sent logs, then merge and sort.
+    # A shared limit previously let outgoing Clahan messages crowd client and
+    # trainer replies out of the context completely.
+    try:
+        cursor = db["client_emails"].find(
+            query,
+            {"_id": 0, "email_id": 1, "body": 1, "clean_body": 1, "subject": 1,
+             "from_email": 1, "email_classification": 1, "received_at": 1, "created_at": 1},
+        ).sort("received_at", -1).limit(limit)
+        async for message in cursor:
+            append_message(message, default_direction="inbound")
+    except Exception:
+        logger.exception("Unable to load inbox history for question %s", current_email_id)
+
+    deduplicated: Dict[tuple, Dict[str, Any]] = {}
+    for item in history:
+        key = (item["timestamp"], item["direction"], item["from"], item["to"], item["subject"], item["text"])
+        deduplicated.setdefault(key, item)
+    timeline = sorted(deduplicated.values(), key=lambda item: item["_sort_at"])
+    recent = timeline[-max(0, limit):] if limit > 0 else []
+    for item in recent:
+        item.pop("_sort_at", None)
+    return recent
 
 
 async def _humanize_verified_client_reply(
