@@ -50,6 +50,18 @@ CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 DOCUMENT_SERVICE_URL = "http://document-service:8006"
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
+
+
+def _sample_availability_slots() -> str:
+    """Return three fresh weekday examples, clearly marked as format only."""
+    times = ("10:00 AM to 11:00 AM IST", "2:00 PM to 3:00 PM IST", "11:00 AM to 12:00 PM IST")
+    day = datetime.now(LOCAL_TZ).date()
+    slots: List[str] = []
+    while len(slots) < 3:
+        day += timedelta(days=1)
+        if day.weekday() < 5:
+            slots.append(f"- {day.strftime('%d %b %Y')}, {times[len(slots)]}")
+    return "\n".join(slots)
 LOCAL_SERVICE_FALLBACKS = {
     "https://core-api:8001": "http://127.0.0.1:8001",
     "http://core-api:8001": "http://127.0.0.1:8001",
@@ -378,14 +390,20 @@ def _clean(value: Any) -> str:
 
 def _fix_mojibake(value: Any) -> str:
     text = str(value or "")
-    if not any(marker in text for marker in ("â", "ð", "Ã")):
-        return text
-    try:
-        repaired = text.encode("cp1252", errors="ignore").decode("utf-8", errors="ignore")
-        return repaired or text
-    except Exception:
-        return text
-
+    markers = tuple(chr(code) for code in (0x00C3, 0x00C2, 0x00E2, 0x00F0, 0x00EF))
+    for _ in range(3):
+        if not any(marker in text for marker in markers):
+            break
+        try:
+            repaired = text.encode("cp1252").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            break
+        current_score = sum(text.count(marker) for marker in markers)
+        repaired_score = sum(repaired.count(marker) for marker in markers)
+        if repaired == text or repaired_score >= current_score:
+            break
+        text = repaired
+    return text
 
 def _plain_text(value: Any) -> str:
     text = _fix_mojibake(value)
@@ -1400,7 +1418,7 @@ def _extract_preferred_dates(text: str) -> Dict[str, Any]:
         month_names = "|".join(re.escape(name) for name in MONTHS)
         range_match = re.search(
             rf"\b(?:{month_names})\s+\d{{1,2}}(?:st|nd|rd|th)?\s+"
-            rf"(?:to|until|through|till|-|–|—)\s+"
+            rf"(?:to|until|through|till|-|\u2013|\u2014)\s+"
             rf"(?:(?:{month_names})\s+)?\d{{1,2}}(?:st|nd|rd|th)?(?:\s*,?\s*\d{{4}})?\b",
             text or "",
             flags=re.IGNORECASE,
@@ -1411,7 +1429,7 @@ def _extract_preferred_dates(text: str) -> Dict[str, Any]:
         month_names = "|".join(re.escape(name) for name in MONTHS)
         range_match = re.search(
             rf"\b\d{{1,2}}(?:st|nd|rd|th)?\s+(?:{month_names})(?:\s*,?\s*\d{{4}})?\s+"
-            rf"(?:to|until|through|till|-|â€“|â€”)\s+"
+            rf"(?:to|until|through|till|-|\u2013|\u2014)\s+"
             rf"\d{{1,2}}(?:st|nd|rd|th)?\s+(?:{month_names})(?:\s*,?\s*\d{{4}})?\b",
             text or "",
             flags=re.IGNORECASE,
@@ -4018,10 +4036,10 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         "- Relevant certifications, if any\n"
         "- Your commercials (per hour and/or per day; please specify currency)\n"
         "- Lab support availability and associated lab cost, if applicable\n\n"
-        "Please also share 3 convenient interview/discussion slots with the date, time, and time zone. For example:\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]\n\n"
+        "Please share three interview/discussion slots that you are actually available for.\n"
+        "Example format only; the sample dates and times below are illustrative, not booked appointments. "
+        "Please replace them with your actual availability:\n"
+        f"{_sample_availability_slots()}\n\n"
         f"Reference: {requirement_id}\n\n"
         + _reply_signature()
     )
@@ -5231,16 +5249,13 @@ def _trainer_slot_booking_message(
         or "the training requirement"
     )
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
-    slots_text = (
-        "- Date: 1 September 2026, Time: 10:00 AM - 10:30 AM IST\n"
-        "- Date: 2 September 2026, Time: 2:00 PM - 2:30 PM IST\n"
-        "- Date: 3 September 2026, Time: 4:00 PM - 4:30 PM IST"
-    )
+    slots_text = _sample_availability_slots()
     subject = f"Interview Slot Booking - {technology}"
     body = apply_voice(
         f"Hello {trainer_name},\n\n"
-        "Please share three convenient interview/discussion slots with the date, time, and time zone.\n\n"
-        "For example:\n"
+        "Please share three interview/discussion slots that you are actually available for.\n\n"
+        "Example format only; these sample dates and times are illustrative, not booked appointments. "
+        "Please replace them with your actual availability:\n"
         f"{slots_text}\n\n"
         "Thanks,\nAnnapurna U.\nClahan Technologies",
         ANNAPURNA,
@@ -7041,8 +7056,6 @@ def _normalise_slot_text(text: Any) -> str:
         .replace("\u2013", "-")
         .replace("\u2014", "-")
         .replace("\u2212", "-")
-        .replace("â€“", "-")
-        .replace("â€”", "-")
         .replace("\ufffd", "-")
         .replace("a.m.", "am")
         .replace("p.m.", "pm")
@@ -7278,6 +7291,20 @@ def _selected_slot_number(text: str) -> Optional[int]:
 
 def _slot_options_from_text(source_text: Any) -> List[Dict[str, Any]]:
     clean = _normalise_slot_text(_strip_quoted_email_history(source_text))
+    lines: List[str] = []
+    inside_format_example = False
+    for line in clean.splitlines():
+        if re.search(r"example format only|illustrative, not booked appointments", line, flags=re.IGNORECASE):
+            inside_format_example = True
+            continue
+        if inside_format_example:
+            if not line.strip():
+                continue
+            if _slot_date_matches(line) and _slot_time_candidates(line):
+                continue
+            inside_format_example = False
+        lines.append(line)
+    clean = "\n".join(lines)
     date_matches = _slot_date_matches(clean)
     options: List[Dict[str, Any]] = []
     seen_starts: set[datetime] = set()
@@ -15804,7 +15831,7 @@ async def _persist_client_email_from_reply(
     raw_from = reply.get("from_raw") or reply.get("from_email") or ""
     parsed_name, parsed_email = parseaddr(raw_from)
     from_email = _email_address(reply.get("from_email") or parsed_email or raw_from)
-    from_name = _clean(parsed_name) or from_email.split("@")[0]
+    from_name = _clean(_fix_mojibake(parsed_name)) or from_email.split("@")[0]
     msg_id_hdr = reply.get("message_id_header", "")
     in_reply_to = reply.get("in_reply_to")
     references = reply.get("references")
@@ -15882,11 +15909,11 @@ async def _persist_client_email_from_reply(
     update_fields = {
         "from_email": from_email,
         "from_name": from_name,
-        "subject": reply.get("subject"),
-        "body": (reply.get("body") or "")[:2000],
-        "raw_body": reply.get("full_body") or reply.get("body") or "",
-        "clean_body": reply.get("full_body") or reply.get("body") or "",
-        "body_snippet": (reply.get("full_body") or reply.get("body") or "")[:500],
+        "subject": _fix_mojibake(reply.get("subject") or ""),
+        "body": _fix_mojibake(reply.get("body") or "")[:2000],
+        "raw_body": _fix_mojibake(reply.get("full_body") or reply.get("body") or ""),
+        "clean_body": _fix_mojibake(reply.get("full_body") or reply.get("body") or ""),
+        "body_snippet": _fix_mojibake(reply.get("full_body") or reply.get("body") or "")[:500],
         "attachments": reply.get("attachments") or [],
         "attachment_names": reply.get("attachment_names") or [],
         "attachment_profiles": attachment_profiles,
@@ -16065,6 +16092,34 @@ async def _persist_client_email_from_reply(
     return doc["email_id"]
 
 
+async def _mark_outbound_reply_received(
+    db: AsyncIOMotorDatabase,
+    linked_email: Dict[str, Any],
+    reply: Dict[str, Any],
+) -> None:
+    source_email_id = _clean(linked_email.get("source_outbound_email_id"))
+    if not source_email_id:
+        return
+    received_at = _parse_datetime(reply.get("received_at")) or _now()
+    try:
+        await db["email_logs"].update_one(
+            {
+                "email_id": source_email_id,
+                "status": "sent",
+                "direction": {"$ne": "inbound"},
+            },
+            {"$set": {
+                "reply_received": True,
+                "reply_received_at": received_at,
+                "reply_email_id": linked_email.get("email_id") or "",
+                "reply_gmail_message_id": reply.get("message_id_header") or "",
+                "updated_at": _now(),
+            }},
+        )
+    except Exception:
+        logger.exception("Unable to mark outbound reply received for %s", source_email_id)
+
+
 async def _process_and_store_replies(
     db: AsyncIOMotorDatabase,
     replies: list,
@@ -16098,10 +16153,12 @@ async def _process_and_store_replies(
                         {"$set": {
                             "from_email": reply.get("from_email") or existing.get("from_email") or existing.get("sender") or "",
                             "sender": reply.get("from_email") or existing.get("sender") or "",
-                            "body": (reply.get("body") or existing.get("body") or "")[:2000],
-                            "raw_body": reply.get("body") or existing.get("raw_body") or "",
-                            "clean_body": reply.get("body") or existing.get("clean_body") or "",
-                            "body_snippet": (reply.get("body") or existing.get("body_snippet") or "")[:500],
+                            "subject": _fix_mojibake(reply.get("subject") or existing.get("subject") or ""),
+                            "body": _fix_mojibake(reply.get("body") or existing.get("body") or "")[:2000],
+                            "raw_body": _fix_mojibake(reply.get("body") or existing.get("raw_body") or ""),
+                            "clean_body": _fix_mojibake(reply.get("body") or existing.get("clean_body") or ""),
+                            "body_snippet": _fix_mojibake(reply.get("body") or existing.get("body_snippet") or "")[:500],
+                            "received_at": received_at or _parse_datetime(existing.get("received_at")) or _now(),
                             "requirement_id": linked_doc.get("requirement_id") or "",
                             "trainer_id": linked_doc.get("trainer_id") or "",
                             "trainer_name": linked_doc.get("trainer_name") or "",
@@ -16110,6 +16167,7 @@ async def _process_and_store_replies(
                             "updated_at": _now(),
                         }},
                     )
+                    await _mark_outbound_reply_received(db, linked_doc, reply)
                     if process_client_requests and not linked_doc.get("processed") and _auto_send_retry_due(linked_doc):
                         await _process_client_requirement_email(db, linked_doc)
                     stored += 1
@@ -16122,11 +16180,11 @@ async def _process_and_store_replies(
             "sender": reply.get("from_email"),
             "from_email": reply.get("from_email"),
             "from_raw": reply.get("from_raw"),
-            "subject": reply.get("subject"),
-            "body": (reply.get("body") or "")[:2000],
-            "raw_body": reply.get("body") or "",
-            "clean_body": reply.get("body") or "",
-            "body_snippet": (reply.get("body") or "")[:500],
+            "subject": _fix_mojibake(reply.get("subject") or ""),
+            "body": _fix_mojibake(reply.get("body") or "")[:2000],
+            "raw_body": _fix_mojibake(reply.get("body") or ""),
+            "clean_body": _fix_mojibake(reply.get("body") or ""),
+            "body_snippet": _fix_mojibake(reply.get("body") or "")[:500],
             "gmail_message_id": msg_id_hdr,
             "latest_gmail_message_id": msg_id_hdr,
             "in_reply_to": reply.get("in_reply_to"),
@@ -16140,7 +16198,7 @@ async def _process_and_store_replies(
             "action": reply.get("action"),
             "status": "received",
             "processed": False,
-            "received_at": reply.get("received_at"),
+            "received_at": received_at or now,
             "created_at": now,
             "updated_at": now,
         }
@@ -16163,6 +16221,7 @@ async def _process_and_store_replies(
                     "updated_at": _now(),
                 }},
             )
+            await _mark_outbound_reply_received(db, linked_doc, reply)
             if process_client_requests and not linked_doc.get("processed") and _auto_send_retry_due(linked_doc):
                 await _process_client_requirement_email(db, linked_doc)
         stored += 1

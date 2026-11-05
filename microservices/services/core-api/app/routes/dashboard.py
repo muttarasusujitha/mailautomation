@@ -150,6 +150,22 @@ def _outbound_email_query(extra: Optional[Dict[str, Any]] = None) -> Dict[str, A
     return {"direction": {"$ne": "inbound"}, **(extra or {})}
 
 
+async def _reply_thread_count(
+    db: AsyncIOMotorDatabase,
+    inbound_query: Dict[str, Any],
+    outbound_query: Dict[str, Any],
+) -> int:
+    inbound_source_ids = await db["email_logs"].distinct(
+        "source_outbound_email_id", inbound_query
+    )
+    replied_outbound_ids = await db["email_logs"].distinct("email_id", outbound_query)
+    return len({
+        str(email_id).strip()
+        for email_id in [*inbound_source_ids, *replied_outbound_ids]
+        if email_id
+    })
+
+
 def _date_recent_query(field: str, since: datetime) -> Dict[str, Any]:
     return {
         "$or": [
@@ -239,11 +255,25 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     failed_emails = await db["email_logs"].count_documents(
         _outbound_email_query({"status": "failed"})
     )
-    total_replies = await db["email_logs"].count_documents(
-        _outbound_email_query({"reply_received": True})
+    inbound_reply_query = {
+        "direction": "inbound",
+        "source_outbound_email_id": {"$exists": True, "$nin": ["", None]},
+    }
+    # The inbox poller stores received messages as inbound rows. Count unique
+    # linked outreach threads so existing replies appear even when older
+    # outbound rows were never stamped with reply_received.
+    total_replies = await _reply_thread_count(
+        db,
+        inbound_reply_query,
+        _outbound_email_query({"reply_received": True}),
     )
-    replies_this_week = await db["email_logs"].count_documents(
-        _outbound_email_query({"reply_received": True, **_date_recent_query("reply_received_at", week_ago)})
+    replies_this_week = await _reply_thread_count(
+        db,
+        {**inbound_reply_query, **_date_recent_query("received_at", week_ago)},
+        _outbound_email_query({
+            "reply_received": True,
+            **_date_recent_query("reply_received_at", week_ago),
+        }),
     )
 
     # Client inbox
@@ -362,6 +392,10 @@ async def dashboard_analytics(
     now = datetime.utcnow()
     start, end = _range_from_params(preset, start_date, end_date)
     since = start
+    inbound_reply_query = {
+        "direction": "inbound",
+        "source_outbound_email_id": {"$exists": True, "$nin": ["", None]},
+    }
 
     # Requirements over time — daily bucket
     pipeline_req: List[Dict[str, Any]] = [
@@ -406,9 +440,33 @@ async def dashboard_analytics(
         async for r in db["email_logs"].aggregate(pipeline_email)
     ]
 
+    inbound_replies_in_range = {
+        **inbound_reply_query,
+        **_event_date_query("received_at", start, end),
+    }
+    flagged_replies_in_range = _outbound_email_query({
+        "reply_received": True,
+        **_event_date_query("reply_received_at", start, end),
+    })
     pipeline_replies: List[Dict[str, Any]] = [
-        {"$match": _outbound_email_query({"reply_received": True, **_event_date_query("reply_received_at", start, end)})},
-        {"$addFields": {"bucket_date": {"$ifNull": ["$reply_received_at", "$created_at"]}}},
+        {"$match": {"$or": [inbound_replies_in_range, flagged_replies_in_range]}},
+        {"$addFields": {
+            "reply_thread_id": {
+                "$cond": [
+                    {"$eq": ["$direction", "inbound"]},
+                    "$source_outbound_email_id",
+                    "$email_id",
+                ]
+            },
+            "bucket_date": {
+                "$cond": [
+                    {"$eq": ["$direction", "inbound"]},
+                    {"$ifNull": ["$received_at", "$created_at"]},
+                    {"$ifNull": ["$reply_received_at", "$created_at"]},
+                ]
+            },
+        }},
+        {"$group": {"_id": "$reply_thread_id", "bucket_date": {"$min": "$bucket_date"}}},
         {"$group": {
             "_id": {
                 "year": {"$year": "$bucket_date"},
@@ -548,9 +606,13 @@ async def dashboard_analytics(
         wk_end = end - timedelta(days=offset * 7)
         wk_start = wk_end - timedelta(days=6)
         sent_q = _outbound_email_query({"status": "sent", **_event_date_query("sent_at", wk_start, wk_end)})
-        reply_q = _outbound_email_query({"reply_received": True, **_event_date_query("reply_received_at", wk_start, wk_end)})
+        reply_inbound_q = {**inbound_reply_query, **_event_date_query("received_at", wk_start, wk_end)}
+        reply_outbound_q = _outbound_email_query({
+            "reply_received": True,
+            **_event_date_query("reply_received_at", wk_start, wk_end),
+        })
         sent = await db["email_logs"].count_documents(sent_q)
-        replies = await db["email_logs"].count_documents(reply_q)
+        replies = await _reply_thread_count(db, reply_inbound_q, reply_outbound_q)
         reply_rate_trend.append({"week": wk_start.strftime("%d %b"), "sent": sent, "reply_rate": _safe_pct(replies, sent)})
 
     expense_logs = await db["expense_logs"].find(_date_range_query("created_at", start, end), {"_id": 0}).to_list(10000)

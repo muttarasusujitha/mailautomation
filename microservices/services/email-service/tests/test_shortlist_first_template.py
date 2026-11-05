@@ -90,7 +90,13 @@ def test_mail1_requests_real_slots_for_both_flows_even_for_profile_only_request(
             client_request="Please share an updated CV.", request_interview_slots=False,
         )))
         body = reply["body"]
-        assert "three convenient interview/discussion slots" in body
-        assert "[Your available date 1]" in body
-        assert "[Your available date 3]" in body
+        assert "three interview/discussion slots that you are actually available for" in body
+        assert "[Your available date" not in body
+        assert "illustrative, not booked appointments" in body
+        sample_lines = re.findall(
+            r"^- \d{2} [A-Za-z]{3} \d{4}, \d{1,2}:\d{2} [AP]M to \d{1,2}:\d{2} [AP]M IST$",
+            body,
+            flags=re.MULTILINE,
+        )
+        assert len(sample_lines) == 3
         assert _slot_options_from_text(body) == []

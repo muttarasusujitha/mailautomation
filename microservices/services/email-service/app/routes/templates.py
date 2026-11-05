@@ -20,6 +20,18 @@ settings = get_settings()
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 
 
+def _sample_availability_slots() -> str:
+    """Return three fresh weekday examples, clearly marked as format only."""
+    times = ("10:00 AM to 11:00 AM IST", "2:00 PM to 3:00 PM IST", "11:00 AM to 12:00 PM IST")
+    day = datetime.now(LOCAL_TZ).date()
+    slots = []
+    while len(slots) < 3:
+        day += timedelta(days=1)
+        if day.weekday() < 5:
+            slots.append(f"- {day.strftime('%d %b %Y')}, {times[len(slots)]}")
+    return "\n".join(slots)
+
+
 def _require_internal(x_internal_token: str = Header(None)) -> None:
     # If INTERNAL_SERVICE_TOKEN is configured, require matching header.
     token = settings.INTERNAL_SERVICE_TOKEN or ""
@@ -290,11 +302,10 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
     )
     needs_slots = True  # Mail 1 collects interview availability for both shortlist flows.
     slot_request = (
-        "\n\nPlease also share three convenient interview/discussion slots with the date, time, and time zone.\n"
-        "Format only; please replace the placeholders with your actual availability:\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]\n"
+        "\n\nPlease share three interview/discussion slots that you are actually available for.\n"
+        "Example format only; the sample dates and times below are illustrative, not booked appointments. "
+        "Please replace them with your actual availability:\n"
+        f"{_sample_availability_slots()}\n"
         if needs_slots else ""
     )
     if not proposal_flow:
@@ -424,18 +435,7 @@ async def compose_shortlist_first(payload: ShortlistEmailRequest):
     requirement_kind = _requirement_kind(payload, client_request)
     detail_text = _requirement_snapshot(payload)
 
-    slot_guide = """
-
-Format for Sharing Availability Slots:
-=====================================
-Slot 1: 22 June 2026, 11:00 AM â€“ 11:30 AM IST
-Slot 2: 23 June 2026, 2:00 PM â€“ 2:30 PM IST
-Slot 3: 25 June 2026, 4:00 PM â€“ 4:30 PM IST
-
-This helps us process your availability automatically and move forward quickly.
-"""
     missing_note = ""
-    slot_guide = ""
     if requirement_kind == "confirmed_batch":
         intro = (
             f"We are coordinating a {domain} corporate training requirement and your profile appears relevant "
@@ -830,11 +830,10 @@ async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
     subject = f"Interview Slot Booking - {technology}"
     polished_body = _spoken(
         f"Hello {payload.name or 'Trainer'},\n\n"
-        "Please share three convenient interview/discussion slots with the date, time, and time zone.\n\n"
-        "For example:\n"
-        "- 1 September 2026, 10:00 AM IST\n"
-        "- 2 September 2026, 2:00 PM IST\n"
-        "- 3 September 2026, 4:00 PM IST\n\n"
+        "Please share three interview/discussion slots that you are actually available for.\n"
+        "Example format only; the sample dates and times below are illustrative, not booked appointments. "
+        "Please replace them with your actual availability:\n"
+        f"{_sample_availability_slots()}\n\n"
         "Thanks,\nAnnapurna U.\nClahan Technologies",
     )
     return {"subject": subject, "body": polished_body}

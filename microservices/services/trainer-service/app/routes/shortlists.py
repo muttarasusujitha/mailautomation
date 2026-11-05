@@ -25,6 +25,18 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 
+
+def _sample_availability_slots() -> str:
+    """Return three fresh weekday examples, clearly marked as format only."""
+    times = ("10:00 AM to 11:00 AM IST", "2:00 PM to 3:00 PM IST", "11:00 AM to 12:00 PM IST")
+    day = datetime.now(LOCAL_TZ).date()
+    slots: List[str] = []
+    while len(slots) < 3:
+        day += timedelta(days=1)
+        if day.weekday() < 5:
+            slots.append(f"- {day.strftime('%d %b %Y')}, {times[len(slots)]}")
+    return "\n".join(slots)
+
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
@@ -768,11 +780,10 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     slot_request = ""
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
-            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
-            "Example:\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n\n"
+            "Please share three interview/discussion slots that you are actually available for.\n"
+            "Example format only; the sample dates and times below are illustrative, not booked appointments. "
+            "Please replace them with your actual availability:\n"
+            f"{_sample_availability_slots()}\n\n"
             "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
@@ -2120,7 +2131,8 @@ async def _ai_trainer_mail1(
             if _is_proposal_requirement(requirement) else
             "If a client commercial is present, state only that client amount. Do not show a trainer share, a percentage, or an offered trainer commercial, and do not ask the trainer to confirm an offer. Never mention margins, internal calculations, "
         )
-        + "internal IDs, or internal workflow. Never invent dates, rates, client names, attachments, slots, or commitments. "
+        + "internal IDs, or internal workflow. Never invent training dates, rates, client names, attachments, trainer availability, or commitments. "
+        "The clearly labelled format-only sample dates are illustrative; never present them as the trainer's availability or a booked appointment. "
         "Address the trainer by name and finish with exactly: Regards, Clahan Technologies. "
         "Return exactly: SUBJECT: <subject> followed by BODY: <body>."
     )
@@ -2128,11 +2140,11 @@ async def _ai_trainer_mail1(
         f"Batch-specific rules: {batch_rule}\n"
         f"Trainer: {trainer_name}\nDomain: {domain}\nTrainer-safe requirement facts: {facts}\n"
         f"Reference facts and requested actions (compose fresh wording):\n{fallback_body}\n"
-        "Mail 1 non-negotiable rule: name the requested technologies, request availability, and request exactly "
-        "three interview/discussion slots using these placeholder examples (not real dates):\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]"
+        "Mail 1 non-negotiable rule: name the requested technologies and ask the trainer for three slots they are "
+        "actually available for. Include this exact, clearly labelled example block only to demonstrate the format; "
+        "these sample dates and times are illustrative, not proposed or booked appointments:\n"
+        "Example format only; replace these with your actual availability:\n"
+        f"{_sample_availability_slots()}"
     )
     try:
         text = await _invoke_mail_model(instructions, prompt)
@@ -2145,22 +2157,34 @@ async def _ai_trainer_mail1(
 
 
 def _ensure_mail1_slot_examples(body: str) -> str:
-    """Keep the required slot format visible even when the LLM omits it."""
-    text = _clean(body)
-    # The approved Mail 1 template already contains the request and examples.
-    # Do not append a second slot block when an AI/manual body has equivalent
-    # wording or examples with different dates.
-    if (
-        re.search(r"three convenient interview/discussion slots", text, flags=re.IGNORECASE)
-        or re.search(r"three slots in this format", text, flags=re.IGNORECASE)
-        or len(re.findall(r"^\s*-\s*\d{1,2}\s+\w+\s+\d{4},", text, flags=re.MULTILINE)) >= 3
-    ):
-        return text
+    """Replace placeholder examples with fresh, concrete format-only examples."""
+    text = str(body or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    cleaned_lines: List[str] = []
+    in_example_block = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        lower = stripped.lower()
+        if re.search(
+            r"example format|format only|placeholder examples|three slots in this format|replace the placeholders",
+            lower,
+        ) or lower in {"example:", "for example:"}:
+            in_example_block = True
+            continue
+        if re.match(r"^-\s*\[your available date", lower):
+            in_example_block = True
+            continue
+        if in_example_block:
+            if not stripped or re.match(r"^-\s*(?:\[|\d{1,2}\s+[a-z]{3,9}\s+\d{4})", lower):
+                continue
+            in_example_block = False
+        cleaned_lines.append(line.rstrip())
+    text = "\n".join(cleaned_lines).strip()
+    if not re.search(r"\b(?:three|3)\b.{0,100}\bslots\b", text, flags=re.IGNORECASE):
+        text = f"{text}\n\nPlease share three interview/discussion slots that you are actually available for.".strip()
     slot_examples = (
-        "\n\nPlease share the three slots in this format:\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]"
+        "\n\nExample format only; these sample dates and times are illustrative, not booked appointments. "
+        "Please replace them with your actual availability:\n"
+        f"{_sample_availability_slots()}"
     )
     closing = re.search(r"\n\s*Regards,\s*Clahan Technologies\.?\s*$", text, flags=re.IGNORECASE)
     if closing:
