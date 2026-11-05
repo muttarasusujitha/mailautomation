@@ -1499,22 +1499,45 @@ def _extract_budget(text: str) -> Dict[str, Any]:
     return result
 
 
+def _has_requirement_value(value: Any) -> bool:
+    """Return whether an extracted field contains a usable, non-placeholder value."""
+    if value is None or value is False:
+        return False
+    if isinstance(value, (list, tuple, set)):
+        return any(_has_requirement_value(item) for item in value)
+    text = _clean(value).strip().lower()
+    if not text or text in {
+        "n/a", "na", "none", "null", "unknown", "tbd", "to be decided",
+        "to be confirmed", "not confirmed", "not specified", "unspecified",
+        "pending", "-", "—",
+    }:
+        return False
+    try:
+        return float(text.replace(",", "")) > 0
+    except ValueError:
+        return True
+
+
 def _missing_training_details(details: Dict[str, Any]) -> List[str]:
     missing = []
-    if not (details.get("duration_days") or details.get("duration_hours") or details.get("duration_text")):
+    if not any(_has_requirement_value(details.get(key)) for key in ("duration_days", "duration_hours", "duration_text")):
         missing.append("Training duration")
-    if not (
-        details.get("timing")
-        or details.get("preferred_dates")
-        or details.get("training_dates")
-        or details.get("timeline_start")
-    ):
+    if not any(_has_requirement_value(details.get(key)) for key in (
+        "timing", "preferred_dates", "training_dates", "timeline_start",
+    )):
         missing.append("Preferred dates or timings")
-    if not details.get("mode"):
+    if not any(_has_requirement_value(details.get(key)) for key in ("mode", "training_mode", "delivery_mode", "location")):
         missing.append("Training mode/location")
-    if details.get("participant_count") is None:
+    participant_count = details.get("participant_count")
+    try:
+        has_participant_count = float(participant_count) > 0
+    except (TypeError, ValueError):
+        has_participant_count = _has_requirement_value(participant_count)
+    if not has_participant_count:
         missing.append("Participant count")
-    if not (details.get("budget_total") or details.get("budget_per_day")):
+    if not any(_has_requirement_value(details.get(key)) for key in (
+        "budget_total", "budget_per_day", "budget_range", "budget_min", "budget_max",
+    )):
         missing.append("Budget or expected commercial range, if available")
     return missing
 
