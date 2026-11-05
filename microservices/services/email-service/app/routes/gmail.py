@@ -644,6 +644,27 @@ async def gmail_sync_now(
     if gmail_service is None:
         raise HTTPException(503, f"Client Gmail is not connected. Reconnect Gmail and retry. ({gmail_error})")
 
+    active_run = await db["gmail_sync_runs"].find_one(
+        {"status": "running"},
+        {"_id": 0},
+        sort=[("started_at", -1)],
+    )
+    if active_run:
+        started_at = active_run.get("started_at")
+        if isinstance(started_at, datetime) and started_at < datetime.utcnow() - timedelta(minutes=30):
+            await db["gmail_sync_runs"].update_one(
+                {"sync_id": active_run.get("sync_id"), "status": "running"},
+                {"$set": {"status": "failed", "error": "Sync expired after 30 minutes.", "completed_at": datetime.utcnow()}},
+            )
+        else:
+            return {
+                "success": True,
+                "queued": True,
+                "running": True,
+                "message": "Gmail sync is already running. The inbox will update shortly.",
+                **active_run,
+            }
+
     if GMAIL_SYNC_IN_PROGRESS:
         return {
             "success": True,
@@ -654,9 +675,20 @@ async def gmail_sync_now(
         }
 
     sync_id = f"GS-{uuid.uuid4().hex[:10].upper()}"
+    started_at = datetime.utcnow()
+    await db["gmail_sync_runs"].insert_one({
+        "sync_id": sync_id,
+        "status": "running",
+        "started_at": started_at,
+        "limit": limit,
+        "since_days": since_days,
+        "process": process,
+    })
     GMAIL_SYNC_IN_PROGRESS = True
     GMAIL_SYNC_LAST_RESULT = {
         "sync_id": sync_id,
+        "status": "running",
+        "started_at": started_at,
         "processed_count": 0,
         "stored": 0,
         "checked": 0,
@@ -685,15 +717,23 @@ async def gmail_sync_now(
             }
             GMAIL_SYNC_LAST_RESULT = {
                 "sync_id": sync_id,
+                "status": "completed",
+                "started_at": started_at,
                 "processed_count": stored,
                 "stored": stored,
                 **pending,
                 "completed_at": datetime.utcnow().isoformat(),
             }
+            await db["gmail_sync_runs"].update_one(
+                {"sync_id": sync_id},
+                {"$set": GMAIL_SYNC_LAST_RESULT},
+            )
         except Exception as exc:
             logger.exception("Gmail background sync failed")
             GMAIL_SYNC_LAST_RESULT = {
                 "sync_id": sync_id,
+                "status": "failed",
+                "started_at": started_at,
                 "processed_count": 0,
                 "stored": 0,
                 "checked": 0,
@@ -704,6 +744,10 @@ async def gmail_sync_now(
                 "error": str(exc),
                 "completed_at": datetime.utcnow().isoformat(),
             }
+            await db["gmail_sync_runs"].update_one(
+                {"sync_id": sync_id},
+                {"$set": GMAIL_SYNC_LAST_RESULT},
+            )
         finally:
             GMAIL_SYNC_IN_PROGRESS = False
 
@@ -722,6 +766,15 @@ async def gmail_sync_now(
         "failed": 0,
         "skipped": 0,
     }
+
+
+@router.get("/sync-status/{sync_id}")
+async def gmail_sync_status(sync_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Return the persisted status for a background inbox sync."""
+    run = await db["gmail_sync_runs"].find_one({"sync_id": sync_id}, {"_id": 0})
+    if not run:
+        raise HTTPException(404, "Gmail sync run not found")
+    return {"success": True, "running": run.get("status") == "running", **run}
 
 
 @router.post("/renew-watch")

@@ -214,7 +214,7 @@ function showBulkSendStatusToast({ title = 'Bulk messages sent', results = [] })
   ), { duration: 10000 })
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Pipeline stages Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Pipeline stages
 function firstSendMailResult(result = {}) {
   return Array.isArray(result?.results) ? result.results[0] : null
 }
@@ -241,17 +241,17 @@ function assertSendMailDelivered(result = {}, fallback = 'Email delivery failed'
 const STAGES = {
   profile_review:       { label: 'Profile Review Required', color: 'bg-amber-100 text-amber-800', step: 0 },
   pending:              { label: 'Pending',               color: 'bg-slate-100 text-slate-500',     step: 0 },
-  mail1_sent:           { label: '1st Mail Sent Ã°Å¸â€œÂ§',      color: 'bg-blue-100 text-blue-700',       step: 1 },
-  waiting_reply1:       { label: 'Waiting for Reply Ã¢ÂÂ³',  color: 'bg-sky-100 text-sky-700',         step: 1 },
-  mail1_replied:        { label: 'Mail 1 Replied Ã¢Å“â€¦',     color: 'bg-emerald-100 text-emerald-700', step: 1 },
-  details_requested:    { label: 'Details Requested Ã°Å¸â€œâ€¹',  color: 'bg-indigo-100 text-indigo-700',   step: 2 },
-  details_received:     { label: 'Details Received Ã¢Å“â€¦',   color: 'bg-emerald-100 text-emerald-700', step: 2 },
-  waiting_reply2:       { label: 'Waiting for Reply Ã¢ÂÂ³',  color: 'bg-sky-100 text-sky-700',         step: 2 },
-  slot_booked:          { label: 'Slot Booked Ã°Å¸â€œâ€¦',        color: 'bg-amber-100 text-amber-700',     step: 3 },
+  mail1_sent:           { label: '1st Mail Sent 📧',      color: 'bg-blue-100 text-blue-700',       step: 1 },
+  waiting_reply1:       { label: 'Waiting for Reply ',  color: 'bg-sky-100 text-sky-700',         step: 1 },
+  mail1_replied:        { label: 'Mail 1 Replied ✅',     color: 'bg-emerald-100 text-emerald-700', step: 1 },
+  details_requested:    { label: 'Details Requested 📋',  color: 'bg-indigo-100 text-indigo-700',   step: 2 },
+  details_received:     { label: 'Details Received ✅',   color: 'bg-emerald-100 text-emerald-700', step: 2 },
+  waiting_reply2:       { label: 'Waiting for Reply ',  color: 'bg-sky-100 text-sky-700',         step: 2 },
+  slot_booked:          { label: 'Slot Booked 📅',        color: 'bg-amber-100 text-amber-700',     step: 3 },
   interview_scheduled:  { label: 'Interview Scheduled', color: 'bg-purple-100 text-purple-700',  step: 4 },
   interview_completed:  { label: 'Interview Completed', color: 'bg-indigo-100 text-indigo-700',  step: 4 },
-  selected:             { label: 'Selected Ã¢Å“â€¦',            color: 'bg-emerald-100 text-emerald-700', step: 5 },
-  rejected:             { label: 'Not Selected Ã¢ÂÅ’',        color: 'bg-red-100 text-red-600',         step: 5 },
+  selected:             { label: 'Selected ✅',            color: 'bg-emerald-100 text-emerald-700', step: 5 },
+  rejected:             { label: 'Not Selected ',        color: 'bg-red-100 text-red-600',         step: 5 },
   stopped_selected:     { label: 'Stopped - Role Filled', color: 'bg-slate-100 text-slate-500',     step: 0 },
   toc_requested:        { label: 'ToC Sent',               color: 'bg-teal-100 text-teal-700',       step: 3 },
   toc_received_pending: { label: 'ToC Updated',            color: 'bg-teal-100 text-teal-700',       step: 3 },
@@ -284,7 +284,7 @@ Object.assign(STAGES, {
   toc_received_pending: { ...STAGES.toc_received_pending, label: 'ToC Received', step: 5 },
 })
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Reminder intervals for Mail 1 (in ms) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Reminder intervals for Mail 1 (in ms)
 const SHORTLIST_REFRESH_INTERVAL_MS = 10000
 const MAIL1_RETRY_COOLDOWN_MS = 60 * 1000
 // The inbox workflow is the sole automatic client-handoff sender. Keeping a
@@ -639,7 +639,7 @@ function mail2Template(trainer, req, trainerReply = '') {
     .map(item => `* ${item.label}`)
     .join('\n')
   return {
-    subject: `Training Requirement â€“ ${req.technology_needed} | Additional Details Required`,
+    subject: `Training Requirement – ${req.technology_needed} | Additional Details Required`,
     body: `${greeting(trainer)}\n\nThank you for your response.\n\nTo proceed further, kindly share the below missing details:\n\n${items}\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
@@ -652,9 +652,9 @@ function mail2Template(trainer, req, trainerReply = '') {
 
 // AUTO: ToC request sent immediately after selection
 
-// MANUAL: Training confirmation with contact details Ã¢â‚¬â€ sent after ToC is received
+// MANUAL: Training confirmation with contact details  sent after ToC is received
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Reply intent detector Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Reply intent detector
 function detectIntent(text = '') {
   const t = text.toLowerCase()
   const negPhrases = [
@@ -729,8 +729,8 @@ function extractCommercialQuote(text = '') {
   const clean = stripQuotedEmail(text)
   const compact = clean.replace(/,/g, '')
   const patterns = [
-    /(?:inr|rs\.?|Ã¢â€šÂ¹)\s*(\d+(?:\.\d+)?)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
-    /(\d+(?:\.\d+)?)\s*(?:inr|rs\.?|Ã¢â€šÂ¹)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
+    /(?:inr|rs\.?|₹)\s*(\d+(?:\.\d+)?)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
+    /(\d+(?:\.\d+)?)\s*(?:inr|rs\.?|₹)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
     /(?:charges?|commercials?|rate|fees?|cost)\D{0,25}(\d+(?:\.\d+)?)\D{0,15}(hour|hr|day|session)/i,
     /(\d+(?:\.\d+)?)\D{0,15}(?:per|\/)\s*(hour|hr|day|session)/i,
     /(?:charges?|commercials?|commercial|rate|fees?|cost|budget)\D{0,40}(\d+(?:\.\d+)?)/i,
@@ -772,7 +772,7 @@ function hasProperInterviewSlots(text = '') {
   ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
   const timeHits = [
     /\b\d{1,2}(?::\d{2})?\s*(am|pm)\b/g,
-    /\b\d{1,2}(?::\d{2})?\s*[-Ã¢â‚¬â€œ]\s*\d{1,2}(?::\d{2})?\s*(am|pm)\b/g,
+    /\b\d{1,2}(?::\d{2})?\s*[-–]\s*\d{1,2}(?::\d{2})?\s*(am|pm)\b/g,
   ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
   const slotHints = (clean.match(/\b(slot|option|available|availability)\b/g) || []).length
   const hasOneExactSlot = dateHits >= 1 && timeHits >= 1
@@ -783,17 +783,17 @@ function hasProperInterviewSlots(text = '') {
 function countSlotsInReply(text = '') {
   const clean = stripQuotedEmail(text).toLowerCase()
   if (!clean) return 0
-  
+
   // Count date occurrences (each date might represent a slot)
   const dates = [
     /\b\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*[/-]\s*\d{2,4})?\b/g,
     /\b\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b/g,
     /\b(mon|tue|wed|thu|fri|sat|sun)(day)?\b/g,
   ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
-  
+
   // Count bullet points or "slot" mentions
-  const bulletSlots = (clean.match(/[Ã¢â‚¬Â¢\-*]\s*\d{1,2}|slot\s*\d{1,2}/g) || []).length
-  
+  const bulletSlots = (clean.match(/[•\-*]\s*\d{1,2}|slot\s*\d{1,2}/g) || []).length
+
   return Math.max(dates, bulletSlots)
 }
 
@@ -1006,7 +1006,7 @@ function inferPipelineStateFromEmailLogs(logs = [], req = {}) {
   return inferPipelineStateFromThread(messages, req)
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Send Mail Modal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Send Mail Modal
 async function generateAIReply({ requirementId, trainerId, trainerName, mailType, fallback }) {
   return generateWorkflowMail({
     requirementId,
@@ -1031,7 +1031,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
   const [contactEmail, setContactEmail] = useState('')
   const [clientEmail, setClientEmail]   = useState(req?.client_email || '')
   const [clientName, setClientName]     = useState(req?.client_name || req?.client_company || '')
-  // Ã¢â€â‚¬Ã¢â€â‚¬ AI state Ã¢â€â‚¬Ã¢â€â‚¬
+  //  AI state
   const [aiGenerating, setAiGenerating] = useState(false)
   const [aiSubject, setAiSubject]       = useState('')
   const [aiBody, setAiBody]             = useState('')
@@ -1039,12 +1039,12 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
 
   const getTemplatePreview = () => {
     const latestReply = threadMessages?.findLast(m => m.direction === 'received')?.body || ''
-    
+
     switch (mailType) {
       case 'mail1':          return mail1Template(trainer, req, false, {})
       case 'mail2':          return mail2Template(trainer, req)
       case 'mail2_followup': return mail2FollowupTemplate(trainer, req)
-      case 'mail3':          
+      case 'mail3':
         // Check if trainer provided wrong number of slots
         if (latestReply) {
           if (hasTooManySlots(latestReply)) {
@@ -1086,7 +1086,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
       setAiSubject(result.subject)
       setAiBody(result.body)
       setAiUsed(true)
-      toast.success('Ã¢Å“Â¨ AI email generated!')
+      toast.success('✨ AI email generated!')
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'AI generation failed')
     } finally {
@@ -1141,14 +1141,14 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
   ])
 
   const TITLES = {
-    mail1:         'Ã°Å¸â€œÂ§ Send Shortlist Mail',
-    mail2:         'Ã°Å¸â€œâ€¹ Request Trainer Details',
-    mail2_followup:'Ã°Å¸â€œâ€¹ Ask Details Again',
-    mail3:         'Ã°Å¸â€œâ€¦ Book Interview Slot',
-    mail4:         'Ã°Å¸â€”â€œÃ¯Â¸Â Send Interview Schedule',
-    mail5_ok:      'Ã°Å¸Å½â€° Send Selection Mail',
-    mail5_no:      'Ã¢ÂÅ’ Send Rejection Mail',
-    mail7_confirm: 'Ã°Å¸Å½â€œ Send Training Confirmation',
+    mail1:         '📧 Send Shortlist Mail',
+    mail2:         '📋 Request Trainer Details',
+    mail2_followup:'📋 Ask Details Again',
+    mail3:         '📅 Book Interview Slot',
+    mail4:         '🗓 Send Interview Schedule',
+    mail5_ok:      '🎉 Send Selection Mail',
+    mail5_no:      ' Send Rejection Mail',
+    mail7_confirm: '🎓 Send Training Confirmation',
   }
 
   const NEXT_STAGES = {
@@ -1250,7 +1250,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
             </div>
             <div>
               <h3 className="font-bold text-lg text-slate-900">{TITLES[mailType]}</h3>
-              <p className="text-sm text-slate-500 mt-0.5">AI-generated mail for <strong>{trainer.name}</strong> Ã‚Â· {trainer.email}</p>
+              <p className="text-sm text-slate-500 mt-0.5">AI-generated mail for <strong>{trainer.name}</strong> · {trainer.email}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
@@ -1297,7 +1297,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
               </p>
               <label className="label">Trainer's Available Dates (from their reply)</label>
               <textarea className="input resize-none" rows={3}
-                placeholder="Ã¢â‚¬Â¢ Monday 10 AM Ã¢â‚¬â€œ 12 PM&#10;Ã¢â‚¬Â¢ Wednesday 2 PM Ã¢â‚¬â€œ 4 PM&#10;Ã¢â‚¬Â¢ Friday anytime"
+                placeholder="• Monday 10 AM – 12 PM&#10;• Wednesday 2 PM – 4 PM&#10;• Friday anytime"
                 value={trainerDates} onChange={e => setTrainerDates(e.target.value)} />
             </div>
           )}
@@ -1310,7 +1310,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
                   <button key={p} type="button" onClick={() => setPlatform(p)}
                     className={clsx('p-2 rounded-xl border-2 text-xs font-semibold transition-all',
                       platform === p ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300')}>
-                    {p === 'Zoom' ? 'Ã°Å¸â€œÂ¹' : p === 'MS Teams' ? 'Ã°Å¸â€™Â¼' : 'Ã°Å¸Å½Â¥'} {p}
+                    {p === 'Zoom' ? '📹' : p === 'MS Teams' ? '💼' : '🎥'} {p}
                   </button>
                 ))}
               </div>
@@ -1339,7 +1339,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
             </div>
           )}
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ AI Generate Button Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/*  AI Generate Button  */}
           <div className="hidden">
             <Bot className="w-5 h-5 text-violet-500 flex-shrink-0" />
             <div className="flex-1">
@@ -1426,7 +1426,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Thread Modal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Thread Modal
 function getTocAccuracy(tocData, form, req) {
   if (!tocData) return null
 
@@ -1633,7 +1633,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
             <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
               <FileText className="w-5 h-5 text-teal-600" /> AI Training TOC Generator
             </h3>
-            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} Ã‚Â· {req.technology_needed}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} · {req.technology_needed}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <X className="w-4 h-4 text-slate-500" />
@@ -2113,7 +2113,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <div>
             <h3 className="font-bold text-lg text-slate-900">Generate Purchase Order</h3>
-            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} Ã‚Â· {req.technology_needed}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} · {req.technology_needed}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg">
             <X className="w-4 h-4 text-slate-500" />
@@ -2239,14 +2239,14 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-semibold uppercase">PO Status</p>
-                <p className="font-bold text-slate-900">{po ? `${po.po_number} Ã‚Â· ${po.status}` : 'Not generated'}</p>
+                <p className="font-bold text-slate-900">{po ? `${po.po_number} · ${po.status}` : 'Not generated'}</p>
               </div>
             </div>
           </div>
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
             <p className="text-xs text-blue-700 font-semibold uppercase">Client Invoice</p>
             <p className="mt-1 text-sm font-bold text-cyan-900">
-              {invoice ? `${invoice.invoice_number} Ã‚Â· ${invoice.status}` : req.client_email ? `Ready for ${req.client_email}` : 'Client email missing'}
+              {invoice ? `${invoice.invoice_number} · ${invoice.status}` : req.client_email ? `Ready for ${req.client_email}` : 'Client email missing'}
             </p>
           </div>
         </div>
@@ -2362,8 +2362,8 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-slate-100 flex-shrink-0">
           <div>
-            <h3 className="font-bold text-lg text-slate-900">Ã°Å¸â€™Â¬ Conversation Thread</h3>
-            <p className="text-sm text-slate-500">{trainer.name} Ã‚Â· {req.technology_needed}</p>
+            <h3 className="font-bold text-lg text-slate-900">💬 Conversation Thread</h3>
+            <p className="text-sm text-slate-500">{trainer.name} · {req.technology_needed}</p>
             {syncing && (
               <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-violet-600">
                 <Loader2 className="h-3 w-3 animate-spin" /> Checking latest inbox replies...
@@ -2377,7 +2377,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-10 text-slate-400">
-              <Loader2 className="w-5 h-5 animate-spin mr-2" /> LoadingÃ¢â‚¬Â¦
+              <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading…
             </div>
           ) : thread.length === 0 ? (
             <div className="text-center py-10 text-slate-400">
@@ -2397,7 +2397,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
                   <span className={clsx('text-xs font-bold',
                     isReminder ? 'text-orange-600' : isSent ? 'text-blue-600' : 'text-slate-600'
                   )}>
-                    {isReminder ? 'Ã°Å¸â€â€ Reminder sent' : isSent ? 'Ã°Å¸â€œÂ¤ You sent' : 'Ã°Å¸â€œÂ¥ Trainer replied'}
+                    {isReminder ? ' Reminder sent' : isSent ? '📤 You sent' : '📥 Trainer replied'}
                   </span>
                   <div className="flex items-center gap-2">
                     {msg.mail_type && (
@@ -2423,7 +2423,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Pipeline Step Bar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Pipeline Step Bar
 function StepBar({ stage, trainer }) {
   const steps = ['Trainer request', 'Trainer reply', 'Client handoff', 'Meet scheduled', 'Client decision', 'Confirmed', 'PO', 'Invoice sent']
   const stepIndex = STAGES[stage]?.step ?? 0
@@ -2455,7 +2455,7 @@ function StepBar({ stage, trainer }) {
                                        'bg-slate-200 text-slate-400'
             )}>
               <span className="sr-only">
-              {isComplete || isFinalDone ? 'Ã¢Å“â€œ' : isRejStep ? 'Ã¢Å“â€¢' : realStep}
+              {isComplete || isFinalDone ? '✓' : isRejStep ? '✕' : realStep}
               </span>
               {isComplete || isFinalDone ? <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> : isRejStep ? <X className="h-3.5 w-3.5" aria-hidden="true" /> : realStep}
             </div>
@@ -2470,13 +2470,13 @@ function StepBar({ stage, trainer }) {
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ AUTO PILOT ENGINE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  AUTO PILOT ENGINE
 //
 // Full auto flow:
-//   pending trainers Ã¢â€ â€™ Mail 1 is sent to everyone
-//   waiting_reply1 Ã¢â€ â€™ reminders at 6h/12h/24h until a Mail 1 reply arrives
+//   pending trainers   Mail 1 is sent to everyone
+//   waiting_reply1   reminders at 6h/12h/24h until a Mail 1 reply arrives
 //   positive Mail 1 replies are queued in reply order
-//   one queued trainer at a time Ã¢â€ â€™ Mail 2 Ã¢â€ â€™ Mail 3 Ã¢â€ â€™ manual interview/select rules
+//   one queued trainer at a time   Mail 2   Mail 3   manual interview/select rules
 //   rejected trainers are skipped and the next queued trainer starts
 //   selected trainer stops the requirement queue, then ToC/confirmation rules continue
 //
@@ -2986,7 +2986,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
   }, [enabled, trainers, req, allowReminders])
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Trainer Card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Trainer Card
 function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, onProfileApproved, autoMode, isActive, generationMode }) {
   const stage     = resolveTrainerStage(trainer, req, state)
   const stageInfo = STAGES[stage] || STAGES.pending
@@ -3086,7 +3086,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
   const sendNegotiationEmail = async () => {
     if (!clientBudget || isNaN(clientBudget)) {
-      toast.error('Ã¢ÂÅ’ Please enter a valid client budget amount')
+      toast.error(' Please enter a valid client budget amount')
       return
     }
 
@@ -3125,22 +3125,22 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             trainer_name: trainer.name,
             to_email: req.client_email,
             requirement_id: req.requirement_id,
-            subject: `Trainer Found Ã¢â‚¬â€œ Rate Negotiation in Progress | ${req.technology_needed}`,
-            body: `Hi ${req.client_name || 'Team'},\n\nGood news. We have reviewed a suitable shortlisted trainer profile for your ${req.technology_needed} requirement.\n\nWe are currently aligning the commercial rates based on your budget of Ã¢â€šÂ¹${budgetAmount.toLocaleString('en-IN')}/day.\n\nWe will update you within 24 hours with the confirmation.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
+            subject: `Trainer Found – Rate Negotiation in Progress | ${req.technology_needed}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news. We have reviewed a suitable shortlisted trainer profile for your ${req.technology_needed} requirement.\n\nWe are currently aligning the commercial rates based on your budget of ₹${budgetAmount.toLocaleString('en-IN')}/day.\n\nWe will update you within 24 hours with the confirmation.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
             mail_type: 'trainer_negotiation_client_update',
           })
-          
+
           if (isSendMailDelivered(clientRes?.data)) {
-            toast.success(`Ã°Å¸â€œÂ§ Trainer negotiation sent Ã¢Å“â€¦\nÃ°Å¸â€œÂ§ Client update sent Ã¢Å“â€¦`)
+            toast.success(`📧 Trainer negotiation sent ✅\n📧 Client update sent ✅`)
             setShowNegotiationModal(false)
             setClientBudget('')
           } else {
-            toast.success(`Ã°Å¸â€œÂ§ Trainer negotiation sent Ã¢Å“â€¦\nÃ¢Å¡Â Ã¯Â¸Â Failed to send client update`)
+            toast.success(`📧 Trainer negotiation sent ✅\n  Failed to send client update`)
             setShowNegotiationModal(false)
             setClientBudget('')
           }
         } catch {
-          toast.success(`Ã°Å¸â€œÂ§ Trainer negotiation sent Ã¢Å“â€¦\nÃ¢Å¡Â Ã¯Â¸Â Could not send client update`)
+          toast.success(`📧 Trainer negotiation sent ✅\n  Could not send client update`)
           setShowNegotiationModal(false)
           setClientBudget('')
         }
@@ -3174,7 +3174,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           clientSlotText: result.slot_text || trainer.slot_reply_text,
         })} />
     }
-    // Ã¢â€â‚¬Ã¢â€â‚¬ ToC received Ã¢â‚¬â€ manual confirmation mail Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    //  ToC received  manual confirmation mail
     if (stage === 'toc_received_pending') {
       return renderPostSelectionTools({
         note: 'A legacy ToC reply was received. The active workflow already sent the ToC in Mail 1 and client handoff; no extra ToC mail is sent.',
@@ -3213,7 +3213,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         <div className="flex flex-wrap gap-2 mt-3">
           <div className="w-full px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
             <span className="text-xs text-green-700 font-semibold">
-              Ã°Å¸Å½â€œ All done! Training confirmed and contact details shared with trainer.
+              🎓 All done! Training confirmed and contact details shared with trainer.
             </span>
           </div>
           <button onClick={() => setShowPoModal(true)} className={clsx(BTN, 'bg-slate-900 hover:bg-slate-800')}>
@@ -3223,7 +3223,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       )
     }
 
-    // toc_requested Ã¢â‚¬â€ auto is polling, show waiting
+    // toc_requested  auto is polling, show waiting
     if (stage === 'toc_requested') {
       return (
         <div className="flex items-center gap-2 px-3 py-2 mt-3 bg-teal-50 border border-teal-200 rounded-xl">
@@ -3232,7 +3232,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             Training documents are being prepared. The next workflow action will appear when the required update is received.
           </span>
           <span className="sr-only">
-            Ã¢ÂÂ³ Waiting for trainer to send ToC/Agenda Ã¢â‚¬â€ auto detects reply and notifies you
+             Waiting for trainer to send ToC/Agenda  auto detects reply and notifies you
           </span>
         </div>
       )
@@ -3254,7 +3254,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       return (
         <div className="flex flex-wrap gap-2 mt-3">
           <button onClick={() => setShowTocModal(true)} className={clsx(BTN, 'bg-emerald-600 hover:bg-emerald-700')}>
-            <FileText className="w-3.5 h-3.5" /> Generate TOC Ã°Å¸â€œâ€¹
+            <FileText className="w-3.5 h-3.5" /> Generate TOC 📋
           </button>
           <button onClick={() => setShowPoModal(true)} className={clsx(BTN, 'bg-slate-900 hover:bg-slate-800')}>
             <FileText className="w-3.5 h-3.5" /> Generate PO
@@ -3267,7 +3267,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       )
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ AUTO MODE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    //  AUTO MODE
     if (autoMode) {
       if (stage === 'waiting_reply1') {
         return (
@@ -3276,12 +3276,12 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               <Loader2 className="w-3.5 h-3.5 text-sky-500 animate-spin flex-shrink-0" />
               <span className="relative text-xs text-transparent font-medium">
                 <span className="absolute inset-0 flex items-center text-sky-700">Mail 1 is sent. The inbox watches for a reply and sends reminders at 6, 12, and 24 hours.</span>
-                Ã¢ÂÂ³ Mail 1 sent Ã¢â‚¬â€ checking replies every 10s while reminders run at 6h, 12h, 24h
+                 Mail 1 sent  checking replies every 10s while reminders run at 6h, 12h, 24h
               </span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-xl">
               <Bell className="w-3 h-3 text-orange-400 flex-shrink-0" />
-              <span className="text-xs text-orange-600">Auto reminders: <strong>6h Ã‚Â· 12h Ã‚Â· 24h</strong></span>
+              <span className="text-xs text-orange-600">Auto reminders: <strong>6h · 12h · 24h</strong></span>
             </div>
           </div>
         )
@@ -3307,11 +3307,11 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 </span>
                 {isActive
                   ? 'Reviewing the trainer reply for the requested information and three interview slots.'
-                  : 'Trainer reply received. The inbox workflow will continue this trainerâ€™s progress.'}
+                  : 'Trainer reply received. The inbox workflow will continue this trainer’s progress.'}
               </span>
               {isActive
-                ? 'Next Mail 1 responder Ã¢â‚¬â€ sending Request Details shortly'
-                : 'Replied to Mail 1 Ã¢â‚¬â€ queued until the current trainer pipeline finishes'}
+                ? 'Next Mail 1 responder  sending Request Details shortly'
+                : 'Replied to Mail 1  queued until the current trainer pipeline finishes'}
             </span>
           </div>
         )
@@ -3350,7 +3350,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           <div className="px-3 py-2 mt-3 bg-violet-50 border border-violet-200 rounded-xl">
             <span className="relative text-xs text-transparent font-medium">
               <span className="absolute inset-0 flex items-center text-violet-700">Mail 1 will be sent to shortlisted trainers with the requirement, ToC, and slot request.</span>
-              Ã°Å¸Â¤â€“ Mail 1 will be sent with the full shortlist batch
+              🤖 Mail 1 will be sent with the full shortlist batch
             </span>
           </div>
         )
@@ -3371,7 +3371,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       return null
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ MANUAL MODE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    //  MANUAL MODE
     return (
       <div className="flex flex-wrap gap-2 mt-3">
         {stage === 'pending' && (
@@ -3564,7 +3564,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         <PurchaseOrderModal
           trainer={trainer}
           req={req}
-         
+
           onClose={() => setShowPoModal(false)}
           onStageChange={(next, extra) => onStatusUpdate(trainer.trainer_id, next, extra)}
         />
@@ -3572,13 +3572,13 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       {showNegotiationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="rounded-xl bg-white p-6 shadow-xl max-w-sm w-full mx-4">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Ã°Å¸â€™Â° Negotiate Trainer Rate</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">💰 Negotiate Trainer Rate</h2>
             <p className="text-sm text-slate-600 mb-4">
-              Enter the client's maximum budget per day. We'll offer the trainer Ã¢â€šÂ¹5,000 less (Clahan margin).
+              Enter the client's maximum budget per day. We'll offer the trainer ₹5,000 less (Clahan margin).
             </p>
             <div className="mb-4">
               <label className="block text-xs font-semibold text-slate-700 mb-2">
-                Client Budget (Ã¢â€šÂ¹/day)
+                Client Budget (₹/day)
               </label>
               <input
                 type="number"
@@ -3591,10 +3591,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             {clientBudget && !isNaN(clientBudget) && (
               <div className="mb-4 p-3 bg-amber-50 rounded-lg">
                 <p className="text-xs font-semibold text-amber-900">
-                  Trainer Offer: Ã¢â€šÂ¹{trainerRateFromClientBudget(parseInt(clientBudget)).toLocaleString('en-IN')}/day
+                  Trainer Offer: ₹{trainerRateFromClientBudget(parseInt(clientBudget)).toLocaleString('en-IN')}/day
                 </p>
                 <p className="text-xs text-amber-800 mt-1">
-                  (Client budget: Ã¢â€šÂ¹{parseInt(clientBudget).toLocaleString('en-IN')}/day)
+                  (Client budget: ₹{parseInt(clientBudget).toLocaleString('en-IN')}/day)
                 </p>
               </div>
             )}
@@ -3613,7 +3613,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 disabled={sendingNegotiation || !clientBudget}
                 className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-60 rounded-lg transition-all inline-flex items-center gap-2"
               >
-                {sendingNegotiation ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Ã°Å¸â€œÂ§'}
+                {sendingNegotiation ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : '📧'}
                 Send Negotiation
               </button>
             </div>
@@ -3673,7 +3673,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                           )}>{item.evidence_status}</span>
                         </div>
                         <p className="mt-2 text-xs text-slate-500"><strong>Original evidence:</strong> {item.resume_evidence}</p>
-                        <p className="mt-1 text-xs text-slate-500"><strong>Source:</strong> {item.source_section || 'Original profile'} Â· <strong>Strength:</strong> {(item.match_strength || item.evidence_status).replaceAll('_', ' ')}</p>
+                        <p className="mt-1 text-xs text-slate-500"><strong>Source:</strong> {item.source_section || 'Original profile'} · <strong>Strength:</strong> {(item.match_strength || item.evidence_status).replaceAll('_', ' ')}</p>
                         {item.experience_depth && <p className="mt-1 text-xs text-slate-500"><strong>Depth:</strong> {item.experience_depth}</p>}
                         {selectable && (
                           <div className="mt-3 grid gap-1">
@@ -3783,7 +3783,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_draft_sent_for_review','invoice_sent'].includes(stage) && (
                 <span className="relative flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-transparent animate-pulse">
                   <span className="absolute inset-0 flex items-center justify-center gap-1 text-violet-700"><Bot className="h-3.5 w-3.5" /> Automation active</span>
-                  Ã°Å¸Â¤â€“ Auto Active
+                  🤖 Auto Active
                 </span>
               )}
             </div>
@@ -3826,7 +3826,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Main Page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Main Page
 function hasRequirementWorkflowChanged(current = {}, incoming = {}) {
   return [
     'status', 'batch_flow', 'batch_type', 'requirement_type', 'pipeline_page',
