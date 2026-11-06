@@ -21,8 +21,27 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/trainersync
 
 jobs:
+  runner-workspace-repair:
+    name: Runner Workspace Permissions
+    runs-on: self-hosted
+    steps:
+      - name: Restore runner workspace ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          workspace_root="${RUNNER_WORKSPACE:?RUNNER_WORKSPACE is required}"
+          target="${workspace_root}/mailautomation"
+          case "$target" in
+            "$workspace_root"/*) ;;
+            *) echo "Refusing to repair a path outside the runner workspace." >&2; exit 1 ;;
+          esac
+          if [ -e "$target" ]; then
+            sudo chown -R "$(id -u):$(id -g)" "$target"
+          fi
+
   source-code:
     name: Stage 1 - Checkout
+    needs: runner-workspace-repair
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
