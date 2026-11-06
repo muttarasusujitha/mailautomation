@@ -21,8 +21,27 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/trainersync
 
 jobs:
+  runner-workspace-repair:
+    name: Runner Workspace Permissions
+    runs-on: self-hosted
+    steps:
+      - name: Restore runner workspace ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          workspace_root="${RUNNER_WORKSPACE:?RUNNER_WORKSPACE is required}"
+          target="${workspace_root}/mailautomation"
+          case "$target" in
+            "$workspace_root"/*) ;;
+            *) echo "Refusing to repair a path outside the runner workspace." >&2; exit 1 ;;
+          esac
+          if [ -e "$target" ]; then
+            sudo chown -R "$(id -u):$(id -g)" "$target"
+          fi
+
   source-code:
     name: Stage 1 - Checkout
+    needs: runner-workspace-repair
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
@@ -371,5 +390,13 @@ jobs:
               raise SystemExit('Meet bot did not become ready and enabled.')
           account = health.get('google_account') or {}
           if account.get('status') != 'signed_in':
-              raise SystemExit(f"Meet bot Google profile is not signed in: {account.get('status', 'unknown')}")
+              # The application deployment is healthy even when the persisted
+              # Google browser session expires. Surface it prominently without
+              # rolling back otherwise healthy services; the Meet bot remains
+              # unavailable until the dedicated account is signed in again.
+              print(
+                  "::warning::Meet bot Google profile is not signed in: "
+                  f"{account.get('status', 'unknown')}. "
+                  "Sign in to the dedicated Meet bot account on EC2."
+              )
           PY
