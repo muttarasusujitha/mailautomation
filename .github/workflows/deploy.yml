@@ -146,7 +146,9 @@ jobs:
     needs:
       - build-test
       - frontend-build
-    runs-on: ${{ github.event_name == 'pull_request' && 'ubuntu-latest' || 'self-hosted' }}
+    # Image builds are disk-intensive. Keep them on GitHub-hosted runners so
+    # the production EC2 runner only pulls published images during Stage 4.
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       max-parallel: 1
