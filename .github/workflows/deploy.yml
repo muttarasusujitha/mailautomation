@@ -371,5 +371,13 @@ jobs:
               raise SystemExit('Meet bot did not become ready and enabled.')
           account = health.get('google_account') or {}
           if account.get('status') != 'signed_in':
-              raise SystemExit(f"Meet bot Google profile is not signed in: {account.get('status', 'unknown')}")
+              # The application deployment is healthy even when the persisted
+              # Google browser session expires. Surface it prominently without
+              # rolling back otherwise healthy services; the Meet bot remains
+              # unavailable until the dedicated account is signed in again.
+              print(
+                  "::warning::Meet bot Google profile is not signed in: "
+                  f"{account.get('status', 'unknown')}. "
+                  "Sign in to the dedicated Meet bot account on EC2."
+              )
           PY
