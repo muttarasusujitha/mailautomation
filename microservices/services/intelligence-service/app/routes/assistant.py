@@ -164,7 +164,7 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
 
     # Gemini can be selected explicitly for production drafting. Other
     # providers stay available as fallbacks if it is temporarily unavailable.
-    if not reply and not ollama_only and str(settings.AI_PROVIDER or "").strip().lower() == "gemini" and settings.GEMINI_API_KEY.strip():
+    if not reply and not ollama_only and str(getattr(settings, "AI_PROVIDER", "") or "").strip().lower() == "gemini" and settings.GEMINI_API_KEY.strip():
         try:
             reply = await _call_gemini(messages, system, settings, payload.max_tokens, payload.temperature)
             error = ""
