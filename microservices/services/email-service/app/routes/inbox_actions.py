@@ -842,7 +842,7 @@ async def regenerate_reply(
             failure = "The AI draft was rejected because it repeated recent wording."
         raise HTTPException(
             502,
-            f"{failure} The existing draft is unchanged. Check the email service configuration and logs, then retry; select Template mode to use a stored reply.",
+            f"{failure} The existing draft is unchanged; no template was substituted. Check the email service configuration and logs, then retry; select Template mode to use a stored reply.",
         )
     reply_analysis = workflow_context.get("reply_analysis") or _workflow_reply_analysis(
         classification, extracted, doc, reference_reply.get("template_key", "")
