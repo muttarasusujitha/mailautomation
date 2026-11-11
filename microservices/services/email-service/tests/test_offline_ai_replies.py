@@ -113,7 +113,7 @@ def test_ai_generation_stays_off():
     assert Settings.model_fields["USE_LLM_FOR_EMAILS"].default is False
 
 
-def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
+def test_ai_off_client_requirement_reply_is_concise_and_grounded():
     _reset(CLIENT_EMAIL, SECOND_EMAIL)
     message = (
         "We need a DevOps trainer for 7 offline days. "
@@ -126,26 +126,14 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
     body = reply["body"]
 
     assert body.strip()
-    assert body == inbox._client_short_requirement_ack({
-        "client_name": "Asha",
-        "client_email": CLIENT_EMAIL,
-        "technology_needed": "DevOps",
-        "duration_days": 7,
-        "mode": "Offline",
-        "lab_hours_per_day": 3,
-        "topics": "Docker, Kubernetes, and CI/CD",
-        "clahan_managed_details": ["Lab availability and cost"],
-        "requested_details": ["CV", "ToC", "lab cost"],
-        "needs_clarification": [],
-        "cloud_provider": "AWS",
-    })["body"]
     assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", body)
-    assert re.search(r"We(?:'|\u2019)ve noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day\.", body)
-    assert "lab cost" in body.lower()
-    assert "relevant CV" in body
+    assert "We cannot share the trainer's rate" in body
+    assert "another client's budget" in body
+    assert "a day-wise ToC" in body
+    assert "a lab-cost estimate" in body
+    assert "a relevant trainer CV" in body
     assert body.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     _assert_no_secrets(body)
-    assert list(inbox._CLIENT_ACK_VERSIONS[CLIENT_EMAIL].values()) == [0]
 
     second = offline_replies.offline_client_requirement_reply(_client_facts(
         client_email=SECOND_EMAIL,
@@ -158,9 +146,8 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         requested_details=["CV"],
     ), "Please share the SAP requirement.")
     assert re.search(r"(?:Thanks|Thank you) for sharing the SAP requirement\.", second["body"])
-    assert "relevant CV" in second["body"]
+    assert "trainer CV" in second["body"]
     assert "review" in second["body"].lower()
-    assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0]
     third = offline_replies.offline_client_requirement_reply(_client_facts(
         client_email=SECOND_EMAIL,
         technology_needed="Snowflake",
@@ -169,10 +156,9 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         topics="Warehousing",
         lab_hours_per_day=2,
     ), "Snowflake follow-up.")
-    assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0, 9]
     assert re.search(r"(?:Thanks|Thank you) for sharing the Snowflake requirement\.", third["body"])
-    assert "the 5-day training duration" in third["body"]
-    assert "the trainer's CV" in third["body"]
+    assert "a 5-day duration" in third["body"]
+    assert "trainer CV" in third["body"]
 
 
 def test_ai_off_trainer_question_reply_uses_the_trainer_record():

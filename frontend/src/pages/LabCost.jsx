@@ -39,6 +39,11 @@ export default function LabCost() {
   const [labMode, setLabMode] = useState('ai')
   const [manualMapping, setManualMapping] = useState('[]')
   const [deliveries, setDeliveries] = useState([])
+  const [labRequests, setLabRequests] = useState([])
+  const [selectedLabRequestId, setSelectedLabRequestId] = useState('')
+  const [selectedLabRequest, setSelectedLabRequest] = useState(null)
+  const [requestsLoading, setRequestsLoading] = useState(false)
+  const [requestActionBusy, setRequestActionBusy] = useState(false)
   const [deliveryLoading, setDeliveryLoading] = useState(true)
   const [clientKey, setClientKey] = useState('')
   const [deliveryEmailId, setDeliveryEmailId] = useState('')
@@ -111,6 +116,59 @@ export default function LabCost() {
   }
 
   useEffect(() => { loadDeliveries() }, [])
+
+  const loadLabRequests = async () => {
+    setRequestsLoading(true)
+    try {
+      const { data } = await api.get('/toc/lab-cost/requests')
+      const items = data.items || []
+      setLabRequests(items)
+      if (!selectedLabRequestId && items[0]) setSelectedLabRequestId(items[0].requirement_id)
+    } catch (error) {
+      toast.error(error.message || 'Could not load lab-cost requests')
+    } finally {
+      setRequestsLoading(false)
+    }
+  }
+
+  const loadLabRequest = async (id) => {
+    if (!id) return
+    setSelectedLabRequestId(id)
+    setSelectedLabRequest(null)
+    try {
+      const { data } = await api.get(`/toc/lab-cost/requests/${encodeURIComponent(id)}`)
+      setSelectedLabRequest(data)
+    } catch (error) {
+      toast.error(error.message || 'Could not load request details')
+    }
+  }
+
+  useEffect(() => { loadLabRequests() }, [])
+  useEffect(() => { if (selectedLabRequestId) loadLabRequest(selectedLabRequestId) }, [selectedLabRequestId])
+
+  const downloadPendingWorkbook = async () => {
+    if (!selectedLabRequestId) return
+    try {
+      const response = await api.get(`/toc/lab-cost/requests/${encodeURIComponent(selectedLabRequestId)}/workbook`, { responseType: 'blob' })
+      const url = URL.createObjectURL(response.data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = selectedLabRequest?.request?.workbook_filename || 'Lab Cost Estimate.xlsx'
+      document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url)
+    } catch (error) { toast.error(error.message || 'Could not download pending workbook') }
+  }
+
+  const approveLabRequest = async () => {
+    if (!selectedLabRequestId) return
+    setRequestActionBusy(true)
+    try {
+      await api.post(`/inbox/lab-cost-requests/${encodeURIComponent(selectedLabRequestId)}/approve`)
+      toast.success('Approved estimate sent to the client')
+      await Promise.all([loadLabRequests(), loadDeliveries()])
+      await loadLabRequest(selectedLabRequestId)
+    } catch (error) { toast.error(error.message || 'Could not send approved estimate') }
+    finally { setRequestActionBusy(false) }
+  }
 
   useEffect(() => {
     if (!selected) return
@@ -272,13 +330,41 @@ export default function LabCost() {
           <p className="mt-1 text-sm text-slate-600">Prepare the approved Lab Cost workbook only when the client explicitly asks for a lab cost or estimate. A ToC in the same mail stays in that one reply.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setView('requests')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'requests' ? 'bg-amber-700 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Requests {labRequests.some(item => item.status === 'awaiting_review') && `(${labRequests.filter(item => item.status === 'awaiting_review').length})`}</button>
           <button type="button" onClick={() => setView('deliveries')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'deliveries' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Client lab-costs</button>
           <button type="button" onClick={() => setView('create')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'create' ? 'bg-emerald-700 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Create workbook</button>
-          <button type="button" onClick={view === 'deliveries' ? loadDeliveries : loadRequirements} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-            <RefreshCw className={`h-4 w-4 ${(view === 'deliveries' ? deliveryLoading : loading) ? 'animate-spin' : ''}`} /> Refresh
+          <button type="button" onClick={view === 'deliveries' ? loadDeliveries : view === 'requests' ? loadLabRequests : loadRequirements} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <RefreshCw className={`h-4 w-4 ${(view === 'deliveries' ? deliveryLoading : view === 'requests' ? requestsLoading : loading) ? 'animate-spin' : ''}`} /> Refresh
           </button>
         </div>
       </div>
+
+      {view === 'requests' && <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="flex items-center gap-2"><FileSpreadsheet className="h-4 w-4 text-amber-700" /><h2 className="font-bold text-slate-900">Standalone lab requests</h2></div>
+          <p className="mt-1 text-sm text-slate-500">Original requests, missing quote inputs, and estimates that need a pricing review.</p>
+          <div className="mt-4 space-y-2">
+            {labRequests.map(item => <button key={item.requirement_id} type="button" onClick={() => setSelectedLabRequestId(item.requirement_id)} className={`w-full rounded-lg border p-3 text-left ${selectedLabRequestId === item.requirement_id ? 'border-amber-500 bg-amber-50' : 'border-slate-200 hover:bg-slate-50'}`}>
+              <p className="font-bold text-slate-800">{item.client_name || item.client_email || 'Client'} · {item.technology}</p>
+              <p className="mt-1 text-xs text-slate-500">{item.requirement_id} · {String(item.status || 'received').replaceAll('_', ' ')}</p>
+              {item.status === 'awaiting_review' && <p className="mt-1 text-xs font-semibold text-amber-800">Live pricing changed beyond the review threshold</p>}
+              {!!item.missing_inputs?.length && <p className="mt-1 text-xs text-slate-600">Needs: {item.missing_inputs.join(', ')}</p>}
+            </button>)}
+            {!requestsLoading && !labRequests.length && <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">No standalone lab-cost requests yet.</p>}
+          </div>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-5">
+          {selectedLabRequest && <>
+            <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-slate-900">{selectedLabRequest.request?.client_name || selectedLabRequest.original_message?.from_name || 'Client request'}</h2><p className="mt-1 text-sm text-slate-500">{selectedLabRequest.request?.requirement_id} · {selectedLabRequest.request?.status?.replaceAll('_', ' ')}</p></div>{selectedLabRequest.request?.status === 'awaiting_review' && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Approval required</span>}</div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm"><Info label="Sender" value={`${selectedLabRequest.original_message?.from_name || ''} ${selectedLabRequest.original_message?.from_email || selectedLabRequest.request?.client_email || ''}`} /><Info label="Training / scope" value={selectedLabRequest.request?.technology_needed || selectedLabRequest.request?.domain} /><Info label="Participants / duration" value={`${selectedLabRequest.request?.participant_count || '—'} participants · ${selectedLabRequest.request?.duration_days || '—'} days`} /><Info label="Cloud / region" value={[selectedLabRequest.request?.cloud_provider, selectedLabRequest.request?.cloud_region].filter(Boolean).join(' · ')} /></div>
+            {selectedLabRequest.request?.rate_change_summary?.length > 0 && <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><p className="font-bold">Why this needs review</p><ul className="mt-1 list-inside list-disc">{selectedLabRequest.request.rate_change_summary.map((reason, index) => <li key={index}>{reason}</li>)}</ul></div>}
+            {!!selectedLabRequest.request?.missing_inputs?.length && <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900"><p className="font-bold">Missing quote inputs</p><p className="mt-1">{selectedLabRequest.request.missing_inputs.join(', ')}</p></div>}
+            <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Original email · {selectedLabRequest.original_message?.subject || 'No subject'}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedLabRequest.original_message?.body || 'Original message body unavailable.'}</p></div>
+            {selectedLabRequest.request?.status === 'awaiting_review' && <div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={downloadPendingWorkbook} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700"><Download className="h-4 w-4" /> Review workbook</button><button type="button" disabled={requestActionBusy} onClick={approveLabRequest} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"><CheckCircle2 className="h-4 w-4" />{requestActionBusy ? 'Sending…' : 'Approve and send'}</button></div>}
+          </>}
+          {!selectedLabRequest && <p className="text-sm text-slate-500">{requestsLoading ? 'Loading request…' : 'Select a request to inspect its original message and quote status.'}</p>}
+        </div>
+      </section>}
 
       {view === 'deliveries' && <section className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="rounded-lg border border-slate-200 bg-white p-5">

@@ -34,14 +34,20 @@ def _html_to_text(value: str) -> str:
 
 def _fix_mojibake(value: str) -> str:
     text = str(value or "")
-    if not any(marker in text for marker in ("â", "ð", "Ã")):
-        return text
-    try:
-        repaired = text.encode("cp1252", errors="ignore").decode("utf-8", errors="ignore")
-        return repaired or text
-    except Exception:
-        return text
-
+    markers = tuple(chr(code) for code in (0x00C3, 0x00C2, 0x00E2, 0x00F0, 0x00EF))
+    for _ in range(3):
+        if not any(marker in text for marker in markers):
+            break
+        try:
+            repaired = text.encode("cp1252").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            break
+        current_score = sum(text.count(marker) for marker in markers)
+        repaired_score = sum(repaired.count(marker) for marker in markers)
+        if repaired == text or repaired_score >= current_score:
+            break
+        text = repaired
+    return text
 
 def _decode_message_part(part: Any) -> str:
     payload = part.get_payload(decode=True)
@@ -79,7 +85,7 @@ MAX_CLIENT_SCOPE_MESSAGE_BYTES = 6 * 1024 * 1024
 
 def _decode_header(value: str) -> str:
     try:
-        return str(make_header(decode_header(value or "")))
+        return _fix_mojibake(str(make_header(decode_header(value or ""))))
     except Exception:
         return str(value or "")
 
@@ -718,6 +724,7 @@ def check_gmail_api_replies(
         query = search_query
     else:
         query_parts = [
+            "in:inbox",
             f"newer_than:{max(1, int(since_days))}d",
             "-in:sent",
             "-in:trash",
@@ -775,15 +782,15 @@ def check_gmail_api_replies(
                 if msg.is_multipart():
                     for part in msg.walk():
                         if part.get_content_type() == "text/plain":
-                            body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                            body_text = _decode_message_part(part)
                             break
                     if not body_text:
                         for part in msg.walk():
                             if part.get_content_type() == "text/html":
-                                body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                                body_text = _html_to_text(_decode_message_part(part))
                                 break
                 else:
-                    body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+                    body_text = _decode_message_part(msg)
 
                 # Gmail API returns the complete RFC822 message in raw mode.
                 # Capture safe client scope documents here just as the IMAP

@@ -9,6 +9,7 @@ import {
   Search, Send, Sparkles, Trash2, Users, Video, X
 } from 'lucide-react'
 import api from '../utils/api'
+import { syncGmailInbox } from '../utils/gmailSync'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -620,15 +621,12 @@ export default function ClientRequests() {
     autoSyncRunningRef.current = true
     if (!silent) setSyncing(true)
     try {
-      const res = await api.post('/gmail/sync-now?limit=50')
-      if (res.data?.queued) {
-        if (!silent) toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
-        window.setTimeout(() => loadRequests(), 6000)
-        return
-      }
-      const created = res.data?.requirements_created || 0
-      const autoSent = res.data?.auto_sent || 0
-      if (!silent) toast.success(`Inbox checked: ${created} requirement(s), ${autoSent} auto-mail batch(es)`)
+      const res = await syncGmailInbox({ limit: 50, process: false })
+      const stored = Number(res.stored ?? res.processed_count ?? 0)
+      if (!silent) toast.success(stored
+        ? 'Inbox checked: ' + stored + ' message(s) refreshed for review'
+        : 'Inbox checked. No matching messages were found.'
+      )
       await loadRequests(true)
     } catch (e) {
       if (!silent) toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
@@ -787,7 +785,7 @@ export default function ClientRequests() {
         <div className="flex flex-wrap gap-2">
           <button onClick={() => syncNow(false)} disabled={syncing} className="btn-secondary text-sm disabled:opacity-50">
             {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Check Inbox Now
+            {syncing ? 'Checking Inbox...' : 'Check Inbox Now'}
           </button>
           <button onClick={() => navigate('/inbox')} className="btn-secondary text-sm">
             <FileText className="h-4 w-4" /> Review Drafts

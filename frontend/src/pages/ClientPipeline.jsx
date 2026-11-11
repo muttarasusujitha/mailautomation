@@ -430,7 +430,7 @@ function RequestCard({ item, active, onClick }) {
           'shrink-0 rounded-full border px-2 py-1 text-[11px] font-bold',
           trainers.length > 0 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : hasDomain(item) ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-amber-200 bg-amber-50 text-amber-700'
         )}>
-          {trainers.length > 0 ? 'Shortlist1 ready' : hasDomain(item) ? 'Ready' : 'Missing'}
+          {trainers.length > 0 ? 'Shortlist ready' : hasDomain(item) ? 'Ready' : 'Missing'}
         </span>
       </div>
       <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">{item.subject || item.body_snippet || item.clean_body || 'Client request'}</p>
@@ -442,7 +442,7 @@ function RequestCard({ item, active, onClick }) {
           Top {trainers.length || 0}
         </span>
         <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-600">
-          Shortlist1
+          Trainer shortlist
         </span>
       </div>
     </button>
@@ -633,7 +633,7 @@ export default function ClientPipeline() {
           <p className="mt-1 text-xl font-black text-blue-900">{stats.autofind}</p>
         </div>
         <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-violet-700">Shortlist1 ready</p>
+          <p className="text-[11px] font-bold uppercase tracking-wide text-violet-700">Trainer shortlists ready</p>
           <p className="mt-1 text-xl font-black text-violet-900">{stats.handoff}</p>
         </div>
       </div>
@@ -707,7 +707,7 @@ export default function ClientPipeline() {
                     className="btn-secondary text-sm"
                   >
                     <UsersRound className="h-4 w-4" />
-                    Open in Shortlist1
+                    {shortlistPath(selected) === '/shortlist' ? 'Review Shortlist' : 'Review Confirmed Batch'}
                   </button>
                 )}
               </div>

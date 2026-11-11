@@ -26,6 +26,9 @@ const emptyForm = {
   contact_phone: '',
   domain: '',
   post_text: '',
+  website: '',
+  company_context: '',
+  training_requirement: { request_text: '', topics: '', audience: '', level: '', dates: '', duration: '', delivery_mode: '', participant_count: '', goals: '' },
   notes: '',
 }
 
@@ -58,6 +61,11 @@ export default function ClientLeads() {
   const [analysis, setAnalysis] = useState(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [drafting, setDrafting] = useState('')
+  const [researchInputs, setResearchInputs] = useState({})
+  const [serviceText, setServiceText] = useState('')
+  const [savingServices, setSavingServices] = useState(false)
+  const [editingDraft, setEditingDraft] = useState({})
   const [searchingPublic, setSearchingPublic] = useState(false)
   const [leadMode, setLeadMode] = useState('client')
   const [searchDomains, setSearchDomains] = useState('DevOps, AWS, Azure, Full Stack, Power BI, Python, Java, SAP')
@@ -77,6 +85,50 @@ export default function ClientLeads() {
   }
 
   useEffect(() => { load() }, [filter, leadMode])
+
+  useEffect(() => {
+    api.get('/client-leads/outreach-profile').then(res => {
+      setServiceText((res.data.offerings || []).map(item => item.description).join('\n'))
+    }).catch(e => toast.error(e.message))
+  }, [])
+
+  const saveServices = async () => {
+    setSavingServices(true)
+    try {
+      const offerings = serviceText.split('\n').map(s => s.trim()).filter(Boolean)
+        .map((description, i) => ({ id: `service_${i + 1}`, description }))
+      await api.put('/client-leads/outreach-profile', { offerings })
+      toast.success('Services saved for personalized outreach')
+    } catch (e) { toast.error(e.message) }
+    finally { setSavingServices(false) }
+  }
+
+  const generateDraft = async (lead) => {
+    setDrafting(lead.lead_id)
+    try {
+      const input = researchInputs[lead.lead_id]
+      if (input) await api.patch(`/client-leads/${lead.lead_id}`, input)
+      await api.post(`/client-leads/${lead.lead_id}/regenerate-draft`, {})
+      toast.success('Personalized draft ready to review')
+      await load()
+    } catch (e) { toast.error(e.message) }
+    finally { setDrafting('') }
+  }
+
+  const setRequirement = (leadId, key, value) => setResearchInputs(prev => ({
+    ...prev,
+    [leadId]: { ...prev[leadId], training_requirement: { ...(prev[leadId]?.training_requirement || {}), [key]: value } },
+  }))
+
+  const saveDraft = async (lead) => {
+    const draft = editingDraft[lead.lead_id] || { subject: lead.draft_subject || lead.draft?.subject || '', body: lead.draft_body || lead.draft?.body || '' }
+    try {
+      await api.put(`/client-leads/${lead.lead_id}/draft`, draft)
+      toast.success('Draft saved for review')
+      setEditingDraft(prev => { const next = { ...prev }; delete next[lead.lead_id]; return next })
+      await load()
+    } catch (e) { toast.error(e.message) }
+  }
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
 
@@ -117,7 +169,7 @@ export default function ClientLeads() {
 
   const sendLead = async (lead) => {
     try {
-      const res = await api.post(`/client-leads/${lead.lead_id}/send-email`)
+      const res = await api.post(`/client-leads/${lead.lead_id}/send-email`, {})
       if (res.data.success) toast.success('Approach mail sent from Clahan')
       else toast.error(res.data.error || 'Mail failed')
       await load()
@@ -208,6 +260,14 @@ export default function ClientLeads() {
         ))}
       </div>
 
+      {leadMode === 'client' && (
+        <section className="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 className="font-semibold">What can you help companies with?</h2>
+          <p className="my-2 text-sm text-slate-600">Add one service per line, including relevant expertise, delivery options and real examples. Drafts will select the closest fit.</p>
+          <textarea aria-label="Your services" className="input min-h-24" value={serviceText} onChange={e => setServiceText(e.target.value)} placeholder="Example: Python workshops with practical data-processing exercises for engineering teams" />
+          <button onClick={saveServices} disabled={savingServices || !serviceText.trim()} className="btn-secondary mt-2">{savingServices ? 'Saving…' : 'Save services'}</button>
+        </section>
+      )}
       <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
         <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 shadow-sm">
           <div className="flex flex-col gap-3">
@@ -252,8 +312,10 @@ export default function ClientLeads() {
             <input className="input" value={form.contact_name} onChange={e => update('contact_name', e.target.value)} placeholder="Contact person" />
             <input className="input lg:col-span-2" value={form.source_url} onChange={e => update('source_url', e.target.value)} placeholder="Post URL" />
             <input className="input lg:col-span-2" value={form.contact_email} onChange={e => update('contact_email', e.target.value)} placeholder="Public email if available" />
+            <input className="input lg:col-span-2" value={form.website} onChange={e => update('website', e.target.value)} placeholder="Official company website" />
           </div>
           <textarea className="input mt-3 min-h-28" value={form.post_text} onChange={e => update('post_text', e.target.value)} placeholder="Paste public post text here, e.g. Need DevOps trainer for corporate batch..." />
+          <textarea className="input mt-3 min-h-24" value={form.training_requirement.request_text} onChange={e => update('training_requirement', { ...form.training_requirement, request_text: e.target.value })} placeholder="Actual training requirement: paste the full request here" />
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={analyze} className="btn-secondary text-sm"><Search className="h-4 w-4" /> Analyse</button>
             <button onClick={saveLead} disabled={saving} className="btn-primary text-sm disabled:opacity-50"><Save className="h-4 w-4" /> Save Lead</button>
@@ -319,10 +381,37 @@ export default function ClientLeads() {
                   </a>
                 )}
               </div>
-              {leadMode === 'client' && lead.draft?.body && (
+              {leadMode === 'client' && (
+                <div className="mt-3 space-y-2">
+                  <input aria-label="Official company website" className="input" placeholder="Official company website, e.g. https://company.com" value={researchInputs[lead.lead_id]?.website ?? lead.website ?? lead.metadata?.website ?? ''} onChange={e => setResearchInputs(prev => ({ ...prev, [lead.lead_id]: { ...prev[lead.lead_id], website: e.target.value } }))} />
+                  <textarea aria-label="Company business context" className="input" placeholder="What does this company do? Add confirmed goals, requirements or relevant business context." value={researchInputs[lead.lead_id]?.company_context ?? lead.company_context ?? ''} onChange={e => setResearchInputs(prev => ({ ...prev, [lead.lead_id]: { ...prev[lead.lead_id], company_context: e.target.value } }))} />
+                  <textarea aria-label="Training requirement" className="input" placeholder="Actual training requirement, topics and goals" value={researchInputs[lead.lead_id]?.training_requirement?.request_text ?? lead.training_requirement?.request_text ?? lead.post_text ?? ''} onChange={e => setRequirement(lead.lead_id, 'request_text', e.target.value)} />
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <input aria-label="Training topics" className="input" placeholder="Topics, e.g. Python, Pandas" value={researchInputs[lead.lead_id]?.training_requirement?.topics ?? lead.training_requirement?.topics ?? lead.domain ?? ''} onChange={e => setRequirement(lead.lead_id, 'topics', e.target.value)} />
+                    <input aria-label="Audience and level" className="input" placeholder="Audience / level" value={researchInputs[lead.lead_id]?.training_requirement?.audience ?? lead.training_requirement?.audience ?? ''} onChange={e => setRequirement(lead.lead_id, 'audience', e.target.value)} />
+                  </div>
+                  <button onClick={() => generateDraft(lead)} disabled={!!drafting} className="btn-secondary text-sm">{drafting === lead.lead_id ? 'Researching and writing…' : 'Generate personalized draft'}</button>
+                </div>
+              )}
+              {leadMode === 'client' && (lead.draft_body || lead.draft?.body) && (
                 <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
                   <summary className="cursor-pointer font-semibold text-slate-700">Approach draft</summary>
-                  <p className="mt-2 whitespace-pre-wrap text-slate-600">{lead.draft.body}</p>
+                  <input aria-label="Draft subject" className="input mt-2" value={editingDraft[lead.lead_id]?.subject ?? lead.draft_subject ?? lead.draft?.subject ?? ''} onChange={e => setEditingDraft(prev => ({ ...prev, [lead.lead_id]: { subject: e.target.value, body: prev[lead.lead_id]?.body ?? lead.draft_body ?? lead.draft?.body ?? '' } }))} />
+                  <textarea aria-label="Draft email" className="input mt-2 min-h-40" value={editingDraft[lead.lead_id]?.body ?? lead.draft_body ?? lead.draft?.body ?? ''} onChange={e => setEditingDraft(prev => ({ ...prev, [lead.lead_id]: { subject: prev[lead.lead_id]?.subject ?? lead.draft_subject ?? lead.draft?.subject ?? '', body: e.target.value } }))} />
+                  <button onClick={() => saveDraft(lead)} className="btn-secondary mt-2 text-sm">Save edited draft</button>
+                  {lead.personalization && (
+                    <div className="mt-3 space-y-2 border-t pt-3">
+                      <p><strong>Why this fits:</strong> {lead.personalization.rationale}</p>
+                      <p>Review the company facts and proposed benefit before sending.</p>
+                      {(lead.personalization.warnings || []).map((warning, i) => <p key={i} className="text-amber-700">{warning}</p>)}
+                      {(lead.personalization.evidence || []).map(item => (
+                        <div key={item.id} className="rounded border bg-white p-2">
+                          <p>{item.text}</p>
+                          {/^https?:\/\//i.test(item.source_url || '') && <a href={item.source_url} target="_blank" rel="noreferrer" className="text-blue-700 underline">View source</a>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </details>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
@@ -337,7 +426,7 @@ export default function ClientLeads() {
                   </a>
                 )}
                 {leadMode === 'client' && (
-                  <button onClick={() => sendLead(lead)} disabled={!lead.contact_email || lead.status === 'contacted'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> Send Mail</button>
+                  <button onClick={() => sendLead(lead)} disabled={!!drafting || !(lead.contact_email || lead.email) || !(lead.draft_body || lead.draft?.body) || lead.status === 'contacted'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> Send Mail</button>
                 )}
                 <button onClick={() => patchLead(lead, { status: 'reviewed' })} className="btn-secondary text-sm"><CheckCircle2 className="h-4 w-4" /> Reviewed</button>
                 <button onClick={() => patchLead(lead, { status: 'converted' })} className="btn-secondary text-sm text-emerald-700"><Mail className="h-4 w-4" /> {leadMode === 'trainer' ? 'Added' : 'Converted'}</button>

@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from shared.database.service import get_db
 
@@ -36,6 +36,18 @@ async def _post_with_local_fallback(
         raise
 
 
+class TrainingRequirement(BaseModel):
+    request_text: str = Field(default='', max_length=6000)
+    topics: str = Field(default='', max_length=1000)
+    audience: str = Field(default='', max_length=500)
+    level: str = Field(default='', max_length=200)
+    dates: str = Field(default='', max_length=300)
+    duration: str = Field(default='', max_length=200)
+    delivery_mode: str = Field(default='', max_length=200)
+    participant_count: Optional[int] = Field(default=None, ge=1, le=100000)
+    goals: str = Field(default='', max_length=1000)
+
+
 class ClientLeadCreate(BaseModel):
     company_name: str
     contact_name: Optional[str] = ""
@@ -45,6 +57,13 @@ class ClientLeadCreate(BaseModel):
     source: Optional[str] = "manual"
     linkedin_url: Optional[str] = ""
     notes: Optional[str] = ""
+    website: str = ""
+    source_url: str = ""
+    post_text: str = ""
+    contact_email: str = ""
+    contact_phone: str = ""
+    training_requirement: Optional[TrainingRequirement] = None
+    trainer_ids: List[str] = Field(default_factory=list, max_length=10)
     metadata: Dict[str, Any] = {}
 
 
@@ -57,6 +76,15 @@ class ClientLeadUpdate(BaseModel):
     status: Optional[str] = None
     notes: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
+    website: Optional[str] = None
+    company_context: Optional[str] = None
+    training_requirement: Optional[TrainingRequirement] = None
+    trainer_ids: Optional[List[str]] = Field(default=None, max_length=10)
+
+
+class SaveLeadDraftRequest(BaseModel):
+    subject: str = Field(min_length=1, max_length=160)
+    body: str = Field(min_length=1, max_length=4000)
 
 
 class AnalyzeLeadRequest(BaseModel):
@@ -69,6 +97,31 @@ class AnalyzeLeadRequest(BaseModel):
 class RegenerateDraftRequest(BaseModel):
     subject_hint: Optional[str] = ""
     tone: Optional[str] = "professional"
+
+
+class OutreachOffering(BaseModel):
+    id: str = Field(min_length=1, max_length=80)
+    description: str = Field(min_length=10, max_length=2000)
+
+
+class OutreachProfile(BaseModel):
+    offerings: List[OutreachOffering] = Field(min_length=1, max_length=20)
+
+
+@router.get("/outreach-profile")
+async def get_outreach_profile(db: AsyncIOMotorDatabase = Depends(get_db)):
+    profile = await db['outreach_profiles'].find_one({'profile_id': 'default'}, {'_id': 0})
+    return {'success': True, 'offerings': (profile or {}).get('offerings', [])}
+
+
+@router.put("/outreach-profile")
+async def save_outreach_profile(payload: OutreachProfile, db: AsyncIOMotorDatabase = Depends(get_db)):
+    offerings = [o.model_dump() for o in payload.offerings]
+    if len({o['id'] for o in offerings}) != len(offerings):
+        raise HTTPException(400, 'Service IDs must be unique')
+    await db['outreach_profiles'].update_one({'profile_id': 'default'},
+        {'$set': {'offerings': offerings, 'updated_at': datetime.utcnow()}}, upsert=True)
+    return {'success': True, 'offerings': offerings}
 
 
 class SendLeadEmailRequest(BaseModel):
@@ -256,36 +309,6 @@ async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorData
     saved_count = 0
     skipped_count = 0
     now = datetime.utcnow()
-    if not payload.subject and not doc.get("draft_subject"):
-        domain = doc.get("domain") or "your training"
-        subject = f"Trainer Support for {domain} Requirement"
-    if not payload.body and not doc.get("draft_body"):
-        domain = doc.get("domain") or "your training"
-        company = doc.get("company_name") or "your team"
-        contact = doc.get("contact_name") or "Client"
-        body = (
-            f"Dear {contact},\n\n"
-            f"I saw your LinkedIn post about a {domain} trainer requirement for {company}.\n\n"
-            "We are a training consultancy and can provide experienced corporate trainers for your requirement. "
-            "Please share the training dates, duration, delivery mode, participant count, and commercials so we can send suitable trainer profiles.\n\n"
-            "Regards,\nRecruitment Team\nClahan Technologies"
-        )
-
-    if not payload.subject and not doc.get("draft_subject"):
-        domain = doc.get("domain") or "your training"
-        subject = f"Trainer Support for {domain} Requirement"
-    if not payload.body and not doc.get("draft_body"):
-        domain = doc.get("domain") or "your training"
-        company = doc.get("company_name") or "your team"
-        contact = doc.get("contact_name") or "Client"
-        body = (
-            f"Dear {contact},\n\n"
-            f"I saw your LinkedIn post about a {domain} trainer requirement for {company}.\n\n"
-            "We are a training consultancy and can provide experienced corporate trainers for your requirement. "
-            "Please share the training dates, duration, delivery mode, participant count, and commercials so we can send suitable trainer profiles.\n\n"
-            "Regards,\nRecruitment Team\nClahan Technologies"
-        )
-
     try:
         import httpx as _httpx
         async with _httpx.AsyncClient(timeout=20) as client:
@@ -356,43 +379,53 @@ async def regenerate_lead_draft(
     if not doc:
         raise HTTPException(404, "Client lead not found")
 
-    company = doc.get("company_name", "your company")
-    domain = doc.get("domain", "training")
-    contact = doc.get("contact_name", "")
-    greeting = f"Dear {contact}," if contact else "Dear Sir/Madam,"
-
-    draft_body = (
-        f"{greeting}\n\n"
-        f"I saw your LinkedIn post about a {domain} trainer requirement for {company}.\n\n"
-        "We are a training consultancy and can provide experienced corporate trainers for your requirement. "
-        "Our trainer network covers Python, Java, DevOps, Cloud, Data, AI, Full Stack, and related technology domains.\n\n"
-        "Please share the training dates, duration, delivery mode, participant count, and expected commercials so we can send suitable trainer profiles.\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
-    )
-    draft_subject = payload.subject_hint or f"Training Solutions for {company} — TrainerSync"
-
+    from app.clients.lead_personalization import personalize_lead
+    try:
+        draft = await personalize_lead(doc, db, payload.tone, payload.subject_hint)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except Exception as exc:
+        logger.warning("Lead personalization failed: %s", type(exc).__name__)
+        raise HTTPException(502, "Personalization unavailable. The existing draft was preserved; please retry.") from exc
     now = datetime.utcnow()
     await db["client_leads"].update_one(
         {"lead_id": lead_id},
-        {"$set": {"draft_subject": draft_subject, "draft_body": draft_body, "draft_regenerated_at": now, "updated_at": now}},
+        {"$set": {"draft_subject": draft['subject'], "draft_body": draft['body'],
+                  "draft": draft, "personalization": draft,
+                  "draft_regenerated_at": now, "updated_at": now}},
     )
-    return {"success": True, "lead_id": lead_id, "subject": draft_subject, "body": draft_body}
+    return {"success": True, "lead_id": lead_id, **draft}
+
+
+@router.put("/{lead_id}/draft")
+async def save_lead_draft(lead_id: str, payload: SaveLeadDraftRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    if not payload.subject.strip() or not payload.body.strip() or '\n' in payload.subject or '\r' in payload.subject:
+        raise HTTPException(422, 'Provide a subject on one line and a nonempty email body.')
+    result = await db['client_leads'].update_one({'lead_id': lead_id}, {'$set': {
+        'draft_subject': payload.subject.strip(), 'draft_body': payload.body.strip(),
+        'draft_reviewed_at': datetime.utcnow(), 'updated_at': datetime.utcnow(),
+    }})
+    if not result.matched_count:
+        raise HTTPException(404, 'Client lead not found')
+    return {'success': True, 'subject': payload.subject.strip(), 'body': payload.body.strip()}
 
 
 @router.post("/{lead_id}/send-email")
 async def send_lead_email(
-    lead_id: str, payload: SendLeadEmailRequest, db: AsyncIOMotorDatabase = Depends(get_db),
+    lead_id: str, payload: SendLeadEmailRequest = SendLeadEmailRequest(), db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     doc = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Client lead not found")
 
-    to_email = payload.to_email or doc.get("email", "")
+    to_email = payload.to_email or doc.get("email") or doc.get("contact_email", "")
     if not to_email:
         raise HTTPException(400, "No recipient email found")
 
-    subject = payload.subject or doc.get("draft_subject") or f"Training Solutions — {doc.get('company_name', '')}"
-    body = payload.body or doc.get("draft_body") or "Dear Client,\n\nWe would like to discuss training solutions for your team.\n\nRegards,\nTrainerSync Team"
+    subject = payload.subject or doc.get("draft_subject") or (doc.get("draft") or {}).get("subject")
+    body = payload.body or doc.get("draft_body") or (doc.get("draft") or {}).get("body")
+    if not subject or not body:
+        raise HTTPException(400, "Generate and review an outreach draft before sending.")
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:

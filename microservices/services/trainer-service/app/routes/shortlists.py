@@ -25,6 +25,18 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 
+
+def _sample_availability_slots() -> str:
+    """Return three fresh weekday examples, clearly marked as format only."""
+    times = ("10:00 AM to 11:00 AM IST", "2:00 PM to 3:00 PM IST", "11:00 AM to 12:00 PM IST")
+    day = datetime.now(LOCAL_TZ).date()
+    slots: List[str] = []
+    while len(slots) < 3:
+        day += timedelta(days=1)
+        if day.weekday() < 5:
+            slots.append(f"- {day.strftime('%d %b %Y')}, {times[len(slots)]}")
+    return "\n".join(slots)
+
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
@@ -162,6 +174,20 @@ class SendClientSlotsRequest(BaseModel):
     client_name: Optional[str] = ""
     mail_type: Optional[str] = "mail4"
     smtp_config: Optional[Dict[str, Any]] = None
+
+
+class PostSelectionLogisticsRequest(BaseModel):
+    venue_address: Optional[str] = ""
+    venue_maps_url: Optional[str] = ""
+    trainer_origin: Optional[str] = ""
+    commute_radius_km: Optional[str] = ""
+    preferred_travel_mode: Optional[str] = ""
+    trainer_ticket_budget_inr: Optional[str] = ""
+    trainer_stay_budget_inr: Optional[str] = ""
+    client_travel_policy: Optional[str] = ""
+    client_stay_policy: Optional[str] = ""
+    training_dates: Optional[str] = ""
+    delivery_mode: Optional[str] = "Offline"
 
 
 def _clean(value: Any) -> str:
@@ -754,11 +780,11 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     slot_request = ""
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
-            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
-            "Example:\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n"
-            "- [your available date], [time] IST\n\n"
+            "Please share three convenient interview/discussion slots that you are actually available for, "
+            "including the date, time, and time zone.\n"
+            "Example format only; the sample dates and times below are illustrative, not booked appointments. "
+            "Please replace them with your actual availability:\n"
+            f"{_sample_availability_slots()}\n\n"
             "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
@@ -1579,6 +1605,63 @@ async def _trainer_has_date_conflict(db: AsyncIOMotorDatabase, trainer_id: str, 
     return False
 
 
+async def _already_selected_trainer_ids(
+    db: AsyncIOMotorDatabase,
+    requirement: Dict[str, Any],
+) -> set[str]:
+    """Find trainers already selected for another requirement."""
+    requirement_id = _clean(requirement.get("requirement_id"))
+    selected_stages = {
+        "selected",
+        "toc_requested",
+        "toc_received_pending",
+        "training_confirmed",
+        "po_requested",
+        "client_po_received",
+        "invoice_generated",
+        "invoice_draft_sent_for_review",
+        "invoice_sent",
+    }
+
+    selected_ids: set[str] = set()
+    requirements = db["requirements"].find(
+        {
+            "requirement_id": {"$ne": requirement_id},
+            "selected_trainer_id": {"$exists": True, "$nin": [None, ""]},
+        },
+        {"_id": 0, "selected_trainer_id": 1},
+    )
+    async for item in requirements:
+        selected_id = _clean(item.get("selected_trainer_id"))
+        if selected_id:
+            selected_ids.add(selected_id)
+
+    shortlists = db["shortlists"].find(
+        {
+            "requirement_id": {"$ne": requirement_id},
+            "$or": [
+                {"top_trainers.selected": True},
+                {"top_trainers.selection_status": "selected"},
+                {"top_trainers.pipeline_status": {"$in": list(selected_stages)}},
+                {"top_trainers.status": {"$in": list(selected_stages)}},
+            ],
+        },
+        {"_id": 0, "requirement_id": 1, "top_trainers": 1},
+    )
+    async for shortlist in shortlists:
+        for trainer in shortlist.get("top_trainers") or []:
+            stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
+            if (
+                trainer.get("selected") is True
+                or _clean(trainer.get("selection_status")).lower() == "selected"
+                or stage in selected_stages
+            ):
+                trainer_id = _clean(trainer.get("trainer_id"))
+                if trainer_id:
+                    selected_ids.add(trainer_id)
+    return selected_ids
+
+
 def _profile_text(trainer: Dict[str, Any]) -> str:
     parts = [
         trainer.get("name"),
@@ -2049,7 +2132,8 @@ async def _ai_trainer_mail1(
             if _is_proposal_requirement(requirement) else
             "If a client commercial is present, state only that client amount. Do not show a trainer share, a percentage, or an offered trainer commercial, and do not ask the trainer to confirm an offer. Never mention margins, internal calculations, "
         )
-        + "internal IDs, or internal workflow. Never invent dates, rates, client names, attachments, slots, or commitments. "
+        + "internal IDs, or internal workflow. Never invent training dates, rates, client names, attachments, trainer availability, or commitments. "
+        "The clearly labelled format-only sample dates are illustrative; never present them as the trainer's availability or a booked appointment. "
         "Address the trainer by name and finish with exactly: Regards, Clahan Technologies. "
         "Return exactly: SUBJECT: <subject> followed by BODY: <body>."
     )
@@ -2057,11 +2141,11 @@ async def _ai_trainer_mail1(
         f"Batch-specific rules: {batch_rule}\n"
         f"Trainer: {trainer_name}\nDomain: {domain}\nTrainer-safe requirement facts: {facts}\n"
         f"Reference facts and requested actions (compose fresh wording):\n{fallback_body}\n"
-        "Mail 1 non-negotiable rule: name the requested technologies, request availability, and request exactly "
-        "three interview/discussion slots using these placeholder examples (not real dates):\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]"
+        "Mail 1 non-negotiable rule: name the requested technologies and ask the trainer for three slots they are "
+        "actually available for. Include this exact, clearly labelled example block only to demonstrate the format; "
+        "these sample dates and times are illustrative, not proposed or booked appointments:\n"
+        "Example format only; replace these with your actual availability:\n"
+        f"{_sample_availability_slots()}"
     )
     try:
         text = await _invoke_mail_model(instructions, prompt)
@@ -2074,22 +2158,37 @@ async def _ai_trainer_mail1(
 
 
 def _ensure_mail1_slot_examples(body: str) -> str:
-    """Keep the required slot format visible even when the LLM omits it."""
-    text = _clean(body)
-    # The approved Mail 1 template already contains the request and examples.
-    # Do not append a second slot block when an AI/manual body has equivalent
-    # wording or examples with different dates.
-    if (
-        re.search(r"three convenient interview/discussion slots", text, flags=re.IGNORECASE)
-        or re.search(r"three slots in this format", text, flags=re.IGNORECASE)
-        or len(re.findall(r"^\s*-\s*\d{1,2}\s+\w+\s+\d{4},", text, flags=re.MULTILINE)) >= 3
-    ):
-        return text
+    """Replace placeholder examples with fresh, concrete format-only examples."""
+    text = str(body or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    cleaned_lines: List[str] = []
+    in_example_block = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        lower = stripped.lower()
+        if re.search(
+            r"example format|format only|placeholder examples|three slots in this format|replace the placeholders",
+            lower,
+        ) or lower in {"example:", "for example:"}:
+            in_example_block = True
+            continue
+        if re.match(r"^-\s*\[your available date", lower):
+            in_example_block = True
+            continue
+        if in_example_block:
+            if not stripped or re.match(r"^-\s*(?:\[|\d{1,2}\s+[a-z]{3,9}\s+\d{4})", lower):
+                continue
+            in_example_block = False
+        cleaned_lines.append(line.rstrip())
+    text = "\n".join(cleaned_lines).strip()
+    if not re.search(r"\b(?:three|3)\b.{0,100}\bslots\b", text, flags=re.IGNORECASE):
+        text = (
+            f"{text}\n\nPlease share three convenient interview/discussion slots that you are actually available for, "
+            "including the date, time, and time zone."
+        ).strip()
     slot_examples = (
-        "\n\nPlease share the three slots in this format:\n"
-        "- [Your available date 1], [time], [time zone]\n"
-        "- [Your available date 2], [time], [time zone]\n"
-        "- [Your available date 3], [time], [time zone]"
+        "\n\nExample format only; these sample dates and times are illustrative, not booked appointments. "
+        "Please replace them with your actual availability:\n"
+        f"{_sample_availability_slots()}"
     )
     closing = re.search(r"\n\s*Regards,\s*Clahan Technologies\.?\s*$", text, flags=re.IGNORECASE)
     if closing:
@@ -2758,6 +2857,13 @@ async def _sync_shortlist_with_trainers(
             and _clean(trainer.get("email") or trainer.get("trainer_email")).lower() not in client_emails
         )
     ]
+    if available_trainers:
+        already_selected_ids = await _already_selected_trainer_ids(db, requirement)
+        available_trainers = [
+            trainer
+            for trainer in available_trainers
+            if _clean(trainer.get("trainer_id")) not in already_selected_ids
+        ]
     scored = [
         scored_trainer
         for trainer in available_trainers
@@ -5115,3 +5221,182 @@ async def _deliver_client_handoff(package, db):
         "slots_count": slot_count,
         "slot_text": slots_text,
     }
+
+
+async def _selected_logistics_record(db, requirement_id: str, trainer_id: str, payload: PostSelectionLogisticsRequest):
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    selected_id = _clean(requirement.get("selected_trainer_id") or shortlist.get("selected_trainer_id"))
+    if selected_id != trainer_id:
+        raise HTTPException(409, "Post-interview logistics can only be managed for the selected trainer.")
+    trainer = next((item for item in shortlist.get("top_trainers") or [] if _clean(item.get("trainer_id")) == trainer_id), None)
+    if not trainer:
+        raise HTTPException(404, "Selected trainer was not found on this shortlist.")
+    delivery_mode = _clean(payload.delivery_mode or requirement.get("delivery_mode") or requirement.get("mode")).lower()
+    if not any(term in delivery_mode for term in ("offline", "classroom", "onsite", "in-person", "in person")):
+        raise HTTPException(409, "Travel coordination is only available for an offline or onsite requirement.")
+    maps_url = _clean(payload.venue_maps_url)
+    if maps_url and not re.match(r"^https://(?:(?:www|maps)\.)?google\.(?:com|co\.in)/maps(?:/|\?|$)", maps_url, flags=re.IGNORECASE):
+        raise HTTPException(422, "Venue link must be a Google Maps URL.")
+    now = datetime.utcnow()
+    logistics = {
+        key: _clean(value)[:1200]
+        for key, value in payload.model_dump().items()
+    }
+    logistics.update({
+        "delivery_mode": "offline",
+        "status": _clean((trainer.get("post_interview_logistics") or {}).get("status")) or "details_needed",
+        "updated_at": now,
+    })
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {"top_trainers.$.post_interview_logistics": logistics, "top_trainers.$.updated_at": now, "updated_at": now}},
+    )
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {"post_interview_logistics": {**logistics, "trainer_id": trainer_id, "trainer_name": _clean(trainer.get("name") or trainer.get("trainer_name"))}, "updated_at": now}},
+    )
+    return requirement, trainer, logistics
+
+
+@router.patch("/logistics/{requirement_id}/{trainer_id}")
+async def save_post_selection_logistics(
+    requirement_id: str,
+    trainer_id: str,
+    payload: PostSelectionLogisticsRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    requirement, trainer, logistics = await _selected_logistics_record(db, requirement_id, trainer_id, payload)
+    return {"success": True, "requirement_id": requirement_id, "trainer_id": trainer_id, "logistics": logistics}
+
+
+async def _send_post_selection_logistics_email(
+    *, requirement_id: str, trainer_id: str, recipient: str, recipient_name: str,
+    subject: str, body: str, mail_type: str,
+) -> Dict[str, Any]:
+    if not _email_address(recipient):
+        raise HTTPException(422, "A valid email address is required for this logistics request.")
+    request_body = {
+        "to": _email_address(recipient),
+        "subject": subject,
+        "body": body,
+        "mail_type": mail_type,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": recipient_name,
+        "idempotency_key": f"{mail_type}:{requirement_id}:{trainer_id}:{uuid.uuid4().hex}",
+    }
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=request_body)
+    if response.status_code >= 400:
+        raise HTTPException(502, f"Could not send logistics email: {response.text[:300]}")
+    result = response.json() or {}
+    if result.get("success") is not True:
+        raise HTTPException(502, _clean(result.get("error") or "Email delivery was not confirmed."))
+    return result
+
+
+@router.post("/logistics/{requirement_id}/{trainer_id}/request-trainer")
+async def request_selected_trainer_logistics(
+    requirement_id: str,
+    trainer_id: str,
+    payload: PostSelectionLogisticsRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    requirement, trainer, logistics = await _selected_logistics_record(db, requirement_id, trainer_id, payload)
+    open_query = await db["trainer_logistics_queries"].find_one({
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "query_type": "post_selection_trainer_logistics", "status": "trainer_asked",
+    }, {"_id": 0, "query_id": 1})
+    if open_query:
+        raise HTTPException(409, "The trainer logistics request is already open; wait for the trainer's reply.")
+    trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
+    technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or "training")
+    date_text = _clean(logistics.get("training_dates") or requirement.get("training_dates") or requirement.get("timeline_start"))
+    venue = _clean(logistics.get("venue_address") or requirement.get("location"))
+    map_line = f"\nGoogle Maps venue: {logistics['venue_maps_url']}" if logistics.get("venue_maps_url") else ""
+    body = (
+        f"Hi {trainer_name},\n\nYou have been selected after the interview for the {technology} training. "
+        "Please confirm whether you can attend this offline venue and share your travel plan before anything is booked.\n\n"
+        f"Training venue: {venue or 'Client to confirm'}{map_line}\n"
+        f"Training dates: {date_text or 'To be confirmed'}\n\n"
+        "Please reply with your starting city, the maximum distance you can travel without an overnight stay, "
+        "your preferred option (train, flight, or bus), an estimated round-trip ticket cost, whether you need a hotel, "
+        "and your expected stay cost. Please do not purchase tickets or hotel reservations until Clahan confirms the client-approved budget and itinerary.\n\n"
+        "Regards,\nClahan Technologies"
+    )
+    subject = f"Offline Training Travel and Stay Confirmation - {technology} [{requirement_id}]"
+    sent = await _send_post_selection_logistics_email(
+        requirement_id=requirement_id, trainer_id=trainer_id, recipient=trainer_email,
+        recipient_name=trainer_name, subject=subject, body=body, mail_type="trainer_post_selection_logistics",
+    )
+    now = datetime.utcnow()
+    query_id = f"LQ-{uuid.uuid4().hex[:10].upper()}"
+    await db["trainer_logistics_queries"].insert_one({
+        "query_id": query_id, "query_type": "post_selection_trainer_logistics",
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "trainer_name": trainer_name, "trainer_email": trainer_email,
+        "client_email": _email_address(requirement.get("client_email") or requirement.get("requester_email")),
+        "clarification_subject": subject, "clarification_message_id": sent.get("email_id", ""),
+        "logistics_snapshot": logistics, "status": "trainer_asked", "created_at": now, "updated_at": now,
+    })
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {"top_trainers.$.post_interview_logistics.trainer_request_status": "sent", "top_trainers.$.post_interview_logistics.trainer_request_email_id": sent.get("email_id", ""), "top_trainers.$.post_interview_logistics.trainer_requested_at": now, "top_trainers.$.post_interview_logistics.trainer_query_id": query_id}},
+    )
+    return {"success": True, "email_id": sent.get("email_id"), "sent_to": trainer_email}
+
+
+@router.post("/logistics/{requirement_id}/{trainer_id}/request-client")
+async def request_client_logistics_confirmation(
+    requirement_id: str,
+    trainer_id: str,
+    payload: PostSelectionLogisticsRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    requirement, trainer, logistics = await _selected_logistics_record(db, requirement_id, trainer_id, payload)
+    open_query = await db["trainer_logistics_queries"].find_one({
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "query_type": "post_selection_logistics", "status": "client_asked",
+    }, {"_id": 0, "query_id": 1})
+    if open_query:
+        raise HTTPException(409, "The client logistics request is already open; wait for the client's reply.")
+    client_email = _email_address(requirement.get("client_email") or requirement.get("requester_email"))
+    client_name = _clean(requirement.get("client_name") or requirement.get("client_company")) or "Client Team"
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Selected trainer"
+    technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or "training")
+    venue = _clean(logistics.get("venue_address") or requirement.get("location"))
+    map_line = f"\nGoogle Maps venue: {logistics['venue_maps_url']}" if logistics.get("venue_maps_url") else ""
+    body = (
+        f"Dear {client_name},\n\nFollowing the interview, {trainer_name} has been selected for the offline {technology} training. "
+        "Please confirm the exact training address and Google Maps pin, training dates, and the arrangements below before travel is booked.\n\n"
+        f"Current venue on record: {venue or 'Not provided'}{map_line}\n\n"
+        "Please reply using these labeled lines so we can verify the final handoff:\n"
+        "Confirmed training address: [full address]\nGoogle Maps pin: [exact Google Maps link]\n"
+        "Travel / stay budget and terms: [approved amount or cap, who books/pays, hotel/stay limit, local transport, and receipt rules]\n"
+        "Booking PDFs: [attach ticket/hotel PDFs if booked, or say Not booked yet]\n\n"
+        "The final travel package will be sent to the selected trainer after the address, exact map pin, and travel/stay terms are confirmed.\n\n"
+        "Regards,\nClahan Technologies"
+    )
+    subject = f"Confirm Offline Venue and Trainer Travel - {technology} [{requirement_id}]"
+    sent = await _send_post_selection_logistics_email(
+        requirement_id=requirement_id, trainer_id=trainer_id, recipient=client_email,
+        recipient_name=client_name, subject=subject, body=body, mail_type="client_post_selection_logistics",
+    )
+    now = datetime.utcnow()
+    query_id = f"LQ-{uuid.uuid4().hex[:10].upper()}"
+    await db["trainer_logistics_queries"].insert_one({
+        "query_id": query_id, "query_type": "post_selection_logistics",
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "trainer_name": trainer_name, "trainer_email": _email_address(trainer.get("email") or trainer.get("trainer_email")),
+        "client_email": client_email, "clarification_subject": subject,
+        "clarification_message_id": sent.get("email_id", ""),
+        "trainer_question": "Post-interview offline venue, travel, stay, and booking confirmation.",
+        "logistics_snapshot": logistics, "status": "client_asked", "created_at": now, "updated_at": now,
+    })
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {"top_trainers.$.post_interview_logistics.client_request_status": "sent", "top_trainers.$.post_interview_logistics.client_request_email_id": sent.get("email_id", ""), "top_trainers.$.post_interview_logistics.client_requested_at": now, "top_trainers.$.post_interview_logistics.query_id": query_id}},
+    )
+    return {"success": True, "email_id": sent.get("email_id"), "sent_to": client_email, "query_id": query_id}

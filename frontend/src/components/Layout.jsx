@@ -23,8 +23,8 @@ const NAV_GROUPS = [
       { to: '/dashboard',       label: 'Dashboard',        icon: LayoutDashboard, keywords: ['dashboard','stats','overview'] },
       { to: '/resume-upload',   label: 'Upload Resumes',   icon: Upload,          keywords: ['upload','resume','import'] },
       { to: '/requirements',    label: 'Find Trainers',    icon: FileSearch,      keywords: ['find','requirement','match'] },
-      { to: '/shortlist1',      label: 'AI Pipeline',      icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
-      { to: '/shortlist',       label: 'Shortlist',        icon: ListChecks,      keywords: ['shortlist','trainer shortlist'] },
+      { to: '/shortlist1',      label: 'Confirmed Batch Pipeline', icon: Zap, keywords: ['advanced','shortlist1','confirmed batch','pipeline'] },
+      { to: '/shortlist',       label: 'Shortlist',        icon: ListChecks,      keywords: ['shortlist','trainer shortlist','compare trainers','select trainers'] },
       { to: '/profile-reviews', label: 'Profile Reviews',  icon: ClipboardCheck,  keywords: ['profile review','trainer rating','document review','skill fit'] },
       { to: '/trainers',        label: 'Trainer Database', icon: Users,           keywords: ['trainers','database'] },
       { to: '/trainer-applications', label: 'Trainer Applications', icon: Linkedin, keywords: ['trainer applications','linkedin profiles','trainer resumes'] },
@@ -121,15 +121,6 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
     items: group.items.filter(item => item.to !== '/admin' || isAdmin),
   }))
   const [openMore, setOpenMore] = useState(() => moreGroupsForPath(pathname))
-  const portalHome = (() => {
-    try {
-      const role = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role
-      return role === 'trainer' ? '/trainer-portal' : role === 'recruiter' ? '/client-portal' : '/dashboard'
-    } catch {
-      return '/dashboard'
-    }
-  })()
-
   useEffect(() => {
     setOpenMore(prev => {
       const active = moreGroupsForPath(pathname)
@@ -148,10 +139,10 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
 
         <div className={clsx(
           'mt-4 flex items-center gap-2 rounded-lg border px-3 py-2',
-          connected ? 'border-green-100 bg-green-50' : 'border-amber-100 bg-amber-50'
+          connected ? 'border-blue-100 bg-blue-50' : 'border-amber-100 bg-amber-50'
         )}>
-          <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
-          <span className={clsx('text-[12px] font-semibold', connected ? 'text-green-700' : 'text-amber-700')}>
+          <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
+          <span className={clsx('text-[12px] font-semibold', connected ? 'text-blue-700' : 'text-amber-700')}>
             {connected ? 'Gmail connected' : 'Gmail not connected'}
           </span>
         </div>
@@ -159,14 +150,14 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAd
 
       {/* Navigation */}
       <div className="sidebar-body">
-        {/* Home */}
+        {/* The brand home page remains available from the workspace navigation. */}
         <NavLink
-          to={portalHome}
+          to="/home"
           onClick={onNavigate}
           className={({ isActive }) => clsx('nav-item mb-2', isActive && 'active')}
         >
           <span className="nav-icon"><Home className="h-[15px] w-[15px]" /></span>
-          <span className="text-[13.5px]">Portal Home</span>
+          <span className="text-[13.5px]">Home</span>
         </NavLink>
 
         <div className="space-y-5">
@@ -388,11 +379,11 @@ export default function Layout({ onLogout, isAdmin = false }) {
               className={clsx(
                 'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
                 connected
-                  ? 'border-green-200 bg-green-50 text-green-700'
+                  ? 'border-blue-200 bg-blue-50 text-blue-700'
                   : 'border-amber-200 bg-amber-50 text-amber-700'
               )}
             >
-              <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
+              <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
               {connected ? 'Gmail ready' : 'Connect Gmail'}
             </NavLink>
 
