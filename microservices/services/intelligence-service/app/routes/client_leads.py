@@ -1,4 +1,5 @@
 """Client leads — CRM discovery, auto-discover, draft generation, send email."""
+import asyncio
 import logging
 import re
 import uuid
@@ -19,6 +20,52 @@ LOCAL_SERVICE_FALLBACKS = {
     "https://email-service:8002": "http://email-service:8002",
     "http://127.0.0.1:8002": "http://email-service:8002",
 }
+
+_CONSUMER_EMAIL_DOMAINS = {"gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com", "aol.com"}
+
+
+def _inferred_website(lead: Dict[str, Any]) -> str:
+    """Use a business contact domain for research without asking a user to type it."""
+    for value in (lead.get("website"), (lead.get("metadata") or {}).get("website")):
+        if str(value or "").strip():
+            return str(value).strip()
+    for value in (lead.get("email"), lead.get("contact_email")):
+        domain = str(value or "").strip().lower().rsplit("@", 1)[-1]
+        if "." in domain and domain not in _CONSUMER_EMAIL_DOMAINS:
+            return f"https://{domain}"
+    return ""
+
+
+async def _auto_personalize(lead_id: str, db: AsyncIOMotorDatabase) -> None:
+    """Generate a grounded training outreach draft after lead ingestion."""
+    doc = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    if not doc or doc.get("personalization_status") == "complete":
+        return
+    website = _inferred_website(doc)
+    if website and not doc.get("website"):
+        doc["website"] = website
+        await db["client_leads"].update_one({"lead_id": lead_id}, {"$set": {"website": website}})
+    await db["client_leads"].update_one({"lead_id": lead_id}, {"$set": {
+        "personalization_status": "generating", "personalization_error": "", "updated_at": datetime.utcnow(),
+    }})
+    from app.clients.lead_personalization import personalize_lead
+    try:
+        draft = await personalize_lead(doc, db)
+    except Exception as exc:
+        logger.warning("Automatic personalization failed for %s: %s", lead_id, type(exc).__name__)
+        await db["client_leads"].update_one({"lead_id": lead_id}, {"$set": {
+            "personalization_status": "needs_retry", "personalization_error": str(exc)[:500], "updated_at": datetime.utcnow(),
+        }})
+        return
+    await db["client_leads"].update_one({"lead_id": lead_id}, {"$set": {
+        "draft_subject": draft["subject"], "draft_body": draft["body"], "draft": draft,
+        "personalization": draft, "personalization_status": "complete",
+        "draft_regenerated_at": datetime.utcnow(), "updated_at": datetime.utcnow(),
+    }})
+
+
+def queue_auto_personalization(lead_id: str, db: AsyncIOMotorDatabase) -> None:
+    asyncio.create_task(_auto_personalize(lead_id, db))
 
 
 async def _post_with_local_fallback(
@@ -186,6 +233,7 @@ async def create_client_lead(payload: ClientLeadCreate, db: AsyncIOMotorDatabase
     lead_id = f"CL-{uuid.uuid4().hex[:10].upper()}"
     doc = {**payload.model_dump(), "lead_id": lead_id, "status": "new", "created_at": now, "updated_at": now}
     await db["client_leads"].insert_one(doc)
+    queue_auto_personalization(lead_id, db)
     doc.pop("_id", None)
     return {"success": True, "lead_id": lead_id, "lead": doc}
 
@@ -223,6 +271,7 @@ async def update_client_lead(lead_id: str, payload: ClientLeadUpdate, db: AsyncI
     if result.matched_count == 0:
         raise HTTPException(404, "Client lead not found")
     doc = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    queue_auto_personalization(lead_id, db)
     return {"success": True, "lead": doc}
 
 
@@ -252,6 +301,7 @@ async def enrich_client_lead_from_text(
     if result.matched_count == 0:
         raise HTTPException(404, "Client lead not found")
     doc = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    queue_auto_personalization(lead_id, db)
     return {"success": True, "lead": doc, **contact}
 
 
@@ -350,6 +400,7 @@ async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorData
                         "created_at": now,
                         "updated_at": now,
                     })
+                    queue_auto_personalization(lead_id, db)
                     saved_count += 1
     except Exception as exc:
         logger.warning("Public search failed: %s", exc)

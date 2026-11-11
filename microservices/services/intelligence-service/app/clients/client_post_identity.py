@@ -1,5 +1,6 @@
 """Identify one LinkedIn post across permalink and tracking URL variants."""
 import re
+import asyncio
 from urllib.parse import unquote, urlsplit, urlunsplit
 
 from pymongo.errors import DuplicateKeyError
@@ -44,4 +45,9 @@ async def save_client_post(lead, db, now):
     except DuplicateKeyError:
         # Another collector saved this post after our lookup. Update its record.
         result = await db['client_leads'].update_one({'post_key': key}, mutation)
-    return result.upserted_id is not None
+    created = result.upserted_id is not None
+    if created:
+        # Import here avoids a router/client import cycle at application startup.
+        from app.routes.client_leads import queue_auto_personalization
+        asyncio.get_running_loop().call_soon(queue_auto_personalization, lead["lead_id"], db)
+    return created

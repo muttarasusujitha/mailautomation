@@ -390,7 +390,7 @@ export default function ClientLeads() {
                     <input aria-label="Training topics" className="input" placeholder="Topics, e.g. Python, Pandas" value={researchInputs[lead.lead_id]?.training_requirement?.topics ?? lead.training_requirement?.topics ?? lead.domain ?? ''} onChange={e => setRequirement(lead.lead_id, 'topics', e.target.value)} />
                     <input aria-label="Audience and level" className="input" placeholder="Audience / level" value={researchInputs[lead.lead_id]?.training_requirement?.audience ?? lead.training_requirement?.audience ?? ''} onChange={e => setRequirement(lead.lead_id, 'audience', e.target.value)} />
                   </div>
-                  <button onClick={() => generateDraft(lead)} disabled={!!drafting} className="btn-secondary text-sm">{drafting === lead.lead_id ? 'Researching and writing…' : 'Generate personalized draft'}</button>
+                  <p className="text-xs text-slate-500">Personalization runs automatically after each training lead is found. {lead.personalization_status === 'generating' ? 'Generating draft…' : lead.personalization_status === 'needs_retry' ? 'Draft needs retry; the system will retry on the next update.' : ''}</p>
                 </div>
               )}
               {leadMode === 'client' && (lead.draft_body || lead.draft?.body) && (

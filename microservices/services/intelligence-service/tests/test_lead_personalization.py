@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from app.clients.lead_personalization import collect_evidence, validate_draft, personalize_lead
 from app.routes.client_leads import regenerate_lead_draft, RegenerateDraftRequest, send_lead_email, SendLeadEmailRequest
+from app.routes.client_leads import _inferred_website, queue_auto_personalization
 
 
 def test_research_excludes_other_companies_and_keeps_sources():
@@ -95,3 +96,16 @@ def test_no_context_does_not_call_writer():
         with pytest.raises(ValueError):
             asyncio.run(personalize_lead({'company_name': 'Acme'}, {}))
     writer.assert_not_awaited()
+
+
+def test_business_contact_domain_becomes_research_website_without_user_input():
+    assert _inferred_website({'contact_email': 'training@acme.example'}) == 'https://acme.example'
+    assert _inferred_website({'contact_email': 'person@gmail.com'}) == ''
+
+
+def test_queue_schedules_automatic_personalization(monkeypatch):
+    scheduled = []
+    monkeypatch.setattr('app.routes.client_leads.asyncio.create_task', lambda task: scheduled.append(task))
+    queue_auto_personalization('CL-1', {})
+    assert len(scheduled) == 1
+    scheduled[0].close()
