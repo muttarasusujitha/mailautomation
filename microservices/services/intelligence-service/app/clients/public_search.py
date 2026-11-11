@@ -302,13 +302,16 @@ async def _search_ddg(query, limit, found=None, seen=None, warm=True):
     return found, challenged
 
 
-async def _search_bing(query, limit, allowed_domains=None):
+async def _search_bing(query, limit, allowed_domains=None, report=None):
     found, seen = [], set()
     first = 1
     while len(found) < limit and first <= 41:
         try:
             page = await _search_page(query, limit - len(found), first, allowed_domains)
         except ValueError:
+            if report is not None and first == 1:
+                # The first page was refused or did not answer, so nothing was searched.
+                report['blocked'] = report.get('blocked', 0) + 1
             break
         added = [row for row in page if row['url'] not in seen]
         if not added:
@@ -329,11 +332,16 @@ async def search_public(query, limit=10):
 
 
 class SearchBatch(tuple):
-    """Matched rows and attempt count. timed_out is set when nothing was kept."""
+    """Matched rows and attempt count.
 
-    def __new__(cls, found, attempts, timed_out=False):
+    timed_out is set when nothing was kept. blocked is set when nothing was kept
+    and DuckDuckGo or Bing refused a request (challenge page or error status).
+    """
+
+    def __new__(cls, found, attempts, timed_out=False, blocked=False):
         batch = super().__new__(cls, (list(found), attempts))
         batch.timed_out = bool(timed_out)
+        batch.blocked = bool(blocked)
         return batch
 
 
@@ -343,8 +351,10 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
     domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
     found, seen = [], set()
     challenges = 0
+    refused = 0
     timeouts = 0
     attempts = 0
+    bing_report = {}
     await _fetch('GET', 'https://duckduckgo.com/', retries=0)
     for query in queries:
         if len(found) >= limit or challenges >= 8 or timeouts >= 2:
@@ -357,14 +367,18 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
                 timeouts += 1
             else:
                 challenges += 1
+                refused += 1
                 timeouts = 0
             continue
+        if response.status_code not in (200, 202):
+            refused += 1
         challenged, page_timeout = await _read_ddg_pages(
             response, limit, found, seen, domains, query)
         if page_timeout:
             timeouts += 1
         elif challenged and len(found) == before:
             challenges += 1
+            refused += 1
             timeouts = 0
         elif len(found) > before:
             challenges = 0
@@ -377,7 +391,7 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
         for query in queries:
             if len(found) >= limit:
                 break
-            bing_rows = await _search_bing(query, limit - len(found), domains)
+            bing_rows = await _search_bing(query, limit - len(found), domains, report=bing_report)
             for row in bing_rows:
                 if row['url'] in seen:
                     continue
@@ -387,4 +401,5 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
                 if len(found) >= limit:
                     break
     kept = found[:limit]
-    return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0)
+    return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0,
+                       blocked=not kept and bool(refused or bing_report.get('blocked')))

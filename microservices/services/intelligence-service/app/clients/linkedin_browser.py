@@ -6,12 +6,15 @@ import re
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit, urlunsplit
 from app.clients.linkedin_session import (
-    LinkedInAuthenticationRequired, RECONNECT_MESSAGE,
-    block_session, ensure_session_not_blocked,
+    LinkedInAuthenticationRequired, LinkedInRateLimited, RATE_LIMITED_MESSAGE, RECONNECT_MESSAGE,
+    block_session, ensure_not_rate_limited, ensure_session_not_blocked,
+    load_search_cursor, pause_after_rate_limit, rate_limit_message, save_search_cursor,
 )
 
 _lock = asyncio.Lock()
 _LOCK_WAIT_SECONDS = 90
+# LinkedIn people search does not serve results past page 100.
+_MAX_PEOPLE_PAGE = 100
 logger = logging.getLogger(__name__)
 
 
@@ -41,6 +44,37 @@ def profile_path():
     default = Path(__file__).resolve().parents[2] / 'linkedin-bot-profile'
     configured = bot_option('LINKEDIN_BOT_PROFILE_PATH')
     return str(Path(configured or default).resolve())
+
+
+def _float_option(name, default, low, high):
+    try:
+        value = float(bot_option(name, str(default)) or default)
+    except (TypeError, ValueError):
+        value = default
+    return min(max(value, low), high)
+
+
+def rate_limit_pause_hours():
+    """How long account searches wait after LinkedIn returns 403 or 429."""
+    return _float_option('LINKEDIN_RATE_LIMIT_PAUSE_HOURS', 24, 1, 168)
+
+
+def page_delay_seconds():
+    """Wait between LinkedIn page loads, so one fetch sends fewer requests per minute."""
+    return _float_option('LINKEDIN_PAGE_DELAY_SECONDS', 5, 0, 60)
+
+
+async def _pace(page, seconds):
+    if seconds <= 0:
+        return
+    try:
+        await page.wait_for_timeout(int(seconds * 1000))
+    except Exception:
+        pass
+
+
+def search_cursor_key(domain, location=''):
+    return f'trainer|{domain.strip().lower()}|{(location or "").strip().lower()}'
 
 
 def canonical_url(value):
@@ -271,8 +305,13 @@ def people_identities_hidden(text):
     return len(re.findall(r'\bLinkedIn Member\b', text or '', re.I)) >= 2
 
 
-async def collect_trainer_profiles(page, domain, location, limit, collected=None, excluded_urls=None):
-    """Page through people search until the qualified target or the scan limit is met."""
+async def collect_trainer_profiles(page, domain, location, limit, collected=None, excluded_urls=None,
+                                   cursor=None, page_delay=0):
+    """Page through people search until the qualified target or the scan limit is met.
+
+    cursor, when given, is updated in place: the next fetch starts with the next
+    query and continues each query from the page after the last one read.
+    """
     try:
         from playwright.async_api import TimeoutError as BrowserTimeoutError
     except ImportError:
@@ -356,15 +395,32 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     ]))
     # Give alternate queries a share of the page budget and reserve fallback time.
     pages_per_query = max(2, (page_cap + len(queries) - 1) // len(queries))
+    next_pages = {}
+    if cursor is not None:
+        # Rotate the starting query and resume each query where it stopped, so a
+        # repeat fetch reads new result pages instead of the already-saved first ones.
+        start = cursor.get('query', 0) % len(queries)
+        queries = queries[start:] + queries[:start]
+        cursor['query'] = (start + 1) % len(queries)
+        next_pages = cursor.setdefault('pages', {})
     try:
         page_loads = 0
         for keywords in queries:
             if len(results) >= limit or len(visited) >= scan_limit or asyncio.get_running_loop().time() >= people_deadline:
                 break
             repeated_pages = 0
-            for page_number in range(1, min(page_cap, pages_per_query) + 1):
+            try:
+                first_page = int(next_pages.get(keywords, 1))
+            except (TypeError, ValueError):
+                first_page = 1
+            if not 1 <= first_page <= _MAX_PEOPLE_PAGE:
+                first_page = 1
+            last_page = min(first_page + min(page_cap, pages_per_query) - 1, _MAX_PEOPLE_PAGE)
+            for page_number in range(first_page, last_page + 1):
                 if len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap or asyncio.get_running_loop().time() >= people_deadline:
                     break
+                if page_loads:
+                    await _pace(page, page_delay)
                 page_loads += 1
                 try:
                     async with asyncio.timeout(18):
@@ -375,7 +431,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                                 break
                             continue
                         if response and response.status in (403, 429):
-                            raise ValueError('LinkedIn limited this session. Fetching stopped.')
+                            raise LinkedInRateLimited(RATE_LIMITED_MESSAGE)
                         try:
                             await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
                         except Exception:
@@ -392,6 +448,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                             new_urls, raw_count = await read_people()
                 except PeopleIdentitiesHidden:
                     raise
+                except LinkedInRateLimited as exc:
+                    # Keep the profiles already read; the caller pauses account searches.
+                    raise PartialSearchError(str(exc), results) from exc
                 except ValueError:
                     raise
                 except Exception:
@@ -402,7 +461,10 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                     continue
                 repeated_pages = repeated_pages + 1 if new_urls == 0 else 0
                 if raw_count == 0 or repeated_pages >= 2:
+                    # This query has no more results. Start it from page 1 next time.
+                    next_pages[keywords] = 1
                     break
+                next_pages[keywords] = page_number + 1 if page_number < _MAX_PEOPLE_PAGE else 1
                 if len(results) >= limit or len(visited) >= scan_limit:
                     return results
     except PeopleIdentitiesHidden:
@@ -423,6 +485,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     try:
         async with asyncio.timeout(min(content_budget, remaining)):
             for phrase in phrases:
+                await _pace(page, page_delay)
                 try:
                     async with asyncio.timeout(12):
                         url = 'https://www.linkedin.com/search/results/content/?' + urlencode({
@@ -433,7 +496,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                             response = None
                         await page.wait_for_timeout(2000)
                         if response and response.status in (403, 429):
-                            raise ValueError('LinkedIn limited this session. Fetching stopped.')
+                            raise LinkedInRateLimited(RATE_LIMITED_MESSAGE)
                         await require_session(page)
                         cards = page.locator('[role="listitem"][componentkey^="update-card-focus"]')
                         try:
@@ -478,6 +541,8 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 except (TimeoutError, BrowserTimeoutError):
                     # A slow phrase must not consume every other query's budget.
                     continue
+    except LinkedInRateLimited as exc:
+        raise PartialSearchError(str(exc), results) from exc
     except TimeoutError:
         if results:
             return results
@@ -504,7 +569,7 @@ async def collect_client_posts(page, context, domain, location, limit):
         async with asyncio.timeout(90):
             response = await page.goto(search_url(domain, 'client', location), wait_until='domcontentloaded', timeout=15000)
             if response and response.status in (403, 429):
-                raise ValueError('LinkedIn limited this session.')
+                raise LinkedInRateLimited(RATE_LIMITED_MESSAGE)
             await page.wait_for_timeout(2000)
             await require_session(page)
             stagnant = 0
@@ -548,6 +613,10 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
     await _acquire_bot_lock()
     try:
         ensure_session_not_blocked(profile_path())
+        # After a 403/429, wait out the pause instead of asking LinkedIn again.
+        ensure_not_rate_limited(profile_path())
+        cursor_key = search_cursor_key(domain, location) if mode == 'trainer' else ''
+        cursor = load_search_cursor(profile_path(), cursor_key) if cursor_key else None
         async with async_playwright() as playwright:
             context = await playwright.chromium.launch_persistent_context(
                 profile_path(), headless=True, accept_downloads=False)
@@ -559,25 +628,42 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                     await context.add_cookies(saved)
                 page = await context.new_page()
                 if mode == 'trainer':
-                    return await collect_trainer_profiles(page, domain, location, min(max(limit, 1), TRAINER_RESULT_CEILING), collected, **({"excluded_urls": excluded_urls} if excluded_urls else {}))
+                    return await collect_trainer_profiles(
+                        page, domain, location, min(max(limit, 1), TRAINER_RESULT_CEILING), collected,
+                        cursor=cursor, page_delay=page_delay_seconds(),
+                        **({"excluded_urls": excluded_urls} if excluded_urls else {}))
                 if mode == 'client':
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:
                 cause = exc
                 partial = None
                 auth_required = False
+                rate_limited = False
                 while cause is not None:
                     if isinstance(cause, LinkedInAuthenticationRequired):
                         auth_required = True
                         block_session(profile_path())
+                    if isinstance(cause, LinkedInRateLimited):
+                        rate_limited = True
                     if partial is None and getattr(cause, 'results', None):
                         partial = list(cause.results)
                     cause = cause.__cause__
+                if rate_limited:
+                    until = pause_after_rate_limit(profile_path(), rate_limit_pause_hours())
+                    logger.warning('LinkedIn returned 403/429. Account searches are paused until %s UTC.',
+                                   until.strftime('%Y-%m-%d %H:%M'))
                 # Profiles collected before a deadline are a completed search.
                 if partial and not auth_required:
                     return partial
+                if rate_limited and not auth_required:
+                    raise LinkedInRateLimited(rate_limit_message(until)) from exc
                 raise
             finally:
+                try:
+                    if cursor is not None:
+                        save_search_cursor(profile_path(), cursor_key, cursor)
+                except OSError:
+                    logger.warning('Could not save the LinkedIn search position; the next fetch starts from page 1.')
                 try:
                     if page is not None:
                         await persist_session(context, page)

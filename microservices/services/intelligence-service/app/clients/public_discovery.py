@@ -2,6 +2,11 @@
 import asyncio
 from app.clients.public_search import search_public
 
+PUBLIC_SEARCH_BLOCKED = (
+    'Public web search (DuckDuckGo/Bing) blocked or did not answer requests from this server, '
+    'so no fallback profiles could be fetched.'
+)
+
 
 async def discover_public(domain, mode, target=20, location=''):
     from app.clients.lead_discovery import public_queries
@@ -21,13 +26,15 @@ async def discover_public(domain, mode, target=20, location=''):
     if mode == 'trainer':
         try:
             candidate_limit = min(120, target * 2)
-            batch, attempts = await search_public_many(
+            searched = await search_public_many(
                 queries, candidate_limit, supplement_with_bing=True)
+            batch, attempts = searched
         except Exception as exc:
             batch, attempts = [], 1
             warnings = [str(exc) or type(exc).__name__]
         else:
-            warnings = []
+            # A refused or challenged search engine is "blocked", not "no profiles exist".
+            warnings = [PUBLIC_SEARCH_BLOCKED] if getattr(searched, 'blocked', False) else []
         batch = select_accurate_profiles(batch, domain, require_current=False)
         rows, seen = [], set()
         for item in batch:
