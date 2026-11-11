@@ -1,4 +1,5 @@
 """Client inbox management — approve, reject, regenerate-reply."""
+import asyncio
 import html
 import base64
 import httpx
@@ -1475,6 +1476,25 @@ async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA) -> Dict[
     return {"reply_body": reply_body, "analysis": analysis}
 
 
+async def _gemini_email_draft(cfg, prompt: str) -> str:
+    """Generate a grounded reply with Gemini without blocking the inbox worker."""
+    import google.generativeai as genai
+
+    api_key = str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip()
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY is not configured")
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(getattr(cfg, "GEMINI_MODEL", "gemini-2.5-flash") or "gemini-2.5-flash")
+    response = await asyncio.get_running_loop().run_in_executor(
+        None,
+        lambda: model.generate_content(
+            prompt,
+            generation_config={"temperature": 0.35, "max_output_tokens": 600},
+        ),
+    )
+    return str(getattr(response, "text", "") or "").strip()
+
+
 async def _ai_draft_reply(
     subject: str,
     body: str,
@@ -1534,10 +1554,10 @@ async def _ai_draft_reply(
         + "\n\nWriting requirement: " + guidance +
         "Reply to the latest message in plain, natural language. The sender may have multiple unrelated training requirements. "
         "Use the current technology/domain and current requirement only; treat older replies about another domain as unrelated. "
-        "Personalize the wording to the explicit company, industry, business context, goals, and requested training scope in the workflow context. "
-        "Briefly connect the requested training to the client's stated work or outcome when that evidence is present. "
-        "When only a domain is known, tailor to that domain without pretending to know the company's internal systems or challenges. "
-        "Do not infer business facts from a company name or email address. "
+        "Personalize the reply to the client's stated training requirement and the facts in this email thread, not to company research. "
+        "Acknowledge the relevant technology, delivery preference, audience, dates, duration, or requested material only when the client actually provided it. "
+        "If information is missing, ask only for the smallest missing detail needed to progress; never ask again for a detail already in the thread. "
+        "Do not infer business facts, internal systems, or challenges from a company name or email address. "
         "A receipt-only acknowledgement needs just one brief sentence. A direct question needs its answer; "
         "several questions need each answer. Stop when those needs are met, then the signature from the writing rules. "
         "Remove generic offers of further help and anticipation. Do not add 'shortly', 'soon', or any other "
@@ -1595,8 +1615,30 @@ async def _ai_draft_reply(
             logger.warning("Ollama email generation failed: %s", exc)
             return "" if require_openai else grounded_reference
 
-    openai_key = str(getattr(cfg, "OPENAI_API_KEY", "") or "").strip()
     provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    gemini_key = str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip()
+    if provider == "gemini" and gemini_key:
+        try:
+            generated = await _gemini_email_draft(
+                cfg,
+                (
+                    f"You are a professional training coordinator at {getattr(cfg, 'FROM_NAME', '') or 'Clahan Technologies'}. "
+                    + guidance
+                    + " Use only the supplied email and workflow context as facts. Never invent prices, dates, availability, attachments, actions, or commitments. "
+                    + "Return only the email body with no subject line.\n\n"
+                    + prompt
+                ),
+            )
+            drafted = await finish(generated)
+            if drafted:
+                return drafted
+            logger.warning("Gemini returned an empty mail draft")
+        except Exception as exc:
+            logger.warning("Gemini mail generation failed: %s", exc)
+        if require_openai:
+            return ""
+
+    openai_key = str(getattr(cfg, "OPENAI_API_KEY", "") or "").strip()
     openai_selected = provider == "openai" and bool(openai_key) and (
         bool(require_openai) or bool(getattr(cfg, "USE_OPENAI_FOR_EMAILS", False))
     )

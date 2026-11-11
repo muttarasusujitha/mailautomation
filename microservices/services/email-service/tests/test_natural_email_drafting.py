@@ -54,28 +54,50 @@ def test_brief_acknowledgement_is_not_padded_with_default_template(monkeypatch):
     assert "initial trainer search" not in prompt
 
 
-def test_ai_reply_prompt_personalizes_to_stated_company_and_scope(monkeypatch):
+def test_ai_reply_prompt_personalizes_to_stated_training_requirement(monkeypatch):
     writer = use_ollama(monkeypatch, "Hi Mira,\n\nWe can tailor the AWS labs to your clinical analytics deployment goals.")
     asyncio.run(inbox_actions._ai_draft_reply(
         "DevOps ToC and lab estimate",
         "Please share the ToC and lab estimate.",
         workflow_context={
-            "client_personalization": {
-                "company": "Northstar Health",
-                "industry": "Healthcare",
-                "business_context": "Modernize secure cloud deployment for clinical analytics.",
-                "stated_goals": "Improve repeatable deployment workflows.",
-                "rule": "Do not infer company systems or challenges.",
+            "extracted_request": {
+                "technology_needed": "AWS DevOps",
+                "delivery_mode": "online",
+                "duration_days": 3,
+                "participant_count": 12,
             },
         },
         reference_reply={"body": "The DevOps and AWS ToC and lab estimate are attached."},
         require_openai=True,
     ))
     prompt = writer.call_args.args[1]
-    assert "Northstar Health" in prompt
-    assert "clinical analytics" in prompt
-    assert "Do not infer company systems or challenges" in prompt
-    assert "Personalize the wording to the explicit company" in prompt
+    assert "AWS DevOps" in prompt
+    assert '"participant_count":12' in prompt
+    assert "Personalize the reply to the client's stated training requirement" in prompt
+    assert "not to company research" in prompt
+
+
+def test_gemini_drafts_a_requirement_specific_reply(monkeypatch):
+    monkeypatch.setattr(config, "get_settings", lambda: SimpleNamespace(
+        USE_LLM_FOR_EMAILS=True,
+        AI_PROVIDER="gemini",
+        GEMINI_API_KEY="test-key",
+        GEMINI_MODEL="gemini-2.5-flash",
+        FROM_NAME="Clahan Technologies",
+    ))
+    writer = AsyncMock(return_value="Hi Mira,\n\nWe can arrange the three-day online AWS DevOps training for your 12 participants. Please share the preferred dates.\n\nThanks")
+    monkeypatch.setattr(inbox_actions, "_gemini_email_draft", writer)
+
+    result = asyncio.run(inbox_actions._ai_draft_reply(
+        "AWS DevOps training",
+        "We need a 3-day online AWS DevOps training for 12 people.",
+        workflow_context={"sender_name": "Mira", "extracted_request": {"technology_needed": "AWS DevOps", "duration_days": 3, "delivery_mode": "online", "participant_count": 12}},
+        require_openai=True,
+    ))
+
+    assert "three-day online AWS DevOps training" in result
+    assert "preferred dates" in result
+    assert writer.await_count == 1
 
 
 def test_large_business_context_does_not_hide_thread_or_prior_replies(monkeypatch):

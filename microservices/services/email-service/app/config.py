@@ -99,6 +99,8 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     AI_PROVIDER: str = "openai"
     OLLAMA_URL: str = "http://localhost:11434/api/generate"
     OLLAMA_MODEL: str = "qwen3:8b"
