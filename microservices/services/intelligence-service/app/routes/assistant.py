@@ -162,6 +162,16 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
             logger.warning("Ollama failed%s: %s: %s", "" if ollama_only else ", trying cloud providers", type(exc).__name__, exc)
             error = str(exc)
 
+    # Gemini can be selected explicitly for production drafting. Other
+    # providers stay available as fallbacks if it is temporarily unavailable.
+    if not reply and not ollama_only and str(settings.AI_PROVIDER or "").strip().lower() == "gemini" and settings.GEMINI_API_KEY.strip():
+        try:
+            reply = await _call_gemini(messages, system, settings, payload.max_tokens, payload.temperature)
+            error = ""
+        except Exception as exc:
+            logger.warning("Gemini failed, trying configured fallbacks: %s", exc)
+            error = str(exc)
+
     if not reply and not ollama_only and settings.OPENAI_API_KEY.strip():
         try:
             reply = await _call_openai(messages, system, settings, payload.max_tokens)

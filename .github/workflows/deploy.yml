@@ -292,6 +292,8 @@ jobs:
             fi
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
+          set_env GEMINI_API_KEY "${{ secrets.GEMINI_API_KEY }}"
+          set_env AI_PROVIDER "gemini"
           set_env RAZORPAY_KEY_ID "$RAZORPAY_KEY_ID"
           set_env RAZORPAY_KEY_SECRET "$RAZORPAY_KEY_SECRET"
           set_env GMAIL_APP_PASSWORD "${{ secrets.GMAIL_APP_PASSWORD }}"
