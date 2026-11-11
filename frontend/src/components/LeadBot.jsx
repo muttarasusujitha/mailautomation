@@ -39,6 +39,27 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
   const [config, setConfig] = useState(null)
   const [domainsText, setDomainsText] = useState('')
   const [saving, setSaving] = useState(false)
+  const [connection, setConnection] = useState(null)
+  const [showConnection, setShowConnection] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    api.get('/linkedin-leads/bot/connection/status')
+      .then(res => { if (active) setConnection(res.data) })
+      .catch(() => { if (active) setConnection({ state: 'unavailable', message: 'Unable to load LinkedIn connection status.' }) })
+    return () => { active = false }
+  }, [])
+
+  const verifyConnection = async () => {
+    setVerifying(true)
+    try {
+      const res = await api.post('/linkedin-leads/bot/connection/verify', {}, { timeout: 75000 })
+      setConnection(res.data)
+    } catch (error) {
+      toast.error(error.message || 'Unable to verify LinkedIn connection')
+    } finally { setVerifying(false) }
+  }
 
   useEffect(() => {
     let stop = false
@@ -103,6 +124,25 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
           </p>
         </div>
       </div>
+
+      <label className="block text-xs font-semibold text-slate-600">
+        LinkedIn connection: {connection?.state?.replaceAll('_', ' ') || 'checking'}
+      </label>
+      <p className="text-sm text-slate-700" role="status">{connection?.message}</p>
+      <button type="button" className="btn-secondary text-sm" onClick={() => setShowConnection(value => !value)} aria-expanded={showConnection}>
+        Connect / reconnect LinkedIn
+      </button>
+      {showConnection && (
+        <div className="rounded border bg-white p-3 space-y-3 text-sm">
+          <p>The bot needs its own LinkedIn sign-in on the server. Signing into LinkedIn in your normal browser does not connect this bot.</p>
+          <p>Ask your server administrator to open the bot’s sign-in helper on a display-enabled server session, complete LinkedIn verification, and wait for “SESSION_READY”. This app does not yet provide an embedded server login window.</p>
+          <p>After the server login is complete, verify the connection here, then enable collection.</p>
+          <button type="button" className="btn-primary text-sm" disabled={verifying || connection?.state === 'paused'} onClick={verifyConnection}>
+            {verifying ? 'Verifying LinkedIn…' : 'Verify server connection'}
+          </button>
+          {connection?.retry_after && <p>Retry after: {stamp(connection.retry_after)}</p>}
+        </div>
+      )}
 
       <label className="block text-xs font-semibold text-slate-600">
         Domains (up to four)

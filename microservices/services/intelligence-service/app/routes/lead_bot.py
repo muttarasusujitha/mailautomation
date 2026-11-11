@@ -16,6 +16,59 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def connection_status():
+    """Report saved-session state without exposing account cookies."""
+    from app.clients.linkedin_browser import profile_path
+    from app.clients.linkedin_session import (
+        load_session, ensure_session_not_blocked, rate_limit_paused_until,
+        LinkedInAuthenticationRequired,
+    )
+    try:
+        profile = profile_path()
+        ensure_session_not_blocked(profile)
+        until = rate_limit_paused_until(profile)
+        if until:
+            return {'state': 'paused', 'message': 'LinkedIn has limited this session. Wait before retrying.', 'retry_after': until.isoformat()}
+        if not any(c.get('name') == 'li_at' and c.get('value') for c in load_session(profile)):
+            return {'state': 'disconnected', 'message': 'Sign in to LinkedIn in the server bot browser.'}
+        return {'state': 'saved', 'message': 'A saved LinkedIn session exists. Verify it before collecting.'}
+    except LinkedInAuthenticationRequired:
+        return {'state': 'verification_required', 'message': 'LinkedIn requires sign-in or verification in the server bot browser.'}
+    except (OSError, ValueError, TypeError):
+        return {'state': 'unavailable', 'message': 'The server could not read the saved LinkedIn session.'}
+
+
+@router.get('/connection/status')
+async def linkedin_connection_status():
+    return connection_status()
+
+
+@router.post('/connection/verify')
+async def verify_linkedin_connection():
+    from app.clients.linkedin_browser import _lock
+    import sys
+    state = connection_status()
+    if state['state'] != 'saved':
+        return state
+    if _lock.locked():
+        return {'state': 'busy', 'message': 'A LinkedIn search is running. Verify after it finishes.'}
+    async with _lock:
+        process = await asyncio.create_subprocess_exec(
+            sys.executable, '-m', 'app.linkedin_authenticate', '--verify-only',
+            stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL,
+        )
+        try:
+            code = await asyncio.wait_for(process.wait(), timeout=60)
+        except (TimeoutError, asyncio.CancelledError):
+            process.kill()
+            await process.wait()
+            return {'state': 'unavailable', 'message': 'Verification timed out. Try again later.'}
+        if code == 0:
+            return {'state': 'connected', 'message': 'LinkedIn search access was verified on the server.'}
+        state = connection_status()
+        return state if state['state'] != 'saved' else {'state': 'unavailable', 'message': 'Search verification failed. Check the server login browser.'}
+
+
 class BotSettings(BaseModel):
     enabled: bool = False
     domain_source: Literal['manual', 'it_catalog', 'all'] = 'manual'
