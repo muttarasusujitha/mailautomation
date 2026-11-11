@@ -580,14 +580,20 @@ async def search_linkedin_leads(
                         'warnings': [search_warning('public', exc)],
                     }
                 raw_results = account_results + fallback_results
+                # Show why LinkedIn stopped, including when account searches resume.
+                account_reason = (blocked_reason.strip() if 'paused until' in blocked_reason.lower()
+                                  else 'LinkedIn limited this session.')
                 if fallback_results:
                     linkedin_fallback_message = (
-                        'LinkedIn limited this session. Public indexed LinkedIn results were used as a fallback; '
+                        f'{account_reason} Public indexed LinkedIn results were used as a fallback; '
                         'review them as unverified.'
                     )
+                elif fallback_outcome.get('status') == 'blocked':
+                    # The public search warning, listed next, explains the fallback failure.
+                    linkedin_fallback_message = account_reason
                 else:
                     linkedin_fallback_message = (
-                        'LinkedIn limited this session. Public search returned no additional eligible indexed LinkedIn trainer profiles.'
+                        f'{account_reason} Public search returned no additional eligible indexed LinkedIn trainer profiles.'
                     )
                 linkedin_warning = search_warning(
                     'linkedin_account',
