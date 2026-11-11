@@ -36,7 +36,9 @@ async def discover_public_fallback(domain, mode, target, location=''):
             linkedin_rows.append({**row, 'discovery_provider': 'public_fallback'})
     outcome = {**outcome, 'matched': len(linkedin_rows), 'target_met': len(linkedin_rows) >= target}
     if len(linkedin_rows) < target:
-        outcome['status'] = 'partial' if linkedin_rows else 'no_results'
+        # Keep "blocked": a refused search engine is not the same as no matching profiles.
+        outcome['status'] = ('partial' if linkedin_rows
+                             else 'blocked' if outcome.get('status') == 'blocked' else 'no_results')
     return linkedin_rows, outcome
 
 
