@@ -1640,11 +1640,21 @@ async def _ai_draft_reply(
             drafted = await finish(generated)
             if drafted:
                 return drafted
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = "Gemini returned no usable draft."
             logger.warning("Gemini returned an empty mail draft")
         except Exception as exc:
             logger.warning("Gemini mail generation failed: %s", exc)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = f"Gemini draft generation failed ({type(exc).__name__})."
         if require_openai:
             return ""
+    elif provider == "gemini" and require_openai:
+        failure = "AI mode is selected, but GEMINI_API_KEY is not configured for the Gemini provider."
+        logger.error("%s", failure)
+        if workflow_context is not None:
+            workflow_context["generation_failure"] = failure
+        return ""
 
     openai_key = str(getattr(cfg, "OPENAI_API_KEY", "") or "").strip()
     openai_selected = provider == "openai" and bool(openai_key) and (
