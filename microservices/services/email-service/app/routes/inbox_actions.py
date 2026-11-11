@@ -837,7 +837,13 @@ async def regenerate_reply(
         require_openai=True,
     )
     if not str(new_reply or "").strip():
-        raise HTTPException(502, "AI generation failed or returned no usable draft. The existing draft is unchanged; no template was substituted. Retry or select Template mode explicitly.")
+        failure = str(workflow_context.get("generation_failure") or "The AI provider returned no usable draft.")
+        if (workflow_context.get("reply_analysis") or {}).get("human_review_reason"):
+            failure = "The AI draft was rejected because it repeated recent wording."
+        raise HTTPException(
+            502,
+            f"{failure} The existing draft is unchanged. Check the email service configuration and logs, then retry; select Template mode to use a stored reply.",
+        )
     reply_analysis = workflow_context.get("reply_analysis") or _workflow_reply_analysis(
         classification, extracted, doc, reference_reply.get("template_key", "")
     )
@@ -1613,6 +1619,8 @@ async def _ai_draft_reply(
             return await finish(result["reply_body"])
         except Exception as exc:
             logger.warning("Ollama email generation failed: %s", exc)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = f"Ollama draft generation failed ({type(exc).__name__})."
             return "" if require_openai else grounded_reference
 
     provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
@@ -1642,6 +1650,16 @@ async def _ai_draft_reply(
     openai_selected = provider == "openai" and bool(openai_key) and (
         bool(require_openai) or bool(getattr(cfg, "USE_OPENAI_FOR_EMAILS", False))
     )
+    if require_openai and not openai_selected:
+        if provider == "openai" and not openai_key:
+            failure = "AI mode is selected, but the email service has no OpenAI API key configured."
+        elif provider != "openai":
+            failure = f"AI mode is selected, but the configured provider '{provider}' is unsupported for this request."
+        else:
+            failure = "AI mode is selected, but OpenAI email drafting is disabled in the service configuration."
+        logger.error("%s", failure)
+        if workflow_context is not None:
+            workflow_context["generation_failure"] = failure
     if openai_selected:
         try:
             from openai import AsyncOpenAI
@@ -1688,9 +1706,13 @@ async def _ai_draft_reply(
             generated = await finish(response.output_text)
             if generated:
                 return generated
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = "OpenAI returned an empty draft."
             logger.warning("OpenAI returned an empty mail draft; trying fallback provider")
         except Exception as exc:
             logger.warning("OpenAI mail generation failed: %s", exc)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = f"OpenAI draft generation failed ({type(exc).__name__})."
 
     if require_openai:
         logger.warning("OpenAI generation required but no usable OpenAI output was produced")
