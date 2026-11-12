@@ -1,0 +1,91 @@
+{
+  "description": "Days used only in combined programmes. An integration day is added when both technologies are requested; a capstone is used when every requested technology is in its applies_to list.",
+  "integrations": [
+    {
+      "between": ["Python", "AWS"],
+      "day": {
+        "topic": "Python on AWS: Automation with boto3 and Lambda",
+        "subtopics": ["boto3 sessions, clients and resources", "Credentials from roles instead of keys", "Paginators and waiters", "Handling ClientError and retries", "Writing a Lambda handler in Python", "Packaging dependencies with Lambda layers", "Testing AWS code with moto", "Least-privilege roles for Python code"],
+        "tools": ["Python", "boto3", "AWS Lambda", "S3", "moto"],
+        "lab_task": "Write a Python Lambda function with boto3 that resizes images uploaded to S3 and records metadata in DynamoDB, with unit tests that mock AWS using moto.",
+        "deliverable": "Function code, Lambda layer, IAM policy and passing tests",
+        "checks": [["Upload a test image to the input bucket", "Resized image and a metadata item are created", "S3 listing and DynamoDB item"], ["Run the unit tests with the network off", "Tests pass using moto", "pytest output"], ["Remove the role's DynamoDB permission and upload again", "Function logs a ClientError with AccessDenied and does not crash", "CloudWatch log line"]],
+        "objectives": ["Automate AWS from Python with boto3", "Build and test Python Lambda functions", "Handle AWS errors and permissions in code"]
+      }
+    },
+    {
+      "between": ["Python", "Azure"],
+      "day": {
+        "topic": "Python on Azure: Azure SDK and Azure Functions",
+        "subtopics": ["Azure SDK for Python client libraries", "DefaultAzureCredential and managed identity", "Blob Storage client operations", "Handling HttpResponseError and retries", "Writing an Azure Function in Python", "Bindings in the Python v2 programming model", "Testing Azure code with mocks", "Least-privilege role assignments for Python code"],
+        "tools": ["Python", "Azure SDK for Python", "Azure Functions", "Azure Blob Storage"],
+        "lab_task": "Write a Python Azure Function that resizes images uploaded to Blob Storage and writes metadata to Table Storage, authenticating with managed identity, with unit tests that mock the SDK.",
+        "deliverable": "Function code, role assignments and passing tests",
+        "checks": [["Upload a test image to the input container", "Resized image and a metadata row are created", "Container listing and table row"], ["Search the code and settings for storage keys", "None found; DefaultAzureCredential is used", "grep output and settings"], ["Remove the identity's role and upload again", "Function logs an authorisation error and does not crash", "Application Insights log"]],
+        "objectives": ["Automate Azure from Python with the Azure SDK", "Build and test Python Azure Functions", "Authenticate Python code with managed identity"]
+      }
+    },
+    {
+      "between": ["AWS", "Azure"],
+      "day": {
+        "topic": "AWS and Azure Compared: Service Mapping and Multi-Cloud Decisions",
+        "subtopics": ["Mapping core services between AWS and Azure", "Identity: IAM compared with Entra ID and Azure RBAC", "Networking: VPC compared with VNet", "Compute and serverless equivalents", "Storage and database equivalents", "Pricing models and cost comparison", "When multi-cloud helps and when it adds risk", "Portable tooling: Terraform and containers"],
+        "tools": ["AWS Pricing Calculator", "Azure pricing calculator", "Terraform"],
+        "lab_task": "Deploy the same small container web service on AWS (ECS Fargate) and Azure (Container Apps) with Terraform, then compare setup effort, monthly cost and operational differences.",
+        "deliverable": "Terraform code for both clouds, a service mapping table and a one-page comparison with a recommendation",
+        "checks": [["Open both deployed endpoints", "Same service responds on AWS and Azure", "Responses from both URLs"], ["Read the cost comparison", "Monthly cost for both uses the official calculators with the same assumptions", "Calculator exports"], ["Read the recommendation", "Choice is justified with at least three criteria", "Comparison document"]],
+        "objectives": ["Map AWS and Azure services to each other", "Compare clouds on cost and operations with evidence", "Decide when multi-cloud is justified"]
+      }
+    }
+  ],
+  "capstones": [
+    {
+      "applies_to": ["Python", "AWS", "Azure"],
+      "day": {
+        "topic": "Integrated Capstone: Multi-Cloud Python Service on AWS and Azure",
+        "subtopics": ["Requirements and architecture for both clouds", "Python API with tests and a container image", "Deployment to AWS and Azure with Terraform", "Secrets with Secrets Manager and Key Vault", "Monitoring and alerts on both clouds", "Verify acceptance criteria, cost comparison and demo"],
+        "tools": ["Python", "FastAPI", "Docker", "Terraform", "AWS", "Azure"],
+        "lab_task": "Build a tested Python API, containerise it, deploy it to AWS and Azure with Terraform using each cloud's secret store and monitoring, then demonstrate failover between them and present a cost comparison.",
+        "deliverable": "Repository with application, tests and Terraform for both clouds, monitoring screenshots, cost comparison and a 15-minute demo",
+        "checks": [["Run the test suite and both deployments from the pipeline", "Tests pass and the API responds on both clouds", "Pipeline log and responses"], ["Stop the AWS deployment during the demo", "Traffic is served from Azure as designed", "Demo recording or DNS results"], ["Search the repository for secrets", "None found; both clouds read secrets from their secret stores", "Scan output"]],
+        "objectives": ["Deliver one Python service on two clouds end to end", "Apply security and monitoring on AWS and Azure", "Compare and justify multi-cloud design choices"]
+      }
+    },
+    {
+      "applies_to": ["Python", "AWS"],
+      "day": {
+        "topic": "Integrated Capstone: Python Service on AWS",
+        "subtopics": ["Requirements and architecture", "Python API with tests", "Deployment to Lambda or ECS with infrastructure as code", "Secrets and least-privilege roles", "Monitoring and alarms", "Verify acceptance criteria and demo"],
+        "tools": ["Python", "FastAPI", "AWS Lambda", "Terraform", "CloudWatch"],
+        "lab_task": "Build a tested Python API and deploy it to AWS with infrastructure as code, secrets in Secrets Manager, least-privilege roles and CloudWatch alarms, then present it.",
+        "deliverable": "Repository with application, tests and infrastructure code, dashboard and a 15-minute demo",
+        "checks": [["Run tests and the deployment", "Tests pass and the API responds", "Pipeline log and response"], ["Trigger the error alarm", "Alarm fires and notifies", "Alarm history"], ["Search the repository for secrets", "None found", "Scan output"]],
+        "objectives": ["Deliver a Python service on AWS end to end", "Apply security and monitoring", "Explain design decisions"]
+      }
+    },
+    {
+      "applies_to": ["Python", "Azure"],
+      "day": {
+        "topic": "Integrated Capstone: Python Service on Azure",
+        "subtopics": ["Requirements and architecture", "Python API with tests", "Deployment to Container Apps or Functions with infrastructure as code", "Key Vault and managed identity", "Application Insights and alerts", "Verify acceptance criteria and demo"],
+        "tools": ["Python", "FastAPI", "Azure Container Apps", "Bicep", "Application Insights"],
+        "lab_task": "Build a tested Python API and deploy it to Azure with infrastructure as code, secrets in Key Vault, managed identity and Application Insights alerts, then present it.",
+        "deliverable": "Repository with application, tests and infrastructure code, workbook and a 15-minute demo",
+        "checks": [["Run tests and the deployment", "Tests pass and the API responds", "Pipeline log and response"], ["Trigger the error alert", "Alert fires and notifies", "Alert history"], ["Search the repository for secrets", "None found", "Scan output"]],
+        "objectives": ["Deliver a Python service on Azure end to end", "Apply security and monitoring", "Explain design decisions"]
+      }
+    },
+    {
+      "applies_to": ["AWS", "Azure"],
+      "day": {
+        "topic": "Integrated Capstone: Multi-Cloud Web Application on AWS and Azure",
+        "subtopics": ["Requirements and architecture for both clouds", "Networking and identity on each cloud", "Deployment with Terraform", "Secrets and monitoring on each cloud", "DNS failover between clouds", "Verify acceptance criteria, cost comparison and demo"],
+        "tools": ["Terraform", "AWS", "Azure", "Docker"],
+        "lab_task": "Deploy one containerised web application to AWS and Azure with Terraform, secure and monitor it on both, set up DNS failover, and present a cost and operations comparison.",
+        "deliverable": "Terraform code for both clouds, monitoring screenshots, failover test and a 15-minute demo",
+        "checks": [["Open the application through the shared DNS name", "Application responds", "Browser screenshot"], ["Stop the primary cloud deployment", "DNS fails over to the other cloud", "dig output and browser test"], ["Read the cost comparison", "Both clouds are costed with the same assumptions", "Calculator exports"]],
+        "objectives": ["Deploy one application on two clouds", "Apply security and monitoring on AWS and Azure", "Compare clouds with evidence"]
+      }
+    }
+  ]
+}

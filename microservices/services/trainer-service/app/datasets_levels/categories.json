@@ -1,5 +1,5 @@
 {
-  "description": "Top-level course categories. Every domain in datasets_compact belongs to exactly one category.",
+  "description": "Top-level course categories. Every domain in datasets_compact, plus domains that only have a level course (AWS, Azure), belongs to exactly one category.",
   "categories": [
     {
       "id": "programming_languages",
@@ -44,7 +44,7 @@
     {
       "id": "cloud",
       "name": "Cloud",
-      "domains": ["Cloud", "AWS AI", "Azure AI"]
+      "domains": ["Cloud", "AWS", "Azure", "AWS AI", "Azure AI"]
     },
     {
       "id": "devops",

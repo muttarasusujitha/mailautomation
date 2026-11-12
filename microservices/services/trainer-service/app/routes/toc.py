@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
 class TechnologyAllocation(BaseModel):
     technology: str
     days: int
+    # Optional per-technology level, e.g. Python "intermediate" with AWS "beginner".
+    # When empty, the request level applies.
+    level: Optional[str] = None
 
 
 class TocRequest(BaseModel):
@@ -102,6 +105,7 @@ _SCOPE_TECHNOLOGY_RULES = (
     ("Python", (r"\bpython\b",)),
     ("Agentic AI", (r"\bagentic\s*ai\b", r"\bai agents?\b", r"\blangchain\b", r"\blanggraph\b")),
 )
+_FOUNDATION_TECHNOLOGIES = {"Python"}
 _COMBINED_SCOPE_WEIGHTS = {
     "DevOps": 7,
     "AWS": 3,
@@ -214,8 +218,9 @@ def _inferred_technology_allocations(payload: TocRequest) -> List[dict]:
     """Create a transparent day split only for an explicit multi-tech scope.
 
     For the standard 20-day DevOps + AWS + Azure + Kubernetes + Python +
-    Agentic AI programme, this produces 7 + 3 + 3 + 3 + 2 + 2 days.
-    Explicit client allocations always take precedence.
+    Agentic AI programme, this produces Python 2 days first, then
+    DevOps 7 + AWS 3 + Azure 3 + Kubernetes 3 + Agentic AI 2.
+    Explicit client allocations always take precedence and keep their order.
     """
     if payload.technology_allocations:
         return [item.dict() for item in payload.technology_allocations]
@@ -223,6 +228,9 @@ def _inferred_technology_allocations(payload: TocRequest) -> List[dict]:
     total_days = int(payload.duration_days or 0)
     if len(technologies) < 2 or total_days < len(technologies):
         return []
+    # Teach the programming language before the platforms that use it
+    # (for example Python before Python-on-AWS and Python-on-Azure days).
+    technologies = sorted(technologies, key=lambda technology: technology not in _FOUNDATION_TECHNOLOGIES)
     weights = [_COMBINED_SCOPE_WEIGHTS.get(technology, 1) for technology in technologies]
     weight_total = sum(weights) or len(technologies)
     raw = [total_days * weight / weight_total for weight in weights]

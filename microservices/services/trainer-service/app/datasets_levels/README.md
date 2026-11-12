@@ -12,6 +12,18 @@ The TOC generator (`app/level_curriculum.py`) uses these files when a domain has
 - `mixed` takes about a third of the days from each level.
 - Domains without a file keep using `datasets_compact/` unchanged. Saved client knowledge (`toc_knowledge`) and custom topics still take priority.
 
+## Combined programmes (for example Python + AWS + Azure)
+
+`generate_combined_toc_from_datasets` builds one TOC from day allocations:
+
+- Each allocation can set its own level: `{"technology": "Python", "days": 4, "level": "intermediate"}`. Without one, the request level is used.
+- A technology with a level file uses it. Hand-written integrated modules (`INTERMEDIATE_COMBINED_TRACKS` / `ADVANCED_COMBINED_TRACKS`) still come first when they fill the allocation; otherwise level-course days come first, followed by those modules.
+- A day with a `shared_key` (for example `cloud-concepts` in AWS and Azure) is taught only once, by the first technology.
+- `combined.json` holds integration days, such as "Python on AWS" and "AWS and Azure Compared". One is added when both technologies are requested, at the end of the later technology's block, as long as that block keeps at least 2 of its own days.
+- The last day is the authored capstone from `combined.json` whose `applies_to` covers every requested technology. When none matches, the generic integrated capstone is used.
+- The TOC goes to `requires_review` when a topic repeats under two technologies, or when a beginner topic (setup, basics, fundamentals, introduction...) appears in an intermediate or advanced track.
+- Inferred allocations put Python before the platforms that use it.
+
 ## File format
 
 ```json

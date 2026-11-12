@@ -33,8 +33,11 @@ REVIEW_WARNING = (
     "lab timings and acceptance cases before client delivery."
 )
 _DIR = Path(__file__).parent / "datasets_levels"
+# Files in datasets_levels that are not single-technology courses.
+_SPECIAL_FILES = {"categories.json", "combined.json"}
 _COURSES = None
 _CATEGORIES = None
+_COMBINED = None
 
 
 def _key(value):
@@ -108,8 +111,9 @@ def _expand_day(day, course, level, position):
         "minutes": 420,
         "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
         "proposed_fields": ["delivery_steps", "minutes", "preparation_requirements"],
-        "difficulty": LEVEL_LABELS[level],
+        "difficulty": LEVEL_LABELS.get(level, "Integrated"),
         "course_level": level,
+        **({"shared_key": day["shared_key"]} if day.get("shared_key") else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
         "review_status": "unreviewed",
@@ -134,24 +138,32 @@ def validate_course(course):
         days = track["days"]
         if not track.get("prerequisites") or not track.get("outcomes"):
             problems.append(f"{level}: missing prerequisites or outcomes")
-        if not _is_capstone(days[-1]):
+        if "capstone" not in str(days[-1].get("topic") or "").lower():
             problems.append(f"{level}: last day must be a capstone")
         for number, day in enumerate(days, 1):
-            missing = [field for field in _REQUIRED_DAY_FIELDS if not day.get(field)]
-            if missing:
-                problems.append(f"{level} day {number}: missing {', '.join(missing)}")
-                continue
-            topics.append(day["topic"].strip().lower())
-            need = _subtopic_target(day["topic"])
-            if len(day["subtopics"]) < need:
-                problems.append(f"{level} day {number}: {len(day['subtopics'])} subtopics, needs {need}")
-            checks = day["checks"]
-            if len(checks) < 3 or any(len(check) != 3 or not all(check) for check in checks):
-                problems.append(f"{level} day {number}: needs 3 checks of [input, expected result, evidence]")
-            elif len({check[1].strip().lower() for check in checks}) != len(checks):
-                problems.append(f"{level} day {number}: checks must have different expected results")
+            day_problems = _day_problems(day, f"{level} day {number}")
+            problems += day_problems
+            if day.get("topic"):
+                topics.append(day["topic"].strip().lower())
     if len(topics) != len(set(topics)):
         problems.append("day topics must be unique across all three levels")
+    return problems
+
+
+def _day_problems(day, label):
+    from app.toc_generation_agent import _subtopic_target
+    missing = [field for field in _REQUIRED_DAY_FIELDS if not day.get(field)]
+    if missing:
+        return [f"{label}: missing {', '.join(missing)}"]
+    problems = []
+    need = _subtopic_target(day["topic"])
+    if len(day["subtopics"]) < need:
+        problems.append(f"{label}: {len(day['subtopics'])} subtopics, needs {need}")
+    checks = day["checks"]
+    if len(checks) < 3 or any(len(check) != 3 or not all(check) for check in checks):
+        problems.append(f"{label}: needs 3 checks of [input, expected result, evidence]")
+    elif len({check[1].strip().lower() for check in checks}) != len(checks):
+        problems.append(f"{label}: checks must have different expected results")
     return problems
 
 
@@ -162,7 +174,7 @@ def _load_courses():
     courses = {}
     if _DIR.exists():
         for path in sorted(_DIR.glob("*.json")):
-            if path.name == "categories.json":
+            if path.name in _SPECIAL_FILES:
                 continue
             try:
                 course = _load_json(path)
@@ -297,6 +309,107 @@ def level_programme(domain_name, duration, level):
     }
 
 
+def combined_track(course, level, count, used_shared=None, exclude_topics=()):
+    """Non-capstone days for one technology inside a combined programme.
+
+    Follows the same level rules as select_level_days. Days whose shared_key was
+    already taught by an earlier technology (for example cloud concepts) are skipped.
+    """
+    if count <= 0:
+        return []
+    used_shared = used_shared if used_shared is not None else set()
+    excluded = {str(topic).strip().lower() for topic in exclude_topics}
+
+    def body(name):
+        return [day for day in _split(course["levels"][name])[0]
+                if day.get("shared_key") not in used_shared and day["topic"].strip().lower() not in excluded]
+
+    if level == "mixed":
+        shares = [count // 3 + (1 if i < count % 3 else 0) for i in range(3)]
+        picked = []
+        for name, share in zip(LEVELS, shares):
+            days = body(name)
+            if share > len(days):
+                return None
+            picked += _spread(days, share)
+    else:
+        start = LEVELS.index(level if level in LEVELS else "intermediate")
+        first = body(LEVELS[start])
+        if count <= len(first):
+            picked = _spread(first, count)
+        else:
+            picked = []
+            for name in LEVELS[start:]:
+                picked += body(name)[: count - len(picked)]
+            if len(picked) < count and start > 0:
+                need = count - len(picked)
+                below = body(LEVELS[start - 1])
+                if need > len(below):
+                    return None
+                picked = below[-need:] + picked
+            if len(picked) < count:
+                return None
+    for day in picked:
+        if day.get("shared_key"):
+            used_shared.add(day["shared_key"])
+    return deepcopy(picked)
+
+
+def _expand_extra(day, label, prerequisites):
+    holder = {"domain": label, "tools": day.get("tools") or [label],
+              "levels": {"combined": {"days": [day], "prerequisites": prerequisites}}}
+    expanded = _expand_day(day, holder, "combined", 0)
+    expanded["difficulty"] = "Integrated"
+    return expanded
+
+
+def _load_combined():
+    global _COMBINED
+    if _COMBINED is not None:
+        return _COMBINED
+    data = {"integrations": [], "capstones": []}
+    path = _DIR / "combined.json"
+    if path.exists():
+        try:
+            raw = _load_json(path)
+        except (ValueError, OSError) as exc:
+            logger.warning("Skipping combined.json: %s", exc)
+            raw = {}
+        for kind, names_key in (("integrations", "between"), ("capstones", "applies_to")):
+            for index, entry in enumerate(raw.get(kind) or []):
+                names = list(entry.get(names_key) or [])
+                problems = _day_problems(entry.get("day") or {}, f"{kind} {index + 1}")
+                if len(names) < 2 or problems:
+                    logger.warning("Skipping combined.json %s %s: %s", kind, index + 1, "; ".join(problems) or "needs 2+ technologies")
+                    continue
+                prerequisites = [f"{name} days earlier in this programme" for name in names]
+                data[kind].append({"techs": {_key(n) for n in names}, "names": names,
+                                   "day": _expand_extra(entry["day"], " + ".join(names), prerequisites)})
+    _COMBINED = data
+    return data
+
+
+def integration_days(technologies):
+    """Integration days whose technology pair is fully requested, with the pair's names."""
+    requested = {_key(name) for name in technologies}
+    return [(entry["names"], deepcopy(entry["day"])) for entry in _load_combined()["integrations"]
+            if entry["techs"] <= requested]
+
+
+def combined_capstone(technologies):
+    """The most specific authored capstone covering every requested technology, or None."""
+    requested = {_key(name) for name in technologies}
+    matches = [entry for entry in _load_combined()["capstones"] if requested <= entry["techs"]]
+    if not matches:
+        return None
+    return deepcopy(min(matches, key=lambda entry: len(entry["techs"]))["day"])
+
+
+def canonical_name(name):
+    course = get_level_course(name)
+    return course["domain"] if course else name
+
+
 def coverage_report():
     """Which domains in each category already have level courses."""
     built = {_key(course["domain"]) for course in _load_courses().values()}
@@ -313,7 +426,7 @@ def _check():
     """python -m app.level_curriculum --check: validate every level file and show coverage."""
     failed = False
     for path in sorted(_DIR.glob("*.json")):
-        if path.name == "categories.json":
+        if path.name in _SPECIAL_FILES:
             continue
         try:
             problems = validate_course(_load_json(path))
@@ -321,6 +434,19 @@ def _check():
             problems = [f"invalid JSON: {exc}"]
         failed = failed or bool(problems)
         print(f"{'FAIL' if problems else 'OK  '} {path.name}")
+        for problem in problems:
+            print(f"     - {problem}")
+    combined_path = _DIR / "combined.json"
+    if combined_path.exists():
+        try:
+            raw = _load_json(combined_path)
+            problems = [p for kind in ("integrations", "capstones")
+                        for i, entry in enumerate(raw.get(kind) or [])
+                        for p in _day_problems(entry.get("day") or {}, f"{kind} {i + 1}")]
+        except ValueError as exc:
+            problems = [f"invalid JSON: {exc}"]
+        failed = failed or bool(problems)
+        print(f"{'FAIL' if problems else 'OK  '} combined.json")
         for problem in problems:
             print(f"     - {problem}")
     total = built = 0
