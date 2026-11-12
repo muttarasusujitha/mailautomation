@@ -27,10 +27,10 @@ _EXTRA_ALIASES = {
 }
 # Aliases that are ordinary words or too short to be reliable on their own.
 _IGNORED_ALIASES = {"r", "rn", "cv", "dl", "mean", "snow", "mas", "ado", "edw", "bi", "ml", "dsa", "ai", "api", "apis", "llm", "llms"}
-# Technology names that are also everyday words ("go live", "go to market"). They
+# Technology names that are also everyday words ("go live", "safe deployment"). They
 # count only when the words on both sides look like a technology list: the start or
 # end of the text, a connector, a number of days, a level word or another technology.
-_LIST_ONLY_ALIASES = {"go"}
+_LIST_ONLY_ALIASES = {"go", "safe"}
 _LIST_WORDS = {"and", "with", "or", "plus", "using", "in", "of", "on", "for", "vs", "versus", "&", "/", "+",
                "beginner", "basic", "intermediate", "advanced", "level", "days", "day", "training",
                "programming", "developer", "development", "microservices", "services", "backend", "concurrency"}
@@ -109,19 +109,33 @@ def _catalog():
 
 
 @lru_cache(maxsize=1)
-def _alias_first_words():
-    return {alias.split()[0] for alias in _catalog() if alias not in _LIST_ONLY_ALIASES}
+def _other_aliases():
+    return sorted((alias for alias in _catalog() if alias not in _LIST_ONLY_ALIASES), key=len, reverse=True)
 
 
 def _listed(norm, start, end):
-    """True when a list-only alias sits in a technology list rather than a sentence."""
-    before = norm[:start].split()
-    after = norm[end:].split()
+    """True when a list-only alias sits in a technology list rather than a sentence.
 
-    def fits(word):
-        return word is None or word in _LIST_WORDS or word.isdigit() or word in _alias_first_words()
+    Each neighbour must be the start or end of the text, a list word (and, with,
+    days, a level word...), a number, or a whole technology name.
+    """
+    before = norm[:start].rstrip()
+    after = norm[end:].lstrip()
 
-    return fits(before[-1] if before else None) and fits(after[0] if after else None)
+    def fits(text, at_end):
+        if not text:
+            return True
+        word = text.split()[-1] if at_end else text.split()[0]
+        if word in _LIST_WORDS or word.isdigit():
+            return True
+        for alias in _other_aliases():
+            if at_end and re.search(r"(?<![a-z0-9])" + re.escape(alias) + r"$", text):
+                return True
+            if not at_end and re.match(re.escape(alias) + r"(?![a-z0-9])", text):
+                return True
+        return False
+
+    return fits(before, True) and fits(after, False)
 
 
 def _mentions(text, include_weak):

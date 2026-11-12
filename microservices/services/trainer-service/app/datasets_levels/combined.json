@@ -1847,6 +1847,149 @@
           "Review models responsibly"
         ]
       }
+    },
+    {
+      "between": [
+        "Project Management",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Hybrid Delivery in Practice: Predictive Plans with Scrum Teams",
+        "subtopics": [
+          "Choosing what to plan predictively and what to run in sprints",
+          "Milestones fed by sprint increments",
+          "Linking the WBS and the product backlog",
+          "Earned value with agile progress",
+          "Change control versus backlog reordering",
+          "Reporting to sponsors from both worlds",
+          "Roles: project manager, Product Owner and Scrum Master",
+          "Common hybrid conflicts"
+        ],
+        "tools": [
+          "Microsoft Project or ProjectLibre",
+          "Jira",
+          "Excel"
+        ],
+        "lab_task": "Build a hybrid plan where a Scrum team delivers the software inside a predictive roll-out, link sprints to milestones, report earned value from completed stories and handle a scope change through the backlog.",
+        "deliverable": "Hybrid plan, linked milestones, earned value report and change record",
+        "checks": [
+          [
+            "Link sprints to milestones",
+            "Each milestone has the sprints that feed it",
+            "Plan"
+          ],
+          [
+            "Calculate earned value from completed stories",
+            "SPI and CPI reported",
+            "Workbook"
+          ],
+          [
+            "Handle the scope change",
+            "Backlog reordered and milestone impact reported to the sponsor",
+            "Change record"
+          ]
+        ],
+        "objectives": [
+          "Combine predictive and agile planning",
+          "Report one view to sponsors",
+          "Clarify hybrid roles"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Agile Scrum",
+        "SAFe"
+      ],
+      "day": {
+        "topic": "From Scrum Teams to an Agile Release Train",
+        "subtopics": [
+          "What changes when one Scrum team becomes many",
+          "Team events inside the PI cadence",
+          "Product Owner and Product Management split",
+          "Team backlogs and the ART backlog",
+          "Scrum Master to SAFe Scrum Master/Team Coach",
+          "Keeping Scrum values on a train",
+          "Common mistakes when adopting SAFe from Scrum",
+          "Choosing what to adopt first"
+        ],
+        "tools": [
+          "Jira",
+          "Miro"
+        ],
+        "lab_task": "Move four existing Scrum teams onto a new ART: map their backlogs to the ART backlog, align their sprints to a PI cadence, assign SAFe roles and list what each team keeps from its Scrum practice.",
+        "deliverable": "Transition map, cadence plan and role assignments",
+        "checks": [
+          [
+            "Map team backlogs",
+            "Every team item linked to a feature or marked team-only",
+            "Mapping"
+          ],
+          [
+            "Align cadences",
+            "All teams share iteration dates within the PI",
+            "Cadence plan"
+          ],
+          [
+            "Assign roles",
+            "Product Management and Product Owners have distinct responsibilities",
+            "Role sheet"
+          ]
+        ],
+        "objectives": [
+          "Scale from Scrum to SAFe",
+          "Keep Scrum strengths on a train",
+          "Assign SAFe roles"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ITIL",
+        "DevOps"
+      ],
+      "day": {
+        "topic": "ITIL and DevOps Together: Change, Incident and Release in a Pipeline World",
+        "subtopics": [
+          "Where ITIL practices meet DevOps pipelines",
+          "Automated change approval from pipeline evidence",
+          "Deployment records in the service tool",
+          "Incident management for teams that deploy daily",
+          "Problem management feeding the backlog",
+          "SLOs and SLAs together",
+          "Service desk and on-call teams",
+          "Measuring with DORA and ITSM metrics"
+        ],
+        "tools": [
+          "Jira Service Management or ServiceNow",
+          "GitHub Actions or Jenkins",
+          "Monitoring tool"
+        ],
+        "lab_task": "Connect a CI/CD pipeline to the service tool so low-risk deployments create pre-approved change records, failed deployments open incidents and repeated incidents create problem tickets in the team backlog.",
+        "deliverable": "Pipeline integration, sample records and a combined metrics view",
+        "checks": [
+          [
+            "Run a successful low-risk deployment",
+            "Change record created and closed automatically",
+            "Change record"
+          ],
+          [
+            "Fail a deployment",
+            "Incident opened with the pipeline link",
+            "Incident record"
+          ],
+          [
+            "Show the metrics view",
+            "DORA and ITSM measures side by side",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Combine ITIL and DevOps",
+          "Automate change records",
+          "Link operations to the backlog"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -2972,6 +3115,147 @@
           "Combine Python, SQL and Power BI",
           "Build a reliable analytics flow",
           "Present findings"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Project Management",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hybrid Project from Charter to Release",
+        "subtopics": [
+          "Charter, stakeholders and approach",
+          "Predictive plan and product backlog",
+          "Sprints and milestone tracking",
+          "Risk, change and earned value",
+          "Sponsor reporting",
+          "Presentation and defence"
+        ],
+        "tools": [
+          "Microsoft Project or ProjectLibre",
+          "Jira",
+          "Excel"
+        ],
+        "lab_task": "Run a hybrid project from charter to first release with a predictive roll-out plan, a Scrum team delivering three sprints, risk and change control, earned value and sponsor reports, then present it.",
+        "deliverable": "Charter, plans, sprint records, reports and a 15-minute presentation",
+        "checks": [
+          [
+            "Show milestone progress from sprints",
+            "Milestones track completed increments",
+            "Plan and board"
+          ],
+          [
+            "Report earned value",
+            "SPI and CPI reported with actions",
+            "Report"
+          ],
+          [
+            "Answer sponsor questions",
+            "Decisions defended with evidence",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine project management and Scrum",
+          "Deliver a hybrid project",
+          "Defend decisions to sponsors"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Agile Scrum",
+        "SAFe"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Scrum Teams on a Simulated Agile Release Train",
+        "subtopics": [
+          "Team set-up and backlogs",
+          "PI Planning with Scrum teams",
+          "Sprints, ART sync and system demo",
+          "Inspect and Adapt",
+          "Team and train metrics",
+          "Presentation"
+        ],
+        "tools": [
+          "Jira",
+          "Miro",
+          "Excel"
+        ],
+        "lab_task": "Run three Scrum teams through a simulated PI on an ART, from PI Planning through sprints, ART syncs and a system demo to Inspect and Adapt, then present team and train results.",
+        "deliverable": "Program board, team boards, metrics and a 15-minute presentation",
+        "checks": [
+          [
+            "Show the program board",
+            "Dependencies planned and tracked",
+            "Program board"
+          ],
+          [
+            "Report predictability",
+            "Planned versus actual business value",
+            "Metrics"
+          ],
+          [
+            "Present improvements",
+            "Team and train improvements for the next PI",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Scrum and SAFe",
+          "Run a PI with Scrum teams",
+          "Present team and train results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Project Management",
+        "Agile Scrum",
+        "SAFe",
+        "ITIL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Delivery and Service Management Operating Model",
+        "subtopics": [
+          "Portfolio, programme and project layers",
+          "Agile teams and the release train",
+          "Service management practices for live services",
+          "Governance across delivery and operations",
+          "Measures and reporting",
+          "Leadership presentation"
+        ],
+        "tools": [
+          "Miro",
+          "Excel",
+          "Jira",
+          "Jira Service Management or ServiceNow"
+        ],
+        "lab_task": "Design an operating model where projects and an ART deliver changes and ITIL practices run the live services, with governance, hand-offs, measures and a leadership presentation.",
+        "deliverable": "Operating model design, process maps, measures and a 15-minute presentation",
+        "checks": [
+          [
+            "Map the hand-off from delivery to operations",
+            "Acceptance and support criteria defined",
+            "Process map"
+          ],
+          [
+            "Review governance",
+            "Decision rights clear across delivery and operations",
+            "Governance design"
+          ],
+          [
+            "Answer leadership questions",
+            "Model defended with evidence",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine project, agile and service management",
+          "Design an operating model",
+          "Defend it to leadership"
         ]
       }
     }

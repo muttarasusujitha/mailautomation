@@ -1,0 +1,573 @@
+{
+  "domain": "Agile Scrum",
+  "name": "Agile and Scrum",
+  "category": "Project Management",
+  "icon": "refresh-cw",
+  "aliases": ["Agile", "Scrum", "Agile and Scrum", "Agile Methodology", "Agile Methodologies", "Scrum Master", "Scrum Master Training", "Product Owner", "Product Owner Training", "Kanban", "Agile Coaching", "Agile Project Management"],
+  "certifications": ["Professional Scrum Master I (PSM I)", "Certified ScrumMaster (CSM)", "Professional Scrum Product Owner I (PSPO I)", "ICAgile Certified Professional (ICP)"],
+  "tools": ["Jira", "Azure Boards", "Miro", "Confluence", "Excel"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For team members, new Scrum Masters and Product Owners. Covers agile values, the Scrum framework, roles, events and artefacts, writing and refining user stories, estimation, sprint planning and tracking, reviews and retrospectives, Kanban basics and tools, ending with a simulated set of sprints.",
+      "prerequisites": ["Has worked in a team that delivers work to customers", "No agile experience needed", "Access to Jira or a similar board tool"],
+      "outcomes": ["Explain agile values and the Scrum framework", "Work in Scrum roles and run every Scrum event", "Write, refine and estimate user stories", "Track sprints with boards and charts and improve through retrospectives"],
+      "days": [
+        {
+          "topic": "Agile Overview and the Agile Manifesto",
+          "subtopics": ["Why agile emerged", "The four values of the Agile Manifesto", "The twelve principles", "Iterative and incremental delivery", "Empirical process control", "Agile frameworks: Scrum, Kanban, XP, Lean", "Agile myths", "Where agile fits and where it does not", "Agile outside software", "Course simulation overview"],
+          "tools": ["Miro"],
+          "lab_task": "Run the ball point game or a paper aeroplane simulation for three iterations, measure output each round and explain how inspecting and adapting improved results.",
+          "deliverable": "Iteration results and a reflection",
+          "checks": [["Record output per iteration", "Output improves across iterations or the reason is explained", "Results sheet"], ["Map each improvement to a principle", "Every change linked to a principle", "Reflection"], ["Explain one agile myth", "Myth and the reality explained", "Written answer"]],
+          "objectives": ["Explain agile values and principles", "Describe empirical process control", "Recognise when agile fits"]
+        },
+        {
+          "topic": "The Scrum Framework Overview",
+          "subtopics": ["Scrum theory: transparency, inspection and adaptation", "Scrum values", "The Scrum Team", "Events: sprint, planning, daily scrum, review, retrospective", "Artefacts: product backlog, sprint backlog, increment", "Commitments: product goal, sprint goal, definition of done", "Time-boxes", "The Scrum Guide", "How the pieces fit together", "Common misunderstandings"],
+          "tools": ["Miro", "Scrum Guide"],
+          "lab_task": "Build a one-page map of Scrum with all roles, events, artefacts and commitments, then answer 20 scenario questions about what Scrum says.",
+          "deliverable": "Scrum map and scenario answers",
+          "checks": [["Review the map", "Every element of the Scrum Guide included", "Map"], ["Answer the scenario questions", "At least 16 correct", "Answer sheet"], ["State the time-boxes for a one-month sprint", "All correct", "Answer sheet"]],
+          "objectives": ["Describe the Scrum framework", "Apply the Scrum Guide", "Avoid common misunderstandings"]
+        },
+        {
+          "topic": "Scrum Roles: Product Owner, Scrum Master and Developers",
+          "subtopics": ["Accountabilities in Scrum", "The Product Owner's work", "The Scrum Master's service to the team, Product Owner and organisation", "Developers and self-management", "Cross-functional teams", "Team size", "Stakeholders and managers", "Anti-patterns for each role"],
+          "tools": ["Miro"],
+          "lab_task": "Work through ten workplace scenarios and decide who is accountable in each, then spot the anti-pattern in five role descriptions from real job adverts.",
+          "deliverable": "Scenario decisions and anti-pattern notes",
+          "checks": [["Decide the ten scenarios", "At least eight match the answer key", "Decision sheet"], ["Spot anti-patterns", "One found in each job advert with a reason", "Notes"], ["Explain self-management", "Correct explanation with an example", "Written answer"]],
+          "objectives": ["Explain Scrum accountabilities", "Recognise role anti-patterns", "Support self-management"]
+        },
+        {
+          "topic": "Product Backlog and User Stories",
+          "subtopics": ["What goes in a product backlog", "User story format", "INVEST criteria", "Acceptance criteria", "Splitting large stories", "Epics and themes", "Non-functional requirements", "Spikes"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Write a product backlog of 25 user stories with acceptance criteria for a food delivery app, split two epics into small stories and check each story against INVEST.",
+          "deliverable": "Product backlog in Jira",
+          "checks": [["Review stories against INVEST", "All pass or are fixed", "Review sheet"], ["Split an epic", "Each piece delivers user value", "Backlog"], ["Review acceptance criteria", "Each criterion is testable", "Backlog"]],
+          "objectives": ["Write user stories", "Split work into small stories", "Write testable acceptance criteria"]
+        },
+        {
+          "topic": "Backlog Refinement and Prioritisation",
+          "subtopics": ["What refinement is", "Ordering the backlog", "MoSCoW and value versus effort", "Definition of ready as an optional practice", "Dependencies", "Story mapping", "Keeping the backlog healthy", "Product goal"],
+          "tools": ["Miro", "Jira"],
+          "lab_task": "Build a story map for the app, define the first release, order the backlog by value and effort and run a 30-minute refinement session.",
+          "deliverable": "Story map, ordered backlog and refinement notes",
+          "checks": [["Review the story map", "Release slice delivers a usable product", "Story map"], ["Order the backlog", "Order explained by value and effort", "Backlog"], ["Review refinement output", "Top stories clear enough to plan", "Refinement notes"]],
+          "objectives": ["Refine the product backlog", "Prioritise by value", "Plan releases with story maps"]
+        },
+        {
+          "topic": "Agile Estimation: Story Points and Planning Poker",
+          "subtopics": ["Why relative estimation", "Story points", "Planning poker", "T-shirt sizing", "Affinity estimation", "Velocity", "Estimation pitfalls", "No-estimates in brief"],
+          "tools": ["Planning poker cards or app", "Jira"],
+          "lab_task": "Estimate 20 backlog items with planning poker and affinity estimation, compare results and discuss the largest disagreements.",
+          "deliverable": "Estimates and discussion notes",
+          "checks": [["Compare two estimation methods", "Differences recorded", "Comparison"], ["Discuss the biggest disagreement", "Cause identified", "Notes"], ["Explain why points are not hours", "Correct explanation", "Written answer"]],
+          "objectives": ["Estimate with story points", "Run planning poker", "Avoid estimation pitfalls"]
+        },
+        {
+          "topic": "Sprint Planning",
+          "subtopics": ["Inputs to sprint planning", "Why, what and how", "Sprint goal", "Capacity", "Selecting backlog items", "Creating the sprint backlog", "Task breakdown", "Common planning problems"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Run sprint planning for a two-week sprint with team capacity, a sprint goal, selected stories and a task breakdown in Jira.",
+          "deliverable": "Sprint goal and sprint backlog",
+          "checks": [["Review the sprint goal", "One clear objective", "Sprint backlog"], ["Compare load with capacity", "Within capacity", "Capacity sheet"], ["Review tasks", "Every story has tasks", "Jira board"]],
+          "objectives": ["Run sprint planning", "Set sprint goals", "Plan within capacity"]
+        },
+        {
+          "topic": "Daily Scrum and Sprint Execution",
+          "subtopics": ["Purpose of the daily scrum", "Formats that work", "Visualising work on a board", "Swarming", "Handling blockers", "Work in progress limits", "Updating the sprint backlog", "Protecting the sprint"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Run five simulated daily scrums with injected blockers, update the board, swarm on a stuck story and keep each meeting within 15 minutes.",
+          "deliverable": "Board snapshots and blocker log",
+          "checks": [["Time each daily scrum", "All within 15 minutes", "Timing log"], ["Review the blocker log", "Each blocker has an owner and action", "Blocker log"], ["Swarm on the stuck story", "Story completed in the sprint", "Board snapshot"]],
+          "objectives": ["Run effective daily scrums", "Remove blockers", "Keep work flowing"]
+        },
+        {
+          "topic": "Definition of Done and Quality",
+          "subtopics": ["Why a definition of done", "Writing a definition of done", "Done versus acceptance criteria", "Technical quality practices", "Testing within the sprint", "Undone work and technical debt", "Raising the bar over time", "Done for non-software work"],
+          "tools": ["Confluence", "Jira"],
+          "lab_task": "Write a definition of done for the app team, check three completed stories against it and plan how to raise the definition over the next three sprints.",
+          "deliverable": "Definition of done and checks",
+          "checks": [["Check three stories", "Each marked done or not done with reasons", "Check sheet"], ["Explain done versus acceptance criteria", "Correct difference", "Written answer"], ["Review the improvement plan", "Steps for three sprints", "Plan"]],
+          "objectives": ["Write a definition of done", "Build quality into sprints", "Manage technical debt"]
+        },
+        {
+          "topic": "Sprint Review",
+          "subtopics": ["Purpose of the sprint review", "Who attends", "Demonstrating the increment", "Collecting feedback", "Updating the product backlog", "Release decisions", "Review anti-patterns", "Running reviews remotely"],
+          "tools": ["Miro", "Jira"],
+          "lab_task": "Run a sprint review with stakeholders in a role play, demonstrate the increment, collect feedback and update the product backlog from it.",
+          "deliverable": "Review notes and updated backlog",
+          "checks": [["Collect feedback", "At least five pieces recorded", "Review notes"], ["Update the backlog", "Feedback turned into new or changed items", "Backlog"], ["Avoid a status meeting", "Increment demonstrated, not slides", "Observer notes"]],
+          "objectives": ["Run sprint reviews", "Gather stakeholder feedback", "Adapt the backlog"]
+        },
+        {
+          "topic": "Sprint Retrospective",
+          "subtopics": ["Purpose of the retrospective", "Retrospective structure", "Techniques: start-stop-continue, sailboat, 4Ls", "Safe environment", "Choosing improvement actions", "Following up on actions", "Varying formats", "Remote retrospectives"],
+          "tools": ["Miro"],
+          "lab_task": "Facilitate two retrospectives with different techniques, choose one improvement action from each and add it to the next sprint backlog.",
+          "deliverable": "Retrospective boards and improvement actions",
+          "checks": [["Run both retrospectives", "Within the time-box", "Facilitator notes"], ["Choose improvement actions", "One specific action from each", "Action list"], ["Add actions to the sprint backlog", "Actions visible on the board", "Board snapshot"]],
+          "objectives": ["Facilitate retrospectives", "Choose improvement actions", "Make improvements visible"]
+        },
+        {
+          "topic": "Tracking Progress: Burndown, Burn-Up and Velocity",
+          "subtopics": ["Sprint burndown charts", "Release burn-up charts", "Velocity and its uses", "Forecasting with velocity ranges", "Reading the charts", "Misusing metrics", "Cumulative flow in brief", "Sharing progress with stakeholders"],
+          "tools": ["Jira", "Excel"],
+          "lab_task": "Track three simulated sprints, produce burndown and burn-up charts, forecast the release date as a range and explain one chart pattern.",
+          "deliverable": "Charts and release forecast",
+          "checks": [["Build the burndown", "Ideal and actual lines shown", "Chart"], ["Forecast the release", "Range based on lowest and highest velocity", "Forecast"], ["Explain a flat burndown", "Cause identified", "Written note"]],
+          "objectives": ["Track sprint progress", "Forecast releases", "Avoid misusing metrics"]
+        },
+        {
+          "topic": "Kanban Essentials",
+          "subtopics": ["Kanban principles and practices", "Visualising workflow", "Work in progress limits", "Pull systems", "Explicit policies", "Flow metrics: cycle time, throughput, WIP", "Cumulative flow diagrams", "Kanban versus Scrum"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Set up a Kanban board for a support team with WIP limits and policies, run a simulation for ten days and measure cycle time and throughput.",
+          "deliverable": "Kanban board and flow metrics",
+          "checks": [["Exceed a WIP limit", "Board shows the breach and team stops starting work", "Board snapshot"], ["Measure cycle time", "Average and 85th percentile recorded", "Metrics sheet"], ["Read the cumulative flow diagram", "Bottleneck identified", "Chart"]],
+          "objectives": ["Use Kanban", "Limit work in progress", "Measure flow"]
+        },
+        {
+          "topic": "Extreme Programming and Technical Agility",
+          "subtopics": ["XP values and practices", "Pair and mob programming", "Test-driven development in brief", "Continuous integration", "Refactoring", "Collective code ownership", "Simple design", "Why technical practices matter for Scrum teams"],
+          "tools": ["Miro", "Version control demo"],
+          "lab_task": "Watch and discuss a pair programming and TDD demo, then map which XP practices would fix five quality problems in a case study team.",
+          "deliverable": "Practice mapping and recommendations",
+          "checks": [["Map practices to problems", "Each problem has a practice with a reason", "Mapping sheet"], ["Explain continuous integration", "Correct explanation", "Written answer"], ["Recommend first steps", "Practical first step for each practice", "Recommendations"]],
+          "objectives": ["Explain XP practices", "Link technical practices to quality", "Recommend improvements"]
+        },
+        {
+          "topic": "Agile Tools: Jira, Azure Boards and Confluence",
+          "subtopics": ["Jira projects, issue types and workflows", "Boards for Scrum and Kanban", "Sprints and backlogs in Jira", "Azure Boards in brief", "Dashboards and filters with JQL", "Confluence for team documentation", "Automation rules", "Keeping tools lightweight"],
+          "tools": ["Jira", "Azure Boards", "Confluence"],
+          "lab_task": "Configure a Jira Scrum project with a custom workflow, a board, a JQL filter for blocked work, a dashboard and an automation rule, and document the team's agreements in Confluence.",
+          "deliverable": "Jira project, dashboard and Confluence page",
+          "checks": [["Run the JQL filter", "Only blocked issues listed", "Filter result"], ["Trigger the automation rule", "Expected action happens", "Audit log"], ["Open the dashboard", "Sprint progress and blocked work shown", "Screenshot"]],
+          "objectives": ["Set up agile tools", "Use JQL and dashboards", "Document team agreements"]
+        },
+        {
+          "topic": "Agile Teams: Collaboration, Self-Management and Psychological Safety",
+          "subtopics": ["Team development stages", "Working agreements", "Psychological safety", "Self-management in practice", "Decision making in teams", "Conflict in agile teams", "Remote collaboration", "Team health checks"],
+          "tools": ["Miro", "Microsoft Teams"],
+          "lab_task": "Create working agreements for a new team, run a team health check, discuss the results and choose two actions to improve safety and collaboration.",
+          "deliverable": "Working agreements, health check and actions",
+          "checks": [["Review working agreements", "Cover meetings, communication and decisions", "Agreements"], ["Run the health check", "Results shown for each area", "Health check board"], ["Choose actions", "Two specific actions with owners", "Action list"]],
+          "objectives": ["Build healthy agile teams", "Create working agreements", "Improve psychological safety"]
+        },
+        {
+          "topic": "Agile Requirements: Personas, Journeys and Minimum Viable Products",
+          "subtopics": ["Personas", "Customer journey maps", "Problem and solution validation", "Minimum viable product", "Hypothesis-driven development", "Prototypes", "Measuring outcomes", "Learning from releases"],
+          "tools": ["Miro", "Figma or paper prototypes"],
+          "lab_task": "Create two personas and a journey map for the app, define an MVP and two hypotheses with success measures, and test a paper prototype with users.",
+          "deliverable": "Personas, journey map, MVP definition and test results",
+          "checks": [["Review the MVP", "Smallest release that tests the main hypothesis", "MVP definition"], ["Review hypotheses", "Each has a measurable success criterion", "Hypothesis sheet"], ["Test the prototype", "Findings recorded from at least three users", "Test notes"]],
+          "objectives": ["Understand users", "Define an MVP", "Test hypotheses"]
+        },
+        {
+          "topic": "Agile in Non-Software Teams",
+          "subtopics": ["Agile for marketing, HR and operations", "Visual boards for business work", "Adapting Scrum events", "Kanban for service teams", "Measuring value in business teams", "Common adoption problems", "Leadership support", "Case studies"],
+          "tools": ["Miro", "Trello or Jira Work Management"],
+          "lab_task": "Design an agile way of working for a marketing team with a board, adapted events and value measures, and run one simulated week.",
+          "deliverable": "Way-of-working design and week results",
+          "checks": [["Review the board", "Workflow matches the team's real work", "Board"], ["Review adapted events", "Each event has a purpose and time-box", "Design"], ["Review value measures", "Measures tied to outcomes", "Design"]],
+          "objectives": ["Apply agile beyond software", "Adapt practices", "Measure business value"]
+        },
+        {
+          "topic": "Certification Preparation: PSM I and CSM",
+          "subtopics": ["Exam formats", "Scrum Guide details", "Tricky question topics", "Practice question technique", "Time management", "Common wrong assumptions", "Study plan", "Keeping certifications current"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take an 80-question practice test under timed conditions, review every wrong answer against the Scrum Guide and plan final study.",
+          "deliverable": "Practice score, review notes and study plan",
+          "checks": [["Complete the practice test", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a Scrum Guide section", "Review notes"], ["Review the study plan", "Weak areas covered with dates", "Study plan"]],
+          "objectives": ["Prepare for Scrum certification", "Use the Scrum Guide precisely", "Plan study"]
+        },
+        {
+          "topic": "Beginner Capstone: Three-Sprint Product Simulation",
+          "subtopics": ["Product vision and backlog", "Sprint planning and execution", "Reviews with stakeholders", "Retrospectives and improvements", "Tracking and forecasting", "Presentation of results"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Deliver a product over three simulated sprints as a Scrum team with a vision, refined backlog, all events, burndown and burn-up tracking and retrospectives, then present the results and lessons.",
+          "deliverable": "Jira project, charts, review and retrospective records and a 10-minute presentation",
+          "checks": [["Show the release burn-up", "Progress and forecast shown", "Chart"], ["Show improvement actions", "At least one action per sprint completed", "Board"], ["Present the increment", "Working product shown with stakeholder feedback", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one simulation", "Work as a Scrum team", "Present results and lessons"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practising Scrum Masters, Product Owners and agile team members. Covers facilitation and coaching, advanced product ownership, product discovery, metrics and flow, technical agility, agile at team-of-teams scale, stakeholder management, agile contracts and budgeting, and PSM II and PSPO level judgement.",
+      "prerequisites": ["Has worked in a Scrum or Kanban team for six months or more", "Knows the Scrum Guide well", "Uses Jira or a similar tool"],
+      "outcomes": ["Facilitate and coach teams through difficult situations", "Own products with clear goals, discovery and value measures", "Use flow metrics and forecasting to improve delivery", "Work across several teams and with the wider organisation"],
+      "days": [
+        {
+          "topic": "Facilitation Skills for Scrum Masters",
+          "subtopics": ["Role of a facilitator", "Designing sessions", "Liberating Structures", "Decision-making methods", "Handling dominant and quiet voices", "Remote facilitation", "Facilitating conflict", "Closing with clear outcomes"],
+          "tools": ["Miro", "Liberating Structures cards"],
+          "lab_task": "Design and facilitate a 60-minute session to agree a team's quality goals using two Liberating Structures and a decision method, then get feedback from participants.",
+          "deliverable": "Session design, outcome and feedback",
+          "checks": [["Review the session design", "Purpose, steps and timings clear", "Design"], ["Reach a decision", "Decision recorded with the method used", "Outcome notes"], ["Collect feedback", "Participants rate the session and give comments", "Feedback"]],
+          "objectives": ["Facilitate effective sessions", "Use Liberating Structures", "Reach clear decisions"]
+        },
+        {
+          "topic": "Coaching Agile Teams",
+          "subtopics": ["Coaching versus teaching versus mentoring", "Powerful questions", "Active listening", "Coaching conversations: GROW model", "Coaching the team as a system", "When to step back", "Coaching Product Owners", "Ethics of coaching"],
+          "tools": ["Role play scripts"],
+          "lab_task": "Hold three coaching conversations in role plays (a team member, a Product Owner and a team), using GROW and powerful questions, and reflect on what worked.",
+          "deliverable": "Observer notes and reflection",
+          "checks": [["Use open questions", "Most questions open, as recorded by the observer", "Observer notes"], ["End with agreed actions", "Coachee owns the actions", "Observer notes"], ["Write a reflection", "Strengths and next steps named", "Reflection"]],
+          "objectives": ["Coach individuals and teams", "Use powerful questions", "Choose the right stance"]
+        },
+        {
+          "topic": "Advanced Product Ownership: Vision, Strategy and Roadmaps",
+          "subtopics": ["Product vision", "Product strategy", "Product goals", "Outcome-based roadmaps", "Balancing stakeholders", "Saying no", "Product Owner as value maximiser", "Product Owner anti-patterns"],
+          "tools": ["Miro", "Jira Product Discovery or Aha!"],
+          "lab_task": "Write a product vision and strategy, set three product goals and an outcome-based roadmap, and handle three conflicting stakeholder requests in a role play.",
+          "deliverable": "Vision, strategy, roadmap and request decisions",
+          "checks": [["Review the roadmap", "Items expressed as outcomes, not features", "Roadmap"], ["Handle the requests", "Each accepted or declined with a value-based reason", "Decision log"], ["Review the product goals", "Measurable", "Goals"]],
+          "objectives": ["Set product vision and goals", "Build outcome roadmaps", "Manage stakeholder demands"]
+        },
+        {
+          "topic": "Product Discovery and Experimentation",
+          "subtopics": ["Discovery and delivery tracks", "Opportunity solution trees", "Customer interviews", "Assumption mapping", "Experiments: fake doors, concierge, A/B tests", "Measuring experiment results", "Deciding to pivot or persevere", "Discovery in Scrum"],
+          "tools": ["Miro", "Survey tools"],
+          "lab_task": "Build an opportunity solution tree for a product problem, map risky assumptions, design two experiments and decide based on simulated results.",
+          "deliverable": "Opportunity tree, assumption map, experiments and decision",
+          "checks": [["Review the assumption map", "Riskiest assumptions identified", "Map"], ["Review the experiments", "Each has a measure and a decision rule", "Experiment cards"], ["Decide on the results", "Pivot or persevere justified by the data", "Decision note"]],
+          "objectives": ["Run product discovery", "Test assumptions", "Decide from evidence"]
+        },
+        {
+          "topic": "Value and Evidence-Based Management",
+          "subtopics": ["Measuring value", "Evidence-Based Management key value areas", "Current value and unrealised value", "Time to market", "Ability to innovate", "Leading and lagging indicators", "Using measures to steer", "Avoiding vanity metrics"],
+          "tools": ["Excel", "Jira"],
+          "lab_task": "Define Evidence-Based Management measures for the product, gather baseline data from a case, and choose one improvement experiment based on the measures.",
+          "deliverable": "Measures, baseline and experiment",
+          "checks": [["Review the measures", "Each key value area covered", "Measures sheet"], ["Review the baseline", "Values recorded with sources", "Baseline"], ["Choose an experiment", "Linked to the weakest area", "Experiment card"]],
+          "objectives": ["Measure value", "Use Evidence-Based Management", "Steer with evidence"]
+        },
+        {
+          "topic": "Advanced Backlog Management",
+          "subtopics": ["Backlog size and health", "Splitting patterns", "Handling technical debt in the backlog", "Bugs and unplanned work", "Release planning", "Dependencies across backlogs", "Backlog refinement at scale", "Tools for large backlogs"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Clean up a provided 400-item backlog: remove stale items, split large stories with patterns, add technical debt items and plan two releases.",
+          "deliverable": "Cleaned backlog and release plan",
+          "checks": [["Remove stale items", "Removed items listed with reasons", "Clean-up log"], ["Split stories with patterns", "Each split names the pattern", "Backlog"], ["Plan releases", "Each release has a goal", "Release plan"]],
+          "objectives": ["Keep large backlogs healthy", "Split stories well", "Plan releases"]
+        },
+        {
+          "topic": "Flow Metrics and Probabilistic Forecasting",
+          "subtopics": ["Cycle time and work item age", "Throughput", "Cycle time scatterplots", "Service level expectations", "Monte Carlo forecasting", "\"When will it be done?\" and \"how many?\" forecasts", "Little's Law", "Improving flow"],
+          "tools": ["Excel", "ActionableAgile or a spreadsheet simulation"],
+          "lab_task": "Analyse six months of team data, set a service level expectation, run Monte Carlo forecasts for a release and find the biggest flow problem.",
+          "deliverable": "Flow analysis, forecasts and improvement action",
+          "checks": [["Set the service level expectation", "Based on the 85th percentile cycle time", "Analysis"], ["Run the Monte Carlo forecast", "Date with 85 percent confidence", "Forecast"], ["Find the flow problem", "Supported by aging work or the scatterplot", "Analysis"]],
+          "objectives": ["Use flow metrics", "Forecast with Monte Carlo", "Improve flow"]
+        },
+        {
+          "topic": "Technical Agility for Agile Leaders",
+          "subtopics": ["Continuous integration and delivery", "DevOps principles", "Test automation pyramid", "Technical debt management", "Architecture in agile teams", "Feature toggles", "Measuring delivery with DORA metrics", "Supporting engineering practices as a Scrum Master"],
+          "tools": ["Jira", "CI/CD dashboard demo"],
+          "lab_task": "Measure a team's DORA metrics from provided data, find the biggest technical constraint and build a technical debt plan with the Product Owner.",
+          "deliverable": "DORA metrics, constraint analysis and debt plan",
+          "checks": [["Calculate DORA metrics", "All four calculated", "Metrics sheet"], ["Identify the constraint", "Supported by the data", "Analysis"], ["Review the debt plan", "Debt items ordered by impact", "Backlog"]],
+          "objectives": ["Support technical agility", "Measure delivery", "Manage technical debt"]
+        },
+        {
+          "topic": "Scrum with Multiple Teams",
+          "subtopics": ["One product, several teams", "Shared product backlog", "Cross-team refinement", "Multi-team sprint planning", "Integration and dependencies", "Combined sprint reviews", "Overall retrospectives", "Nexus in brief"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Run a multi-team sprint planning for three teams on one product with a dependency board, then a combined review and an overall retrospective.",
+          "deliverable": "Plans, dependency board and retrospective actions",
+          "checks": [["Review the dependency board", "Dependencies with owners and dates", "Board"], ["Run the combined review", "Integrated increment shown", "Review notes"], ["Run the overall retrospective", "Cross-team improvement chosen", "Action list"]],
+          "objectives": ["Run Scrum with several teams", "Manage dependencies", "Integrate work"]
+        },
+        {
+          "topic": "Stakeholder Management and Collaboration",
+          "subtopics": ["Identifying agile stakeholders", "Involving stakeholders in reviews", "Transparency and information radiators", "Managing expectations", "Saying no with data", "Working with managers in an agile organisation", "Handling pressure for fixed scope and date", "Building trust"],
+          "tools": ["Miro", "Jira dashboards"],
+          "lab_task": "Handle a stakeholder asking for fixed scope and date in a role play using a forecast and options, and build an information radiator for the stakeholders.",
+          "deliverable": "Role-play notes and information radiator",
+          "checks": [["Present options with the forecast", "Stakeholder chooses an option", "Role-play notes"], ["Review the information radiator", "Shows goals, progress and risks", "Dashboard"], ["Review stakeholder map", "Engagement plan for each group", "Map"]],
+          "objectives": ["Manage stakeholders in agile", "Negotiate scope and dates", "Build transparency"]
+        },
+        {
+          "topic": "Remote and Distributed Scrum Teams",
+          "subtopics": ["Challenges of distributed Scrum", "Time zone overlap and event scheduling", "Remote events that stay engaging", "Asynchronous collaboration", "Digital boards and documentation", "Building relationships remotely", "Distributed pairing and swarming", "Measuring remote team health"],
+          "tools": ["Microsoft Teams", "Miro", "Jira", "Slack"],
+          "lab_task": "Redesign the Scrum events for a team split across India, Europe and the US, set asynchronous working agreements and run a remote retrospective that keeps everyone involved.",
+          "deliverable": "Event schedule, working agreements and retrospective results",
+          "checks": [["Review the event schedule", "No location always meets outside working hours", "Schedule"], ["Run the remote retrospective", "Every member contributes at least one item", "Retrospective board"], ["Review the asynchronous agreements", "Response times and channels defined", "Agreements"]],
+          "objectives": ["Run Scrum with distributed teams", "Balance synchronous and asynchronous work", "Keep remote teams engaged"]
+        },
+        {
+          "topic": "The Scrum Master as Organisational Change Agent",
+          "subtopics": ["Serving the organisation, not only the team", "Spotting organisational impediments", "Impediment escalation and tracking", "Working with HR, finance and management", "Building a coalition of Scrum Masters", "Small experiments in the organisation", "Measuring organisational impediments", "Avoiding burnout"],
+          "tools": ["Miro", "Jira"],
+          "lab_task": "Build an organisational impediment backlog for a case company, pick the top impediment, design an experiment with management to remove it and define how to measure the result.",
+          "deliverable": "Impediment backlog, experiment design and measures",
+          "checks": [["Review the impediment backlog", "Each impediment shows its effect on teams", "Backlog"], ["Review the experiment", "Owner, time-box and success measure defined", "Experiment card"], ["Present to management", "Agreement to run the experiment", "Role-play notes"]],
+          "objectives": ["Act as a change agent", "Remove organisational impediments", "Work with management"]
+        },
+        {
+          "topic": "Agile Contracts, Budgeting and Governance",
+          "subtopics": ["Problems with fixed-price contracts", "Agile contract models", "Budgeting by team capacity", "Funding value streams", "Agile governance", "Audits and compliance in agile", "Reporting to finance", "Vendor teams in Scrum"],
+          "tools": ["Excel", "Contract templates"],
+          "lab_task": "Turn a fixed-price outsourcing contract into an agile contract with capacity funding, checkpoints and exit clauses, and design governance reports for finance.",
+          "deliverable": "Agile contract outline and governance reports",
+          "checks": [["Review the contract", "Scope flexibility and checkpoints included", "Contract outline"], ["Review exit clauses", "Both sides can exit with notice", "Contract outline"], ["Review the finance report", "Spend and value reported each sprint", "Report"]],
+          "objectives": ["Design agile contracts", "Fund teams", "Govern agile work"]
+        },
+        {
+          "topic": "Dealing with Dysfunctions and Difficult Situations",
+          "subtopics": ["Five dysfunctions of a team", "Missing sprint goals repeatedly", "Silent retrospectives", "Hero culture", "Product Owner unavailable", "Management interference", "Choosing an intervention", "Measuring the effect"],
+          "tools": ["Miro", "Role play scripts"],
+          "lab_task": "Diagnose dysfunctions in three case teams, choose and role-play an intervention for each and define how you will know it worked.",
+          "deliverable": "Diagnoses, interventions and measures",
+          "checks": [["Diagnose each team", "Dysfunction named with evidence", "Diagnosis sheet"], ["Role-play an intervention", "Conversation leads to agreed actions", "Observer notes"], ["Define success measures", "Measurable for each intervention", "Measures"]],
+          "objectives": ["Diagnose team dysfunctions", "Intervene effectively", "Measure improvement"]
+        },
+        {
+          "topic": "Kanban at Team and Service Level",
+          "subtopics": ["Kanban Method in depth", "Classes of service", "Service delivery reviews", "Replenishment meetings", "Upstream Kanban", "Policies for expedite work", "Blocker clustering", "Scrum with Kanban"],
+          "tools": ["Jira", "Excel"],
+          "lab_task": "Redesign a support team's board with classes of service, replenishment and service delivery reviews, then cluster three months of blockers and fix the top cause.",
+          "deliverable": "Board design, cadence and blocker analysis",
+          "checks": [["Review classes of service", "Policies clear for each", "Board design"], ["Cluster blockers", "Top cause identified with counts", "Analysis"], ["Measure after the fix", "Blocked time reduced in the simulation", "Metrics"]],
+          "objectives": ["Apply the Kanban Method", "Use classes of service", "Remove systemic blockers"]
+        },
+        {
+          "topic": "User Experience and Agile Delivery",
+          "subtopics": ["UX in Scrum teams", "Dual-track working", "Design systems", "Usability testing in sprints", "Accessibility", "Measuring user experience", "Collaboration between designers and developers", "Common friction points"],
+          "tools": ["Figma", "Miro"],
+          "lab_task": "Plan how a UX designer works inside the team for three sprints, run a quick usability test on a prototype and add the findings to the backlog.",
+          "deliverable": "Working plan, usability results and backlog updates",
+          "checks": [["Run the usability test", "Findings from at least five tasks", "Test notes"], ["Add findings to the backlog", "Each finding becomes an item or is rejected with a reason", "Backlog"], ["Review the working plan", "Design and delivery work overlap without hand-off delays", "Plan"]],
+          "objectives": ["Integrate UX into agile delivery", "Test usability in sprints", "Turn findings into backlog items"]
+        },
+        {
+          "topic": "Agile Metrics Dashboards and Reporting",
+          "subtopics": ["Choosing team metrics", "Product metrics", "Organisational metrics", "Dashboards in Jira and Power BI", "Avoiding metric misuse", "Goodhart's law", "Telling stories with metrics", "Reviewing metrics with teams"],
+          "tools": ["Jira", "Power BI or Excel"],
+          "lab_task": "Build a dashboard with flow, quality and value metrics from Jira data, review it with the team and remove one metric that drives bad behaviour.",
+          "deliverable": "Dashboard and review notes",
+          "checks": [["Build the dashboard", "Flow, quality and value shown", "Screenshot"], ["Review with the team", "Insights and actions recorded", "Review notes"], ["Remove a harmful metric", "Reason linked to behaviour", "Notes"]],
+          "objectives": ["Choose useful agile metrics", "Build dashboards", "Avoid metric misuse"]
+        },
+        {
+          "topic": "Agile Leadership and Management Support",
+          "subtopics": ["Agile leadership styles", "Servant and enabling leadership", "Managers' role in agile organisations", "Delegation boards", "Creating clarity of purpose", "Supporting autonomy", "Leading change", "Leadership anti-patterns"],
+          "tools": ["Delegation poker cards", "Miro"],
+          "lab_task": "Play delegation poker with a management team for ten decisions, build a delegation board and plan how managers will support three teams.",
+          "deliverable": "Delegation board and support plan",
+          "checks": [["Agree delegation levels", "Level agreed for each decision", "Delegation board"], ["Review the support plan", "Clear actions for managers", "Plan"], ["Identify a leadership anti-pattern in the case", "Named with evidence", "Notes"]],
+          "objectives": ["Lead in an agile organisation", "Delegate clearly", "Support teams"]
+        },
+        {
+          "topic": "Certification Preparation: PSM II and PSPO I",
+          "subtopics": ["Exam formats", "Scenario questions", "Scrum Master stances", "Product Owner value questions", "Evidence-Based Management questions", "Practice exams", "Time management", "Study plan"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take timed practice tests for PSM II and PSPO I, review wrong answers and write a study plan.",
+          "deliverable": "Practice scores, review and study plan",
+          "checks": [["Complete both practice tests", "Scores recorded", "Test results"], ["Review wrong answers", "Each explained with a source", "Review notes"], ["Review the study plan", "Weak areas with dates", "Study plan"]],
+          "objectives": ["Prepare for advanced Scrum certifications", "Answer scenario questions", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Product and Team Improvement Engagement",
+          "subtopics": ["Assessment of a team and product", "Product vision, goals and discovery", "Flow analysis and forecasting", "Facilitation and coaching plan", "Stakeholder and governance changes", "Presentation of results"],
+          "tools": ["Jira", "Miro", "Excel"],
+          "lab_task": "Take on a struggling product team in a simulation: assess it, reset the product goal and roadmap, run discovery, analyse flow and forecast, coach through a dysfunction, and present a 90-day improvement plan with measures.",
+          "deliverable": "Assessment, product artefacts, flow analysis, coaching notes and a 15-minute presentation",
+          "checks": [["Review the assessment", "Problems backed by evidence", "Assessment"], ["Present the forecast", "Probabilistic with confidence level", "Forecast"], ["Answer stakeholder questions", "Plan defended with evidence", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one engagement", "Improve team and product", "Present a measured plan"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For agile coaches, senior Scrum Masters, product leaders and transformation leads. Covers enterprise agile coaching, organisation design, scaling frameworks, lean portfolio management, agile transformation strategy, culture and leadership development, business agility, metrics at scale, coaching certifications and leading change.",
+      "prerequisites": ["Has worked as a Scrum Master, Product Owner or agile coach for two years or more", "Has worked with several teams", "Knows Scrum, Kanban and flow metrics well"],
+      "outcomes": ["Coach teams, leaders and organisations", "Design organisations and choose scaling approaches", "Lead agile transformations with measures", "Develop leaders and build business agility"],
+      "days": [
+        {
+          "topic": "Enterprise Agile Coaching Competencies",
+          "subtopics": ["Agile coaching competency framework", "Coaching, mentoring, teaching, facilitating and consulting", "Coaching contracts", "Systems coaching", "Coaching leaders", "Ethics and boundaries", "Self-development as a coach", "Supervision and peer coaching"],
+          "tools": ["Coaching competency self-assessment", "Miro"],
+          "lab_task": "Complete a coaching competency self-assessment, write a coaching contract for a department, run a systems coaching session in a role play and plan your own development.",
+          "deliverable": "Self-assessment, coaching contract, session notes and development plan",
+          "checks": [["Review the coaching contract", "Goals, boundaries and success measures stated", "Contract"], ["Run the systems session", "Group surfaces its own patterns", "Observer notes"], ["Review the development plan", "Specific growth actions", "Plan"]],
+          "objectives": ["Work as an enterprise coach", "Contract for coaching", "Coach systems"]
+        },
+        {
+          "topic": "Organisation Design for Agility",
+          "subtopics": ["Conway's law", "Team Topologies: stream-aligned, platform, enabling, complicated subsystem", "Interaction modes", "Value stream identification", "Team boundaries and cognitive load", "Component versus feature teams", "Reorganising safely", "Measuring the effect of design changes"],
+          "tools": ["Miro", "Team Topologies cards"],
+          "lab_task": "Map a provided organisation's value streams, redesign 12 teams with Team Topologies, define interaction modes and plan a safe transition.",
+          "deliverable": "Value stream map, team design and transition plan",
+          "checks": [["Review the team design", "Each team type and purpose clear", "Design"], ["Review interaction modes", "Defined for each team pair that works together", "Interaction map"], ["Review the transition plan", "Steps reduce risk and include measures", "Plan"]],
+          "objectives": ["Design organisations for flow", "Apply Team Topologies", "Plan reorganisations"]
+        },
+        {
+          "topic": "Scaling Frameworks Compared: SAFe, LeSS, Nexus and Scrum@Scale",
+          "subtopics": ["Why scale and when not to", "SAFe overview", "LeSS principles", "Nexus", "Scrum@Scale", "Spotify model myths", "Choosing and tailoring a framework", "Scaling anti-patterns"],
+          "tools": ["Miro", "Comparison template"],
+          "lab_task": "Compare four scaling frameworks against a provided organisation's needs, recommend one with tailoring and list the anti-patterns to avoid.",
+          "deliverable": "Comparison, recommendation and anti-pattern list",
+          "checks": [["Review the comparison", "Criteria applied to each framework", "Comparison sheet"], ["Review the recommendation", "Tailoring explained", "Recommendation"], ["List anti-patterns", "Each with an early warning sign", "List"]],
+          "objectives": ["Compare scaling frameworks", "Recommend and tailor an approach", "Avoid scaling anti-patterns"]
+        },
+        {
+          "topic": "Lean Portfolio Management",
+          "subtopics": ["Strategic themes", "Portfolio Kanban", "Epics and lean business cases", "Participatory budgeting", "Guardrails", "Weighted shortest job first", "Portfolio metrics", "Governance without bureaucracy"],
+          "tools": ["Jira Align or Jira", "Excel"],
+          "lab_task": "Set up a portfolio Kanban with lean business cases, prioritise ten epics with WSJF, run a participatory budgeting session and define guardrails.",
+          "deliverable": "Portfolio Kanban, WSJF scores, budget outcome and guardrails",
+          "checks": [["Score epics with WSJF", "Scores calculated and explained", "WSJF sheet"], ["Run participatory budgeting", "Budget allocated by agreement", "Session notes"], ["Review guardrails", "Clear spending and decision limits", "Guardrails"]],
+          "objectives": ["Manage portfolios lean", "Prioritise with WSJF", "Fund value streams"]
+        },
+        {
+          "topic": "Agile Transformation Strategy and Roadmaps",
+          "subtopics": ["Why transformations fail", "Assessing readiness", "Transformation vision and goals", "Pilot selection", "Roadmaps and waves", "Transformation team", "Communication", "Measuring progress"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Assess a provided company's readiness, write a transformation vision and goals, choose pilots and build an 18-month roadmap with measures.",
+          "deliverable": "Readiness assessment, vision, roadmap and measures",
+          "checks": [["Review the readiness assessment", "Strengths and gaps backed by evidence", "Assessment"], ["Review pilot choices", "Pilots chosen with criteria", "Roadmap"], ["Review measures", "Outcome measures for each wave", "Measures sheet"]],
+          "objectives": ["Plan agile transformations", "Choose pilots", "Measure transformation progress"]
+        },
+        {
+          "topic": "Change Management and Culture for Agility",
+          "subtopics": ["Culture models", "Changing culture through practices", "Resistance and its causes", "Influence strategies", "Storytelling for change", "Communities of practice", "Celebrating progress", "Sustaining change"],
+          "tools": ["Miro", "Culture assessment template"],
+          "lab_task": "Assess the culture of a case organisation, design practice changes that shift it, plan a community of practice and write a change story for leadership.",
+          "deliverable": "Culture assessment, change plan and change story",
+          "checks": [["Review the culture assessment", "Current and desired culture described", "Assessment"], ["Review the practice changes", "Each linked to a culture shift", "Plan"], ["Review the change story", "Clear why, what and how", "Story"]],
+          "objectives": ["Change culture through practice", "Manage resistance", "Sustain change"]
+        },
+        {
+          "topic": "Developing Agile Leaders",
+          "subtopics": ["Leadership agility levels", "Leader coaching", "Leadership development programmes", "Leading with intent", "Decision rights and autonomy", "Feedback cultures", "Leader behaviours that block agility", "Measuring leadership change"],
+          "tools": ["Leadership assessment", "Role play scripts"],
+          "lab_task": "Design a three-month leadership development programme for 20 managers, coach one leader in a role play and define measures for leadership change.",
+          "deliverable": "Programme design, coaching notes and measures",
+          "checks": [["Review the programme", "Learning, practice and coaching combined", "Programme design"], ["Coach the leader", "Leader commits to a new behaviour", "Observer notes"], ["Review measures", "Behaviour-based and measurable", "Measures"]],
+          "objectives": ["Develop agile leaders", "Coach executives", "Measure leadership change"]
+        },
+        {
+          "topic": "Lean Thinking for Agile Leaders",
+          "subtopics": ["Origins of lean in the Toyota Production System", "Value and waste", "The seven wastes in knowledge work", "Respect for people", "Gemba walks", "Kaizen and continuous improvement", "A3 problem solving", "Lean and agile together"],
+          "tools": ["A3 template", "Miro"],
+          "lab_task": "Do a gemba walk of a team's process through interviews and data, list the wastes found and solve the biggest one with an A3 report.",
+          "deliverable": "Waste list and A3 report",
+          "checks": [["List wastes", "Each waste named with evidence", "Waste list"], ["Complete the A3", "Root cause, countermeasures and follow-up defined", "A3 report"], ["Present the A3", "Leaders agree on the countermeasure", "Presentation notes"]],
+          "objectives": ["Apply lean thinking", "Find waste in knowledge work", "Solve problems with A3"]
+        },
+        {
+          "topic": "Business Agility Beyond IT",
+          "subtopics": ["Business agility domains", "Agile HR", "Agile finance and beyond budgeting", "Agile marketing", "Agile operations", "Customer-centric organisations", "Adaptive strategy", "Case studies"],
+          "tools": ["Miro", "Case studies"],
+          "lab_task": "Design agile ways of working for HR, finance and marketing in a case company, including a beyond-budgeting approach, and map how they connect to product teams.",
+          "deliverable": "Business agility design and connection map",
+          "checks": [["Review the finance design", "Rolling forecasts and guardrails replace annual budgets", "Design"], ["Review the HR design", "Performance and hiring adapted for teams", "Design"], ["Review the connection map", "Hand-offs to product teams reduced", "Map"]],
+          "objectives": ["Extend agility across the business", "Apply beyond budgeting", "Connect business and product teams"]
+        },
+        {
+          "topic": "Agile Metrics and Measurement at Scale",
+          "subtopics": ["Measurement frameworks", "Flow metrics across value streams", "Outcome and impact measures", "DORA and SPACE metrics", "Portfolio metrics", "Measuring transformation", "Data sources and automation", "Using metrics for learning, not control"],
+          "tools": ["Power BI", "Jira", "Excel"],
+          "lab_task": "Build a measurement framework and dashboard for a value stream with flow, quality, outcome and people measures, and run a metrics review with leaders.",
+          "deliverable": "Measurement framework, dashboard and review notes",
+          "checks": [["Review the framework", "Covers flow, quality, outcomes and people", "Framework"], ["Build the dashboard", "Automated from tool data", "Dashboard"], ["Run the metrics review", "Decisions taken from the data", "Review notes"]],
+          "objectives": ["Measure agility at scale", "Build automated dashboards", "Use metrics for learning"]
+        },
+        {
+          "topic": "Value Stream Mapping and Flow Optimisation",
+          "subtopics": ["Value stream mapping", "Lead time and process time", "Flow efficiency", "Waiting and hand-offs", "Future-state design", "Improvement roadmaps", "Measuring improvement", "Value stream management tools"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Map the end-to-end value stream from idea to customer for a provided product, calculate flow efficiency, design a future state and plan three improvements.",
+          "deliverable": "Current and future value stream maps and improvement plan",
+          "checks": [["Calculate flow efficiency", "Correct value from the map", "Map"], ["Review the future state", "Waiting time reduced with specific changes", "Future-state map"], ["Review the improvement plan", "Each improvement has a measure", "Plan"]],
+          "objectives": ["Map value streams", "Improve flow efficiency", "Plan improvements"]
+        },
+        {
+          "topic": "Agile at Scale in Regulated Industries",
+          "subtopics": ["Regulation and agility", "Compliance as part of the definition of done", "Traceability in agile", "Audit readiness", "Quality management systems", "Safety-critical development", "Working with auditors", "Case studies from banking and healthcare"],
+          "tools": ["Jira", "Confluence"],
+          "lab_task": "Design an agile process for a regulated medical software team with compliance in the definition of done, traceability and audit evidence, and pass a mock audit.",
+          "deliverable": "Process design, traceability and audit result",
+          "checks": [["Trace a requirement to tests and release", "Full trace shown", "Traceability report"], ["Pass the mock audit", "Evidence for each control", "Audit record"], ["Review the definition of done", "Compliance steps included", "Definition of done"]],
+          "objectives": ["Apply agile in regulated settings", "Build compliance into the process", "Prepare for audits"]
+        },
+        {
+          "topic": "Agile Coaching for Product Management",
+          "subtopics": ["Product operating model", "Product leadership", "Product discovery at scale", "Outcome-based funding", "Product metrics", "Product and engineering partnership", "Coaching product managers", "Product maturity assessment"],
+          "tools": ["Miro", "Product maturity template"],
+          "lab_task": "Assess product management maturity in a case company, design a product operating model and coach a product manager on outcome-based goals.",
+          "deliverable": "Maturity assessment, operating model and coaching notes",
+          "checks": [["Review the maturity assessment", "Gaps backed by evidence", "Assessment"], ["Review the operating model", "Roles, funding and decisions defined", "Model"], ["Coach the product manager", "Outcome-based goals agreed", "Observer notes"]],
+          "objectives": ["Coach product organisations", "Design product operating models", "Shift to outcomes"]
+        },
+        {
+          "topic": "Facilitating Large Groups and Planning Events",
+          "subtopics": ["Large-scale planning events", "Open Space Technology", "World Café", "Big room planning logistics", "Remote large-group facilitation", "Handling conflict at scale", "Capturing outcomes", "Follow-up"],
+          "tools": ["Miro", "Open Space materials"],
+          "lab_task": "Design and run a large-group planning event for 60 people across five teams in a simulation, using Open Space for unresolved issues and capturing commitments.",
+          "deliverable": "Event design, commitments and follow-up plan",
+          "checks": [["Review the event design", "Agenda, roles and logistics complete", "Design"], ["Capture commitments", "Each team's commitments and dependencies recorded", "Outcome board"], ["Review the follow-up plan", "Owners and dates set", "Plan"]],
+          "objectives": ["Facilitate large groups", "Run planning events", "Capture and follow up commitments"]
+        },
+        {
+          "topic": "Agile Transformation Measurement and Return on Investment",
+          "subtopics": ["Building the case for transformation", "Costs of transformation", "Benefits: speed, quality, engagement, customer value", "Baselines", "Attribution problems", "Reporting value to executives", "Adjusting the transformation", "Ending the transformation"],
+          "tools": ["Excel", "Power BI"],
+          "lab_task": "Build a value case for a transformation with baselines, costs and benefit measures, report a year of simulated results to executives and recommend adjustments.",
+          "deliverable": "Value case, executive report and recommendations",
+          "checks": [["Review baselines", "Set before the change", "Value case"], ["Review the executive report", "Results compared with baselines", "Report"], ["Review recommendations", "Linked to the results", "Recommendations"]],
+          "objectives": ["Measure transformation value", "Report to executives", "Adjust transformations"]
+        },
+        {
+          "topic": "Coaching Through Conflict and Organisational Politics",
+          "subtopics": ["Conflict levels", "Mediation", "Polarity management", "Power and politics", "Coaching in tense situations", "Psychological safety at leadership level", "Escalation and ethics", "Self-care for coaches"],
+          "tools": ["Role play scripts", "Miro"],
+          "lab_task": "Mediate a conflict between two department heads in a role play, map a polarity between speed and control and plan how to handle political resistance.",
+          "deliverable": "Mediation notes, polarity map and plan",
+          "checks": [["Mediate the conflict", "Both parties agree next steps", "Observer notes"], ["Map the polarity", "Upsides, downsides and warning signs for both poles", "Polarity map"], ["Review the plan", "Specific actions for key players", "Plan"]],
+          "objectives": ["Handle conflict at senior level", "Manage polarities", "Navigate politics"]
+        },
+        {
+          "topic": "Agile and AI: New Ways of Working",
+          "subtopics": ["AI assistants in agile teams", "AI for backlog refinement and story writing", "AI in retrospectives and meeting notes", "Forecasting with AI tools", "Risks: quality, privacy and over-reliance", "Changing roles", "Team agreements for AI use", "Measuring the effect of AI on delivery"],
+          "tools": ["Microsoft Copilot or ChatGPT", "Jira", "Miro"],
+          "lab_task": "Use AI to draft and split user stories and summarise a retrospective, check every output, and write team agreements for AI use with measures of its effect.",
+          "deliverable": "AI outputs with checks and team AI agreements",
+          "checks": [["Check AI-written stories", "Errors found and fixed", "Check sheet"], ["Review the retrospective summary", "Matches what was said", "Comparison"], ["Review the agreements", "Data, checking and measures included", "Agreements"]],
+          "objectives": ["Use AI in agile teams", "Check AI output", "Set team rules for AI"]
+        },
+        {
+          "topic": "Coaching Certifications and Professional Growth",
+          "subtopics": ["ICAgile coaching paths", "Scrum Alliance and Scrum.org advanced certifications", "Professional Scrum Master III and Certified Enterprise Coach", "Building a coaching portfolio", "Case studies as evidence", "Mentoring and supervision", "Community contribution", "Career planning"],
+          "tools": ["Portfolio template"],
+          "lab_task": "Build a coaching portfolio with three case studies, map it to the requirements of an advanced certification and write a two-year growth plan.",
+          "deliverable": "Coaching portfolio and growth plan",
+          "checks": [["Review the case studies", "Each shows context, approach and results", "Portfolio"], ["Map to certification requirements", "Gaps identified", "Mapping"], ["Review the growth plan", "Milestones and support named", "Plan"]],
+          "objectives": ["Plan coaching career growth", "Build a coaching portfolio", "Prepare for advanced certifications"]
+        },
+        {
+          "topic": "Troubleshooting Struggling Transformations",
+          "subtopics": ["Signs of a stalled transformation", "Cargo-cult agile", "Leadership disengagement", "Framework overload", "Metric gaming", "Restarting with focus", "Communicating a reset", "Lessons from failed transformations"],
+          "tools": ["Miro", "Case studies"],
+          "lab_task": "Diagnose three stalled transformation cases, choose a reset strategy for each and write a reset message for leaders and teams.",
+          "deliverable": "Diagnoses, reset strategies and reset messages",
+          "checks": [["Diagnose each case", "Root causes named with evidence", "Diagnosis sheet"], ["Choose reset strategies", "Each fits its root cause", "Strategy notes"], ["Review the reset message", "Honest, clear and specific", "Message"]],
+          "objectives": ["Diagnose stalled transformations", "Plan resets", "Communicate change honestly"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Agile Transformation Plan",
+          "subtopics": ["Assessment and organisation design", "Scaling approach and portfolio", "Leadership and culture plan", "Measurement and value case", "Coaching plan", "Executive presentation and defence"],
+          "tools": ["Miro", "Excel", "Power BI", "Jira"],
+          "lab_task": "Produce a transformation plan for a 1,000-person organisation with an assessment, team design, scaling approach, lean portfolio, leadership and culture plan, measurement framework and coaching plan, then present it to a mock executive team.",
+          "deliverable": "Transformation plan, dashboards and a 20-minute executive presentation",
+          "checks": [["Review the team design", "Value streams and team types defined", "Design"], ["Review measures", "Baselines and targets for outcomes", "Measurement framework"], ["Answer executive questions", "Plan defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one plan", "Lead an agile transformation", "Defend the plan to executives"]
+        }
+      ]
+    }
+  }
+}

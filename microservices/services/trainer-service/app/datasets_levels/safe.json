@@ -1,0 +1,573 @@
+{
+  "domain": "SAFe",
+  "name": "SAFe (Scaled Agile Framework)",
+  "category": "Project Management",
+  "icon": "layers",
+  "aliases": ["Scaled Agile Framework", "Scaled Agile", "SAFe Agilist", "Leading SAFe", "SAFe 6", "SAFe Scrum Master", "SAFe Product Owner Product Manager", "SAFe POPM", "SAFe RTE", "SAFe Implementation"],
+  "certifications": ["Certified SAFe Agilist (SA)", "Certified SAFe Scrum Master (SSM)", "Certified SAFe Product Owner/Product Manager (POPM)", "Certified SAFe Release Train Engineer (RTE)", "Certified SAFe Practice Consultant (SPC)"],
+  "tools": ["Jira Align or Jira", "Miro", "Excel", "SAFe Big Picture"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For team members, managers and new practitioners joining a SAFe organisation. Covers why organisations scale, SAFe principles and configurations, agile teams and teams of teams, the Agile Release Train, PI Planning, iterations, the system demo, Inspect and Adapt, and the roles at team and train level, ending with a simulated PI Planning.",
+      "prerequisites": ["Basic understanding of Scrum or Kanban", "Has worked in a team of 5 to 10 people", "No SAFe experience needed"],
+      "outcomes": ["Explain SAFe principles, configurations and the Big Picture", "Work as part of an agile team on an Agile Release Train", "Take part in PI Planning, iterations, system demos and Inspect and Adapt", "Describe the main SAFe roles and their responsibilities"],
+      "days": [
+        {
+          "topic": "Why Scale Agile and SAFe Overview",
+          "subtopics": ["Problems teams hit at scale", "Business agility and the digital age", "SAFe history and versions", "The SAFe Big Picture", "Configurations: Essential, Large Solution, Portfolio, Full", "Core competencies", "SAFe and other scaling frameworks", "Myths about SAFe", "Where SAFe fits and where it does not", "Course simulation overview"],
+          "tools": ["SAFe Big Picture", "Miro"],
+          "lab_task": "Map a provided organisation's delivery problems to SAFe core competencies and choose the SAFe configuration that fits, with reasons.",
+          "deliverable": "Problem map and configuration choice",
+          "checks": [["Map problems to competencies", "Each problem mapped with a reason", "Problem map"], ["Choose a configuration", "Choice justified by size and needs", "Decision note"], ["Explain one SAFe myth", "Myth and reality explained", "Written answer"]],
+          "objectives": ["Explain why organisations scale", "Describe SAFe configurations", "Choose a starting configuration"]
+        },
+        {
+          "topic": "SAFe Lean-Agile Principles and Values",
+          "subtopics": ["The ten SAFe principles", "Economic view", "Systems thinking", "Assuming variability and preserving options", "Building incrementally with fast learning cycles", "Visualising and limiting work in progress", "Decentralising decision-making", "SAFe core values"],
+          "tools": ["Miro"],
+          "lab_task": "Analyse five decisions from a case study against the SAFe principles, recommend a better decision for each and present the economic reasoning for one.",
+          "deliverable": "Decision analysis with principles",
+          "checks": [["Analyse the five decisions", "Each linked to at least one principle", "Analysis sheet"], ["Present the economic reasoning", "Cost of delay considered", "Presentation"], ["Classify decisions to centralise or decentralise", "Criteria applied correctly", "Classification"]],
+          "objectives": ["Apply SAFe principles", "Think economically", "Decentralise decisions"]
+        },
+        {
+          "topic": "Agile Teams in SAFe",
+          "subtopics": ["Team structure and size", "Scrum and Kanban in SAFe", "Team backlog", "Iteration planning", "Team sync", "Iteration review and retrospective", "Built-in quality at team level", "Team and Technical Agility competency"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Set up a SAFe agile team with a team backlog, plan an iteration, run a team sync and hold an iteration review and retrospective in a simulation.",
+          "deliverable": "Team backlog, iteration plan and event notes",
+          "checks": [["Plan the iteration", "Stories fit capacity with iteration goals", "Iteration plan"], ["Run the iteration review", "Working increment shown", "Review notes"], ["Run the retrospective", "One improvement chosen", "Action list"]],
+          "objectives": ["Work as a SAFe agile team", "Run team events", "Build quality in"]
+        },
+        {
+          "topic": "The Agile Release Train",
+          "subtopics": ["What an Agile Release Train is", "Value streams and trains", "Train size and team types", "Train roles: RTE, Product Management, System Architect, Business Owners", "System team and shared services", "Program Increment cadence", "Develop on cadence, release on demand", "The ART backlog"],
+          "tools": ["Miro"],
+          "lab_task": "Design an Agile Release Train for a provided value stream: choose teams, roles, cadence and shared services, and draw the train.",
+          "deliverable": "ART design diagram",
+          "checks": [["Review team choices", "Teams organised around value", "ART design"], ["Review roles", "Each train role filled with responsibilities", "ART design"], ["Explain develop on cadence, release on demand", "Correct explanation", "Written answer"]],
+          "objectives": ["Explain Agile Release Trains", "Design a train", "Describe train roles"]
+        },
+        {
+          "topic": "Features, Enablers and the ART Backlog",
+          "subtopics": ["Features and benefit hypotheses", "Acceptance criteria for features", "Enablers: architectural, infrastructure, compliance, exploration", "Splitting features into stories", "Non-functional requirements", "The ART backlog", "Feature estimation", "Backlog refinement at train level"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Write ten features with benefit hypotheses and acceptance criteria and two enablers for a train, split three features into stories and estimate them.",
+          "deliverable": "ART backlog with features, enablers and stories",
+          "checks": [["Review the features", "Each has a benefit hypothesis and acceptance criteria", "Backlog"], ["Split features into stories", "Stories fit within an iteration", "Backlog"], ["Classify the enablers", "Correct type for each", "Backlog"]],
+          "objectives": ["Write features and enablers", "Split features", "Manage the ART backlog"]
+        },
+        {
+          "topic": "Prioritising with Cost of Delay and WSJF",
+          "subtopics": ["Cost of delay", "Components: business value, time criticality, risk reduction", "Job size", "Weighted shortest job first", "Relative estimation for WSJF", "Avoiding WSJF mistakes", "Prioritisation with Business Owners", "Updating priorities"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Prioritise the train's features with WSJF in a group session, compare the order with a value-only order and explain the difference to Business Owners.",
+          "deliverable": "WSJF table and explanation",
+          "checks": [["Calculate WSJF", "Scores correct", "WSJF table"], ["Compare with value-only order", "Differences explained by job size and delay", "Note"], ["Present to Business Owners", "Order accepted or changes recorded", "Role-play notes"]],
+          "objectives": ["Prioritise with WSJF", "Explain cost of delay", "Agree priorities"]
+        },
+        {
+          "topic": "Preparing for PI Planning",
+          "subtopics": ["Purpose of PI Planning", "Readiness: organisational, content, logistics", "Vision and roadmap briefings", "Top features", "Team capacity", "Agenda for two days", "Remote and hybrid PI Planning", "Common preparation gaps"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Prepare a PI Planning event: complete a readiness checklist, write the vision briefing, select top features and calculate each team's capacity for the PI.",
+          "deliverable": "Readiness checklist, briefing and capacity sheet",
+          "checks": [["Complete the readiness checklist", "All items done or with an owner", "Checklist"], ["Calculate capacity", "Holidays and overhead included", "Capacity sheet"], ["Review the briefing", "Vision, context and top features clear", "Briefing"]],
+          "objectives": ["Prepare PI Planning", "Calculate capacity", "Brief teams"]
+        },
+        {
+          "topic": "PI Planning Event: Team Breakouts and the Program Board",
+          "subtopics": ["Day one: business context and draft plans", "Team breakouts", "Program board", "Dependencies and milestones", "Management review and problem solving", "Day two: adjustments and final plans", "PI objectives with business value", "Risks and ROAMing"],
+          "tools": ["Miro", "Jira"],
+          "lab_task": "Run a simulated two-day PI Planning for three teams with breakouts, a program board, management review, PI objectives with business value and a ROAM board.",
+          "deliverable": "Team plans, program board, PI objectives and ROAM board",
+          "checks": [["Review the program board", "Dependencies shown with dates", "Program board"], ["Review PI objectives", "Business value assigned by Business Owners", "Objectives sheet"], ["ROAM the risks", "Every risk resolved, owned, accepted or mitigated", "ROAM board"]],
+          "objectives": ["Take part in PI Planning", "Manage dependencies", "Agree PI objectives"]
+        },
+        {
+          "topic": "Confidence Vote and Plan Rework",
+          "subtopics": ["The confidence vote", "Handling low confidence", "Planning rework", "Stretch objectives", "Commitment versus forecast", "Planning retrospective", "Communicating the plan", "After PI Planning"],
+          "tools": ["Miro"],
+          "lab_task": "Run a confidence vote after the simulated PI Planning, rework the plan for a low vote, define stretch objectives and run a short planning retrospective.",
+          "deliverable": "Vote results, reworked plan and retrospective notes",
+          "checks": [["Rework after a low vote", "Confidence rises in the second vote", "Vote results"], ["Define stretch objectives", "Separate from committed objectives", "Objectives sheet"], ["Run the planning retrospective", "Improvements for next PI recorded", "Retrospective notes"]],
+          "objectives": ["Run confidence votes", "Rework plans", "Separate commitments from stretch goals"]
+        },
+        {
+          "topic": "Executing the PI: Iterations, ART Sync and Coordination",
+          "subtopics": ["Iterations within the PI", "ART sync: coach sync and PO sync", "Managing dependencies during the PI", "Scrum of Scrums", "Tracking PI progress", "Handling changes in priorities", "Communities of practice", "Visual management for the train"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Run three simulated iterations with ART syncs, track PI objectives on a board and handle a dependency slip and a priority change.",
+          "deliverable": "ART sync notes and PI progress board",
+          "checks": [["Handle the dependency slip", "Impact assessed and plan adjusted", "Sync notes"], ["Track PI objectives", "Progress shown per objective", "Board"], ["Handle the priority change", "Business Owners agree the trade-off", "Sync notes"]],
+          "objectives": ["Execute a PI", "Coordinate teams", "Adapt to change"]
+        },
+        {
+          "topic": "The System Demo",
+          "subtopics": ["Purpose of the system demo", "Integrated increments", "The system team's role", "Who attends", "Running an effective demo", "Collecting feedback", "Demo anti-patterns", "Linking demos to PI objectives"],
+          "tools": ["Miro"],
+          "lab_task": "Run a system demo of an integrated increment from three teams in a role play, collect stakeholder feedback and link results to PI objectives.",
+          "deliverable": "Demo notes and feedback log",
+          "checks": [["Show an integrated increment", "Work from all teams shown working together", "Demo notes"], ["Collect feedback", "Feedback logged and linked to features", "Feedback log"], ["Avoid a slide show", "Working system demonstrated", "Observer notes"]],
+          "objectives": ["Run system demos", "Integrate team work", "Gather feedback"]
+        },
+        {
+          "topic": "Built-In Quality and DevOps in SAFe",
+          "subtopics": ["Built-in quality practices", "Shift left testing", "Continuous integration", "The Continuous Delivery Pipeline", "Continuous exploration, integration, deployment, release on demand", "DevOps culture", "Measuring the pipeline", "Release governance"],
+          "tools": ["Miro", "CI/CD pipeline demo"],
+          "lab_task": "Map a train's current delivery pipeline, find the biggest delays and plan built-in quality and DevOps improvements for the next PI.",
+          "deliverable": "Pipeline map and improvement plan",
+          "checks": [["Map the pipeline", "Steps and wait times shown", "Pipeline map"], ["Find the biggest delay", "Supported by the data", "Analysis"], ["Review the plan", "Improvements fit into the PI as enablers", "Plan"]],
+          "objectives": ["Explain built-in quality", "Map the Continuous Delivery Pipeline", "Plan DevOps improvements"]
+        },
+        {
+          "topic": "Inspect and Adapt Workshop",
+          "subtopics": ["Purpose of Inspect and Adapt", "PI system demo", "Quantitative and qualitative measurement", "Problem-solving workshop", "Root cause analysis with fishbone and five whys", "Improvement backlog items", "Feeding improvements into PI Planning", "Running I&A remotely"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Run an Inspect and Adapt workshop for the simulated PI: review metrics, run a problem-solving workshop with root cause analysis and create improvement backlog items.",
+          "deliverable": "Metrics review, root cause analysis and improvement items",
+          "checks": [["Review the PI metrics", "Planned versus actual business value shown", "Metrics sheet"], ["Run root cause analysis", "Root cause supported by evidence", "Fishbone diagram"], ["Create improvement items", "Each ready for the next PI Planning", "Backlog"]],
+          "objectives": ["Run Inspect and Adapt", "Solve problems at train level", "Feed improvements into planning"]
+        },
+        {
+          "topic": "SAFe Roles: Scrum Master/Team Coach and Product Owner",
+          "subtopics": ["SAFe Scrum Master/Team Coach responsibilities", "Facilitating team events", "Supporting PI Planning", "SAFe Product Owner responsibilities", "Working with Product Management", "Team backlog ownership", "Accepting stories", "Role anti-patterns in SAFe"],
+          "tools": ["Miro"],
+          "lab_task": "Work through ten scenarios for the Scrum Master/Team Coach and Product Owner, decide the right action for each and spot anti-patterns in a case train.",
+          "deliverable": "Scenario decisions and anti-pattern notes",
+          "checks": [["Decide the ten scenarios", "At least eight match the answer key", "Decision sheet"], ["Spot anti-patterns", "At least three found with reasons", "Notes"], ["Explain the PO and Product Management split", "Correct explanation", "Written answer"]],
+          "objectives": ["Explain team-level SAFe roles", "Act well in common scenarios", "Avoid role anti-patterns"]
+        },
+        {
+          "topic": "SAFe Roles: Release Train Engineer, Product Management and Business Owners",
+          "subtopics": ["Release Train Engineer responsibilities", "Product Management responsibilities", "System Architect responsibilities", "Business Owners", "Train-level decision-making", "Servant leadership at train level", "Working with portfolio roles", "Common train-level problems"],
+          "tools": ["Miro"],
+          "lab_task": "Role-play a week on the train as RTE, Product Management and a Business Owner, handling an escalation, a scope request and a release decision.",
+          "deliverable": "Role-play notes and decisions",
+          "checks": [["Handle the escalation", "Resolved or escalated correctly", "Notes"], ["Handle the scope request", "Decision based on WSJF and capacity", "Decision log"], ["Make the release decision", "Based on quality and business value", "Decision log"]],
+          "objectives": ["Explain train-level roles", "Make train-level decisions", "Work as servant leaders"]
+        },
+        {
+          "topic": "Lean-Agile Leadership",
+          "subtopics": ["Leading by example", "Mindset and principles", "Leading change", "Supporting autonomy", "Creating the environment for teams", "Leaders as teachers", "Leadership anti-patterns", "Leadership in SAFe implementations"],
+          "tools": ["Miro"],
+          "lab_task": "Assess a case organisation's leaders against lean-agile leadership behaviours and write a development plan for one leader with specific actions.",
+          "deliverable": "Leadership assessment and development plan",
+          "checks": [["Complete the assessment", "Behaviours rated with evidence", "Assessment"], ["Review the plan", "Specific actions and checkpoints", "Plan"], ["Identify an anti-pattern", "Named with its effect on teams", "Notes"]],
+          "objectives": ["Explain lean-agile leadership", "Assess leaders", "Plan leadership development"]
+        },
+        {
+          "topic": "Lean Portfolio Management: Epics, Budgets and Guardrails",
+          "subtopics": ["Portfolio vision and strategic themes", "Portfolio Kanban", "Epics and lean business cases", "Lean budgets and guardrails", "Participatory budgeting in brief", "Portfolio roles", "Portfolio sync", "Portfolio metrics"],
+          "tools": ["Jira Align or Jira", "Miro"],
+          "lab_task": "Take an epic through the portfolio Kanban with a lean business case, an MVP and a go or pivot decision, and check spending against guardrails.",
+          "deliverable": "Lean business case, portfolio Kanban and decision",
+          "checks": [["Review the lean business case", "MVP and leading indicators defined", "Business case"], ["Make the go or pivot decision", "Based on MVP results", "Decision note"], ["Check guardrails", "Spending within the guardrails", "Guardrail check"]],
+          "objectives": ["Explain lean portfolio management", "Use lean business cases", "Apply guardrails"]
+        },
+        {
+          "topic": "SAFe Measurement: Flow, Outcomes and Competency",
+          "subtopics": ["Measuring flow: velocity, time, load, efficiency, distribution, predictability", "Outcomes and value", "Competency assessments", "ART predictability measure", "Dashboards", "Using measures to improve", "Avoiding metric misuse", "Reporting to leaders"],
+          "tools": ["Excel", "Jira", "Power BI"],
+          "lab_task": "Calculate flow metrics and ART predictability for the simulated PI, build a train dashboard and present three improvement insights.",
+          "deliverable": "Metrics, dashboard and insights",
+          "checks": [["Calculate ART predictability", "Correct percentage", "Metrics sheet"], ["Build the dashboard", "Flow and outcome measures shown", "Dashboard"], ["Present insights", "Each insight linked to an action", "Presentation"]],
+          "objectives": ["Measure SAFe flow", "Calculate predictability", "Improve with data"]
+        },
+        {
+          "topic": "Certified SAFe Agilist Exam Preparation",
+          "subtopics": ["Exam format and topics", "Principles and core competencies", "PI Planning questions", "Lean portfolio questions", "Leadership questions", "Practice questions", "Time management", "Study plan"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take a timed practice exam for the SAFe Agilist certification, review every wrong answer and plan final study.",
+          "deliverable": "Practice score, review notes and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a SAFe article", "Review notes"], ["Review the study plan", "Weak topics covered", "Study plan"]],
+          "objectives": ["Prepare for the SAFe Agilist exam", "Review SAFe concepts", "Plan study"]
+        },
+        {
+          "topic": "Beginner Capstone: Simulated Program Increment",
+          "subtopics": ["PI Planning preparation", "Two-day PI Planning", "Iterations and ART syncs", "System demo", "Inspect and Adapt", "Presentation of results"],
+          "tools": ["Miro", "Jira", "Excel"],
+          "lab_task": "Run a full simulated PI for a three-team train from preparation and PI Planning through iterations, system demo and Inspect and Adapt, then present the results and improvements.",
+          "deliverable": "Program board, PI objectives, metrics, improvement items and a 10-minute presentation",
+          "checks": [["Show the program board", "Dependencies and milestones planned", "Program board"], ["Report predictability", "Planned versus actual business value", "Metrics sheet"], ["Present improvements", "Improvement items ready for the next PI", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one PI", "Work on an Agile Release Train", "Present results and lessons"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For SAFe Scrum Masters, Product Owners, Product Managers and new RTEs. Covers facilitating at train level, product management in SAFe, the Continuous Delivery Pipeline, release on demand, ART health, value stream identification, launching trains, large solutions, lean portfolio management in practice and role certifications.",
+      "prerequisites": ["Has taken part in at least one PI on an Agile Release Train", "Knows SAFe events, roles and artefacts", "Has worked as a Scrum Master, Product Owner or team member"],
+      "outcomes": ["Facilitate train-level events and coach teams in SAFe", "Manage features, roadmaps and releases as Product Owner or Product Manager", "Identify value streams and launch Agile Release Trains", "Run lean portfolio management and large solution coordination"],
+      "days": [
+        {
+          "topic": "Facilitating Train-Level Events",
+          "subtopics": ["Facilitating PI Planning breakouts", "Running coach sync and PO sync", "Facilitating management review", "System demo facilitation", "Inspect and Adapt facilitation", "Remote facilitation tools", "Handling conflict between teams", "Timeboxing large events"],
+          "tools": ["Miro", "Microsoft Teams"],
+          "lab_task": "Facilitate a management review during a simulated PI Planning where two teams disagree on scope, reach agreed adjustments and keep the event on schedule.",
+          "deliverable": "Facilitation plan and outcome notes",
+          "checks": [["Resolve the scope disagreement", "Adjustment agreed by both teams and Business Owners", "Outcome notes"], ["Keep to time", "Review ends within its time-box", "Timing log"], ["Collect feedback", "Participants rate the facilitation", "Feedback"]],
+          "objectives": ["Facilitate train-level events", "Resolve cross-team conflicts", "Keep large events on time"]
+        },
+        {
+          "topic": "Coaching Teams on the Train",
+          "subtopics": ["SAFe Scrum Master/Team Coach as coach", "Coaching for team performance", "Team health assessments", "Coaching for built-in quality", "Coaching Product Owners", "Communities of practice", "Coaching remote teams", "Measuring coaching impact"],
+          "tools": ["Team health check template", "Miro"],
+          "lab_task": "Run a team health assessment on three teams, choose coaching goals for each, hold one coaching session in a role play and define impact measures.",
+          "deliverable": "Health assessments, coaching goals and impact measures",
+          "checks": [["Run the health assessment", "Results for each team", "Assessment"], ["Hold the coaching session", "Team agrees an improvement", "Observer notes"], ["Define impact measures", "Measurable for each goal", "Measures"]],
+          "objectives": ["Coach teams in SAFe", "Assess team health", "Measure coaching impact"]
+        },
+        {
+          "topic": "Product Management in SAFe",
+          "subtopics": ["Product Management responsibilities", "Customer centricity and design thinking", "Market research and customer insights", "Product vision for the train", "Solution roadmap", "Feature definition with benefit hypotheses", "Working with Product Owners", "Economic decision-making"],
+          "tools": ["Miro", "Jira Align or Jira"],
+          "lab_task": "Define a product vision and a three-PI roadmap for a train based on customer research, write top features with benefit hypotheses and align them with Product Owners.",
+          "deliverable": "Vision, roadmap and feature set",
+          "checks": [["Review the roadmap", "Three PIs with themes and features", "Roadmap"], ["Review benefit hypotheses", "Measurable outcomes stated", "Features"], ["Align with Product Owners", "Agreement recorded", "Alignment notes"]],
+          "objectives": ["Act as Product Management in SAFe", "Build roadmaps", "Write strong features"]
+        },
+        {
+          "topic": "Design Thinking and Customer Centricity",
+          "subtopics": ["Customer-centric mindset", "Personas and empathy maps", "Journey maps", "Gemba for customers", "Prototyping", "Lean UX", "Measuring customer outcomes", "Feedback loops on the train"],
+          "tools": ["Miro", "Figma or paper prototypes"],
+          "lab_task": "Build personas and a journey map for the train's main customer, prototype a feature and test it with users, then update the feature's benefit hypothesis.",
+          "deliverable": "Personas, journey map, test results and updated feature",
+          "checks": [["Review the journey map", "Pain points identified", "Journey map"], ["Test the prototype", "Findings from at least three users", "Test notes"], ["Update the hypothesis", "Changes linked to findings", "Feature"]],
+          "objectives": ["Apply design thinking", "Understand customers", "Validate features"]
+        },
+        {
+          "topic": "Product Owner Practices in SAFe",
+          "subtopics": ["Team backlog ownership", "Story writing and acceptance", "Participating in PI Planning", "PO sync", "Balancing features, enablers and maintenance", "Working with Product Management", "Measuring value at team level", "Common PO challenges in SAFe"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Manage a team backlog through a simulated PI: refine and accept stories, balance features and enablers, take part in PO syncs and report value delivered.",
+          "deliverable": "Team backlog, PO sync notes and value report",
+          "checks": [["Review story acceptance", "Accepted stories meet acceptance criteria", "Acceptance log"], ["Review the balance", "Capacity allocation followed", "Backlog report"], ["Report value", "Business value delivered against PI objectives", "Value report"]],
+          "objectives": ["Own team backlogs in SAFe", "Balance work types", "Report value"]
+        },
+        {
+          "topic": "Release on Demand and the Continuous Delivery Pipeline",
+          "subtopics": ["Continuous exploration", "Continuous integration", "Continuous deployment", "Release on demand", "Separating deployment from release", "Feature toggles and dark launches", "DevOps health radar", "Measuring the pipeline"],
+          "tools": ["CI/CD pipeline demo", "Miro"],
+          "lab_task": "Run a DevOps health radar assessment for the train, design a release-on-demand approach with feature toggles and plan pipeline improvements as enablers.",
+          "deliverable": "Health radar, release approach and enabler plan",
+          "checks": [["Complete the health radar", "Scores for each pipeline aspect", "Radar"], ["Review the release approach", "Deployment and release separated", "Design"], ["Review the enablers", "Each sized and prioritised", "Backlog"]],
+          "objectives": ["Explain the Continuous Delivery Pipeline", "Release on demand", "Plan DevOps enablers"]
+        },
+        {
+          "topic": "Identifying Value Streams and Designing ARTs",
+          "subtopics": ["Operational value streams", "Development value streams", "Value stream identification workshop", "Defining ART boundaries", "Organising around value", "Team topologies on the train", "Handling shared services", "Validating the design"],
+          "tools": ["Miro", "Value stream workshop template"],
+          "lab_task": "Run a value stream identification workshop for a provided company, identify development value streams and define the boundaries and teams of two ARTs.",
+          "deliverable": "Value stream map and ART designs",
+          "checks": [["Review the operational value stream", "Steps from trigger to value", "Map"], ["Review development value streams", "Linked to operational streams", "Map"], ["Review ART designs", "Teams organised around value with fewer dependencies", "ART designs"]],
+          "objectives": ["Identify value streams", "Design ARTs", "Organise around value"]
+        },
+        {
+          "topic": "Launching an Agile Release Train",
+          "subtopics": ["The implementation roadmap", "Training teams and leaders", "Preparing the ART backlog", "First PI Planning", "Launch readiness", "Coaching the first PI", "Common launch problems", "Measuring launch success"],
+          "tools": ["Miro", "Implementation roadmap"],
+          "lab_task": "Plan the launch of a new ART: training schedule, readiness checklist, first PI Planning agenda and coaching plan for the first PI.",
+          "deliverable": "Launch plan",
+          "checks": [["Review the readiness checklist", "All items have owners", "Checklist"], ["Review the training schedule", "Every role trained before PI Planning", "Schedule"], ["Review the coaching plan", "Support planned for each event", "Plan"]],
+          "objectives": ["Plan an ART launch", "Prepare teams and leaders", "Coach the first PI"]
+        },
+        {
+          "topic": "ART Health and Continuous Improvement",
+          "subtopics": ["ART self-assessment", "Flow metrics for the train", "Predictability over several PIs", "Problem-solving workshops", "Improvement backlog", "Communities of practice", "Removing systemic impediments", "Reporting improvement"],
+          "tools": ["Excel", "Jira", "Miro"],
+          "lab_task": "Analyse three PIs of train data, run an ART self-assessment, identify the top systemic impediment and plan improvements for the next PI.",
+          "deliverable": "Analysis, self-assessment and improvement plan",
+          "checks": [["Analyse predictability over three PIs", "Trend shown", "Chart"], ["Complete the self-assessment", "Scores with evidence", "Assessment"], ["Review the improvement plan", "Top impediment addressed with measures", "Plan"]],
+          "objectives": ["Assess train health", "Find systemic impediments", "Improve continuously"]
+        },
+        {
+          "topic": "Managing Dependencies and Risks Across Trains",
+          "subtopics": ["Dependency types", "Reducing dependencies by design", "Dependency boards across ARTs", "Cross-ART coordination", "Risk management at train level", "ROAM in practice", "Escalation paths", "Measuring dependency impact"],
+          "tools": ["Miro", "Jira Align or Jira"],
+          "lab_task": "Map dependencies between two ARTs, reduce them by redesigning one team's scope, track the rest on a shared board and ROAM cross-train risks.",
+          "deliverable": "Dependency map, redesign and ROAM board",
+          "checks": [["Reduce dependencies", "Count reduced after the redesign", "Dependency map"], ["Track the remaining dependencies", "Each has an owner and date", "Board"], ["ROAM risks", "Every risk has a status", "ROAM board"]],
+          "objectives": ["Manage cross-train dependencies", "Reduce dependencies by design", "Manage train risks"]
+        },
+        {
+          "topic": "Roadmapping and Forecasting Across Program Increments",
+          "subtopics": ["Solution roadmaps over several PIs", "Committed and forecast PIs", "Forecasting with ART capacity and velocity", "Capacity allocation across features, enablers and maintenance", "Milestones: fixed date, learning and PI milestones", "Updating roadmaps after each PI", "Communicating forecast uncertainty", "Roadmap anti-patterns"],
+          "tools": ["Excel", "Jira Align or Jira", "Miro"],
+          "lab_task": "Build a four-PI roadmap from the ART backlog using historical capacity, set a capacity allocation, mark fixed-date milestones and update the forecast after a simulated PI.",
+          "deliverable": "Roadmap, capacity allocation and updated forecast",
+          "checks": [["Review the roadmap", "Next PI committed and later PIs shown as forecasts", "Roadmap"], ["Review capacity allocation", "Percentages agreed for each work type", "Allocation sheet"], ["Update after the PI", "Forecast adjusted to the actual capacity", "Updated roadmap"]],
+          "objectives": ["Build multi-PI roadmaps", "Forecast with capacity", "Communicate uncertainty"]
+        },
+        {
+          "topic": "Communities of Practice and the Innovation and Planning Iteration",
+          "subtopics": ["Communities of practice on the train", "Starting and sustaining a community", "The Innovation and Planning iteration", "Hackathons and innovation time", "Continuing education", "Infrastructure work in the IP iteration", "Measuring learning", "IP iteration anti-patterns"],
+          "tools": ["Miro", "Confluence"],
+          "lab_task": "Plan an Innovation and Planning iteration with a hackathon, learning sessions and PI Planning preparation, and launch a testing community of practice with a charter.",
+          "deliverable": "IP iteration plan and community charter",
+          "checks": [["Review the IP iteration plan", "Innovation, learning and planning all included", "Plan"], ["Review the community charter", "Purpose, members and meeting rhythm defined", "Charter"], ["Spot an anti-pattern", "IP iteration used as a buffer for late work is named and avoided", "Notes"]],
+          "objectives": ["Run communities of practice", "Use the IP iteration well", "Build a learning culture"]
+        },
+        {
+          "topic": "Large Solution SAFe",
+          "subtopics": ["When Large Solution is needed", "Solution trains", "Solution Management and Solution Architect", "Solution Train Engineer", "Capabilities", "Pre-Plan and Post-Plan", "Suppliers in the solution train", "Solution demo"],
+          "tools": ["Miro", "Jira Align or Jira"],
+          "lab_task": "Design a solution train of three ARTs and a supplier, write capabilities and split them into features, and run a simulated Pre-Plan.",
+          "deliverable": "Solution train design, capabilities and Pre-Plan outcome",
+          "checks": [["Review capabilities", "Each split into features across ARTs", "Backlog"], ["Run the Pre-Plan", "Top capabilities agreed for the next PI", "Pre-Plan notes"], ["Include the supplier", "Supplier role and cadence defined", "Design"]],
+          "objectives": ["Use Large Solution SAFe", "Coordinate several ARTs", "Work with suppliers"]
+        },
+        {
+          "topic": "Lean Portfolio Management in Practice",
+          "subtopics": ["Portfolio canvas", "Strategic themes in practice", "Portfolio Kanban operation", "Epic owners", "Lean budgets per value stream", "Participatory budgeting event", "Portfolio sync", "Measuring portfolio performance"],
+          "tools": ["Jira Align or Jira", "Excel"],
+          "lab_task": "Complete a portfolio canvas, run a participatory budgeting event across three value streams and hold a portfolio sync with epic progress.",
+          "deliverable": "Portfolio canvas, budget allocation and sync notes",
+          "checks": [["Review the portfolio canvas", "Current and future state described", "Canvas"], ["Run participatory budgeting", "Budget allocated with agreement", "Session notes"], ["Hold the portfolio sync", "Epic progress and decisions recorded", "Sync notes"]],
+          "objectives": ["Run lean portfolio management", "Allocate budgets participatively", "Track epics"]
+        },
+        {
+          "topic": "Agile Contracts and Supplier Collaboration in SAFe",
+          "subtopics": ["Supplier roles on the train", "Agile contract approaches in SAFe", "Pre-commitment and adaptive responses", "Suppliers in PI Planning", "Measuring supplier value", "Shared quality standards", "Escalation with suppliers", "Supplier anti-patterns"],
+          "tools": ["Contract templates", "Miro"],
+          "lab_task": "Rework a fixed-scope supplier contract into a SAFe-friendly agile contract and include the supplier in a simulated PI Planning.",
+          "deliverable": "Contract outline and PI Planning notes",
+          "checks": [["Review the contract", "PI-based commitments and adaptive scope included", "Contract outline"], ["Include the supplier", "Supplier plans and dependencies on the program board", "Program board"], ["Define supplier measures", "Value and quality measures defined", "Measures"]],
+          "objectives": ["Work with suppliers in SAFe", "Design agile contracts", "Include suppliers in planning"]
+        },
+        {
+          "topic": "Compliance, Architecture and Governance in SAFe",
+          "subtopics": ["Compliance as enablers", "Architectural runway", "Agile architecture", "Architectural decisions in PIs", "Regulatory traceability", "Lean quality management systems", "Audit readiness", "Governance without stage gates"],
+          "tools": ["Jira", "Confluence"],
+          "lab_task": "Plan the architectural runway and compliance enablers for a regulated train, set up traceability for a feature and prepare evidence for an audit.",
+          "deliverable": "Runway plan, traceability and audit evidence",
+          "checks": [["Review the runway plan", "Enablers ahead of the features that need them", "Plan"], ["Trace a feature", "Requirement to tests to release traced", "Traceability report"], ["Prepare audit evidence", "Evidence for each control", "Evidence pack"]],
+          "objectives": ["Handle compliance in SAFe", "Plan the architectural runway", "Prepare for audits"]
+        },
+        {
+          "topic": "Metrics and Reporting for Trains and Portfolios",
+          "subtopics": ["Flow metrics across trains", "Portfolio metrics", "OKRs in SAFe", "Measuring business agility", "Jira Align or tool dashboards", "Avoiding metric misuse", "Reporting to executives", "Linking metrics to improvement"],
+          "tools": ["Jira Align or Jira", "Power BI"],
+          "lab_task": "Build a dashboard for two trains and a portfolio with flow, predictability and OKR progress, and present it to a mock executive team with actions.",
+          "deliverable": "Dashboard and executive presentation",
+          "checks": [["Build the dashboard", "Shows flow, predictability and OKRs", "Dashboard"], ["Present to executives", "Actions linked to the data", "Presentation"], ["Identify misuse risk", "One risky metric and the safeguard named", "Notes"]],
+          "objectives": ["Measure trains and portfolios", "Use OKRs in SAFe", "Report to executives"]
+        },
+        {
+          "topic": "Remote and Hybrid SAFe",
+          "subtopics": ["Distributed trains", "Remote PI Planning", "Digital program boards", "Time zones and cadence", "Remote system demos", "Keeping engagement high", "Tools for distributed SAFe", "Measuring remote effectiveness"],
+          "tools": ["Miro", "Microsoft Teams", "Jira"],
+          "lab_task": "Plan a remote PI Planning for a train across three time zones with a digital program board and engagement techniques, and run a remote session.",
+          "deliverable": "Remote PI Planning plan and session results",
+          "checks": [["Review the agenda", "Works across the three time zones", "Agenda"], ["Use the digital program board", "Dependencies captured by all teams", "Board"], ["Measure engagement", "Participation recorded for each team", "Engagement log"]],
+          "objectives": ["Run remote SAFe events", "Use digital boards", "Keep distributed trains engaged"]
+        },
+        {
+          "topic": "Role Certification Preparation: SSM and POPM",
+          "subtopics": ["SAFe Scrum Master exam topics", "SAFe POPM exam topics", "Scenario questions", "Practice exams", "Common mistakes", "Time management", "Study plans", "Renewal"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take timed practice exams for SSM and POPM, review wrong answers and plan final study.",
+          "deliverable": "Practice scores, review notes and study plan",
+          "checks": [["Complete both practice exams", "Scores recorded", "Test results"], ["Review wrong answers", "Each linked to a SAFe article", "Review notes"], ["Review the study plan", "Weak areas covered", "Study plan"]],
+          "objectives": ["Prepare for SAFe role certifications", "Answer scenario questions", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Launch and Run an Agile Release Train",
+          "subtopics": ["Value stream identification and ART design", "Launch plan and readiness", "Product vision, roadmap and backlog", "PI Planning and execution", "Inspect and Adapt with metrics", "Presentation to leadership"],
+          "tools": ["Miro", "Jira Align or Jira", "Excel"],
+          "lab_task": "Identify a value stream, design and launch an ART in a simulation, build the vision, roadmap and backlog, run PI Planning and a PI, hold Inspect and Adapt and present results to leadership.",
+          "deliverable": "ART design, launch plan, program board, metrics and a 15-minute presentation",
+          "checks": [["Review the ART design", "Organised around a value stream", "Design"], ["Report predictability", "Calculated for the PI", "Metrics sheet"], ["Answer leadership questions", "Results and next steps defended", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one train launch", "Run a PI end to end", "Present results to leadership"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For RTEs, SAFe Practice Consultants, agile coaches and transformation leaders. Covers leading SAFe implementations, the implementation roadmap, executive coaching, portfolio and enterprise strategy, organisational agility, value stream management, SAFe for government and regulated sectors, AI-enabled business agility, measuring business outcomes and avoiding SAFe anti-patterns.",
+      "prerequisites": ["Has worked on an Agile Release Train for several PIs in a leading role", "Knows SAFe roles, events and portfolio practices well", "Has led change or coaching work"],
+      "outcomes": ["Lead SAFe implementations from strategy to sustained improvement", "Coach executives and design enterprise portfolios", "Measure business outcomes and avoid common SAFe failures", "Adapt SAFe to the organisation instead of copying it"],
+      "days": [
+        {
+          "topic": "Leading a SAFe Implementation: The Implementation Roadmap",
+          "subtopics": ["Reaching the tipping point", "Training lean-agile change agents", "Training executives and leaders", "Creating a Lean-Agile Center of Excellence", "Identifying value streams and ARTs", "Creating the implementation plan", "Preparing and launching ARTs", "Extending to the portfolio"],
+          "tools": ["SAFe Implementation Roadmap", "Miro"],
+          "lab_task": "Build an implementation plan for a 2,000-person organisation following the roadmap, with a Lean-Agile Center of Excellence, training waves and ART launch sequence.",
+          "deliverable": "Implementation plan and LACE charter",
+          "checks": [["Review the plan", "Every roadmap step has activities and dates", "Plan"], ["Review the LACE charter", "Purpose, members and responsibilities defined", "Charter"], ["Review the launch sequence", "Ordered by value and readiness", "Plan"]],
+          "objectives": ["Lead SAFe implementations", "Build a Lean-Agile Center of Excellence", "Sequence ART launches"]
+        },
+        {
+          "topic": "Tailoring SAFe to the Organisation",
+          "subtopics": ["SAFe as a framework, not a recipe", "Choosing what to adopt first", "Adapting events and roles", "Avoiding unnecessary layers", "Combining SAFe with existing processes", "Documenting tailoring decisions", "Reviewing tailoring over time", "Case studies of good and bad tailoring"],
+          "tools": ["Miro", "Decision log template"],
+          "lab_task": "Tailor SAFe for a mid-sized company with two value streams, decide which roles, events and artefacts to adopt or skip and justify each decision.",
+          "deliverable": "Tailoring decisions with reasons",
+          "checks": [["Review each decision", "Linked to a principle or a business need", "Decision log"], ["Count roles and events added", "No layer without a clear purpose", "Decision log"], ["Defend one decision", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Tailor SAFe", "Avoid unnecessary process", "Document tailoring"]
+        },
+        {
+          "topic": "Coaching Executives and Leadership Teams",
+          "subtopics": ["Executive concerns and language", "Building the case for change with executives", "Coaching leadership teams", "Strategy and portfolio conversations", "Leading by example in SAFe", "Handling executive resistance", "Executive roles in PI Planning", "Measuring leadership change"],
+          "tools": ["Role play scripts", "Miro"],
+          "lab_task": "Coach a mock executive team through a strategy-to-portfolio conversation, handle resistance from one executive and agree leadership commitments for the next PI.",
+          "deliverable": "Coaching notes and leadership commitments",
+          "checks": [["Handle the resistant executive", "Concern addressed and agreement reached", "Observer notes"], ["Agree leadership commitments", "Specific and measurable", "Commitments"], ["Link strategy to portfolio", "Strategic themes agreed", "Notes"]],
+          "objectives": ["Coach executives", "Handle resistance", "Align leadership with SAFe"]
+        },
+        {
+          "topic": "Enterprise Strategy and Portfolio Alignment",
+          "subtopics": ["Enterprise strategy formulation", "Strategic themes across portfolios", "Multiple portfolios", "Enterprise solution delivery", "OKRs from enterprise to team", "Funding across portfolios", "Strategic portfolio review", "Adapting strategy"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Translate an enterprise strategy into strategic themes and OKRs for two portfolios, align funding and run a strategic portfolio review with adjustments.",
+          "deliverable": "Themes, OKRs, funding plan and review record",
+          "checks": [["Review OKRs", "Linked from enterprise to portfolio level", "OKR sheet"], ["Review funding", "Matches strategic priorities", "Funding plan"], ["Run the review", "Adjustments made from evidence", "Review record"]],
+          "objectives": ["Align portfolios with strategy", "Use OKRs across levels", "Adapt strategy with evidence"]
+        },
+        {
+          "topic": "Value Stream Management and Flow Optimisation",
+          "subtopics": ["Value stream management", "Measuring flow end to end", "Flow time and flow efficiency", "Bottleneck analysis", "Value stream mapping workshops", "Improving flow across trains", "Tools for value stream management", "Sustaining flow improvement"],
+          "tools": ["Miro", "Value stream management tool or Excel"],
+          "lab_task": "Map a development value stream end to end, measure flow time and efficiency, find the bottleneck across trains and plan improvements with measures.",
+          "deliverable": "Value stream map, flow measures and improvement plan",
+          "checks": [["Measure flow efficiency", "Calculated from the map", "Map"], ["Find the bottleneck", "Supported by flow data", "Analysis"], ["Review the improvement plan", "Measures for each improvement", "Plan"]],
+          "objectives": ["Manage value streams", "Optimise flow across trains", "Measure improvements"]
+        },
+        {
+          "topic": "Organisational Agility and Operating Model Design",
+          "subtopics": ["Lean-thinking people and agile teams", "Strategy agility", "Dual operating system", "Business teams on ARTs", "HR and finance in SAFe", "Operating model design", "Governance changes", "Measuring organisational agility"],
+          "tools": ["Miro", "Operating model canvas"],
+          "lab_task": "Design the target operating model for a business unit adopting SAFe, including business teams on the train, HR and finance changes and governance.",
+          "deliverable": "Operating model design",
+          "checks": [["Review business team design", "Business teams included on the train", "Design"], ["Review HR and finance changes", "Performance and funding adapted", "Design"], ["Review governance", "Lighter governance with clear decision rights", "Design"]],
+          "objectives": ["Design operating models for agility", "Bring business teams into SAFe", "Change governance"]
+        },
+        {
+          "topic": "Measuring Business Outcomes in SAFe",
+          "subtopics": ["Outcomes versus outputs", "Measuring value delivered", "Customer and business metrics", "Competency assessments in practice", "Flow metrics at portfolio level", "Linking outcomes to investment", "Reporting to boards", "Learning from measures"],
+          "tools": ["Power BI", "Excel"],
+          "lab_task": "Build an outcome measurement framework for a portfolio with customer, business and flow measures, report a year of simulated results and recommend investment changes.",
+          "deliverable": "Measurement framework, report and recommendations",
+          "checks": [["Review the framework", "Outcomes linked to investments", "Framework"], ["Review the report", "Results against targets", "Report"], ["Review recommendations", "Investment changes linked to outcomes", "Recommendations"]],
+          "objectives": ["Measure business outcomes", "Link outcomes to investment", "Report to boards"]
+        },
+        {
+          "topic": "SAFe Anti-Patterns and Recovery",
+          "subtopics": ["Common anti-patterns: SAFe as a reporting layer, fake ARTs, PI as waterfall", "Overloaded PIs", "Ignoring Inspect and Adapt", "Missing Business Owners", "Metric gaming", "Diagnosing anti-patterns", "Recovery strategies", "Preventing relapse"],
+          "tools": ["Miro", "Case studies"],
+          "lab_task": "Diagnose anti-patterns in three troubled SAFe implementations, choose recovery strategies and write a reset plan for one.",
+          "deliverable": "Diagnoses, strategies and reset plan",
+          "checks": [["Diagnose each case", "Anti-patterns named with evidence", "Diagnosis sheet"], ["Choose strategies", "Each fits the root cause", "Strategy notes"], ["Review the reset plan", "Steps, owners and measures defined", "Reset plan"]],
+          "objectives": ["Recognise SAFe anti-patterns", "Recover troubled implementations", "Prevent relapse"]
+        },
+        {
+          "topic": "SAFe in Government and Regulated Industries",
+          "subtopics": ["SAFe for government", "Procurement and contracts in government", "Compliance and audit", "Security and accreditation", "Safety-critical systems", "Working with oversight bodies", "Budgeting in public sector", "Case studies"],
+          "tools": ["Miro", "Compliance templates"],
+          "lab_task": "Adapt SAFe for a government programme with fixed annual budgets and audit requirements, plan compliance enablers and design reporting for oversight bodies.",
+          "deliverable": "Adapted approach, compliance plan and oversight reports",
+          "checks": [["Review the budget approach", "Works with annual funding", "Design"], ["Review compliance enablers", "Each regulatory need covered", "Plan"], ["Review oversight reporting", "Meets the oversight body's needs", "Report templates"]],
+          "objectives": ["Apply SAFe in government", "Handle compliance", "Report to oversight bodies"]
+        },
+        {
+          "topic": "Architecture and Technical Strategy at Scale",
+          "subtopics": ["Enterprise architecture in SAFe", "Architectural runway across trains", "Platform teams", "Technical debt at portfolio level", "Architecture governance", "Modernising legacy systems in PIs", "Cloud and DevOps strategy", "Measuring technical health"],
+          "tools": ["Miro", "Architecture decision record template"],
+          "lab_task": "Plan a legacy modernisation across three trains with platform teams, architectural runway enablers and technical health measures, and record the main decisions.",
+          "deliverable": "Modernisation plan, enablers and decision records",
+          "checks": [["Review runway enablers", "Ahead of dependent features", "Plan"], ["Review platform team design", "Clear services for stream-aligned teams", "Design"], ["Review decision records", "Options and trade-offs recorded", "Decision records"]],
+          "objectives": ["Lead technical strategy at scale", "Plan modernisation", "Govern architecture lightly"]
+        },
+        {
+          "topic": "AI and Business Agility in SAFe",
+          "subtopics": ["AI in SAFe roles and events", "AI for backlog and feature work", "AI-assisted PI Planning preparation", "AI in metrics and forecasting", "AI products on Agile Release Trains", "Responsible AI governance", "Changing skills and roles", "Measuring AI effect on flow"],
+          "tools": ["Microsoft Copilot or ChatGPT", "Jira", "Miro"],
+          "lab_task": "Use AI to draft features and PI Planning briefings, check every output, design a responsible AI policy for the train and plan how to measure AI's effect on flow.",
+          "deliverable": "AI drafts with checks, AI policy and measurement plan",
+          "checks": [["Check AI-drafted features", "Errors found and fixed", "Check sheet"], ["Review the AI policy", "Data, checking and approval rules included", "Policy"], ["Review the measurement plan", "Baseline and measures defined", "Plan"]],
+          "objectives": ["Use AI in SAFe", "Govern AI use", "Measure AI's effect"]
+        },
+        {
+          "topic": "Business Agility Assessment and Maturity Roadmaps",
+          "subtopics": ["The seven core competencies assessment", "Running assessments with teams and leaders", "Interpreting results", "Prioritising competency growth", "Maturity roadmaps", "Linking growth to business outcomes", "Reassessing over time", "Avoiding assessment theatre"],
+          "tools": ["SAFe business agility assessment", "Excel", "Miro"],
+          "lab_task": "Run a business agility assessment with a case leadership team, prioritise two competencies, build a 12-month growth roadmap and set outcome measures for each.",
+          "deliverable": "Assessment results, roadmap and measures",
+          "checks": [["Run the assessment", "Scores for all seven competencies with evidence", "Assessment"], ["Prioritise competencies", "Choice linked to business goals", "Roadmap"], ["Set outcome measures", "Each competency goal has a measure", "Measures"]],
+          "objectives": ["Assess business agility", "Build maturity roadmaps", "Link growth to outcomes"]
+        },
+        {
+          "topic": "Innovation and Continuous Learning at Enterprise Scale",
+          "subtopics": ["Continuous learning culture", "Innovation accounting", "Lean startup in portfolios", "Innovation epics and MVPs", "Learning organisations", "Relentless improvement at scale", "Recognising and sharing learning", "Measuring innovation"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Design an innovation funnel for a portfolio with innovation epics, MVPs and innovation accounting, run one epic through it in a simulation and decide to pivot or persevere.",
+          "deliverable": "Innovation funnel, MVP results and decision",
+          "checks": [["Review the funnel", "Stages and exit criteria defined", "Funnel design"], ["Review innovation accounting", "Leading indicators set for the MVP", "Measures"], ["Decide pivot or persevere", "Decision based on MVP data", "Decision note"]],
+          "objectives": ["Build innovation into the portfolio", "Use innovation accounting", "Grow a learning culture"]
+        },
+        {
+          "topic": "Running Large PI Planning Events",
+          "subtopics": ["Planning events for hundreds of people", "Multi-ART PI Planning", "Logistics and roles", "Digital tooling at scale", "Pre-Plan and Post-Plan coordination", "Handling major conflicts", "Executive involvement", "Measuring event effectiveness"],
+          "tools": ["Miro", "Jira Align or Jira"],
+          "lab_task": "Plan a multi-ART PI Planning for 300 people across sites, run a simulated management review with a major conflict and measure event effectiveness.",
+          "deliverable": "Event plan, conflict resolution and effectiveness measures",
+          "checks": [["Review the event plan", "Roles, logistics and timings complete", "Plan"], ["Resolve the major conflict", "Decision agreed and recorded", "Notes"], ["Measure effectiveness", "Confidence and feedback recorded", "Measures"]],
+          "objectives": ["Run large planning events", "Coordinate several ARTs", "Resolve major conflicts"]
+        },
+        {
+          "topic": "Developing Change Agents and SPCs",
+          "subtopics": ["SPC role", "Building internal coaching capacity", "Train-the-trainer", "Communities of practice for SAFe", "Mentoring RTEs and coaches", "Certification paths", "Measuring coaching capacity", "Scaling the LACE"],
+          "tools": ["Miro", "Competency templates"],
+          "lab_task": "Design a programme to grow 20 internal change agents including SPCs, with training, mentoring, communities of practice and measures of capacity.",
+          "deliverable": "Change agent programme",
+          "checks": [["Review the programme", "Training, practice and mentoring included", "Programme design"], ["Review measures", "Capacity and quality measured", "Measures"], ["Review mentoring plan", "Mentors and frequency defined", "Plan"]],
+          "objectives": ["Grow internal change agents", "Build coaching capacity", "Scale the LACE"]
+        },
+        {
+          "topic": "Comparing SAFe with Other Approaches and Hybrid Scaling",
+          "subtopics": ["SAFe versus LeSS, Nexus and Scrum@Scale in depth", "Using parts of SAFe", "Moving away from SAFe", "Combining SAFe with Team Topologies", "Flight levels", "Choosing approaches by context", "Communicating framework choices", "Case studies"],
+          "tools": ["Miro", "Comparison template"],
+          "lab_task": "Evaluate whether a provided organisation should adopt full SAFe, parts of SAFe or another approach, and present the recommendation with evidence.",
+          "deliverable": "Evaluation and recommendation",
+          "checks": [["Review the evaluation", "Criteria applied to each option", "Evaluation"], ["Review the recommendation", "Fits the organisation's context", "Recommendation"], ["Defend the choice", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Compare scaling approaches", "Combine frameworks", "Recommend by context"]
+        },
+        {
+          "topic": "Financial Governance and Lean Budgeting at Scale",
+          "subtopics": ["Moving from project to value stream funding", "Capitalisation and accounting in agile", "Lean budget guardrails", "Forecasting value stream costs", "Working with finance teams", "Audit and control", "Measuring return on investment", "Transitioning budgets"],
+          "tools": ["Excel", "Finance templates"],
+          "lab_task": "Plan the move from project funding to value stream funding for a portfolio, including capitalisation rules, guardrails and a transition plan agreed with finance.",
+          "deliverable": "Funding model, capitalisation rules and transition plan",
+          "checks": [["Review the funding model", "Budgets assigned to value streams", "Model"], ["Review capitalisation rules", "Agreed with finance", "Rules"], ["Review the transition plan", "Steps and dates defined", "Plan"]],
+          "objectives": ["Fund value streams", "Handle agile accounting", "Work with finance"]
+        },
+        {
+          "topic": "Certification Preparation: SAFe RTE and SPC",
+          "subtopics": ["RTE exam topics", "SPC exam topics", "Implementation roadmap questions", "Scenario questions", "Practice exams", "Teaching SAFe courses as an SPC", "Study plans", "Renewal and community"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take timed practice exams for RTE and SPC, review wrong answers and plan final study and teaching practice.",
+          "deliverable": "Practice scores, review notes and plan",
+          "checks": [["Complete both practice exams", "Scores recorded", "Test results"], ["Review wrong answers", "Each linked to a SAFe article", "Review notes"], ["Review the plan", "Study and teaching practice dates set", "Plan"]],
+          "objectives": ["Prepare for RTE and SPC", "Answer implementation questions", "Plan study"]
+        },
+        {
+          "topic": "Troubleshooting Stalled SAFe Transformations",
+          "subtopics": ["Signs a transformation has stalled", "Leadership drift", "Trains that do not deliver", "Portfolio not changing", "Measuring the stall", "Re-energising the LACE", "Communicating a reset", "Lessons from stalled transformations"],
+          "tools": ["Miro", "Case studies"],
+          "lab_task": "Diagnose two stalled SAFe transformations from data and interviews, design reset plans and write a reset message for leaders.",
+          "deliverable": "Diagnoses, reset plans and reset message",
+          "checks": [["Diagnose each case", "Root causes backed by evidence", "Diagnosis sheet"], ["Review the reset plans", "Address root causes with measures", "Plans"], ["Review the reset message", "Clear, honest and specific", "Message"]],
+          "objectives": ["Diagnose stalled transformations", "Plan resets", "Communicate resets"]
+        },
+        {
+          "topic": "Advanced Capstone: SAFe Transformation Strategy for an Enterprise",
+          "subtopics": ["Assessment and value stream design", "Implementation roadmap and LACE", "Portfolio, funding and governance", "Leadership and change agents", "Measurement of business outcomes", "Executive presentation and defence"],
+          "tools": ["Miro", "Excel", "Power BI", "Jira Align or Jira"],
+          "lab_task": "Produce a SAFe transformation strategy for an enterprise with an assessment, value streams and ARTs, tailored roadmap, portfolio and funding model, leadership plan and outcome measures, then present it to a mock executive team.",
+          "deliverable": "Strategy document, roadmap, funding model and a 20-minute executive presentation",
+          "checks": [["Review tailoring decisions", "Each justified by need or principle", "Strategy document"], ["Review outcome measures", "Baselines and targets defined", "Measurement framework"], ["Answer executive questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one strategy", "Lead a SAFe transformation", "Defend the strategy to executives"]
+        }
+      ]
+    }
+  }
+}

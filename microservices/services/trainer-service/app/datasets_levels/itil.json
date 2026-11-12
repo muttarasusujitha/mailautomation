@@ -1,0 +1,573 @@
+{
+  "domain": "ITIL",
+  "name": "ITIL 4 and IT Service Management",
+  "category": "Project Management",
+  "icon": "life-buoy",
+  "aliases": ["ITIL 4", "ITIL Foundation", "ITIL v4", "ITIL Training", "IT Service Management", "ITSM", "ITSM Processes", "ITIL Practitioner", "Service Management"],
+  "certifications": ["ITIL 4 Foundation", "ITIL 4 Managing Professional (CDS, DSV, HVIT, DPI)", "ITIL 4 Strategic Leader (DITS, DPI)", "ITIL 4 Practice Manager"],
+  "tools": ["Jira Service Management or ServiceNow", "Excel", "Miro", "Confluence"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For IT staff, service desk analysts and team leads new to IT service management. Covers ITIL 4 key concepts, the four dimensions, the service value system, guiding principles, the service value chain and the most used practices, with hands-on work in a service management tool, ending with a service desk simulation and Foundation exam preparation.",
+      "prerequisites": ["Works in or with an IT team", "Basic understanding of IT services such as email, networks and applications", "Access to Jira Service Management or a ServiceNow developer instance"],
+      "outcomes": ["Explain ITIL 4 concepts, the service value system and guiding principles", "Handle incidents, requests, problems and changes in a service tool", "Describe the main ITIL practices and how they create value", "Prepare for the ITIL 4 Foundation exam"],
+      "days": [
+        {
+          "topic": "IT Service Management and ITIL 4 Overview",
+          "subtopics": ["What IT service management is", "History of ITIL and what changed in ITIL 4", "Services, products and value", "Service providers and consumers", "Outcomes, costs and risks", "Utility and warranty", "Service relationships", "ITIL and other frameworks: DevOps, Agile, Lean", "Setting up the service tool", "Course simulation overview"],
+          "tools": ["Jira Service Management or ServiceNow", "Miro"],
+          "lab_task": "Describe three IT services at a case company in terms of value, outcomes, costs, risks, utility and warranty, and set up the service project in the tool.",
+          "deliverable": "Service descriptions and configured service project",
+          "checks": [["Describe the email service", "Utility and warranty correctly separated", "Service description"], ["Configure the service project", "Request types and queues visible", "Screenshot"], ["Explain value co-creation", "Correct explanation with an example", "Written answer"]],
+          "objectives": ["Explain ITSM and ITIL 4", "Describe services in value terms", "Set up a service tool"]
+        },
+        {
+          "topic": "The Four Dimensions of Service Management",
+          "subtopics": ["Organisations and people", "Information and technology", "Partners and suppliers", "Value streams and processes", "External factors: PESTLE", "Balancing the dimensions", "Applying the dimensions to a service", "Common gaps"],
+          "tools": ["Miro"],
+          "lab_task": "Analyse a failed service launch using the four dimensions and PESTLE, list gaps in each dimension and propose fixes.",
+          "deliverable": "Four-dimension analysis and fixes",
+          "checks": [["Review the analysis", "Gaps found in all four dimensions", "Analysis"], ["Apply PESTLE", "At least one external factor per letter considered", "Analysis"], ["Review the fixes", "Each gap has a fix", "Fix list"]],
+          "objectives": ["Apply the four dimensions", "Consider external factors", "Find gaps in services"]
+        },
+        {
+          "topic": "The Service Value System and Guiding Principles",
+          "subtopics": ["The service value system", "Opportunity, demand and value", "Governance", "Continual improvement in the system", "The seven guiding principles", "Applying principles together", "Principles in decisions", "Practices in the system"],
+          "tools": ["Miro"],
+          "lab_task": "Map a case organisation's service value system and apply the seven guiding principles to five decisions it made, recommending better choices.",
+          "deliverable": "SVS map and decision analysis",
+          "checks": [["Map the SVS", "All components shown", "SVS map"], ["Analyse five decisions", "Each linked to at least one principle", "Analysis"], ["Explain \"focus on value\"", "Correct with an example", "Written answer"]],
+          "objectives": ["Explain the service value system", "Apply guiding principles", "Improve decisions"]
+        },
+        {
+          "topic": "The Service Value Chain and Value Streams",
+          "subtopics": ["The six value chain activities", "Plan", "Improve", "Engage", "Design and transition", "Obtain and build", "Deliver and support", "Value streams through the chain"],
+          "tools": ["Miro"],
+          "lab_task": "Map two value streams (a new laptop request and a major incident) through the value chain activities and identify where each practice contributes.",
+          "deliverable": "Two value stream maps",
+          "checks": [["Map the laptop request", "Every step linked to a value chain activity", "Map"], ["Map the major incident", "Practices shown at each step", "Map"], ["Find a delay in one stream", "Delay and cause identified", "Notes"]],
+          "objectives": ["Explain the service value chain", "Map value streams", "Link practices to activities"]
+        },
+        {
+          "topic": "Service Desk Practice",
+          "subtopics": ["Purpose of the service desk", "Channels: phone, email, chat, portal", "First contact resolution", "Empathy and communication", "Service desk tools", "Self-service portals", "Shift-left", "Measuring service desk performance"],
+          "tools": ["Jira Service Management or ServiceNow"],
+          "lab_task": "Set up a self-service portal with request types, handle 15 simulated contacts through different channels and measure first contact resolution.",
+          "deliverable": "Portal configuration, handled tickets and metrics",
+          "checks": [["Raise a request from the portal", "Ticket created in the right queue", "Screenshot"], ["Measure first contact resolution", "Percentage calculated", "Metrics sheet"], ["Handle an upset caller in a role play", "Issue logged and the caller reassured", "Observer notes"]],
+          "objectives": ["Run a service desk", "Use self-service", "Measure desk performance"]
+        },
+        {
+          "topic": "Incident Management",
+          "subtopics": ["What an incident is", "Logging and categorising", "Prioritisation with impact and urgency", "Escalation: functional and hierarchical", "Major incidents", "Communication during incidents", "Resolution and closure", "Incident metrics"],
+          "tools": ["Jira Service Management or ServiceNow"],
+          "lab_task": "Handle 20 simulated incidents including one major incident: prioritise them with a matrix, escalate, communicate, resolve and close, then report metrics.",
+          "deliverable": "Incident records, major incident report and metrics",
+          "checks": [["Prioritise the incidents", "Priorities match the matrix", "Incident list"], ["Run the major incident", "Updates sent at the agreed intervals", "Communication log"], ["Report metrics", "Mean time to resolve and SLA breaches shown", "Report"]],
+          "objectives": ["Manage incidents", "Prioritise correctly", "Handle major incidents"]
+        },
+        {
+          "topic": "Service Request Management",
+          "subtopics": ["Service requests versus incidents", "Request catalogue", "Standard requests and pre-approval", "Fulfilment workflows", "Automation of requests", "Request forms", "Measuring fulfilment", "User satisfaction"],
+          "tools": ["Jira Service Management or ServiceNow"],
+          "lab_task": "Build three request types with forms and approval workflows (new laptop, software access, password reset), automate one and measure fulfilment time.",
+          "deliverable": "Configured request types and metrics",
+          "checks": [["Submit a software access request", "Approval goes to the manager", "Workflow log"], ["Run the automated password reset", "Completed without an agent", "Workflow log"], ["Measure fulfilment time", "Average recorded per request type", "Metrics sheet"]],
+          "objectives": ["Manage service requests", "Build request workflows", "Automate fulfilment"]
+        },
+        {
+          "topic": "Problem Management",
+          "subtopics": ["Problems, known errors and workarounds", "Problem identification", "Problem control", "Error control", "Root cause analysis techniques", "Linking incidents and problems", "Known error database", "Proactive problem management"],
+          "tools": ["Jira Service Management or ServiceNow", "Miro"],
+          "lab_task": "Find a problem from a pattern of 30 incidents, run a root cause analysis with five whys and a fishbone, record a known error with a workaround and plan the permanent fix.",
+          "deliverable": "Problem record, root cause analysis and known error",
+          "checks": [["Link incidents to the problem", "All related incidents linked", "Problem record"], ["Run root cause analysis", "Root cause supported by evidence", "Fishbone diagram"], ["Record the known error", "Workaround documented and searchable", "Known error record"]],
+          "objectives": ["Manage problems", "Find root causes", "Maintain known errors"]
+        },
+        {
+          "topic": "Change Enablement",
+          "subtopics": ["Purpose of change enablement", "Standard, normal and emergency changes", "Change authority", "Change schedule", "Risk assessment for changes", "Change advisory approaches", "Post-implementation review", "Change metrics"],
+          "tools": ["Jira Service Management or ServiceNow"],
+          "lab_task": "Raise one standard, one normal and one emergency change, assess risk, get approval from the right change authority and run a post-implementation review.",
+          "deliverable": "Change records and review notes",
+          "checks": [["Raise the standard change", "Pre-approved and scheduled", "Change record"], ["Assess the normal change", "Risk score and approval recorded", "Change record"], ["Review the emergency change", "Review completed after the change", "Review notes"]],
+          "objectives": ["Enable changes safely", "Choose change types", "Assess change risk"]
+        },
+        {
+          "topic": "Service Level Management",
+          "subtopics": ["Service level agreements", "Operational level agreements and contracts", "Service level targets", "Customer engagement", "Service reviews", "Watermelon SLAs", "Experience level measures", "Reporting service levels"],
+          "tools": ["Jira Service Management or ServiceNow", "Excel"],
+          "lab_task": "Write an SLA for the email service with targets, configure SLA timers in the tool, run a month of simulated tickets and hold a service review with the customer.",
+          "deliverable": "SLA document, timer configuration and service review report",
+          "checks": [["Configure SLA timers", "Timers start and pause as designed", "Screenshot"], ["Report SLA performance", "Met and breached targets shown", "Report"], ["Run the service review", "Customer view captured beyond the numbers", "Review notes"]],
+          "objectives": ["Agree service levels", "Measure SLAs in tools", "Run service reviews"]
+        },
+        {
+          "topic": "Monitoring and Event Management",
+          "subtopics": ["Events, alerts and incidents", "Informational, warning and exception events", "Monitoring strategy", "Thresholds", "Event correlation", "Automating responses", "Integrating monitoring with the service tool", "Alert noise"],
+          "tools": ["Monitoring tool demo", "Jira Service Management or ServiceNow"],
+          "lab_task": "Classify 30 sample events, set thresholds for a web service, connect an alert to automatic incident creation and reduce noise by correlating related alerts.",
+          "deliverable": "Event classification, thresholds and integration evidence",
+          "checks": [["Classify the events", "Correct type for each", "Classification sheet"], ["Trigger the alert", "Incident created automatically", "Incident record"], ["Correlate related alerts", "Several alerts produce one incident", "Incident record"]],
+          "objectives": ["Manage events", "Set thresholds", "Reduce alert noise"]
+        },
+        {
+          "topic": "Information Security Management and Access Requests",
+          "subtopics": ["Confidentiality, integrity and availability", "Security policies", "Access management", "Security incidents", "Working with security teams", "Security in change enablement", "Awareness", "Measuring security management"],
+          "tools": ["Jira Service Management or ServiceNow"],
+          "lab_task": "Process access requests with approvals and least privilege, handle a phishing report as a security incident and add a security check to the change process.",
+          "deliverable": "Access request records, security incident and updated change workflow",
+          "checks": [["Process an access request", "Approved by the data owner with least privilege", "Request record"], ["Handle the phishing report", "Routed to security with the right priority", "Incident record"], ["Run a change with the security check", "Check completed before approval", "Change record"]],
+          "objectives": ["Support information security", "Manage access", "Handle security incidents"]
+        },
+        {
+          "topic": "IT Asset and Service Configuration Management",
+          "subtopics": ["IT assets and their life cycle", "Configuration items", "Configuration management database", "Relationships between CIs", "Discovery", "Using the CMDB for incidents and changes", "Software licences", "Data quality in the CMDB"],
+          "tools": ["Jira Service Management Assets or ServiceNow CMDB"],
+          "lab_task": "Model a web service in the CMDB with servers, databases and applications and their relationships, use it to find the impact of a planned change and check licence compliance.",
+          "deliverable": "CMDB model, impact analysis and licence report",
+          "checks": [["Run an impact analysis", "Affected services found through relationships", "Impact report"], ["Link an incident to a CI", "Incident shows the affected CI", "Incident record"], ["Check licences", "Over- or under-licensing found", "Licence report"]],
+          "objectives": ["Manage assets and configuration", "Use the CMDB", "Check licences"]
+        },
+        {
+          "topic": "Release and Deployment Management",
+          "subtopics": ["Releases versus deployments", "Release planning", "Deployment approaches: big bang, phased, canary", "Release schedules", "Rollback planning", "Working with DevOps teams", "Communicating releases", "Release metrics"],
+          "tools": ["Jira Service Management or ServiceNow", "Release calendar"],
+          "lab_task": "Plan a phased release of a new HR app with a deployment approach, rollback plan, communication and early life support.",
+          "deliverable": "Release plan and communication",
+          "checks": [["Review the rollback plan", "Steps and decision criteria clear", "Release plan"], ["Review the deployment approach", "Fits the risk", "Release plan"], ["Review communication", "Users informed before and after", "Communication plan"]],
+          "objectives": ["Plan releases", "Choose deployment approaches", "Plan rollbacks"]
+        },
+        {
+          "topic": "Knowledge Management",
+          "subtopics": ["Knowledge types", "Knowledge articles", "Knowledge-Centred Service", "Writing good articles", "Linking knowledge to tickets", "Self-service with knowledge", "Keeping knowledge current", "Measuring knowledge use"],
+          "tools": ["Confluence or ServiceNow Knowledge"],
+          "lab_task": "Write five knowledge articles from resolved tickets, link them to the portal, and measure how often users find answers without raising a ticket.",
+          "deliverable": "Articles and usage measures",
+          "checks": [["Review articles", "Follow the template and are easy to follow", "Articles"], ["Search the portal for a common issue", "Article found", "Screenshot"], ["Measure deflection", "Percentage of searches without a ticket", "Metrics"]],
+          "objectives": ["Manage knowledge", "Write useful articles", "Measure self-service"]
+        },
+        {
+          "topic": "Continual Improvement",
+          "subtopics": ["The continual improvement model", "Improvement register", "Baselines and targets", "Measuring improvement", "Improvement culture", "Small improvements versus projects", "Using data from practices", "Reviewing results"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Use the continual improvement model to improve first contact resolution: set a vision, baseline, target and actions, record it in the register and review simulated results.",
+          "deliverable": "Improvement register entry and review",
+          "checks": [["Set the baseline", "Measured from ticket data", "Register entry"], ["Define actions", "Specific and owned", "Register entry"], ["Review results", "Compared with the target", "Review notes"]],
+          "objectives": ["Apply the continual improvement model", "Keep an improvement register", "Measure improvement"]
+        },
+        {
+          "topic": "Relationship and Supplier Management",
+          "subtopics": ["Relationship management", "Business relationship managers", "Supplier management", "Supplier strategy", "Contracts and performance reviews", "Multi-supplier environments", "Supplier risks", "Measuring relationships"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Map the case company's key relationships and suppliers, set measures for one supplier, run a performance review and handle a dispute over an SLA breach.",
+          "deliverable": "Relationship map, supplier scorecard and review notes",
+          "checks": [["Build the scorecard", "Measures with targets", "Scorecard"], ["Run the review", "Actions agreed", "Review notes"], ["Handle the dispute", "Resolved with reference to the contract", "Notes"]],
+          "objectives": ["Manage relationships", "Manage suppliers", "Handle supplier disputes"]
+        },
+        {
+          "topic": "Measurement and Reporting in ITSM",
+          "subtopics": ["Metrics, KPIs and critical success factors", "Measuring practices", "Measuring value and outcomes", "Dashboards in the service tool", "Balanced reporting", "Avoiding misleading metrics", "Reporting to customers and leaders", "Using data to improve"],
+          "tools": ["Jira Service Management or ServiceNow", "Excel or Power BI"],
+          "lab_task": "Build a service management dashboard with incident, request, change and satisfaction measures and write a one-page monthly report for leaders.",
+          "deliverable": "Dashboard and monthly report",
+          "checks": [["Build the dashboard", "Each measure linked to a goal", "Dashboard"], ["Review the report", "Fits one page with trends and actions", "Report"], ["Spot a misleading metric", "Named with the reason", "Notes"]],
+          "objectives": ["Measure ITSM", "Build dashboards", "Report to leaders"]
+        },
+        {
+          "topic": "ITIL 4 Foundation Exam Preparation",
+          "subtopics": ["Exam format", "Key definitions", "Guiding principles questions", "Value chain and practices questions", "Practice exams", "Common traps", "Time management", "Study plan", "Reviewing a full mock exam", "Exam-day checklist"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take a 40-question timed practice exam, review every wrong answer against the syllabus and write a final study plan.",
+          "deliverable": "Practice score, review notes and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus area", "Review notes"], ["Review the study plan", "Weak areas covered", "Study plan"]],
+          "objectives": ["Prepare for ITIL 4 Foundation", "Learn key definitions", "Practise exam questions"]
+        },
+        {
+          "topic": "Beginner Capstone: Running a Service Desk for a Week",
+          "subtopics": ["Service tool set-up", "Incidents, requests and a major incident", "Problems and known errors", "Changes and releases", "Knowledge and reporting", "Presentation of results"],
+          "tools": ["Jira Service Management or ServiceNow", "Excel"],
+          "lab_task": "Run a simulated week of service management: handle incidents and requests, manage a major incident, raise a problem and a change, write knowledge articles and present a weekly service report.",
+          "deliverable": "Tool records, major incident report, weekly report and a 10-minute presentation",
+          "checks": [["Review incident priorities", "Match the priority matrix", "Incident list"], ["Review the major incident", "Communication and closure complete", "Report"], ["Present the weekly report", "Trends, issues and actions shown", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one week of service", "Use ITIL practices together", "Report service performance"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For service management practitioners and team leads. Covers the ITIL 4 practices in depth (service desk, incident, problem, change, service level, monitoring, request, asset and configuration, release, deployment), designing workflows in ServiceNow or Jira Service Management, availability, capacity and continuity, service financial management, and ITIL 4 Create, Deliver and Support and Drive Stakeholder Value content.",
+      "prerequisites": ["Holds ITIL 4 Foundation or equivalent knowledge", "Works in a service management role", "Has used a service management tool"],
+      "outcomes": ["Design and run ITIL practices with workflows and measures", "Configure service tools to support practices", "Manage availability, capacity, continuity and service costs", "Design customer journeys and value streams for services"],
+      "days": [
+        {
+          "topic": "Designing Value Streams for Services",
+          "subtopics": ["Value stream design steps", "Mapping a value stream", "Identifying waste", "Choosing practices for each step", "Automation opportunities", "Measuring value streams", "Value streams for new services", "Value streams for support"],
+          "tools": ["Miro", "Jira Service Management or ServiceNow"],
+          "lab_task": "Design the value stream for onboarding a new employee's IT, find waste, choose practices for each step and automate two steps in the tool.",
+          "deliverable": "Value stream design and automation evidence",
+          "checks": [["Map the value stream", "Steps, times and practices shown", "Map"], ["Remove waste", "At least two wastes removed", "Future-state map"], ["Automate two steps", "Automations run in the tool", "Workflow logs"]],
+          "objectives": ["Design service value streams", "Remove waste", "Automate steps"]
+        },
+        {
+          "topic": "Incident Management in Depth",
+          "subtopics": ["Incident models", "Swarming versus tiered support", "Major incident procedures", "Incident communication templates", "Incident reviews", "Customer experience during incidents", "Automation and AI in incident handling", "Advanced incident metrics"],
+          "tools": ["Jira Service Management or ServiceNow", "Status page tool"],
+          "lab_task": "Design a major incident procedure with roles, communication templates and a status page, run a swarming exercise and hold a blameless review.",
+          "deliverable": "Procedure, communications and review report",
+          "checks": [["Run the major incident exercise", "Roles followed and updates on time", "Exercise log"], ["Update the status page", "Customers see accurate updates", "Status page"], ["Hold the review", "Actions without blame", "Review report"]],
+          "objectives": ["Run major incidents", "Use swarming", "Hold blameless reviews"]
+        },
+        {
+          "topic": "Problem Management in Depth",
+          "subtopics": ["Problem identification from trends", "Kepner-Tregoe analysis", "Fault tree analysis", "Problem prioritisation", "Problem review boards", "Linking problems to changes", "Measuring problem management value", "Proactive problem management"],
+          "tools": ["Jira Service Management or ServiceNow", "Excel"],
+          "lab_task": "Analyse six months of incident data to find the top three problems, run Kepner-Tregoe analysis on one, raise the fixing change and estimate incidents avoided.",
+          "deliverable": "Trend analysis, problem records and value estimate",
+          "checks": [["Find the top problems", "Supported by incident counts", "Trend analysis"], ["Run Kepner-Tregoe", "Cause tested against the facts", "Analysis sheet"], ["Estimate value", "Incidents and hours avoided calculated", "Estimate"]],
+          "objectives": ["Find problems from data", "Use structured analysis", "Show problem management value"]
+        },
+        {
+          "topic": "Change Enablement in Depth",
+          "subtopics": ["Change models", "Risk-based approval", "Automating low-risk changes", "Change schedules and freezes", "Change success measures", "Change in DevOps pipelines", "Peer review as change authority", "Reducing change bureaucracy"],
+          "tools": ["Jira Service Management or ServiceNow", "CI/CD integration demo"],
+          "lab_task": "Redesign the change process so low-risk changes are approved automatically from the pipeline, normal changes use peer review and only high-risk changes go to a board.",
+          "deliverable": "Change models, automation and process document",
+          "checks": [["Run a low-risk pipeline change", "Approved automatically with a record", "Change record"], ["Run a high-risk change", "Routed to the change board", "Change record"], ["Measure lead time for changes", "Lower than before the redesign", "Metrics"]],
+          "objectives": ["Design change models", "Automate low-risk changes", "Reduce bureaucracy safely"]
+        },
+        {
+          "topic": "Service Level Management in Depth",
+          "subtopics": ["Designing SLAs with customers", "Experience-based measures", "Customer satisfaction surveys", "Service level reporting", "Service improvement plans", "SLAs for cloud and SaaS services", "Penalties and incentives", "SLA reviews"],
+          "tools": ["Excel", "Jira Service Management or ServiceNow"],
+          "lab_task": "Redesign SLAs for three services with experience measures and surveys, build a service report and create a service improvement plan for one breaching service.",
+          "deliverable": "SLAs, service report and improvement plan",
+          "checks": [["Review experience measures", "Each measures the user's view", "SLA document"], ["Build the service report", "Shows targets, results and trends", "Report"], ["Review the improvement plan", "Actions linked to the breaches", "Plan"]],
+          "objectives": ["Design better SLAs", "Measure experience", "Improve breaching services"]
+        },
+        {
+          "topic": "Service Request and Self-Service Design",
+          "subtopics": ["Service catalogue design", "Request models", "Automation and orchestration", "Virtual agents", "Self-service design", "Measuring adoption", "Request fulfilment for remote workers", "Continual improvement of the catalogue"],
+          "tools": ["Jira Service Management or ServiceNow", "Virtual agent"],
+          "lab_task": "Redesign the service catalogue around user needs, add a virtual agent for top requests, automate three fulfilment flows and measure self-service adoption.",
+          "deliverable": "Catalogue design, virtual agent and adoption metrics",
+          "checks": [["Ask the virtual agent for a password reset", "Request completed without an agent", "Chat log"], ["Run the automated flows", "All three complete end to end", "Workflow logs"], ["Measure adoption", "Self-service share calculated", "Metrics"]],
+          "objectives": ["Design service catalogues", "Use virtual agents", "Measure self-service"]
+        },
+        {
+          "topic": "Service Validation and Testing",
+          "subtopics": ["Purpose of service validation and testing", "Test strategy for services", "Service acceptance criteria", "Functional and non-functional testing", "User acceptance testing", "Operational acceptance", "Test environments and data", "Linking testing to change and release"],
+          "tools": ["Jira Service Management or ServiceNow", "Test management tool"],
+          "lab_task": "Write service acceptance criteria and a test plan for a new remote access service, run user and operational acceptance tests and decide whether it can go live.",
+          "deliverable": "Acceptance criteria, test plan, results and go-live decision",
+          "checks": [["Review acceptance criteria", "Cover function, performance, support and security", "Criteria"], ["Run operational acceptance", "Support team confirms runbooks and monitoring are ready", "Test results"], ["Make the go-live decision", "Based on the criteria and results", "Decision record"]],
+          "objectives": ["Validate new services", "Run acceptance testing", "Decide go-live with evidence"]
+        },
+        {
+          "topic": "Infrastructure and Platform Management",
+          "subtopics": ["Purpose of the practice", "Managing on-premise, cloud and hybrid infrastructure", "Platform services for product teams", "Infrastructure as code and ITSM", "Patching and lifecycle management", "Capacity and cost of platforms", "Infrastructure monitoring", "Supplier and cloud provider roles"],
+          "tools": ["Jira Service Management or ServiceNow", "Cloud console demo"],
+          "lab_task": "Build a monthly patching process with standard changes, maintenance windows and reporting for 200 servers, and define the platform services offered to product teams.",
+          "deliverable": "Patching process, change templates and platform service catalogue",
+          "checks": [["Raise the patching standard change", "Pre-approved and scheduled in a window", "Change record"], ["Report patch compliance", "Percentage of servers patched shown", "Report"], ["Review the platform catalogue", "Each service has an owner and request path", "Catalogue"]],
+          "objectives": ["Manage infrastructure as a practice", "Run patching safely", "Offer platform services"]
+        },
+        {
+          "topic": "Configuring ServiceNow or Jira Service Management for ITIL Practices",
+          "subtopics": ["Workflows and states", "Forms and fields", "Assignment rules", "SLA configuration", "Notifications", "Approval rules", "Reports and dashboards", "Keeping configuration maintainable"],
+          "tools": ["ServiceNow", "Jira Service Management"],
+          "lab_task": "Configure incident, request and change workflows with assignment rules, SLAs, notifications and approvals in the tool, and test each path.",
+          "deliverable": "Configured workflows and test results",
+          "checks": [["Test assignment rules", "Tickets reach the right group", "Test log"], ["Test notifications", "Right people notified at each step", "Notification log"], ["Test approvals", "Changes cannot proceed without approval", "Change record"]],
+          "objectives": ["Configure service tools", "Implement practices in workflows", "Test configurations"]
+        },
+        {
+          "topic": "Availability Management",
+          "subtopics": ["Availability concepts", "Measuring availability", "Mean time between failures and to restore", "Availability targets", "Designing for availability", "Single points of failure", "Availability reporting", "Improving availability"],
+          "tools": ["Excel", "Monitoring tool demo"],
+          "lab_task": "Calculate availability for three services from incident data, find single points of failure and plan improvements to meet a 99.9 percent target.",
+          "deliverable": "Availability report and improvement plan",
+          "checks": [["Calculate availability", "Correct percentages", "Report"], ["Find single points of failure", "Each named with the service affected", "Analysis"], ["Review the plan", "Improvements meet the target", "Plan"]],
+          "objectives": ["Measure availability", "Find single points of failure", "Plan availability improvements"]
+        },
+        {
+          "topic": "Capacity and Performance Management",
+          "subtopics": ["Capacity planning", "Business, service and component capacity", "Performance monitoring", "Forecasting demand", "Cloud capacity and autoscaling", "Capacity plans", "Cost and capacity trade-offs", "Performance incidents"],
+          "tools": ["Excel", "Monitoring tool demo"],
+          "lab_task": "Forecast capacity for a growing service from 12 months of usage, plan cloud capacity with autoscaling and estimate cost for two options.",
+          "deliverable": "Capacity forecast, plan and cost comparison",
+          "checks": [["Forecast demand", "Forecast with stated method", "Forecast"], ["Review the capacity plan", "Meets the forecast with headroom", "Plan"], ["Compare costs", "Both options costed", "Comparison"]],
+          "objectives": ["Plan capacity", "Forecast demand", "Balance cost and performance"]
+        },
+        {
+          "topic": "Service Continuity Management",
+          "subtopics": ["Business impact analysis", "Recovery time and point objectives", "Continuity strategies", "Disaster recovery plans", "Testing continuity", "Crisis communication", "Working with business continuity teams", "Lessons from tests"],
+          "tools": ["Excel", "Word"],
+          "lab_task": "Run a business impact analysis for five services, set recovery objectives, write a disaster recovery plan for one and run a tabletop test.",
+          "deliverable": "Business impact analysis, DR plan and test report",
+          "checks": [["Review recovery objectives", "Set from the impact analysis", "Analysis"], ["Run the tabletop test", "Gaps found and recorded", "Test report"], ["Review the DR plan", "Steps, roles and contacts complete", "Plan"]],
+          "objectives": ["Plan service continuity", "Set recovery objectives", "Test continuity plans"]
+        },
+        {
+          "topic": "Service Financial Management",
+          "subtopics": ["Budgeting for IT services", "Costing services", "Charging and showback", "Cost models", "Cloud costs", "Value for money", "Financial reporting", "Working with finance"],
+          "tools": ["Excel"],
+          "lab_task": "Build a cost model for the email service, calculate cost per user, design a showback report for business units and compare cloud and on-premise costs.",
+          "deliverable": "Cost model, showback report and comparison",
+          "checks": [["Calculate cost per user", "Includes direct and shared costs", "Cost model"], ["Build the showback report", "Costs by business unit", "Report"], ["Compare cloud and on-premise", "Both costed with assumptions", "Comparison"]],
+          "objectives": ["Cost IT services", "Report costs to the business", "Compare service options"]
+        },
+        {
+          "topic": "Deployment Management and Working with DevOps",
+          "subtopics": ["Deployment practices", "Continuous delivery", "Deployment automation", "Integrating the pipeline with the service tool", "Change records from pipelines", "Release notes automation", "Rollbacks", "ITIL and DevOps together"],
+          "tools": ["CI/CD tool demo", "Jira Service Management or ServiceNow"],
+          "lab_task": "Connect a deployment pipeline to the service tool so each deployment creates a change record and release notes, and run a rollback with the record updated.",
+          "deliverable": "Integration configuration and records",
+          "checks": [["Run a deployment", "Change record created automatically", "Change record"], ["Generate release notes", "Notes list the included items", "Release notes"], ["Run a rollback", "Change record updated with the outcome", "Change record"]],
+          "objectives": ["Integrate ITSM with DevOps", "Automate deployment records", "Handle rollbacks"]
+        },
+        {
+          "topic": "Customer Journeys and Experience (Drive Stakeholder Value)",
+          "subtopics": ["Customer journey stages", "Understanding stakeholder needs", "Personas for IT services", "Designing user experiences", "Onboarding and offboarding users", "Feedback and satisfaction", "Value co-creation in practice", "Measuring experience"],
+          "tools": ["Miro", "Survey tools"],
+          "lab_task": "Map the customer journey for a new employee using IT services, find pain points, redesign the onboarding experience and define experience measures.",
+          "deliverable": "Journey map, redesign and measures",
+          "checks": [["Map the journey", "Stages and touchpoints shown", "Journey map"], ["Redesign onboarding", "Pain points addressed", "Redesign"], ["Define measures", "Experience measures with targets", "Measures"]],
+          "objectives": ["Map customer journeys", "Improve user experience", "Measure experience"]
+        },
+        {
+          "topic": "Creating, Delivering and Supporting Services (CDS)",
+          "subtopics": ["Team culture and collaboration", "Value streams for new services", "Service design", "Integrating practices", "Prioritising work", "Shift-left in support", "Building and testing services", "Workforce and talent"],
+          "tools": ["Miro", "Jira Service Management or ServiceNow"],
+          "lab_task": "Design the value stream and team set-up to create and support a new collaboration service, prioritise the work and plan shift-left support.",
+          "deliverable": "Value stream design, team plan and support model",
+          "checks": [["Review the value stream", "Practices and teams placed at each step", "Design"], ["Review prioritisation", "Method stated and applied", "Backlog"], ["Review the support model", "Shift-left levels defined", "Support model"]],
+          "objectives": ["Create and support new services", "Organise teams", "Shift support left"]
+        },
+        {
+          "topic": "Enterprise Service Management Beyond IT",
+          "subtopics": ["ITSM for HR, facilities and finance", "Shared service portals", "Workflows for business services", "Knowledge for business teams", "Measuring business services", "Change in business teams", "Tooling across departments", "Common pitfalls"],
+          "tools": ["Jira Service Management or ServiceNow"],
+          "lab_task": "Extend the service portal to HR and facilities with request types, workflows and knowledge, and measure adoption after a simulated month.",
+          "deliverable": "Configured HR and facilities services and adoption report",
+          "checks": [["Raise an HR request", "Routed to HR with the right workflow", "Request record"], ["Search for a facilities article", "Article found", "Screenshot"], ["Report adoption", "Usage by department shown", "Report"]],
+          "objectives": ["Apply ITSM beyond IT", "Build business service portals", "Measure adoption"]
+        },
+        {
+          "topic": "AI and Automation in Service Management",
+          "subtopics": ["AI for ticket classification and routing", "Virtual agents and generative AI", "Predictive incident detection", "Automated knowledge suggestions", "Risks and governance", "Measuring AI value", "Changing roles for agents", "Selecting AI features"],
+          "tools": ["ServiceNow Now Assist or Jira Service Management AI", "Excel"],
+          "lab_task": "Turn on AI ticket classification and knowledge suggestions, compare routing accuracy with manual routing on 100 tickets and write rules for safe AI use.",
+          "deliverable": "Accuracy comparison and AI rules",
+          "checks": [["Compare routing accuracy", "Accuracy for AI and manual recorded", "Comparison"], ["Review knowledge suggestions", "Useful suggestions counted", "Review sheet"], ["Review AI rules", "Data, checking and escalation covered", "Rules"]],
+          "objectives": ["Use AI in ITSM", "Measure AI value", "Govern AI use"]
+        },
+        {
+          "topic": "ITIL Practitioner Exam Preparation: CDS and DSV",
+          "subtopics": ["Exam formats", "CDS key topics", "DSV key topics", "Scenario questions", "Practice exams", "Time management", "Study plan", "Assignments and case studies"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take timed practice exams for Create, Deliver and Support and Drive Stakeholder Value, review wrong answers and plan study.",
+          "deliverable": "Practice scores, review notes and study plan",
+          "checks": [["Complete both practice exams", "Scores recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus area", "Review notes"], ["Review the study plan", "Weak areas covered", "Study plan"]],
+          "objectives": ["Prepare for ITIL Managing Professional modules", "Answer scenario questions", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Service Management Redesign for a Business Unit",
+          "subtopics": ["Assessment of current practices", "Value streams and practices", "Tool configuration and automation", "Availability, capacity and continuity", "Measures and reporting", "Presentation to leadership"],
+          "tools": ["Jira Service Management or ServiceNow", "Excel", "Miro"],
+          "lab_task": "Assess a business unit's service management, redesign value streams and practices, configure workflows and automation, plan availability and continuity, and present a measured improvement plan.",
+          "deliverable": "Assessment, designs, tool configuration and a 15-minute presentation",
+          "checks": [["Review the assessment", "Strengths and gaps backed by data", "Assessment"], ["Test the configured workflows", "Incident, request and change paths work", "Test log"], ["Answer leadership questions", "Plan defended with measures", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one redesign", "Prove improvements with measures", "Present to leadership"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For IT service managers, heads of service and ITSM leaders. Covers ITIL 4 High-velocity IT, Direct Plan and Improve, Digital and IT Strategy, service strategy and portfolio management, governance, risk and compliance, SIAM for multi-vendor environments, ITSM with SRE and DevOps, AIOps, organisational change and leading service transformation.",
+      "prerequisites": ["Has led a service management team or practice", "Knows the ITIL 4 practices well", "Holds ITIL 4 Foundation and preferably a practitioner module"],
+      "outcomes": ["Set IT and service strategy aligned to the business", "Govern services, risk and suppliers including SIAM", "Lead high-velocity, SRE and AIOps ways of working", "Lead service management transformation"],
+      "days": [
+        {
+          "topic": "Digital and IT Strategy",
+          "subtopics": ["Digital transformation", "Business models and digital", "IT strategy development", "Strategic approaches", "Technology trends", "Digital positioning", "Strategy communication", "Measuring strategy"],
+          "tools": ["Miro", "Strategy templates"],
+          "lab_task": "Develop a digital and IT strategy for a case company with its market position, digital opportunities, strategic approach and measures, and present it to a mock board.",
+          "deliverable": "Strategy document and board presentation",
+          "checks": [["Review the strategy", "Linked to business goals", "Strategy document"], ["Review measures", "Measurable with targets", "Strategy document"], ["Answer board questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Set digital and IT strategy", "Link IT to business goals", "Communicate strategy"]
+        },
+        {
+          "topic": "Service Strategy and Portfolio Management",
+          "subtopics": ["Service portfolio: pipeline, catalogue, retired", "Investment decisions", "Service business cases", "Rationalising services", "Service life cycle", "Portfolio reviews", "Portfolio and product management", "Measuring portfolio value"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Review a portfolio of 40 IT services, rationalise it by value and cost, build a business case for a new service and run a portfolio review.",
+          "deliverable": "Portfolio analysis, business case and review record",
+          "checks": [["Rationalise services", "Each kept, merged or retired with a reason", "Analysis"], ["Review the business case", "Costs, benefits and risks covered", "Business case"], ["Run the portfolio review", "Decisions recorded", "Review record"]],
+          "objectives": ["Manage the service portfolio", "Make investment decisions", "Retire low-value services"]
+        },
+        {
+          "topic": "Direct, Plan and Improve",
+          "subtopics": ["Direction and planning", "Governance and decision-making", "Continual improvement at scale", "Communication and organisational change", "Measuring and reporting", "Risk and compliance in improvement", "Value streams for improvement", "Self-assessment"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Run a self-assessment of a service organisation, set direction and improvement goals, plan the change and define the reporting that will track it.",
+          "deliverable": "Self-assessment, improvement plan and reporting design",
+          "checks": [["Complete the self-assessment", "Scores backed by evidence", "Assessment"], ["Review the improvement plan", "Goals, actions and owners defined", "Plan"], ["Review reporting", "Measures linked to goals", "Reporting design"]],
+          "objectives": ["Direct and plan improvements", "Assess service organisations", "Track change"]
+        },
+        {
+          "topic": "Governance, Risk and Compliance in IT Services",
+          "subtopics": ["IT governance frameworks: COBIT and ITIL", "Risk management for services", "Controls and audits", "Regulatory requirements: ISO 20000, ISO 27001, SOX", "Policy management", "Compliance reporting", "Integrating GRC with ITSM tools", "Audit preparation"],
+          "tools": ["ServiceNow GRC or Excel", "COBIT reference"],
+          "lab_task": "Map service management controls to ISO 20000 and ISO 27001 requirements, find gaps, plan remediation and prepare an audit evidence pack.",
+          "deliverable": "Control mapping, gap list, remediation plan and evidence pack",
+          "checks": [["Map controls", "Each requirement mapped to a control", "Mapping"], ["Review gaps", "Each gap has an owner and date", "Gap list"], ["Review the evidence pack", "Evidence for each tested control", "Evidence pack"]],
+          "objectives": ["Govern IT services", "Manage service risk", "Prepare for audits"]
+        },
+        {
+          "topic": "Service Integration and Management (SIAM)",
+          "subtopics": ["Why SIAM", "SIAM layers: customer, integrator, providers", "SIAM models", "Cross-provider processes", "Governance boards", "Tooling in multi-vendor environments", "Contracts for SIAM", "Measuring end-to-end service"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Design a SIAM model for a company with five service providers, define cross-provider incident and change processes and set end-to-end measures.",
+          "deliverable": "SIAM design, processes and measures",
+          "checks": [["Review the model", "Roles of each layer clear", "SIAM design"], ["Run a cross-provider incident", "Hand-offs work without gaps", "Exercise log"], ["Review measures", "End-to-end, not per provider only", "Measures"]],
+          "objectives": ["Design SIAM models", "Run cross-provider processes", "Measure end-to-end service"]
+        },
+        {
+          "topic": "High-Velocity IT",
+          "subtopics": ["Digital products and fast delivery", "Ways of working: Agile, Lean, DevOps, SRE", "Psychological safety", "Value streams for high velocity", "Fast feedback", "Resilient operations", "Measuring velocity and quality", "HVIT practices"],
+          "tools": ["Miro", "DORA metrics data"],
+          "lab_task": "Assess an IT team's delivery against high-velocity behaviours and DORA metrics, choose improvements and plan how ITSM practices will support faster delivery.",
+          "deliverable": "Assessment, DORA metrics and improvement plan",
+          "checks": [["Calculate DORA metrics", "All four from the data", "Metrics sheet"], ["Review the assessment", "Behaviours rated with evidence", "Assessment"], ["Review the plan", "ITSM changes support speed", "Plan"]],
+          "objectives": ["Lead high-velocity IT", "Measure delivery", "Adapt ITSM for speed"]
+        },
+        {
+          "topic": "Site Reliability Engineering and ITSM",
+          "subtopics": ["SRE principles", "Service level indicators and objectives", "Error budgets", "Toil reduction", "Incident management in SRE", "Postmortems", "Combining SRE with ITIL practices", "SRE team models"],
+          "tools": ["Monitoring tool demo", "Excel"],
+          "lab_task": "Define SLIs, SLOs and an error budget for a customer-facing service, link them to SLAs and change policies, and run a postmortem for a simulated outage.",
+          "deliverable": "SLO definitions, error budget policy and postmortem",
+          "checks": [["Define SLIs and SLOs", "Measurable and user-focused", "SLO document"], ["Apply the error budget policy", "Changes paused when the budget is spent", "Policy and log"], ["Run the postmortem", "Causes and actions recorded without blame", "Postmortem"]],
+          "objectives": ["Apply SRE with ITIL", "Use error budgets", "Run postmortems"]
+        },
+        {
+          "topic": "AIOps and Intelligent Operations",
+          "subtopics": ["What AIOps does", "Event correlation with machine learning", "Anomaly detection", "Root cause suggestions", "Automated remediation", "Data needed for AIOps", "Evaluating AIOps tools", "Governance of automated actions"],
+          "tools": ["AIOps platform demo", "Excel"],
+          "lab_task": "Evaluate an AIOps approach on a month of event data: measure noise reduction from correlation, check anomaly detection against known incidents and design rules for automated remediation.",
+          "deliverable": "Evaluation report and automation rules",
+          "checks": [["Measure noise reduction", "Percentage of alerts reduced", "Report"], ["Compare detected anomalies with incidents", "Detection rate recorded", "Report"], ["Review automation rules", "Approval for risky actions", "Rules"]],
+          "objectives": ["Evaluate AIOps", "Reduce alert noise", "Govern automated remediation"]
+        },
+        {
+          "topic": "Organisational Change Management for Service Transformation",
+          "subtopics": ["Change management approaches", "Stakeholder mapping for service change", "Resistance in operations teams", "Communication plans", "Training and coaching", "Measuring adoption", "Sustaining new practices", "Leadership roles"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Plan the people side of moving a service desk to a swarming model: stakeholder map, resistance plan, communication, training and adoption measures.",
+          "deliverable": "Change management plan",
+          "checks": [["Review the stakeholder map", "Concerns of each group recorded", "Map"], ["Review the resistance plan", "Actions for each concern", "Plan"], ["Review adoption measures", "Measurable with targets", "Plan"]],
+          "objectives": ["Lead service change", "Handle resistance", "Measure adoption"]
+        },
+        {
+          "topic": "Workforce, Skills and Service Culture",
+          "subtopics": ["Skills frameworks: SFIA", "Workforce planning for service teams", "Career paths", "Service culture", "Psychological safety in operations", "Burnout and on-call health", "Recognition", "Measuring culture"],
+          "tools": ["SFIA framework", "Excel"],
+          "lab_task": "Build a skills matrix for a service team with SFIA, plan workforce needs for the next year, and design on-call practices that protect wellbeing.",
+          "deliverable": "Skills matrix, workforce plan and on-call design",
+          "checks": [["Review the skills matrix", "Gaps identified per role", "Skills matrix"], ["Review the workforce plan", "Hiring and training planned", "Plan"], ["Review on-call design", "Rota limits and recovery time included", "Design"]],
+          "objectives": ["Plan service workforce", "Develop skills", "Build a healthy service culture"]
+        },
+        {
+          "topic": "Service Experience and Experience Level Agreements",
+          "subtopics": ["Moving from SLAs to XLAs", "Measuring digital employee experience", "Experience data sources", "Sentiment analysis", "Designing XLAs", "Acting on experience data", "Reporting experience", "Experience and productivity"],
+          "tools": ["Survey tools", "Excel or Power BI"],
+          "lab_task": "Design an XLA for the laptop and collaboration services, measure baseline experience, act on the worst finding and report the change.",
+          "deliverable": "XLA, baseline, actions and report",
+          "checks": [["Review the XLA", "Experience measures with targets", "XLA"], ["Measure the baseline", "Data from at least two sources", "Baseline"], ["Report the change", "Before and after compared", "Report"]],
+          "objectives": ["Design experience level agreements", "Measure digital experience", "Act on experience data"]
+        },
+        {
+          "topic": "Cloud Service Management and FinOps",
+          "subtopics": ["Managing cloud services with ITIL", "Shared responsibility", "Cloud incident and change management", "Cloud cost management with FinOps", "Tagging and showback", "Cloud supplier management", "Cloud governance", "Measuring cloud services"],
+          "tools": ["Cloud cost tools", "Excel"],
+          "lab_task": "Design service management for a cloud-hosted service covering responsibilities, incidents with the provider, change, cost showback and governance.",
+          "deliverable": "Cloud service management design and cost report",
+          "checks": [["Review responsibilities", "Provider and customer duties clear", "Responsibility matrix"], ["Run a cloud provider incident", "Hand-off to the provider works", "Exercise log"], ["Build the cost report", "Costs shown by team and service", "Report"]],
+          "objectives": ["Manage cloud services", "Apply FinOps", "Govern cloud use"]
+        },
+        {
+          "topic": "ITSM Tool Strategy and Platform Selection",
+          "subtopics": ["Requirements for ITSM tools", "ServiceNow, Jira Service Management, BMC and others", "Evaluation criteria", "Proof of concept", "Total cost of ownership", "Migration between tools", "Platform governance", "Avoiding over-customisation"],
+          "tools": ["Excel", "Vendor documentation"],
+          "lab_task": "Run a tool selection for a 3,000-user company: write requirements, score three platforms, run a proof of concept on two criteria and recommend one with cost.",
+          "deliverable": "Requirements, scoring, PoC results and recommendation",
+          "checks": [["Score the platforms", "Weighted scores calculated", "Scoring sheet"], ["Run the proof of concept", "Results recorded for both criteria", "PoC report"], ["Review the recommendation", "Supported by scores and cost", "Recommendation"]],
+          "objectives": ["Select ITSM platforms", "Run proofs of concept", "Avoid over-customisation"]
+        },
+        {
+          "topic": "Innovation and Emerging Technology Management",
+          "subtopics": ["Purpose of emerging technology management", "Scanning technology trends", "Evaluating new technology", "Proofs of concept and pilots", "Managing technical debt from experiments", "Introducing new technology into services", "Risks of early adoption", "Measuring innovation value"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Run a technology radar exercise for the service organisation, evaluate one emerging technology with a pilot plan and decide whether to adopt, trial or hold.",
+          "deliverable": "Technology radar, pilot plan and decision",
+          "checks": [["Build the radar", "Each technology placed with a reason", "Radar"], ["Review the pilot plan", "Success criteria and exit rules defined", "Pilot plan"], ["Make the decision", "Adopt, trial or hold justified", "Decision record"]],
+          "objectives": ["Manage emerging technology", "Run technology pilots", "Decide adoption with evidence"]
+        },
+        {
+          "topic": "Measuring Value and Reporting to Executives",
+          "subtopics": ["Value measures for IT services", "Linking services to business outcomes", "Balanced scorecards for IT", "Benchmarking", "Executive dashboards", "Storytelling with data", "Funding cases from data", "Reporting cadence"],
+          "tools": ["Power BI or Excel"],
+          "lab_task": "Build an executive scorecard linking IT services to business outcomes, benchmark against industry data and present a funding case to a mock executive team.",
+          "deliverable": "Scorecard and executive presentation",
+          "checks": [["Review the scorecard", "Outcomes, not only activity", "Scorecard"], ["Use benchmarks", "Comparison with stated sources", "Scorecard"], ["Present the funding case", "Supported by the data", "Presentation"]],
+          "objectives": ["Measure IT value", "Report to executives", "Make funding cases"]
+        },
+        {
+          "topic": "Major Incident and Crisis Leadership",
+          "subtopics": ["Crisis versus major incident", "Incident command structures", "Executive communication in a crisis", "Regulatory notifications", "Media and customer communication", "Decision-making under pressure", "Recovery and return to normal", "Learning after a crisis"],
+          "tools": ["Communication templates", "Status page tool"],
+          "lab_task": "Lead a simulated multi-day outage with a regulator notification, executive briefings and customer updates, then run the post-crisis review.",
+          "deliverable": "Command log, communications and post-crisis review",
+          "checks": [["Send the regulator notification", "Sent within the required time with correct content", "Notification"], ["Brief executives", "Clear status, impact and decisions needed", "Briefing notes"], ["Run the post-crisis review", "Actions with owners", "Review report"]],
+          "objectives": ["Lead crises", "Communicate under pressure", "Learn from crises"]
+        },
+        {
+          "topic": "Service Transformation Roadmaps",
+          "subtopics": ["Assessing service maturity", "Target state design", "Roadmap waves", "Quick wins and long-term changes", "Funding the transformation", "Governance of the transformation", "Measuring progress", "Sustaining change"],
+          "tools": ["Miro", "Excel"],
+          "lab_task": "Assess a service organisation's maturity, design a target state and build a two-year transformation roadmap with funding, governance and measures.",
+          "deliverable": "Maturity assessment, target state and roadmap",
+          "checks": [["Review the maturity assessment", "Scores backed by evidence", "Assessment"], ["Review the roadmap", "Waves with measures and dependencies", "Roadmap"], ["Review funding", "Costs and benefits estimated", "Funding plan"]],
+          "objectives": ["Plan service transformation", "Design target states", "Govern transformation"]
+        },
+        {
+          "topic": "ITIL Strategic Leader Exam Preparation: DITS and DPI",
+          "subtopics": ["Exam formats", "DITS key topics", "DPI key topics", "Scenario questions", "Practice exams", "Time management", "Study plan", "Leadership case studies"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take timed practice exams for Digital and IT Strategy and Direct, Plan and Improve, review wrong answers and plan study.",
+          "deliverable": "Practice scores, review notes and study plan",
+          "checks": [["Complete both practice exams", "Scores recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus area", "Review notes"], ["Review the study plan", "Weak areas covered", "Study plan"]],
+          "objectives": ["Prepare for ITIL Strategic Leader modules", "Answer leadership scenarios", "Plan study"]
+        },
+        {
+          "topic": "Troubleshooting Failing Service Organisations",
+          "subtopics": ["Signs of a failing service organisation", "Ticket backlogs and SLA collapse", "Change failure spirals", "Supplier breakdowns", "Staff burnout and turnover", "Diagnosis from data", "Recovery plans", "Communicating recovery"],
+          "tools": ["Excel", "Jira Service Management or ServiceNow reports"],
+          "lab_task": "Diagnose a failing service organisation from tool data and interviews, build a 90-day recovery plan and present it to the CIO.",
+          "deliverable": "Diagnosis, recovery plan and presentation",
+          "checks": [["Diagnose the causes", "Supported by ticket and change data", "Diagnosis"], ["Review the recovery plan", "Quick wins and structural fixes with owners", "Plan"], ["Present to the CIO", "Plan defended with measures", "Presentation"]],
+          "objectives": ["Diagnose service failures", "Plan recovery", "Communicate to leaders"]
+        },
+        {
+          "topic": "Advanced Capstone: IT Service Strategy and Transformation Plan",
+          "subtopics": ["Digital and IT strategy", "Service portfolio and governance", "SIAM and supplier model", "High-velocity, SRE and AIOps practices", "Workforce and change plan", "Board presentation and defence"],
+          "tools": ["Miro", "Excel", "Power BI", "Jira Service Management or ServiceNow"],
+          "lab_task": "Produce a service strategy and transformation plan for a large organisation with strategy, portfolio decisions, governance and SIAM model, high-velocity and SRE practices, AIOps, workforce and change plans and measures, then present it to a mock board.",
+          "deliverable": "Strategy and transformation plan, scorecard and a 20-minute board presentation",
+          "checks": [["Review portfolio decisions", "Each linked to value and cost", "Portfolio analysis"], ["Review measures", "Baselines and targets for outcomes", "Scorecard"], ["Answer board questions", "Plan defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one plan", "Lead service transformation", "Defend the plan to a board"]
+        }
+      ]
+    }
+  }
+}
