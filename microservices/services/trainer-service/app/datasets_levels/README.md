@@ -33,6 +33,7 @@ When a request has no explicit `technology_allocations`, the TOC route reads the
 - A tool word listed inside another requested course is folded into it. "DevOps; AWS; Azure; Git; Docker" gives three technologies, and "Agentic AI with LangGraph" gives one.
 - Broad words ("cloud", "testing", "agile") count only in the stated scope. "Cloud" is dropped when AWS or Azure is named.
 - Prerequisites are not topics: "participants already know Python" does not add Python.
+- The bare word "SAP" is dropped when a specific SAP course is named: "SAP and S/4HANA" gives SAP S/4HANA, and "SAP BTP CAPM" gives SAP BTP. A module with no level course yet keeps the older SAP course, so "SAP SD and FICO" gives SAP (for SD) plus SAP FICO.
 - "Go" is also an everyday word, so on its own it counts only inside a technology list ("Go; Kubernetes", "Python, Go and Docker", "Advanced Go", "Go 5 days"). "Production go-live" and "go to market" do not add Go. "Golang" and "Go programming" always count.
 - Notes are read only for the original six programme technologies (DevOps, AWS, Azure, Kubernetes, Python, Agentic AI).
 - Days and levels written next to a technology are kept: "Python 5 days, AWS 3 days", "basic Python, advanced AWS". Remaining days are split by weight. A single level word such as "Advanced DevOps with AWS" applies to the whole programme instead.

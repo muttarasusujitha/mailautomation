@@ -1459,6 +1459,103 @@
           "Filter retrieval with metadata"
         ]
       }
+    },
+    {
+      "between": [
+        "SAP ABAP",
+        "SAP BTP"
+      ],
+      "day": {
+        "topic": "ABAP and BTP Together: Choosing On-Stack ABAP Cloud or Side-by-Side CAP",
+        "subtopics": [
+          "The clean core extension decision framework",
+          "On-stack developer extensibility with ABAP Cloud",
+          "Side-by-side extensions with CAP on BTP",
+          "Calling S/4HANA released APIs from both",
+          "RAP business events consumed on BTP",
+          "Shared identity and principal propagation",
+          "Transport and lifecycle differences",
+          "Cost and skills comparison"
+        ],
+        "tools": [
+          "ABAP Development Tools (Eclipse)",
+          "CAP (Node.js)",
+          "SAP Event Mesh",
+          "SAP BTP cockpit"
+        ],
+        "lab_task": "Build the same approval extension twice, as an on-stack RAP object and as a CAP app on BTP that consumes a RAP business event, and decide which to keep using the decision framework.",
+        "deliverable": "Two implementations, event flow evidence and a decision note",
+        "checks": [
+          [
+            "Approve in the RAP version",
+            "Business event is raised and consumed by the CAP app",
+            "Event logs"
+          ],
+          [
+            "Open the CAP app as a business user",
+            "User's identity reaches S/4HANA through principal propagation",
+            "Change log"
+          ],
+          [
+            "Write the decision note",
+            "Choice follows the framework with effort and cost compared",
+            "Decision note"
+          ]
+        ],
+        "objectives": [
+          "Compare on-stack and side-by-side extensions",
+          "Connect RAP and CAP through events",
+          "Choose an extension approach"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP S/4HANA",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "S/4HANA Finance End to End: From Logistics Postings to the Universal Journal",
+        "subtopics": [
+          "How purchasing, sales and production post to finance",
+          "Account determination across modules",
+          "The Universal Journal as the single source",
+          "Profit centre and segment derivation from logistics",
+          "Margin analysis from billing and settlement",
+          "Month-end tasks owned by logistics and finance",
+          "Reconciling logistics and finance reports",
+          "Common cross-module errors"
+        ],
+        "tools": [
+          "SAP S/4HANA training system",
+          "SAP GUI",
+          "Universal Journal reports"
+        ],
+        "lab_task": "Run a purchase, a production order and a sale end to end, trace every posting into ACDOCA with profit centre and margin characteristics, and reconcile stock and margin reports with finance.",
+        "deliverable": "Posting map, ACDOCA extracts and reconciliation sheet",
+        "checks": [
+          [
+            "Display the sale in ACDOCA",
+            "Revenue and cost of goods sold carry profit centre and segment",
+            "Data preview"
+          ],
+          [
+            "Reconcile the stock report with the inventory accounts",
+            "Values agree",
+            "Reconciliation sheet"
+          ],
+          [
+            "Reconcile margin analysis with the G/L",
+            "Contribution margin agrees with revenue less cost of sales",
+            "Reconciliation sheet"
+          ]
+        ],
+        "objectives": [
+          "Trace logistics postings into finance",
+          "Reconcile across modules",
+          "Explain the Universal Journal end to end"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -2249,6 +2346,150 @@
           "Combine Python engineering and generative AI",
           "Prove quality with tests",
           "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP ABAP",
+        "SAP BTP"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Clean-Core Extension with ABAP Cloud and SAP BTP",
+        "subtopics": [
+          "Requirements and extension decision",
+          "RAP business object with events",
+          "CAP side-by-side app on BTP",
+          "Security and principal propagation",
+          "Tests, ATC and deployment",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "ABAP Development Tools (Eclipse)",
+          "CAP (Node.js)",
+          "SAP Event Mesh",
+          "SAP Build Work Zone",
+          "ATC"
+        ],
+        "lab_task": "Build a supplier quality solution with a RAP object on S/4HANA that raises events, a CAP app on BTP that handles inspections and a Work Zone entry point, with ABAP Unit, cds.test and clean ATC results, then present it.",
+        "deliverable": "ABAP and BTP repositories, test reports, ATC result and a 15-minute demo",
+        "checks": [
+          [
+            "Record a failed inspection on BTP",
+            "S/4HANA quality status updates through a released API",
+            "Demo and S/4HANA document"
+          ],
+          [
+            "Run ATC with clean core rules",
+            "No unreleased object usage",
+            "ATC result"
+          ],
+          [
+            "Run ABAP Unit and cds.test",
+            "All tests pass",
+            "Test outputs"
+          ]
+        ],
+        "objectives": [
+          "Combine ABAP Cloud and BTP in one extension",
+          "Keep the core clean",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP S/4HANA",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: S/4HANA Order-to-Cash and Record-to-Report for a Model Company",
+        "subtopics": [
+          "Enterprise structure and finance settings",
+          "Master data for logistics and finance",
+          "Order to cash and procure to pay",
+          "Controlling and margin analysis",
+          "Period-end close",
+          "Presentation of results"
+        ],
+        "tools": [
+          "SAP S/4HANA training system",
+          "SAP GUI",
+          "SAP Fiori launchpad"
+        ],
+        "lab_task": "Run a month for a model company across logistics and finance: sales, purchasing, production, payments, cost allocations, margin analysis and a full close, then present the financial statements and margin by segment.",
+        "deliverable": "Document trail, closing checklist, finance pack and a 15-minute presentation",
+        "checks": [
+          [
+            "Trace one customer order to cash",
+            "Every logistics and finance document is linked",
+            "Document flow"
+          ],
+          [
+            "Close the period",
+            "Closing checklist complete with every document recorded",
+            "Checklist"
+          ],
+          [
+            "Present margin by segment",
+            "Reconciles to the financial statement",
+            "Reports"
+          ]
+        ],
+        "objectives": [
+          "Combine S/4HANA logistics and finance",
+          "Close the books for a business month",
+          "Present integrated results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP S/4HANA",
+        "SAP BTP",
+        "SAP ABAP",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: S/4HANA Programme with Finance, Extensions and BTP",
+        "subtopics": [
+          "Scope, landscape and clean core plan",
+          "Finance and logistics configuration prototype",
+          "ABAP Cloud and BTP extensions",
+          "Integration and events",
+          "Testing, migration and cutover plan",
+          "Steering committee presentation"
+        ],
+        "tools": [
+          "SAP S/4HANA training system",
+          "ABAP Development Tools (Eclipse)",
+          "SAP BTP",
+          "SAP Integration Suite",
+          "Migration Cockpit"
+        ],
+        "lab_task": "Deliver a programme prototype with configured finance and order to cash, one on-stack ABAP Cloud extension, one BTP extension connected by events, a migration mock load and a cutover plan, then present it to a steering committee.",
+        "deliverable": "Prototype, extension repositories, mock load reconciliation, cutover plan and a 15-minute presentation",
+        "checks": [
+          [
+            "Run order to cash in the prototype",
+            "Finance postings correct end to end",
+            "Demo and documents"
+          ],
+          [
+            "Trigger the BTP extension from an S/4HANA event",
+            "Extension runs and writes back through a released API",
+            "Event and change logs"
+          ],
+          [
+            "Reconcile the mock load",
+            "Counts and balances match",
+            "Reconciliation sheet"
+          ]
+        ],
+        "objectives": [
+          "Combine S/4HANA, finance, ABAP and BTP",
+          "Plan a programme with a working prototype",
+          "Defend decisions to a steering committee"
         ]
       }
     }

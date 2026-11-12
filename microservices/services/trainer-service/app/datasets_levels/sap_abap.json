@@ -1,0 +1,573 @@
+{
+  "domain": "SAP ABAP",
+  "name": "SAP ABAP",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "code",
+  "aliases": ["ABAP", "ABAP Programming", "ABAP Development", "SAP ABAP on HANA", "ABAP on HANA", "ABAP RAP", "RAP Programming", "ABAP Cloud", "S/4HANA ABAP", "SAP ABAP Developer"],
+  "certifications": ["SAP Certified Associate - Back-End Developer - ABAP Cloud (C_ABAPD)", "SAP Certified Development Associate - ABAP with SAP NetWeaver", "SAP Certified Associate - SAP Fiori Application Developer"],
+  "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI", "SAP S/4HANA or BTP ABAP environment trial", "abapGit"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new SAP developers with some programming background. Covers the ABAP language, data types, internal tables, database access with ABAP SQL, modularisation, object-oriented ABAP, the data dictionary, classic reports and ALV, debugging and transports, ending with a working report application.",
+      "prerequisites": ["Knows basic programming ideas such as variables, loops and functions", "Basic SQL helps but is not required", "Access to an ABAP system or the BTP ABAP environment trial"],
+      "outcomes": ["Write, activate and debug ABAP programs and classes", "Read and change database data with ABAP SQL safely", "Build reports with selection screens and ALV output", "Move developments through the landscape with transports"],
+      "days": [
+        {
+          "topic": "ABAP Setup, Development Tools and First Program",
+          "subtopics": ["What ABAP is used for in SAP systems", "Classic ABAP versus ABAP Cloud", "Installing ABAP Development Tools in Eclipse", "Connecting to a system and creating a package", "Creating a class with the console runner", "The SAP GUI editor SE38 and SE80", "Syntax check, activation and running", "Transport requests in brief", "Pretty printer and formatting", "Reading the ABAP keyword documentation"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI"],
+          "lab_task": "Install ADT, connect to the training system, create a package and a class that prints a formatted receipt to the console, and write the same as a classic report in SE38.",
+          "deliverable": "Package, class, report and console output",
+          "checks": [["Run the class with F9 in ADT", "Receipt appears in the console", "Console output"], ["Introduce a syntax error and activate", "Activation fails with the line and message", "Problems view"], ["Run the classic report", "Same receipt is shown", "Screenshot"]],
+          "objectives": ["Set up ABAP development", "Create and activate programs", "Use ABAP help"]
+        },
+        {
+          "topic": "Data Types, Variables and Expressions",
+          "subtopics": ["Elementary types: i, p, decfloat34, c, string, d, t", "Inline declarations with DATA(...)", "Constants", "Type conversion rules", "String templates and functions", "Arithmetic and rounding", "Date and time calculations", "Structures", "Type definitions with TYPES", "Debugging variable values"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Write a payroll calculator class that computes gross and net pay with packed numbers, formats results with string templates and calculates the days until the next pay date.",
+          "deliverable": "Class source and console output for three employees",
+          "checks": [["Calculate 10 percent tax on 12345.67", "Result rounded to two decimals correctly", "Console output"], ["Compute days to the next pay date", "Correct number of days", "Console output"], ["Assign a string with letters to a numeric field", "Participant explains the conversion error", "Written explanation"]],
+          "objectives": ["Use ABAP data types", "Write expressions and string templates", "Handle dates and rounding"]
+        },
+        {
+          "topic": "Control Structures and Conditions",
+          "subtopics": ["IF, ELSEIF and ELSE", "CASE", "COND and SWITCH expressions", "DO and WHILE loops", "EXIT, CONTINUE and CHECK", "Logical expressions", "Predicate functions", "Readable conditional code"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Write a shipping cost class that applies rules by country, weight and customer group using COND and SWITCH, and print costs for a table of ten test cases.",
+          "deliverable": "Class source and results for ten test cases",
+          "checks": [["Run the ten test cases", "All costs match the rule table", "Console output"], ["Pass an unknown country", "Returns a clear error message", "Console output"], ["Rewrite a nested IF as COND", "Same result with fewer lines", "Source diff"]],
+          "objectives": ["Write decision logic in ABAP", "Use COND and SWITCH", "Loop with control statements"]
+        },
+        {
+          "topic": "Internal Tables: Standard, Sorted and Hashed",
+          "subtopics": ["Declaring internal tables", "Standard, sorted and hashed tables", "APPEND, INSERT and VALUE", "LOOP AT with WHERE", "READ TABLE and table expressions", "MODIFY and DELETE", "SORT and DELETE ADJACENT DUPLICATES", "Choosing the right table type"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Load 10,000 sales lines into standard, sorted and hashed tables, compare lookup times by key, and produce totals per customer without duplicates.",
+          "deliverable": "Program source and a timing comparison",
+          "checks": [["Look up 10,000 keys in each table type", "Hashed is fastest, standard is slowest", "Timing output"], ["Read a key that does not exist with a table expression", "CX_SY_ITAB_LINE_NOT_FOUND is caught", "Console output"], ["Total per customer", "Matches the answer sheet", "Console output"]],
+          "objectives": ["Use internal tables", "Choose table types by access pattern", "Process table data"]
+        },
+        {
+          "topic": "ABAP Dictionary: Tables, Data Elements and Domains",
+          "subtopics": ["Domains and data elements", "Transparent tables", "Keys and technical settings", "Foreign keys and check tables", "Search helps", "Structures and table types", "Views in the dictionary", "Activating and adjusting tables"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI SE11"],
+          "lab_task": "Create a custom table for training courses with domains, data elements, a foreign key to a check table and a search help, then fill it with test data.",
+          "deliverable": "Dictionary objects and the filled table",
+          "checks": [["Enter a course with an invalid category", "Foreign key check rejects it", "Error message"], ["Use the search help", "Lists valid categories", "Screenshot"], ["Add a field and activate", "Table is adjusted and existing data kept", "Table contents"]],
+          "objectives": ["Create dictionary objects", "Enforce data rules", "Change tables safely"]
+        },
+        {
+          "topic": "Reading Data with ABAP SQL",
+          "subtopics": ["SELECT single and multiple rows", "INTO and inline declarations", "WHERE, ORDER BY and UP TO", "Joins", "Aggregates and GROUP BY", "FOR ALL ENTRIES and its risks", "SQL expressions in ABAP SQL", "sy-subrc and sy-dbcnt"],
+          "tools": ["ABAP Development Tools (Eclipse)", "Data Preview"],
+          "lab_task": "Write ABAP SQL to list flights with carrier names, total bookings per connection and the five busiest routes, using joins and aggregates instead of loops.",
+          "deliverable": "Class with queries and results",
+          "checks": [["List the five busiest routes", "Matches the answer sheet", "Console output"], ["Select a key that does not exist", "sy-subrc is 4 and handled", "Console output"], ["Replace a nested SELECT in a loop with a join", "Same result and faster", "Timing output"]],
+          "objectives": ["Read data with ABAP SQL", "Use joins and aggregates", "Avoid database access in loops"]
+        },
+        {
+          "topic": "Changing Data: INSERT, UPDATE, MODIFY and DELETE",
+          "subtopics": ["INSERT from structures and tables", "UPDATE with SET", "MODIFY for insert or update", "DELETE with WHERE", "Commit and rollback", "The logical unit of work", "Lock objects and enqueue", "Checking results with sy-subrc"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI SE11"],
+          "lab_task": "Write a booking class that locks a flight, checks free seats, inserts a booking and updates the seat count in one logical unit of work, rolling back on failure.",
+          "deliverable": "Class source and test results",
+          "checks": [["Book the last seat from two sessions", "Second session is stopped by the lock", "Console output"], ["Fail after the insert", "Rollback leaves no booking", "Table contents"], ["Delete bookings older than a date", "Correct count deleted", "sy-dbcnt output"]],
+          "objectives": ["Change database data safely", "Use locks", "Commit and roll back"]
+        },
+        {
+          "topic": "Modularisation: Methods, Function Modules and Includes",
+          "subtopics": ["Why modularise", "Methods with importing, exporting and returning", "Function groups and function modules", "Remote-enabled function modules", "Includes and their drawbacks", "Parameters by value and reference", "Optional and default parameters", "Reusable code organisation"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI SE37"],
+          "lab_task": "Refactor the booking logic into small methods, wrap one in a function module, call it remotely from another system and compare the approaches.",
+          "deliverable": "Refactored class, function module and RFC call result",
+          "checks": [["Call the function module from SE37 test", "Returns the expected booking", "Screenshot"], ["Call it as RFC from another client", "Same result", "Console output"], ["Count method lengths", "No method longer than 30 lines", "Source review"]],
+          "objectives": ["Structure ABAP code", "Use methods and function modules", "Call functions remotely"]
+        },
+        {
+          "topic": "Object-Oriented ABAP: Classes and Objects",
+          "subtopics": ["Classes and instances", "Attributes and methods", "Visibility sections", "Constructors", "Static and instance components", "Object references", "Local and global classes", "Friendship in brief"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Model customers, accounts and transactions as classes with constructors that validate input and methods that update balances, and run a test scenario.",
+          "deliverable": "Global classes and scenario output",
+          "checks": [["Create an account with a negative opening balance", "Constructor raises an exception", "Console output"], ["Access a private attribute from outside", "Syntax error", "Problems view"], ["Run the test scenario", "Balances match the expected values", "Console output"]],
+          "objectives": ["Write classes in ABAP", "Use visibility and constructors", "Model a domain with objects"]
+        },
+        {
+          "topic": "Inheritance, Interfaces and Polymorphism",
+          "subtopics": ["Inheritance with INHERITING FROM", "Redefinition and super calls", "Abstract and final classes", "Interfaces", "Polymorphic method calls", "Casting", "Composition over inheritance", "Design for change"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Build a payroll class hierarchy with salaried and hourly employees and an interface for payable items, and process all of them in one loop.",
+          "deliverable": "Classes, interface and output",
+          "checks": [["Process one of each employee type", "Each pay amount follows its rule", "Console output"], ["Add a new payable type", "No change to the processing loop", "Source diff"], ["Downcast to the wrong class", "CX_SY_MOVE_CAST_ERROR is caught", "Console output"]],
+          "objectives": ["Use inheritance and interfaces", "Apply polymorphism", "Design extensible code"]
+        },
+        {
+          "topic": "Exception Handling with Class-Based Exceptions",
+          "subtopics": ["Exception classes", "TRY, CATCH and CLEANUP", "Static and dynamic checks", "RAISING in method signatures", "Creating custom exception classes", "Messages and texts", "Re-raising and chaining exceptions", "Classic exceptions in old code"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Add a custom exception class to the booking class for full flights, raise it with message text, catch it in the caller and chain a database exception as the previous one.",
+          "deliverable": "Exception class, updated code and output",
+          "checks": [["Book a full flight", "Custom exception is raised with the flight number in the text", "Console output"], ["Catch the chained exception", "Previous exception is available", "Debugger screenshot"], ["Leave an exception undeclared", "Syntax check warns", "Problems view"]],
+          "objectives": ["Handle errors with exception classes", "Write custom exceptions", "Chain exceptions"]
+        },
+        {
+          "topic": "Classic Reports: Selection Screens and Events",
+          "subtopics": ["PARAMETERS and SELECT-OPTIONS", "Selection screen checks", "Report events: INITIALIZATION, AT SELECTION-SCREEN, START-OF-SELECTION", "Variants", "Text elements and translations", "Messages to users", "Background execution", "Report output"],
+          "tools": ["SAP GUI", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Write a report that lists sales orders by date range and customer with input checks, a saved variant and messages, and run it in the background.",
+          "deliverable": "Report source, variant and background job output",
+          "checks": [["Enter an end date before the start date", "Error message on the selection screen", "Screenshot"], ["Run with the saved variant", "Same selections are filled", "Screenshot"], ["Run in the background", "Spool output contains the list", "Spool screenshot"]],
+          "objectives": ["Build classic reports", "Validate selection input", "Run reports in the background"]
+        },
+        {
+          "topic": "ALV Output with SALV",
+          "subtopics": ["The SALV object model", "Displaying an internal table", "Columns, headings and sorting", "Totals and subtotals", "Toolbar functions", "Hotspots and events", "Layouts saved by users", "Exporting to Excel"],
+          "tools": ["SAP GUI", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Show the sales order report in SALV with totals per customer, a hotspot that opens the order, user layouts and export to Excel.",
+          "deliverable": "Report with ALV output and exported file",
+          "checks": [["Click an order number", "Order display opens", "Screenshot"], ["Check the totals", "Totals per customer correct", "Screenshot"], ["Save and load a layout", "Same columns and sort appear", "Screenshot"]],
+          "objectives": ["Present data in ALV", "Add interactivity", "Let users save layouts"]
+        },
+        {
+          "topic": "Debugging and Runtime Analysis",
+          "subtopics": ["The ABAP debugger in ADT and SAP GUI", "Breakpoints and watchpoints", "Stepping and changing values", "Debugging background jobs", "Short dumps in ST22", "SQL trace with ST05", "Runtime analysis with SAT", "Checkpoints and logging"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI ST22", "ST05", "SAT"],
+          "lab_task": "Find and fix five planted bugs in a provided report using breakpoints and watchpoints, analyse one short dump in ST22 and find a slow query with ST05.",
+          "deliverable": "Bug log, fixes and trace evidence",
+          "checks": [["Set a watchpoint on a variable", "Debugger stops when the value changes", "Screenshot"], ["Read the short dump", "Cause and line identified", "Incident note"], ["Find the slow query in ST05", "Statement identified with its time", "Trace screenshot"]],
+          "objectives": ["Debug ABAP programs", "Read short dumps", "Find slow statements"]
+        },
+        {
+          "topic": "Function Modules and BAPIs for Business Data",
+          "subtopics": ["What BAPIs are", "Finding BAPIs with BAPI explorer", "Calling BAPIs to create documents", "RETURN tables and error handling", "BAPI_TRANSACTION_COMMIT", "Test sequences in SE37", "Released APIs in S/4HANA", "When to use APIs instead of BAPIs"],
+          "tools": ["SAP GUI SE37", "BAPI explorer", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Create sales orders from a file using BAPI_SALESORDER_CREATEFROMDAT2, commit them, collect messages from the RETURN table and report failures.",
+          "deliverable": "Program source and results log",
+          "checks": [["Load a valid file", "Sales orders created and committed", "Document numbers"], ["Include a line with a bad material", "Error from RETURN is reported and the order is not created", "Results log"], ["Skip the commit", "Explain why no orders are saved", "Written explanation"]],
+          "objectives": ["Use BAPIs", "Handle BAPI messages", "Commit correctly"]
+        },
+        {
+          "topic": "Working with Files and Background Jobs",
+          "subtopics": ["Reading and writing application server files", "Uploading and downloading local files", "CSV parsing", "Logging with the application log", "Scheduling jobs with SM36", "Job steps and variants", "Monitoring with SM37", "Error handling in jobs"],
+          "tools": ["SAP GUI SM36", "SM37", "SLG1"],
+          "lab_task": "Build a job that reads a CSV from the application server, validates rows, posts valid ones through a BAPI, writes errors to the application log and runs nightly.",
+          "deliverable": "Program, job definition and application log",
+          "checks": [["Run the job with a file containing bad rows", "Good rows posted and errors in SLG1", "Application log"], ["Check SM37 after the run", "Job finished with the log attached", "Screenshot"], ["Point it to a missing file", "Job ends with a clear error", "Job log"]],
+          "objectives": ["Process files in ABAP", "Schedule background jobs", "Log results"]
+        },
+        {
+          "topic": "Forms and Output: Smart Forms and Adobe Forms",
+          "subtopics": ["Output options in SAP", "Smart Forms overview", "Adobe Forms interface and context", "Form layout", "Calling a form from ABAP", "Print preview and PDF", "Email output", "Output management in S/4HANA"],
+          "tools": ["SAP GUI SMARTFORMS", "SFP", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Create an Adobe form for a course certificate, fill it from a custom table in ABAP, preview it and email it as a PDF.",
+          "deliverable": "Form, calling program and sample PDF",
+          "checks": [["Preview the form", "Participant data appears in the layout", "Screenshot"], ["Email the PDF", "Email received with the attachment", "Email"], ["Run for a participant without a name", "Program reports the missing data", "Message"]],
+          "objectives": ["Build forms", "Call forms from ABAP", "Send PDF output"]
+        },
+        {
+          "topic": "Transports, Packages and Code Quality",
+          "subtopics": ["Packages and software components", "Transport requests and tasks", "Releasing and importing", "Version history and comparison", "Code Inspector and ATC basics", "Naming conventions", "Clean ABAP guidelines", "Code reviews"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI SE09", "ATC"],
+          "lab_task": "Run ATC on the course code, fix the findings, compare two versions of a class, and release a transport to the quality system.",
+          "deliverable": "ATC results before and after, version comparison and transport log",
+          "checks": [["Run ATC", "Findings listed by priority", "ATC result"], ["Rerun after fixes", "No priority 1 or 2 findings", "ATC result"], ["Import the transport", "Objects arrive in quality", "Transport log"]],
+          "objectives": ["Manage transports", "Check code quality", "Follow clean ABAP"]
+        },
+        {
+          "topic": "First ABAP CDS Views",
+          "subtopics": ["What CDS views are", "Defining a view entity", "Associations", "Annotations", "Parameters", "Using CDS views in ABAP SQL", "Data preview", "CDS versus classic dictionary views"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Create CDS view entities for flights with associations to carriers and bookings, add annotations and read them from an ABAP class.",
+          "deliverable": "CDS views and class output",
+          "checks": [["Preview the CDS view", "Rows with carrier names shown", "Data preview"], ["Follow the association in a query", "Bookings returned for a flight", "Console output"], ["Add a parameter for a date", "Only flights from that date are returned", "Data preview"]],
+          "objectives": ["Create CDS views", "Use associations", "Read CDS views in ABAP"]
+        },
+        {
+          "topic": "Beginner Capstone: Course Booking Report Application",
+          "subtopics": ["Requirements and dictionary design", "Classes for business logic", "Database changes with locks", "Selection screen and ALV report", "Background job and logs", "Demo"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI", "ATC"],
+          "lab_task": "Build a course booking application with custom tables, classes for booking rules and exceptions, locking, an ALV report with selection screen, a nightly job that sends reminders and clean ATC results, then demo it.",
+          "deliverable": "Package, transport, ATC result and a 10-minute demo",
+          "checks": [["Book a full course", "Custom exception message shown", "Demo"], ["Run the ALV report", "Bookings with totals by course", "Screenshot"], ["Run ATC on the package", "No priority 1 or 2 findings", "ATC result"]],
+          "objectives": ["Combine the beginner topics in one application", "Apply clean code and transports", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For ABAP developers who write classic reports and classes. Covers modern ABAP syntax, ABAP on HANA with CDS and AMDP, the RESTful ABAP Programming Model, OData services and Fiori elements, enhancements, ABAP Unit, integration with RFC and IDocs, and performance.",
+      "prerequisites": ["Writes ABAP classes, reports and ABAP SQL", "Knows the data dictionary and debugging", "Has used transports in a project"],
+      "outcomes": ["Write modern ABAP and push logic to SAP HANA", "Build transactional Fiori apps with RAP", "Extend standard SAP safely with enhancements and BAdIs", "Test, integrate and tune ABAP applications"],
+      "days": [
+        {
+          "topic": "Modern ABAP: Constructor Expressions and Table Comprehensions",
+          "subtopics": ["VALUE, CORRESPONDING and NEW", "CONV, CAST and EXACT", "REDUCE", "FILTER", "FOR loops in expressions", "LET expressions", "Table expressions with defaults", "Readability of compact code"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Rewrite a provided 300-line classic report into modern ABAP using constructor expressions, REDUCE, FILTER and FOR, keeping identical output.",
+          "deliverable": "Rewritten code and output comparison",
+          "checks": [["Compare old and new output", "Identical", "Output comparison"], ["Compute a total with REDUCE", "Matches the loop result", "Console output"], ["Count lines before and after", "New version is shorter", "Line count"]],
+          "objectives": ["Write modern ABAP", "Use expressions for table processing", "Keep code readable"]
+        },
+        {
+          "topic": "ABAP SQL on HANA: Expressions, Window Functions and CTEs",
+          "subtopics": ["SQL expressions and functions in ABAP SQL", "CASE in SQL", "Common table expressions with WITH", "Window functions", "String and date functions", "Subqueries", "Code pushdown principles", "Comparing pushdown with loops"],
+          "tools": ["ABAP Development Tools (Eclipse)", "ST05"],
+          "lab_task": "Replace loop-based processing in a sales analysis report with ABAP SQL using CASE, window functions and CTEs, and measure the runtime gain.",
+          "deliverable": "Rewritten queries and timing comparison",
+          "checks": [["Rank customers by revenue with a window function", "Ranks match the answer sheet", "Console output"], ["Compare runtimes", "SQL version at least five times faster", "Timing output"], ["Check the SQL trace", "One database call instead of many", "ST05 trace"]],
+          "objectives": ["Push logic to the database", "Use advanced ABAP SQL", "Measure pushdown gains"]
+        },
+        {
+          "topic": "Advanced CDS Views: Hierarchies, Annotations and Access Control",
+          "subtopics": ["View entities and projections", "Calculated fields and CASE", "Aggregations", "Hierarchies", "UI and analytical annotations", "Access control with DCL", "Virtual elements", "The virtual data model"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Build a CDS stack for sales analytics with a basic, composite and consumption view, an access control that limits users to their sales organisation and analytical annotations.",
+          "deliverable": "CDS views, access control and test results",
+          "checks": [["Preview as a user for one sales organisation", "Only that organisation's rows", "Data preview"], ["Remove the access control", "All rows appear, confirming the rule worked", "Data preview"], ["Open the analytical query", "Measures and dimensions work", "Screenshot"]],
+          "objectives": ["Build layered CDS models", "Secure CDS data", "Prepare data for analytics"]
+        },
+        {
+          "topic": "ABAP Managed Database Procedures (AMDP)",
+          "subtopics": ["When CDS is not enough", "AMDP classes and methods", "SQLScript basics", "Table functions", "Using AMDP in CDS table functions", "Debugging AMDP", "Performance considerations", "Portability concerns"],
+          "tools": ["ABAP Development Tools (Eclipse)", "AMDP debugger"],
+          "lab_task": "Write an AMDP that calculates customer lifetime value with SQLScript, expose it as a CDS table function and compare its runtime with an ABAP implementation.",
+          "deliverable": "AMDP class, table function and timing comparison",
+          "checks": [["Call the table function", "Results match the ABAP version", "Console output"], ["Debug the AMDP", "Stops in SQLScript", "Debugger screenshot"], ["Compare runtimes", "AMDP faster on the full data set", "Timing output"]],
+          "objectives": ["Write AMDP procedures", "Create CDS table functions", "Decide when to use AMDP"]
+        },
+        {
+          "topic": "RESTful ABAP Programming Model: Managed Business Objects",
+          "subtopics": ["RAP architecture", "Data model and behaviour definition", "Managed implementation", "Numbering", "Validations", "Determinations", "Actions", "Business service definition and binding"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Build a managed RAP business object for travel requests with early numbering, a validation for dates, a determination for the status and an approve action.",
+          "deliverable": "RAP business object and service binding",
+          "checks": [["Create a travel request with the end date before the start", "Validation message shown", "Preview screenshot"], ["Create a new request", "Status is set by the determination", "Preview screenshot"], ["Run the approve action", "Status changes to approved", "Preview screenshot"]],
+          "objectives": ["Build RAP business objects", "Add validations and determinations", "Expose actions"]
+        },
+        {
+          "topic": "RAP with Draft, Feature Control and Authorisation",
+          "subtopics": ["Draft handling", "Static and dynamic feature control", "Instance authorisation", "Global authorisation", "Locking", "ETags", "Side effects", "Messages"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Add draft handling, make fields read-only after approval, hide the approve action for approved requests and restrict changes to the requester's own trips.",
+          "deliverable": "Updated behaviour definition and implementation",
+          "checks": [["Leave a draft and come back", "Draft is kept", "Screenshot"], ["Open an approved request", "Fields are read-only and the action is hidden", "Screenshot"], ["Edit another user's trip", "Authorisation error", "Screenshot"]],
+          "objectives": ["Use draft in RAP", "Control features dynamically", "Enforce authorisation"]
+        },
+        {
+          "topic": "Fiori Elements Apps on RAP Services",
+          "subtopics": ["OData V4 service binding", "UI annotations in metadata extensions", "List report and object page", "Value helps", "Fiori elements preview", "Generating an app with Fiori tools", "Deploying to the ABAP repository", "Launchpad tile set-up"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Generate a Fiori elements app for the travel service, add metadata extensions for columns, facets and value helps, deploy it to the ABAP repository and add a launchpad tile.",
+          "deliverable": "Fiori app, metadata extensions and tile",
+          "checks": [["Open the app from the launchpad", "List report loads travel requests", "Screenshot"], ["Use the customer value help", "Lists customers", "Screenshot"], ["Open the object page", "Facets show as annotated", "Screenshot"]],
+          "objectives": ["Build Fiori elements apps on RAP", "Annotate UIs", "Deploy apps"]
+        },
+        {
+          "topic": "OData Services: SEGW and RAP Compared",
+          "subtopics": ["OData concepts: entity sets, navigation, query options", "SAP Gateway service builder (SEGW)", "Implementing CRUD in SEGW", "RAP services as the modern approach", "Testing with the Gateway client", "Error handling in OData", "Batch requests", "Migrating SEGW services"],
+          "tools": ["SAP GUI SEGW", "Gateway client", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Build a small OData V2 service in SEGW for courses, test CRUD and $expand in the Gateway client and compare it with the RAP service for effort and features.",
+          "deliverable": "SEGW service, test results and comparison",
+          "checks": [["Create a course through the Gateway client", "Record created", "Gateway client response"], ["Query with $expand to bookings", "Courses return with bookings", "Gateway client response"], ["Compare with RAP", "Effort and features compared", "Comparison sheet"]],
+          "objectives": ["Understand classic OData services", "Test OData requests", "Choose RAP for new work"]
+        },
+        {
+          "topic": "Enhancements: User Exits, BAdIs and Enhancement Points",
+          "subtopics": ["Modification-free enhancement options", "Customer exits", "Classic and new BAdIs", "Finding the right BAdI", "Implicit and explicit enhancement points", "Filters in BAdIs", "Cloud BAdIs in S/4HANA", "Enhancement documentation"],
+          "tools": ["SAP GUI SE18", "SE19", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Find and implement a BAdI that validates sales orders, add a filter by sales organisation and document why a modification was not needed.",
+          "deliverable": "BAdI implementation, test results and documentation",
+          "checks": [["Save a sales order that breaks the rule", "Implementation stops it with a message", "Screenshot"], ["Save one for another sales organisation", "Rule does not apply because of the filter", "Screenshot"], ["Review the documentation", "Search path and reasons are recorded", "Documentation"]],
+          "objectives": ["Enhance standard SAP safely", "Find and implement BAdIs", "Avoid modifications"]
+        },
+        {
+          "topic": "Unit Testing with ABAP Unit and Test Doubles",
+          "subtopics": ["ABAP Unit test classes", "Setup and teardown", "Assertions with CL_ABAP_UNIT_ASSERT", "Test doubles with interfaces", "ABAP SQL test double framework", "CDS test double framework", "Coverage", "Running tests in ATC"],
+          "tools": ["ABAP Development Tools (Eclipse)", "ABAP Unit"],
+          "lab_task": "Write ABAP Unit tests for the booking rules with a test double for the database and the CDS test double framework for a view, and reach 80 percent coverage.",
+          "deliverable": "Test classes and coverage report",
+          "checks": [["Run the tests", "All pass", "ABAP Unit output"], ["Break a booking rule", "A named test fails", "ABAP Unit output"], ["Open coverage", "At least 80 percent of statements", "Coverage view"]],
+          "objectives": ["Test ABAP code", "Isolate the database with test doubles", "Measure coverage"]
+        },
+        {
+          "topic": "Integration: RFC, IDocs and Web Services",
+          "subtopics": ["RFC destinations and calls", "IDoc structure and message types", "Inbound and outbound IDoc processing", "Monitoring with WE02 and BD87", "SOAP services in ABAP", "Calling REST APIs from ABAP with HTTP client", "Error handling and retries", "Choosing an integration method"],
+          "tools": ["SAP GUI SM59", "WE02", "BD87", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Send material master changes as IDocs, process an inbound order IDoc with a custom function, reprocess a failed IDoc and call an external REST API from ABAP.",
+          "deliverable": "IDoc configuration, function code and API call output",
+          "checks": [["Change a material", "Outbound IDoc is created with status 03", "WE02 screenshot"], ["Process a failed inbound IDoc after fixing data", "Status changes to 53", "BD87 screenshot"], ["Call the REST API", "Response parsed into an ABAP structure", "Console output"]],
+          "objectives": ["Integrate with RFC and IDocs", "Call REST APIs from ABAP", "Reprocess failed messages"]
+        },
+        {
+          "topic": "Performance Optimisation for ABAP Programs",
+          "subtopics": ["Common performance mistakes", "SELECT in loops", "Buffering", "Internal table performance", "Parallel processing basics", "SQL Monitor (SQLM)", "SAT and ST05 analysis", "Performance checks in ATC"],
+          "tools": ["SAT", "ST05", "SQL Monitor", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Profile a slow provided report with SAT and ST05, fix the three biggest problems and show the runtime improvement.",
+          "deliverable": "Profiles before and after and the fixes",
+          "checks": [["Find the top problem in SAT", "Hot spot identified", "SAT screenshot"], ["Rerun after the fixes", "Runtime at least 70 percent lower", "Timing output"], ["Run performance checks in ATC", "No high-priority performance findings", "ATC result"]],
+          "objectives": ["Profile ABAP programs", "Fix common performance problems", "Measure gains"]
+        },
+        {
+          "topic": "Authorisation Checks and Secure ABAP Coding",
+          "subtopics": ["AUTHORITY-CHECK", "Custom authorisation objects", "Authorisation in RAP and CDS", "SQL injection in dynamic SQL", "Escaping with CL_ABAP_DYN_PRG", "Directory traversal in file access", "Code vulnerability analyser", "Secure coding checklist"],
+          "tools": ["SAP GUI SU21", "ABAP Development Tools (Eclipse)", "Code Vulnerability Analyzer"],
+          "lab_task": "Add a custom authorisation object to the booking app, fix a planted SQL injection in dynamic SQL and run the vulnerability analyser until no high findings remain.",
+          "deliverable": "Authorisation object, fixes and analyser results",
+          "checks": [["Run the app without the authorisation", "Access denied", "Screenshot"], ["Send an injection string to the search", "Treated as text after the fix", "Test output"], ["Run the vulnerability analyser", "No high findings", "Analyser result"]],
+          "objectives": ["Check authorisations in ABAP", "Prevent injection", "Scan code for vulnerabilities"]
+        },
+        {
+          "topic": "Background Processing, Parallel Processing and Application Jobs",
+          "subtopics": ["Background jobs from ABAP", "Application jobs in S/4HANA", "Job catalogue and templates", "Parallel processing with aRFC", "bgRFC", "Splitting work into packages", "Error handling in parallel work", "Monitoring"],
+          "tools": ["ABAP Development Tools (Eclipse)", "Application Jobs app", "SAP GUI SM37"],
+          "lab_task": "Turn a long data correction into an application job that processes 1 million records in parallel packages, collects errors and finishes faster than the serial version.",
+          "deliverable": "Job catalogue entry, program and timing comparison",
+          "checks": [["Run serial and parallel versions", "Parallel version is much faster", "Timing output"], ["Make one package fail", "Other packages complete and the failure is logged", "Job log"], ["Schedule the application job from Fiori", "Runs and logs results", "Screenshot"]],
+          "objectives": ["Run jobs in S/4HANA", "Process data in parallel", "Handle failures in parallel work"]
+        },
+        {
+          "topic": "Messages, Logging and Error Handling in Applications",
+          "subtopics": ["Message classes", "Messages in RAP", "Application log (BAL)", "Logging in background jobs", "Exception design for applications", "Showing errors in Fiori", "Translatable texts", "Supportable error messages"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SLG1"],
+          "lab_task": "Introduce a message class and application log for the travel app, show field-level RAP messages in Fiori and log background processing with context for support.",
+          "deliverable": "Message class, logging code and screenshots",
+          "checks": [["Enter an invalid value in Fiori", "Field-level message appears", "Screenshot"], ["Run the background job with errors", "Errors logged with object keys", "SLG1 screenshot"], ["Translate a message", "Shows in the second language", "Screenshot"]],
+          "objectives": ["Design messages for users and support", "Use the application log", "Show RAP messages"]
+        },
+        {
+          "topic": "Working with S/4HANA Released APIs and Business Objects",
+          "subtopics": ["Released objects and the API state", "Finding released APIs", "RAP business object interfaces", "EML: reading and modifying business objects", "Calling SAP business objects from custom code", "Replacing direct table access", "Checking release state in ATC", "Clean core impact"],
+          "tools": ["ABAP Development Tools (Eclipse)", "Cloudification Repository Viewer"],
+          "lab_task": "Replace direct table updates in custom code with EML calls to a released business object interface, and use ATC to confirm only released objects are used.",
+          "deliverable": "Refactored code and ATC result",
+          "checks": [["Create a document through EML", "Document created with standard checks", "Console output"], ["Run ATC with the cloud readiness check", "No unreleased object usage", "ATC result"], ["Break a standard validation in input", "EML returns the failure message", "Console output"]],
+          "objectives": ["Use released APIs", "Work with EML", "Reduce clean core violations"]
+        },
+        {
+          "topic": "Change Documents, Number Ranges and Audit Trails",
+          "subtopics": ["Number range objects and intervals", "Buffering of number ranges", "Change document objects", "Writing change documents from custom code", "Reading change history", "Change history in RAP and Fiori", "Audit requirements for custom tables", "Archiving change documents"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP GUI SNRO", "SCDO"],
+          "lab_task": "Add a number range object and change documents to the course booking tables, show the history of a booking in a Fiori facet and check the numbers stay unique under parallel bookings.",
+          "deliverable": "Number range and change document objects, history facet and test results",
+          "checks": [["Create 100 bookings from parallel sessions", "All numbers are unique", "Table contents"], ["Change a booking's course", "Change document shows old value, new value, user and time", "History facet"], ["Read changes for a date range", "Correct changes listed", "Console output"]],
+          "objectives": ["Use number ranges in custom code", "Record change history", "Meet audit needs"]
+        },
+        {
+          "topic": "Flexible Workflow and SAP Business Workflow for Developers",
+          "subtopics": ["Classic SAP Business Workflow concepts", "Flexible workflow in S/4HANA", "Workflow scenarios and steps", "Conditions and agent determination", "Starting workflows from RAP events", "My Inbox app", "Workflow logs and troubleshooting", "Choosing workflow or BTP process automation"],
+          "tools": ["Manage Workflows apps", "SAP GUI SWDD", "SWI1", "My Inbox"],
+          "lab_task": "Set up a flexible workflow for purchase requests with an amount-based condition and agent determination, start it from the RAP approve flow and trace a stuck item in the workflow log.",
+          "deliverable": "Workflow configuration, agent rule and log analysis",
+          "checks": [["Submit a request above the limit", "Workflow item arrives in the manager's My Inbox", "Screenshot"], ["Submit one below the limit", "Approved automatically without a workflow item", "Status screenshot"], ["Analyse a stuck item", "Cause found in the workflow log", "SWI1 screenshot"]],
+          "objectives": ["Build approvals with flexible workflow", "Determine agents", "Troubleshoot workflows"]
+        },
+        {
+          "topic": "abapGit and Version Control for ABAP",
+          "subtopics": ["Why Git for ABAP", "abapGit basics", "Repositories and branches", "Pull requests for ABAP code", "gCTS overview", "Sharing code between systems", "Conflicts and serialisation", "Team workflows"],
+          "tools": ["abapGit", "GitHub", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Put the course package into a Git repository with abapGit, make a change on a branch, review it in a pull request and pull it into a second system.",
+          "deliverable": "Repository, pull request and second system import",
+          "checks": [["Push the package", "Objects appear as files in Git", "Repository"], ["Pull into the second system", "Objects activate there", "Screenshot"], ["Review the pull request", "Diff shows the ABAP change", "Pull request"]],
+          "objectives": ["Version ABAP with Git", "Review ABAP code", "Share code across systems"]
+        },
+        {
+          "topic": "Intermediate Capstone: Transactional Fiori App with RAP",
+          "subtopics": ["Requirements and data model", "RAP business object with draft and authorisation", "Fiori elements UI", "Integration with standard APIs", "Tests, performance and security checks", "Demo and design defence"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP Fiori tools", "ABAP Unit", "ATC", "abapGit"],
+          "lab_task": "Build a purchase request app with a RAP business object, draft, validations, actions, authorisation, a Fiori elements UI, EML calls to create the standard purchase requisition, ABAP Unit tests and clean ATC results, then present it.",
+          "deliverable": "Repository, transport, test and ATC results and a 15-minute demo",
+          "checks": [["Approve a request", "Standard purchase requisition is created through EML", "Demo"], ["Run ABAP Unit", "All tests pass with coverage reported", "ABAP Unit output"], ["Run ATC with cloud readiness checks", "No priority 1 or 2 findings", "ATC result"]],
+          "objectives": ["Combine the intermediate topics in one app", "Prove quality with tests and checks", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior ABAP developers and technical architects. Covers ABAP Cloud and the clean core tier model, advanced RAP, events and extensibility, custom code migration to S/4HANA, deep HANA performance work, ABAP architecture and design patterns, DevOps for ABAP, security, AI for ABAP and technical leadership.",
+      "prerequisites": ["Has built RAP applications and CDS models", "Writes tested, modern ABAP", "Has worked on an S/4HANA project"],
+      "outcomes": ["Design clean-core ABAP solutions with ABAP Cloud", "Lead custom code migration and performance work", "Build event-driven and extensible ABAP applications", "Run ABAP delivery with CI, quality gates and security"],
+      "days": [
+        {
+          "topic": "ABAP Cloud and the Clean Core Tier Model",
+          "subtopics": ["ABAP Cloud language version and rules", "Tier 1: cloud development", "Tier 2: cloud API enablement", "Tier 3: classic ABAP", "Released objects and C1 contracts", "Wrapping unreleased APIs", "ATC rules for clean core", "Governance of tier usage"],
+          "tools": ["ABAP Development Tools (Eclipse)", "ATC", "Cloudification Repository Viewer"],
+          "lab_task": "Classify 20 custom objects by tier, build a tier 2 wrapper for an unreleased function, use it from tier 1 code and set up ATC rules that block new tier 3 code.",
+          "deliverable": "Classification, wrapper, tier 1 code and ATC configuration",
+          "checks": [["Call the unreleased function from tier 1 code directly", "Syntax error", "Problems view"], ["Call the wrapper from tier 1 code", "Works", "Console output"], ["Add new classic code in a governed package", "ATC blocks it", "ATC result"]],
+          "objectives": ["Apply the ABAP Cloud tier model", "Wrap unreleased APIs", "Govern clean core"]
+        },
+        {
+          "topic": "Advanced RAP: Unmanaged Scenarios and Legacy Integration",
+          "subtopics": ["Unmanaged implementation", "Unmanaged save in managed objects", "Wrapping legacy BAPIs and function modules", "Late numbering", "Transactional buffer", "Save sequence phases", "Error handling across phases", "Consistency with legacy code"],
+          "tools": ["ABAP Development Tools (Eclipse)"],
+          "lab_task": "Build an unmanaged RAP business object on top of a legacy BAPI for orders, with late numbering, a transactional buffer and correct error handling in the save sequence.",
+          "deliverable": "RAP object, buffer class and tests",
+          "checks": [["Create an order through the Fiori app", "Number assigned at save by the BAPI", "Screenshot"], ["Make the BAPI fail at save", "Error reported and nothing committed", "Screenshot and table"], ["Run the tests", "All pass", "ABAP Unit output"]],
+          "objectives": ["Build unmanaged RAP objects", "Integrate legacy logic", "Handle the save sequence"]
+        },
+        {
+          "topic": "RAP Business Events and Event-Driven ABAP",
+          "subtopics": ["RAP business events", "Raising events in the behaviour", "Local event consumption", "Event bindings", "Sending events to SAP Event Mesh", "Consuming events from other systems", "Idempotent handlers", "Monitoring events"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP Event Mesh"],
+          "lab_task": "Raise an event when a purchase request is approved, consume it locally to send a notification and remotely through Event Mesh in a BTP service.",
+          "deliverable": "Event definitions, handlers and monitoring evidence",
+          "checks": [["Approve a request", "Local handler sends the notification", "Log"], ["Check the BTP consumer", "Event received", "BTP log"], ["Deliver the event twice", "Handled once", "Log"]],
+          "objectives": ["Raise and consume RAP events", "Connect ABAP to Event Mesh", "Build idempotent handlers"]
+        },
+        {
+          "topic": "Extensibility in S/4HANA: Cloud BAdIs, Custom Fields and Developer Extensibility",
+          "subtopics": ["Key user and developer extensibility together", "Custom fields and their propagation", "Cloud BAdIs", "Extending RAP business objects", "Extending CDS views", "Extension includes", "Upgrade-safe extensions", "Choosing on-stack or side-by-side"],
+          "tools": ["ABAP Development Tools (Eclipse)", "Custom Fields app"],
+          "lab_task": "Extend a standard RAP business object with a custom field, a validation through a cloud BAdI and an extended CDS view, and prove the extension survives a simulated upgrade check.",
+          "deliverable": "Extensions and upgrade check results",
+          "checks": [["Create a document with the custom field", "Field saved and shown in the app", "Screenshot"], ["Break the validation", "Cloud BAdI rejects the document", "Screenshot"], ["Run the upgrade check", "No issues with the extensions", "ATC result"]],
+          "objectives": ["Extend S/4HANA with developer extensibility", "Use cloud BAdIs", "Keep extensions upgrade-safe"]
+        },
+        {
+          "topic": "Custom Code Migration to S/4HANA at Scale",
+          "subtopics": ["Custom code lifecycle management", "Usage data and decommissioning", "Remote ATC checks from a central system", "Mass quick fixes", "Prioritising findings", "Migration project planning", "Regression testing", "Reporting progress"],
+          "tools": ["ATC central check system", "Custom Code Migration app", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Run remote ATC checks on a provided custom code base, decommission unused objects, apply mass quick fixes and produce a migration plan with effort estimates.",
+          "deliverable": "Check results, decommission list, fix log and migration plan",
+          "checks": [["Run remote checks", "Findings grouped by type and priority", "ATC result"], ["Apply mass quick fixes", "Findings reduced with counts recorded", "Fix log"], ["Review the plan", "Effort per finding type with assumptions", "Plan"]],
+          "objectives": ["Lead custom code migration", "Use usage data and quick fixes", "Plan remediation"]
+        },
+        {
+          "topic": "Deep Performance Tuning on SAP HANA",
+          "subtopics": ["Plan visualiser for ABAP SQL and CDS", "Expensive CDS stacks", "Join cardinality and associations", "Parameterised CDS for performance", "Table partitioning effects", "HANA statement memory", "Performance testing at scale", "Performance governance"],
+          "tools": ["Plan Visualizer", "SQL Monitor", "ST05", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Analyse a slow CDS-based analytical app with the plan visualiser, fix join cardinality and filter push-down problems and show the effect at 50 million rows.",
+          "deliverable": "Plans before and after, fixes and timings",
+          "checks": [["Find the expensive operator", "Operator and cause identified", "Plan Visualizer screenshot"], ["Rerun after the fix", "Response time under the target", "Timing output"], ["Check SQL Monitor", "Statement no longer in the top list", "SQLM report"]],
+          "objectives": ["Tune CDS and SQL on HANA", "Read execution plans", "Test performance at scale"]
+        },
+        {
+          "topic": "ABAP Design Patterns and Architecture",
+          "subtopics": ["Layered architecture in ABAP", "Dependency injection", "Factory and strategy patterns", "Facades over SAP APIs", "Domain-driven design in ABAP", "Testability by design", "Package interfaces and boundaries", "Architecture reviews"],
+          "tools": ["ABAP Development Tools (Eclipse)", "ABAP Unit"],
+          "lab_task": "Restructure a monolithic pricing program into layers with a factory, strategies for pricing rules, a facade over SAP APIs and package interfaces that enforce boundaries.",
+          "deliverable": "Restructured code, package interfaces and tests",
+          "checks": [["Add a new pricing rule", "Only a new strategy class is added", "Source diff"], ["Use a class across a package boundary without the interface", "Package check reports it", "Check result"], ["Run the tests with injected doubles", "All pass without database access", "ABAP Unit output"]],
+          "objectives": ["Apply design patterns in ABAP", "Enforce architecture boundaries", "Design for testing"]
+        },
+        {
+          "topic": "Advanced Testing: Integration Tests, Mocks and Test Automation",
+          "subtopics": ["Test pyramid for ABAP", "RAP business object test doubles", "Mocking EML", "Integration tests across business objects", "Function module test doubles", "Test data containers", "UI tests for Fiori apps", "Running tests in pipelines"],
+          "tools": ["ABAP Unit", "ABAP test double frameworks", "wdi5 or OPA5"],
+          "lab_task": "Build integration tests for the purchase request app that mock EML calls to standard objects, cover the save sequence and add a UI test run in the pipeline.",
+          "deliverable": "Test suites and pipeline results",
+          "checks": [["Mock the standard object to fail", "Test confirms the request is not saved", "ABAP Unit output"], ["Run the UI test", "Main flow passes", "Test report"], ["Run all tests in the pipeline", "All pass with results published", "Pipeline log"]],
+          "objectives": ["Test complex ABAP applications", "Mock standard objects", "Automate tests in pipelines"]
+        },
+        {
+          "topic": "DevOps for ABAP: CI, Quality Gates and gCTS",
+          "subtopics": ["gCTS and branching", "CI pipelines for ABAP with Project Piper", "ATC and ABAP Unit as gates", "Transport automation", "Code review workflows", "Feature toggles", "Release management", "Metrics for ABAP delivery"],
+          "tools": ["gCTS", "Project Piper", "Jenkins or GitHub Actions", "ATC"],
+          "lab_task": "Build a pipeline that runs ATC and ABAP Unit on every change, blocks merges on failures and moves approved changes through gCTS to the quality system.",
+          "deliverable": "Pipeline, gate configuration and release record",
+          "checks": [["Push code with an ATC priority 1 finding", "Pipeline blocks the merge", "Pipeline log"], ["Push a clean change", "Change reaches quality automatically", "Pipeline and gCTS log"], ["Report lead time for changes", "Metric recorded", "Dashboard"]],
+          "objectives": ["Automate ABAP delivery", "Gate quality", "Measure delivery"]
+        },
+        {
+          "topic": "Secure ABAP Development at Scale",
+          "subtopics": ["Threat modelling ABAP applications", "Authorisation design in RAP", "Code vulnerability analyser in pipelines", "Secure handling of RFC and HTTP", "Logging security events", "Protecting personal data in custom code", "Read access logging", "Security reviews"],
+          "tools": ["Code Vulnerability Analyzer", "ABAP Development Tools (Eclipse)", "Read Access Logging"],
+          "lab_task": "Threat-model the purchase request app, fix the top risks, add read access logging for salary fields and add vulnerability scanning to the pipeline.",
+          "deliverable": "Threat model, fixes, logging set-up and pipeline gate",
+          "checks": [["Read the salary field", "Access is logged", "Read access log"], ["Push code with a vulnerability", "Pipeline blocks it", "Pipeline log"], ["Review the threat model", "Each risk has a control", "Threat model"]],
+          "objectives": ["Secure ABAP applications", "Protect personal data", "Automate security checks"]
+        },
+        {
+          "topic": "ABAP for Analytics: Analytical CDS Queries and Embedded Analytics",
+          "subtopics": ["Analytical cube and dimension views", "Analytical queries", "Hierarchies in analytics", "Currency and unit conversion", "Restricted and calculated measures", "Exposing queries to SAP Analytics Cloud", "Performance of analytical models", "Testing analytical results"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP Analytics Cloud"],
+          "lab_task": "Build an analytical model for purchasing spend with cube, dimensions, hierarchy, currency conversion and restricted measures and consume it in an Analytics Cloud story.",
+          "deliverable": "Analytical CDS model and story",
+          "checks": [["Compare totals with the source data", "Totals match in the reporting currency", "Comparison"], ["Drill down the hierarchy", "Values add up at each level", "Screenshot"], ["Open the story", "Spend by category and supplier shown", "Screenshot"]],
+          "objectives": ["Build analytical CDS models", "Handle currency conversion", "Expose analytics to SAP Analytics Cloud"]
+        },
+        {
+          "topic": "Generative AI and Joule for ABAP Developers",
+          "subtopics": ["Joule for ABAP code generation and explanation", "Reviewing AI-generated ABAP", "ABAP AI SDK and the generative AI hub", "Calling AI services from ABAP Cloud", "Grounding prompts in business data", "Responsible use in code", "Testing AI-assisted features", "Licence and data concerns"],
+          "tools": ["Joule for developers", "ABAP AI SDK", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Use Joule to explain and write tests for a legacy class, review the output, and build a RAP action that summarises a purchase request with the generative AI hub from ABAP Cloud.",
+          "deliverable": "Reviewed tests, RAP action and review notes",
+          "checks": [["Run the AI-written tests", "Pass after review fixes, with changes recorded", "ABAP Unit output and notes"], ["Call the summary action", "Summary returned for the request", "Screenshot"], ["Check what data is sent", "Only allowed fields are sent", "Code review and log"]],
+          "objectives": ["Use AI tools in ABAP development", "Call AI services from ABAP", "Review AI output critically"]
+        },
+        {
+          "topic": "Memory Management and Large Data Volume Processing",
+          "subtopics": ["ABAP memory areas: roll, extended and heap memory", "Memory Inspector", "Processing large tables in packages", "SELECT with PACKAGE SIZE and cursors", "Shared objects", "Avoiding copies of internal tables", "Field symbols and data references", "Limits in background and dialog processes"],
+          "tools": ["ABAP Development Tools (Eclipse)", "Memory Inspector", "SAT"],
+          "lab_task": "Fix a report that runs out of memory on 20 million rows by processing in packages with a cursor and field symbols, and compare memory use with the Memory Inspector.",
+          "deliverable": "Fixed report and memory comparison",
+          "checks": [["Run the original on the full data", "Runtime error for lack of memory is reproduced", "ST22 dump"], ["Run the fixed version", "Completes with peak memory under the limit", "Memory Inspector output"], ["Compare a LOOP INTO with a LOOP ASSIGNING", "Copy cost difference measured", "Timing output"]],
+          "objectives": ["Analyse ABAP memory use", "Process large data volumes", "Avoid unnecessary copies"]
+        },
+        {
+          "topic": "Migrating Classic Technologies: Dynpros, BOPF and SEGW to RAP",
+          "subtopics": ["Assessing classic UIs and frameworks", "Replacing dynpro transactions with Fiori", "BOPF to RAP migration", "SEGW services to RAP services", "Reusing business logic", "Data migration between models", "User adoption", "Phased migration"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP Fiori tools"],
+          "lab_task": "Migrate a provided BOPF-based object and its SEGW service to RAP, reuse the business logic and plan the retirement of the old dynpro transaction.",
+          "deliverable": "RAP object, comparison of behaviour and retirement plan",
+          "checks": [["Run the same test cases on old and new", "Same results", "Test comparison"], ["Open the new Fiori app", "All old transaction functions are covered", "Function checklist"], ["Review the retirement plan", "Users, training and switch-off date defined", "Plan"]],
+          "objectives": ["Migrate classic ABAP technologies", "Reuse business logic", "Plan retirement"]
+        },
+        {
+          "topic": "ABAP in the SAP BTP ABAP Environment and Side-by-Side",
+          "subtopics": ["BTP ABAP environment uses", "Communication scenarios and arrangements", "Calling S/4HANA from BTP ABAP", "Multitenancy in ABAP environment", "Software components", "Lifecycle management", "Costs", "Choosing ABAP or CAP on BTP"],
+          "tools": ["SAP BTP ABAP environment", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Build a side-by-side ABAP app on BTP that reads S/4HANA purchase orders through a communication arrangement and writes approvals back, and compare effort with an on-stack version.",
+          "deliverable": "BTP ABAP app, communication set-up and comparison",
+          "checks": [["Read purchase orders from S/4HANA", "Data shown in the BTP app", "Screenshot"], ["Approve and write back", "S/4HANA document updated", "S/4HANA screenshot"], ["Compare with on-stack", "Effort and trade-offs compared", "Comparison sheet"]],
+          "objectives": ["Build side-by-side ABAP apps", "Integrate BTP ABAP with S/4HANA", "Choose an approach"]
+        },
+        {
+          "topic": "Troubleshooting Production ABAP Issues",
+          "subtopics": ["Short dumps and their causes", "Update failures in SM13", "Lock problems in SM12", "Performance incidents", "Memory problems", "Debugging in production safely", "SAP notes and corrections", "Root cause analysis"],
+          "tools": ["ST22", "SM13", "SM12", "SAT", "SNOTE"],
+          "lab_task": "Resolve four injected production problems (a dump, a failed update, a stuck lock and a memory problem), apply an SAP note correction and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Explain the dump cause", "Root cause found from ST22 and code", "Incident record"], ["Implement the SAP note", "Note applied and the problem fixed", "SNOTE log"], ["Write a runbook for update failures", "Another developer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot production ABAP", "Apply SAP notes", "Write runbooks"]
+        },
+        {
+          "topic": "Code Reviews, Clean ABAP and Technical Debt",
+          "subtopics": ["Clean ABAP style guide", "Review checklists", "Measuring technical debt", "Refactoring safely with tests", "Dead code removal", "Naming and documentation", "Mentoring through reviews", "Team standards"],
+          "tools": ["ABAP Development Tools (Eclipse)", "ATC", "abapGit"],
+          "lab_task": "Review three provided pull requests against a clean ABAP checklist, refactor the worst one with tests protecting behaviour and write a team standards page.",
+          "deliverable": "Review comments, refactored code and standards page",
+          "checks": [["Review the three pull requests", "Main issues found with reasons", "Review comments"], ["Run tests after refactoring", "Behaviour unchanged", "ABAP Unit output"], ["Review the standards page", "Covers naming, tests and review rules", "Standards page"]],
+          "objectives": ["Run effective code reviews", "Refactor with tests", "Set team standards"]
+        },
+        {
+          "topic": "Technical Architecture for S/4HANA Custom Development",
+          "subtopics": ["Custom development strategy", "Where custom code should live", "Reusable components and libraries", "Integration patterns for custom code", "Non-functional requirements", "Decision records", "Development guidelines for teams", "Presenting to architecture boards"],
+          "tools": ["Architecture decision record template", "Diagramming tool"],
+          "lab_task": "Write the custom development architecture for a provided S/4HANA programme: where code lives by tier, reuse, integration and guidelines, and defend it to a mock architecture board.",
+          "deliverable": "Architecture document, decision records and presentation",
+          "checks": [["Review placement rules", "Every case maps to a tier or BTP", "Architecture document"], ["Review the decision records", "Options and trade-offs written", "Decision records"], ["Answer board questions", "Decisions defended with evidence", "Presentation"]],
+          "objectives": ["Design custom development architecture", "Write guidelines", "Lead technical decisions"]
+        },
+        {
+          "topic": "Mentoring and Leading ABAP Teams",
+          "subtopics": ["Skills matrix for ABAP teams", "Moving teams to modern ABAP", "Onboarding plans", "Estimation for ABAP work", "Working with functional consultants", "Quality metrics", "Knowledge sharing", "Leading through change"],
+          "tools": ["Skills matrix template", "Spreadsheet"],
+          "lab_task": "Build a skills matrix and a six-month plan to move a classic ABAP team to RAP and ABAP Cloud, estimate a provided backlog and define quality metrics.",
+          "deliverable": "Skills matrix, team plan, estimates and metrics",
+          "checks": [["Review the skills matrix", "Gaps identified per person", "Skills matrix"], ["Review the estimates", "Based on stated assumptions", "Estimate sheet"], ["Review the metrics", "Measurable and tied to quality goals", "Metrics list"]],
+          "objectives": ["Lead ABAP teams", "Plan skill development", "Estimate and measure work"]
+        },
+        {
+          "topic": "Advanced Capstone: Clean-Core Extension Programme",
+          "subtopics": ["Tier classification and target architecture", "RAP applications with events and extensions", "Custom code migration and performance", "DevOps and security gates", "AI-assisted features", "Board presentation and design defence"],
+          "tools": ["ABAP Development Tools (Eclipse)", "ATC", "gCTS", "Project Piper", "SAP Event Mesh", "ABAP AI SDK"],
+          "lab_task": "Deliver a clean-core programme for a provided system: classify and migrate custom code, build a RAP extension with events and cloud BAdIs, tune performance, add CI and security gates and an AI feature, then present it to a mock board.",
+          "deliverable": "Repositories, migration results, pipeline, test reports and a 20-minute presentation",
+          "checks": [["Run ATC with clean core rules", "No new tier 3 code and findings reduced against the baseline", "ATC result"], ["Run the pipeline", "All gates pass for the extension", "Pipeline log"], ["Answer board questions", "Programme defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one programme", "Prove clean core and quality", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

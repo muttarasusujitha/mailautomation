@@ -1,0 +1,573 @@
+{
+  "domain": "SAP FICO",
+  "name": "SAP FICO",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "landmark",
+  "aliases": ["FICO", "FI/CO", "SAP FI/CO", "SAP FI CO", "SAP FI", "SAP CO", "SAP Finance", "SAP Finance and Controlling", "SAP S/4HANA Finance", "S/4HANA Finance", "SAP Financial Accounting", "SAP Controlling", "SAP FICO Consultant"],
+  "certifications": ["SAP Certified Associate - SAP S/4HANA Cloud Private Edition, Financial Accounting (C_S4FCF)", "SAP Certified Associate - SAP S/4HANA for Management Accounting (C_S4FCC)", "SAP Certified Associate - SAP S/4HANA Cloud Public Edition, Finance"],
+  "tools": ["SAP S/4HANA 2023 training system", "SAP GUI", "SAP Fiori launchpad", "Excel"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For finance professionals and new consultants with no SAP experience. Covers the finance organisation in SAP, general ledger, accounts payable, accounts receivable, asset accounting, bank and tax postings, controlling basics with cost centres and internal orders, period-end closing and finance reporting in S/4HANA.",
+      "prerequisites": ["Understands basic accounting: debits, credits, ledgers and financial statements", "Comfortable with business software and spreadsheets", "Access to an SAP S/4HANA training system"],
+      "outcomes": ["Post and display finance documents in S/4HANA", "Run payables, receivables, asset and bank processes", "Track costs with cost centres and internal orders", "Perform basic month-end closing and finance reporting"],
+      "days": [
+        {
+          "topic": "SAP Finance Overview and System Navigation",
+          "subtopics": ["Finance in S/4HANA: FI and CO", "The Universal Journal in plain terms", "Integration with purchasing, sales and production", "Fiori finance apps and SAP GUI transactions", "Logging on and personalising the launchpad", "Common finance transaction codes", "Document display and drill-down", "Finance roles in a company", "Course map and the model company", "Ground rules for the training system"],
+          "tools": ["SAP Fiori launchpad", "SAP GUI"],
+          "lab_task": "Log on, find the main finance apps, display a journal entry created by a sales invoice and trace it back to the sales document and forward to the customer account.",
+          "deliverable": "Screenshots of the document trail and a list of ten finance apps and their uses",
+          "checks": [["Display the journal entry in the Manage Journal Entries app", "Line items with accounts and amounts shown", "Screenshot"], ["Navigate to the source sales document", "Billing document opens", "Screenshot"], ["Explain FI and CO", "Correct description of each", "Written answer"]],
+          "objectives": ["Explain SAP finance areas", "Navigate finance apps", "Trace documents"]
+        },
+        {
+          "topic": "Finance Organisation: Company Code, Chart of Accounts and Fiscal Year",
+          "subtopics": ["Company code and currency", "Chart of accounts: operating, group and country", "Fiscal year variant", "Posting period variant", "Controlling area", "Ledgers in brief", "Field status in brief", "Viewing settings in configuration"],
+          "tools": ["SAP GUI", "SAP Fiori launchpad"],
+          "lab_task": "Document the finance organisation of the model company: company codes, currencies, chart of accounts, fiscal year and posting period variants and the controlling area assignment.",
+          "deliverable": "Finance organisation sheet with values from the system",
+          "checks": [["Find the fiscal year variant of company code 1010", "Correct variant and periods", "Screenshot"], ["Find the open posting periods", "Correct periods listed", "Screenshot of OB52"], ["Explain why company codes share a chart of accounts", "Correct explanation", "Written answer"]],
+          "objectives": ["Explain the finance organisation", "Read finance settings", "Link settings to postings"]
+        },
+        {
+          "topic": "General Ledger Accounts and Master Data",
+          "subtopics": ["G/L account types", "Balance sheet and profit and loss accounts", "Account groups", "Reconciliation accounts", "Open item management and line item display", "Cost elements as G/L accounts", "Creating accounts in FS00", "Blocking accounts"],
+          "tools": ["SAP GUI FS00", "Manage G/L Account Master Data app"],
+          "lab_task": "Create a balance sheet account with open item management, an expense account with a primary cost element type and a reconciliation account, and block one for posting.",
+          "deliverable": "Three account records and a blocked posting attempt",
+          "checks": [["Post to the blocked account", "System rejects the posting", "Error message"], ["Display the expense account", "Cost element category is set", "Screenshot"], ["Try to post directly to the reconciliation account", "System refuses the posting", "Error message"]],
+          "objectives": ["Create G/L accounts", "Explain account types", "Control posting with account settings"]
+        },
+        {
+          "topic": "Posting General Ledger Journal Entries",
+          "subtopics": ["Document types", "Posting keys", "Document header and line items", "Posting date versus document date", "Parking and posting", "Recurring entries", "Reversing documents", "Document display and change"],
+          "tools": ["SAP GUI FB50", "Post General Journal Entries app"],
+          "lab_task": "Post an accrual, park and then post a journal entry, set up a monthly recurring rent entry and reverse a wrong posting with a reversal reason.",
+          "deliverable": "Document numbers and screenshots for each posting",
+          "checks": [["Post an unbalanced entry", "System will not post it", "Error message"], ["Run the recurring entry for the next period", "Rent is posted", "Document"], ["Reverse a document", "Reversal document references the original", "Document display"]],
+          "objectives": ["Post journal entries", "Park, recur and reverse postings", "Read finance documents"]
+        },
+        {
+          "topic": "Accounts Payable: Supplier Master and Invoices",
+          "subtopics": ["Supplier as business partner", "Company code data: reconciliation account and payment terms", "Supplier invoices without a purchase order", "Invoices from purchasing (MIRO) in brief", "Credit memos", "Withholding tax in brief", "Down payments", "Supplier line item display"],
+          "tools": ["SAP GUI FB60", "Manage Business Partner app", "Manage Supplier Line Items app"],
+          "lab_task": "Create a supplier with payment terms, post three invoices and a credit memo, post a down payment request and payment, and display the open items.",
+          "deliverable": "Supplier record, documents and open item list",
+          "checks": [["Post an invoice", "Supplier and expense accounts updated", "Document"], ["Display supplier open items", "Invoices and credit memo listed", "Screenshot"], ["Explain why the reconciliation account is updated automatically", "Correct explanation", "Written answer"]],
+          "objectives": ["Maintain suppliers for finance", "Post supplier invoices", "Manage open items"]
+        },
+        {
+          "topic": "Accounts Payable: Payments and the Payment Run",
+          "subtopics": ["Manual outgoing payments", "The automatic payment program F110", "Parameters, proposal and payment run", "Payment methods", "Payment blocks", "Payment media and bank files", "Clearing open items", "Exceptions and the payment log"],
+          "tools": ["SAP GUI F110", "Manage Automatic Payments app"],
+          "lab_task": "Run the automatic payment program for the suppliers, exclude one blocked invoice, check the proposal, run the payment and confirm open items are cleared.",
+          "deliverable": "Proposal, payment run log and cleared items",
+          "checks": [["Review the proposal", "Blocked invoice appears in exceptions", "Proposal list"], ["Run the payment", "Paid invoices are cleared", "Supplier line items"], ["Display the payment document", "Bank clearing account is credited", "Document"]],
+          "objectives": ["Pay suppliers", "Run the payment program", "Handle payment exceptions"]
+        },
+        {
+          "topic": "Accounts Receivable: Customer Invoices and Incoming Payments",
+          "subtopics": ["Customer as business partner", "Customer invoices without sales", "Invoices from billing", "Incoming payments", "Partial and residual payments", "Payment differences and tolerances", "Clearing customer items", "Customer line item display"],
+          "tools": ["SAP GUI FB70", "Post Incoming Payments app"],
+          "lab_task": "Post customer invoices, record a partial payment, a residual payment and a small underpayment within tolerance, and display the customer's balance.",
+          "deliverable": "Documents and customer line item report",
+          "checks": [["Post a partial payment", "Invoice stays open with the payment linked", "Customer line items"], ["Post an underpayment within tolerance", "Difference is written off automatically", "Document"], ["Display the balance", "Matches expected", "Screenshot"]],
+          "objectives": ["Post customer invoices and payments", "Handle payment differences", "Manage receivables"]
+        },
+        {
+          "topic": "Accounts Receivable: Dunning and Credit Control",
+          "subtopics": ["Dunning procedures", "Dunning levels and charges", "Running dunning", "Dunning letters", "Credit management in S/4HANA in brief", "Credit limits and blocks", "Collections in brief", "Ageing reports"],
+          "tools": ["SAP GUI F150", "Credit Management apps"],
+          "lab_task": "Run dunning for overdue customers, check the letters and levels, set a credit limit and show a sales order blocked by credit for a customer over the limit.",
+          "deliverable": "Dunning run, letters, credit settings and blocked order",
+          "checks": [["Run dunning", "Overdue customers receive the right level", "Dunning list"], ["Create a sales order over the limit", "Order is blocked for credit", "Screenshot"], ["Run an ageing report", "Buckets match the invoice dates", "Report output"]],
+          "objectives": ["Collect overdue receivables", "Control credit", "Report ageing"]
+        },
+        {
+          "topic": "Asset Accounting: Asset Master and Acquisitions",
+          "subtopics": ["Asset classes", "Asset master data", "Depreciation areas", "Acquisition from a supplier", "Acquisition through purchasing", "Assets under construction", "Asset explorer", "Asset history sheet"],
+          "tools": ["SAP GUI AS01", "Manage Fixed Assets app"],
+          "lab_task": "Create assets in two classes, acquire one through a supplier invoice and one through purchasing, and review values and planned depreciation in the asset explorer.",
+          "deliverable": "Asset records, acquisition documents and asset explorer screenshots",
+          "checks": [["Post the acquisition", "Asset value increases", "Asset explorer"], ["Display planned depreciation", "Annual values shown per area", "Asset explorer"], ["Display the asset history sheet", "Acquisitions appear", "Report output"]],
+          "objectives": ["Create assets", "Post acquisitions", "Read asset values"]
+        },
+        {
+          "topic": "Asset Accounting: Depreciation, Transfers and Retirements",
+          "subtopics": ["Depreciation keys", "The depreciation run", "Transfers between assets", "Retirement with revenue", "Scrapping", "Gains and losses", "Year-end in asset accounting", "Asset reports"],
+          "tools": ["SAP GUI AFAB", "ABAVN", "Manage Fixed Assets app"],
+          "lab_task": "Run depreciation for a period, transfer an asset to another cost centre, sell an asset with a gain and scrap another, and check the postings and history sheet.",
+          "deliverable": "Depreciation run log, transfer, retirement documents and history sheet",
+          "checks": [["Run depreciation", "Expense and accumulated depreciation are posted", "Run log and document"], ["Sell an asset above book value", "Gain is posted", "Document"], ["Display the history sheet", "Retirements shown", "Report output"]],
+          "objectives": ["Run depreciation", "Transfer and retire assets", "Explain asset postings"]
+        },
+        {
+          "topic": "Bank Accounting and the Cash Journal",
+          "subtopics": ["House banks and bank accounts", "Bank master data", "Manual bank statements", "Electronic bank statements", "Bank reconciliation", "Cash journal", "Cash position in brief", "Bank account management in S/4HANA"],
+          "tools": ["SAP GUI FF67", "Manage Bank Statements app", "Cash journal"],
+          "lab_task": "Import a bank statement file, let the system clear matching payments, process unmatched lines by hand and record petty cash in the cash journal.",
+          "deliverable": "Processed statement, cleared items and cash journal entries",
+          "checks": [["Import the bank statement", "Matching payments are cleared automatically", "Statement monitor"], ["Process an unmatched line", "Posted and cleared by hand", "Document"], ["Display the bank account balance", "Agrees with the statement closing balance", "Report output"]],
+          "objectives": ["Process bank statements", "Reconcile bank accounts", "Use the cash journal"]
+        },
+        {
+          "topic": "Tax Postings: GST and Indirect Tax in SAP",
+          "subtopics": ["Tax codes and procedures", "Input and output tax", "GST in India: CGST, SGST and IGST", "Tax on supplier and customer invoices", "Tax reports", "Withholding tax", "Tax jurisdiction in brief", "Common tax errors"],
+          "tools": ["SAP GUI", "Tax reports"],
+          "lab_task": "Post intra-state and inter-state invoices with GST codes, check the tax lines, run the tax return report and post a withholding tax deduction on a supplier payment.",
+          "deliverable": "Invoices, tax report and withholding document",
+          "checks": [["Post an inter-state invoice", "IGST line is posted", "Document"], ["Run the tax report", "Totals match the posted invoices", "Report output"], ["Pay a supplier with withholding tax", "Tax amount is deducted and posted", "Payment document"]],
+          "objectives": ["Post taxes correctly", "Run tax reports", "Explain GST postings"]
+        },
+        {
+          "topic": "Controlling with Cost Centres and Cost Elements",
+          "subtopics": ["Purpose of controlling", "Controlling area", "Cost centres and the standard hierarchy", "Primary and secondary cost elements", "Posting costs to cost centres", "Plan versus actual", "Reposting costs", "Cost centre reports"],
+          "tools": ["SAP GUI KS01", "Manage Cost Centers app", "Cost centre reports"],
+          "lab_task": "Create cost centres in the hierarchy, post expenses to them from finance, repost a wrong posting and compare plan and actual costs.",
+          "deliverable": "Cost centre records, postings and plan/actual report",
+          "checks": [["Post an expense with a cost centre", "Cost appears on the cost centre", "Report output"], ["Repost to another cost centre", "Cost moves with a reference", "Report output"], ["Run plan versus actual", "Variance shown per cost element", "Report output"]],
+          "objectives": ["Use cost centres", "Explain cost elements", "Report plan against actual"]
+        },
+        {
+          "topic": "Internal Orders and Settlement",
+          "subtopics": ["Order types", "Overhead and investment orders", "Budgets and availability control", "Posting to internal orders", "Settlement rules", "Settlement run", "Order reports", "Closing orders"],
+          "tools": ["SAP GUI KO01", "KO88", "Manage Internal Orders app"],
+          "lab_task": "Create an internal order for a marketing event with a budget, post costs until availability control warns, settle it to a cost centre and close it.",
+          "deliverable": "Order, budget warning, settlement document and order report",
+          "checks": [["Exceed the budget tolerance", "Warning or error from availability control", "Message"], ["Settle the order", "Balance is zero and the cost centre is charged", "Order report"], ["Close the order", "Further postings are refused", "Error message"]],
+          "objectives": ["Track costs on internal orders", "Control budgets", "Settle orders"]
+        },
+        {
+          "topic": "Profit Centres and Segment Reporting",
+          "subtopics": ["Profit centre accounting in S/4HANA", "Profit centre master data", "Derivation of profit centres", "Document splitting in brief", "Segment reporting", "Profit centre reports", "Balance sheet by profit centre", "Common derivation errors"],
+          "tools": ["SAP GUI KE51", "Profit centre reports"],
+          "lab_task": "Create profit centres for two business lines, assign them to cost centres and materials, post transactions and produce a profit and loss and balance sheet by profit centre.",
+          "deliverable": "Profit centre set-up and reports",
+          "checks": [["Post a sales invoice", "Profit centre is derived from the material", "Document"], ["Run P&L by profit centre", "Revenue split by business line", "Report output"], ["Explain document splitting", "Correct explanation of balanced splitting", "Written answer"]],
+          "objectives": ["Use profit centre accounting", "Derive profit centres", "Report by business line"]
+        },
+        {
+          "topic": "Integration of Finance with Purchasing and Sales",
+          "subtopics": ["Goods receipt postings", "GR/IR clearing account", "Invoice verification postings", "Revenue and receivable postings from billing", "Cost of goods sold at goods issue", "Account determination in brief", "Document flow across modules", "Common integration errors"],
+          "tools": ["SAP GUI", "SAP Fiori launchpad"],
+          "lab_task": "Follow a purchase and a sale through finance, explaining every posting, and fix a planted missing account determination that stops a goods receipt.",
+          "deliverable": "Posting map for both processes and the fix",
+          "checks": [["Post the goods receipt after the fix", "Inventory and GR/IR are posted", "Document"], ["Post the billing document", "Revenue, tax and receivable are posted", "Document"], ["Explain the GR/IR clearing", "Correct explanation", "Written answer"]],
+          "objectives": ["Explain finance postings from logistics", "Read integration documents", "Fix account determination gaps"]
+        },
+        {
+          "topic": "Period-End Closing in Finance",
+          "subtopics": ["Closing checklist", "Opening and closing periods", "Accruals and deferrals", "GR/IR regrouping", "Foreign currency valuation", "Depreciation and settlement", "Balance carry-forward at year end", "Closing reports"],
+          "tools": ["SAP GUI", "Manage Closing Tasks app"],
+          "lab_task": "Run a month-end close for the model company with a checklist: accruals, depreciation, settlement, foreign currency valuation and GR/IR regrouping, then close the period.",
+          "deliverable": "Completed checklist with documents and the closed period",
+          "checks": [["Revalue a foreign currency payable", "Unrealised loss is posted", "Document"], ["Post after closing the period", "Posting is refused", "Error message"], ["Review the checklist", "Every task has a result and document", "Checklist"]],
+          "objectives": ["Run month-end closing", "Revalue foreign currency", "Close periods"]
+        },
+        {
+          "topic": "Finance Reporting and Analytics",
+          "subtopics": ["Financial statements", "Trial balance", "Journal entry analysis", "Supplier and customer balances", "Cost centre and order reports", "Analytical Fiori apps for finance", "Exporting and sharing reports", "Checking report accuracy"],
+          "tools": ["SAP Fiori launchpad", "Display Financial Statement app", "Trial Balance app"],
+          "lab_task": "Produce the monthly finance pack: financial statement, trial balance, ageing of receivables and payables and cost centre report, and reconcile the totals.",
+          "deliverable": "Finance pack and reconciliation sheet",
+          "checks": [["Reconcile the trial balance to the financial statement", "Totals agree", "Reconciliation sheet"], ["Reconcile receivables ageing to the G/L balance", "Ageing total equals the receivables reconciliation account balance", "Reconciliation sheet"], ["Drill from a statement line to documents", "Documents open", "Screenshot"]],
+          "objectives": ["Produce finance reports", "Reconcile reports", "Use analytical apps"]
+        },
+        {
+          "topic": "Finance Roles, Controls and Audit Support",
+          "subtopics": ["Finance roles and authorisations", "Segregation of duties in finance", "Approval of payments and postings", "Change logs for master data", "Document change rules", "Audit information system", "Internal controls", "Common audit findings"],
+          "tools": ["SAP GUI", "Audit apps", "SU53"],
+          "lab_task": "Review finance roles for a segregation of duties conflict between supplier creation and payment, show the change log of a supplier bank account and list the controls that prevent fraud.",
+          "deliverable": "Conflict analysis, change log and control list",
+          "checks": [["Identify the conflict", "Correct roles and risk named", "Analysis"], ["Display the supplier bank change log", "Old and new values with user and time", "Change log screenshot"], ["Review the control list", "Each control prevents or detects a named risk", "Control list"]],
+          "objectives": ["Explain finance controls", "Find segregation of duties risks", "Support audits"]
+        },
+        {
+          "topic": "Beginner Capstone: A Month of Finance for the Model Company",
+          "subtopics": ["Opening balances and master data", "Payables and receivables", "Assets and bank", "Controlling postings", "Period-end closing", "Finance pack presentation"],
+          "tools": ["SAP S/4HANA training system", "SAP GUI", "SAP Fiori launchpad"],
+          "lab_task": "Run a full month for the model company: supplier and customer invoices, payments, a payment run, an asset purchase and depreciation, cost centre postings, bank reconciliation and closing, then present the finance pack.",
+          "deliverable": "Document list, finance pack and a 10-minute presentation",
+          "checks": [["Reconcile the bank account", "Agrees with the bank statement", "Reconciliation"], ["Present the financial statement", "Balances and reflects all postings", "Report output"], ["Explain one variance on a cost centre", "Cause traced to documents", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one month", "Close the books correctly", "Present finance results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For finance users and junior consultants who know SAP postings. Covers configuration of the finance organisation, general ledger, payables, receivables, assets, banks and tax, controlling configuration with product costing and margin analysis, integration settings and closing processes in S/4HANA.",
+      "prerequisites": ["Can post and report finance documents in S/4HANA", "Knows payables, receivables, assets and cost centres as a user", "Understands accounting standards at a basic level"],
+      "outcomes": ["Configure the finance organisation and core finance processes", "Configure controlling, product costing and margin analysis", "Set up integration between finance and logistics", "Design and run efficient closing processes"],
+      "days": [
+        {
+          "topic": "Configuring the Finance Organisation",
+          "subtopics": ["Defining company codes and assigning to company", "Fiscal year and posting period variants", "Currencies and exchange rate types", "Chart of accounts and account groups", "Field status variants", "Tolerance groups", "Document types and number ranges", "Copying settings across company codes"],
+          "tools": ["SAP GUI SPRO", "OB52", "OBA4"],
+          "lab_task": "Configure a new company code by copying, set its fiscal year and posting period variants, field status variant, tolerance groups and number ranges, and post a test document.",
+          "deliverable": "Configuration record and test posting",
+          "checks": [["Post a test document in the new company code", "Posting works with the new number range", "Document"], ["Exceed a user's tolerance", "Posting is refused", "Error message"], ["Review the configuration record", "Every setting and value is listed", "Configuration record"]],
+          "objectives": ["Configure the finance organisation", "Set controls on postings", "Document configuration"]
+        },
+        {
+          "topic": "Ledgers, Accounting Principles and Currencies in S/4HANA",
+          "subtopics": ["Leading and non-leading ledgers", "Accounting principles", "Ledger groups in postings", "Currency types per ledger", "Exchange rates and maintenance", "Translation and valuation", "Posting to a specific ledger", "Reports by ledger"],
+          "tools": ["SAP GUI", "SPRO", "Universal Journal reports"],
+          "lab_task": "Configure a non-leading ledger for local GAAP, post an adjustment only to it, compare reports for both ledgers and check amounts in three currency types.",
+          "deliverable": "Ledger configuration, posting and comparison",
+          "checks": [["Post to the non-leading ledger only", "Leading ledger is unchanged", "Ledger reports"], ["Display the document in three currencies", "Amounts converted with the right rates", "Document display"], ["Compare reports", "Difference equals the adjustment", "Comparison"]],
+          "objectives": ["Configure ledgers", "Handle multiple accounting principles", "Work with several currencies"]
+        },
+        {
+          "topic": "Document Splitting and Segment Balancing",
+          "subtopics": ["Purpose of document splitting", "Splitting characteristics", "Item categories and business transactions", "Zero-balance clearing", "Inheritance and default values", "Activating splitting", "Testing split documents", "Troubleshooting splitting errors"],
+          "tools": ["SAP GUI SPRO", "Document display"],
+          "lab_task": "Configure document splitting by profit centre and segment, post invoices with several profit centres and payments, and show balanced segments in the documents.",
+          "deliverable": "Splitting configuration and split documents",
+          "checks": [["Post a multi-line invoice", "Receivable is split by profit centre", "Entry view versus G/L view"], ["Post the payment", "Split follows the invoice", "Document"], ["Post a document missing the characteristic", "Error or default is applied as configured", "Message or document"]],
+          "objectives": ["Configure document splitting", "Produce balanced segment reports", "Troubleshoot splitting"]
+        },
+        {
+          "topic": "Configuring Accounts Payable and the Payment Program",
+          "subtopics": ["Business partner settings for suppliers", "Payment terms", "Payment program configuration: company codes, methods, banks", "Ranking order and bank determination", "Payment medium workbench", "Payment blocks and approvals", "Duplicate invoice check", "Testing payment runs"],
+          "tools": ["SAP GUI FBZP", "SPRO"],
+          "lab_task": "Configure a bank transfer payment method with bank determination for two house banks and a payment medium format, then run payments and show the bank chosen for each.",
+          "deliverable": "Payment configuration and payment run results",
+          "checks": [["Run payments", "Bank chosen according to ranking and amounts", "Payment list"], ["Enter a duplicate supplier invoice", "Duplicate check warns", "Message"], ["Generate the payment file", "File matches the format", "Payment file"]],
+          "objectives": ["Configure payables", "Configure the payment program", "Generate payment files"]
+        },
+        {
+          "topic": "Configuring Accounts Receivable, Dunning and Credit Management",
+          "subtopics": ["Customer account settings", "Tolerances for payment differences", "Reason codes", "Dunning procedure configuration", "Credit management: segments, rules and scoring", "Credit exposure", "Collections and dispute management overview", "Testing the full cycle"],
+          "tools": ["SAP GUI SPRO", "Credit Management apps"],
+          "lab_task": "Configure a dunning procedure with three levels and charges, reason codes for short payments and credit rules with automatic scoring, then test them on customers.",
+          "deliverable": "Configuration and test results",
+          "checks": [["Short-pay with a reason code", "Difference posted to the account for that reason", "Document"], ["Run dunning", "Levels and charges match the configuration", "Dunning list"], ["Create a new customer", "Credit score and limit calculated by the rule", "Credit master data"]],
+          "objectives": ["Configure receivables", "Configure dunning", "Configure credit management"]
+        },
+        {
+          "topic": "Configuring Asset Accounting",
+          "subtopics": ["Chart of depreciation", "Depreciation areas and ledgers", "Asset classes and number ranges", "Account determination", "Depreciation keys and methods", "Screen layout rules", "Legacy asset transfer", "Year-end processes"],
+          "tools": ["SAP GUI SPRO", "AS91", "Asset explorer"],
+          "lab_task": "Configure an asset class with account determination and a depreciation key for straight-line and declining balance methods, transfer legacy assets and check depreciation.",
+          "deliverable": "Configuration, legacy transfer and depreciation check",
+          "checks": [["Create an asset in the new class", "Correct accounts and depreciation key", "Asset master"], ["Transfer a legacy asset with accumulated depreciation", "Values match the legacy system", "Asset explorer"], ["Run depreciation", "Matches a spreadsheet calculation", "Comparison"]],
+          "objectives": ["Configure asset accounting", "Set depreciation methods", "Migrate legacy assets"]
+        },
+        {
+          "topic": "Banking Configuration and Electronic Bank Statements",
+          "subtopics": ["House bank and account configuration", "Bank account management", "Electronic bank statement formats", "Posting rules and transaction types", "Search strings", "Reprocessing rules", "Cash management basics", "Testing statement imports"],
+          "tools": ["SAP GUI SPRO", "Manage Bank Statements app"],
+          "lab_task": "Configure posting rules and search strings so that 90 percent of a provided bank statement clears automatically, and reprocess the rest.",
+          "deliverable": "Configuration and match rate report",
+          "checks": [["Import the statement", "At least 90 percent of lines clear automatically", "Statement monitor"], ["Use a search string for a reference in the note", "Invoice is found and cleared", "Document"], ["Reprocess an unmatched line", "Cleared", "Document"]],
+          "objectives": ["Configure banks", "Automate bank statement processing", "Improve match rates"]
+        },
+        {
+          "topic": "Tax Configuration and GST Compliance",
+          "subtopics": ["Tax procedures", "Tax codes and conditions", "Tax accounts", "GST configuration in India", "Withholding tax configuration", "E-invoicing and e-way bills in brief", "Document and Reporting Compliance (DRC) overview", "Tax reports and returns"],
+          "tools": ["SAP GUI SPRO", "Document and Reporting Compliance"],
+          "lab_task": "Configure GST tax codes for intra- and inter-state purchases and sales and a withholding tax type, post test documents and generate a compliance report in DRC.",
+          "deliverable": "Tax configuration, test postings and DRC report",
+          "checks": [["Post a purchase with the new code", "CGST and SGST lines posted to the right accounts", "Document"], ["Pay with withholding tax", "Correct amount deducted", "Document"], ["Generate the DRC report", "Includes the test documents", "Report output"]],
+          "objectives": ["Configure tax", "Meet GST requirements", "Use compliance reporting"]
+        },
+        {
+          "topic": "Controlling Configuration: Controlling Area and Cost Centre Accounting",
+          "subtopics": ["Controlling area configuration", "Versions and fiscal year settings", "Cost centre categories", "Planning layouts and profiles", "Statistical key figures", "Assessment and distribution cycles", "Activity types and prices", "Testing allocations"],
+          "tools": ["SAP GUI SPRO", "KSU1", "KSV1"],
+          "lab_task": "Configure assessment and distribution cycles using statistical key figures, plan activity prices for a production cost centre and run the cycles.",
+          "deliverable": "Cycle configuration, plan and results",
+          "checks": [["Run the assessment cycle", "Costs allocated by headcount", "Cost centre report"], ["Plan activity prices", "Prices calculated from plan costs", "Report output"], ["Change a key figure and rerun", "Allocation changes in proportion", "Report output"]],
+          "objectives": ["Configure cost centre accounting", "Allocate costs", "Plan activity prices"]
+        },
+        {
+          "topic": "Product Costing: Cost Estimates and Standard Prices",
+          "subtopics": ["Costing variants", "Valuation and costing sheets", "Overhead rates", "Material cost estimates", "Marking and releasing standard prices", "Costing runs", "Cost components", "Analysing cost estimates"],
+          "tools": ["SAP GUI CK11N", "CK24", "CK40N"],
+          "lab_task": "Create a cost estimate for a finished product with materials, activities and overheads, analyse the cost components, and mark and release the standard price.",
+          "deliverable": "Cost estimate, component report and released price",
+          "checks": [["Display the cost estimate", "Material, labour and overhead components shown", "Screenshot"], ["Release the standard price", "Material master price updated", "Material master"], ["Change a component price and recost", "Difference explained", "Comparison"]],
+          "objectives": ["Calculate product costs", "Release standard prices", "Analyse cost components"]
+        },
+        {
+          "topic": "Cost Object Controlling: Production Order Costs and Variances",
+          "subtopics": ["Production order cost collection", "Work in process", "Variance calculation", "Variance categories", "Settlement of production orders", "Period-end for manufacturing", "Reporting on order costs", "Troubleshooting variances"],
+          "tools": ["SAP GUI KKS2", "KO88", "KKAX"],
+          "lab_task": "Process two production orders with planned differences, calculate work in process for one and variances for the other, settle both and explain the variance categories.",
+          "deliverable": "Order cost reports, WIP and variance results and settlement",
+          "checks": [["Calculate WIP for the open order", "WIP posted to the balance sheet", "Document"], ["Calculate variances", "Quantity and price variances shown", "Variance report"], ["Settle the orders", "Variances posted to margin analysis", "Settlement document"]],
+          "objectives": ["Control production costs", "Calculate WIP and variances", "Settle orders"]
+        },
+        {
+          "topic": "Margin Analysis (CO-PA) in S/4HANA",
+          "subtopics": ["Account-based margin analysis", "Characteristics and derivation", "Value fields replaced by accounts", "Cost of goods sold split", "Revenue and costs by market segment", "Top-down distribution", "Margin reports", "Common configuration choices"],
+          "tools": ["SAP GUI SPRO", "Margin analysis apps"],
+          "lab_task": "Configure characteristics for region and customer group, derive them on sales, split cost of goods sold into components and report contribution margin by segment.",
+          "deliverable": "Configuration and margin report",
+          "checks": [["Post a billing document", "Region and customer group derived", "Journal entry"], ["Display cost of goods sold split", "Material and labour shown separately", "Report output"], ["Run the margin report", "Contribution margin per region", "Report output"]],
+          "objectives": ["Configure margin analysis", "Derive market segments", "Report profitability"]
+        },
+        {
+          "topic": "Integration Settings: Automatic Account Determination",
+          "subtopics": ["Valuation classes and grouping", "MM account determination (OBYC)", "SD revenue account determination (VKOA)", "Asset account determination", "Payroll and other posting interfaces in brief", "Simulation tools", "Common errors", "Documenting integration settings"],
+          "tools": ["SAP GUI OBYC", "VKOA", "SPRO"],
+          "lab_task": "Set up account determination for a new valuation class and a new customer account group, simulate postings and fix two planted errors.",
+          "deliverable": "Configuration, simulation results and fixes",
+          "checks": [["Post a goods receipt for the new class", "Correct inventory account", "Document"], ["Bill a customer in the new group", "Correct revenue account", "Document"], ["Fix the planted errors", "Postings work and the cause is documented", "Documentation"]],
+          "objectives": ["Configure integration accounts", "Simulate postings", "Fix integration errors"]
+        },
+        {
+          "topic": "Material Ledger and Actual Costing",
+          "subtopics": ["Material ledger in S/4HANA", "Multiple currencies and valuations", "Price differences", "Actual costing run", "Periodic unit price", "Multi-level settlement", "Revaluation of inventory", "When to use actual costing"],
+          "tools": ["SAP GUI CKMLCP", "CKM3"],
+          "lab_task": "Run an actual costing cycle for a period with purchase price differences, review the periodic unit price in CKM3 and revalue inventory.",
+          "deliverable": "Costing run log, CKM3 analysis and revaluation document",
+          "checks": [["Display CKM3 for a material", "Price differences shown", "Screenshot"], ["Run actual costing", "Periodic unit price calculated", "Run log"], ["Revalue inventory", "Inventory adjusted to actual", "Document"]],
+          "objectives": ["Use the material ledger", "Run actual costing", "Revalue inventory"]
+        },
+        {
+          "topic": "Foreign Currency Valuation and Intercompany Processes",
+          "subtopics": ["Valuation methods", "Valuation areas", "Open item and balance valuation", "Intercompany postings", "Intercompany clearing accounts", "Intercompany reconciliation", "Cross-company sales in brief", "Reports"],
+          "tools": ["SAP GUI FAGL_FCV", "Intercompany reconciliation apps"],
+          "lab_task": "Configure a valuation method, revalue open foreign currency items at month-end, post an intercompany expense allocation and reconcile intercompany balances.",
+          "deliverable": "Configuration, valuation documents and reconciliation report",
+          "checks": [["Run valuation", "Gains and losses posted per item", "Documents"], ["Post an intercompany allocation", "Both company codes updated with clearing entries", "Documents"], ["Reconcile intercompany balances", "Balances agree", "Reconciliation report"]],
+          "objectives": ["Configure foreign currency valuation", "Post intercompany entries", "Reconcile intercompany"]
+        },
+        {
+          "topic": "Closing Processes: Advanced Financial Closing",
+          "subtopics": ["Closing task templates", "Dependencies and scheduling", "Automating closing jobs", "Approvals in closing", "Monitoring progress", "Closing across company codes", "Reducing close time", "Closing reports"],
+          "tools": ["SAP Advanced Financial Closing", "Manage Closing Tasks app"],
+          "lab_task": "Build a closing template for two company codes with dependencies and automated jobs, run a month-end close, monitor progress and measure close time.",
+          "deliverable": "Closing template, run results and close time",
+          "checks": [["Run the template", "Tasks run in the right order", "Task monitor"], ["Fail one automated task", "Dependent tasks wait and an alert is raised", "Task monitor"], ["Measure close time", "Recorded and compared with the manual close", "Timing"]],
+          "objectives": ["Automate closing", "Manage dependencies", "Shorten the close"]
+        },
+        {
+          "topic": "Finance Data Migration",
+          "subtopics": ["Migration objects for finance", "Open items: payables and receivables", "G/L balances", "Fixed assets", "Bank balances", "Reconciliation steps", "Migration in conversion projects", "Sign-off"],
+          "tools": ["SAP S/4HANA Migration Cockpit", "Excel"],
+          "lab_task": "Migrate opening balances, open payables and receivables and fixed assets from templates, reconcile every balance and prepare the sign-off sheet.",
+          "deliverable": "Templates, migration logs and signed reconciliation",
+          "checks": [["Reconcile G/L balances", "Equal to the source trial balance", "Reconciliation"], ["Reconcile open items", "Totals per supplier and customer match", "Reconciliation"], ["Reconcile assets", "Values per class match", "Reconciliation"]],
+          "objectives": ["Migrate finance data", "Reconcile migration", "Obtain sign-off"]
+        },
+        {
+          "topic": "Fiori Apps for Finance Users and Consultants",
+          "subtopics": ["Finance roles in Fiori", "Journal entry apps", "Payables and receivables apps", "Asset apps", "Controlling apps", "Analytical apps and KPIs", "Personalisation", "Configuring finance launchpad content"],
+          "tools": ["SAP Fiori launchpad", "Fiori Apps Library"],
+          "lab_task": "Set up a finance launchpad for an accounts payable clerk and a controller with the right apps and KPIs, and show each completing a daily task only in Fiori.",
+          "deliverable": "Launchpad set-up and task walkthroughs",
+          "checks": [["Clerk processes an invoice in Fiori", "Completed without SAP GUI", "Demo"], ["Controller reviews a cost centre KPI", "KPI tile shows actual against plan", "Screenshot"], ["Find each app in the apps library", "Technical details recorded", "Notes"]],
+          "objectives": ["Use Fiori for finance", "Configure finance launchpad content", "Replace GUI tasks with apps"]
+        },
+        {
+          "topic": "Testing and Supporting Finance Processes",
+          "subtopics": ["Test scenarios for finance", "Integration tests with logistics", "Regression tests after changes", "Common user errors and fixes", "Support tickets", "Root cause analysis for postings", "Documentation for users", "Handover to support"],
+          "tools": ["SAP GUI", "Test management tool"],
+          "lab_task": "Write and run tests for procure to pay and order to cash finance postings, fix five common user support issues and write a user guide for the payment run.",
+          "deliverable": "Test results, support fixes and user guide",
+          "checks": [["Run the integration tests", "Every posting matches the expected accounts", "Test results"], ["Resolve the support issues", "At least four fixed with the cause explained", "Ticket notes"], ["Review the user guide", "A new user can run the payment program from it", "User guide"]],
+          "objectives": ["Test finance processes", "Support finance users", "Document processes"]
+        },
+        {
+          "topic": "Intermediate Capstone: Finance Configuration for a New Company Code",
+          "subtopics": ["Requirements and design", "Finance organisation and ledgers", "Payables, receivables, assets and banks", "Controlling and product costing", "Integration and closing", "Demo and design defence"],
+          "tools": ["SAP S/4HANA training system", "SAP GUI", "Migration Cockpit", "Advanced Financial Closing"],
+          "lab_task": "Configure finance and controlling for a new company code with ledgers, payments, dunning, assets, banks, tax, cost centres, product costing and margin analysis, migrate opening balances and run a first close, then present it.",
+          "deliverable": "Configuration document, test results, migration reconciliation and a 15-minute presentation",
+          "checks": [["Run a full test month", "Every process posts correctly", "Test results"], ["Reconcile the migration", "All balances agree", "Reconciliation"], ["Present the margin report", "Profitability by segment is correct", "Report and presentation"]],
+          "objectives": ["Combine the intermediate topics in one configuration", "Prove it with a test close", "Defend design choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior finance consultants, solution architects and finance transformation leads. Covers Universal Journal design, parallel accounting, group reporting, central finance, treasury and cash management, revenue and lease accounting, advanced controlling, finance in conversions, analytics and AI in finance, and finance transformation leadership.",
+      "prerequisites": ["Has configured SAP finance and controlling in a project", "Knows integration, closing and migration", "Understands IFRS and local accounting requirements"],
+      "outcomes": ["Design finance architectures on the Universal Journal", "Lead group reporting, central finance and treasury solutions", "Implement revenue, lease and advanced controlling requirements", "Lead finance transformation and conversion workstreams"],
+      "days": [
+        {
+          "topic": "Universal Journal Design and Finance Architecture",
+          "subtopics": ["ACDOCA structure and extensions", "Coding block extensions", "Ledger design choices", "Currency design", "Profitability characteristics in the journal", "Performance considerations", "Reporting implications", "Architecture decision records"],
+          "tools": ["SAP GUI", "ABAP Development Tools data preview", "Universal Journal reports"],
+          "lab_task": "Design the Universal Journal for a group with three accounting principles and four currencies, extend the coding block with one field and record the main decisions.",
+          "deliverable": "Finance architecture document, coding block extension and decision records",
+          "checks": [["Post with the new coding block field", "Field stored in ACDOCA", "Data preview"], ["Review the ledger design", "Supports every reporting requirement", "Architecture document"], ["Review decision records", "Options and trade-offs recorded", "Decision records"]],
+          "objectives": ["Design on the Universal Journal", "Extend the coding block", "Record finance architecture decisions"]
+        },
+        {
+          "topic": "Parallel Accounting: IFRS, Local GAAP and Tax Ledgers",
+          "subtopics": ["Ledger approach versus account approach", "Valuation differences", "Parallel asset valuation", "Parallel foreign currency valuation", "Ledger-specific closing", "Reporting by principle", "Transition between principles", "Audit trail"],
+          "tools": ["SAP GUI", "Ledger reports"],
+          "lab_task": "Implement IFRS and local GAAP ledgers with different depreciation and provisions, run a close for both and reconcile the differences between them.",
+          "deliverable": "Configuration, closing results and reconciliation",
+          "checks": [["Run depreciation", "Different amounts per ledger as designed", "Asset explorer"], ["Post a provision to IFRS only", "Local ledger unaffected", "Ledger reports"], ["Reconcile the ledgers", "Differences fully explained", "Reconciliation"]],
+          "objectives": ["Run parallel accounting", "Close several ledgers", "Explain differences"]
+        },
+        {
+          "topic": "Group Reporting and Consolidation",
+          "subtopics": ["Consolidation units and groups", "Financial statement items", "Data collection and mapping", "Currency translation", "Intercompany elimination", "Consolidation of investments", "Group reports", "Group Reporting versus BPC"],
+          "tools": ["SAP S/4HANA Finance for group reporting"],
+          "lab_task": "Consolidate three companies with currency translation, intercompany elimination and investment consolidation, and produce group statements that balance.",
+          "deliverable": "Consolidation set-up, task log and group statements",
+          "checks": [["Run currency translation", "Translation differences posted to equity", "Task log"], ["Eliminate intercompany balances", "Eliminations net to zero", "Elimination report"], ["Run group statements", "Balance sheet balances", "Group report"]],
+          "objectives": ["Run consolidation in S/4HANA", "Eliminate intercompany", "Produce group statements"]
+        },
+        {
+          "topic": "Central Finance Design and Implementation",
+          "subtopics": ["Central Finance scenarios", "SLT replication", "Mapping framework", "Error handling", "Cost object mapping", "Central payments", "Initial load and reconciliation", "Roadmap to a single ERP"],
+          "tools": ["SAP Central Finance", "SAP Landscape Transformation Replication Server"],
+          "lab_task": "Configure mapping for accounts, cost centres and profit centres from two source systems, run an initial load, handle replication errors and reconcile.",
+          "deliverable": "Mapping configuration, load reports and reconciliation",
+          "checks": [["Replicate a posting from a source system", "Arrives with mapped values", "Central document"], ["Fix a replication error", "Posting replicates after correction", "Error log"], ["Reconcile the initial load", "Balances match the sources", "Reconciliation"]],
+          "objectives": ["Implement Central Finance", "Map and replicate postings", "Reconcile across systems"]
+        },
+        {
+          "topic": "Treasury and Cash Management",
+          "subtopics": ["Cash position and liquidity forecast", "Bank communication management", "In-house cash", "Treasury and risk management overview", "Financial transactions: deposits, loans, FX deals", "Hedge management in brief", "Market data", "Treasury reporting"],
+          "tools": ["SAP Cash Management", "SAP Treasury and Risk Management"],
+          "lab_task": "Build a 13-week liquidity forecast, record an FX forward and a term deposit in treasury, settle them and show their effect on the cash position.",
+          "deliverable": "Forecast, treasury deals and cash position report",
+          "checks": [["Display the liquidity forecast", "Inflows and outflows by week", "Report output"], ["Settle the FX forward", "Postings and cash flows correct", "Document"], ["Show the cash position", "Includes treasury flows", "Report output"]],
+          "objectives": ["Manage cash and liquidity", "Record treasury deals", "Report treasury positions"]
+        },
+        {
+          "topic": "Revenue Accounting and IFRS 15",
+          "subtopics": ["The five-step revenue model", "Revenue Accounting and Reporting overview", "Performance obligations", "Allocation of transaction price", "Contract changes", "Integration with sales and billing", "Disclosures", "Reconciliation"],
+          "tools": ["SAP Revenue Accounting and Reporting", "SAP S/4HANA Sales"],
+          "lab_task": "Account for a bundle contract with hardware and a two-year service, allocate the price, recognise revenue over time and handle a contract change.",
+          "deliverable": "Contract set-up, revenue schedule and change handling",
+          "checks": [["Allocate the price", "Allocation follows standalone selling prices", "Revenue contract"], ["Run revenue recognition for a period", "Correct revenue posted", "Document"], ["Process the contract change", "Remaining revenue recalculated", "Revenue schedule"]],
+          "objectives": ["Apply IFRS 15 in SAP", "Allocate and recognise revenue", "Handle contract changes"]
+        },
+        {
+          "topic": "Lease Accounting and IFRS 16",
+          "subtopics": ["Lease identification", "Contract management for leases", "Right-of-use asset and lease liability", "Interest and depreciation", "Remeasurement", "Short-term and low-value exemptions", "Lessor accounting in brief", "Disclosures"],
+          "tools": ["SAP Real Estate Management / Flexible Real Estate", "Asset Accounting"],
+          "lab_task": "Set up an office lease, create the right-of-use asset and liability, run periodic postings, remeasure after a rent change and produce lease disclosures.",
+          "deliverable": "Lease contract, postings, remeasurement and disclosure report",
+          "checks": [["Create the lease", "Right-of-use asset and liability match a spreadsheet", "Comparison"], ["Run periodic postings", "Interest and depreciation posted", "Documents"], ["Remeasure after the change", "Liability and asset adjusted", "Documents"]],
+          "objectives": ["Apply IFRS 16 in SAP", "Post lease accounting", "Remeasure leases"]
+        },
+        {
+          "topic": "Advanced Controlling: Activity-Based Costing and Overhead Management",
+          "subtopics": ["Activity-based costing concepts", "Business processes in CO", "Template allocation", "Overhead rates", "Target costing in brief", "Universal allocation in S/4HANA", "Cost centre planning with SAP Analytics Cloud", "Management reporting design"],
+          "tools": ["SAP S/4HANA Controlling", "Universal Allocation apps", "SAP Analytics Cloud"],
+          "lab_task": "Implement activity-based costing for order handling, allocate overheads with universal allocation and compare product margins with traditional costing.",
+          "deliverable": "Configuration, allocation results and margin comparison",
+          "checks": [["Run universal allocation", "Overheads allocated by driver", "Allocation result"], ["Compare product margins", "Differences explained by driver", "Comparison"], ["Review the planning model", "Plan feeds controlling", "Screenshot"]],
+          "objectives": ["Implement advanced cost allocation", "Use activity-based costing", "Design management reporting"]
+        },
+        {
+          "topic": "Transfer Pricing and Profit Centre Valuation",
+          "subtopics": ["Legal and group valuation", "Profit centre valuation", "Transfer prices", "Intercompany margins", "Elimination of intercompany profit", "Documentation for tax", "Reporting by valuation view", "Design choices"],
+          "tools": ["SAP S/4HANA Finance", "Group reporting"],
+          "lab_task": "Configure group and profit centre valuation for intercompany sales with transfer prices, show margins in each view and eliminate intercompany profit in consolidation.",
+          "deliverable": "Configuration, valuation reports and elimination results",
+          "checks": [["Post an intercompany sale", "Legal and group views show different margins", "Reports"], ["Eliminate intercompany profit", "Group profit excludes internal margin", "Group report"], ["Review documentation", "Transfer price method recorded", "Documentation"]],
+          "objectives": ["Implement transfer pricing", "Report by valuation view", "Eliminate intercompany profit"]
+        },
+        {
+          "topic": "Finance in S/4HANA Conversion Projects",
+          "subtopics": ["Finance pre-checks", "Customer-vendor integration for finance", "Migration of finance data during conversion", "Reconciliation before and after", "Asset accounting changes", "Credit management conversion", "Typical finance issues", "Finance cutover"],
+          "tools": ["SAP Readiness Check", "Finance migration cockpit", "SAP GUI"],
+          "lab_task": "Plan the finance workstream of a conversion: pre-checks, reconciliations before and after, finance migration steps and cutover tasks, and resolve three planted pre-check findings.",
+          "deliverable": "Finance conversion plan, resolved findings and reconciliation checklist",
+          "checks": [["Resolve the pre-check findings", "Each closed with the fix recorded", "Findings log"], ["Review the reconciliation checklist", "Covers G/L, sub-ledgers and assets", "Checklist"], ["Review the cutover tasks", "Ordered with owners and timings", "Cutover plan"]],
+          "objectives": ["Lead finance in conversions", "Reconcile before and after", "Plan finance cutover"]
+        },
+        {
+          "topic": "Financial Planning and Analysis with SAP Analytics Cloud",
+          "subtopics": ["Planning models", "Data import from S/4HANA", "Driver-based planning", "Forecasting", "Version management", "Writing plans back to S/4HANA", "Predictive features", "Planning governance"],
+          "tools": ["SAP Analytics Cloud", "SAP S/4HANA"],
+          "lab_task": "Build a driver-based cost centre and revenue plan in SAP Analytics Cloud from S/4HANA actuals, create a forecast version and write the plan back to S/4HANA.",
+          "deliverable": "Planning model, forecast and write-back evidence",
+          "checks": [["Import actuals", "Totals match S/4HANA", "Comparison"], ["Change a driver", "Plan updates throughout the model", "Screenshot"], ["Write the plan back", "Plan visible in S/4HANA reports", "Report output"]],
+          "objectives": ["Plan finance in SAP Analytics Cloud", "Use driver-based planning", "Integrate plans with S/4HANA"]
+        },
+        {
+          "topic": "Finance Analytics and Embedded Reporting at Scale",
+          "subtopics": ["Finance analytics architecture", "CDS-based finance reports", "Datasphere for group finance data", "KPIs for finance leaders", "Data quality in finance reporting", "Self-service and governance", "Performance of finance reports", "Report rationalisation"],
+          "tools": ["SAP Datasphere", "SAP Analytics Cloud", "Custom Analytical Queries app"],
+          "lab_task": "Rationalise 40 legacy finance reports into a smaller set of embedded and Datasphere-based reports, build three key reports and a CFO dashboard.",
+          "deliverable": "Report mapping, three reports and dashboard",
+          "checks": [["Map the 40 reports", "Each mapped to a new report or retired with a reason", "Mapping sheet"], ["Reconcile the new reports", "Totals match the ledger", "Reconciliation"], ["Open the CFO dashboard", "Key finance KPIs shown", "Screenshot"]],
+          "objectives": ["Design finance analytics", "Rationalise reports", "Build leadership dashboards"]
+        },
+        {
+          "topic": "Automation and AI in Finance",
+          "subtopics": ["Intelligent finance scenarios", "Cash application with machine learning", "Invoice processing automation", "Joule in finance", "Anomaly detection in journals", "Process automation for finance", "Controls over automated decisions", "Measuring automation gains"],
+          "tools": ["SAP Cash Application", "SAP Build Process Automation", "Joule"],
+          "lab_task": "Measure cash application match rates with and without machine learning, automate an invoice approval flow and design controls for AI-proposed postings.",
+          "deliverable": "Match rate comparison, automated flow and control design",
+          "checks": [["Compare match rates", "Improvement measured", "Comparison"], ["Run the invoice flow", "Invoice posted after approval", "Process monitor"], ["Review the controls", "Each AI decision has a review rule", "Control design"]],
+          "objectives": ["Apply AI in finance", "Automate finance processes", "Control automated decisions"]
+        },
+        {
+          "topic": "Finance Controls, GRC and Audit at Scale",
+          "subtopics": ["Finance control frameworks", "Automated controls in S/4HANA", "SAP Process Control overview", "Segregation of duties in finance at scale", "Continuous control monitoring", "Audit trails in the Universal Journal", "SOX and internal financial controls", "Audit preparation"],
+          "tools": ["SAP Process Control", "SAP Access Control", "Audit apps"],
+          "lab_task": "Design a finance control matrix with automated controls, set up continuous monitoring for two controls and prepare an audit evidence pack.",
+          "deliverable": "Control matrix, monitoring set-up and evidence pack",
+          "checks": [["Trigger a control exception", "Monitoring raises an issue", "Issue log"], ["Review the control matrix", "Each risk has a control and owner", "Matrix"], ["Review the evidence pack", "Evidence for each tested control", "Evidence pack"]],
+          "objectives": ["Design finance controls", "Monitor controls continuously", "Prepare for audits"]
+        },
+        {
+          "topic": "Tax and Statutory Compliance at Scale",
+          "subtopics": ["Document and Reporting Compliance in depth", "E-invoicing across countries", "Statutory reports", "Tax determination with external engines", "Audit files such as SAF-T", "Year-end statutory processes", "Compliance monitoring", "Multi-country roll-outs"],
+          "tools": ["SAP Document and Reporting Compliance", "Tax engine integration"],
+          "lab_task": "Plan e-invoicing and statutory reporting for India and two European countries in DRC, configure one country end to end and test submission and error handling.",
+          "deliverable": "Compliance plan, configuration and submission test results",
+          "checks": [["Submit an e-invoice", "Accepted with a reference", "DRC monitor"], ["Submit an invalid e-invoice", "Rejection is shown with the reason", "DRC monitor"], ["Review the plan", "Requirements per country covered", "Plan"]],
+          "objectives": ["Manage tax compliance at scale", "Configure e-invoicing", "Plan multi-country roll-outs"]
+        },
+        {
+          "topic": "Shared Services and Finance Operations Design",
+          "subtopics": ["Global business services models", "Shared service processes: P2P, O2C, R2R", "Process standardisation", "Service level agreements", "Work allocation and queues", "Performance metrics", "Location and staffing", "Technology enablement"],
+          "tools": ["SAP Shared Service Framework", "SAP Fiori launchpad"],
+          "lab_task": "Design a finance shared service centre for accounts payable and receivable, define service levels and metrics, and model staffing for the transaction volumes.",
+          "deliverable": "Service design, service level agreements and staffing model",
+          "checks": [["Review the service levels", "Measurable for each process", "Service level document"], ["Model staffing", "Based on volumes and productivity", "Staffing model"], ["Review metrics", "Tied to cost and quality goals", "Metrics list"]],
+          "objectives": ["Design finance shared services", "Set service levels", "Model staffing"]
+        },
+        {
+          "topic": "Finance Transformation Roadmaps and Business Cases",
+          "subtopics": ["Finance target operating model", "Capability maps", "Benefits: faster close, lower cost, better insight", "Business case for finance transformation", "Roadmap phases", "Change management for finance teams", "Measuring value", "Steering committee reporting"],
+          "tools": ["Capability map template", "Spreadsheet"],
+          "lab_task": "Build a finance transformation roadmap and business case for a provided company with capability gaps, benefits, phases and KPIs, and present it to a mock CFO.",
+          "deliverable": "Capability map, business case, roadmap and presentation",
+          "checks": [["Review the capability gaps", "Each linked to a benefit", "Capability map"], ["Review the business case", "Benefits measurable with assumptions", "Business case"], ["Answer CFO questions", "Roadmap defended with evidence", "Presentation"]],
+          "objectives": ["Build finance transformation roadmaps", "Quantify benefits", "Present to finance leadership"]
+        },
+        {
+          "topic": "Troubleshooting Finance Postings and Reconciliation Differences",
+          "subtopics": ["G/L versus sub-ledger differences", "Reconciliation reports", "Wrong account determination", "Splitting errors", "Currency differences", "Period-end failures", "Correction postings", "Root cause analysis"],
+          "tools": ["SAP GUI", "Reconciliation reports", "Universal Journal reports"],
+          "lab_task": "Resolve four injected problems (a sub-ledger difference, wrong account determination, a splitting error and a failed valuation), post corrections and write runbooks.",
+          "deliverable": "Incident records, corrections and runbooks",
+          "checks": [["Run reconciliation after the fixes", "No G/L to sub-ledger differences", "Reconciliation report"], ["Correct the wrong postings", "Correction documents reference the originals", "Documents"], ["Write a runbook for valuation failures", "Another consultant can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot finance postings", "Reconcile ledgers", "Write runbooks"]
+        },
+        {
+          "topic": "Finance Solution Architecture Reviews",
+          "subtopics": ["Reviewing finance designs", "Common design mistakes", "Fit with accounting policy", "Scalability of finance designs", "Integration risks", "Decision records", "Finance design authority", "Presenting to architecture boards"],
+          "tools": ["Architecture decision record template", "Diagramming tool"],
+          "lab_task": "Review two proposed finance designs from a case study, find risks against accounting policy and scale, write decision records and defend a recommendation to a mock design authority.",
+          "deliverable": "Review notes, decision records and presentation",
+          "checks": [["List the risks in each design", "Main risks found with evidence", "Review notes"], ["Write the decision records", "Options and trade-offs recorded", "Decision records"], ["Answer design authority questions", "Recommendation defended with evidence", "Presentation"]],
+          "objectives": ["Review finance architectures", "Record decisions", "Lead finance design authority"]
+        },
+        {
+          "topic": "Advanced Capstone: Group Finance Transformation Blueprint",
+          "subtopics": ["Finance architecture and ledgers", "Group reporting and central finance", "Treasury, revenue and lease accounting", "Controlling and planning", "Controls, compliance and automation", "Board presentation and design defence"],
+          "tools": ["SAP S/4HANA Finance", "Group Reporting", "SAP Central Finance", "SAP Analytics Cloud", "SAP Process Control"],
+          "lab_task": "Produce a group finance blueprint with ledger and currency design, consolidation, central finance, treasury, IFRS 15 and 16, controlling and planning, controls and automation, prototype two scenarios and present it to a mock board.",
+          "deliverable": "Blueprint, two prototypes, business case and a 20-minute presentation",
+          "checks": [["Run the consolidation prototype", "Group statements balance", "Group report"], ["Run the IFRS 16 prototype", "Postings match the expected schedule", "Comparison"], ["Answer board questions", "Blueprint defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one blueprint", "Prove key scenarios", "Lead finance transformation"]
+        }
+      ]
+    }
+  }
+}

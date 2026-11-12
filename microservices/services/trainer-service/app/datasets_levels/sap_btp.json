@@ -1,0 +1,573 @@
+{
+  "domain": "SAP BTP",
+  "name": "SAP BTP",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "cloud",
+  "aliases": ["SAP Business Technology Platform", "BTP", "SAP Integration Suite", "SAP CPI", "SAP BTP Development", "SAP CAP", "SAP CAPM", "SAP Cloud Application Programming Model", "BTP CAPM", "SAP Build", "SAP Build Apps", "SAP Build Process Automation", "SAP Build Work Zone"],
+  "certifications": ["SAP Certified Associate - Backend Developer - SAP Cloud Application Programming Model (C_CPE)", "SAP Certified Associate - SAP Build Low-code/No-code Applications and Automations (C_LCNC)", "SAP Certified Associate - Integration Developer (C_CPI)"],
+  "tools": ["SAP BTP trial or enterprise account", "SAP Business Application Studio", "SAP Build", "Cloud Foundry CLI", "SAP HANA Cloud", "Node.js 20"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, consultants and citizen developers new to SAP BTP. Covers the account model, services and environments, connecting to SAP systems, security basics, low-code apps and automation with SAP Build, a first CAP application on SAP HANA Cloud, Fiori elements and deployment.",
+      "prerequisites": ["Basic understanding of SAP business processes or software development", "Can use a web browser, a code editor and a command line", "An SAP BTP trial or training account"],
+      "outcomes": ["Explain what SAP BTP offers and how its accounts are structured", "Build low-code apps and automations with SAP Build", "Build and deploy a first CAP application with a Fiori elements UI", "Connect BTP to SAP systems securely"],
+      "days": [
+        {
+          "topic": "SAP BTP Overview and Account Setup",
+          "subtopics": ["What SAP BTP is: application development, automation, integration, data, AI", "Global accounts, directories and subaccounts", "Regions and hyperscalers", "Entitlements and quotas", "Service plans and pricing models", "BTP cockpit tour", "Creating a trial account", "Command-line tool btp CLI", "SAP Discovery Center missions", "Course project overview"],
+          "tools": ["SAP BTP cockpit", "btp CLI", "SAP Discovery Center"],
+          "lab_task": "Create a trial account, set up a subaccount and a directory, assign entitlements for SAP Build and SAP HANA Cloud and list them with the btp CLI.",
+          "deliverable": "Account structure screenshot and btp CLI output",
+          "checks": [["Run btp list accounts/subaccount", "Shows the new subaccount", "CLI output"], ["Assign the SAP Build entitlement", "Service appears in the subaccount", "Cockpit screenshot"], ["Explain global account versus subaccount", "Correct explanation", "Written answer"]],
+          "objectives": ["Explain what BTP offers", "Set up accounts and entitlements", "Use the cockpit and CLI"]
+        },
+        {
+          "topic": "Runtimes: Cloud Foundry, Kyma and the ABAP Environment",
+          "subtopics": ["Cloud Foundry environment", "Kyma runtime on Kubernetes", "SAP BTP ABAP environment", "Spaces, orgs and quotas in Cloud Foundry", "Service instances and bindings", "When to use each runtime", "Pricing differences", "Pushing a sample app"],
+          "tools": ["Cloud Foundry CLI", "SAP BTP cockpit"],
+          "lab_task": "Enable Cloud Foundry, create a space, push a sample Node.js app with cf push, bind a service instance to it and compare when you would choose Kyma or the ABAP environment instead.",
+          "deliverable": "Running app URL, binding output and a runtime comparison",
+          "checks": [["Run cf apps", "Sample app is started", "CLI output"], ["Run cf env on the app", "Service binding credentials appear in VCAP_SERVICES", "CLI output"], ["Compare the three runtimes", "Use case and cost given for each", "Comparison sheet"]],
+          "objectives": ["Use the Cloud Foundry runtime", "Bind services", "Choose a runtime"]
+        },
+        {
+          "topic": "Connecting BTP to SAP Systems: Destinations and Cloud Connector",
+          "subtopics": ["Why on-premise systems need a connector", "SAP Cloud Connector installation", "Exposing back-end resources", "Destinations in the subaccount", "Authentication types for destinations", "Principal propagation in brief", "Connectivity and Destination services", "Testing a connection"],
+          "tools": ["SAP Cloud Connector", "SAP BTP cockpit"],
+          "lab_task": "Install Cloud Connector, connect it to the subaccount, expose an S/4HANA OData service, create a destination and test it from the cockpit.",
+          "deliverable": "Cloud Connector configuration, destination and successful test",
+          "checks": [["Check the connector status in the cockpit", "Connected", "Cockpit screenshot"], ["Run the destination connection check", "Connection succeeds", "Cockpit screenshot"], ["Call a path not exposed in Cloud Connector", "Call is denied", "Error message"]],
+          "objectives": ["Connect BTP to on-premise systems", "Configure destinations", "Expose only what is needed"]
+        },
+        {
+          "topic": "Security Basics: Identity, Roles and Trust",
+          "subtopics": ["SAP Cloud Identity Services: Identity Authentication", "Trust between subaccounts and identity providers", "Role collections and roles", "Assigning users and groups", "XSUAA for applications", "Multi-factor authentication", "Audit log service", "Least privilege"],
+          "tools": ["SAP Cloud Identity Services", "SAP BTP cockpit"],
+          "lab_task": "Connect the subaccount to Identity Authentication, require MFA, create a role collection for app users and show a user without it being refused.",
+          "deliverable": "Trust configuration, role collection and test results",
+          "checks": [["Log on with MFA", "Second factor is required", "Screenshot"], ["Open the app without the role collection", "Access is refused", "Screenshot"], ["Read the audit log", "Logon events are listed", "Audit log"]],
+          "objectives": ["Set up identity and trust", "Control access with role collections", "Audit access"]
+        },
+        {
+          "topic": "SAP Build Apps: Your First Low-Code Application",
+          "subtopics": ["SAP Build lobby", "Pages, components and logic flows", "Data resources and variables", "Connecting to an OData service", "Forms and validation", "Mobile and web previews", "Deploying a Build app", "When low-code is the right choice"],
+          "tools": ["SAP Build Apps"],
+          "lab_task": "Build a low-code app that lists S/4HANA business partners through a destination, shows details and lets a user create a contact note with validation, then deploy it.",
+          "deliverable": "Build app, deployed URL and demo",
+          "checks": [["Open the deployed app", "Business partners load from S/4HANA", "Demo"], ["Submit the form with an empty required field", "Validation stops the submission", "Demo"], ["Preview on a mobile device", "Layout works on a phone screen", "Screenshot"]],
+          "objectives": ["Build low-code apps", "Connect them to SAP data", "Deploy Build apps"]
+        },
+        {
+          "topic": "SAP Build Process Automation: Workflows and Forms",
+          "subtopics": ["Processes, forms and approvals", "Triggers", "Conditions and branches", "Decisions with business rules", "Process visibility", "Inbox for approvers", "Connecting to S/4HANA with actions", "Monitoring process instances"],
+          "tools": ["SAP Build Process Automation"],
+          "lab_task": "Build a purchase request approval process with a form, a business rule that routes by amount, two approval levels and an action that creates a purchase requisition in S/4HANA.",
+          "deliverable": "Process, rules, form and monitoring screenshots",
+          "checks": [["Submit a request below the limit", "One approval and the requisition is created", "Process monitor and S/4HANA document"], ["Submit a request above the limit", "Second approval is required", "Process monitor"], ["Reject a request", "Requester is informed and nothing is created", "Process monitor"]],
+          "objectives": ["Automate approvals", "Use business rules", "Connect workflows to SAP systems"]
+        },
+        {
+          "topic": "SAP Build Process Automation: Bots for Repetitive Tasks",
+          "subtopics": ["Desktop agent", "Recording and building automations", "Screen and web automation", "Excel and email automation", "Variables and loops", "Error handling", "Scheduling bots", "Attended and unattended bots"],
+          "tools": ["SAP Build Process Automation", "Desktop Agent"],
+          "lab_task": "Build a bot that reads supplier invoices from email attachments, enters them into a test web form, logs results to Excel and handles a missing field without stopping.",
+          "deliverable": "Automation project, run log and results file",
+          "checks": [["Run the bot on five emails", "Five entries are created", "Run log"], ["Include an email with a missing field", "Logged as an exception and the bot continues", "Run log"], ["Schedule the bot", "Runs at the scheduled time", "Monitor screenshot"]],
+          "objectives": ["Automate repetitive tasks with bots", "Handle exceptions", "Schedule automations"]
+        },
+        {
+          "topic": "SAP Build Work Zone: Sites and Launchpads",
+          "subtopics": ["Standard and advanced editions", "Content providers", "Sites, pages and spaces", "Adding Fiori apps and Build apps", "Workspaces and collaboration", "Themes and branding", "Roles and visibility", "Mobile access"],
+          "tools": ["SAP Build Work Zone"],
+          "lab_task": "Build a Work Zone site that combines the Build app, the approval inbox and an S/4HANA Fiori app, with pages visible by role.",
+          "deliverable": "Site, role settings and screenshots for two roles",
+          "checks": [["Log on as an employee", "Sees only employee pages", "Screenshot"], ["Log on as an approver", "Approval inbox is visible", "Screenshot"], ["Open the S/4HANA app from the site", "App opens with single sign-on", "Screenshot"]],
+          "objectives": ["Build a central entry point", "Combine apps from many sources", "Control visibility by role"]
+        },
+        {
+          "topic": "Getting Hands-On with SAP HANA Cloud",
+          "subtopics": ["HANA Cloud instances", "Tables, views and SQL", "Database explorer", "HDI containers", "Data lake option", "Loading data", "Users and privileges", "Cost of instances"],
+          "tools": ["SAP HANA Cloud", "SAP HANA database explorer"],
+          "lab_task": "Create a HANA Cloud instance, load a CSV of products, write SQL queries and a view, and grant a read-only user access to the view only.",
+          "deliverable": "Instance, SQL scripts and access test",
+          "checks": [["Query the products table", "Returns the loaded rows", "Query result"], ["Query the base table as the read-only user", "Insufficient privilege error", "Error message"], ["Stop the instance", "Status shows stopped and billing pauses", "Cockpit screenshot"]],
+          "objectives": ["Use SAP HANA Cloud", "Write SQL on HANA", "Control database access"]
+        },
+        {
+          "topic": "Introduction to the SAP Cloud Application Programming Model (CAP)",
+          "subtopics": ["What CAP is and why SAP recommends it", "Business Application Studio dev spaces", "cds init and project layout", "Domain models in CDS", "Service definitions", "Running locally with cds watch", "Sample data from CSV files", "OData endpoints generated by CAP", "Node.js and Java options", "CAP documentation and samples"],
+          "tools": ["SAP Business Application Studio", "CAP (Node.js)", "SQLite"],
+          "lab_task": "Create a CAP project for a bookshop with Books and Authors entities, a catalogue service and CSV sample data, run it locally and query it through OData.",
+          "deliverable": "CAP project and OData query results",
+          "checks": [["Run cds watch and open /odata/v4/catalog/Books", "Returns the sample books", "Browser output"], ["Query with $filter on price", "Only matching books returned", "Browser output"], ["Add an Authors association and $expand it", "Books return with author names", "Browser output"]],
+          "objectives": ["Create a CAP project", "Model data in CDS", "Expose OData services"]
+        },
+        {
+          "topic": "CAP Services: Custom Logic and Validation",
+          "subtopics": ["Event handlers: before, on, after", "Input validation", "Custom actions and functions", "Error messages", "Calling other services", "Transactions", "Testing with REST client files", "Logging"],
+          "tools": ["CAP (Node.js)", "SAP Business Application Studio"],
+          "lab_task": "Add handlers to the bookshop that stop orders larger than the stock, reduce stock in the same transaction, add a submitOrder action and test every case with a REST client file.",
+          "deliverable": "Service code and REST client test file with results",
+          "checks": [["Order more books than in stock", "400 error with a clear message", "REST client output"], ["Submit a valid order", "Stock decreases by the ordered amount", "Query result"], ["Make the stock update fail", "Whole order is rolled back", "Query result"]],
+          "objectives": ["Add business logic to CAP services", "Validate input", "Use transactions"]
+        },
+        {
+          "topic": "Fiori Elements User Interfaces for CAP",
+          "subtopics": ["What Fiori elements are", "List report and object page", "Annotations in CDS", "Value helps", "Draft handling", "Generating apps with the application generator", "Previewing locally", "Adding the app to a launchpad"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio", "CAP (Node.js)"],
+          "lab_task": "Generate a Fiori elements list report and object page for the bookshop, add annotations for columns, filters and value helps, enable draft editing and preview it.",
+          "deliverable": "Fiori elements app and annotation file",
+          "checks": [["Open the list report", "Columns and filters match the annotations", "Screenshot"], ["Edit a book in draft and leave without saving", "Draft is kept and can be resumed", "Screenshot"], ["Use the author value help", "Lists authors from the service", "Screenshot"]],
+          "objectives": ["Build Fiori elements UIs", "Drive UIs with annotations", "Use draft editing"]
+        },
+        {
+          "topic": "Persisting CAP Data in SAP HANA Cloud",
+          "subtopics": ["Moving from SQLite to HANA Cloud", "HDI containers for CAP", "cds deploy", "Profiles for development and production", "Database migrations", "Hybrid testing with cds bind", "Native HANA features from CAP", "Performance basics"],
+          "tools": ["CAP (Node.js)", "SAP HANA Cloud", "SAP Business Application Studio"],
+          "lab_task": "Deploy the bookshop schema to an HDI container on HANA Cloud, run the app locally against it with cds bind, then change the model and redeploy without losing data.",
+          "deliverable": "HDI container, deployment logs and data check",
+          "checks": [["Run cds deploy --to hana", "Tables are created in the container", "Deployment log"], ["Run the app with the hybrid profile", "Data comes from HANA Cloud", "Logs"], ["Add a column and redeploy", "Existing data is kept", "Query result"]],
+          "objectives": ["Persist CAP data in HANA Cloud", "Use profiles and hybrid testing", "Change schemas safely"]
+        },
+        {
+          "topic": "Securing CAP Applications",
+          "subtopics": ["Authentication in CAP", "@requires and @restrict annotations", "Roles in xs-security.json", "Instance-based authorisation", "Mock users for local testing", "XSUAA binding", "Role collections for apps", "Testing access rules"],
+          "tools": ["CAP (Node.js)", "XSUAA", "SAP BTP cockpit"],
+          "lab_task": "Restrict the bookshop so viewers can read, editors can change only books in their own genre and admins can delete, test with mock users and deploy the roles.",
+          "deliverable": "Security annotations, xs-security.json and test results",
+          "checks": [["Delete a book as an editor", "403 Forbidden", "REST client output"], ["Edit a book outside the editor's genre", "Refused", "REST client output"], ["Assign the admin role collection", "Delete works", "Demo"]],
+          "objectives": ["Secure CAP services", "Use role and instance rules", "Test authorisation"]
+        },
+        {
+          "topic": "Deploying Applications with MTA",
+          "subtopics": ["Multi-target applications", "mta.yaml modules and resources", "Building with mbt", "Deploying with cf deploy", "The approuter", "HTML5 application repository", "Updating and undeploying", "Deployment errors"],
+          "tools": ["Cloud MTA Build Tool", "Cloud Foundry CLI", "SAP Business Application Studio"],
+          "lab_task": "Package the bookshop service, HANA deployer, approuter and Fiori app as an MTA, deploy it to Cloud Foundry and add the app to the Work Zone site.",
+          "deliverable": "mta.yaml, deployment log and running app",
+          "checks": [["Run cf deploy", "All modules are deployed", "Deployment log"], ["Open the app through the approuter", "Logon is required and data loads", "Screenshot"], ["Open the app from Work Zone", "App appears as a tile and opens", "Screenshot"]],
+          "objectives": ["Package apps as MTAs", "Deploy to Cloud Foundry", "Publish apps to users"]
+        },
+        {
+          "topic": "Consuming S/4HANA APIs from CAP",
+          "subtopics": ["Finding APIs in SAP Business Accelerator Hub", "Importing an API into CAP", "Remote services", "Mocking remote services locally", "Calling through destinations", "Mashing up local and remote data", "Handling remote errors", "Performance with remote calls"],
+          "tools": ["CAP (Node.js)", "SAP Business Accelerator Hub", "SAP BTP destinations"],
+          "lab_task": "Import the S/4HANA business partner API into CAP, mock it locally, then call the real system through a destination and show customers alongside local notes.",
+          "deliverable": "CAP project with remote service and demo",
+          "checks": [["Run locally with the mock", "Mock business partners are shown", "Demo"], ["Run with the destination", "Real S/4HANA partners are shown", "Demo"], ["Stop the back end", "App shows a clear error instead of crashing", "Demo"]],
+          "objectives": ["Use S/4HANA APIs in CAP", "Mock remote services", "Handle remote errors"]
+        },
+        {
+          "topic": "Integration Suite: First Integration Flows",
+          "subtopics": ["What Integration Suite includes", "Cloud Integration iFlows", "Adapters: HTTP, OData, SFTP, mail", "Message mapping", "Content modifier and routers", "Deploying and monitoring", "Pre-built integration packages", "Error handling basics"],
+          "tools": ["SAP Integration Suite"],
+          "lab_task": "Build an iFlow that receives an order over HTTP, maps it to the S/4HANA sales order format, routes priority orders to an email alert and forwards all orders to S/4HANA.",
+          "deliverable": "iFlow, mapping and monitoring screenshots",
+          "checks": [["Send a normal order", "Arrives in S/4HANA", "Monitor and S/4HANA document"], ["Send a priority order", "Email alert is sent as well", "Monitor and email"], ["Send an order with a bad field", "Message fails with the error shown in monitoring", "Monitor screenshot"]],
+          "objectives": ["Build integration flows", "Map and route messages", "Monitor integrations"]
+        },
+        {
+          "topic": "Generative AI on SAP BTP: AI Core, Generative AI Hub and Joule",
+          "subtopics": ["SAP Business AI overview", "SAP AI Core and AI Launchpad", "Generative AI hub", "Using foundation models from BTP", "Prompting with business data", "Joule capabilities", "Data privacy and responsible AI", "Cost of AI services"],
+          "tools": ["SAP AI Core", "SAP AI Launchpad", "Generative AI hub", "Joule"],
+          "lab_task": "Use the generative AI hub to summarise product reviews stored in HANA Cloud from a CAP service, compare two foundation models and note what data leaves the system.",
+          "deliverable": "CAP endpoint, model comparison and data flow note",
+          "checks": [["Call the summary endpoint", "Returns a summary for the chosen product", "API response"], ["Compare two models", "Quality and cost recorded", "Comparison sheet"], ["Review the data flow note", "Lists what is sent to the model", "Data flow note"]],
+          "objectives": ["Use generative AI on BTP", "Call models from CAP", "Handle data privacy"]
+        },
+        {
+          "topic": "Monitoring, Logging and Cost Management",
+          "subtopics": ["Application logging service", "Cloud Foundry logs", "Alert Notification service", "Health checks", "Usage and cost analytics", "Entitlement planning", "Stopping unused resources", "Support tickets with SAP"],
+          "tools": ["SAP BTP cockpit", "Cloud Foundry CLI", "Alert Notification service"],
+          "lab_task": "Add logging and an alert to the bookshop, trigger an error to receive an alert, then review usage and cost in the cockpit and list resources that could be stopped.",
+          "deliverable": "Logs, alert email and cost review",
+          "checks": [["Trigger an application error", "Alert email is received", "Email"], ["Run cf logs", "Error with request details shown", "CLI output"], ["Review usage", "Costs per service listed with savings", "Cost review"]],
+          "objectives": ["Monitor BTP apps", "Alert on errors", "Control BTP costs"]
+        },
+        {
+          "topic": "Beginner Capstone: Extension App with Approval Workflow",
+          "subtopics": ["Requirements and design", "CAP service on HANA Cloud", "Fiori elements UI and security", "S/4HANA data and workflow", "Deployment to Work Zone", "Demo"],
+          "tools": ["CAP (Node.js)", "SAP HANA Cloud", "SAP Fiori tools", "SAP Build Process Automation", "SAP Build Work Zone"],
+          "lab_task": "Build an equipment request app with a CAP service on HANA Cloud, a Fiori elements UI, role-based security, cost centres read from S/4HANA, an approval workflow and a Work Zone tile, then demo it.",
+          "deliverable": "MTA project, workflow, deployed app and a 10-minute demo",
+          "checks": [["Submit a request above the limit", "Approval workflow starts and status updates", "Demo"], ["Log on as a user without the role", "Access is refused", "Demo"], ["Pick a cost centre", "Values come from S/4HANA", "Demo"]],
+          "objectives": ["Combine the beginner topics in one app", "Connect BTP to SAP data", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and consultants who have built on BTP. Covers advanced CAP modelling and services, side-by-side S/4HANA extensions with events, Fiori development, Integration Suite and API Management, process automation, Kyma, CI/CD, testing, AI services and HANA Cloud features.",
+      "prerequisites": ["Has built and deployed a CAP application", "Knows BTP accounts, destinations and role collections", "Comfortable with JavaScript or Java and Git"],
+      "outcomes": ["Build production-grade CAP services and Fiori apps", "Extend S/4HANA side by side with events and APIs", "Design integrations with Integration Suite and API Management", "Automate delivery and run apps on Cloud Foundry and Kyma"],
+      "days": [
+        {
+          "topic": "Advanced CDS Modelling",
+          "subtopics": ["Aspects and reuse with @sap/cds/common", "Compositions and associations", "Managed and unmanaged associations", "Localised data and text tables", "Temporal data", "Calculated elements", "Views and projections", "Model organisation in large projects"],
+          "tools": ["CAP (Node.js)", "SAP Business Application Studio"],
+          "lab_task": "Model an order management domain with compositions for order items, localised product texts, temporal prices and projections for different services, and test it with sample data.",
+          "deliverable": "CDS model, services and test queries",
+          "checks": [["Delete an order", "Its items are deleted through the composition", "Query result"], ["Request product names with a German locale", "German texts are returned", "OData response"], ["Query prices for a past date", "Price valid on that date returned", "OData response"]],
+          "objectives": ["Model complex domains in CDS", "Use compositions, localisation and temporal data", "Organise large models"]
+        },
+        {
+          "topic": "Advanced CAP Services: Actions, Events and Error Handling",
+          "subtopics": ["Bound and unbound actions", "Emitting and handling events", "Messaging with SAP Event Mesh", "Draft-enabled services", "Error handling and messages for Fiori", "Request context and user information", "Generic providers and their limits", "Plugins"],
+          "tools": ["CAP (Node.js)", "SAP Event Mesh"],
+          "lab_task": "Add a bound approve action to orders, emit an OrderApproved event to Event Mesh, consume it in a second CAP service and return Fiori-friendly error messages.",
+          "deliverable": "Two CAP services, event configuration and test results",
+          "checks": [["Approve an order", "Event is received by the second service", "Logs"], ["Approve an already approved order", "Fiori shows the error message", "Screenshot"], ["Stop the consumer and approve", "Event is delivered when the consumer restarts", "Logs"]],
+          "objectives": ["Build actions and events in CAP", "Use Event Mesh", "Return clear errors"]
+        },
+        {
+          "topic": "Side-by-Side Extensions of S/4HANA with Events",
+          "subtopics": ["Extension architecture", "S/4HANA business events", "Event Mesh set-up with S/4HANA", "Reading full data after an event", "Writing back through APIs", "Principal propagation", "Idempotent event handling", "Monitoring extensions"],
+          "tools": ["CAP (Node.js)", "SAP Event Mesh", "SAP S/4HANA", "SAP Cloud Connector"],
+          "lab_task": "React to S/4HANA business partner changes with a CAP extension that enriches data, writes a note back to S/4HANA with the user's identity and ignores duplicate events.",
+          "deliverable": "Extension service, event subscriptions and monitoring",
+          "checks": [["Change a business partner in S/4HANA", "Extension processes the event and writes the note back", "Logs and S/4HANA note"], ["Send the same event twice", "Processed once", "Logs"], ["Check the change history in S/4HANA", "Shows the end user, not a technical user", "Change log"]],
+          "objectives": ["Extend S/4HANA side by side", "Use business events", "Propagate user identity"]
+        },
+        {
+          "topic": "SAPUI5 Freestyle Development",
+          "subtopics": ["When to use freestyle UI5", "MVC in UI5", "XML views and controllers", "Models and data binding", "Routing", "Calling OData V4", "Fiori design guidelines", "Testing with OPA5"],
+          "tools": ["SAPUI5", "SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Build a freestyle UI5 dashboard for the order service with a master-detail layout, routing, OData V4 binding and an OPA5 test for the main flow.",
+          "deliverable": "UI5 app and OPA5 test results",
+          "checks": [["Navigate from list to detail", "Route and data update", "Demo"], ["Run the OPA5 test", "Passes", "Test output"], ["Review against Fiori guidelines", "Layout follows the floorplan", "Review notes"]],
+          "objectives": ["Build freestyle UI5 apps", "Bind to OData V4", "Test UIs"]
+        },
+        {
+          "topic": "Extending Fiori Elements with Flexible Programming",
+          "subtopics": ["Building blocks", "Custom sections and columns", "Controller extensions", "Custom actions", "Side effects", "Adaptation projects for SAP apps", "Key user adaptation", "Keeping extensions upgrade-safe"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Add a custom chart section, a custom column and a custom action to the order object page, and create an adaptation project that adds a field to a standard SAP app.",
+          "deliverable": "Extended app and adaptation project",
+          "checks": [["Open the object page", "Custom section and column appear", "Screenshot"], ["Run the custom action", "Order updates and the page refreshes through side effects", "Demo"], ["Open the adapted standard app", "New field is shown", "Screenshot"]],
+          "objectives": ["Extend Fiori elements", "Adapt standard SAP apps", "Keep extensions upgrade-safe"]
+        },
+        {
+          "topic": "Integration Suite: Advanced Cloud Integration",
+          "subtopics": ["Groovy scripts", "Exception subprocesses", "Splitter and aggregator", "JMS queues and retries", "Data stores and variables", "Security material and certificates", "Transport of integration content", "Performance tuning"],
+          "tools": ["SAP Integration Suite"],
+          "lab_task": "Build an iFlow that splits a batch of orders, retries failures through JMS, stores failed orders in a data store with an exception subprocess and transports it to a test tenant.",
+          "deliverable": "iFlow, transport record and monitoring evidence",
+          "checks": [["Send a batch with one bad order", "Good orders processed and the bad one stored", "Monitor and data store"], ["Make the receiver unavailable", "Messages retried from JMS and delivered later", "Monitor"], ["Transport the iFlow", "Runs in the test tenant", "Monitor"]],
+          "objectives": ["Build robust iFlows", "Handle errors and retries", "Transport integration content"]
+        },
+        {
+          "topic": "API Management on SAP BTP",
+          "subtopics": ["API proxies", "Policies: quotas, spike arrest, caching", "Security policies: OAuth and API keys", "Products and the developer portal", "Analytics", "Exposing S/4HANA APIs safely", "Versioning APIs", "Monetisation in brief"],
+          "tools": ["SAP Integration Suite API Management", "Postman"],
+          "lab_task": "Expose the order service through an API proxy with OAuth, a quota, caching and an API product in the developer portal, then test limits and review analytics.",
+          "deliverable": "API proxy, product and test results",
+          "checks": [["Call without a token", "401 Unauthorized", "Postman result"], ["Exceed the quota", "429 Too Many Requests", "Postman result"], ["Call the same request twice", "Second response served from cache", "Response headers"]],
+          "objectives": ["Manage APIs on BTP", "Secure and limit APIs", "Publish APIs to developers"]
+        },
+        {
+          "topic": "Event-Driven Architecture with Advanced Event Mesh",
+          "subtopics": ["Event Mesh versus Advanced Event Mesh", "Topics and queues", "Event brokers and meshes", "Guaranteed delivery", "Replay", "Event catalogue", "Connecting S/4HANA and non-SAP systems", "Monitoring event flows"],
+          "tools": ["SAP Integration Suite, advanced event mesh", "SAP S/4HANA"],
+          "lab_task": "Set up Advanced Event Mesh with topics for order events from S/4HANA, subscribe a CAP service and a non-SAP system, and replay events after an outage.",
+          "deliverable": "Broker set-up, subscriptions and replay test",
+          "checks": [["Create an order in S/4HANA", "Both subscribers receive the event", "Logs"], ["Stop one subscriber and create orders", "Events are queued and delivered on restart", "Logs"], ["Replay events from a time", "Subscriber receives them again", "Logs"]],
+          "objectives": ["Design event-driven integration", "Use Advanced Event Mesh", "Recover with replay"]
+        },
+        {
+          "topic": "Advanced Process Automation: Decisions, Integrations and Governance",
+          "subtopics": ["Complex decision tables", "Actions connecting to APIs", "Process variants", "Process visibility dashboards", "Error handling in processes", "Lifecycle and transport", "Governance for citizen developers", "Combining automation with AI"],
+          "tools": ["SAP Build Process Automation", "SAP Build Work Zone"],
+          "lab_task": "Build a supplier onboarding process with decision tables, API actions to S/4HANA, a document extraction step for certificates and a visibility dashboard, then transport it.",
+          "deliverable": "Process, dashboard and transport record",
+          "checks": [["Onboard a supplier with a valid certificate", "Supplier is created in S/4HANA", "Process monitor and S/4HANA"], ["Upload an expired certificate", "Process routes to manual review", "Process monitor"], ["Open the visibility dashboard", "Cycle time and status counts shown", "Dashboard"]],
+          "objectives": ["Build complex automations", "Govern citizen development", "Monitor processes"]
+        },
+        {
+          "topic": "Kyma Runtime for Cloud-Native Extensions",
+          "subtopics": ["Kyma and Kubernetes basics", "Deploying containers to Kyma", "Serverless functions", "API rules and exposure", "Service bindings in Kyma", "Eventing in Kyma", "Observability in Kyma", "When to use Kyma over Cloud Foundry"],
+          "tools": ["SAP BTP Kyma runtime", "kubectl", "Docker"],
+          "lab_task": "Deploy a containerised service and a serverless function to Kyma, expose them with API rules, bind a HANA Cloud service and react to an S/4HANA event.",
+          "deliverable": "Kubernetes manifests, running endpoints and event demo",
+          "checks": [["Call the exposed API", "Response from the Kyma service", "curl output"], ["Trigger the S/4HANA event", "Function runs", "Function logs"], ["Delete the pod", "Kubernetes recreates it", "kubectl output"]],
+          "objectives": ["Run extensions on Kyma", "Use functions and API rules", "Choose between runtimes"]
+        },
+        {
+          "topic": "CI/CD for BTP Applications",
+          "subtopics": ["SAP Continuous Integration and Delivery service", "Pipelines for CAP and UI5", "Running tests in pipelines", "Cloud Transport Management", "Transport routes across subaccounts", "GitHub Actions for BTP", "Environment configuration", "Release approvals"],
+          "tools": ["SAP Continuous Integration and Delivery", "Cloud Transport Management", "GitHub Actions"],
+          "lab_task": "Set up a pipeline that tests and builds the order MTA on every commit and moves it through development, test and production subaccounts with Cloud Transport Management and an approval.",
+          "deliverable": "Pipeline configuration, transport routes and release record",
+          "checks": [["Push a failing test", "Pipeline stops before build", "Pipeline log"], ["Release to test", "MTA is imported into the test subaccount", "Transport log"], ["Release to production", "Waits for approval first", "Transport log"]],
+          "objectives": ["Automate BTP delivery", "Transport across subaccounts", "Gate production releases"]
+        },
+        {
+          "topic": "Testing CAP Applications",
+          "subtopics": ["Unit tests with cds.test", "Testing handlers and actions", "Mocking remote services", "Testing authorisation", "Integration tests against HANA", "UI tests", "Test data", "Coverage"],
+          "tools": ["CAP (Node.js)", "Jest or Mocha", "cds.test"],
+          "lab_task": "Write cds.test tests for the order service covering handlers, actions, authorisation and the mocked S/4HANA service, and reach 80 percent coverage.",
+          "deliverable": "Test suite and coverage report",
+          "checks": [["Run the tests", "All pass", "Test output"], ["Break the stock rule", "A test fails", "Test output"], ["Open the coverage report", "At least 80 percent", "Coverage report"]],
+          "objectives": ["Test CAP services", "Mock dependencies", "Measure coverage"]
+        },
+        {
+          "topic": "SAP HANA Cloud: Calculation Views, Spatial and Vector Features",
+          "subtopics": ["Calculation views", "Graph and spatial engines", "JSON document store", "Vector engine for embeddings", "Full-text search", "Data lake files", "Performance analysis", "Using these from CAP"],
+          "tools": ["SAP HANA Cloud", "SAP Business Application Studio"],
+          "lab_task": "Build a calculation view for sales analytics, find nearby stores with spatial functions and store product embeddings in the vector engine for similarity search.",
+          "deliverable": "Calculation view, spatial query, vector search and timings",
+          "checks": [["Query the calculation view", "Totals match the source", "Query result"], ["Find stores within 10 km", "Correct stores returned", "Query result"], ["Run a vector similarity search", "Similar products returned", "Query result"]],
+          "objectives": ["Use advanced HANA Cloud features", "Build calculation views", "Search with vectors"]
+        },
+        {
+          "topic": "Generative AI Hub and AI Services in Applications",
+          "subtopics": ["Generative AI hub orchestration", "Prompt templates and grounding", "Content filtering and data masking", "Document Information Extraction", "AI SDK for CAP", "Evaluating AI results", "Cost tracking", "Responsible AI"],
+          "tools": ["SAP AI Core", "Generative AI hub", "SAP AI SDK", "Document Information Extraction"],
+          "lab_task": "Add an AI feature to the order app that extracts data from uploaded supplier quotes, drafts an email with a grounded prompt and masks personal data, then evaluate 20 results.",
+          "deliverable": "AI feature, orchestration configuration and evaluation",
+          "checks": [["Upload a supplier quote", "Fields are extracted into the order", "Demo"], ["Draft an email with a customer phone number in the data", "Number is masked before the model call", "Orchestration log"], ["Evaluate 20 results", "Accuracy recorded", "Evaluation sheet"]],
+          "objectives": ["Use AI services in BTP apps", "Ground and filter prompts", "Evaluate AI results"]
+        },
+        {
+          "topic": "SAP Datasphere Essentials for Developers",
+          "subtopics": ["Spaces and connections", "Remote and replicated tables", "Graphical and SQL views", "Analytic models", "Data flows", "Consumption from SAP Analytics Cloud", "Access controls", "Datasphere in Business Data Cloud"],
+          "tools": ["SAP Datasphere", "SAP Analytics Cloud"],
+          "lab_task": "Connect Datasphere to S/4HANA, combine sales orders with a CSV of targets in an analytic model, restrict data by region and show it in an Analytics Cloud story.",
+          "deliverable": "Datasphere space, model and story",
+          "checks": [["Open the story", "Sales against target is shown", "Screenshot"], ["Log on as a regional user", "Only that region is shown", "Screenshot"], ["Compare totals with S/4HANA", "Totals match", "Comparison"]],
+          "objectives": ["Model data in Datasphere", "Combine SAP and non-SAP data", "Secure analytics"]
+        },
+        {
+          "topic": "Connecting Non-SAP Systems and SaaS Applications",
+          "subtopics": ["Integration options for non-SAP systems", "Open Connectors for SaaS applications", "Prebuilt adapters in Integration Suite", "OAuth flows for third-party APIs", "Mapping non-SAP data to SAP formats", "Webhooks into BTP", "Rate limits of external APIs", "Monitoring external calls"],
+          "tools": ["SAP Integration Suite", "Open Connectors", "CAP (Node.js)"],
+          "lab_task": "Connect a CRM and a ticketing SaaS to the order solution with Open Connectors and an iFlow, sync new customers into S/4HANA and receive ticket updates through a webhook.",
+          "deliverable": "Connector configuration, iFlow and sync demo",
+          "checks": [["Create a customer in the CRM", "Business partner appears in S/4HANA", "Monitor and S/4HANA"], ["Update a ticket in the SaaS tool", "Webhook updates the order note in BTP", "Logs"], ["Exceed the SaaS API rate limit", "Calls back off and complete later", "Monitor"]],
+          "objectives": ["Integrate non-SAP systems with BTP", "Use Open Connectors and webhooks", "Respect external API limits"]
+        },
+        {
+          "topic": "Mobile Apps with SAP Mobile Services",
+          "subtopics": ["Mobile Services overview", "Mobile development kit", "Offline data", "Push notifications", "App security", "Device management", "Publishing apps", "When to use mobile services"],
+          "tools": ["SAP Mobile Services", "Mobile development kit"],
+          "lab_task": "Build a mobile app with the mobile development kit for warehouse staff that works offline, syncs orders when back online and receives a push notification.",
+          "deliverable": "Mobile app and offline sync demo",
+          "checks": [["Change an order offline", "Change syncs when the device reconnects", "Demo"], ["Send a push notification", "Device receives it", "Screenshot"], ["Revoke the user's access", "App can no longer sync", "Demo"]],
+          "objectives": ["Build mobile apps on BTP", "Support offline use", "Secure mobile access"]
+        },
+        {
+          "topic": "Observability for BTP Applications",
+          "subtopics": ["SAP Cloud Logging", "OpenTelemetry in CAP", "Distributed tracing across services", "Metrics and dashboards", "Alerting", "Correlating with S/4HANA calls", "SAP Cloud ALM monitoring", "Troubleshooting with traces"],
+          "tools": ["SAP Cloud Logging", "OpenTelemetry", "SAP Cloud ALM"],
+          "lab_task": "Add OpenTelemetry to the CAP services, follow one order across the services, Event Mesh and S/4HANA calls in traces and set alerts on errors and latency.",
+          "deliverable": "Tracing set-up, dashboards and alert rules",
+          "checks": [["Place an order", "One trace covers every service call", "Trace screenshot"], ["Slow down the S/4HANA call", "Latency alert fires", "Alert"], ["Search logs by trace ID", "All log lines for the order found", "Log search"]],
+          "objectives": ["Observe BTP applications", "Trace across services", "Alert on problems"]
+        },
+        {
+          "topic": "Security Hardening for BTP Solutions",
+          "subtopics": ["Identity Authentication and Identity Provisioning", "Principal propagation end to end", "Secrets with the Credential Store", "Content Security Policy for UIs", "Audit logging in apps", "Data protection features", "Penetration testing", "Security recommendations in the cockpit"],
+          "tools": ["SAP Cloud Identity Services", "Credential Store", "SAP BTP cockpit"],
+          "lab_task": "Harden the order solution: provision users from a directory, store secrets in Credential Store, add audit logging for changes and fix the issues from a security checklist.",
+          "deliverable": "Security configuration and checklist results",
+          "checks": [["Remove a user from the directory", "Access is removed after provisioning", "Demo"], ["Search the code for secrets", "None found", "Search output"], ["Change an order", "Audit log records the user and change", "Audit log"]],
+          "objectives": ["Harden BTP solutions", "Manage identities and secrets", "Audit application changes"]
+        },
+        {
+          "topic": "Intermediate Capstone: Event-Driven S/4HANA Extension Suite",
+          "subtopics": ["Requirements and architecture", "CAP services with HANA Cloud", "Events, APIs and integration flows", "Fiori UIs and process automation", "CI/CD, testing and observability", "Demo and design defence"],
+          "tools": ["CAP (Node.js)", "SAP HANA Cloud", "SAP Event Mesh", "SAP Integration Suite", "SAP Build Process Automation", "SAP Continuous Integration and Delivery"],
+          "lab_task": "Deliver a supplier collaboration suite that reacts to S/4HANA events, exposes APIs through API Management, runs an onboarding process, has Fiori UIs, tests, a CI/CD pipeline and tracing, then present it.",
+          "deliverable": "Repository, pipeline, deployed suite, dashboards and a 15-minute demo",
+          "checks": [["Change a supplier in S/4HANA", "Suite updates through the event and traces show the flow", "Demo and trace"], ["Run the pipeline", "Tests pass and the suite reaches the test subaccount", "Pipeline log"], ["Call the API above the quota", "Rejected", "Postman result"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Prove quality and operations", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For architects and senior developers. Covers BTP enterprise architecture and governance, multitenant SaaS, the ABAP Cloud environment, infrastructure as code, advanced integration and PI/PO migration, AI and agents with Joule, Business Data Cloud, security architecture, resilience and FinOps on BTP.",
+      "prerequisites": ["Has delivered BTP solutions in production", "Knows CAP, Integration Suite and BTP security", "Leads design or architecture work"],
+      "outcomes": ["Architect BTP landscapes and govern them at scale", "Build multitenant SaaS and ABAP Cloud extensions", "Lead integration modernisation and AI on BTP", "Run secure, resilient and cost-controlled BTP platforms"],
+      "days": [
+        {
+          "topic": "BTP Enterprise Architecture and Landscape Design",
+          "subtopics": ["Account and directory strategy", "Subaccount per stage, region or team", "Shared services", "Network and connectivity architecture", "Identity architecture", "Naming and labelling", "Reference architectures from SAP", "Architecture decision records"],
+          "tools": ["SAP BTP cockpit", "SAP Discovery Center", "Diagramming tool"],
+          "lab_task": "Design a BTP landscape for a group with four business units, three regions and development, test and production stages, including connectivity, identity and shared services.",
+          "deliverable": "Landscape design and decision records",
+          "checks": [["Review the directory structure", "Matches ownership and billing needs", "Design document"], ["Review connectivity", "Every back-end system has a secure path", "Diagram"], ["Review decision records", "Options and trade-offs recorded", "Decision records"]],
+          "objectives": ["Design BTP landscapes", "Plan connectivity and identity", "Record architecture decisions"]
+        },
+        {
+          "topic": "Infrastructure as Code with the Terraform Provider for SAP BTP",
+          "subtopics": ["Terraform provider for BTP", "Subaccounts, entitlements and service instances as code", "Role collections as code", "State management", "Modules for standard subaccounts", "Drift detection", "Pipelines for platform changes", "Importing existing resources"],
+          "tools": ["Terraform", "Terraform provider for SAP BTP", "GitHub Actions"],
+          "lab_task": "Create a standard subaccount module with entitlements, Cloud Foundry, services and role collections in Terraform, apply it for two teams through a pipeline and detect a manual change.",
+          "deliverable": "Terraform modules, pipeline and drift report",
+          "checks": [["Apply the module for two teams", "Both subaccounts are created identically", "Terraform output"], ["Change a setting by hand and run plan", "Drift is detected", "Plan output"], ["Destroy a test subaccount", "All its resources are removed", "Terraform output"]],
+          "objectives": ["Manage BTP as code", "Standardise subaccounts", "Detect drift"]
+        },
+        {
+          "topic": "Multitenant SaaS Applications with CAP",
+          "subtopics": ["Multitenancy concepts", "SaaS provisioning service", "Tenant onboarding and offboarding", "Database isolation with HDI", "Tenant-specific extensions", "Upgrading all tenants", "Metering usage", "Pricing and operations"],
+          "tools": ["CAP (Node.js)", "SaaS Provisioning service", "SAP HANA Cloud"],
+          "lab_task": "Turn the order app into a multitenant SaaS app, subscribe two consumer subaccounts, add a tenant extension field and upgrade both tenants.",
+          "deliverable": "Multitenant app, two subscriptions and upgrade log",
+          "checks": [["Subscribe a tenant", "Tenant's database container is created", "Logs"], ["Read data as tenant A", "Tenant B's data is not visible", "Demo"], ["Upgrade the app", "Both tenants get the new version with data kept", "Upgrade log"]],
+          "objectives": ["Build multitenant SaaS on BTP", "Isolate tenant data", "Upgrade many tenants"]
+        },
+        {
+          "topic": "ABAP Cloud Development in the SAP BTP ABAP Environment",
+          "subtopics": ["ABAP Cloud language version", "RESTful ABAP Programming Model on BTP", "Released APIs", "Developing in ABAP Development Tools", "Business services and Fiori elements", "Software components and gCTS", "Embedded Steampunk in S/4HANA", "Choosing ABAP Cloud or CAP"],
+          "tools": ["SAP BTP ABAP environment", "ABAP Development Tools", "gCTS"],
+          "lab_task": "Build a RAP business object for travel requests in the BTP ABAP environment with validations and a Fiori elements UI, transport it with gCTS and compare the effort with CAP.",
+          "deliverable": "RAP application, transport record and comparison",
+          "checks": [["Create a travel request with an end date before the start", "Validation error shown", "Screenshot"], ["Transport with gCTS", "Arrives in the test system", "Transport log"], ["Compare with CAP", "Effort and skills compared", "Comparison sheet"]],
+          "objectives": ["Develop with ABAP Cloud on BTP", "Use RAP", "Choose between ABAP Cloud and CAP"]
+        },
+        {
+          "topic": "Integration Modernisation: PI/PO Migration to Integration Suite",
+          "subtopics": ["Inventory of PI/PO interfaces", "Migration assessment tool", "Migration tooling for integration content", "Patterns that change in the cloud", "Edge Integration Cell for on-premise runtime", "Testing migrated interfaces", "Wave planning", "Decommissioning PI/PO"],
+          "tools": ["SAP Integration Suite", "Migration assessment", "Edge Integration Cell"],
+          "lab_task": "Assess 30 PI/PO interfaces with the migration assessment, migrate three with the migration tool, run one on Edge Integration Cell and plan the remaining waves.",
+          "deliverable": "Assessment, migrated interfaces, test results and wave plan",
+          "checks": [["Run the assessment", "Interfaces grouped by effort", "Assessment report"], ["Test a migrated interface", "Same output as on PI/PO", "Comparison"], ["Review the wave plan", "Dependencies and cut-over steps defined", "Wave plan"]],
+          "objectives": ["Plan PI/PO migration", "Migrate interfaces", "Use Edge Integration Cell"]
+        },
+        {
+          "topic": "Integration Architecture and Governance at Scale",
+          "subtopics": ["Integration solution advisory methodology", "Choosing patterns: process, data, analytics, user, thing", "Central and federated integration teams", "API-first design", "Event catalogue governance", "Naming and versioning standards", "Monitoring at scale", "Integration centre of excellence"],
+          "tools": ["SAP Integration Suite", "Integration Solution Advisory Methodology"],
+          "lab_task": "Apply the integration solution advisory methodology to a provided landscape, assign patterns and technologies to 20 integration needs and define governance standards.",
+          "deliverable": "Integration strategy, pattern assignments and standards",
+          "checks": [["Assign patterns to the 20 needs", "Each has a pattern and a technology with a reason", "Strategy document"], ["Review the standards", "Naming, versioning and error handling covered", "Standards document"], ["Review the operating model", "Roles of central and federated teams defined", "Operating model"]],
+          "objectives": ["Govern integration at scale", "Choose integration patterns", "Set up an integration centre of excellence"]
+        },
+        {
+          "topic": "AI Agents and Joule Extensibility",
+          "subtopics": ["Joule skills and agents", "Joule Studio", "Grounding Joule in business data", "Agents calling BTP and S/4HANA APIs", "Human approval in agent actions", "Evaluating agent quality", "Security and roles for agents", "Governance of AI scenarios"],
+          "tools": ["Joule Studio", "SAP AI Core", "SAP Build"],
+          "lab_task": "Build a Joule skill that answers order status questions from S/4HANA and an agent that drafts a purchase requisition for approval, then evaluate them on 20 scenarios.",
+          "deliverable": "Joule skill, agent and evaluation results",
+          "checks": [["Ask Joule for an order status", "Correct status from S/4HANA", "Demo"], ["Ask the agent to create a requisition", "Draft waits for user approval", "Demo"], ["Run 20 scenarios", "Success rate recorded", "Evaluation sheet"]],
+          "objectives": ["Extend Joule", "Build agents on BTP", "Evaluate AI scenarios"]
+        },
+        {
+          "topic": "Retrieval-Augmented Generation with the HANA Cloud Vector Engine",
+          "subtopics": ["Embedding business documents", "Vector tables in HANA Cloud", "Similarity search with SQL", "Combining vectors with business filters", "Generative AI hub grounding", "Permissions on documents", "Evaluating answers", "Costs at scale"],
+          "tools": ["SAP HANA Cloud vector engine", "Generative AI hub", "CAP (Node.js)"],
+          "lab_task": "Build an assistant that answers questions on supplier contracts stored as vectors in HANA Cloud, filtered by company code and user access, and evaluate it on 30 questions.",
+          "deliverable": "Vector tables, CAP service and evaluation results",
+          "checks": [["Ask about a contract the user may see", "Correct answer with the contract cited", "Demo"], ["Ask about a contract for another company code", "Not retrieved", "Trace"], ["Run the 30 questions", "Accuracy recorded", "Evaluation sheet"]],
+          "objectives": ["Build RAG on SAP HANA Cloud", "Filter retrieval by business rules", "Evaluate grounded answers"]
+        },
+        {
+          "topic": "SAP Business Data Cloud Architecture",
+          "subtopics": ["Business Data Cloud components", "Data products from SAP applications", "Datasphere, Analytics Cloud and Databricks integration", "Delta sharing with non-SAP platforms", "Semantic models", "Data governance and catalogues", "Migration from BW", "Architecture choices"],
+          "tools": ["SAP Business Data Cloud", "SAP Datasphere", "SAP Databricks"],
+          "lab_task": "Design a Business Data Cloud architecture that uses SAP data products, shares data with Databricks for machine learning and replaces two BW reports, with governance rules.",
+          "deliverable": "Architecture, data product plan and governance rules",
+          "checks": [["Review the data product plan", "Sources, owners and consumers listed", "Plan"], ["Review the sharing design", "No unnecessary data copies", "Diagram"], ["Map two BW reports to the new design", "Both are covered", "Mapping sheet"]],
+          "objectives": ["Design data architectures with Business Data Cloud", "Share SAP data with other platforms", "Plan BW migration"]
+        },
+        {
+          "topic": "Advanced Security Architecture for BTP",
+          "subtopics": ["Zero trust principles on BTP", "Identity federation with corporate identity providers", "Authorisation management with Identity Directory and groups", "Private Link service", "Network isolation", "Threat detection and audit", "Security in multitenant apps", "Compliance and certifications"],
+          "tools": ["SAP Cloud Identity Services", "SAP Private Link service", "SAP Audit Log service"],
+          "lab_task": "Design and implement zero-trust access for the SaaS app with federation to the corporate identity provider, group-based roles, Private Link to back-end systems and audit monitoring.",
+          "deliverable": "Security architecture, configuration and audit evidence",
+          "checks": [["Log on through the corporate identity provider", "Groups map to role collections", "Demo"], ["Call the back end from outside Private Link", "Connection fails", "Test output"], ["Review audit events", "Privileged actions are logged", "Audit log"]],
+          "objectives": ["Architect BTP security", "Isolate networks", "Monitor and audit access"]
+        },
+        {
+          "topic": "Resilience, Disaster Recovery and Multi-Region Design",
+          "subtopics": ["Availability of BTP services", "Multi-region deployments", "Failover for apps and databases", "HANA Cloud replicas", "Integration resilience", "Backups and restore", "DR testing", "Service level objectives"],
+          "tools": ["SAP BTP cockpit", "SAP HANA Cloud", "Global traffic routing"],
+          "lab_task": "Deploy the order app in two regions with a HANA Cloud replica, fail over during a test and measure recovery time against the target.",
+          "deliverable": "Multi-region design, failover test record and recovery time",
+          "checks": [["Fail the primary region in the test", "Traffic moves to the second region", "Test record"], ["Measure recovery time", "Within the target", "Test record"], ["Restore a database backup", "Data restored to the chosen point", "Query result"]],
+          "objectives": ["Design resilient BTP solutions", "Test failover", "Meet recovery objectives"]
+        },
+        {
+          "topic": "FinOps and Cost Governance on BTP",
+          "subtopics": ["BTP commercial models: CPEA and BTPEA", "Cost per subaccount and service", "Usage analytics", "Budgets and alerts", "Chargeback to business units", "Right-sizing services", "Stopping unused instances automatically", "Forecasting"],
+          "tools": ["SAP BTP cockpit", "Usage analytics", "Spreadsheet"],
+          "lab_task": "Analyse three months of BTP usage, allocate costs to business units, find the top savings, automate stopping idle HANA Cloud instances and forecast the next year.",
+          "deliverable": "Cost allocation, savings plan, automation and forecast",
+          "checks": [["Allocate costs", "Totals match the bill", "Allocation sheet"], ["Run the idle-instance automation", "Idle instances are stopped", "Logs"], ["Review the forecast", "Based on trends with assumptions", "Forecast"]],
+          "objectives": ["Govern BTP costs", "Charge back usage", "Forecast spend"]
+        },
+        {
+          "topic": "Platform Engineering for BTP Teams",
+          "subtopics": ["Internal developer platform on BTP", "Golden-path templates for CAP and UI5", "Self-service subaccounts", "Shared libraries and plugins", "Developer experience measures", "Documentation portals", "Support model", "Platform roadmap"],
+          "tools": ["Terraform provider for SAP BTP", "SAP Business Application Studio", "GitHub templates"],
+          "lab_task": "Build a golden path that gives a new team a subaccount, a CAP template with pipeline, security and observability in under an hour, and measure the time with a pilot team.",
+          "deliverable": "Golden path, documentation and pilot measurements",
+          "checks": [["Run the golden path for a new team", "Working subaccount and app in under one hour", "Pilot record"], ["Review the template", "Tests, security and observability included", "Template repository"], ["Gather pilot feedback", "Issues listed with fixes", "Feedback summary"]],
+          "objectives": ["Engineer a BTP platform for teams", "Provide golden paths", "Measure developer experience"]
+        },
+        {
+          "topic": "Clean Core Extension Strategy Across S/4HANA and BTP",
+          "subtopics": ["Extension decision framework", "On-stack versus side-by-side", "ABAP Cloud tiers", "Business events and APIs", "Extension inventory and scoring", "Moving classic extensions out of the core", "Governance board", "Measuring clean core"],
+          "tools": ["ABAP Test Cockpit", "SAP BTP", "Extension inventory template"],
+          "lab_task": "Score 30 classic S/4HANA extensions, decide for each whether to retire, rebuild on-stack with ABAP Cloud or move to BTP, and plan the first wave.",
+          "deliverable": "Extension inventory, decisions and wave plan",
+          "checks": [["Score the 30 extensions", "Each has a score and evidence", "Inventory"], ["Review the decisions", "Follow the decision framework", "Decision log"], ["Review the wave plan", "Effort and benefits estimated", "Wave plan"]],
+          "objectives": ["Plan clean core extensions", "Use a decision framework", "Move extensions out of the core"]
+        },
+        {
+          "topic": "Performance Engineering for BTP Applications",
+          "subtopics": ["CAP performance patterns", "Database access patterns on HANA", "Caching", "Remote call costs", "Load testing", "Scaling Cloud Foundry and Kyma", "UI performance", "Capacity planning"],
+          "tools": ["k6", "CAP (Node.js)", "SAP HANA Cloud", "Cloud Foundry CLI"],
+          "lab_task": "Load-test the order app, find the slowest service and query, fix them with query changes and caching, scale instances and show the throughput gain.",
+          "deliverable": "Load test reports, fixes and capacity plan",
+          "checks": [["Load-test before changes", "Baseline throughput and p95 latency recorded", "k6 report"], ["Load-test after changes", "Throughput doubled or p95 halved", "k6 report"], ["Review the capacity plan", "Instance counts justified", "Capacity plan"]],
+          "objectives": ["Engineer BTP performance", "Fix bottlenecks", "Plan capacity"]
+        },
+        {
+          "topic": "Migrating from the SAP BTP Neo Environment",
+          "subtopics": ["Neo end of maintenance and timelines", "Inventory of Neo applications and services", "Mapping Neo services to multi-cloud equivalents", "Java and HTML5 application migration", "Connectivity and destinations migration", "Security and role migration", "Testing migrated applications", "Cut-over and decommissioning"],
+          "tools": ["SAP BTP cockpit", "Cloud Foundry CLI", "SAP Business Application Studio"],
+          "lab_task": "Inventory a provided Neo subaccount, map every service to its Cloud Foundry or Kyma equivalent, migrate one HTML5 app and one destination, and write the cut-over plan.",
+          "deliverable": "Inventory, service mapping, migrated app and cut-over plan",
+          "checks": [["Map the services", "Every Neo service has a target or a replacement plan", "Mapping sheet"], ["Open the migrated HTML5 app", "Works with the migrated destination", "Demo"], ["Review the cut-over plan", "Includes rollback and user communication", "Plan"]],
+          "objectives": ["Plan Neo migrations", "Map services to the multi-cloud environment", "Cut over safely"]
+        },
+        {
+          "topic": "Testing Strategy at Scale for BTP and S/4HANA Extensions",
+          "subtopics": ["Test levels across CAP, UI, integration and process", "Contract tests for S/4HANA APIs", "Testing events and asynchronous flows", "Synthetic test data for SAP scenarios", "Performance and security testing in pipelines", "Testing multitenant upgrades", "Regression after S/4HANA updates", "Test reporting for releases"],
+          "tools": ["cds.test", "Playwright or wdi5", "k6", "SAP Continuous Integration and Delivery"],
+          "lab_task": "Build a test strategy and pipeline stage for the SaaS product covering API contracts, event flows, UI journeys and a multitenant upgrade test, and run it against a planted break.",
+          "deliverable": "Test strategy, pipeline stage and test report",
+          "checks": [["Change the S/4HANA API response in the mock", "Contract test fails", "Pipeline log"], ["Run the UI journey test", "Passes in the headless browser", "Test report"], ["Upgrade two test tenants in the pipeline", "Both upgrade and tests pass", "Pipeline log"]],
+          "objectives": ["Test BTP solutions at every level", "Catch S/4HANA-related breaks early", "Test multitenant upgrades"]
+        },
+        {
+          "topic": "Operating BTP Solutions: Incidents and Support",
+          "subtopics": ["Operations model and responsibilities", "SAP Cloud ALM operations", "Incident management with SAP", "Service status and maintenance windows", "Runbooks", "Common incidents: certificates, destinations, quotas", "Post-incident reviews", "Continuous improvement"],
+          "tools": ["SAP Cloud ALM", "SAP for Me", "SAP BTP cockpit"],
+          "lab_task": "Handle three injected incidents (an expired certificate, a broken destination and an exhausted quota), restore service, find root causes and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Restore the expired certificate", "Integration works again", "Monitor"], ["Fix the broken destination", "Connection check succeeds", "Cockpit screenshot"], ["Write a runbook for quota exhaustion", "Another participant can follow it", "Runbook"]],
+          "objectives": ["Operate BTP solutions", "Resolve common incidents", "Write runbooks"]
+        },
+        {
+          "topic": "BTP Strategy and Architecture Reviews",
+          "subtopics": ["Building a BTP strategy", "Use case portfolios", "Build versus buy on BTP", "Skills and centre of excellence", "Licensing decisions", "Roadmaps", "Reviewing solution designs", "Presenting to an architecture board"],
+          "tools": ["SAP Discovery Center", "Architecture decision record template"],
+          "lab_task": "Review two proposed BTP solution designs from a case study, find their risks, write decision records and present a BTP strategy and roadmap to a mock architecture board.",
+          "deliverable": "Review notes, decision records, strategy and presentation",
+          "checks": [["List the risks in each design", "Main risks found with evidence", "Review notes"], ["Write decision records", "Options, trade-offs and decisions recorded", "Decision records"], ["Answer board questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Review BTP solutions", "Build a BTP strategy", "Communicate to leadership"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise BTP Platform and SaaS Product",
+          "subtopics": ["Landscape architecture and governance as code", "Multitenant SaaS product", "Integration modernisation", "AI and agent scenarios", "Security, resilience and cost governance", "Board presentation and design defence"],
+          "tools": ["Terraform provider for SAP BTP", "CAP (Node.js)", "SAP Integration Suite", "SAP AI Core", "SAP Cloud Identity Services", "SAP Cloud ALM"],
+          "lab_task": "Deliver a BTP platform defined in Terraform hosting a multitenant SaaS product with integrations, an AI assistant grounded in HANA Cloud vectors, zero-trust security, multi-region failover and a cost model, then present it to a mock board.",
+          "deliverable": "Platform repository, SaaS app, test reports, cost model and a 20-minute presentation",
+          "checks": [["Onboard a new tenant", "Tenant is provisioned with isolated data automatically", "Demo"], ["Fail over to the second region", "App keeps working within the recovery target", "Test record"], ["Present the cost model", "Costs per tenant and per business unit justified", "Cost model"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove security, resilience and cost control", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}
