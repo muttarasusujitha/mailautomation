@@ -1,0 +1,573 @@
+{
+  "domain": "Ansible",
+  "name": "Ansible",
+  "category": "DevOps and CI/CD",
+  "icon": "settings",
+  "aliases": ["Red Hat Ansible", "Ansible Automation", "Ansible Automation Platform", "Configuration Management with Ansible"],
+  "certifications": ["Red Hat Certified Engineer (RHCE, EX294)", "Red Hat Certified Specialist in Developing Automation with Ansible Automation Platform (EX374)"],
+  "tools": ["Ansible", "ansible-lint", "Molecule", "Linux"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No automation experience assumed. Participants automate Linux servers with inventories, ad hoc commands, playbooks, templates, handlers, roles and Vault.",
+      "prerequisites": ["Basic Linux administration (packages, services, files)", "Comfortable with SSH and a text editor", "Laptop able to run three small Linux VMs or containers"],
+      "outcomes": ["Explain agentless configuration management", "Write idempotent playbooks with templates and handlers", "Organise automation into roles and inventories", "Protect secrets with Ansible Vault"],
+      "days": [
+        {
+          "topic": "Configuration Management Concepts and Ansible Setup",
+          "subtopics": ["Manual configuration and drift", "Push versus pull configuration tools", "Ansible architecture: control node and managed nodes", "Installing Ansible with pip or packages", "SSH key access to managed nodes", "ansible.cfg", "A first inventory file", "Testing connectivity with the ping module", "Ansible documentation with ansible-doc", "Idempotence in plain terms"],
+          "tools": ["Ansible", "SSH"],
+          "lab_task": "Install Ansible on a control node, set up SSH key access to three managed nodes, write an inventory with web and db groups, and ping all of them.",
+          "deliverable": "ansible.cfg, inventory file and the ping output",
+          "checks": [["Run ansible all -m ping", "All three nodes reply pong", "Command output"], ["Ping only the web group", "Only web nodes reply", "Command output"], ["Explain idempotence", "Participant explains running twice gives the same result", "Written explanation"]],
+          "objectives": ["Explain how Ansible works", "Connect Ansible to managed nodes", "Write a basic inventory"]
+        },
+        {
+          "topic": "Ad Hoc Commands and Core Modules",
+          "subtopics": ["Ad hoc command syntax", "command and shell modules", "package and service modules", "copy and file modules", "user and group modules", "Privilege escalation with become", "Gathering facts", "Why modules beat shell commands"],
+          "tools": ["Ansible"],
+          "lab_task": "Use ad hoc commands to install nginx on web nodes, create a deploy user on all nodes, copy a file and restart a service, then gather facts about memory and OS.",
+          "deliverable": "Command log and fact output",
+          "checks": [["Run the package command twice", "Second run reports no change", "Command output"], ["Check the deploy user on each node", "Exists with the right groups", "Command output"], ["Show free memory from facts", "Values for each node", "Fact output"]],
+          "objectives": ["Run ad hoc commands", "Use core modules", "Read gathered facts"]
+        },
+        {
+          "topic": "Writing Your First Playbooks",
+          "subtopics": ["YAML structure for playbooks", "Plays, tasks and modules", "Targeting hosts", "Task names", "Running playbooks", "Check mode and diff mode", "Reading play recap output", "Linting with ansible-lint"],
+          "tools": ["Ansible", "ansible-lint"],
+          "lab_task": "Write a playbook that installs and starts nginx, deploys a custom index page and opens the firewall port, then run it in check mode, normally, and a second time.",
+          "deliverable": "Playbook, three run outputs and a clean lint result",
+          "checks": [["Run the playbook a second time", "Recap shows changed=0", "Play recap"], ["Open each web node in a browser", "Custom page loads", "Screenshots"], ["Run ansible-lint", "No errors", "Lint output"]],
+          "objectives": ["Write and run playbooks", "Use check and diff mode", "Keep playbooks idempotent"]
+        },
+        {
+          "topic": "Inventory Groups, Host Settings and Group Settings",
+          "subtopics": ["INI and YAML inventory formats", "Groups and child groups", "host_vars and group_vars folders", "Connection settings per host", "Inventory for several environments", "Listing inventory with ansible-inventory", "Patterns for targeting", "Limiting runs with --limit"],
+          "tools": ["Ansible"],
+          "lab_task": "Restructure the inventory into dev and prod with group_vars for each, set a different page title per environment, and target only prod web servers.",
+          "deliverable": "Inventory folders and outputs for both environments",
+          "checks": [["Run against dev", "Dev page shows the dev title", "Browser screenshot"], ["Run with --limit prod_web", "Only prod web nodes change", "Play recap"], ["Run ansible-inventory --graph", "Shows the group tree", "Command output"]],
+          "objectives": ["Organise inventories by environment", "Store settings in group_vars and host_vars", "Target subsets of hosts"]
+        },
+        {
+          "topic": "Facts, Registered Results and Conditionals",
+          "subtopics": ["Using facts in tasks", "register to capture results", "when conditions", "Conditions on OS family", "failed_when and changed_when", "assert module", "debug module", "Custom facts"],
+          "tools": ["Ansible"],
+          "lab_task": "Write one playbook that installs the right web server package for Debian and Red Hat nodes, checks disk space before installing, and fails with a clear message if space is low.",
+          "deliverable": "Playbook and runs on both OS families",
+          "checks": [["Run on a Debian and a Red Hat node", "Each gets the right package", "Play recap"], ["Simulate low disk space", "Play fails with the clear message", "Run output"], ["Register a command result and print it", "Value shown with debug", "Run output"]],
+          "objectives": ["Use facts and conditions", "Capture and test results", "Fail early with clear messages"]
+        },
+        {
+          "topic": "Loops and Data Structures in Playbooks",
+          "subtopics": ["loop over lists", "Looping over dictionaries", "Nested data from group_vars", "loop_control and labels", "until for retries", "Filters on lists", "Creating many users and files", "Keeping loops readable"],
+          "tools": ["Ansible"],
+          "lab_task": "Create ten users with groups and SSH keys from a list in group_vars, create their home folders with set permissions, and retry a flaky download with until.",
+          "deliverable": "Playbook, data file and run output",
+          "checks": [["Add one user to the list and rerun", "Only that user is created", "Play recap"], ["Check a user's SSH key", "Correct key in authorized_keys", "Command output"], ["Simulate a failing download that succeeds on retry", "Task succeeds after retries", "Run output"]],
+          "objectives": ["Loop over lists and dictionaries", "Drive tasks from data", "Retry unreliable tasks"]
+        },
+        {
+          "topic": "Jinja2 Templates",
+          "subtopics": ["template module", "Jinja2 expressions", "Conditionals in templates", "Loops in templates", "Filters: default, join, upper", "Whitespace control", "Validating generated files", "Managing configuration files with templates"],
+          "tools": ["Ansible", "Jinja2"],
+          "lab_task": "Generate an nginx site configuration from a template with a loop over upstream servers and a conditional TLS block, validating the file before replacing it.",
+          "deliverable": "Template, playbook and the generated configuration",
+          "checks": [["Add an upstream server in group_vars", "Generated file includes it", "File contents"], ["Introduce a syntax error in the template", "Validation stops the bad file being deployed", "Run output"], ["Turn TLS on for prod only", "Only prod files contain the TLS block", "File contents"]],
+          "objectives": ["Generate files from templates", "Use conditions and loops in Jinja2", "Validate generated configuration"]
+        },
+        {
+          "topic": "Handlers and Service Management",
+          "subtopics": ["Why handlers", "notify and handlers", "Handler order", "Flushing handlers", "listen for grouped handlers", "Restart versus reload", "Handlers with templates", "Debugging handlers that do not run"],
+          "tools": ["Ansible"],
+          "lab_task": "Make nginx reload only when its configuration changes, using handlers, and show that a run with no changes does not restart the service.",
+          "deliverable": "Playbook and run outputs with and without changes",
+          "checks": [["Change the template and run", "Handler reloads nginx once", "Run output"], ["Run again with no changes", "Handler does not run", "Run output"], ["Check service uptime", "Not restarted on the no-change run", "Command output"]],
+          "objectives": ["Trigger service actions only on change", "Order and group handlers", "Choose reload or restart"]
+        },
+        {
+          "topic": "Roles and Project Structure",
+          "subtopics": ["Why roles", "Role directory structure", "defaults versus vars", "Role dependencies", "ansible-galaxy init", "Using roles in playbooks", "Reusing roles across projects", "Naming conventions"],
+          "tools": ["Ansible", "ansible-galaxy"],
+          "lab_task": "Refactor the web server playbook into an nginx role and a users role with defaults, use both from a site playbook, and reuse the nginx role with different settings.",
+          "deliverable": "Role folders, site playbook and runs",
+          "checks": [["Run the site playbook", "Same result as before the refactor", "Play recap"], ["Override a role default in group_vars", "Override takes effect", "Generated file"], ["Read the role README", "Lists defaults and how to use the role", "README"]],
+          "objectives": ["Organise automation into roles", "Use defaults for configurable roles", "Reuse roles"]
+        },
+        {
+          "topic": "Ansible Galaxy and Collections",
+          "subtopics": ["What collections are", "Installing collections", "requirements.yml", "Fully qualified collection names", "Using community roles", "Evaluating third-party content", "Pinning versions", "Private collection sources"],
+          "tools": ["Ansible", "ansible-galaxy"],
+          "lab_task": "Install the community.general and ansible.posix collections and a community role from requirements.yml with pinned versions, and use them in a playbook with fully qualified names.",
+          "deliverable": "requirements.yml, playbook and install output",
+          "checks": [["Install requirements on a fresh control node", "Exact pinned versions install", "Command output"], ["Run ansible-lint", "No errors about module names", "Lint output"], ["Read the evaluation note", "Explains why the community role was trusted", "Note"]],
+          "objectives": ["Use collections and Galaxy roles", "Pin dependencies", "Evaluate third-party content"]
+        },
+        {
+          "topic": "Protecting Secrets with Ansible Vault",
+          "subtopics": ["Why secrets need encryption", "ansible-vault create, edit and view", "Encrypting single values", "Vault password files", "Multiple vault IDs", "no_log for sensitive tasks", "Rotating vault passwords", "External secret stores overview"],
+          "tools": ["Ansible Vault"],
+          "lab_task": "Store the database password in an encrypted file, use it in a template, hide it from output with no_log, and rotate the vault password.",
+          "deliverable": "Encrypted file, playbook and run output",
+          "checks": [["Open the vault file without the password", "Content is encrypted", "File contents"], ["Run the playbook with -v", "Password does not appear in output", "Run output"], ["Rotate the vault password", "Playbook works with the new password only", "Run output"]],
+          "objectives": ["Encrypt secrets with Vault", "Hide secrets from output", "Rotate vault passwords"]
+        },
+        {
+          "topic": "Managing Files, Packages and Services at Scale",
+          "subtopics": ["lineinfile and blockinfile", "Managing systemd units", "Package versions and repositories", "Cron jobs", "Firewall rules with firewalld or ufw", "SELinux basics with Ansible", "Mount points", "Reboots with the reboot module"],
+          "tools": ["Ansible", "systemd"],
+          "lab_task": "Build a baseline role that sets timezone and NTP, hardens SSH, configures the firewall, installs a monitoring agent from its repository and reboots only when the kernel changes.",
+          "deliverable": "Baseline role and runs on all nodes",
+          "checks": [["Check SSH settings", "Password login and root login are disabled", "sshd config"], ["Run when no kernel update exists", "No reboot happens", "Run output"], ["Check firewall rules", "Only allowed ports are open", "Command output"]],
+          "objectives": ["Configure common server settings", "Harden servers with automation", "Reboot only when needed"]
+        },
+        {
+          "topic": "Deploying Applications with Ansible",
+          "subtopics": ["Application deployment steps", "Fetching code or artefacts", "Rolling updates with serial", "Removing nodes from the load balancer", "Health checks after deploy", "Rollback steps", "Tags for partial runs", "Deploy speed"],
+          "tools": ["Ansible", "nginx", "Python or Java app"],
+          "lab_task": "Deploy a web application to four servers one at a time behind a load balancer, with health checks after each server and an automatic stop if one fails.",
+          "deliverable": "Deploy playbook and run outputs for a good and a bad release",
+          "checks": [["Deploy during a load loop", "No failed requests", "Load loop log"], ["Deploy a broken release", "Stops after the first server and that server is restored", "Run output"], ["Run only the config tag", "Only configuration tasks run", "Run output"]],
+          "objectives": ["Deploy applications with Ansible", "Do rolling updates safely", "Stop and roll back on failure"]
+        },
+        {
+          "topic": "Error Handling and Debugging Playbooks",
+          "subtopics": ["Reading failure output", "Verbosity levels", "ignore_errors and when to avoid it", "block, rescue and always", "any_errors_fatal and max_fail_percentage", "Debugger", "Step mode", "Common errors and fixes"],
+          "tools": ["Ansible"],
+          "lab_task": "Fix five broken playbooks prepared by the trainer, then wrap a risky change in block and rescue so it rolls back automatically on failure.",
+          "deliverable": "Fixed playbooks, troubleshooting log and the block-rescue playbook",
+          "checks": [["Run all five fixed playbooks", "All succeed", "Run outputs"], ["Force the risky change to fail", "Rescue rolls it back", "Run output"], ["Read the troubleshooting log", "Cause and fix for each", "Log"]],
+          "objectives": ["Debug playbooks", "Handle errors with block and rescue", "Control failure behaviour across hosts"]
+        },
+        {
+          "topic": "Testing Roles with Molecule",
+          "subtopics": ["Why test automation", "Molecule scenarios", "Docker or Podman drivers", "converge, verify and idempotence steps", "Writing verify tests", "Testing on several OS images", "Linting in Molecule", "Running Molecule in CI"],
+          "tools": ["Molecule", "Docker", "ansible-lint"],
+          "lab_task": "Add Molecule tests to the nginx role that converge it on two OS images, check idempotence and verify the site responds.",
+          "deliverable": "Molecule configuration, tests and a passing run",
+          "checks": [["Run molecule test", "Passes on both images", "Test output"], ["Break idempotence on purpose", "Idempotence step fails", "Test output"], ["Break the template", "Verify step fails", "Test output"]],
+          "objectives": ["Test roles with Molecule", "Check idempotence automatically", "Test across operating systems"]
+        },
+        {
+          "topic": "Dynamic Inventory for Cloud Servers",
+          "subtopics": ["Static versus dynamic inventory", "AWS EC2 inventory plugin", "Azure inventory plugin", "Grouping by tags", "Caching inventory", "Composing host settings", "Combining static and dynamic sources", "Credentials for inventory plugins"],
+          "tools": ["Ansible", "amazon.aws or azure.azcollection"],
+          "lab_task": "Configure a dynamic inventory that finds cloud servers by tag, groups them by environment and role, and runs the baseline role against new servers automatically.",
+          "deliverable": "Inventory plugin configuration and runs before and after adding a server",
+          "checks": [["Run ansible-inventory --graph", "Servers are grouped by tags", "Command output"], ["Launch a new tagged server", "It appears in the right group without editing files", "Inventory output"], ["Search configuration for cloud keys", "None stored", "grep output"]],
+          "objectives": ["Use dynamic inventories", "Group hosts by tags", "Authenticate inventory plugins safely"]
+        },
+        {
+          "topic": "Automating Windows Servers",
+          "subtopics": ["WinRM and SSH for Windows", "Windows inventory settings", "win_ modules", "Installing features and software", "Managing services and registry", "Windows updates", "Running PowerShell", "Differences from Linux automation"],
+          "tools": ["Ansible", "ansible.windows", "WinRM"],
+          "lab_task": "Connect to a Windows server, install IIS, deploy a site, set a registry value and install updates in a maintenance playbook.",
+          "deliverable": "Inventory settings, playbook and run output",
+          "checks": [["Open the site", "IIS serves the deployed page", "Browser screenshot"], ["Run the playbook again", "No changes", "Play recap"], ["Check the registry value", "Set correctly", "Command output"]],
+          "objectives": ["Automate Windows servers", "Use Windows modules", "Understand Windows-specific connection setup"]
+        },
+        {
+          "topic": "Network Device Automation",
+          "subtopics": ["Network automation use cases", "network_cli and httpapi connections", "Collections for common vendors", "Gathering device facts", "Applying configuration with resource modules", "Backing up device configuration", "Check mode on network devices", "Labs with virtual routers"],
+          "tools": ["Ansible", "cisco.ios or arista.eos collections", "virtual routers"],
+          "lab_task": "Back up configuration from two virtual routers, apply VLAN and interface settings with resource modules, and show check mode reporting the differences first.",
+          "deliverable": "Backup files, playbook and check mode output",
+          "checks": [["Run in check mode", "Shows the planned changes without applying", "Run output"], ["Apply the playbook", "Devices show the new VLANs", "Device output"], ["Run again", "No changes", "Play recap"]],
+          "objectives": ["Automate network devices", "Use resource modules", "Back up device configuration"]
+        },
+        {
+          "topic": "Running Ansible from CI/CD",
+          "subtopics": ["Why run automation from pipelines", "Linting and syntax checks in CI", "Molecule tests in CI", "Running playbooks with stored credentials", "Approvals before production runs", "Execution environments overview", "Recording run results", "Scheduled runs for drift correction"],
+          "tools": ["GitHub Actions or Jenkins", "Ansible", "Molecule"],
+          "lab_task": "Create a pipeline that lints and tests roles on pull requests, applies playbooks to dev on merge, and runs prod only after approval, with a nightly check-mode drift report.",
+          "deliverable": "Pipeline configuration and runs for each stage",
+          "checks": [["Open a pull request with a lint error", "Pipeline fails", "Pipeline run"], ["Merge to main", "Dev is updated", "Pipeline run"], ["Change a server manually", "Nightly check mode reports the drift", "Report"]],
+          "objectives": ["Run Ansible through pipelines", "Test roles in CI", "Detect configuration drift"]
+        },
+        {
+          "topic": "Beginner Capstone: Automated Web Platform with Ansible",
+          "subtopics": ["Requirement walkthrough", "Inventory for dev and prod", "Baseline, web and database roles", "Vault for secrets", "Rolling deploy with health checks", "Molecule tests, pipeline and demo"],
+          "tools": ["Ansible", "Molecule", "Ansible Vault", "GitHub Actions"],
+          "lab_task": "Automate a web platform with load balancer, two web servers and a database across dev and prod using roles, Vault, rolling deploys, Molecule tests and a pipeline, then rebuild a server during the demo.",
+          "deliverable": "Automation repository, pipeline runs and a 10-minute demo",
+          "checks": [["Rebuild a web server from scratch", "Back in service after one playbook run", "Demo recording"], ["Run the site playbook twice", "Second run has no changes", "Play recap"], ["Search the repository for plain secrets", "None found", "Scan output"]],
+          "objectives": ["Automate a complete platform", "Combine roles, secrets, deploys and tests", "Rebuild servers reliably"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who write Ansible roles. Covers advanced playbook design, collection development, execution environments, Ansible Automation Platform, event-driven automation, security and scale.",
+      "prerequisites": ["Writes roles and playbooks with templates, handlers and Vault", "Comfortable with Linux administration and Git", "Has run Ansible against more than a few servers"],
+      "outcomes": ["Design maintainable automation for large estates", "Build and test collections and execution environments", "Run automation through Ansible Automation Platform with RBAC", "Use event-driven automation and integrate with other tools"],
+      "days": [
+        {
+          "topic": "Advanced Playbook Design and Precedence Rules",
+          "subtopics": ["Settings precedence in full", "Imports versus includes", "Static and dynamic reuse", "Delegation and local actions", "run_once", "Serial strategies and batches", "Strategies: linear and free", "Designing for readability"],
+          "tools": ["Ansible"],
+          "lab_task": "Debug a provided project where settings come from six places, document the precedence that applies, and redesign it to use as few sources as possible.",
+          "deliverable": "Precedence analysis and the redesigned project",
+          "checks": [["Predict a value before running", "Prediction matches the run", "Debug output"], ["Count setting sources after redesign", "Fewer sources with the same results", "Comparison"], ["Use delegate_to for a load balancer task", "Runs on the load balancer only", "Run output"]],
+          "objectives": ["Master settings precedence", "Choose imports or includes", "Use delegation and batching"]
+        },
+        {
+          "topic": "Writing Custom Modules and Plugins",
+          "subtopics": ["When to write a module", "Module structure in Python", "Argument specs", "Check mode support", "Returning changed and results", "Filter and lookup plugins", "Testing modules", "Documenting modules"],
+          "tools": ["Python", "Ansible"],
+          "lab_task": "Write a module that manages entries in an internal REST API idempotently with check mode, a filter plugin for formatting, and unit tests for both.",
+          "deliverable": "Module, filter plugin, tests and documentation",
+          "checks": [["Run the module twice", "Second run reports no change", "Run output"], ["Run in check mode", "Reports the change without making it", "Run output and API state"], ["Run the unit tests", "All pass", "Test output"]],
+          "objectives": ["Extend Ansible with modules and plugins", "Support check mode", "Test custom code"]
+        },
+        {
+          "topic": "Building and Publishing Collections",
+          "subtopics": ["Collection structure", "galaxy.yml metadata", "Including roles, modules and plugins", "Versioning and changelogs", "ansible-test sanity and units", "Building collection artefacts", "Publishing to Automation Hub or Galaxy", "Private Automation Hub"],
+          "tools": ["ansible-galaxy", "ansible-test", "Automation Hub"],
+          "lab_task": "Package the roles and module into a versioned collection, pass ansible-test sanity, publish it to a private hub, and install it in another project.",
+          "deliverable": "Collection source, build artefact and install evidence",
+          "checks": [["Run ansible-test sanity", "No errors", "Test output"], ["Install the collection by version elsewhere", "Content works", "Run output"], ["Read the changelog", "Lists changes by version", "Changelog"]],
+          "objectives": ["Package automation as collections", "Test with ansible-test", "Publish and consume collections"]
+        },
+        {
+          "topic": "Execution Environments and ansible-builder",
+          "subtopics": ["Why execution environments", "ansible-builder definitions", "Python and system dependencies", "Building and tagging images", "ansible-navigator", "Running playbooks in an execution environment", "Pinning versions", "Scanning images"],
+          "tools": ["ansible-builder", "ansible-navigator", "Podman"],
+          "lab_task": "Build an execution environment with the project's collections and Python dependencies, run the site playbook inside it with ansible-navigator, and scan the image.",
+          "deliverable": "Definition file, built image and run output",
+          "checks": [["Run the playbook with ansible-navigator", "Same results as on the control node", "Run output"], ["Run on a machine without the collections installed", "Works because they are in the image", "Run output"], ["Scan the image", "No critical vulnerabilities or each is explained", "Scan report"]],
+          "objectives": ["Package automation dependencies as images", "Run automation consistently anywhere", "Manage execution environment versions"]
+        },
+        {
+          "topic": "Ansible Automation Platform: Controller Projects, Inventories and Job Templates",
+          "subtopics": ["Platform components", "Organisations, teams and users", "Projects from Git", "Inventories and inventory sources", "Credentials", "Job templates and surveys", "Schedules", "Job output and history"],
+          "tools": ["Ansible Automation Platform", "AWX"],
+          "lab_task": "Set up projects, a dynamic inventory source, credentials and job templates with surveys in the automation controller, and give a support team permission to run only the restart template.",
+          "deliverable": "Controller configuration and job history",
+          "checks": [["Support user launches the restart template", "Job runs", "Job output"], ["Support user edits the template", "Not permitted", "Screenshot"], ["Run a scheduled job", "Runs at the scheduled time", "Job history"]],
+          "objectives": ["Run automation centrally", "Delegate safe self-service with RBAC", "Schedule automation"]
+        },
+        {
+          "topic": "Workflows and Approvals in Automation Controller",
+          "subtopics": ["Workflow job templates", "Success, failure and always paths", "Approval nodes", "Passing data between jobs", "Convergence nodes", "Notifications", "Workflow visualiser", "Designing reliable workflows"],
+          "tools": ["Ansible Automation Platform"],
+          "lab_task": "Build a workflow that provisions a server, applies the baseline, deploys the app, waits for approval, then runs the prod step, with a failure path that notifies and rolls back.",
+          "deliverable": "Workflow definition and runs for success and failure",
+          "checks": [["Run the workflow", "Pauses at approval and continues after approval", "Workflow output"], ["Fail the deploy step", "Failure path runs and notifies", "Workflow output and notification"], ["Read job output passed between steps", "Data used by the next job", "Job output"]],
+          "objectives": ["Orchestrate jobs with workflows", "Add approvals", "Handle failures in workflows"]
+        },
+        {
+          "topic": "Configuration as Code for the Automation Platform",
+          "subtopics": ["Managing the controller with ansible.controller", "Defining objects in Git", "Promoting configuration between environments", "Secrets in platform configuration", "Backup and restore", "Upgrades", "Drift in platform configuration", "Testing changes"],
+          "tools": ["ansible.controller collection", "Git"],
+          "lab_task": "Describe all controller projects, inventories, templates and RBAC in Git, apply them with a playbook, and rebuild the configuration on a fresh controller.",
+          "deliverable": "Configuration repository and the rebuild evidence",
+          "checks": [["Apply to a fresh controller", "All objects are recreated", "Screenshots"], ["Change a template manually", "Next run restores the Git version", "Run output"], ["Search the repository for secrets", "None in plain text", "grep output"]],
+          "objectives": ["Manage the platform as code", "Rebuild platform configuration", "Promote platform changes"]
+        },
+        {
+          "topic": "Event-Driven Ansible",
+          "subtopics": ["Event-driven automation concepts", "Rulebooks", "Event sources: webhooks, Kafka, monitoring alerts", "Conditions and actions", "Running job templates from events", "Throttling and deduplication", "Testing rulebooks", "Safe use of automatic remediation"],
+          "tools": ["Event-Driven Ansible", "ansible-rulebook", "Prometheus Alertmanager"],
+          "lab_task": "Write a rulebook that receives an Alertmanager alert when nginx is down and runs a remediation job template, with throttling so repeated alerts do not run it repeatedly.",
+          "deliverable": "Rulebook, alert configuration and remediation evidence",
+          "checks": [["Stop nginx", "Alert triggers the remediation job and nginx is back", "Job output and service status"], ["Send the same alert five times in a minute", "Remediation runs once", "Rulebook log"], ["Send an unrelated alert", "No action", "Rulebook log"]],
+          "objectives": ["Automate responses to events", "Write rulebooks", "Prevent repeated automatic actions"]
+        },
+        {
+          "topic": "Security Automation and Compliance",
+          "subtopics": ["CIS and STIG baselines with Ansible", "Compliance scanning with OpenSCAP", "Remediation playbooks", "Reporting compliance", "Patching automation", "Certificate rotation", "Secrets from HashiCorp Vault", "Separation of duties in automation"],
+          "tools": ["Ansible", "OpenSCAP", "HashiCorp Vault"],
+          "lab_task": "Scan servers against a CIS profile, apply remediation with Ansible, rescan to prove improvement, and read database credentials from HashiCorp Vault instead of Ansible Vault.",
+          "deliverable": "Before and after scan reports, remediation playbook and Vault lookup",
+          "checks": [["Compare scan scores", "Improved after remediation, with figures", "Scan reports"], ["Run remediation twice", "Second run has no changes", "Play recap"], ["Search the repository for the database password", "Not present", "grep output"]],
+          "objectives": ["Automate security baselines", "Prove compliance with scans", "Use external secret stores"]
+        },
+        {
+          "topic": "Performance and Scale for Large Inventories",
+          "subtopics": ["Forks and parallelism", "Pipelining", "SSH connection reuse", "Fact caching", "Disabling unneeded fact gathering", "Async tasks and polling", "Mitogen considerations", "Measuring run time"],
+          "tools": ["Ansible", "Redis or JSON fact cache"],
+          "lab_task": "Cut the run time of the site playbook against 100 simulated hosts by at least 60% using forks, pipelining, fact caching and async tasks, measuring each change.",
+          "deliverable": "Tuned configuration and a timing table",
+          "checks": [["Compare run times", "At least 60% faster or explained", "Timing table"], ["Rerun with the fact cache warm", "No fact gathering delay", "Run output"], ["Check results", "Same end state as before tuning", "Verification"]],
+          "objectives": ["Run Ansible fast at scale", "Tune connections and facts", "Use async tasks"]
+        },
+        {
+          "topic": "Ansible with Terraform and Cloud Provisioning",
+          "subtopics": ["Dividing work between Terraform and Ansible", "Passing Terraform outputs to inventories", "Cloud modules for provisioning", "Provisioning then configuring", "Immutable images with Packer and Ansible", "Avoiding overlap and drift", "Orchestrating both in pipelines", "Destroying environments"],
+          "tools": ["Ansible", "Terraform", "Packer"],
+          "lab_task": "Provision servers with Terraform, build a golden image with Packer running Ansible roles, and configure the remaining settings with Ansible from Terraform outputs.",
+          "deliverable": "Terraform, Packer and Ansible code with a full pipeline run",
+          "checks": [["Run the full pipeline", "Servers start from the golden image and pass health checks", "Pipeline log"], ["Rebuild the image after a role change", "New image includes the change", "Image test"], ["Read the responsibility split", "No setting is managed by both tools", "Design note"]],
+          "objectives": ["Combine Ansible with Terraform", "Build images with Packer and Ansible", "Avoid overlapping tools"]
+        },
+        {
+          "topic": "Container and Kubernetes Automation",
+          "subtopics": ["Managing containers with Podman and Docker modules", "kubernetes.core collection", "Applying manifests with Ansible", "Helm with Ansible", "Waiting for rollouts", "Kubernetes operators built with Ansible", "When to use GitOps instead", "Testing against a local cluster"],
+          "tools": ["Ansible", "kubernetes.core", "Helm", "kind"],
+          "lab_task": "Deploy an application to a local cluster with kubernetes.core and Helm modules, wait for the rollout, and build a small Ansible-based operator with Operator SDK.",
+          "deliverable": "Playbooks, operator code and deployment evidence",
+          "checks": [["Run the deploy playbook", "Waits until the rollout is ready", "Run output"], ["Create the operator's custom resource", "Operator creates the expected objects", "kubectl output"], ["Run the playbook again", "No changes", "Play recap"]],
+          "objectives": ["Automate containers and Kubernetes", "Use Ansible for operators", "Choose between Ansible and GitOps"]
+        },
+        {
+          "topic": "Testing Strategy for Automation Code",
+          "subtopics": ["Linting and sanity checks", "Molecule scenarios for roles", "Testing collections", "Integration tests against real systems", "Testing in check mode", "Testing idempotence across releases", "Test data and environments", "Test coverage for automation"],
+          "tools": ["Molecule", "ansible-test", "ansible-lint"],
+          "lab_task": "Define a test strategy for the collection and add Molecule scenarios for upgrade paths, check-mode tests and integration tests in CI.",
+          "deliverable": "Test strategy document, tests and CI run",
+          "checks": [["Run the upgrade scenario", "Role upgrades from the previous version cleanly", "Test output"], ["Run check-mode tests", "Report expected changes", "Test output"], ["Run CI", "All test stages pass", "CI run"]],
+          "objectives": ["Design testing for automation", "Test upgrades and check mode", "Automate tests in CI"]
+        },
+        {
+          "topic": "Automating Patching and Maintenance Windows",
+          "subtopics": ["Patch strategy by environment", "Pre-checks and post-checks", "Rolling patching with serial", "Snapshots before patching", "Handling reboots and services", "Reporting patch status", "Exceptions and holds", "Scheduling maintenance"],
+          "tools": ["Ansible", "Ansible Automation Platform"],
+          "lab_task": "Build a patching workflow that snapshots, drains, patches, reboots and checks each server in batches, holds excluded packages, and reports status.",
+          "deliverable": "Patching workflow and status report",
+          "checks": [["Run patching on a batch", "Each server is drained, patched and returned to service", "Workflow output"], ["Fail a post-check", "Server stays drained and the workflow stops", "Workflow output"], ["Read the report", "Lists patched, skipped and failed servers", "Report"]],
+          "objectives": ["Automate safe patching", "Use checks and snapshots", "Report maintenance results"]
+        },
+        {
+          "topic": "Integrating Ansible with ITSM and ChatOps",
+          "subtopics": ["Triggering automation from ServiceNow", "Updating tickets from jobs", "ChatOps with Slack or Teams", "Self-service catalogues", "Approval flows", "Audit records", "Error handling in integrations", "Securing integration credentials"],
+          "tools": ["Ansible Automation Platform", "ServiceNow", "Slack or Teams"],
+          "lab_task": "Let users request a server restart from a chat command or a ticket, run it through an approved job template, and post the result back to the ticket and chat.",
+          "deliverable": "Integration configuration and an end-to-end request record",
+          "checks": [["Request a restart from chat", "Job runs and the result is posted back", "Chat screenshot"], ["Request from a ticket", "Ticket is updated with the job result", "Ticket record"], ["Request without permission", "Denied and logged", "Log entry"]],
+          "objectives": ["Expose automation through tickets and chat", "Keep approvals and audit records", "Secure integrations"]
+        },
+        {
+          "topic": "Large-Scale Inventory and Content Organisation",
+          "subtopics": ["Inventory design for thousands of hosts", "Smart inventories", "Constructed inventories", "Content ownership by team", "Monorepo or many repositories", "Shared versus team collections", "Deprecation of old content", "Documentation"],
+          "tools": ["Ansible Automation Platform", "Git"],
+          "lab_task": "Design inventory and content organisation for 5,000 hosts across 10 teams, build constructed inventories by role and environment, and set content ownership rules.",
+          "deliverable": "Design document, constructed inventories and ownership rules",
+          "checks": [["Query a constructed inventory", "Returns hosts by role and environment", "Inventory output"], ["Read the ownership rules", "Each collection has an owner and review rule", "Document"], ["Deprecate a role", "Users are warned before removal", "Run output"]],
+          "objectives": ["Organise automation for many teams", "Build constructed inventories", "Manage content ownership"]
+        },
+        {
+          "topic": "Monitoring and Reporting on Automation",
+          "subtopics": ["Job success and failure metrics", "Automation analytics", "Time saved reporting", "Failed host trends", "Alerting on failed automation", "Logging to external systems", "Dashboards for teams", "Using metrics to improve content"],
+          "tools": ["Ansible Automation Platform", "Prometheus", "Grafana"],
+          "lab_task": "Export job metrics, build a dashboard of success rate, failed hosts and time saved, and alert when a critical job fails twice in a row.",
+          "deliverable": "Dashboard, alert rule and a time-saved report",
+          "checks": [["Fail the critical job twice", "Alert fires", "Alert history"], ["Read the dashboard", "Shows success rate per template", "Dashboard"], ["Read the time-saved report", "Based on stated manual time assumptions", "Report"]],
+          "objectives": ["Measure automation results", "Alert on failures", "Show automation value"]
+        },
+        {
+          "topic": "Automation Platform Operations: High Availability and Upgrades",
+          "subtopics": ["Platform architecture", "Execution nodes and automation mesh", "Hop nodes for remote sites", "High availability", "Backup and restore", "Upgrade planning", "Capacity planning", "Troubleshooting the platform"],
+          "tools": ["Ansible Automation Platform", "automation mesh"],
+          "lab_task": "Add execution nodes and a hop node for a remote site, back up the platform, simulate a node failure and restore service within the target time.",
+          "deliverable": "Mesh topology, backup record and recovery timeline",
+          "checks": [["Run a job at the remote site through the hop node", "Job runs on the remote execution node", "Job output"], ["Stop one execution node", "Jobs run on remaining nodes", "Job history"], ["Restore from backup", "Platform objects are intact", "Screenshots"]],
+          "objectives": ["Operate the automation platform reliably", "Reach remote sites with automation mesh", "Back up and restore the platform"]
+        },
+        {
+          "topic": "Migrating Scripts and Legacy Automation to Ansible",
+          "subtopics": ["Assessing shell and PowerShell scripts", "Converting scripts to idempotent tasks", "Wrapping legacy scripts safely", "Migrating from Puppet or Chef", "Parallel running during migration", "Validating results", "Training operators", "Measuring migration progress"],
+          "tools": ["Ansible", "shell scripts"],
+          "lab_task": "Convert three provided legacy shell scripts to idempotent roles, run old and new side by side on test servers, and prove the same end state.",
+          "deliverable": "Converted roles, comparison results and a migration plan for the remaining scripts",
+          "checks": [["Compare server state after old and new runs", "Identical", "State comparison"], ["Run the new roles twice", "No changes on the second run", "Play recap"], ["Read the migration plan", "Lists remaining scripts by priority", "Plan"]],
+          "objectives": ["Replace scripts with idempotent automation", "Migrate from other tools", "Validate migrations"]
+        },
+        {
+          "topic": "Intermediate Capstone: Automation Platform for an Operations Team",
+          "subtopics": ["Requirements and design", "Collection with tests", "Execution environment", "Controller configuration as code and RBAC", "Workflows, approvals and event-driven remediation", "Metrics, demo and design defence"],
+          "tools": ["Ansible Automation Platform", "Molecule", "ansible-builder", "Event-Driven Ansible"],
+          "lab_task": "Build an automation platform with a tested collection, an execution environment, controller configuration as code, workflows with approvals, event-driven remediation and dashboards, then present it.",
+          "deliverable": "Repositories, platform configuration, dashboards and a 15-minute demo",
+          "checks": [["Rebuild controller configuration from Git", "All templates and RBAC return", "Run output"], ["Trigger an outage alert", "Remediation runs once and service recovers", "Job output"], ["Run the patching workflow with approval", "Completes with a status report", "Workflow output"]],
+          "objectives": ["Design an automation platform for a team", "Combine content, platform and events", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who lead automation programmes. Covers automation architecture, platform engineering, self-healing infrastructure, governance, security, performance at extreme scale and automation strategy.",
+      "prerequisites": ["Has built collections and run Ansible Automation Platform or AWX", "Comfortable with Python, CI/CD and cloud provisioning", "RHCE level knowledge or equivalent experience"],
+      "outcomes": ["Design enterprise automation architectures and operating models", "Build self-healing and event-driven operations with safe guardrails", "Govern and secure automation at scale", "Lead automation strategy with measured business value"],
+      "days": [
+        {
+          "topic": "Enterprise Automation Architecture",
+          "subtopics": ["Automation domains: infrastructure, network, security, cloud", "Platform topology across regions and sites", "Content supply chain", "Identity and credential architecture", "Integration architecture", "Multi-tenancy for business units", "Reference architecture", "Decision records"],
+          "tools": ["Ansible Automation Platform", "Decision records"],
+          "lab_task": "Design the automation architecture for a company with 20,000 servers, 3,000 network devices and four regions, and write decision records for topology, content and credentials.",
+          "deliverable": "Architecture document and three decision records",
+          "checks": [["Read the topology section", "Explains controllers, execution nodes and hop nodes per region", "Document"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on credential architecture", "Participant explains least privilege and rotation at scale", "Trainer notes"]],
+          "objectives": ["Design automation architecture at enterprise scale", "Plan content and credential architecture", "Record key decisions"]
+        },
+        {
+          "topic": "Automation Operating Model and Centre of Excellence",
+          "subtopics": ["Centralised, federated and community models", "Roles: platform team, content owners, contributors", "Contribution and review process", "Standards and certification of content", "Support model", "Training paths", "Funding models", "Measuring adoption"],
+          "tools": ["Process templates"],
+          "lab_task": "Design an automation centre of excellence for a provided organisation with roles, contribution rules, content certification and adoption metrics, and pilot the contribution process.",
+          "deliverable": "Operating model document and a piloted contribution",
+          "checks": [["Read the operating model", "Defines roles, processes and metrics", "Document"], ["Run the pilot contribution", "Goes through review and certification", "Pull request and certification record"], ["Read the adoption metrics", "Each has a target", "Metrics list"]],
+          "objectives": ["Design an automation operating model", "Run content contribution and certification", "Measure adoption"]
+        },
+        {
+          "topic": "Self-Healing Infrastructure with Event-Driven Automation",
+          "subtopics": ["Choosing safe remediation candidates", "Event sources at scale", "Correlation and deduplication", "Guardrails: rate limits, blast radius, approvals", "Escalation to humans", "Measuring remediation success", "Avoiding remediation loops", "Post-remediation review"],
+          "tools": ["Event-Driven Ansible", "Kafka", "monitoring tools"],
+          "lab_task": "Build self-healing for three common incidents with event correlation, blast-radius limits and escalation, and show a remediation loop being stopped by the guardrails.",
+          "deliverable": "Rulebooks, guardrail configuration and incident evidence",
+          "checks": [["Trigger all three incidents", "Each is remediated or escalated as designed", "Event and job logs"], ["Cause a failing remediation", "Guardrail stops repeats and escalates", "Logs"], ["Read the success report", "Shows mean time to remediate", "Report"]],
+          "objectives": ["Design safe self-healing automation", "Correlate and deduplicate events", "Add guardrails and escalation"]
+        },
+        {
+          "topic": "Automation Content Supply Chain and Signing",
+          "subtopics": ["Risks in automation content", "Signing collections", "Verifying signatures at install", "Certified and validated content", "Private hub curation", "Dependency pinning", "Scanning content", "Responding to compromised content"],
+          "tools": ["Private Automation Hub", "GPG signing", "ansible-galaxy"],
+          "lab_task": "Sign internal collections, require signature verification at install, curate an approved content list in the private hub, and run a tabletop for a compromised collection.",
+          "deliverable": "Signing setup, verification evidence, approved list and tabletop notes",
+          "checks": [["Install an unsigned collection", "Installation is rejected", "Command output"], ["Install a signed collection", "Signature verifies", "Command output"], ["Read the tabletop notes", "Detection, containment and recovery defined", "Notes"]],
+          "objectives": ["Secure the automation content supply chain", "Sign and verify collections", "Curate approved content"]
+        },
+        {
+          "topic": "Credential Architecture and Privileged Access",
+          "subtopics": ["Credential types at scale", "External credential lookups", "Short-lived credentials", "Just-in-time privilege", "Session recording", "Separating build and run credentials", "Rotation automation", "Auditing credential use"],
+          "tools": ["Ansible Automation Platform", "HashiCorp Vault", "CyberArk overview"],
+          "lab_task": "Replace stored machine credentials with short-lived credentials issued by Vault per job, automate rotation for remaining secrets, and report credential use per job.",
+          "deliverable": "Credential configuration, rotation automation and usage report",
+          "checks": [["Run a job", "Uses a credential issued for that job only", "Job output and Vault audit"], ["Reuse the credential after the job", "Expired", "Error output"], ["Open the usage report", "Lists credentials per job and user", "Report"]],
+          "objectives": ["Design credential architecture for automation", "Use short-lived credentials", "Audit credential use"]
+        },
+        {
+          "topic": "Automation at Extreme Scale",
+          "subtopics": ["Running against tens of thousands of hosts", "Sharding inventories", "Execution capacity planning", "Job slicing", "Database and controller tuning", "Rate limits on targets and APIs", "Load testing automation", "Scale limits"],
+          "tools": ["Ansible Automation Platform", "job slicing"],
+          "lab_task": "Load test the platform with simulated hosts, find the first bottleneck, apply job slicing and capacity changes, and meet a target of patching 10,000 hosts in the window.",
+          "deliverable": "Load test reports and a capacity plan",
+          "checks": [["Run the simulated patch job", "Completes within the target window", "Job timing"], ["Read the bottleneck analysis", "First limit is identified with evidence", "Report"], ["Read the capacity plan", "States nodes needed for stated growth", "Plan"]],
+          "objectives": ["Run automation at extreme scale", "Plan execution capacity", "Find and remove bottlenecks"]
+        },
+        {
+          "topic": "Network Automation Programmes",
+          "subtopics": ["Network source of truth with NetBox or Nautobot", "Intended versus actual configuration", "Configuration compliance", "Change automation with validation", "Pre and post checks", "Network CI/CD", "Rollback strategies", "Measuring network change success"],
+          "tools": ["Ansible", "NetBox", "Batfish"],
+          "lab_task": "Drive device configuration from NetBox, validate changes with Batfish before applying, run pre and post checks, and roll back automatically on failure.",
+          "deliverable": "Source-of-truth setup, change pipeline and runs for success and rollback",
+          "checks": [["Change a VLAN in NetBox", "Pipeline validates and applies it", "Pipeline log"], ["Submit a change that breaks reachability", "Batfish blocks it before devices change", "Pipeline log"], ["Fail a post-check", "Device config is rolled back", "Run output"]],
+          "objectives": ["Run network automation from a source of truth", "Validate network changes before applying", "Roll back safely"]
+        },
+        {
+          "topic": "Security Operations Automation",
+          "subtopics": ["Security automation use cases", "Integrating with SIEM and SOAR", "Automated containment", "Firewall and IDS automation", "Evidence collection automation", "Compliance remediation at scale", "Approval for destructive actions", "Measuring response times"],
+          "tools": ["Ansible security collections", "SIEM", "firewalls"],
+          "lab_task": "Automate containment for a simulated compromised host: isolate it at the firewall, collect evidence, open a ticket and notify the SOC, with approval required before destructive steps.",
+          "deliverable": "Automation content, approval flow and incident timeline",
+          "checks": [["Trigger the simulated alert", "Host is isolated and evidence collected within target time", "Timeline"], ["Attempt a destructive step without approval", "Waits for approval", "Workflow output"], ["Check the ticket", "Contains evidence links", "Ticket"]],
+          "objectives": ["Automate security response", "Integrate with security tools", "Require approval for destructive actions"]
+        },
+        {
+          "topic": "Governance, Risk and Compliance for Automation",
+          "subtopics": ["Risk classification of automation", "Change management integration", "Approvals by risk tier", "Policy as code for automation content", "Audit trails", "Evidence for regulators", "Exceptions", "Reporting to risk committees"],
+          "tools": ["Ansible Automation Platform", "OPA", "ITSM integration"],
+          "lab_task": "Classify automation by risk, enforce approvals by tier, check content with policy as code before release, and produce an audit report for a quarter.",
+          "deliverable": "Risk classification, policies, approval configuration and audit report",
+          "checks": [["Run a high-risk job without approval", "Blocked", "Job output"], ["Release content that breaks a policy", "Blocked before publication", "Pipeline log"], ["Open the audit report", "Lists high-risk runs with approvers", "Report"]],
+          "objectives": ["Govern automation by risk", "Enforce policy on automation content", "Provide audit evidence"]
+        },
+        {
+          "topic": "Automation for Hybrid Cloud and Edge Sites",
+          "subtopics": ["Automating across on-premises and clouds", "Automation mesh across regions", "Edge sites with limited connectivity", "Pull-based automation at the edge", "Image-based edge updates", "Inventory for many small sites", "Monitoring remote automation", "Bandwidth and security constraints"],
+          "tools": ["Ansible", "automation mesh", "ansible-pull"],
+          "lab_task": "Automate 20 simulated edge sites with hop nodes and pull-based runs, roll a change out in waves, and show a disconnected site catching up.",
+          "deliverable": "Edge architecture, rollout record and catch-up evidence",
+          "checks": [["Roll out in waves", "Second wave starts only after the first succeeds", "Rollout record"], ["Disconnect a site during rollout", "Site applies the change after reconnecting", "Status timeline"], ["Read the security notes", "Covers credentials and updates at remote sites", "Document"]],
+          "objectives": ["Automate hybrid and edge estates", "Handle intermittent connectivity", "Roll out changes in waves"]
+        },
+        {
+          "topic": "Advanced Testing and Quality Engineering for Automation",
+          "subtopics": ["Test pyramid for automation", "Testing at scale with ephemeral environments", "Chaos testing automation", "Regression suites for collections", "Contract tests with target systems", "Quality gates for certification", "Measuring defect escape rate", "Test cost control"],
+          "tools": ["Molecule", "ansible-test", "ephemeral cloud environments"],
+          "lab_task": "Build a certification pipeline for collections with regression, contract and chaos tests in ephemeral environments, and measure defect escape rate over sample releases.",
+          "deliverable": "Pipeline, test suites and quality report",
+          "checks": [["Release a collection with a regression", "Certification pipeline blocks it", "Pipeline log"], ["Run chaos tests", "Automation handles target failures as designed", "Test output"], ["Read the quality report", "Shows escape rate per release", "Report"]],
+          "objectives": ["Engineer quality for automation content", "Test at scale", "Measure and reduce escaped defects"]
+        },
+        {
+          "topic": "Observability of Automation Programmes",
+          "subtopics": ["Telemetry from jobs and events", "Tracing automation across systems", "Business value metrics", "Failure analysis at scale", "Executive dashboards", "Alert routing", "Retention of job data", "Continuous improvement loops"],
+          "tools": ["Prometheus", "Grafana", "automation analytics"],
+          "lab_task": "Build programme dashboards for reliability, time saved and adoption, analyse the top 10 failure causes across sample job data, and create an improvement backlog.",
+          "deliverable": "Dashboards, failure analysis and improvement backlog",
+          "checks": [["Open the executive dashboard", "Shows value, reliability and adoption", "Dashboard"], ["Read the failure analysis", "Top causes with counts and examples", "Analysis"], ["Read the backlog", "Each item targets a failure cause with a metric", "Backlog"]],
+          "objectives": ["Observe automation programmes", "Analyse failures at scale", "Drive improvement with data"]
+        },
+        {
+          "topic": "AI-Assisted Automation Development",
+          "subtopics": ["Generating playbooks with AI assistants", "Reviewing AI-generated tasks", "Lightspeed-style tools overview", "Policies for AI-generated content", "Testing AI output", "Security risks of generated automation", "Measuring productivity", "Training content authors"],
+          "tools": ["AI coding assistants", "ansible-lint", "Molecule"],
+          "lab_task": "Generate three roles with an AI assistant, review and test them to the certification standard, and record defects found and time saved.",
+          "deliverable": "Reviewed roles, defect log and productivity measurements",
+          "checks": [["Run certification tests on the reviewed roles", "All pass", "Test output"], ["Read the defect log", "Lists issues the AI introduced", "Log"], ["Read the productivity measurement", "Time saved compared with manual authoring", "Measurement"]],
+          "objectives": ["Use AI to speed up automation authoring", "Review and test generated content", "Set rules for AI use"]
+        },
+        {
+          "topic": "Migrating Between Automation Platforms and Tools",
+          "subtopics": ["Migrating from AWX to Ansible Automation Platform", "Migrating from Puppet, Chef or Salt", "Coexistence strategies", "Content conversion", "Inventory and credential migration", "Validating parity", "Cut-over planning", "Decommissioning"],
+          "tools": ["AWX", "Ansible Automation Platform", "migration scripts"],
+          "lab_task": "Plan and pilot a migration from a Puppet-managed estate to Ansible: convert two modules, run both tools in parallel on test nodes, prove parity, and write the cut-over plan.",
+          "deliverable": "Converted content, parity results and cut-over plan",
+          "checks": [["Compare node state from both tools", "Identical", "State comparison"], ["Read the cut-over plan", "Includes rollback and communication", "Plan"], ["Run converted roles twice", "No changes on the second run", "Play recap"]],
+          "objectives": ["Plan automation platform migrations", "Convert content between tools", "Prove parity before cut-over"]
+        },
+        {
+          "topic": "Automation Business Case and Value Realisation",
+          "subtopics": ["Choosing high-value automation", "Measuring manual effort", "Cost of errors and outages", "Building a business case", "Tracking realised value", "Communicating with finance", "Prioritising the backlog by value", "Avoiding vanity metrics"],
+          "tools": ["Spreadsheets", "automation analytics"],
+          "lab_task": "Build a business case for automating five operational processes with effort, error and outage data, then track realised value for the first two after a simulated quarter.",
+          "deliverable": "Business case and value tracking report",
+          "checks": [["Read the business case", "Each process has cost, benefit and payback", "Business case"], ["Read the value report", "Realised value compared with the estimate", "Report"], ["Q&A with a finance reviewer", "Assumptions are defended with data", "Trainer notes"]],
+          "objectives": ["Build automation business cases", "Track realised value", "Prioritise by value"]
+        },
+        {
+          "topic": "Platform Engineering with Ansible and Self-Service Portals",
+          "subtopics": ["Automation as a product", "Self-service catalogues", "Backstage and automation integration", "Service requests with guardrails", "Golden paths for infrastructure", "Request status and feedback", "Developer and operator experience metrics", "Roadmaps"],
+          "tools": ["Backstage", "Ansible Automation Platform"],
+          "lab_task": "Expose three automation products through a Backstage self-service catalogue that calls the automation controller, shows request status, and enforces guardrails.",
+          "deliverable": "Catalogue integration, three products and request records",
+          "checks": [["Request a product from Backstage", "Job runs and status updates in the portal", "Portal screenshots"], ["Request outside the guardrails", "Rejected with a clear message", "Error message"], ["Read experience metrics", "Time to fulfil requests is measured", "Dashboard"]],
+          "objectives": ["Offer automation as self-service products", "Integrate with developer portals", "Measure experience"]
+        },
+        {
+          "topic": "Advanced Troubleshooting of Automation Platforms",
+          "subtopics": ["Systematic diagnosis", "Controller and database problems", "Execution node and mesh failures", "Credential and lookup failures", "Slow jobs at scale", "Event-driven automation failures", "Support data collection", "Root cause and prevention"],
+          "tools": ["Ansible Automation Platform", "logs and metrics"],
+          "lab_task": "Diagnose and fix seven hard platform failures injected by the trainer, including a broken mesh link, a slow database and a failing credential lookup.",
+          "deliverable": "Diagnosis log with symptom, evidence, root cause and fix for each",
+          "checks": [["Fix the broken mesh link", "Jobs run at the remote site again", "Job output"], ["Fix the slow database", "Job start times return to normal", "Metrics"], ["Explain one root cause", "Supported by evidence", "Log entry"]],
+          "objectives": ["Troubleshoot complex platform failures", "Use platform logs and metrics", "Prevent repeat failures"]
+        },
+        {
+          "topic": "Automation Architecture Reviews",
+          "subtopics": ["Reviewing automation designs", "Reliability, security, scale and cost criteria", "Architecture decision records", "Common anti-patterns", "Reviewing another team's capstone", "Technical debt in automation content", "Presenting trade-offs", "Reference architectures"],
+          "tools": ["Decision records"],
+          "lab_task": "Review another team's automation platform design, write two decision records for its biggest risks, and present recommendations with evidence.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Defended with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Review automation architectures", "Document decisions", "Communicate recommendations"]
+        },
+        {
+          "topic": "Automation Strategy and Roadmap",
+          "subtopics": ["Maturity assessment", "Target state", "Investment priorities", "Skills and training", "Tool and vendor strategy", "Risk management", "Communicating with leadership", "Three-year roadmap"],
+          "tools": ["Roadmap templates"],
+          "lab_task": "Assess a provided organisation's automation maturity, propose a three-year roadmap with investment priorities, and present it to a mock leadership panel.",
+          "deliverable": "Maturity assessment, roadmap and presentation",
+          "checks": [["Read the assessment", "Each area has evidence and a level", "Assessment"], ["Review the roadmap", "Items have outcomes, owners and metrics", "Roadmap"], ["Panel Q&A", "Budget and risk questions answered with evidence", "Trainer notes"]],
+          "objectives": ["Assess automation maturity", "Plan an automation roadmap", "Lead automation strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Automation Platform and Programme",
+          "subtopics": ["Business and risk requirements", "Platform architecture and scale", "Content supply chain and credentials", "Self-healing and governance", "Value measurement and operating model", "Architecture defence"],
+          "tools": ["Ansible Automation Platform", "Event-Driven Ansible", "Private Automation Hub", "HashiCorp Vault", "Backstage"],
+          "lab_task": "Design and prototype an enterprise automation platform and programme covering architecture, content supply chain, credentials, self-healing, governance, value measurement and operating model, then defend it to a review board.",
+          "deliverable": "Architecture document, working prototype, governance and resilience test evidence, value model and a 20-minute review presentation",
+          "checks": [["Run a high-risk automation through the prototype", "Approved, executed with short-lived credentials and audited", "Job and audit evidence"], ["Trigger an incident", "Self-healing remediates within guardrails", "Event and job logs"], ["Review the value model", "Costs and benefits are stated with assumptions", "Value model"]],
+          "objectives": ["Design an enterprise automation platform and programme", "Prove governance, resilience and value with evidence", "Defend the design to a review board"]
+        }
+      ]
+    }
+  }
+}

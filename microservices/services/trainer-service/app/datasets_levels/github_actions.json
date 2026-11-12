@@ -1,0 +1,573 @@
+{
+  "domain": "GitHub Actions",
+  "name": "GitHub Actions",
+  "category": "DevOps and CI/CD",
+  "icon": "play-circle",
+  "aliases": ["GitHub Actions CI/CD", "GitHub Workflows", "GH Actions"],
+  "certifications": ["GitHub Actions certification", "GitHub Foundations"],
+  "tools": ["GitHub Actions", "GitHub", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No CI/CD experience assumed. Participants write workflows that build, test, package and deploy applications on GitHub-hosted runners.",
+      "prerequisites": ["Uses Git and GitHub pull requests", "Has built a small application locally", "A GitHub account"],
+      "outcomes": ["Write workflows with triggers, jobs and steps", "Build, test and publish artefacts and container images", "Use secrets, environments and approvals safely", "Deploy applications to a cloud with OIDC authentication"],
+      "days": [
+        {
+          "topic": "CI/CD Concepts and GitHub Actions Setup",
+          "subtopics": ["What continuous integration solves", "Workflows, jobs, steps and runners", "The .github/workflows folder", "YAML structure of a workflow", "on: push and pull_request triggers", "Using actions from the Marketplace", "Viewing runs and logs", "Re-running jobs", "Workflow status badges", "Usage limits on hosted runners"],
+          "tools": ["GitHub Actions", "GitHub"],
+          "lab_task": "Create a workflow that runs on every push and pull request, checks out the code, prints environment details and runs a simple test, and add its badge to the README.",
+          "deliverable": "Workflow file, run logs and README badge",
+          "checks": [["Push a commit", "Workflow runs and passes", "Run page"], ["Open a pull request", "Check appears on the pull request", "Pull request page"], ["Break the test", "Workflow fails with the error visible in logs", "Run logs"]],
+          "objectives": ["Explain the parts of a workflow", "Trigger workflows from Git events", "Read run logs"]
+        },
+        {
+          "topic": "Building and Testing Applications",
+          "subtopics": ["Setting up language runtimes with setup actions", "Installing dependencies", "Running unit tests", "Linting", "Uploading test reports", "Job summaries", "Failing fast", "Running on Linux, Windows and macOS"],
+          "tools": ["GitHub Actions", "actions/setup-python or setup-node"],
+          "lab_task": "Write a CI workflow for a Python or Node.js project that installs dependencies, lints, runs tests, uploads the test report and writes a job summary.",
+          "deliverable": "Workflow file and a run with the uploaded report and summary",
+          "checks": [["Open the job summary", "Shows test counts", "Run page"], ["Add a lint error", "Lint step fails the job", "Run logs"], ["Download the test report artefact", "Contains the results", "Artefact file"]],
+          "objectives": ["Build and test code in workflows", "Publish test results", "Write job summaries"]
+        },
+        {
+          "topic": "Workflow Triggers and Filters",
+          "subtopics": ["push, pull_request and workflow_dispatch", "Branch and path filters", "Scheduled workflows with cron", "Manual inputs", "Tag triggers", "pull_request versus pull_request_target", "Skipping runs", "Concurrency groups to cancel old runs"],
+          "tools": ["GitHub Actions"],
+          "lab_task": "Configure workflows so docs changes skip CI, a nightly scheduled job runs dependency checks, a manual workflow takes an environment input, and new pushes cancel older runs on the same branch.",
+          "deliverable": "Workflow files and runs showing each behaviour",
+          "checks": [["Push a docs-only change", "CI does not run", "Actions page"], ["Push twice quickly", "First run is cancelled", "Run list"], ["Run the manual workflow with an input", "Input value appears in the logs", "Run logs"]],
+          "objectives": ["Control when workflows run", "Use manual and scheduled triggers", "Save runner time with filters and concurrency"]
+        },
+        {
+          "topic": "Jobs, Dependencies and Matrix Builds",
+          "subtopics": ["Multiple jobs in one workflow", "needs for job order", "Passing outputs between jobs", "Matrix strategy", "include and exclude in matrices", "fail-fast and max-parallel", "Conditional jobs with if", "Job timeouts"],
+          "tools": ["GitHub Actions"],
+          "lab_task": "Split CI into lint, test and build jobs with dependencies, test on three runtime versions and two operating systems with a matrix, and pass the version from build to a later job.",
+          "deliverable": "Workflow file and a run graph",
+          "checks": [["Open the run graph", "Jobs run in the expected order with six matrix entries", "Run page"], ["Fail one matrix entry with fail-fast off", "Other entries still finish", "Run page"], ["Read the later job's log", "Shows the version output from build", "Run logs"]],
+          "objectives": ["Structure workflows into jobs", "Test across versions with matrices", "Pass data between jobs"]
+        },
+        {
+          "topic": "Artefacts and Caching",
+          "subtopics": ["Uploading artefacts", "Downloading artefacts in later jobs", "Retention settings", "actions/cache", "Cache keys and restore keys", "Built-in caching in setup actions", "Cache limits and eviction", "Measuring cache benefit"],
+          "tools": ["actions/upload-artifact", "actions/cache"],
+          "lab_task": "Cache dependencies, pass the built package from the build job to a test job as an artefact, and compare run time with and without the cache.",
+          "deliverable": "Workflow file and a timing comparison",
+          "checks": [["Compare run times", "Cached run is faster, with figures", "Timing table"], ["Change the lock file", "Cache key changes and a new cache is saved", "Run logs"], ["Download the artefact in the test job", "Package is present", "Run logs"]],
+          "objectives": ["Share files between jobs", "Speed up workflows with caching", "Control artefact retention"]
+        },
+        {
+          "topic": "Secrets, Settings and Contexts",
+          "subtopics": ["Repository and organisation secrets", "Configuration settings stored outside secrets", "The github, env and secrets contexts", "Expressions", "Masking values in logs", "GITHUB_TOKEN permissions", "Secrets in pull requests from forks", "Rotating secrets"],
+          "tools": ["GitHub Actions"],
+          "lab_task": "Use a repository secret for an API token and a configuration value for an endpoint, restrict GITHUB_TOKEN to read-only, and prove the secret never appears in logs.",
+          "deliverable": "Workflow file, settings screenshots and a log search",
+          "checks": [["Search logs for the token", "Masked", "Log search"], ["Try to push from the workflow with read-only permissions", "Denied", "Run logs"], ["Run from a fork pull request", "Secret is not available", "Run logs"]],
+          "objectives": ["Use secrets and contexts safely", "Limit GITHUB_TOKEN permissions", "Understand fork pull request limits"]
+        },
+        {
+          "topic": "Building and Publishing Container Images",
+          "subtopics": ["Docker build in workflows", "docker/build-push-action", "Logging in to GitHub Container Registry", "Tagging with metadata-action", "Build cache for images", "Multi-platform builds", "Scanning images", "Publishing only from main"],
+          "tools": ["Docker", "GitHub Container Registry", "Trivy"],
+          "lab_task": "Build, scan and push the app image to GitHub Container Registry with version and commit tags, using build cache, and push only from main.",
+          "deliverable": "Workflow file, scan output and package page",
+          "checks": [["Merge to main", "Image appears with version and commit tags", "Package page"], ["Run on a pull request", "Image is built and scanned but not pushed", "Run logs"], ["Add a critical vulnerability", "Workflow fails at the scan", "Run logs"]],
+          "objectives": ["Build and push images from workflows", "Tag images traceably", "Gate on scan results"]
+        },
+        {
+          "topic": "Environments, Approvals and Deployment Protection",
+          "subtopics": ["Deployment environments", "Environment secrets", "Required reviewers", "Wait timers", "Branch restrictions for environments", "Deployment history", "Environment URLs", "Custom deployment protection rules overview"],
+          "tools": ["GitHub Actions", "GitHub environments"],
+          "lab_task": "Create dev, staging and prod environments with environment secrets, require approval for prod, allow prod deploys only from main, and deploy through all three.",
+          "deliverable": "Environment settings and a deployment history",
+          "checks": [["Deploy to prod", "Waits for approval", "Run page"], ["Try a prod deploy from a feature branch", "Blocked by branch rules", "Run page"], ["Open deployment history", "Shows versions in each environment", "Deployments page"]],
+          "objectives": ["Model environments", "Require approvals for production", "Track deployments"]
+        },
+        {
+          "topic": "Cloud Authentication with OIDC",
+          "subtopics": ["Why long-lived cloud keys are risky", "OpenID Connect tokens from GitHub", "Trust policies on AWS", "Federated credentials on Azure", "Workload Identity Federation on Google Cloud", "Restricting trust by repository and branch", "id-token permission", "Debugging trust failures"],
+          "tools": ["GitHub Actions", "AWS, Azure or Google Cloud"],
+          "lab_task": "Configure OIDC so the workflow can deploy to one cloud only from main of this repository, with no stored cloud keys, and show a branch outside the rule is denied.",
+          "deliverable": "Trust configuration, workflow and run evidence",
+          "checks": [["Deploy from main", "Authenticates and deploys", "Run logs"], ["Deploy from another branch", "Cloud denies the token", "Run logs"], ["Check repository secrets", "No cloud keys stored", "Secrets page"]],
+          "objectives": ["Authenticate to clouds without keys", "Restrict trust to repositories and branches", "Debug OIDC failures"]
+        },
+        {
+          "topic": "Deploying Applications to the Cloud",
+          "subtopics": ["Deploying a container to a managed service", "Deploying static sites", "Database migrations in deployment jobs", "Smoke tests after deploy", "Rollback steps", "Deployment concurrency", "Status checks after deploy", "Release notes from deployments"],
+          "tools": ["GitHub Actions", "Cloud Run, App Service or ECS"],
+          "lab_task": "Deploy the container to a managed cloud service in staging then prod, run smoke tests after each deploy, and roll back automatically when the prod smoke test fails.",
+          "deliverable": "Deployment workflow and runs for success and rollback",
+          "checks": [["Deploy a good version", "Smoke tests pass and prod shows it", "Run logs and app check"], ["Deploy a broken version", "Rollback restores the previous version", "Run logs and app check"], ["Run two deploys at once", "Second waits because of concurrency rules", "Run page"]],
+          "objectives": ["Deploy applications from workflows", "Verify deployments with smoke tests", "Roll back automatically"]
+        },
+        {
+          "topic": "Reusing Workflows and Writing Composite Actions",
+          "subtopics": ["Reusable workflows with workflow_call", "Inputs, secrets and outputs for reusable workflows", "Composite actions", "Where to store shared workflows", "Versioning with tags", "Calling workflows across repositories", "Starter workflows", "Avoiding copy-paste"],
+          "tools": ["GitHub Actions"],
+          "lab_task": "Move the CI steps into a reusable workflow and the setup steps into a composite action, use both from two repositories, and pin them to a version tag.",
+          "deliverable": "Shared workflow, composite action and two calling workflows",
+          "checks": [["Run both repositories", "Both use the shared workflow and pass", "Run pages"], ["Change the shared workflow main branch", "Repositories pinned to the tag are unaffected", "Run logs"], ["Count lines in a calling workflow", "Under 20", "File"]],
+          "objectives": ["Share CI logic across repositories", "Write composite actions", "Version shared workflows"]
+        },
+        {
+          "topic": "Writing Custom JavaScript and Docker Actions",
+          "subtopics": ["action.yml metadata", "Inputs and outputs", "JavaScript actions with the toolkit", "Docker container actions", "Testing actions", "Publishing to the Marketplace", "Versioning actions", "Security of custom actions"],
+          "tools": ["Node.js", "@actions/core", "Docker"],
+          "lab_task": "Write a JavaScript action that comments on pull requests with the size of changed files and fails when a limit is exceeded, with tests and a version tag.",
+          "deliverable": "Action repository, tests and a pull request showing its comment",
+          "checks": [["Open a large pull request", "Action comments and fails the check", "Pull request page"], ["Run the action's tests", "Pass", "Test output"], ["Use the action by tag from another repository", "Works", "Run logs"]],
+          "objectives": ["Build custom actions", "Test and version actions", "Publish actions for reuse"]
+        },
+        {
+          "topic": "Self-Hosted Runners",
+          "subtopics": ["When to use self-hosted runners", "Registering a runner", "Runner labels", "Runner groups", "Running runners as a service", "Security risks with public repositories", "Ephemeral runners", "Updating runners"],
+          "tools": ["GitHub Actions runner", "Linux VM"],
+          "lab_task": "Register an ephemeral self-hosted runner with a custom label, run a job that needs a private network resource on it, and restrict the runner to one repository.",
+          "deliverable": "Runner configuration and run logs",
+          "checks": [["Run a job with the custom label", "Runs on the self-hosted runner and reaches the private resource", "Run logs"], ["Run a job from another repository", "Cannot use the runner", "Run page"], ["Check the runner after the job", "Removed because it is ephemeral", "Runners page"]],
+          "objectives": ["Run jobs on self-hosted runners", "Restrict runner access", "Use ephemeral runners for safety"]
+        },
+        {
+          "topic": "Security Hardening for Workflows",
+          "subtopics": ["Pinning actions to commit SHAs", "Least-privilege permissions per job", "Script injection from untrusted input", "Dangerous triggers and pull_request_target", "Dependabot for actions", "Allowed actions policies", "Secret scanning", "Hardening runners"],
+          "tools": ["GitHub Actions", "Dependabot", "StepSecurity Harden-Runner"],
+          "lab_task": "Audit a deliberately vulnerable workflow, fix a script injection, pin all actions to SHAs, set per-job permissions, and enable Dependabot updates for actions.",
+          "deliverable": "Audit notes, fixed workflow and Dependabot configuration",
+          "checks": [["Open a pull request with a malicious title", "No command runs from the title", "Run logs"], ["Check every uses line", "Pinned to a full commit SHA", "Workflow file"], ["Wait for a Dependabot run", "Opens a pull request updating an action", "Pull request page"]],
+          "objectives": ["Find and fix workflow vulnerabilities", "Pin dependencies", "Apply least privilege"]
+        },
+        {
+          "topic": "Code Quality and Security Scanning in Workflows",
+          "subtopics": ["CodeQL code scanning", "Dependency review on pull requests", "SonarQube or SonarCloud", "Container scanning", "SARIF uploads", "Required checks", "Handling false positives", "Security dashboards"],
+          "tools": ["CodeQL", "dependency-review-action", "Trivy"],
+          "lab_task": "Add CodeQL, dependency review and a container scan uploading SARIF, make them required checks, and block a pull request that adds a vulnerable dependency.",
+          "deliverable": "Workflow files, required check settings and a blocked pull request",
+          "checks": [["Add a known vulnerable package", "Dependency review fails the pull request", "Pull request page"], ["Open the code scanning page", "Shows CodeQL and Trivy results", "Security page"], ["Try to merge with a failing required check", "Merge is blocked", "Screenshot"]],
+          "objectives": ["Scan code, dependencies and images in CI", "Upload results as SARIF", "Enforce required checks"]
+        },
+        {
+          "topic": "Releases and Package Publishing",
+          "subtopics": ["Release workflows on tags", "Generated release notes", "Publishing packages to GitHub Packages", "Publishing to npm or PyPI", "Trusted publishing", "Attaching build artefacts", "Semantic versioning", "Automated version bumps"],
+          "tools": ["GitHub Actions", "GitHub Packages", "PyPI or npm"],
+          "lab_task": "Create a release workflow that runs on version tags, builds the package, publishes it with trusted publishing, and creates a GitHub release with notes and artefacts.",
+          "deliverable": "Release workflow and a published release",
+          "checks": [["Push a version tag", "Package is published and the release is created", "Release page and registry"], ["Check repository secrets", "No registry token needed with trusted publishing", "Secrets page"], ["Open the release notes", "List merged pull requests", "Release page"]],
+          "objectives": ["Automate releases", "Publish packages securely", "Generate release notes"]
+        },
+        {
+          "topic": "Infrastructure as Code in GitHub Actions",
+          "subtopics": ["Terraform plan on pull requests", "Posting plans as comments", "Applying on merge", "Environments for infrastructure", "OIDC for infrastructure deploys", "Locking and concurrency", "Drift detection on a schedule", "Cost estimates in pull requests"],
+          "tools": ["GitHub Actions", "Terraform", "Infracost"],
+          "lab_task": "Build workflows that post Terraform plans and cost estimates on pull requests, apply on merge with OIDC and approval, and run a nightly drift check.",
+          "deliverable": "Workflows, a pull request with plan and cost comments, and an apply run",
+          "checks": [["Open a pull request changing infrastructure", "Plan and cost comments appear", "Pull request page"], ["Merge and approve", "Apply runs", "Run logs"], ["Change a resource manually", "Nightly drift check reports it", "Run logs"]],
+          "objectives": ["Run infrastructure changes through Actions", "Review plans and costs in pull requests", "Detect drift"]
+        },
+        {
+          "topic": "Debugging and Troubleshooting Workflows",
+          "subtopics": ["Reading failed step logs", "Debug logging with secrets", "Expression and syntax errors", "act for local runs", "Permission errors", "Cache and artefact problems", "Runner environment differences", "Re-running with debug"],
+          "tools": ["GitHub Actions", "act"],
+          "lab_task": "Fix six broken workflows prepared by the trainer (syntax, expression, permissions, cache key, missing secret, wrong runner image) and record cause, evidence and fix.",
+          "deliverable": "Troubleshooting log for all six",
+          "checks": [["Fix all six within the time limit", "All workflows pass", "Run pages"], ["Run one workflow locally with act", "Reproduces the failure", "Terminal output"], ["Read the permission error entry", "Cause and fix are recorded", "Log entry"]],
+          "objectives": ["Diagnose workflow failures", "Run workflows locally", "Use debug logging"]
+        },
+        {
+          "topic": "Automating Repository Housekeeping",
+          "subtopics": ["Labelling pull requests automatically", "Stale issue and pull request handling", "Auto-assigning reviewers", "Welcome messages for contributors", "Scheduled reports", "Using the GitHub CLI in workflows", "Writing to issues and pull requests", "Avoiding noisy automation"],
+          "tools": ["GitHub Actions", "GitHub CLI"],
+          "lab_task": "Add workflows that label pull requests by changed paths, close stale issues after warning, post a weekly summary issue of merged work, and greet first-time contributors.",
+          "deliverable": "Housekeeping workflows and evidence of each",
+          "checks": [["Open a pull request touching docs", "Gets the docs label", "Pull request page"], ["Wait for the weekly schedule or run it manually", "Summary issue lists merged pull requests", "Issue page"], ["Open a pull request from a new account", "Greeting is posted", "Pull request page"]],
+          "objectives": ["Automate repository chores", "Use the GitHub CLI in workflows", "Keep automation helpful, not noisy"]
+        },
+        {
+          "topic": "Beginner Capstone: End-to-End CI/CD with GitHub Actions",
+          "subtopics": ["Requirement walkthrough", "CI with matrix, caching and scans", "Image build and release", "Environments with approval", "OIDC deployment with smoke tests and rollback", "Demo and troubleshooting walkthrough"],
+          "tools": ["GitHub Actions", "Docker", "CodeQL", "cloud service"],
+          "lab_task": "Deliver complete CI/CD for a web application with reusable workflows, caching, scans, image publishing, staged deployments with approval and OIDC, smoke tests and rollback, then demonstrate a failed release.",
+          "deliverable": "Repository with workflows, a release, deployment history and a 10-minute demo",
+          "checks": [["Merge a change during the demo", "It reaches prod after approval", "Deployment history"], ["Release a broken version", "Rollback restores service", "Run logs and app check"], ["Review workflow security", "Actions pinned and permissions minimal", "Workflow files"]],
+          "objectives": ["Deliver complete CI/CD with GitHub Actions", "Combine build, security and deployment", "Demonstrate safe releases"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who write GitHub Actions workflows. Covers workflow architecture for many repositories, runner fleets, supply chain security, advanced deployments, monorepos, cost and governance.",
+      "prerequisites": ["Writes workflows with matrices, caching, environments and secrets", "Has deployed from GitHub Actions", "Comfortable with Docker and one cloud"],
+      "outcomes": ["Design shared workflow platforms for many repositories", "Run secure, scalable runner fleets", "Secure the software supply chain with attestations and policies", "Govern Actions usage and cost across an organisation"],
+      "days": [
+        {
+          "topic": "Workflow Architecture for Many Repositories",
+          "subtopics": ["Central workflow repositories", "Reusable workflow design", "Versioning and release of shared workflows", "Required workflows and rulesets", "Organisation starter workflows", "Extension points for teams", "Rolling out changes safely", "Measuring adoption"],
+          "tools": ["GitHub Actions", "rulesets"],
+          "lab_task": "Build a central workflow library for five sample repositories in different languages, require a security workflow through rulesets, and roll out a breaking change in stages.",
+          "deliverable": "Workflow library, ruleset configuration and rollout record",
+          "checks": [["Run all five repositories", "Each passes using the library", "Run pages"], ["Remove the security workflow from a repository", "Ruleset still requires it", "Pull request page"], ["Roll out a new major version to one repository first", "Others stay on the old version", "Run logs"]],
+          "objectives": ["Design shared workflows for many repositories", "Require workflows organisation-wide", "Roll out changes safely"]
+        },
+        {
+          "topic": "Runner Fleets with Actions Runner Controller",
+          "subtopics": ["Hosted versus self-hosted at scale", "Actions Runner Controller on Kubernetes", "Runner scale sets", "Ephemeral runners", "Custom runner images", "Autoscaling on demand", "Network isolation", "Large hosted runners"],
+          "tools": ["Actions Runner Controller", "Kubernetes", "Helm"],
+          "lab_task": "Deploy Actions Runner Controller with an autoscaling runner scale set, build a custom runner image with build tools, and run 30 queued jobs.",
+          "deliverable": "Runner configuration, custom image and scaling evidence",
+          "checks": [["Queue 30 jobs", "Runners scale up and the queue drains within the target time", "Runner metrics"], ["Check runners after jobs", "Ephemeral runners are removed", "kubectl output"], ["Run a job needing the custom tools", "Tools are available", "Run logs"]],
+          "objectives": ["Run runner fleets on Kubernetes", "Autoscale runners", "Build custom runner images"]
+        },
+        {
+          "topic": "Supply Chain Security: Attestations, Provenance and SLSA",
+          "subtopics": ["SLSA levels", "Artifact attestations", "Build provenance", "Verifying attestations with the GitHub CLI", "SBOM attestations", "Reusable workflows for isolated builds", "Signing with Sigstore", "Verifying before deploy"],
+          "tools": ["actions/attest-build-provenance", "GitHub CLI", "cosign"],
+          "lab_task": "Generate build provenance and SBOM attestations for images, verify them before deployment, and refuse to deploy an image without valid provenance.",
+          "deliverable": "Workflow changes, attestations and a refused deployment",
+          "checks": [["Run gh attestation verify on a built image", "Verification passes", "Command output"], ["Deploy an image built elsewhere", "Deployment refuses it", "Run logs"], ["Open the SBOM attestation", "Lists packages", "Attestation contents"]],
+          "objectives": ["Produce build provenance", "Verify artefacts before deployment", "Apply SLSA practices"]
+        },
+        {
+          "topic": "Advanced Workflow Security and Threat Modelling",
+          "subtopics": ["Threat model for workflows", "Poisoned pipeline execution", "Untrusted input in expressions", "Artefact poisoning between workflows", "workflow_run security", "Secrets exposure paths", "Runner compromise", "Security review checklist"],
+          "tools": ["GitHub Actions", "zizmor or actionlint"],
+          "lab_task": "Threat model the organisation's workflows, run static analysis to find risky patterns, fix the top findings, and test three attack attempts.",
+          "deliverable": "Threat model, analysis report, fixes and test results",
+          "checks": [["Run the static analyser after fixes", "No high-severity findings", "Analyser output"], ["Attempt artefact poisoning through workflow_run", "Attack fails", "Test result"], ["Read the checklist", "Covers triggers, inputs, permissions and secrets", "Checklist"]],
+          "objectives": ["Threat model CI workflows", "Find risky patterns automatically", "Defend against workflow attacks"]
+        },
+        {
+          "topic": "Advanced Deployment Patterns",
+          "subtopics": ["Blue-green and canary from Actions", "Deploying to Kubernetes", "GitOps handoff with pull requests", "Custom deployment protection rules", "Progressive delivery with metrics checks", "Multi-region deployments", "Database change coordination", "Release trains"],
+          "tools": ["GitHub Actions", "Kubernetes", "Argo CD"],
+          "lab_task": "Implement a canary deployment to Kubernetes with a metrics check before promotion, and a custom protection rule that blocks prod deploys during a change freeze.",
+          "deliverable": "Workflows, protection rule and runs for success, rollback and freeze",
+          "checks": [["Release a healthy version", "Canary promotes", "Run logs"], ["Release a failing version", "Canary rolls back", "Run logs"], ["Deploy during the freeze", "Protection rule blocks it", "Deployment page"]],
+          "objectives": ["Run progressive deployments", "Gate deployments with custom rules", "Combine Actions with GitOps"]
+        },
+        {
+          "topic": "Monorepo CI with GitHub Actions",
+          "subtopics": ["Detecting changed packages", "Dynamic matrices from changed paths", "Affected project builds", "Shared caches in monorepos", "Merge queues", "Required checks with dynamic jobs", "CODEOWNERS and path ownership", "Keeping CI under a time budget"],
+          "tools": ["GitHub Actions", "merge queue", "Nx or Turborepo"],
+          "lab_task": "Build CI for a monorepo of eight packages that builds only affected packages through a dynamic matrix, uses a merge queue, and keeps required checks reliable.",
+          "deliverable": "Workflows and runs showing affected builds and the merge queue",
+          "checks": [["Change one package", "Only it and its dependants build", "Run page"], ["Add two pull requests to the merge queue", "Both are tested together and merged", "Merge queue history"], ["Check required status", "A single aggregate check is required", "Ruleset"]],
+          "objectives": ["Build monorepos efficiently", "Use dynamic matrices", "Merge safely with merge queues"]
+        },
+        {
+          "topic": "Performance Optimisation for Workflows",
+          "subtopics": ["Measuring where time goes", "Caching strategies", "Splitting tests across jobs", "Larger runners", "Avoiding duplicate runs", "Docker layer caching", "Running fewer jobs on pull requests", "Time budgets"],
+          "tools": ["GitHub Actions", "test splitting tools"],
+          "lab_task": "Cut a provided 35-minute workflow to under 10 minutes with caching, test splitting, larger runners where justified and duplicate-run removal, measuring each change.",
+          "deliverable": "Optimised workflow and a timing and cost table",
+          "checks": [["Run the final workflow", "Under 10 minutes", "Run duration"], ["Compare test results", "Same tests run and pass", "Test report"], ["Read the cost column", "Larger runner cost is justified by time saved", "Table"]],
+          "objectives": ["Find workflow bottlenecks", "Speed up builds and tests", "Balance speed and cost"]
+        },
+        {
+          "topic": "Cost Management for GitHub Actions",
+          "subtopics": ["Billing for minutes and storage", "Runner cost per minute by OS and size", "Storage for artefacts and caches", "Usage reports", "Spending limits", "Self-hosted cost trade-offs", "Cost per team", "Savings tactics"],
+          "tools": ["GitHub billing", "usage reports"],
+          "lab_task": "Analyse a month of sample usage, find the top cost drivers, cut cost by at least 30% with retention, filters and runner changes, and report cost per team.",
+          "deliverable": "Cost analysis, changes and savings report",
+          "checks": [["Compare monthly cost", "At least 30% lower or explained", "Report"], ["Check build times", "Within the agreed target", "Timing data"], ["Read cost per team", "Reconciles with the total", "Report"]],
+          "objectives": ["Measure Actions cost", "Reduce minutes and storage cost", "Report cost per team"]
+        },
+        {
+          "topic": "Governance and Policy for Actions",
+          "subtopics": ["Allowed actions and reusable workflows", "Organisation and enterprise policies", "Default GITHUB_TOKEN permissions", "Fork pull request settings", "Runner group policies", "Audit log for Actions", "Exceptions process", "Compliance reporting"],
+          "tools": ["GitHub organisation settings", "audit log"],
+          "lab_task": "Set organisation policies for allowed actions, default read-only tokens, fork approval and runner groups, then find a policy change in the audit log and produce a compliance report.",
+          "deliverable": "Policy configuration, audit findings and compliance report",
+          "checks": [["Use an unapproved action", "Workflow fails because the action is not allowed", "Run logs"], ["Find who changed the allowed actions list", "Audit log shows actor and time", "Audit entry"], ["Open the compliance report", "Shows each repository's settings", "Report"]],
+          "objectives": ["Govern Actions across an organisation", "Apply secure defaults", "Audit and report compliance"]
+        },
+        {
+          "topic": "Testing Strategies in CI",
+          "subtopics": ["Unit, integration and end-to-end stages", "Service containers for databases", "Ephemeral preview environments", "Flaky test detection", "Contract tests", "Performance tests", "Accessibility and browser tests", "Test result reporting"],
+          "tools": ["GitHub Actions", "Playwright", "k6"],
+          "lab_task": "Add integration tests with service containers, Playwright end-to-end tests against a preview environment per pull request, and a k6 performance gate.",
+          "deliverable": "Workflows and a pull request with preview link and test results",
+          "checks": [["Open a pull request", "Preview environment is created and tests run against it", "Pull request page"], ["Close the pull request", "Preview environment is deleted", "Run logs"], ["Make p95 latency exceed the gate", "Performance check fails", "Run logs"]],
+          "objectives": ["Design testing stages in CI", "Use preview environments", "Gate on performance"]
+        },
+        {
+          "topic": "GitHub Apps and API Automation in Workflows",
+          "subtopics": ["GITHUB_TOKEN limits", "Using GitHub App tokens in workflows", "Cross-repository automation", "Creating pull requests from workflows", "Triggering other workflows", "repository_dispatch", "Rate limits", "Securing app credentials"],
+          "tools": ["GitHub Apps", "actions/create-github-app-token", "GitHub CLI"],
+          "lab_task": "Use a GitHub App token to open pull requests in three repositories that update a shared configuration file, and trigger their workflows with repository_dispatch.",
+          "deliverable": "App setup, workflow and the opened pull requests",
+          "checks": [["Run the workflow", "Pull requests are opened in all three repositories", "Pull request pages"], ["Check that their CI ran", "Workflows were triggered", "Run pages"], ["Search for personal tokens", "None used", "Workflow and secrets"]],
+          "objectives": ["Automate across repositories", "Use GitHub App tokens", "Trigger workflows between repositories"]
+        },
+        {
+          "topic": "Mobile and Desktop Builds with GitHub Actions",
+          "subtopics": ["macOS runners for iOS", "Android builds and emulators", "Code signing secrets", "Windows builds", "Electron or .NET desktop builds", "Distributing test builds", "Caching for mobile builds", "Runner cost for macOS"],
+          "tools": ["GitHub Actions", "fastlane", "Gradle"],
+          "lab_task": "Build and sign an Android app and a desktop app for Windows and macOS in one workflow, and distribute test builds, keeping signing keys out of logs.",
+          "deliverable": "Workflow, signed builds and distribution evidence",
+          "checks": [["Run the workflow", "Signed builds for each platform are produced", "Artefacts"], ["Search logs for signing passwords", "Not present", "Log search"], ["Compare macOS runner cost", "Recorded with a plan to limit it", "Cost note"]],
+          "objectives": ["Build mobile and desktop apps in Actions", "Sign builds securely", "Manage platform runner costs"]
+        },
+        {
+          "topic": "Observability for CI/CD Pipelines",
+          "subtopics": ["Workflow run metrics", "Exporting run data", "OpenTelemetry for workflows", "Failure rate and duration dashboards", "Alerting on broken main", "DORA metrics from Actions data", "Flaky job tracking", "Using data to prioritise work"],
+          "tools": ["GitHub API", "Grafana", "OpenTelemetry"],
+          "lab_task": "Export workflow run data, build dashboards for duration, failure rate and DORA metrics, and alert the team when main stays red for more than 30 minutes.",
+          "deliverable": "Data export, dashboards and alert rule",
+          "checks": [["Break main for 35 minutes", "Alert fires", "Alert history"], ["Read the DORA panel", "Deployment frequency and lead time shown", "Dashboard"], ["Read the flaky job list", "Jobs ranked by flakiness", "Report"]],
+          "objectives": ["Observe CI/CD health", "Measure delivery performance", "Alert on broken main"]
+        },
+        {
+          "topic": "Migrating to GitHub Actions",
+          "subtopics": ["GitHub Actions Importer", "Mapping Jenkins, GitLab CI and Azure Pipelines concepts", "Converting shared libraries to reusable workflows", "Migrating secrets", "Running old and new pipelines in parallel", "Validating parity", "Training teams", "Decommissioning old pipelines"],
+          "tools": ["GitHub Actions Importer", "Jenkins or GitLab CI"],
+          "lab_task": "Audit and migrate three pipelines from another CI system with the importer, fix untranslated parts, run both in parallel to prove parity, and plan the rest.",
+          "deliverable": "Migrated workflows, parity comparison and migration plan",
+          "checks": [["Run both systems on the same commit", "Same tests and artefacts", "Comparison"], ["Read the list of manual fixes", "Each untranslated item is handled", "Notes"], ["Read the plan", "Waves and rollback are included", "Plan"]],
+          "objectives": ["Migrate pipelines to Actions", "Prove parity", "Plan large migrations"]
+        },
+        {
+          "topic": "Data and Machine Learning Workflows",
+          "subtopics": ["Scheduled data jobs", "Large files and data caching", "GPU runners", "Model training in CI", "Model evaluation gates", "Publishing models", "Notebook testing", "Cost control for heavy jobs"],
+          "tools": ["GitHub Actions", "DVC", "GPU runners"],
+          "lab_task": "Build a workflow that retrains a small model on new data, evaluates it against the current model, and publishes it only if accuracy improves.",
+          "deliverable": "Workflow, evaluation report and published model",
+          "checks": [["Run with better data", "New model is published", "Run logs and registry"], ["Run with worse data", "Publication is skipped", "Run logs"], ["Read the cost note", "Heavy job cost is estimated", "Note"]],
+          "objectives": ["Run data and ML jobs in Actions", "Gate model releases on evaluation", "Control heavy job cost"]
+        },
+        {
+          "topic": "Compliance Evidence from GitHub Actions",
+          "subtopics": ["Traceability from commit to deployment", "Deployment records", "Approval evidence", "Separation of duties", "Retention of logs and artefacts", "Audit log streaming", "Change records integration", "Answering auditors"],
+          "tools": ["GitHub Actions", "audit log streaming", "ITSM integration"],
+          "lab_task": "Make every prod deployment create a change record with commit, tests, scans and approver, enforce separation of duties, and answer three mock auditor questions.",
+          "deliverable": "Workflow changes, sample change records and audit answers",
+          "checks": [["Deploy to prod", "Change record contains all evidence links", "Change record"], ["Approve your own prod deployment", "Not allowed", "Deployment page"], ["Answer an auditor question", "Answered with evidence within minutes", "Evidence"]],
+          "objectives": ["Produce compliance evidence from CI/CD", "Enforce separation of duties", "Respond to audits"]
+        },
+        {
+          "topic": "Inner Source of Actions and Workflows",
+          "subtopics": ["Internal actions repository", "Contribution guidelines", "Testing shared actions", "Versioning and deprecation", "Documentation and examples", "Ownership", "Discoverability", "Measuring reuse"],
+          "tools": ["GitHub", "GitHub Actions"],
+          "lab_task": "Set up an internal catalogue of shared actions with tests, documentation and versioning, accept a contribution from another team, and deprecate an old action.",
+          "deliverable": "Catalogue repository, merged contribution and deprecation record",
+          "checks": [["Open the catalogue", "Each action has docs, tests and an owner", "Repository"], ["Merge the contribution", "Passed tests and review", "Pull request"], ["Use the deprecated action", "Workflow shows a deprecation warning", "Run logs"]],
+          "objectives": ["Share actions across an organisation", "Accept contributions safely", "Deprecate actions responsibly"]
+        },
+        {
+          "topic": "Disaster Recovery and Resilience for CI/CD",
+          "subtopics": ["Dependencies of CI: GitHub, registries, clouds", "Planning for a GitHub outage", "Self-hosted fallback runners", "Mirroring critical actions", "Backing up workflow configuration", "Recovering secrets", "Testing failover", "Runbooks"],
+          "tools": ["GitHub Actions", "self-hosted runners", "mirrors"],
+          "lab_task": "Make deployments resilient to a registry outage and hosted runner unavailability with mirrors and fallback runners, and run a timed failover test.",
+          "deliverable": "Resilience changes, runbook and test record",
+          "checks": [["Block the main registry during a deploy", "Deploy uses the mirror", "Run logs"], ["Disable hosted runners", "Jobs run on fallback runners", "Run page"], ["Compare recovery time with the target", "Within target or explained", "Timeline"]],
+          "objectives": ["Plan CI/CD resilience", "Mirror critical dependencies", "Test failover"]
+        },
+        {
+          "topic": "Actions Operations Runbooks",
+          "subtopics": ["Common incidents: queued jobs, runner failures, rate limits", "Diagnosing stuck runs", "Runner fleet failures", "Secrets and permission incidents", "Communicating CI outages", "Post-incident reviews", "On-call basics", "Preventive actions"],
+          "tools": ["GitHub Actions", "Actions Runner Controller"],
+          "lab_task": "Handle four injected incidents (runner fleet down, jobs stuck queued, API rate limits, expired cloud trust) with runbooks you write, and complete one post-incident review.",
+          "deliverable": "Four runbooks, incident timelines and one review",
+          "checks": [["Resolve the runner fleet incident", "Jobs run again", "Run page"], ["Resolve the expired cloud trust", "Deployments authenticate again", "Run logs"], ["Read the review", "Impact, root cause and owned actions", "Review"]],
+          "objectives": ["Operate Actions with runbooks", "Diagnose platform incidents", "Run post-incident reviews"]
+        },
+        {
+          "topic": "Intermediate Capstone: CI/CD Platform for an Organisation on GitHub Actions",
+          "subtopics": ["Requirements and design", "Shared workflow library and required workflows", "Runner fleet", "Supply chain security and governance", "Observability and cost", "Demo and design defence"],
+          "tools": ["GitHub Actions", "Actions Runner Controller", "artifact attestations", "Grafana"],
+          "lab_task": "Build a CI/CD platform for an organisation with a shared workflow library, required workflows, an autoscaling runner fleet, provenance checks, governance policies and dashboards, then present it.",
+          "deliverable": "Platform repositories, policy configuration, dashboards and a 15-minute demo",
+          "checks": [["Onboard a new repository", "Uses the library and required checks automatically", "Repository"], ["Deploy an image without provenance", "Blocked", "Run logs"], ["Queue 50 jobs", "Runner fleet scales and drains within target", "Runner metrics"]],
+          "objectives": ["Design an organisation-wide CI/CD platform", "Combine governance, security and scale", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run CI/CD on GitHub for large enterprises. Covers enterprise architecture, trusted builds, extreme-scale runners, policy engineering, platform products and CI/CD strategy.",
+      "prerequisites": ["Has built shared workflows and runner fleets for many teams", "Comfortable with supply chain security and cloud identity", "Has administered GitHub organisation settings"],
+      "outcomes": ["Design enterprise CI/CD architecture on GitHub", "Run trusted, verifiable builds at scale", "Engineer policy, governance and cost for thousands of repositories", "Lead CI/CD strategy with measured outcomes"],
+      "days": [
+        {
+          "topic": "Enterprise CI/CD Architecture on GitHub",
+          "subtopics": ["Enterprises, organisations and repositories", "Workflow library strategy", "Runner strategy: hosted, larger and self-hosted", "Network and private resource access", "Identity for deployments", "Data residency", "Reference architecture", "Decision records"],
+          "tools": ["GitHub Enterprise", "Decision records"],
+          "lab_task": "Design CI/CD architecture for an enterprise with 40 organisations and 8,000 repositories, and write decision records for workflow library, runner and identity strategy.",
+          "deliverable": "Architecture document and three decision records",
+          "checks": [["Read the runner strategy", "Explains which workloads use which runner type and why", "Document"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on identity", "Participant explains OIDC trust at scale", "Trainer notes"]],
+          "objectives": ["Design enterprise CI/CD architecture", "Plan runner and identity strategy", "Record key decisions"]
+        },
+        {
+          "topic": "Trusted Builds at Scale: SLSA Level 3",
+          "subtopics": ["SLSA level 3 requirements", "Isolated reusable build workflows", "Non-falsifiable provenance", "Hermetic builds", "Verification at admission and deploy", "Policy for verified artefacts", "Exceptions", "Measuring coverage"],
+          "tools": ["slsa-github-generator", "artifact attestations", "Kyverno"],
+          "lab_task": "Move builds for three services to isolated reusable build workflows producing SLSA level 3 provenance, verify it at Kubernetes admission, and report coverage.",
+          "deliverable": "Build workflows, verification policy and coverage report",
+          "checks": [["Deploy an image without valid provenance", "Admission rejects it", "Error output"], ["Verify provenance of a release", "Source, builder and workflow verify", "Verification output"], ["Read the coverage report", "Shows services with and without level 3 builds", "Report"]],
+          "objectives": ["Implement SLSA level 3 builds", "Verify provenance at deploy time", "Measure trusted build coverage"]
+        },
+        {
+          "topic": "Runner Platforms at Extreme Scale",
+          "subtopics": ["Thousands of concurrent jobs", "Multiple runner scale sets", "Warm pools", "Image caching and start-up time", "Network egress at scale", "Spot capacity for runners", "Runner fleet observability", "Capacity planning"],
+          "tools": ["Actions Runner Controller", "Kubernetes", "Prometheus"],
+          "lab_task": "Load test a runner platform with 2,000 queued jobs, reduce job start time with warm pools and image caching, and write a capacity plan.",
+          "deliverable": "Load test results, tuning changes and capacity plan",
+          "checks": [["Compare median job start time", "Lower after tuning, with figures", "Metrics"], ["Interrupt spot nodes during the test", "Jobs are retried and complete", "Job history"], ["Read the capacity plan", "States capacity for stated growth", "Plan"]],
+          "objectives": ["Run runner platforms at extreme scale", "Reduce job start time", "Plan runner capacity"]
+        },
+        {
+          "topic": "Policy Engineering for Workflows",
+          "subtopics": ["Static analysis of workflows at scale", "Custom policy rules", "Blocking risky patterns before merge", "Organisation-wide scanning", "Exceptions with expiry", "Policy rollout in audit mode", "Reporting", "Ownership"],
+          "tools": ["actionlint", "zizmor", "OPA", "GitHub API"],
+          "lab_task": "Scan every workflow in a sample organisation for risky patterns, roll out blocking rules in audit mode then enforce mode, and report results by team.",
+          "deliverable": "Scanner configuration, rollout record and report",
+          "checks": [["Read the audit-mode report", "Lists repositories and patterns affected", "Report"], ["Switch to enforce", "Pull requests adding risky patterns are blocked", "Pull request checks"], ["Request an exception", "Scoped, time-limited and logged", "Exception record"]],
+          "objectives": ["Engineer workflow policies", "Roll out policies safely", "Report policy outcomes"]
+        },
+        {
+          "topic": "Secrets and Identity Architecture for CI/CD",
+          "subtopics": ["Removing long-lived secrets", "OIDC to every cloud and vault", "Fine-grained trust conditions", "Secrets in reusable workflows", "Rotating remaining secrets", "Detecting secret misuse", "Break-glass access", "Auditing identity use"],
+          "tools": ["OIDC", "HashiCorp Vault", "cloud IAM"],
+          "lab_task": "Replace all long-lived secrets in sample repositories with OIDC to clouds and Vault, tighten trust conditions to environment and workflow, and audit identity use.",
+          "deliverable": "Identity configuration, secret inventory before and after and audit report",
+          "checks": [["Count long-lived secrets", "Reduced to the documented exceptions", "Inventory"], ["Use the trust from a different workflow file", "Denied", "Run logs"], ["Read the audit report", "Shows identity use per workflow", "Report"]],
+          "objectives": ["Design secretless CI/CD", "Tighten federated trust", "Audit CI identity use"]
+        },
+        {
+          "topic": "Platform Engineering: CI/CD as an Internal Product",
+          "subtopics": ["Golden paths", "Self-service repository creation", "Backstage integration", "Workflow catalogue", "Developer experience metrics", "Support model", "Roadmaps", "Adoption campaigns"],
+          "tools": ["Backstage", "GitHub Actions", "GitHub API"],
+          "lab_task": "Build a golden path that creates a repository with workflows, environments, rulesets and a deployment target in one request, and measure time to first deploy.",
+          "deliverable": "Template, created repository and experience metrics",
+          "checks": [["Create a service from the template", "First deploy succeeds within the target time", "Timing evidence"], ["Check the created repository", "Rulesets and required workflows are applied", "Settings"], ["Read the metrics", "Time to first deploy and satisfaction measured", "Dashboard"]],
+          "objectives": ["Treat CI/CD as a product", "Provide golden paths", "Measure developer experience"]
+        },
+        {
+          "topic": "Release Engineering for Many Services",
+          "subtopics": ["Coordinated releases", "Dependency-aware deployment order", "Release trains", "Feature flags", "Rollback across services", "Release dashboards", "Change freezes", "Measuring release health"],
+          "tools": ["GitHub Actions", "feature flags", "deployment APIs"],
+          "lab_task": "Orchestrate a release of five dependent services in order with health checks, roll all back when one fails, and show the release on a dashboard.",
+          "deliverable": "Orchestration workflow and release records for success and rollback",
+          "checks": [["Run a healthy release", "Deploys in dependency order", "Release log"], ["Fail the fourth service", "All deployed services roll back", "Release log"], ["Open the dashboard", "Shows versions per environment", "Dashboard"]],
+          "objectives": ["Coordinate multi-service releases", "Roll back across services", "Measure release health"]
+        },
+        {
+          "topic": "Reliability Engineering for CI/CD",
+          "subtopics": ["SLOs for CI: queue time, success rate, duration", "Error budgets", "Chaos tests for CI dependencies", "Graceful degradation", "Fallback runners and mirrors", "Incident management", "Reliability reviews", "Continuous improvement"],
+          "tools": ["GitHub Actions", "Prometheus", "Chaos Mesh"],
+          "lab_task": "Define CI SLOs, run chaos tests on registries, runners and cloud APIs, add mitigations, and report SLO impact.",
+          "deliverable": "SLO definitions, chaos results, mitigations and SLO report",
+          "checks": [["Break the registry during runs", "Mitigations keep runs passing", "Run logs"], ["Read the SLO report", "Shows SLOs during tests", "Dashboard"], ["Exhaust runner capacity", "Queue SLO alert fires", "Alert history"]],
+          "objectives": ["Define and measure CI SLOs", "Test CI resilience", "Mitigate dependency failures"]
+        },
+        {
+          "topic": "Cost Engineering at Enterprise Scale",
+          "subtopics": ["Cost drivers across thousands of repositories", "Runner type economics", "Storage and retention policies", "Chargeback by organisation", "Budgets and alerts", "Unit cost per build and deploy", "Optimisation programmes", "Reporting to finance"],
+          "tools": ["GitHub billing", "usage exports", "BI tools"],
+          "lab_task": "Build an enterprise cost model from usage exports, cut cost by at least 35% while meeting CI SLOs, and publish chargeback by organisation.",
+          "deliverable": "Cost model, changes, SLO evidence and chargeback report",
+          "checks": [["Compare monthly cost", "At least 35% lower or explained", "Report"], ["Check CI SLOs", "Still met", "Dashboard"], ["Read chargeback", "Reconciles with the invoice", "Report"]],
+          "objectives": ["Engineer CI cost at scale", "Keep SLOs while saving", "Report chargeback"]
+        },
+        {
+          "topic": "Compliance and Regulated Delivery",
+          "subtopics": ["Regulatory expectations", "Validated workflows", "Segregation of duties at scale", "Evidence automation", "Change management integration", "Retention and legal holds", "Audit response", "Continuous compliance"],
+          "tools": ["GitHub Actions", "audit log streaming", "ITSM"],
+          "lab_task": "Implement validated release workflows for a regulated product with automated evidence, change records and segregation of duties, and run a mock audit of a quarter.",
+          "deliverable": "Workflows, evidence store and mock audit results",
+          "checks": [["Answer an auditor request for a release", "Complete evidence produced within minutes", "Evidence package"], ["Try to bypass the validated workflow", "Blocked by rulesets", "Pull request checks"], ["Check segregation of duties", "Author cannot approve their own release", "Test result"]],
+          "objectives": ["Deliver regulated software with Actions", "Automate evidence", "Pass audits"]
+        },
+        {
+          "topic": "Large-Scale Migration to GitHub Actions",
+          "subtopics": ["Inventory of existing pipelines", "Classification by complexity", "Migration factories", "Automated conversion", "Parallel running", "Secrets and identity migration", "Training and support", "Tracking completion"],
+          "tools": ["GitHub Actions Importer", "scripts"],
+          "lab_task": "Inventory 400 sample pipelines from other CI systems, classify them, migrate a pilot wave automatically, prove parity, and report blockers.",
+          "deliverable": "Inventory, classification, pilot results and blocker report",
+          "checks": [["Read the classification", "Each pipeline has a class and reason", "Inventory"], ["Run the pilot wave", "Migrated workflows pass parity checks", "Parity report"], ["Read the blockers", "Each has an owner and plan", "Report"]],
+          "objectives": ["Plan large CI migrations", "Automate conversion", "Track migration progress"]
+        },
+        {
+          "topic": "Building GitHub Apps for CI/CD Platforms",
+          "subtopics": ["When an app beats a workflow", "Check runs API", "Webhook handling at scale", "Idempotent processing", "Deploying apps reliably", "Security of app private keys", "Testing apps", "Operating apps"],
+          "tools": ["GitHub Apps", "Octokit", "serverless hosting"],
+          "lab_task": "Build a GitHub App that adds a check run enforcing deployment policies on pull requests, with idempotent webhook handling and tests, deployed reliably.",
+          "deliverable": "App code, tests and a pull request showing the check run",
+          "checks": [["Open a pull request breaking a policy", "Check run fails with an explanation", "Pull request page"], ["Redeliver the webhook", "No duplicate check runs", "Pull request page"], ["Run the tests", "All pass", "Test output"]],
+          "objectives": ["Build platform features as GitHub Apps", "Handle webhooks reliably", "Secure app credentials"]
+        },
+        {
+          "topic": "AI in CI/CD Workflows",
+          "subtopics": ["AI failure triage", "Pull request summaries", "Test generation in CI", "Risks: data exposure and wrong suggestions", "Evaluation of AI steps", "Human review", "Cost control", "Policies"],
+          "tools": ["GitHub Actions", "LLM API"],
+          "lab_task": "Add an AI step that summarises failed runs with likely causes, evaluate it against 50 labelled failures, and set rules for redaction and human confirmation.",
+          "deliverable": "Workflow step, evaluation results and rules",
+          "checks": [["Run the evaluation", "Accuracy measured against labels", "Evaluation table"], ["Check data sent to the model", "Secrets and personal data removed", "Redaction test"], ["Read the rules", "Require human confirmation", "Rules"]],
+          "objectives": ["Use AI in CI troubleshooting", "Evaluate AI steps", "Apply safe-use rules"]
+        },
+        {
+          "topic": "Advanced Troubleshooting of the Actions Platform",
+          "subtopics": ["Systematic diagnosis", "Runner controller failures", "Webhook and scaling delays", "Rate limits at scale", "OIDC trust failures", "Cache and artefact service problems", "Collecting diagnostics", "Root cause and prevention"],
+          "tools": ["Actions Runner Controller", "GitHub API", "logs and metrics"],
+          "lab_task": "Diagnose and fix seven hard platform failures injected by the trainer, including scaling delays, rate limit storms and broken OIDC trust across many repositories.",
+          "deliverable": "Diagnosis log with symptom, evidence, root cause and fix for each",
+          "checks": [["Fix the scaling delays", "Job start time returns to normal", "Metrics"], ["Fix the rate limit storm", "Automation backs off and recovers", "Logs"], ["Explain one root cause", "Supported by evidence", "Log entry"]],
+          "objectives": ["Troubleshoot platform-level problems", "Use metrics and logs at scale", "Prevent repeats"]
+        },
+        {
+          "topic": "Multi-Platform CI Strategy",
+          "subtopics": ["GitHub Actions compared with GitLab CI, Jenkins and Azure Pipelines", "When several systems coexist", "Shared standards across systems", "Central reporting", "Cost comparison", "Migration economics", "Vendor risk", "Decision records"],
+          "tools": ["GitHub Actions", "GitLab CI", "Jenkins"],
+          "lab_task": "Implement the same standard pipeline in GitHub Actions and one other system, compare speed, security, cost and effort, and write a platform decision record.",
+          "deliverable": "Both implementations, comparison and decision record",
+          "checks": [["Run both on the same commit", "Equivalent results", "Run logs"], ["Read the comparison", "Measured speed and estimated cost for both", "Comparison"], ["Read the decision record", "Options, criteria and reasons", "Decision record"]],
+          "objectives": ["Compare CI platforms with evidence", "Share standards across systems", "Make platform decisions"]
+        },
+        {
+          "topic": "Security Incident Response for CI/CD",
+          "subtopics": ["Compromised actions", "Leaked secrets from workflows", "Malicious workflow changes", "Containment across repositories", "Revoking trust and tokens", "Forensic review of runs", "Communication", "Post-incident hardening"],
+          "tools": ["GitHub audit log", "GitHub API", "cloud audit logs"],
+          "lab_task": "Respond to a simulated compromised third-party action: find every repository using it, contain, revoke affected credentials, review run logs for misuse and report.",
+          "deliverable": "Incident timeline, affected repository list, revocation record and report",
+          "checks": [["Read the affected list", "Matches a scan of all workflows", "List and scan output"], ["Use a revoked credential", "Rejected", "Error output"], ["Read the report", "Root cause and preventive controls", "Report"]],
+          "objectives": ["Respond to CI supply chain incidents", "Contain across many repositories", "Harden after incidents"]
+        },
+        {
+          "topic": "Delivery Metrics and Engineering Effectiveness",
+          "subtopics": ["DORA metrics", "SPACE framework overview", "Measuring flow from commit to production", "Benchmarking teams responsibly", "Linking metrics to improvements", "Executive reporting", "Avoiding metric gaming", "Improvement programmes"],
+          "tools": ["GitHub API", "BI tools"],
+          "lab_task": "Build delivery metrics for 20 sample teams from Actions and repository data, identify the three biggest bottlenecks, and propose measurable improvements.",
+          "deliverable": "Metrics dashboard, bottleneck analysis and improvement plan",
+          "checks": [["Recompute lead time for one team by hand", "Matches the dashboard", "Calculation"], ["Read the bottleneck analysis", "Supported by data", "Analysis"], ["Read the plan", "Each improvement has a target metric", "Plan"]],
+          "objectives": ["Measure delivery effectiveness", "Find bottlenecks with data", "Drive improvement responsibly"]
+        },
+        {
+          "topic": "CI/CD Architecture Reviews",
+          "subtopics": ["Reviewing CI/CD designs", "Speed, security, cost and reliability criteria", "Decision records", "Common anti-patterns", "Reviewing another team's capstone", "Technical debt in workflows", "Presenting trade-offs", "Reference architectures"],
+          "tools": ["Decision records"],
+          "lab_task": "Review another team's CI/CD platform design, write two decision records for its biggest risks, and present recommendations with evidence.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Defended with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Review CI/CD architectures", "Document decisions", "Communicate recommendations"]
+        },
+        {
+          "topic": "CI/CD Strategy and Roadmap on GitHub",
+          "subtopics": ["Maturity assessment", "Target state", "Investment priorities", "Security roadmap", "Developer experience roadmap", "Risk management", "Communicating with leadership", "Three-year roadmap"],
+          "tools": ["Roadmap templates"],
+          "lab_task": "Assess a provided enterprise's CI/CD maturity on GitHub, propose a three-year roadmap, and present it to a mock leadership panel.",
+          "deliverable": "Maturity assessment, roadmap and presentation",
+          "checks": [["Read the assessment", "Each area has evidence and a level", "Assessment"], ["Review the roadmap", "Items have outcomes, owners and metrics", "Roadmap"], ["Panel Q&A", "Budget and risk questions answered with evidence", "Trainer notes"]],
+          "objectives": ["Assess CI/CD maturity", "Plan a roadmap", "Lead CI/CD strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise CI/CD Platform on GitHub",
+          "subtopics": ["Business, security and compliance requirements", "Architecture and runner platform", "Trusted builds and policy", "Identity and secrets", "Reliability, cost and developer experience", "Architecture defence"],
+          "tools": ["GitHub Enterprise", "GitHub Actions", "Actions Runner Controller", "artifact attestations", "OPA"],
+          "lab_task": "Design and prototype an enterprise CI/CD platform on GitHub covering architecture, runners, trusted builds, policy, identity, reliability, cost and developer experience, then defend it to a review board.",
+          "deliverable": "Architecture document, working prototype, security and reliability test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run the security tests", "Untrusted builds and risky workflows are blocked", "Test results"], ["Run the reliability tests", "CI SLOs met during dependency failures", "SLO report"], ["Review the cost model", "Costs are broken down and justified", "Cost model"]],
+          "objectives": ["Design an enterprise CI/CD platform on GitHub", "Prove security, reliability and cost with evidence", "Defend the design to a review board"]
+        }
+      ]
+    }
+  }
+}
