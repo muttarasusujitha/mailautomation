@@ -1,0 +1,85 @@
+{
+  "description": "Top-level course categories. Every domain in datasets_compact belongs to exactly one category.",
+  "categories": [
+    {
+      "id": "programming_languages",
+      "name": "Programming Languages",
+      "domains": ["Python", "Java", "Kotlin", "Scala", "Ruby", "Dart", "Swift", "R Programming", "MATLAB", "PowerShell", "Shell Automation", "DSA & Algorithms"]
+    },
+    {
+      "id": "web_full_stack",
+      "name": "Web and Full Stack Development",
+      "domains": ["React", "Full Stack", "Java Full Stack", "Python Full Stack", "Ruby on Rails"]
+    },
+    {
+      "id": "backend_apis",
+      "name": "Backend, APIs and Web Servers",
+      "domains": ["SOAP APIs", "Webhooks", "WebSocket", "Tomcat", "Nginx", "Firebase", "Supabase"]
+    },
+    {
+      "id": "mobile",
+      "name": "Mobile Development",
+      "domains": ["Flutter", "React Native"]
+    },
+    {
+      "id": "databases",
+      "name": "Databases",
+      "domains": ["MariaDB", "PL/SQL", "Apache Cassandra", "CouchDB"]
+    },
+    {
+      "id": "data_engineering",
+      "name": "Data Engineering and Analytics",
+      "domains": ["Data Engineering", "Amazon Redshift", "Apache Beam", "Apache Flink", "Apache Hive", "BigQuery", "Data Lakes", "Data Warehousing", "Databricks", "dbt", "ETL/ELT", "Snowflake", "Power BI"]
+    },
+    {
+      "id": "data_science_ml",
+      "name": "Data Science and Machine Learning",
+      "domains": ["Data Science", "Machine Learning", "Deep Learning", "Computer Vision", "Transformers", "Hugging Face", "Quantization", "Model Monitoring"]
+    },
+    {
+      "id": "generative_ai",
+      "name": "Generative AI and Agents",
+      "domains": ["Agentic AI", "AI Guardrails", "AutoGen", "Claude APIs", "CrewAI", "Function Calling", "Gemini APIs", "LangGraph", "Llama", "LlamaIndex", "LLM Evaluation", "LLMOps", "MCP", "Multi-Agent Systems", "Ollama", "OpenAI APIs", "Prompt Engineering", "RAG Pipelines", "Semantic Kernel", "Tool Calling", "Kubernetes AI Deployment", "Vector Search", "Chroma", "FAISS", "Milvus", "Pinecone", "Qdrant", "Weaviate"]
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud",
+      "domains": ["Cloud", "AWS AI", "Azure AI"]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps and CI/CD",
+      "domains": ["DevOps", "Azure DevOps", "Argo CD", "Bamboo", "CircleCI", "TeamCity", "Docker Compose", "Chef", "Puppet", "Pulumi", "Vagrant", "Consul", "Istio", "Linux Administration"]
+    },
+    {
+      "id": "observability_sre",
+      "name": "Observability and SRE",
+      "domains": ["Observability", "SRE", "OpenTelemetry", "Jaeger", "Loki", "Splunk", "New Relic", "AppDynamics"]
+    },
+    {
+      "id": "networking",
+      "name": "Networking",
+      "domains": ["CDN", "DNS", "Load Balancing", "TCP/IP", "VPN", "Firewall"]
+    },
+    {
+      "id": "cybersecurity",
+      "name": "Cybersecurity and Identity",
+      "domains": ["Cybersecurity", "IAM", "JWT", "Keycloak", "OpenID Connect", "SAML", "OWASP", "Penetration Testing", "SIEM", "Vault", "Vulnerability Management", "Zero Trust"]
+    },
+    {
+      "id": "testing_qa",
+      "name": "Testing and QA",
+      "domains": ["Testing & QA", "Appium", "Cucumber", "JMeter", "LoadRunner", "Mockito", "REST Assured", "Robot Framework", "TestNG"]
+    },
+    {
+      "id": "enterprise_platforms",
+      "name": "Enterprise Platforms (ERP, CRM, ITSM)",
+      "domains": ["SAP", "Salesforce", "ServiceNow"]
+    },
+    {
+      "id": "project_management",
+      "name": "Project Management",
+      "domains": ["Project Management"]
+    }
+  ]
+}
