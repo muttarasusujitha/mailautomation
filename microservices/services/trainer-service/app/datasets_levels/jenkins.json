@@ -1,0 +1,573 @@
+{
+  "domain": "Jenkins",
+  "name": "Jenkins",
+  "category": "DevOps and CI/CD",
+  "icon": "workflow",
+  "aliases": ["Jenkins CI", "Jenkins CI/CD", "Jenkins Pipelines", "CloudBees Jenkins"],
+  "certifications": ["CloudBees Certified Jenkins Engineer"],
+  "tools": ["Jenkins", "Git", "Docker", "Maven"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No CI/CD experience assumed. Participants install Jenkins and build pipelines that check out code, build, test, package and deploy an application.",
+      "prerequisites": ["Basic Git use", "Basic Linux command line", "Has built a Java, Python or Node.js project locally"],
+      "outcomes": ["Explain continuous integration and delivery", "Write declarative Jenkins pipelines stored in Git", "Build, test, publish reports and archive artefacts", "Deploy an application from a pipeline with credentials handled safely"],
+      "days": [
+        {
+          "topic": "CI/CD Concepts and Jenkins Installation",
+          "subtopics": ["What continuous integration solves", "Continuous delivery and deployment", "Jenkins architecture: controller and agents", "Installing Jenkins with Docker", "Unlocking Jenkins and the setup wizard", "Installing suggested plugins", "The Jenkins dashboard", "Creating a first freestyle job", "Build history and console output", "Jenkins home directory"],
+          "tools": ["Jenkins", "Docker"],
+          "lab_task": "Run Jenkins in Docker with a persistent volume, create a freestyle job that prints the build number and date, and show that history survives a container restart.",
+          "deliverable": "Run command, job configuration and console output before and after restart",
+          "checks": [["Restart the Jenkins container", "Job and build history are still there", "Dashboard screenshot"], ["Run the job twice", "Build numbers increase", "Console output"], ["Explain controller and agent roles", "Participant explains where builds should run", "Written explanation"]],
+          "objectives": ["Explain CI/CD", "Install and run Jenkins", "Create and run a job"]
+        },
+        {
+          "topic": "Building from Git with Freestyle Jobs",
+          "subtopics": ["Source code management settings", "Polling versus webhooks", "Build steps with shell or batch", "Build triggers", "Workspace and clean-up", "Build parameters", "Post-build actions", "Limits of freestyle jobs"],
+          "tools": ["Jenkins", "Git", "GitHub"],
+          "lab_task": "Create a freestyle job that builds a sample Maven or Python project from GitHub on every push using a webhook, with a parameter for the target environment.",
+          "deliverable": "Job configuration, webhook settings and build logs",
+          "checks": [["Push a commit", "Build starts automatically from the webhook", "Build history"], ["Run with environment=test", "Parameter value appears in the log", "Console output"], ["Break the build", "Build turns red with the error visible", "Console output"]],
+          "objectives": ["Build code from Git automatically", "Use triggers and parameters", "Read build logs"]
+        },
+        {
+          "topic": "Declarative Pipelines and the Jenkinsfile",
+          "subtopics": ["Pipeline as code", "Declarative pipeline structure", "agent, stages and steps", "Environment blocks", "post conditions: always, success, failure", "Pipeline job versus multibranch", "Replay and restart from stage", "Pipeline syntax generator"],
+          "tools": ["Jenkins", "Git"],
+          "lab_task": "Write a Jenkinsfile with checkout, build, test and package stages and post actions, store it in the repository, and run it from a pipeline job.",
+          "deliverable": "Jenkinsfile and the stage view of a successful run",
+          "checks": [["Open the stage view", "All four stages show with timings", "Screenshot"], ["Make tests fail", "Pipeline fails at the test stage and post failure runs", "Console output"], ["Restart from the package stage", "Earlier stages are skipped", "Build log"]],
+          "objectives": ["Write declarative pipelines", "Store pipelines in Git", "Use post conditions"]
+        },
+        {
+          "topic": "Test Reports, Artefacts and Build Results",
+          "subtopics": ["Publishing JUnit test reports", "Archiving artefacts", "Fingerprinting", "Code coverage reports", "Marking builds unstable", "Test trend charts", "Keeping build history under control", "Downloading artefacts"],
+          "tools": ["Jenkins", "JUnit plugin", "Coverage plugin"],
+          "lab_task": "Publish test results and coverage from the pipeline, archive the built package, mark the build unstable when coverage drops below 70%, and limit history to 20 builds.",
+          "deliverable": "Pipeline changes, test trend chart and archived artefact",
+          "checks": [["Open the test results page", "Shows passed and failed counts", "Screenshot"], ["Lower coverage below 70%", "Build is marked unstable", "Build status"], ["Download the archived package", "Correct file for that build", "Downloaded file"]],
+          "objectives": ["Publish test and coverage results", "Archive build outputs", "Control build history"]
+        },
+        {
+          "topic": "Credentials and Secrets in Jenkins",
+          "subtopics": ["Credentials store", "Credential types", "withCredentials in pipelines", "Credential scopes and folders", "Masking secrets in logs", "Avoiding secrets in Jenkinsfiles", "SSH keys for Git", "Rotating credentials"],
+          "tools": ["Jenkins", "Credentials plugin"],
+          "lab_task": "Store a registry password and an SSH key as credentials, use them in the pipeline with withCredentials, and prove the password never appears in logs.",
+          "deliverable": "Credential setup, pipeline changes and a log search",
+          "checks": [["Search the build log for the password", "Masked or absent", "Log search result"], ["Search the Jenkinsfile for secrets", "None", "grep output"], ["Use the credential from another folder", "Not available outside its scope", "Error output"]],
+          "objectives": ["Store credentials in Jenkins", "Use credentials safely in pipelines", "Keep secrets out of code and logs"]
+        },
+        {
+          "topic": "Multibranch Pipelines and Pull Request Builds",
+          "subtopics": ["Multibranch pipeline jobs", "Branch discovery", "Pull request discovery", "GitHub branch source", "Reporting status back to GitHub", "Branch-specific stages with when", "Organisation folders", "Cleaning up old branches"],
+          "tools": ["Jenkins", "GitHub"],
+          "lab_task": "Convert the job to a multibranch pipeline that builds every branch and pull request, reports status to GitHub, and only deploys from main.",
+          "deliverable": "Multibranch configuration and a pull request showing the Jenkins check",
+          "checks": [["Open a pull request", "Jenkins builds it and reports a check", "Pull request page"], ["Build a feature branch", "Deploy stage is skipped", "Stage view"], ["Delete a branch", "Its job is removed after the scan", "Job list"]],
+          "objectives": ["Build branches and pull requests automatically", "Report results to GitHub", "Restrict stages by branch"]
+        },
+        {
+          "topic": "Jenkins Agents and Distributed Builds",
+          "subtopics": ["Why not build on the controller", "Permanent agents over SSH", "Inbound agents", "Labels and agent selection", "Docker agents", "Workspace per agent", "Executors", "Agent troubleshooting"],
+          "tools": ["Jenkins", "Docker", "SSH"],
+          "lab_task": "Add two agents with different labels, set the controller to zero executors, and run Java builds on one agent and Python builds on the other.",
+          "deliverable": "Agent configuration and build logs showing where each ran",
+          "checks": [["Run both pipelines", "Each runs on the agent with its label", "Build logs"], ["Disconnect one agent", "Builds for that label wait in the queue", "Queue screenshot"], ["Check controller executors", "Set to zero", "Configuration screenshot"]],
+          "objectives": ["Distribute builds to agents", "Select agents with labels", "Keep builds off the controller"]
+        },
+        {
+          "topic": "Building and Publishing Docker Images",
+          "subtopics": ["Docker on agents", "Building images in a pipeline", "Tagging images with build data", "Pushing to a registry", "Docker agents for build tools", "Scanning images with Trivy", "Cleaning up images on agents", "Docker-in-Docker cautions"],
+          "tools": ["Jenkins", "Docker", "Trivy"],
+          "lab_task": "Extend the pipeline to build a Docker image, tag it with the version and Git commit, scan it with Trivy, and push it to a registry only from main.",
+          "deliverable": "Pipeline changes, scan report and registry listing",
+          "checks": [["Run from main", "Image is pushed with version and commit tags", "Registry listing"], ["Add a critical vulnerability", "Pipeline fails at the scan", "Console output"], ["Run from a feature branch", "Image is built and scanned but not pushed", "Build log"]],
+          "objectives": ["Build and publish images from Jenkins", "Scan images in the pipeline", "Tag images traceably"]
+        },
+        {
+          "topic": "Deploying Applications from Jenkins",
+          "subtopics": ["Deployment stages", "Environments: dev, test, prod", "Manual approval with input", "Deploying to a server over SSH", "Deploying containers", "Smoke tests after deployment", "Rollback steps", "Deployment history"],
+          "tools": ["Jenkins", "SSH", "Docker"],
+          "lab_task": "Add dev, test and prod deployment stages with an approval before prod, smoke tests after each deployment, and an automatic rollback when the prod smoke test fails.",
+          "deliverable": "Pipeline changes and runs showing a successful deploy and a rollback",
+          "checks": [["Run to prod with approval", "Waits for input, then deploys", "Stage view"], ["Make the prod smoke test fail", "Previous version is restored", "Console output and app check"], ["Read deployment history", "Shows which build is in each environment", "History view"]],
+          "objectives": ["Deploy through environments", "Add approvals and smoke tests", "Roll back automatically"]
+        },
+        {
+          "topic": "Pipeline Logic: Parallel Stages, Conditions and Matrix Builds",
+          "subtopics": ["Parallel stages", "when conditions", "Matrix builds", "Timeouts and retries", "Stashing files between stages", "Failing fast", "Options block", "Keeping pipelines readable"],
+          "tools": ["Jenkins"],
+          "lab_task": "Run unit, lint and security checks in parallel, test on three runtime versions with a matrix, and add timeouts and retries to flaky network steps.",
+          "deliverable": "Pipeline changes and timing comparison with the sequential version",
+          "checks": [["Compare total build time", "Parallel version is faster, with figures", "Timing table"], ["Check the matrix results", "Three runtime versions run and report separately", "Stage view"], ["Make a step hang", "Timeout stops it", "Console output"]],
+          "objectives": ["Speed up pipelines with parallel stages", "Test across versions with matrix builds", "Handle timeouts and retries"]
+        },
+        {
+          "topic": "Shared Libraries for Reusable Pipelines",
+          "subtopics": ["Why shared libraries", "Library structure: vars, src and resources", "Global variables as pipeline steps", "Loading libraries", "Versioning libraries", "Testing libraries", "Default libraries for folders", "Keeping libraries simple"],
+          "tools": ["Jenkins", "Groovy"],
+          "lab_task": "Create a shared library with a buildAndTest step and a dockerPublish step, and use it to shrink two project Jenkinsfiles to under 15 lines each.",
+          "deliverable": "Library repository and the two shortened Jenkinsfiles",
+          "checks": [["Run both projects", "Both succeed using the library", "Build logs"], ["Pin the library to a tag and change main", "Projects still use the pinned version", "Build log"], ["Count Jenkinsfile lines", "Under 15 each", "Files"]],
+          "objectives": ["Share pipeline code across projects", "Version shared libraries", "Simplify Jenkinsfiles"]
+        },
+        {
+          "topic": "Plugin Management and Jenkins Configuration",
+          "subtopics": ["Installing and updating plugins", "Plugin dependencies", "Plugin security advisories", "Global tool configuration", "System configuration", "Configuration as Code plugin", "Backing up configuration", "Removing unused plugins"],
+          "tools": ["Jenkins", "Configuration as Code plugin"],
+          "lab_task": "Describe the Jenkins configuration, tools and credentials references in a JCasC YAML file, rebuild Jenkins from it in a new container, and check plugin security advisories.",
+          "deliverable": "JCasC file, plugins list and the rebuilt instance",
+          "checks": [["Start a fresh Jenkins with the YAML", "Configuration and tools match the original", "Screenshots"], ["Review security advisories", "Vulnerable plugins are updated or listed with a plan", "Plugin report"], ["Search the YAML for secrets", "None stored in plain text", "grep output"]],
+          "objectives": ["Manage plugins safely", "Configure Jenkins as code", "Rebuild Jenkins from configuration"]
+        },
+        {
+          "topic": "Users, Permissions and Security",
+          "subtopics": ["Authentication options", "Matrix-based security", "Role-based authorisation", "Folder-level permissions", "Securing the script console", "CSRF protection and API tokens", "Agent to controller security", "Audit trail"],
+          "tools": ["Jenkins", "Role-based Authorization Strategy plugin"],
+          "lab_task": "Set up roles so developers can run but not configure jobs in their folder, only admins reach the script console, and every configuration change is logged.",
+          "deliverable": "Role configuration, test results and audit log entries",
+          "checks": [["Developer tries to change a job", "Configure option is missing and saving is denied", "Screenshot"], ["Developer opens the script console", "Access denied page for the script console", "Screenshot"], ["Change a job as an admin", "Change appears in the audit log", "Log entry"]],
+          "objectives": ["Control access to Jenkins", "Protect powerful features", "Audit changes"]
+        },
+        {
+          "topic": "Code Quality Gates with SonarQube",
+          "subtopics": ["Static analysis in pipelines", "SonarQube projects and tokens", "Running the scanner from Jenkins", "Quality gates", "Waiting for the gate result", "Pull request decoration", "Handling false positives", "Quality trends"],
+          "tools": ["Jenkins", "SonarQube"],
+          "lab_task": "Add SonarQube analysis to the pipeline, fail the build when the quality gate fails, and show the result on the pull request.",
+          "deliverable": "Pipeline changes, SonarQube project and a failing and passing run",
+          "checks": [["Introduce a bug SonarQube detects", "Quality gate fails the build", "Console output"], ["Fix it", "Gate passes", "SonarQube dashboard"], ["Open the pull request", "Shows the SonarQube result", "Pull request page"]],
+          "objectives": ["Run static analysis in pipelines", "Enforce quality gates", "Show quality on pull requests"]
+        },
+        {
+          "topic": "Notifications and Build Visibility",
+          "subtopics": ["Email notifications", "Slack or Microsoft Teams notifications", "Notifying only on change", "Build badges", "Blue Ocean and pipeline views", "Build descriptions", "Linking to artefacts and reports", "Avoiding notification fatigue"],
+          "tools": ["Jenkins", "Slack or Teams plugin"],
+          "lab_task": "Send a chat message when main breaks and when it recovers, add a build badge to the README, and set build descriptions showing the version deployed.",
+          "deliverable": "Notification configuration, chat messages and README badge",
+          "checks": [["Break main", "One failure message arrives", "Chat screenshot"], ["Fix main", "One recovery message arrives", "Chat screenshot"], ["Open the README", "Badge shows the current status", "Screenshot"]],
+          "objectives": ["Notify the right people", "Make build status visible", "Avoid noisy alerts"]
+        },
+        {
+          "topic": "Jenkins with Kubernetes Agents",
+          "subtopics": ["Kubernetes plugin", "Pod templates", "Containers per tool in one pod", "Agent resource requests", "Caching dependencies", "Scaling agents on demand", "Running Jenkins on Kubernetes with Helm", "Cleaning up agent pods"],
+          "tools": ["Jenkins", "Kubernetes", "Helm"],
+          "lab_task": "Run Jenkins on a local Kubernetes cluster with Helm and build the project in on-demand agent pods with separate containers for Maven and Docker tools.",
+          "deliverable": "Helm values, pod template and a build log from a pod agent",
+          "checks": [["Start three builds at once", "Three agent pods start and finish", "kubectl get pods output"], ["Check after builds finish", "Agent pods are removed", "kubectl output"], ["Read the build log", "Each step ran in the right container", "Console output"]],
+          "objectives": ["Run Jenkins on Kubernetes", "Use on-demand pod agents", "Scale builds with demand"]
+        },
+        {
+          "topic": "Pipeline Troubleshooting",
+          "subtopics": ["Reading pipeline logs", "Common pipeline syntax errors", "Agent connection failures", "Workspace and disk problems", "Credential errors", "Plugin conflicts", "Stuck builds", "Using Replay to test fixes"],
+          "tools": ["Jenkins"],
+          "lab_task": "Fix six broken pipelines prepared by the trainer (syntax error, missing credential, offline agent, full disk, wrong tool version, hung step) and record cause, evidence and fix.",
+          "deliverable": "Troubleshooting log for all six",
+          "checks": [["Fix all six within the time limit", "All pipelines pass", "Build history"], ["Read the full-disk entry", "Cause and clean-up step are recorded", "Log entry"], ["Use Replay to test a fix", "Fix verified before committing", "Replay build log"]],
+          "objectives": ["Diagnose pipeline failures", "Fix agent and credential problems", "Test fixes quickly"]
+        },
+        {
+          "topic": "Backup, Upgrades and Jenkins Maintenance",
+          "subtopics": ["What to back up", "Backup tools and schedules", "Restoring Jenkins", "LTS release line", "Upgrading Jenkins and plugins safely", "Testing upgrades on a copy", "Disk usage and old builds", "Monitoring Jenkins health"],
+          "tools": ["Jenkins", "ThinBackup or file backups"],
+          "lab_task": "Back up Jenkins, upgrade it and its plugins on a test copy, then restore the backup on a new container and confirm jobs and credentials work.",
+          "deliverable": "Backup procedure, upgrade log and restore evidence",
+          "checks": [["Restore the backup", "Jobs, history and credentials work", "Screenshots"], ["Run the pipeline on the upgraded copy", "Succeeds", "Build log"], ["Check disk usage after clean-up", "Old builds are removed as configured", "Disk report"]],
+          "objectives": ["Back up and restore Jenkins", "Upgrade Jenkins safely", "Maintain a healthy instance"]
+        },
+        {
+          "topic": "End-to-End CI/CD for a Web Application",
+          "subtopics": ["Requirements for the pipeline", "Build and unit tests", "Quality gate and image scan", "Image publishing", "Deployment to test and prod", "Approval and smoke tests", "Notifications", "Pipeline documentation"],
+          "tools": ["Jenkins", "Docker", "SonarQube", "Trivy"],
+          "lab_task": "Build a complete pipeline for a three-tier web application covering build, test, quality gate, image scan, publish, test and prod deployment with approval, smoke tests and notifications.",
+          "deliverable": "Jenkinsfile, shared library use and a pipeline run reaching prod",
+          "checks": [["Run from main to prod", "All stages pass and prod shows the new version", "Stage view and app check"], ["Introduce a failing test", "Pipeline stops before any deployment", "Stage view"], ["Read the documentation", "Explains each stage and how to roll back", "README"]],
+          "objectives": ["Build a complete CI/CD pipeline", "Combine quality, security and deployment stages", "Document a pipeline"]
+        },
+        {
+          "topic": "Beginner Capstone: Production-Ready Jenkins Pipeline",
+          "subtopics": ["Requirement walkthrough", "Jenkins configured as code", "Multibranch pipeline with shared library", "Quality, security and test gates", "Deployments with approval and rollback", "Demo and troubleshooting walkthrough"],
+          "tools": ["Jenkins", "Configuration as Code", "Docker", "SonarQube"],
+          "lab_task": "Deliver Jenkins configured as code with agents, credentials, a shared library and a multibranch pipeline that deploys an application with gates, approval and rollback, then demonstrate a failure and recovery.",
+          "deliverable": "Configuration repository, pipeline repositories and a 10-minute demo",
+          "checks": [["Rebuild Jenkins from configuration during the demo", "Jobs and settings return", "Demo recording"], ["Deploy a broken version to prod", "Rollback restores service", "Stage view and app check"], ["Open a pull request", "Pipeline runs and reports status", "Pull request page"]],
+          "objectives": ["Deliver a production-ready Jenkins setup", "Combine configuration, pipelines and deployment", "Demonstrate recovery"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who maintain Jenkins pipelines. Covers advanced pipeline design, shared library engineering, scaling agents, security hardening, observability, supply chain and migration to modern CI/CD.",
+      "prerequisites": ["Writes declarative pipelines and uses shared libraries", "Administers plugins and credentials", "Comfortable with Docker and Git"],
+      "outcomes": ["Design maintainable, fast pipelines for many projects", "Engineer and test shared libraries", "Scale and secure Jenkins for many teams", "Observe Jenkins and plan migrations to other CI systems"],
+      "days": [
+        {
+          "topic": "Pipeline Architecture for Many Projects",
+          "subtopics": ["Templates versus shared libraries", "Convention-based pipelines", "Pipeline configuration files per project", "Organisation folders", "Standard stages and extension points", "Versioning pipeline templates", "Rolling out changes to many projects", "Measuring pipeline adoption"],
+          "tools": ["Jenkins", "Shared libraries"],
+          "lab_task": "Design a standard pipeline driven by a small project config file, apply it to five sample projects with different languages, and roll out a template change safely.",
+          "deliverable": "Template library, five project configurations and the rollout record",
+          "checks": [["Run all five projects", "All succeed with their language-specific steps", "Build logs"], ["Roll out a template change to one project first", "Only that project uses the new version", "Build logs"], ["Read a project config file", "Under 20 lines", "File"]],
+          "objectives": ["Standardise pipelines across projects", "Allow per-project extension", "Roll out pipeline changes safely"]
+        },
+        {
+          "topic": "Shared Library Engineering and Testing",
+          "subtopics": ["Classes in src", "Unit testing with JenkinsPipelineUnit", "Mocking steps", "Semantic versioning of libraries", "Changelogs", "Avoiding CPS pitfalls", "@NonCPS methods", "Library security"],
+          "tools": ["Groovy", "JenkinsPipelineUnit", "Gradle"],
+          "lab_task": "Refactor the shared library into tested classes, write unit tests with JenkinsPipelineUnit, fix a CPS serialisation bug, and release a new version.",
+          "deliverable": "Library code, tests and a release",
+          "checks": [["Run the library tests", "All pass", "Test output"], ["Run a pipeline with the old CPS bug", "Fails with NotSerializableException, and the fix removes it", "Before and after logs"], ["Pin a project to the new release", "Pipeline runs", "Build log"]],
+          "objectives": ["Engineer shared libraries as software", "Test pipeline code", "Avoid CPS problems"]
+        },
+        {
+          "topic": "Scaling Agents: Cloud and Kubernetes Elastic Builds",
+          "subtopics": ["Static versus elastic agents", "EC2 and Azure VM agent plugins", "Kubernetes agents at scale", "Spot instances for agents", "Agent images with build tools", "Dependency caches", "Queue length and wait times", "Cost of build capacity"],
+          "tools": ["Jenkins", "Kubernetes", "EC2 plugin"],
+          "lab_task": "Replace static agents with elastic Kubernetes and spot VM agents, cache dependencies, and compare queue time, build time and cost for 50 queued builds.",
+          "deliverable": "Agent configuration and a comparison report",
+          "checks": [["Queue 50 builds", "Agents scale up and the queue drains within the target time", "Queue metrics"], ["Compare build time with the cache", "Faster, with figures", "Timing table"], ["Interrupt a spot agent", "Build is retried on another agent", "Build log"]],
+          "objectives": ["Scale build capacity on demand", "Cache dependencies", "Balance build speed and cost"]
+        },
+        {
+          "topic": "Hardening Jenkins Security",
+          "subtopics": ["Common Jenkins attack paths", "Script approval and sandboxing", "Restricting which jobs use which credentials", "Agent isolation", "Securing webhooks", "Running Jenkins behind a reverse proxy with TLS", "Single sign-on", "Security scanning of plugins"],
+          "tools": ["Jenkins", "nginx", "OIDC or SAML plugin"],
+          "lab_task": "Harden a deliberately weak Jenkins: put it behind TLS with SSO, restrict credentials by folder, isolate agents, and show three attack attempts now fail.",
+          "deliverable": "Hardening checklist, configuration and attack test results",
+          "checks": [["Use a prod credential from a dev folder job", "Not available", "Error output"], ["Run an unapproved Groovy method in a pipeline", "Blocked by the sandbox", "Console output"], ["Access Jenkins over plain HTTP", "Redirected or refused", "curl output"]],
+          "objectives": ["Find and close Jenkins security gaps", "Restrict credentials and scripts", "Run Jenkins securely"]
+        },
+        {
+          "topic": "Supply Chain Security in Jenkins Pipelines",
+          "subtopics": ["Pinning tools and plugins", "SBOM generation", "Signing artefacts and images", "Provenance attestations", "Dependency scanning", "Secrets scanning in pipelines", "Isolated build environments", "Verifying artefacts before deploy"],
+          "tools": ["Jenkins", "Syft", "cosign", "Trivy"],
+          "lab_task": "Generate SBOMs, sign images and attach provenance in the pipeline, and refuse to deploy any artefact whose signature does not verify.",
+          "deliverable": "Pipeline changes, SBOMs, signatures and a refused deployment",
+          "checks": [["Deploy a signed image", "Verification passes and deploy continues", "Console output"], ["Deploy an unsigned image", "Pipeline refuses", "Console output"], ["Open the SBOM", "Lists the image's packages", "SBOM file"]],
+          "objectives": ["Secure the build supply chain", "Sign and verify artefacts", "Produce SBOMs"]
+        },
+        {
+          "topic": "Observability for Jenkins and Pipelines",
+          "subtopics": ["Prometheus metrics plugin", "Queue and executor metrics", "Build duration trends", "OpenTelemetry plugin and pipeline traces", "Log shipping", "Alerting on Jenkins health", "Finding slow stages", "Dashboards for teams"],
+          "tools": ["Jenkins", "Prometheus", "Grafana", "OpenTelemetry"],
+          "lab_task": "Export Jenkins metrics and pipeline traces, build a dashboard of queue time, failure rate and slow stages, and alert when the queue waits more than 10 minutes.",
+          "deliverable": "Dashboard, alert rule and a pipeline trace",
+          "checks": [["Fill the queue", "Queue alert fires", "Alert history"], ["Open a pipeline trace", "Shows each stage's duration", "Trace screenshot"], ["Read the dashboard", "Shows failure rate by project", "Dashboard"]],
+          "objectives": ["Monitor Jenkins health", "Trace pipeline performance", "Alert on build capacity problems"]
+        },
+        {
+          "topic": "Pipeline Performance Optimisation",
+          "subtopics": ["Measuring where time goes", "Caching dependencies and build outputs", "Incremental builds", "Test splitting across agents", "Reducing checkout time", "Avoiding unnecessary stages", "Agent start-up time", "Setting pipeline time targets"],
+          "tools": ["Jenkins", "Gradle or Maven cache", "Test splitting"],
+          "lab_task": "Cut a provided 40-minute pipeline to under 12 minutes using caching, parallel test splitting, shallow checkout and stage skipping, measuring each change.",
+          "deliverable": "Optimised pipeline and a timing table per change",
+          "checks": [["Run the final pipeline", "Under 12 minutes", "Build duration"], ["Check the test results", "Same tests run and pass", "Test report"], ["Read the timing table", "Each change has a measured effect", "Table"]],
+          "objectives": ["Find pipeline bottlenecks", "Speed up builds and tests", "Prove improvements"]
+        },
+        {
+          "topic": "Jenkins High Availability and Disaster Recovery",
+          "subtopics": ["Controller as a single point of failure", "Splitting load across controllers", "Active-passive setups", "Storing JENKINS_HOME on resilient storage", "Recovering from controller loss", "Rebuilding from configuration as code", "Recovery time targets", "CloudBees CI overview"],
+          "tools": ["Jenkins", "Configuration as Code", "Kubernetes"],
+          "lab_task": "Run two controllers for different teams on Kubernetes with persistent storage, delete one controller pod and its node, and recover within the stated time.",
+          "deliverable": "Controller setup, recovery runbook and timed recovery",
+          "checks": [["Delete the controller pod", "Comes back with jobs and history", "Timeline"], ["Rebuild a controller from JCasC on new storage", "Configuration restored", "Screenshots"], ["Compare recovery time with the target", "Within target or explained", "Timeline"]],
+          "objectives": ["Reduce single points of failure", "Recover controllers quickly", "Split load across controllers"]
+        },
+        {
+          "topic": "Deployment Strategies from Jenkins",
+          "subtopics": ["Blue-green deployments", "Canary releases", "Feature flags", "Deploying to Kubernetes with Helm", "Handing deployment to GitOps tools", "Database migrations in pipelines", "Automated rollback triggers", "Release approvals and change records"],
+          "tools": ["Jenkins", "Helm", "Argo CD"],
+          "lab_task": "Implement a canary release from Jenkins to Kubernetes with automatic promotion on healthy metrics, then hand off deployment to Argo CD by updating a GitOps repository.",
+          "deliverable": "Pipeline changes, canary run record and GitOps handoff evidence",
+          "checks": [["Release a healthy version", "Canary promotes automatically", "Build log"], ["Release a failing version", "Canary rolls back", "Build log"], ["Run the GitOps handoff", "Jenkins commits the new tag and Argo CD deploys it", "Git history and Argo CD"]],
+          "objectives": ["Run progressive deployments from Jenkins", "Automate rollback", "Combine Jenkins with GitOps"]
+        },
+        {
+          "topic": "Infrastructure Pipelines with Terraform and Ansible",
+          "subtopics": ["Terraform plan and apply stages", "Saving and reviewing plans", "Approval before apply", "Ansible playbooks from Jenkins", "Credentials for cloud access", "Locking and concurrency", "Drift detection jobs", "Auditing infrastructure changes"],
+          "tools": ["Jenkins", "Terraform", "Ansible"],
+          "lab_task": "Build a pipeline that plans Terraform on pull requests, applies the saved plan after approval on main, then configures servers with Ansible and runs a nightly drift check.",
+          "deliverable": "Pipeline, plan artefacts and drift job results",
+          "checks": [["Open a pull request", "Plan is attached to the build", "Build artefacts"], ["Merge and approve", "Saved plan is applied and Ansible runs", "Console output"], ["Change a server manually", "Nightly drift job reports it", "Job output"]],
+          "objectives": ["Run infrastructure changes through Jenkins", "Review and approve plans", "Detect drift"]
+        },
+        {
+          "topic": "Testing Strategy in Jenkins Pipelines",
+          "subtopics": ["Test pyramid in CI", "Unit, integration and end-to-end stages", "Test environments on demand", "Flaky test detection and quarantine", "Contract testing", "Performance tests in pipelines", "Security tests", "Test result analytics"],
+          "tools": ["Jenkins", "Testcontainers", "k6", "OWASP ZAP"],
+          "lab_task": "Add integration tests with disposable dependencies, a k6 performance gate and an OWASP ZAP baseline scan, and quarantine a flaky test automatically.",
+          "deliverable": "Pipeline changes and runs showing each test type",
+          "checks": [["Make p95 latency exceed the gate", "Performance stage fails", "Console output"], ["Introduce a known vulnerability", "ZAP stage reports it", "Scan report"], ["Run the flaky test 10 times", "It is detected and quarantined", "Report"]],
+          "objectives": ["Design testing stages in CI", "Gate on performance and security", "Handle flaky tests"]
+        },
+        {
+          "topic": "Governance and Compliance for CI/CD",
+          "subtopics": ["Separation of duties", "Change approval evidence", "Pipeline policy enforcement", "Mandatory stages for regulated apps", "Audit logs and retention", "Artefact traceability", "Exceptions process", "Reporting compliance"],
+          "tools": ["Jenkins", "Audit Trail plugin"],
+          "lab_task": "Make security and approval stages mandatory for regulated projects, trace a prod deployment back to its commit, tests and approver, and produce an audit report.",
+          "deliverable": "Governance configuration, traceability record and audit report",
+          "checks": [["Remove the security stage from a regulated Jenkinsfile", "Pipeline fails the policy check", "Console output"], ["Trace a prod release", "Commit, tests, scans and approver are linked", "Traceability record"], ["Open the audit report", "Lists prod changes with approvers", "Report"]],
+          "objectives": ["Enforce CI/CD governance", "Trace releases end to end", "Produce compliance evidence"]
+        },
+        {
+          "topic": "Jenkins for Mobile and Desktop Builds",
+          "subtopics": ["macOS agents for iOS builds", "Android builds with Gradle", "Code signing certificates in Jenkins", "Windows agents for desktop apps", "Emulator and simulator tests", "Distributing test builds", "Build caches for mobile", "Signing secrets management"],
+          "tools": ["Jenkins", "Gradle", "fastlane"],
+          "lab_task": "Build and test an Android app in Jenkins, sign it with a stored key, and distribute the test build, documenting how an iOS build would differ.",
+          "deliverable": "Pipeline, signed build and the iOS differences note",
+          "checks": [["Run the pipeline", "Signed APK is produced and tests pass", "Build log and artefact"], ["Search logs for the keystore password", "Not present", "Log search"], ["Read the iOS note", "Covers macOS agents and signing", "Note"]],
+          "objectives": ["Build mobile apps in Jenkins", "Handle code signing securely", "Plan builds across platforms"]
+        },
+        {
+          "topic": "Monorepo Builds in Jenkins",
+          "subtopics": ["Detecting changed projects", "Building only affected projects", "Dependency graphs between projects", "Parallel builds per project", "Shared caches", "Versioning in monorepos", "Reporting per project", "Avoiding full rebuilds"],
+          "tools": ["Jenkins", "Git", "Bazel or Nx"],
+          "lab_task": "Build a monorepo of six projects so that a change only builds and tests the affected projects and their dependants, and compare build time with a full build.",
+          "deliverable": "Pipeline changes and a timing comparison",
+          "checks": [["Change one leaf project", "Only it is built", "Build log"], ["Change a shared library", "It and its dependants are built", "Build log"], ["Compare with a full build", "Faster, with figures", "Timing table"]],
+          "objectives": ["Build monorepos efficiently", "Detect affected projects", "Keep builds fast as code grows"]
+        },
+        {
+          "topic": "Jenkins Administration at Scale",
+          "subtopics": ["Folder structure for many teams", "Delegated administration", "Job DSL for creating jobs", "Cleaning up old jobs", "Capacity planning", "Plugin governance", "Support processes", "Upgrade windows"],
+          "tools": ["Jenkins", "Job DSL"],
+          "lab_task": "Create folders, permissions and jobs for 10 teams with Job DSL, set up plugin governance, and run a planned upgrade with a communication plan.",
+          "deliverable": "Job DSL scripts, governance rules and upgrade record",
+          "checks": [["Run the seed job", "All team folders and jobs are created", "Job list"], ["Request an unapproved plugin", "Request process is followed", "Request record"], ["Complete the upgrade", "Done within the window with no failed builds after", "Upgrade log"]],
+          "objectives": ["Administer Jenkins for many teams", "Create jobs as code", "Govern plugins and upgrades"]
+        },
+        {
+          "topic": "Integrating Jenkins with the Toolchain",
+          "subtopics": ["Jira integration", "Artifactory or Nexus", "SonarQube and security scanners", "Chat integrations", "Webhooks to other systems", "REST API for Jenkins", "Triggering pipelines from other tools", "Keeping integrations maintainable"],
+          "tools": ["Jenkins", "Jira", "Nexus", "Jenkins REST API"],
+          "lab_task": "Connect Jenkins to Jira and Nexus so builds update Jira issues and publish artefacts to Nexus, and trigger a pipeline from an external script through the REST API.",
+          "deliverable": "Integration configuration and evidence of each integration",
+          "checks": [["Build a commit mentioning an issue key", "Jira issue shows the build", "Jira screenshot"], ["Check Nexus", "Artefact is published with its version", "Nexus listing"], ["Trigger via the REST API", "Pipeline starts with the given parameters", "Build log"]],
+          "objectives": ["Integrate Jenkins with common tools", "Automate Jenkins through its API", "Keep integrations maintainable"]
+        },
+        {
+          "topic": "Cost Management for CI Infrastructure",
+          "subtopics": ["Measuring build cost", "Agent utilisation", "Spot and preemptible agents", "Idle agent shutdown", "Caching to cut repeated work", "Cost per team", "Build retention costs", "Reporting savings"],
+          "tools": ["Jenkins", "Prometheus", "Cloud billing"],
+          "lab_task": "Measure CI cost per team for a month of sample builds, cut cost by at least 30% with spot agents, idle shutdown and caching, and report the savings.",
+          "deliverable": "Cost model, changes and a savings report",
+          "checks": [["Compare monthly cost", "At least 30% lower or explained", "Cost report"], ["Check build times after changes", "Not slower than the target", "Timing data"], ["Read cost per team", "Reconciles with the total", "Report"]],
+          "objectives": ["Measure CI cost", "Reduce build infrastructure cost", "Report cost per team"]
+        },
+        {
+          "topic": "Migrating from Jenkins to Other CI Systems",
+          "subtopics": ["Reasons to migrate or stay", "Mapping Jenkinsfiles to GitHub Actions or GitLab CI", "Migration tools such as GitHub Actions Importer", "Shared library equivalents", "Running both systems during migration", "Migrating credentials", "Validating parity", "Decommissioning Jenkins jobs"],
+          "tools": ["Jenkins", "GitHub Actions", "GitHub Actions Importer"],
+          "lab_task": "Migrate two Jenkins pipelines to GitHub Actions with the importer, fix what it could not translate, run both in parallel to prove parity, and write a migration plan for the rest.",
+          "deliverable": "Migrated workflows, parity comparison and migration plan",
+          "checks": [["Run both systems on the same commit", "Same tests and artefacts", "Comparison"], ["Read the list of manual fixes", "Each untranslated item is handled", "Notes"], ["Read the migration plan", "Includes waves and rollback", "Plan"]],
+          "objectives": ["Assess Jenkins migrations", "Migrate pipelines with tooling", "Prove parity before switching"]
+        },
+        {
+          "topic": "Jenkins Operations Runbooks",
+          "subtopics": ["On-call basics for CI", "Runbook: controller slow or unresponsive", "Runbook: agents offline", "Runbook: disk full", "Runbook: plugin failure after upgrade", "Thread dumps and support bundles", "Communicating CI outages", "Post-incident reviews"],
+          "tools": ["Jenkins", "Support Core plugin"],
+          "lab_task": "Handle four injected Jenkins incidents using runbooks you write, collect a support bundle and thread dump for one, and complete a post-incident review.",
+          "deliverable": "Four runbooks, incident timelines and one review",
+          "checks": [["Resolve the unresponsive controller", "Cause found from the thread dump", "Timeline and dump excerpt"], ["Resolve the plugin failure", "Rolled back or fixed with builds working", "Build log"], ["Read the review", "Includes impact, cause and owned actions", "Review"]],
+          "objectives": ["Operate Jenkins with runbooks", "Diagnose controller problems", "Run post-incident reviews"]
+        },
+        {
+          "topic": "Intermediate Capstone: CI/CD Platform for Ten Teams",
+          "subtopics": ["Requirements and design", "Standard pipelines and tested shared library", "Elastic agents and caching", "Security, supply chain and governance", "Observability and operations", "Demo and design defence"],
+          "tools": ["Jenkins", "Kubernetes", "Configuration as Code", "Prometheus", "cosign"],
+          "lab_task": "Build a Jenkins platform for ten teams with standard pipelines, a tested shared library, elastic agents, hardened security, signed artefacts, dashboards and runbooks, then present it.",
+          "deliverable": "Platform repositories, dashboards, runbooks and a 15-minute demo",
+          "checks": [["Onboard a new team with the seed job", "Team builds within the target time", "Timeline"], ["Queue 100 builds", "Agents scale and queue drains within target", "Queue metrics"], ["Deploy an unsigned artefact", "Blocked", "Console output"]],
+          "objectives": ["Design a CI/CD platform for many teams", "Combine scale, security and observability", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who own CI/CD for large organisations. Covers Jenkins internals, extreme scale, plugin development, secure build systems, platform strategy and modernising CI/CD.",
+      "prerequisites": ["Has administered Jenkins for many teams", "Writes and tests shared libraries", "Comfortable with Kubernetes, security tooling and observability"],
+      "outcomes": ["Diagnose Jenkins at the JVM and plugin level", "Run CI/CD at very large scale with measured performance", "Build trusted, verifiable build systems", "Set CI/CD platform strategy and lead modernisation"],
+      "days": [
+        {
+          "topic": "Jenkins Internals: Controller, Remoting and the Pipeline Engine",
+          "subtopics": ["Controller architecture", "Remoting protocol between controller and agents", "Pipeline execution with CPS", "Durability settings", "Build storage on disk", "Queue and executor internals", "Plugin class loading", "Reading Jenkins source code"],
+          "tools": ["Jenkins", "Java tools"],
+          "lab_task": "Trace how a pipeline step runs from the controller to an agent, change durability settings and measure the effect on throughput, and explain build storage on disk.",
+          "deliverable": "Annotated trace, durability benchmark and storage diagram",
+          "checks": [["Compare throughput across durability settings", "Measured difference with explanation", "Benchmark table"], ["Explain the storage diagram", "Build XML, logs and workflow files are identified", "Diagram"], ["Simulate a controller restart mid-pipeline", "Pipeline resumes or fails as the durability setting predicts", "Build log"]],
+          "objectives": ["Explain how Jenkins runs pipelines", "Tune durability and throughput", "Understand Jenkins storage"]
+        },
+        {
+          "topic": "JVM Tuning and Controller Performance",
+          "subtopics": ["Heap sizing", "Garbage collector choice", "GC logs", "Thread dumps and deadlocks", "Heap dumps and memory leaks", "Slow plugins", "Disk I/O on JENKINS_HOME", "Performance targets"],
+          "tools": ["Jenkins", "JVM tools", "GC log analysers"],
+          "lab_task": "Diagnose a provided slow controller with GC logs, thread dumps and a heap dump, identify the leaking plugin, and tune the JVM to meet response time targets.",
+          "deliverable": "Diagnosis report, fixes and before and after response times",
+          "checks": [["Identify the leak", "Plugin and object type found in the heap dump", "Analysis"], ["Compare UI response times", "Meet the target after fixes", "Measurements"], ["Read GC log analysis", "Pause times before and after", "Report"]],
+          "objectives": ["Diagnose controller performance", "Tune the JVM", "Find memory leaks"]
+        },
+        {
+          "topic": "CI/CD at Extreme Scale",
+          "subtopics": ["Thousands of jobs and builds a day", "Controller sharding", "Operations centres", "Queue fairness between teams", "Build storage and artifact offloading", "Log offloading", "Load testing Jenkins", "Scale limits and case studies"],
+          "tools": ["Jenkins", "artifact storage", "log offloading plugins"],
+          "lab_task": "Load test a controller with simulated builds until it degrades, then shard teams across controllers, offload artefacts and logs, and retest.",
+          "deliverable": "Load test reports before and after and the sharding design",
+          "checks": [["Compare the load at which it degrades", "Higher after changes, with figures", "Load reports"], ["Check build storage", "Artefacts and logs are offloaded", "Storage check"], ["Read the sharding design", "Explains team placement and fairness", "Design"]],
+          "objectives": ["Run CI at very large scale", "Shard and offload safely", "Load test CI platforms"]
+        },
+        {
+          "topic": "Writing Jenkins Plugins",
+          "subtopics": ["When a plugin is justified", "Plugin project setup with Maven", "Extension points", "Pipeline-compatible steps", "Configuration and UI", "Testing with JenkinsRule", "Security considerations for plugins", "Releasing and maintaining plugins"],
+          "tools": ["Java", "Maven", "Jenkins plugin archetype"],
+          "lab_task": "Write a plugin that adds a pipeline step to post deployment records to an internal API, with configuration, tests using JenkinsRule and secure credential handling.",
+          "deliverable": "Plugin source, tests and a pipeline using the step",
+          "checks": [["Run the plugin tests", "All pass", "Test output"], ["Use the step in a pipeline", "Record appears in the internal API", "API record"], ["Check the plugin for credential leaks", "Credentials are never logged", "Log search"]],
+          "objectives": ["Extend Jenkins with plugins", "Test plugins", "Write secure plugins"]
+        },
+        {
+          "topic": "Trusted Build Systems and SLSA",
+          "subtopics": ["SLSA build levels", "Hermetic builds", "Isolated and ephemeral build environments", "Provenance generation", "Non-falsifiable provenance", "Protecting the build platform", "Verifying builds downstream", "Gaps in typical Jenkins setups"],
+          "tools": ["Jenkins", "in-toto", "cosign"],
+          "lab_task": "Assess a Jenkins setup against SLSA build level 3, close the main gaps with ephemeral isolated agents and signed provenance, and verify provenance at deploy time.",
+          "deliverable": "Gap assessment, changes and verification evidence",
+          "checks": [["Read the assessment", "Each SLSA requirement is assessed with evidence", "Assessment"], ["Verify a release's provenance", "Builder, source and inputs verify", "Verification output"], ["Try to forge provenance from a job", "Fails because signing keys are not reachable from builds", "Test result"]],
+          "objectives": ["Assess build systems against SLSA", "Make builds hermetic and isolated", "Generate trusted provenance"]
+        },
+        {
+          "topic": "Securing Jenkins Against Advanced Threats",
+          "subtopics": ["Threat modelling CI/CD", "Poisoned pipeline execution", "Credential theft from builds", "Malicious pull requests", "Plugin supply chain risks", "Network isolation for controllers and agents", "Detection and logging", "Red team exercises"],
+          "tools": ["Jenkins", "SIEM", "network policies"],
+          "lab_task": "Threat model the CI platform, run a red team exercise with a malicious pull request trying to steal secrets, fix the gaps, and add detection for similar attempts.",
+          "deliverable": "Threat model, red team report, fixes and detection rules",
+          "checks": [["Rerun the malicious pull request", "No secrets are exposed", "Build log and test result"], ["Trigger the detection rule", "Alert appears in the SIEM", "SIEM screenshot"], ["Read the threat model", "Covers each stage of the pipeline", "Document"]],
+          "objectives": ["Threat model CI/CD", "Defend against poisoned pipelines", "Detect attacks on CI"]
+        },
+        {
+          "topic": "Build Caching and Remote Execution",
+          "subtopics": ["Local versus remote caches", "Gradle build cache", "Bazel remote cache and execution", "Cache correctness", "Cache poisoning risks", "Measuring hit rates", "Cost of remote execution", "Choosing where to cache"],
+          "tools": ["Bazel", "Gradle", "remote cache servers"],
+          "lab_task": "Add a remote build cache and remote execution for a large build, measure hit rates and build time, and show a cache poisoning control works.",
+          "deliverable": "Cache configuration, measurements and the poisoning test",
+          "checks": [["Compare build times", "Large improvement with the cache, with figures", "Timing table"], ["Read hit rates", "Recorded per build", "Metrics"], ["Try to write to the cache from an untrusted build", "Rejected", "Test output"]],
+          "objectives": ["Speed up builds with remote caching", "Use remote execution", "Keep caches trustworthy"]
+        },
+        {
+          "topic": "Reliability Engineering for CI/CD Platforms",
+          "subtopics": ["SLOs for CI: queue time, build success, availability", "Error budgets for platforms", "Chaos tests for CI", "Dependency failures: Git, registries, artefact stores", "Graceful degradation", "Capacity buffers", "Incident management", "Reliability reviews"],
+          "tools": ["Jenkins", "Prometheus", "Chaos Mesh"],
+          "lab_task": "Define SLOs for the CI platform, run chaos tests for Git and registry outages, add mitigations such as mirrors and retries, and report SLO impact.",
+          "deliverable": "SLO definitions, chaos results, mitigations and SLO report",
+          "checks": [["Take the registry down during builds", "Builds use the mirror and succeed", "Build logs"], ["Read the SLO report", "Shows SLOs during the tests", "Dashboard"], ["Exhaust agent capacity", "Queue SLO alert fires", "Alert history"]],
+          "objectives": ["Define SLOs for CI", "Test CI resilience", "Mitigate dependency failures"]
+        },
+        {
+          "topic": "Developer Experience and Platform Product Thinking",
+          "subtopics": ["CI as an internal product", "Measuring developer wait time", "Feedback loops and surveys", "Self-service pipeline setup", "Documentation and support", "Golden paths", "Adoption metrics", "Roadmaps"],
+          "tools": ["Backstage", "Jenkins", "surveys"],
+          "lab_task": "Measure developer wait time and satisfaction for the CI platform, build a self-service template that creates a repository with a working pipeline, and measure the effect.",
+          "deliverable": "Measurement report, template and before and after metrics",
+          "checks": [["Create a project from the template", "First pipeline passes within the target time", "Timing evidence"], ["Compare wait time metrics", "Improvement measured", "Metrics"], ["Read the survey summary", "Top complaints are linked to roadmap items", "Summary"]],
+          "objectives": ["Treat CI as a product", "Measure developer experience", "Provide self-service pipelines"]
+        },
+        {
+          "topic": "CI/CD Compliance in Regulated Industries",
+          "subtopics": ["Regulatory expectations for software delivery", "Evidence collection automation", "Segregation of duties in pipelines", "Validated pipelines", "Change advisory integration", "Retention of build records", "Audit response", "Continuous compliance"],
+          "tools": ["Jenkins", "ServiceNow integration", "evidence store"],
+          "lab_task": "Automate change records and evidence collection for prod deployments, integrate with a change management system, and run a mock audit of a quarter's releases.",
+          "deliverable": "Evidence automation, change integration and mock audit results",
+          "checks": [["Deploy to prod", "Change record is created and closed automatically", "Change record"], ["Answer an auditor request", "Evidence for a release is produced within minutes", "Evidence package"], ["Check segregation of duties", "Author cannot approve their own prod release", "Test result"]],
+          "objectives": ["Meet regulatory delivery requirements", "Automate evidence and change records", "Respond to audits"]
+        },
+        {
+          "topic": "Multi-Platform CI/CD Strategy",
+          "subtopics": ["Jenkins, GitHub Actions, GitLab CI and others compared", "When to run several CI systems", "Shared standards across systems", "Reusable components across platforms", "Central reporting", "Cost comparison", "Migration economics", "Decision records"],
+          "tools": ["Jenkins", "GitHub Actions", "GitLab CI"],
+          "lab_task": "Implement the same standard pipeline in Jenkins, GitHub Actions and GitLab CI, compare effort, speed, security and cost, and write a platform decision record.",
+          "deliverable": "Three implementations, comparison and decision record",
+          "checks": [["Run all three on the same commit", "Equivalent results", "Run logs"], ["Read the comparison", "Measured speed and estimated cost for each", "Comparison"], ["Read the decision record", "Options, criteria and reasons", "Decision record"]],
+          "objectives": ["Compare CI platforms with evidence", "Share standards across CI systems", "Make platform decisions"]
+        },
+        {
+          "topic": "Large-Scale Migration Off or Onto Jenkins",
+          "subtopics": ["Inventory of jobs and plugins", "Classifying pipelines by complexity", "Migration factories", "Automated translation", "Parallel running", "Credential and secret migration", "Training teams", "Tracking and finishing the migration"],
+          "tools": ["GitHub Actions Importer", "scripts", "Jenkins API"],
+          "lab_task": "Inventory 300 sample jobs, classify them, plan migration waves, migrate a pilot wave automatically, and report progress and blockers.",
+          "deliverable": "Inventory, classification, wave plan and pilot report",
+          "checks": [["Read the classification", "Each job has a complexity class and reason", "Inventory"], ["Run the pilot wave", "Migrated pipelines pass parity checks", "Parity report"], ["Read the blockers list", "Each blocker has an owner and plan", "Report"]],
+          "objectives": ["Plan migrations of hundreds of pipelines", "Automate translation", "Track migration progress"]
+        },
+        {
+          "topic": "Release Orchestration Across Many Services",
+          "subtopics": ["Coordinated releases", "Dependency-aware deployment ordering", "Release trains", "Feature flags across services", "Environment management", "Release dashboards", "Rollback across services", "Measuring release health"],
+          "tools": ["Jenkins", "feature flag service", "Argo CD"],
+          "lab_task": "Orchestrate a release of five dependent services in the right order with health checks between steps, and roll back all of them when the fourth fails.",
+          "deliverable": "Orchestration pipeline and release records for success and rollback",
+          "checks": [["Run a healthy release", "Services deploy in dependency order", "Release log"], ["Fail the fourth service", "All deployed services roll back", "Release log"], ["Open the release dashboard", "Shows versions per environment", "Dashboard"]],
+          "objectives": ["Coordinate releases across services", "Roll back multi-service releases", "Measure release health"]
+        },
+        {
+          "topic": "Cost Engineering for Build Platforms",
+          "subtopics": ["Build cost drivers", "Utilisation and over-provisioning", "Spot capacity strategies", "Cache economics", "Storage and retention costs", "Showback and chargeback", "Unit cost per build minute", "Cost guardrails"],
+          "tools": ["Prometheus", "cloud billing", "OpenCost"],
+          "lab_task": "Cut the cost of a provided build platform by at least 35% while keeping CI SLOs, and publish cost per team and per build minute.",
+          "deliverable": "Cost analysis, changes, SLO evidence and cost report",
+          "checks": [["Compare monthly cost", "At least 35% lower or explained", "Report"], ["Check CI SLOs", "Still met", "Dashboard"], ["Read cost per build minute", "Calculated and explained", "Report"]],
+          "objectives": ["Engineer build platform cost", "Keep SLOs while saving", "Report unit costs"]
+        },
+        {
+          "topic": "AI-Assisted CI/CD",
+          "subtopics": ["Log analysis with AI", "Failure classification", "Flaky test prediction", "Suggesting fixes from build failures", "Risks of AI in pipelines", "Data privacy for build logs", "Measuring usefulness", "Human review of AI suggestions"],
+          "tools": ["Jenkins", "LLM API", "Python"],
+          "lab_task": "Build a failure-classification step that summarises failed build logs and suggests likely causes, evaluate it on 50 past failures, and set rules for safe use.",
+          "deliverable": "Classification step, evaluation results and usage rules",
+          "checks": [["Run the evaluation set", "Accuracy is measured against labelled causes", "Evaluation table"], ["Check what data is sent", "Secrets and personal data are removed first", "Redaction test"], ["Read the usage rules", "Suggestions require human confirmation", "Rules"]],
+          "objectives": ["Apply AI to CI troubleshooting", "Evaluate AI usefulness", "Use AI safely in pipelines"]
+        },
+        {
+          "topic": "Advanced Troubleshooting of CI Platforms",
+          "subtopics": ["Systematic diagnosis", "Remoting failures", "Pipeline resume problems", "Plugin conflicts at scale", "Network and DNS problems for agents", "Storage latency", "Support bundles and analysis", "Root cause and prevention"],
+          "tools": ["Jenkins", "JVM tools", "tcpdump"],
+          "lab_task": "Diagnose and fix seven hard CI platform failures injected by the trainer, including remoting disconnects, a pipeline that never resumes and a plugin conflict.",
+          "deliverable": "Diagnosis log with symptom, evidence, root cause and fix for each",
+          "checks": [["Fix the remoting disconnects", "Root cause found and agents stable", "Log entry"], ["Fix the pipeline resume problem", "Pipelines resume after restart", "Test result"], ["Explain one root cause", "Supported by evidence", "Log entry"]],
+          "objectives": ["Troubleshoot complex CI failures", "Use JVM and network tools", "Prevent repeat failures"]
+        },
+        {
+          "topic": "Policy as Code for Pipelines",
+          "subtopics": ["Pipeline policies", "Checking Jenkinsfiles before running", "OPA policies for pipeline definitions", "Mandatory steps", "Approved tools and images", "Exceptions with expiry", "Reporting policy results", "Policy rollout"],
+          "tools": ["OPA", "Conftest", "Jenkins"],
+          "lab_task": "Write OPA policies for pipeline definitions requiring approved images, mandatory security steps and no inline secrets, enforce them across projects, and report results.",
+          "deliverable": "Policies, tests, enforcement configuration and a policy report",
+          "checks": [["Use an unapproved build image", "Pipeline fails the policy check", "Console output"], ["Run policy tests", "All pass", "Test output"], ["Open the policy report", "Shows compliance per project", "Report"]],
+          "objectives": ["Enforce rules on pipeline definitions", "Roll out pipeline policies", "Report compliance"]
+        },
+        {
+          "topic": "CI/CD Architecture Reviews",
+          "subtopics": ["Reviewing CI/CD designs", "Speed, security, cost and reliability criteria", "Architecture decision records", "Common anti-patterns", "Reviewing another team's capstone", "Technical debt in pipelines", "Presenting trade-offs", "Reference architectures"],
+          "tools": ["Decision records"],
+          "lab_task": "Review another team's CI/CD platform design, write two decision records for its biggest risks, and present recommendations with evidence.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Defended with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Review CI/CD architectures", "Document decisions", "Communicate recommendations"]
+        },
+        {
+          "topic": "CI/CD Strategy and Modernisation Roadmap",
+          "subtopics": ["Maturity assessment", "Modernisation options", "Funding and licensing", "Security roadmap", "Developer experience roadmap", "Risk management", "Communicating with leadership", "Three-year roadmap"],
+          "tools": ["Roadmap templates"],
+          "lab_task": "Assess a provided organisation's CI/CD maturity, propose a modernisation roadmap including Jenkins' future role, and present it to a mock leadership panel.",
+          "deliverable": "Maturity assessment, roadmap and presentation",
+          "checks": [["Read the assessment", "Each area has evidence and a level", "Assessment"], ["Review the roadmap", "Items have outcomes, owners and metrics", "Roadmap"], ["Panel Q&A", "Budget and risk questions answered with evidence", "Trainer notes"]],
+          "objectives": ["Assess CI/CD maturity", "Plan modernisation", "Lead CI/CD strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise CI/CD Platform",
+          "subtopics": ["Business, security and compliance requirements", "Platform architecture and scale", "Trusted builds and policy", "Reliability and cost model", "Developer experience and migration plan", "Architecture defence"],
+          "tools": ["Jenkins", "Kubernetes", "OPA", "cosign", "Prometheus"],
+          "lab_task": "Design and prototype an enterprise CI/CD platform covering scale, trusted builds, policy, compliance, reliability, cost and developer experience, then defend it to a review board.",
+          "deliverable": "Architecture document, working prototype, security and reliability test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run the security tests", "Untrusted or non-compliant builds are blocked", "Test results"], ["Run the reliability tests", "CI SLOs met during dependency failures", "SLO report"], ["Review the cost model", "Costs are broken down and justified", "Cost model"]],
+          "objectives": ["Design an enterprise CI/CD platform", "Prove security, reliability and cost with evidence", "Defend the design to a review board"]
+        }
+      ]
+    }
+  }
+}

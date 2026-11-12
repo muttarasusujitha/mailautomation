@@ -1,0 +1,573 @@
+{
+  "domain": "Git",
+  "name": "Git",
+  "category": "DevOps and CI/CD",
+  "icon": "git-branch",
+  "aliases": ["Git and GitHub", "Git Version Control", "Version Control with Git", "GitHub", "GitLab", "Bitbucket"],
+  "certifications": ["GitHub Foundations", "GitHub Administration", "GitHub Advanced Security"],
+  "tools": ["Git", "GitHub", "VS Code"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No version control experience assumed. Participants learn to track changes, branch, merge, collaborate through pull requests and fix common mistakes.",
+      "prerequisites": ["Basic command line use", "Can edit text files in an editor", "A GitHub account"],
+      "outcomes": ["Track and inspect changes with commits", "Branch, merge and resolve conflicts", "Collaborate through remotes and pull requests", "Undo mistakes safely"],
+      "days": [
+        {
+          "topic": "Version Control Concepts and Git Setup",
+          "subtopics": ["Why version control", "Centralised versus distributed version control", "Installing Git", "git config: name, email and editor", "Creating a repository with git init", "The working tree, staging area and repository", "git status and git add", "Writing a commit", "Viewing history with git log", "Ignoring files with .gitignore"],
+          "tools": ["Git", "VS Code"],
+          "lab_task": "Create a repository for a small website, make five commits with clear messages, and add a .gitignore that excludes build output and editor files.",
+          "deliverable": "Repository with five commits, a .gitignore and the git log output",
+          "checks": [["Run git log --oneline", "Shows five commits with clear messages", "Command output"], ["Create a file in the ignored build folder and run git status", "File is not listed", "Command output"], ["Explain the staging area", "Participant explains the difference between staged and unstaged changes", "Written explanation"]],
+          "objectives": ["Explain what version control solves", "Create commits", "Use the staging area and .gitignore"]
+        },
+        {
+          "topic": "Inspecting Changes and History",
+          "subtopics": ["git diff for unstaged and staged changes", "git show for a commit", "git log options: --graph, --stat, --author", "Searching history with git log -S", "git blame", "Commit IDs and references", "HEAD", "Good commit messages"],
+          "tools": ["Git"],
+          "lab_task": "Use git log, diff, show and blame on a provided repository to answer ten questions such as who changed a line, when a function was added and what changed in a release.",
+          "deliverable": "Answers to the ten questions with the command used for each",
+          "checks": [["Find the commit that introduced a given function", "Correct commit ID with the command used", "Answer sheet"], ["Show who last changed line 20 of a file", "Correct author and commit", "git blame output"], ["Compare two releases", "Lists the changed files correctly", "git diff --stat output"]],
+          "objectives": ["Inspect changes and history", "Find who changed what and when", "Write clear commit messages"]
+        },
+        {
+          "topic": "Branching and Merging",
+          "subtopics": ["What a branch is", "Creating and switching branches", "git switch and git checkout", "Fast-forward merges", "Three-way merges", "Deleting branches", "Viewing branches with git log --graph", "Branch naming conventions"],
+          "tools": ["Git"],
+          "lab_task": "Build two features on separate branches, merge one with a fast-forward and the other with a merge commit, and show both in the history graph.",
+          "deliverable": "Repository history graph and an explanation of each merge type",
+          "checks": [["Run git log --graph --oneline --all", "Shows both feature branches and the merge commit", "Command output"], ["Explain why one merge was a fast-forward", "Participant explains no diverging commits", "Written explanation"], ["Delete a merged branch", "Branch is deleted and commits remain in history", "Command output"]],
+          "objectives": ["Create and switch branches", "Merge with fast-forward and merge commits", "Read a branch graph"]
+        },
+        {
+          "topic": "Resolving Merge Conflicts",
+          "subtopics": ["Why conflicts happen", "Reading conflict markers", "Resolving conflicts in an editor", "Resolving in VS Code", "Choosing ours or theirs", "Completing the merge", "Aborting a merge", "Avoiding conflicts with small changes"],
+          "tools": ["Git", "VS Code"],
+          "lab_task": "Create two branches that change the same lines, merge them, resolve the conflict keeping both changes correctly, and repeat with an abort.",
+          "deliverable": "Resolved file, merge commit and notes on each conflict",
+          "checks": [["Open the resolved file", "No conflict markers remain and both changes are kept", "File contents"], ["Run git merge --abort during a second conflict", "Repository returns to the pre-merge state", "git status output"], ["Run the project after resolving", "It still works", "Test or run output"]],
+          "objectives": ["Understand why conflicts happen", "Resolve conflicts correctly", "Abort a merge safely"]
+        },
+        {
+          "topic": "Remote Repositories and GitHub",
+          "subtopics": ["What a remote is", "Cloning a repository", "git remote add and -v", "git push and upstream branches", "git fetch versus git pull", "SSH keys and personal access tokens", "Viewing a repository on GitHub", "README files"],
+          "tools": ["Git", "GitHub"],
+          "lab_task": "Push the website repository to GitHub over SSH, clone it into a second folder, make a change there, push it, and fetch it back into the first folder.",
+          "deliverable": "GitHub repository link and the command transcript",
+          "checks": [["Clone the repository on another machine or folder", "All commits are present", "git log output"], ["Push from the second folder and fetch in the first", "First folder sees the new commit after merging", "git log output"], ["Explain fetch versus pull", "Participant explains that pull is fetch plus merge", "Written explanation"]],
+          "objectives": ["Work with remote repositories", "Authenticate with SSH keys or tokens", "Use fetch, pull and push"]
+        },
+        {
+          "topic": "Pull Requests and Code Review",
+          "subtopics": ["Feature branch workflow", "Opening a pull request", "Writing a good pull request description", "Reviewing changes and leaving comments", "Requesting changes and approving", "Updating a pull request", "Merge, squash and rebase merge options", "Linking issues"],
+          "tools": ["GitHub"],
+          "lab_task": "In pairs, each open a pull request for a feature, review the partner's pull request with at least three comments, address the feedback, and merge.",
+          "deliverable": "Two merged pull requests with review comments and follow-up commits",
+          "checks": [["Open the merged pull requests", "Each has review comments and a follow-up commit", "Pull request pages"], ["Read a pull request description", "Explains what changed, why and how to test", "Pull request description"], ["Explain the chosen merge option", "Participant explains squash or merge commit choice", "Written explanation"]],
+          "objectives": ["Collaborate through pull requests", "Give and act on code review", "Choose a merge option"]
+        },
+        {
+          "topic": "Undoing Changes Safely",
+          "subtopics": ["git restore for working tree changes", "Unstaging with git restore --staged", "Amending the last commit", "git revert", "git reset --soft, --mixed and --hard", "Recovering with git reflog", "When not to rewrite shared history", "Stashing work with git stash"],
+          "tools": ["Git"],
+          "lab_task": "Work through six mistake scenarios (wrong file staged, bad last commit message, bad pushed commit, lost commit after reset, unfinished work before switching branch, deleted branch) and fix each safely.",
+          "deliverable": "Command log for each scenario with the reason for the chosen fix",
+          "checks": [["Fix the bad pushed commit", "Uses git revert, not reset", "Command log"], ["Recover the lost commit", "Found and restored with reflog", "Command log"], ["Restore the deleted branch", "Branch is back with its commits", "git branch and log output"]],
+          "objectives": ["Undo changes at each stage", "Choose revert or reset correctly", "Recover lost work with reflog"]
+        },
+        {
+          "topic": "Rebasing and Keeping History Clean",
+          "subtopics": ["What rebase does", "Rebasing a feature branch on main", "Resolving conflicts during rebase", "Interactive rebase", "Squashing and rewording commits", "git pull --rebase", "The golden rule of rebasing", "Merge versus rebase trade-offs"],
+          "tools": ["Git"],
+          "lab_task": "Rebase a feature branch onto an updated main, resolve a conflict during the rebase, and squash six small commits into two meaningful ones before opening a pull request.",
+          "deliverable": "History before and after the rebase and the pull request",
+          "checks": [["Compare history before and after", "Feature commits sit on top of main in two clear commits", "git log output"], ["Run the tests after rebasing", "Tests pass", "Test output"], ["Explain why not to rebase a shared branch", "Participant explains rewritten commit IDs", "Written explanation"]],
+          "objectives": ["Rebase branches", "Clean up commits with interactive rebase", "Choose between merge and rebase"]
+        },
+        {
+          "topic": "Branching Strategies for Teams",
+          "subtopics": ["GitHub flow", "Git flow", "Trunk-based development", "Release branches", "Hotfix branches", "Short-lived feature branches", "Feature flags with trunk-based development", "Choosing a strategy"],
+          "tools": ["Git", "GitHub"],
+          "lab_task": "Simulate a team release with three features, a release branch and an urgent hotfix using Git flow, then repeat the same work with trunk-based development and compare.",
+          "deliverable": "Two history graphs and a comparison note",
+          "checks": [["Apply the hotfix", "Fix reaches both the release and main", "History graph"], ["Read the comparison", "Covers merge effort, release speed and risk", "Comparison note"], ["Explain where feature flags help", "Participant explains releasing incomplete work safely", "Written explanation"]],
+          "objectives": ["Compare common branching strategies", "Handle releases and hotfixes", "Choose a strategy for a team"]
+        },
+        {
+          "topic": "Tags, Releases and Versioning",
+          "subtopics": ["Lightweight and annotated tags", "Semantic versioning", "Pushing tags", "GitHub releases", "Release notes", "Changelogs", "Checking out a tag", "Signing tags"],
+          "tools": ["Git", "GitHub"],
+          "lab_task": "Tag three releases of the website with semantic versions, publish GitHub releases with generated notes, and check out an old release to reproduce a bug.",
+          "deliverable": "Tags, release pages and the reproduced bug notes",
+          "checks": [["List tags", "Three annotated semantic version tags", "git tag -n output"], ["Open a GitHub release", "Has notes listing included pull requests", "Release page"], ["Check out v1.0.0", "Working tree matches that release", "git describe output"]],
+          "objectives": ["Mark releases with tags", "Version with semantic versioning", "Publish releases"]
+        },
+        {
+          "topic": "GitHub Issues, Projects and Collaboration",
+          "subtopics": ["Issues and labels", "Issue templates", "Milestones", "GitHub Projects boards", "Linking pull requests to issues", "Mentions and notifications", "Discussions", "Contributing guidelines"],
+          "tools": ["GitHub"],
+          "lab_task": "Plan a small sprint on a GitHub Projects board with issue templates, labels and a milestone, then close three issues through linked pull requests.",
+          "deliverable": "Project board, templates and three closed issues",
+          "checks": [["Merge a pull request with 'Closes #n'", "Issue closes automatically", "Issue page"], ["Open the board", "Shows issues moving through columns", "Board screenshot"], ["Create an issue from the template", "Template fields appear", "Issue page"]],
+          "objectives": ["Track work with issues and boards", "Link code changes to issues", "Set contribution guidelines"]
+        },
+        {
+          "topic": "Repository Settings and Branch Protection",
+          "subtopics": ["Collaborators and teams", "Repository roles", "Branch protection rules and rulesets", "Required reviews", "Required status checks", "CODEOWNERS", "Signed commits", "Repository security settings"],
+          "tools": ["GitHub"],
+          "lab_task": "Protect main so it needs one approving review, a passing check and code owner review for the docs folder, and prove a direct push is rejected.",
+          "deliverable": "Ruleset configuration, CODEOWNERS file and the rejected push",
+          "checks": [["Push directly to main", "Rejected by the ruleset", "Command output"], ["Open a pull request changing docs", "Code owner review is requested", "Pull request page"], ["Try to merge without approval", "Merge button is blocked", "Screenshot"]],
+          "objectives": ["Control repository access", "Protect important branches", "Require reviews from owners"]
+        },
+        {
+          "topic": "Git with IDEs and GUI Tools",
+          "subtopics": ["Git in VS Code", "Staging parts of a file", "Visual diff and merge tools", "GitHub Desktop", "GitLens history views", "Configuring a merge tool", "Line endings across Windows and Linux", "Credential managers"],
+          "tools": ["VS Code", "GitHub Desktop", "GitLens"],
+          "lab_task": "Repeat a branch, partial commit, conflict and pull request workflow entirely in VS Code, configure a visual merge tool, and fix a line-ending problem.",
+          "deliverable": "Screenshots of each step and the .gitattributes file",
+          "checks": [["Stage only half of a changed file", "Commit contains only the chosen lines", "git show output"], ["Resolve a conflict with the merge tool", "Resolved file is correct", "File contents"], ["Commit from Windows and check out on Linux", "No line-ending changes appear", "git status output"]],
+          "objectives": ["Use Git from editors and GUI tools", "Make partial commits", "Handle line endings"]
+        },
+        {
+          "topic": "Working with Large Files and Repositories",
+          "subtopics": ["Why large binaries hurt repositories", "Git LFS", "Shallow clones", "Sparse checkout", "Partial clone", "Finding large files in history", "Removing large files with git filter-repo", "Repository size limits"],
+          "tools": ["Git LFS", "git filter-repo"],
+          "lab_task": "Move design files to Git LFS, find and remove a large file accidentally committed earlier, and compare clone times with shallow and sparse options.",
+          "deliverable": "Before and after repository sizes, LFS configuration and clone timing table",
+          "checks": [["Check the repository size after clean-up", "Large file is gone from history", "Size output"], ["Clone with LFS", "Design files download through LFS", "Clone output"], ["Compare clone times", "Shallow and sparse clones are faster, with figures", "Timing table"]],
+          "objectives": ["Store large files with Git LFS", "Speed up work in large repositories", "Remove large files from history"]
+        },
+        {
+          "topic": "Removing Secrets and Sensitive Data from Git",
+          "subtopics": ["How secrets leak into Git", "Why deleting a file is not enough", "Secret scanning on GitHub", "Push protection", "Rewriting history with git filter-repo", "Rotating leaked credentials first", "Pre-commit secret scanners", "Communicating a history rewrite"],
+          "tools": ["git filter-repo", "GitHub secret scanning", "gitleaks"],
+          "lab_task": "Find a planted API key in a repository's history with gitleaks, rotate it, remove it from all history with git filter-repo, and add push protection and a pre-commit scanner.",
+          "deliverable": "Scan reports before and after, rewrite commands and the protection settings",
+          "checks": [["Scan the rewritten history", "Key is no longer found", "gitleaks output"], ["Try to push a new key", "Push protection or the pre-commit hook blocks it", "Command output"], ["Explain why rotation comes first", "Participant explains that copies of history may already exist", "Written explanation"]],
+          "objectives": ["Detect secrets in Git history", "Remove them and rotate credentials", "Prevent new leaks"]
+        },
+        {
+          "topic": "Git Hooks and Automation",
+          "subtopics": ["Client-side hooks", "pre-commit and commit-msg hooks", "The pre-commit framework", "Enforcing commit message formats", "Running linters and tests before commit", "Server-side checks on GitHub", "Sharing hooks with a team", "Keeping hooks fast"],
+          "tools": ["pre-commit", "Git"],
+          "lab_task": "Add pre-commit hooks for formatting, linting and secret scanning, and a commit-msg hook that enforces Conventional Commits, shared through the repository.",
+          "deliverable": "Hook configuration and examples of blocked and accepted commits",
+          "checks": [["Commit badly formatted code", "Hook fixes or blocks it", "Command output"], ["Commit with message 'update'", "Rejected by the commit-msg hook", "Command output"], ["Clone fresh and install hooks", "Hooks work with one documented command", "Command output"]],
+          "objectives": ["Automate checks with Git hooks", "Enforce commit conventions", "Share hooks across a team"]
+        },
+        {
+          "topic": "Debugging with Git: bisect and blame",
+          "subtopics": ["Finding when a bug appeared", "git bisect start, good and bad", "Automating bisect with a test script", "git blame with ignore revisions", "git log -L for a function's history", "git grep", "Restoring a single file from history", "Writing a regression test after finding the cause"],
+          "tools": ["Git"],
+          "lab_task": "Use git bisect with an automated test to find the commit that broke a feature in a 200-commit repository, then restore the correct code and add a regression test.",
+          "deliverable": "Bisect log, the offending commit and the fix with its test",
+          "checks": [["Run git bisect run with the test", "Finds the correct commit", "Bisect log"], ["Run the regression test on the fix", "Passes", "Test output"], ["Show the history of one function with git log -L", "Lists the commits that changed it", "Command output"]],
+          "objectives": ["Find regressions with git bisect", "Trace code history", "Prevent repeats with regression tests"]
+        },
+        {
+          "topic": "Monorepos, Submodules and Subtrees",
+          "subtopics": ["Monorepo versus polyrepo", "Git submodules", "Updating submodules", "Git subtree", "Sparse checkout in monorepos", "CODEOWNERS in monorepos", "Path-based CI triggers", "Common submodule problems"],
+          "tools": ["Git", "GitHub"],
+          "lab_task": "Add a shared library to two projects first as a submodule and then as a subtree, update it in both ways, and write a recommendation for the team.",
+          "deliverable": "Both repository setups, update logs and a recommendation",
+          "checks": [["Clone the submodule project fresh", "Library is fetched with the documented command", "Command output"], ["Update the library with subtree", "Change appears without extra commands for users", "git log output"], ["Read the recommendation", "Explains trade-offs for this team", "Recommendation"]],
+          "objectives": ["Share code between repositories", "Compare submodules and subtrees", "Organise monorepos"]
+        },
+        {
+          "topic": "Git Internals in Plain Terms",
+          "subtopics": ["Objects: blobs, trees and commits", "Content addressing with hashes", "References and HEAD", "The index", "Packfiles", "How branches are just pointers", "Inspecting objects with git cat-file", "Garbage collection"],
+          "tools": ["Git"],
+          "lab_task": "Create a commit by hand using git hash-object, update-index, write-tree and commit-tree, then point a branch at it and explain each object you created.",
+          "deliverable": "Command transcript and an annotated diagram of the objects",
+          "checks": [["Run git log on the new branch", "Shows the hand-made commit", "Command output"], ["Show the tree of the commit with git cat-file -p", "Lists the file blobs", "Command output"], ["Explain the diagram", "Blob, tree, commit and branch relationships are correct", "Diagram"]],
+          "objectives": ["Explain how Git stores data", "Inspect Git objects", "Understand branches as pointers"]
+        },
+        {
+          "topic": "Beginner Capstone: Team Project with a Git Workflow",
+          "subtopics": ["Choosing a branching strategy", "Protected main and code owners", "Issues, board and milestones", "Feature branches and reviewed pull requests", "Release with tags and notes", "Demo and history walkthrough"],
+          "tools": ["Git", "GitHub", "pre-commit"],
+          "lab_task": "In teams of three, build a small website with protected main, hooks, issues, at least six reviewed pull requests, one resolved conflict, one hotfix and a tagged release, then present the history.",
+          "deliverable": "Team repository, project board, release page and a 10-minute history walkthrough",
+          "checks": [["Open the repository insights", "Each member authored and reviewed pull requests", "Contributors and pull request list"], ["Show the hotfix", "Fix reached main and the release through the chosen strategy", "History graph"], ["Open the release", "Tagged with semantic version and notes", "Release page"]],
+          "objectives": ["Run a complete team Git workflow", "Combine branching, review, protection and releases", "Explain a project's history"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who use Git daily. Covers advanced history editing, repository administration, GitHub automation, security, monorepo scale and recovering from serious mistakes.",
+      "prerequisites": ["Uses branches, merges, rebases and pull requests every day", "Comfortable on the command line", "Has worked in a team repository with protected branches"],
+      "outcomes": ["Edit and repair history confidently", "Administer repositories and organisations on GitHub or GitLab", "Automate repository work with Actions, APIs and the GitHub CLI", "Run Git at scale for large codebases and teams"],
+      "days": [
+        {
+          "topic": "Advanced Interactive Rebase and History Editing",
+          "subtopics": ["Reordering, splitting and dropping commits", "fixup and autosquash", "Editing an old commit", "Rebasing onto another base with --onto", "Rebasing merges with --rebase-merges", "Preserving authorship", "Testing each commit with exec", "Recovering from a bad rebase"],
+          "tools": ["Git"],
+          "lab_task": "Turn a messy 15-commit branch into five clean, individually passing commits using fixup, split and reorder, verified with rebase exec running the tests at each step.",
+          "deliverable": "History before and after and the rebase exec log",
+          "checks": [["Run tests at every commit with rebase exec", "Every commit passes", "Rebase log"], ["Compare final code with the messy branch", "Identical final tree", "git diff output"], ["Undo the rebase with reflog", "Original branch restored", "git log output"]],
+          "objectives": ["Rewrite history precisely", "Keep every commit working", "Recover from rebase mistakes"]
+        },
+        {
+          "topic": "Cherry-Pick, Backports and Release Maintenance",
+          "subtopics": ["git cherry-pick", "Backporting fixes to release branches", "Handling conflicts in backports", "Cherry-picking ranges", "Tracking backports", "Release branch policies", "Automating backport pull requests", "Avoiding duplicate commits"],
+          "tools": ["Git", "GitHub Actions"],
+          "lab_task": "Maintain two release branches: backport three fixes from main, resolve a conflict in one, and automate future backports with a labelled pull request workflow.",
+          "deliverable": "Backport commits, automation workflow and an automated backport pull request",
+          "checks": [["Check each release branch", "Contains the three fixes", "git log output"], ["Label a merged pull request for backport", "Automation opens a backport pull request", "Pull request page"], ["Explain how backports are tracked", "Uses commit trailers or links", "Commit messages"]],
+          "objectives": ["Backport fixes safely", "Maintain release branches", "Automate backports"]
+        },
+        {
+          "topic": "Repository Administration on GitHub",
+          "subtopics": ["Organisations and teams", "Repository roles and custom roles", "Rulesets at organisation level", "Required workflows", "Repository templates", "Archiving and transferring repositories", "Audit log", "Enterprise managed users overview"],
+          "tools": ["GitHub", "GitHub CLI"],
+          "lab_task": "Set up an organisation with three teams, organisation rulesets for all repositories, a repository template, and find a permission change in the audit log.",
+          "deliverable": "Organisation configuration, ruleset definitions and the audit log finding",
+          "checks": [["Create a repository from the template", "Has the standard files and rules applied", "Repository page"], ["Push to main in any repository", "Blocked by the organisation ruleset", "Command output"], ["Find who changed a team's access", "Audit log shows the actor and time", "Audit log entry"]],
+          "objectives": ["Administer GitHub organisations", "Apply rules across repositories", "Audit access changes"]
+        },
+        {
+          "topic": "GitLab and Bitbucket Workflows Compared",
+          "subtopics": ["GitLab groups and projects", "Merge requests and approvals", "Protected branches in GitLab", "Bitbucket pull requests", "Migrating repositories between platforms", "Mirroring repositories", "Platform-specific CI", "Choosing a platform"],
+          "tools": ["GitLab", "Bitbucket", "GitHub"],
+          "lab_task": "Mirror a GitHub repository to GitLab, set up protected branches and approval rules there, complete a merge request, and compare the workflow with GitHub.",
+          "deliverable": "Mirror configuration, merge request and a comparison table",
+          "checks": [["Push to GitHub", "Change appears in the GitLab mirror", "GitLab history"], ["Merge without the required approval in GitLab", "Blocked", "Screenshot"], ["Read the comparison", "Covers reviews, protections and CI", "Table"]],
+          "objectives": ["Work across Git hosting platforms", "Mirror and migrate repositories", "Compare platform workflows"]
+        },
+        {
+          "topic": "Automating Repositories with GitHub CLI and APIs",
+          "subtopics": ["GitHub CLI basics for automation", "REST and GraphQL APIs", "Authentication with fine-grained tokens and GitHub Apps", "Bulk changes across repositories", "Pagination and rate limits", "Webhooks", "Scripting pull request housekeeping", "Safe automation practices"],
+          "tools": ["GitHub CLI", "GitHub REST API", "Python"],
+          "lab_task": "Write a script with a GitHub App token that finds stale pull requests across an organisation, comments on them, and opens a pull request adding a missing CODEOWNERS file to each repository.",
+          "deliverable": "Script, run log and the opened pull requests",
+          "checks": [["Run the script in dry-run mode", "Lists what it would change without changing anything", "Script output"], ["Run it for real", "Comments and pull requests are created as listed", "Pull request pages"], ["Exceed the rate limit in a test", "Script waits and resumes", "Log output"]],
+          "objectives": ["Automate GitHub with the CLI and APIs", "Authenticate automation safely", "Make bulk changes carefully"]
+        },
+        {
+          "topic": "Commit Signing and Verified History",
+          "subtopics": ["Why sign commits", "GPG signing", "SSH signing", "Sigstore gitsign", "Verified badges", "Requiring signed commits", "Signing in CI", "Key management and rotation"],
+          "tools": ["Git", "GPG", "gitsign"],
+          "lab_task": "Set up SSH commit signing, require signed commits on main, sign commits made by a CI bot, and verify the history.",
+          "deliverable": "Signing configuration, ruleset and verification output",
+          "checks": [["Push an unsigned commit to a protected branch", "Rejected", "Command output"], ["Run git log --show-signature", "Shows good signatures", "Command output"], ["Check a bot commit on GitHub", "Marked verified", "Screenshot"]],
+          "objectives": ["Sign commits and tags", "Require verified history", "Sign automated commits"]
+        },
+        {
+          "topic": "Repository Security: Dependabot, Code Scanning and Secret Scanning",
+          "subtopics": ["Dependency graph", "Dependabot alerts and updates", "Code scanning with CodeQL", "Secret scanning and push protection", "Security policies", "Private vulnerability reporting", "Security overview for organisations", "Triaging alerts"],
+          "tools": ["Dependabot", "CodeQL", "GitHub Advanced Security"],
+          "lab_task": "Enable Dependabot, CodeQL and secret scanning on a vulnerable sample repository, fix the three highest-severity findings, and configure grouped dependency updates.",
+          "deliverable": "Security configuration, fixed findings and Dependabot pull requests",
+          "checks": [["Rerun CodeQL after fixes", "Fixed alerts close", "Alert history"], ["Open the Dependabot pull requests", "Grouped by ecosystem as configured", "Pull request list"], ["Push a test secret", "Push protection blocks it", "Command output"]],
+          "objectives": ["Find vulnerabilities in code and dependencies", "Prevent secret leaks", "Triage and fix security alerts"]
+        },
+        {
+          "topic": "Scaling Git for Large Monorepos",
+          "subtopics": ["Why large repositories get slow", "git maintenance and commit-graph", "Filesystem monitor", "Partial clone and sparse checkout in practice", "Scalar", "Path-based ownership and CI", "Merge queues", "Measuring Git performance"],
+          "tools": ["Git", "Scalar", "GitHub merge queue"],
+          "lab_task": "Clone a large monorepo with Scalar and sparse checkout, measure status and log times before and after maintenance settings, and set up a merge queue.",
+          "deliverable": "Timing table, configuration and a merge queue run",
+          "checks": [["Compare git status times", "Faster with fsmonitor and maintenance, with figures", "Timing table"], ["Check out only two project folders", "Working tree contains only those folders", "Directory listing"], ["Add two pull requests to the merge queue", "Both are tested together and merged in order", "Merge queue history"]],
+          "objectives": ["Keep Git fast in large repositories", "Use sparse checkout and partial clone", "Merge safely with merge queues"]
+        },
+        {
+          "topic": "Migrating Repositories and History",
+          "subtopics": ["Migrating from SVN or TFVC to Git", "Preserving history and authors", "Splitting a repository into several", "Combining repositories into a monorepo", "Rewriting paths with git filter-repo", "Moving large histories", "Validating the migration", "Cut-over planning"],
+          "tools": ["git svn", "git filter-repo"],
+          "lab_task": "Split a folder out of a monorepo into its own repository with full history, merge two small repositories into one with history, and validate both.",
+          "deliverable": "Migration commands, resulting repositories and validation evidence",
+          "checks": [["Run git log on the split repository", "History of that folder is preserved", "Command output"], ["Run git log on the merged repository", "Both histories are present under their folders", "Command output"], ["Compare file contents with the originals", "Identical", "Diff output"]],
+          "objectives": ["Migrate history between systems", "Split and combine repositories", "Validate migrations"]
+        },
+        {
+          "topic": "Release Engineering with Git",
+          "subtopics": ["Conventional Commits", "Automated version numbers", "Generated changelogs", "Release automation tools", "Release candidates", "Signed tags", "Reproducible release builds from tags", "Rolling back a release"],
+          "tools": ["semantic-release", "GitHub Actions"],
+          "lab_task": "Automate releases so merging to main computes the next version from commit messages, generates a changelog, creates a signed tag and publishes a GitHub release.",
+          "deliverable": "Release workflow and two automated releases",
+          "checks": [["Merge a 'fix:' commit", "Patch version is released", "Release page"], ["Merge a 'feat:' commit", "Minor version is released", "Release page"], ["Check the tag", "Signed and verified", "git tag -v output"]],
+          "objectives": ["Automate versioning and changelogs", "Publish releases from Git", "Sign and reproduce releases"]
+        },
+        {
+          "topic": "Inner Source and Contribution Workflows",
+          "subtopics": ["Inner source principles", "Forks and upstream syncing", "Contribution guidelines", "Maintainers and code owners", "Good first issues", "Review service levels", "Documentation as code", "Measuring contribution health"],
+          "tools": ["GitHub"],
+          "lab_task": "Run an inner source exercise where teams contribute to another team's repository through forks, following its guidelines, with maintainers reviewing within an agreed time.",
+          "deliverable": "Contribution guide, merged contributions and a contribution health report",
+          "checks": [["Sync a fork with upstream", "Fork is up to date without merge noise", "git log output"], ["Open the contribution guide", "Explains setup, standards and review times", "CONTRIBUTING.md"], ["Read the health report", "Shows review times and contributor counts", "Report"]],
+          "objectives": ["Run inner source collaboration", "Contribute through forks", "Measure contribution health"]
+        },
+        {
+          "topic": "Recovering from Serious Git Mistakes",
+          "subtopics": ["Force-pushed over a shared branch", "Accidental history rewrite of main", "Deleted repository recovery options", "Corrupted local repository", "Lost stash", "Restoring from reflog on another machine", "Using git fsck", "Incident communication"],
+          "tools": ["Git"],
+          "lab_task": "Recover from five serious incidents prepared by the trainer, including a force-push over main and a corrupted object, and write a short incident note for one.",
+          "deliverable": "Recovery log for each incident and one incident note",
+          "checks": [["Recover main after the force-push", "Lost commits are restored", "git log output"], ["Repair the corrupted repository", "git fsck reports no errors", "Command output"], ["Read the incident note", "States impact, cause, fix and prevention", "Incident note"]],
+          "objectives": ["Recover from destructive mistakes", "Diagnose repository corruption", "Communicate incidents"]
+        },
+        {
+          "topic": "Git Workflows for Infrastructure and GitOps",
+          "subtopics": ["Repositories as the source of truth", "Environment folders versus branches", "Promotion by pull request", "Reviewing infrastructure changes", "Protecting production paths", "Automated drift pull requests", "Secrets in GitOps repositories", "Audit trails from Git"],
+          "tools": ["Git", "GitHub", "Argo CD"],
+          "lab_task": "Design a GitOps repository for three environments, promote a change from dev to prod through pull requests, and protect the prod folder with code owners and checks.",
+          "deliverable": "Repository structure, promotion pull requests and protection settings",
+          "checks": [["Change prod without code owner approval", "Merge is blocked", "Pull request page"], ["Promote a change", "Same commit content moves dev to test to prod", "Pull request history"], ["Find who approved a prod change", "Git history and pull request show it", "Evidence links"]],
+          "objectives": ["Structure repositories for GitOps", "Promote changes through pull requests", "Use Git as an audit trail"]
+        },
+        {
+          "topic": "Code Review Practices at Scale",
+          "subtopics": ["What good reviews look for", "Small pull requests", "Review checklists", "Automated review comments", "Stacked pull requests", "Review load balancing", "Review metrics", "Handling disagreements"],
+          "tools": ["GitHub", "reviewdog"],
+          "lab_task": "Split a large change into three stacked pull requests, add automated lint comments to reviews, and assign reviewers automatically with load balancing.",
+          "deliverable": "Stacked pull requests, review automation and review metrics",
+          "checks": [["Open the stacked pull requests", "Each is small and reviewable on its own", "Pull request pages"], ["Introduce a lint issue", "Bot comments on the exact line", "Review comment"], ["Open a new pull request", "Reviewer is assigned automatically", "Pull request page"]],
+          "objectives": ["Run effective code reviews", "Use stacked pull requests", "Automate review work"]
+        },
+        {
+          "topic": "Git Server Hooks and Platform Policies",
+          "subtopics": ["Server-side hooks on self-hosted servers", "Pre-receive hooks", "Push rules in GitLab", "Rulesets and metadata restrictions", "Blocking file types and sizes", "Commit message rules", "Policy exceptions", "Testing hooks"],
+          "tools": ["GitLab", "Git"],
+          "lab_task": "On a self-hosted Git server, write a pre-receive hook that blocks files over 10 MB and commits without a ticket ID, and test it with good and bad pushes.",
+          "deliverable": "Hook code, tests and push results",
+          "checks": [["Push a 20 MB file", "Rejected with a clear message", "Command output"], ["Push a commit without a ticket ID", "Rejected", "Command output"], ["Push a valid commit", "Accepted", "Command output"]],
+          "objectives": ["Enforce policy on the server side", "Write and test pre-receive hooks", "Apply push rules"]
+        },
+        {
+          "topic": "Collaboration Analytics and Engineering Metrics from Git",
+          "subtopics": ["Lead time for changes", "Deployment frequency from tags", "Pull request cycle time", "Review time", "Churn and hotspots", "Bus factor", "Using metrics responsibly", "Dashboards"],
+          "tools": ["GitHub API", "Python", "Grafana"],
+          "lab_task": "Pull a year of pull request and commit data from a sample organisation, compute cycle time, review time and hotspots, and present findings with recommendations.",
+          "deliverable": "Data script, dashboard and findings",
+          "checks": [["Compute median pull request cycle time", "Matches a manual sample check", "Calculation"], ["Show the top 5 hotspot files", "Based on churn and authors", "Report"], ["Read the recommendations", "Each links to a metric", "Findings"]],
+          "objectives": ["Measure delivery with Git data", "Find hotspots and risks", "Use metrics responsibly"]
+        },
+        {
+          "topic": "Self-Hosting Git: GitLab and Gitea Administration",
+          "subtopics": ["When to self-host", "Installing GitLab or Gitea", "Authentication with LDAP or SSO", "Backups and restore", "Upgrades", "Runners and CI capacity", "Storage and performance", "Security hardening"],
+          "tools": ["GitLab", "Gitea", "Docker"],
+          "lab_task": "Install a self-hosted Git server with SSO, back it up, upgrade it, restore it on a new machine, and verify repositories and users survive.",
+          "deliverable": "Installation runbook, backup and restore record and upgrade log",
+          "checks": [["Restore on a new machine", "Repositories, users and settings are intact", "Screenshots"], ["Sign in with SSO", "Works for a test user", "Screenshot"], ["Upgrade one version", "Server works after upgrade", "Upgrade log"]],
+          "objectives": ["Run a self-hosted Git server", "Back up, restore and upgrade it", "Integrate it with SSO"]
+        },
+        {
+          "topic": "Git for Data, Documentation and Non-Code Assets",
+          "subtopics": ["Versioning documentation with Markdown", "Docs as code pipelines", "Diffing structured data", "Notebook diffs", "Data versioning with DVC", "Binary assets and locking", "Reviewing documents in pull requests", "Publishing docs from Git"],
+          "tools": ["DVC", "MkDocs", "nbdime"],
+          "lab_task": "Version a documentation site and a dataset: publish docs from Git automatically, track a dataset with DVC, and review a notebook change with readable diffs.",
+          "deliverable": "Docs pipeline, DVC configuration and a reviewed notebook pull request",
+          "checks": [["Merge a docs change", "Published site updates", "Site screenshot"], ["Check out an old dataset version with DVC", "Correct data is restored", "Command output"], ["Open the notebook pull request", "Diff is readable", "Diff screenshot"]],
+          "objectives": ["Version documentation and data", "Publish docs from Git", "Review non-code changes"]
+        },
+        {
+          "topic": "Git Training and Standards for an Organisation",
+          "subtopics": ["Writing Git standards", "Commit and branch conventions", "Onboarding guides", "Default repository templates", "Measuring adoption", "Handling exceptions", "Office hours and support", "Keeping standards up to date"],
+          "tools": ["GitHub", "Markdown"],
+          "lab_task": "Write a Git standards document and repository template for a 200-developer organisation, pilot it with one team, and collect feedback.",
+          "deliverable": "Standards document, template repository and pilot feedback summary",
+          "checks": [["Create a repository from the template", "Includes standard files and settings", "Repository"], ["Read the standards", "Cover branching, commits, reviews and security", "Document"], ["Read the feedback summary", "Lists changes made from the pilot", "Summary"]],
+          "objectives": ["Set Git standards for an organisation", "Onboard teams to them", "Improve standards from feedback"]
+        },
+        {
+          "topic": "Intermediate Capstone: Repository Platform for an Engineering Organisation",
+          "subtopics": ["Requirements and design", "Organisation rules and templates", "Security scanning and signing", "Release and backport automation", "Monorepo performance and merge queue", "Metrics, demo and design defence"],
+          "tools": ["GitHub", "GitHub Actions", "GitHub CLI", "CodeQL"],
+          "lab_task": "Set up an organisation's repository platform with rulesets, templates, signing, security scanning, release and backport automation, a merge queue and metrics, then present it.",
+          "deliverable": "Organisation configuration, automation repositories, metrics dashboard and a 15-minute demo",
+          "checks": [["Create a new repository from the template", "All rules and scans apply automatically", "Repository settings"], ["Release and backport a fix", "Automation completes both", "Release and pull request pages"], ["Open the metrics dashboard", "Shows cycle time and review time", "Dashboard"]],
+          "objectives": ["Design a repository platform for many teams", "Combine governance, security and automation", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who own source control for large organisations. Covers Git internals, performance at extreme scale, supply chain integrity, compliance, platform migrations and source control strategy.",
+      "prerequisites": ["Administers repositories or a Git platform for many teams", "Comfortable with history editing, automation and repository security", "Has scripted against Git hosting APIs"],
+      "outcomes": ["Diagnose and tune Git at the object and protocol level", "Secure source code supply chains with verifiable provenance", "Run compliance, retention and audit for source control", "Lead platform migrations and source control strategy"],
+      "days": [
+        {
+          "topic": "Git Object Model and Packfile Internals",
+          "subtopics": ["Loose objects and packfiles", "Delta compression", "Pack indexes and bitmaps", "Multi-pack indexes", "Commit-graph file", "Object reachability and garbage collection", "Repository repair at object level", "Inspecting packs with verify-pack"],
+          "tools": ["Git", "git verify-pack"],
+          "lab_task": "Analyse a large repository's packfiles, find the objects that dominate its size, repack it with tuned settings, and measure clone and fetch speed before and after.",
+          "deliverable": "Analysis report, repack settings and timing table",
+          "checks": [["List the largest objects", "Correct objects identified with sizes", "verify-pack output"], ["Compare clone times after repacking", "Improvement measured", "Timing table"], ["Run git fsck after repacking", "No errors", "Command output"]],
+          "objectives": ["Explain how Git stores and compresses data", "Tune packing for performance", "Repair repositories at object level"]
+        },
+        {
+          "topic": "Git Transfer Protocols and Server Performance",
+          "subtopics": ["Smart HTTP and SSH transports", "Protocol version 2", "Negotiation during fetch", "Server-side caching and bitmaps", "Large fetch and clone load", "Bundle URIs and pre-seeded clones", "Monitoring Git server load", "CI clone storms"],
+          "tools": ["Git", "GIT_TRACE_PACKET", "Gitaly"],
+          "lab_task": "Trace a fetch with packet tracing, then cut CI clone load on a server by 70% using bundle URIs, shallow fetches and a local mirror, measuring server load before and after.",
+          "deliverable": "Protocol trace annotations and a load reduction report",
+          "checks": [["Annotate the packet trace", "Negotiation steps are identified correctly", "Annotated trace"], ["Compare server load during a simulated CI storm", "At least 70% lower or the gap is explained", "Load graphs"], ["Clone with a bundle URI", "Clone uses the bundle then fetches the rest", "Trace output"]],
+          "objectives": ["Explain Git transfer protocols", "Reduce server load from CI", "Speed up clones at scale"]
+        },
+        {
+          "topic": "Extreme-Scale Repositories",
+          "subtopics": ["Repositories with millions of files", "Virtual file systems and Scalar background maintenance", "Sparse index", "Build system integration with sparse checkout", "Ownership and review at scale", "Merge queue throughput", "Branch and tag count limits", "Case studies of large monorepos"],
+          "tools": ["Scalar", "Git sparse index"],
+          "lab_task": "Generate a synthetic repository with a million files, make common operations fast with sparse index and Scalar, and document the limits you hit.",
+          "deliverable": "Benchmark results, configuration and a limits report",
+          "checks": [["Compare git status time with and without sparse index", "Large improvement, with figures", "Timing table"], ["Read the limits report", "Each limit has a measured threshold", "Report"], ["Check a teammate can reproduce the setup", "Documented steps work on a clean machine", "Reproduction log"]],
+          "objectives": ["Run Git on extreme-scale repositories", "Measure and push performance limits", "Document scaling limits"]
+        },
+        {
+          "topic": "Source Code Supply Chain Integrity",
+          "subtopics": ["Threats to source code", "Signed commits and tags at organisation scale", "Sigstore and transparency logs", "Branch protection as a security control", "Build provenance linked to commits", "Reviewing dependency changes", "Detecting tampering", "SLSA source requirements"],
+          "tools": ["gitsign", "Sigstore", "GitHub rulesets"],
+          "lab_task": "Design source integrity controls for an organisation, enforce keyless signing with gitsign, link build provenance to signed commits, and detect a simulated tampered commit.",
+          "deliverable": "Control design, signing configuration, provenance evidence and tamper detection result",
+          "checks": [["Verify a release back to its signed commit", "Provenance and signature both verify", "Verification output"], ["Push the tampered commit", "Detected and rejected", "Command output"], ["Read the design", "Maps controls to SLSA source requirements", "Design document"]],
+          "objectives": ["Protect source code integrity", "Use keyless signing at scale", "Link source to build provenance"]
+        },
+        {
+          "topic": "Compliance, Retention and Legal Holds for Source Control",
+          "subtopics": ["Regulatory requirements for source and change history", "Retention policies", "Legal holds", "Audit log streaming", "Evidence of review and approval", "Separation of duties", "Export for auditors", "Handling deletion requests"],
+          "tools": ["GitHub audit log streaming", "SIEM"],
+          "lab_task": "Stream the audit log to a SIEM, build an evidence report proving reviewed changes for one quarter, and design retention and legal hold procedures.",
+          "deliverable": "Audit streaming configuration, evidence report and procedures",
+          "checks": [["Find a ruleset bypass in the SIEM", "Event appears with actor and time", "SIEM query"], ["Read the evidence report", "Every production change has a reviewer distinct from the author", "Report"], ["Read the legal hold procedure", "Explains how history is preserved", "Procedure"]],
+          "objectives": ["Meet compliance needs for source control", "Produce review and approval evidence", "Plan retention and legal holds"]
+        },
+        {
+          "topic": "Large-Scale Platform Migrations",
+          "subtopics": ["Migrating between GitHub, GitLab, Bitbucket and Azure Repos", "Migrating issues, pull requests and metadata", "Migration tooling and APIs", "Wave planning across hundreds of repositories", "CI and integration rewiring", "Identity mapping", "Validation at scale", "Cut-over communication"],
+          "tools": ["GitHub Enterprise Importer", "GitLab import tools", "scripts"],
+          "lab_task": "Plan the migration of 300 repositories between platforms, migrate a pilot wave of 10 with metadata, validate them automatically, and report issues found.",
+          "deliverable": "Migration plan, pilot results and validation report",
+          "checks": [["Run the validation script on the pilot", "Commits, branches, tags and pull requests match", "Validation report"], ["Read the wave plan", "Orders repositories by dependencies and risk", "Plan"], ["Check identity mapping", "Commits are attributed to the right users", "Sample commits"]],
+          "objectives": ["Plan platform migrations at scale", "Migrate metadata as well as code", "Validate migrations automatically"]
+        },
+        {
+          "topic": "Repository Governance Automation at Organisation Scale",
+          "subtopics": ["Policy as code for repositories", "Safe-settings and similar tools", "Detecting drift in repository settings", "Automated remediation", "Repository lifecycle: creation to archival", "Ownership metadata", "Exceptions with expiry", "Reporting compliance"],
+          "tools": ["GitHub API", "Safe Settings", "Python"],
+          "lab_task": "Manage settings for 200 repositories as code, detect and fix drift automatically, archive inactive repositories after owner confirmation, and report compliance.",
+          "deliverable": "Settings repository, drift automation and a compliance report",
+          "checks": [["Change a protected setting manually", "Drift is detected and reverted", "Automation log"], ["Run the archival job", "Only confirmed inactive repositories are archived", "Job log"], ["Open the compliance report", "Shows compliance per repository and owner", "Report"]],
+          "objectives": ["Govern repositories as code", "Automate drift remediation", "Manage repository lifecycles"]
+        },
+        {
+          "topic": "Building Git Tooling and Integrations",
+          "subtopics": ["GitHub Apps architecture", "Webhooks at scale", "Idempotent event handling", "libgit2 and language bindings", "Writing custom Git commands", "Testing integrations", "Securing app credentials", "Operating integrations"],
+          "tools": ["GitHub Apps", "Probot or Octokit", "libgit2"],
+          "lab_task": "Build a GitHub App that enforces a pull request size policy and labels pull requests by changed areas, with idempotent webhook handling and tests.",
+          "deliverable": "App code, tests and a demo on a test organisation",
+          "checks": [["Open a 2,000-line pull request", "App comments and sets a failing check", "Pull request page"], ["Redeliver the same webhook", "No duplicate comments", "Pull request page"], ["Run the tests", "All pass", "Test output"]],
+          "objectives": ["Build GitHub Apps", "Handle webhooks reliably", "Test and secure integrations"]
+        },
+        {
+          "topic": "Merge Strategies and Integration at Scale",
+          "subtopics": ["Merge queues at high throughput", "Batching and bisecting failed batches", "Speculative merges", "Flaky tests and their impact", "Trunk health metrics", "Revert-first culture", "Release trains", "Branch policies for many teams"],
+          "tools": ["GitHub merge queue", "CI system"],
+          "lab_task": "Simulate 200 pull requests a day with 5% flaky tests through a merge queue, tune batch size and retry settings, and report trunk health before and after.",
+          "deliverable": "Simulation results, tuned settings and trunk health report",
+          "checks": [["Compare queue throughput", "Higher throughput after tuning, with figures", "Results"], ["Inject a real breaking change", "Queue isolates and rejects it", "Queue log"], ["Read the trunk health report", "Shows red-trunk time and revert rate", "Report"]],
+          "objectives": ["Run merge queues at scale", "Handle flaky tests in integration", "Measure trunk health"]
+        },
+        {
+          "topic": "Disaster Recovery for Source Control",
+          "subtopics": ["What must be recovered: code, metadata, settings, secrets", "Backup strategies for hosted and self-hosted platforms", "Recovery time and point objectives", "Restoring to a different platform", "Testing restores", "Offline copies", "Ransomware scenarios", "Recovery runbooks"],
+          "tools": ["Git", "backup tools", "platform APIs"],
+          "lab_task": "Back up an organisation's repositories, issues and settings, then restore them to a clean environment in a timed exercise and document gaps.",
+          "deliverable": "Backup design, restore runbook and the timed exercise report",
+          "checks": [["Restore into the clean environment", "Repositories and metadata are present", "Validation report"], ["Compare restore time with the target", "Within target or the gap is explained", "Timeline"], ["Read the gaps section", "Lists anything that could not be restored", "Report"]],
+          "objectives": ["Plan disaster recovery for source control", "Back up metadata as well as code", "Test restores"]
+        },
+        {
+          "topic": "Insider Risk and Access Management for Code",
+          "subtopics": ["Least privilege for repositories", "Just-in-time admin access", "Monitoring unusual cloning", "Offboarding procedures", "Fork and export controls", "IP allow lists", "Code of conduct and enforcement", "Investigations"],
+          "tools": ["GitHub audit log", "SIEM", "SSO"],
+          "lab_task": "Detect a simulated mass-clone by a departing employee from audit data, design just-in-time admin access, and write an offboarding procedure that removes access within an hour.",
+          "deliverable": "Detection query, access design and offboarding procedure",
+          "checks": [["Run the detection query", "Flags the mass-clone activity", "Query result"], ["Run the offboarding procedure on a test user", "All access removed within an hour", "Timeline"], ["Request admin access", "Granted temporarily and logged", "Access log"]],
+          "objectives": ["Reduce insider risk for source code", "Manage privileged access", "Offboard users quickly"]
+        },
+        {
+          "topic": "Source Control for Regulated and Air-Gapped Environments",
+          "subtopics": ["Air-gapped Git servers", "Transferring changes with bundles", "Verifying transfers", "Mirroring dependencies offline", "Change approval for classified systems", "Audit requirements", "Patching offline platforms", "Operating with limited tooling"],
+          "tools": ["git bundle", "Gitea or GitLab"],
+          "lab_task": "Move changes between a connected and an air-gapped Git server with signed bundles, verify integrity on the other side, and document the approval steps.",
+          "deliverable": "Transfer procedure, signed bundles and verification evidence",
+          "checks": [["Apply a bundle on the air-gapped server", "History matches the source", "git log comparison"], ["Tamper with a bundle", "Verification fails", "Command output"], ["Read the procedure", "Includes approvals and audit records", "Procedure"]],
+          "objectives": ["Run Git in air-gapped environments", "Transfer and verify changes offline", "Meet strict audit needs"]
+        },
+        {
+          "topic": "Cost and Capacity Planning for Git Platforms",
+          "subtopics": ["Licence and seat costs", "Storage growth", "CI minutes linked to repository activity", "LFS bandwidth", "Self-hosted capacity planning", "Archiving to save cost", "Forecasting growth", "Reporting cost per team"],
+          "tools": ["platform billing APIs", "spreadsheets"],
+          "lab_task": "Build a cost and capacity model for a Git platform serving 1,000 developers, find three savings, and forecast the next two years of storage and CI use.",
+          "deliverable": "Cost model, savings proposals and forecast",
+          "checks": [["Read the model", "Breaks costs into seats, storage, CI and bandwidth", "Model"], ["Review a savings proposal", "Has current cost, change and saving", "Proposal"], ["Check the forecast", "Based on stated growth assumptions", "Forecast"]],
+          "objectives": ["Model Git platform costs", "Find savings", "Forecast capacity"]
+        },
+        {
+          "topic": "Developer Experience for Source Control",
+          "subtopics": ["Measuring friction in Git workflows", "Surveys and telemetry", "Faster clone and CI feedback", "Better review tooling", "Self-service repository creation", "Documentation and support", "Satisfaction metrics", "Prioritising improvements"],
+          "tools": ["surveys", "platform APIs", "Backstage"],
+          "lab_task": "Measure developer friction in a sample organisation with a survey and Git telemetry, pick the top two problems, implement improvements and measure the effect.",
+          "deliverable": "Friction analysis, implemented improvements and before and after metrics",
+          "checks": [["Read the analysis", "Top problems are backed by data", "Analysis"], ["Compare metrics after improvements", "Measured improvement for both", "Metrics"], ["Create a repository through self-service", "Ready in minutes with standards applied", "Timing evidence"]],
+          "objectives": ["Measure developer experience", "Improve source control workflows", "Prove improvements with data"]
+        },
+        {
+          "topic": "Git and AI-Assisted Development",
+          "subtopics": ["AI code suggestions and review assistants", "Policies for AI-generated code", "Attribution and licence concerns", "Reviewing AI changes", "Secrets and data exposure risks", "Measuring the effect on quality", "Guardrails in repositories", "Training developers"],
+          "tools": ["GitHub Copilot", "code review tools"],
+          "lab_task": "Write an organisation policy for AI-assisted coding, configure guardrails in a repository, and run a review exercise comparing AI-assisted and manual changes.",
+          "deliverable": "Policy, repository configuration and the review exercise results",
+          "checks": [["Read the policy", "Covers data, licences, review and accountability", "Policy"], ["Check repository guardrails", "Content exclusions and required reviews are set", "Settings"], ["Read the review results", "Quality differences are measured", "Results"]],
+          "objectives": ["Govern AI-assisted development", "Review AI-generated changes", "Measure their effect"]
+        },
+        {
+          "topic": "Source Control Incident Response",
+          "subtopics": ["Leaked repositories", "Compromised tokens", "Malicious commits", "Containment steps", "Revoking credentials at scale", "Forensic review of history", "Communication with stakeholders", "Post-incident hardening"],
+          "tools": ["GitHub audit log", "gitleaks", "platform APIs"],
+          "lab_task": "Respond to a simulated compromised personal access token used to push a malicious commit: contain, revoke, find all affected repositories, clean up and report.",
+          "deliverable": "Incident timeline, list of affected repositories, clean-up record and report",
+          "checks": [["Use the revoked token", "Rejected", "Error output"], ["Read the affected repository list", "Matches the audit log evidence", "List and audit entries"], ["Read the report", "Includes root cause and preventive controls", "Report"]],
+          "objectives": ["Respond to source control incidents", "Investigate history forensically", "Harden after incidents"]
+        },
+        {
+          "topic": "Designing Branching and Release Models for Many Products",
+          "subtopics": ["Product release cadences", "Long-term support branches", "Shared libraries across products", "Version compatibility", "Coordinating releases", "Automating release branches", "Measuring release health", "Choosing models per product"],
+          "tools": ["Git", "release automation"],
+          "lab_task": "Design branching and release models for five products with different cadences and support terms, automate release branch creation, and simulate a quarter of releases.",
+          "deliverable": "Model designs, automation and simulation results",
+          "checks": [["Run the simulation", "Releases and backports follow each product's model", "Simulation log"], ["Read the designs", "Each product's model matches its cadence and support term", "Design document"], ["Check shared library versions", "Compatible versions used by each product", "Dependency report"]],
+          "objectives": ["Design release models for many products", "Automate release branches", "Coordinate shared libraries"]
+        },
+        {
+          "topic": "Source Control Architecture Reviews",
+          "subtopics": ["Reviewing platform designs", "Security, scale, cost and usability criteria", "Architecture decision records", "Common anti-patterns", "Reviewing another team's capstone", "Technical debt in platforms", "Presenting trade-offs", "Reference architectures"],
+          "tools": ["Decision records"],
+          "lab_task": "Review another team's capstone source control platform design, write two decision records for its biggest risks, and present recommendations with evidence.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Defended with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Review source control architectures", "Document decisions", "Communicate recommendations"]
+        },
+        {
+          "topic": "Source Control Strategy and Roadmap",
+          "subtopics": ["Maturity assessment", "Platform consolidation", "Funding and licensing strategy", "Security roadmap", "Developer experience roadmap", "Risk management", "Communicating with leadership", "Three-year roadmap"],
+          "tools": ["Roadmap templates"],
+          "lab_task": "Assess a provided organisation's source control maturity, propose a consolidation and improvement roadmap, and present it to a mock leadership panel.",
+          "deliverable": "Maturity assessment, roadmap and presentation",
+          "checks": [["Read the assessment", "Each area has evidence and a level", "Assessment"], ["Review the roadmap", "Items have outcomes, owners and metrics", "Roadmap"], ["Panel Q&A", "Budget and risk questions answered with evidence", "Trainer notes"]],
+          "objectives": ["Assess source control maturity", "Plan a consolidation roadmap", "Lead source control strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Source Control Platform",
+          "subtopics": ["Business, security and compliance requirements", "Platform architecture and scale design", "Supply chain integrity and governance", "Migration and recovery plans", "Developer experience and cost model", "Architecture defence"],
+          "tools": ["GitHub Enterprise or GitLab", "gitsign", "GitHub Apps", "SIEM"],
+          "lab_task": "Design and prototype an enterprise source control platform covering scale, integrity, governance, compliance, migration, recovery, developer experience and cost, then defend it to a review board.",
+          "deliverable": "Architecture document, working prototype, integrity and recovery test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run the integrity tests", "Unsigned or tampered changes are blocked", "Test results"], ["Run the recovery test", "Restore meets the stated target", "Timeline"], ["Review the cost model", "Costs are broken down and justified", "Cost model"]],
+          "objectives": ["Design an enterprise source control platform", "Prove integrity, recovery and cost with evidence", "Defend the design to a review board"]
+        }
+      ]
+    }
+  }
+}
