@@ -1,0 +1,573 @@
+{
+  "domain": "Testing & QA",
+  "name": "Software Testing and QA",
+  "category": "Testing and QA",
+  "icon": "check-square",
+  "aliases": ["Software Testing", "QA Testing", "Quality Assurance Testing", "Software Quality Assurance", "Manual and Automation Testing", "QA Engineer", "Test Engineering", "ISTQB", "ISTQB Foundation"],
+  "certifications": ["ISTQB Certified Tester Foundation Level (CTFL)", "ISTQB Advanced Level Test Analyst", "ISTQB Advanced Level Test Automation Engineering", "ISTQB Agile Tester"],
+  "tools": ["Jira", "TestRail or Zephyr", "Postman", "Selenium", "Playwright", "JMeter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new testers and people moving into QA. Covers why testing matters, the testing process, test levels and types, test design techniques, writing test cases, defect reporting, exploratory testing, API and database checks, agile testing, a first look at automation, and ISTQB Foundation preparation, ending with a full test cycle for a web application.",
+      "prerequisites": ["Comfortable using web and mobile applications", "Basic understanding of how software is built", "No programming experience needed for most days"],
+      "outcomes": ["Plan and run tests using the testing process and ISTQB terms", "Design test cases with black-box techniques", "Report clear defects and track them to closure", "Test web pages, APIs and data and take first steps in automation"],
+      "days": [
+        {
+          "topic": "Software Testing Overview and Course Setup",
+          "subtopics": ["Why testing is needed", "Errors, defects and failures", "Testing versus quality assurance", "The seven testing principles", "Cost of finding defects late", "Tester roles and careers", "The application under test for the course", "Setting up Jira and a test management tool", "Browser developer tools", "Course project overview"],
+          "tools": ["Jira", "TestRail or Zephyr", "Chrome DevTools"],
+          "lab_task": "Explore the course web application, list ten risks a user could face, log three real defects in Jira and set up the test project in the test management tool.",
+          "deliverable": "Risk list, three defect reports and configured test project",
+          "checks": [["Log three defects", "Each has steps, expected and actual results", "Jira issues"], ["Map risks to testing principles", "Each risk linked to a principle", "Risk list"], ["Set up the test project", "Suites and fields configured", "Screenshot"]],
+          "objectives": ["Explain why testing matters", "Use testing terms correctly", "Set up testing tools"]
+        },
+        {
+          "topic": "The Test Process and Test Levels",
+          "subtopics": ["Test planning", "Test analysis and design", "Test implementation and execution", "Test completion", "Unit, integration, system and acceptance testing", "Test basis and test objects", "Entry and exit criteria", "Traceability"],
+          "tools": ["TestRail or Zephyr", "Jira"],
+          "lab_task": "Write a short test plan for the course app with scope, levels, entry and exit criteria and a traceability matrix from requirements to test cases.",
+          "deliverable": "Test plan and traceability matrix",
+          "checks": [["Review entry and exit criteria", "Measurable for each level", "Test plan"], ["Trace requirements", "Every requirement linked to at least one test", "Traceability matrix"], ["Explain the difference between system and acceptance testing", "Correct explanation", "Written answer"]],
+          "objectives": ["Follow the test process", "Plan test levels", "Trace tests to requirements"]
+        },
+        {
+          "topic": "Test Types: Functional, Non-Functional and Regression",
+          "subtopics": ["Functional testing", "Usability testing", "Performance testing in brief", "Security testing in brief", "Compatibility testing", "Confirmation and regression testing", "Smoke and sanity tests", "Choosing test types by risk"],
+          "tools": ["TestRail or Zephyr", "Browser developer tools"],
+          "lab_task": "For three features, choose test types by risk, write a smoke suite and run a regression pass after a simulated bug fix.",
+          "deliverable": "Test type matrix, smoke suite and regression results",
+          "checks": [["Choose test types", "Choices justified by risk", "Matrix"], ["Run the smoke suite", "Completes in under 15 minutes", "Test run"], ["Run regression after the fix", "Fix confirmed and no new failures", "Test run"]],
+          "objectives": ["Choose test types", "Build smoke suites", "Run regression tests"]
+        },
+        {
+          "topic": "Test Design: Equivalence Partitioning and Boundary Value Analysis",
+          "subtopics": ["Black-box test design", "Equivalence partitions", "Valid and invalid partitions", "Boundary values", "Two-value and three-value boundaries", "Combining partitions", "Writing test cases from partitions", "Measuring coverage"],
+          "tools": ["Excel", "TestRail or Zephyr"],
+          "lab_task": "Design test cases for an age field, a discount rule and a file upload limit with partitions and boundaries, run them and report any defects.",
+          "deliverable": "Partition and boundary tables, test cases and results",
+          "checks": [["Find the boundaries", "All boundaries identified for each rule", "Design table"], ["Run the tests", "Defects at boundaries reported", "Test run"], ["Measure coverage", "Every partition covered", "Coverage note"]],
+          "objectives": ["Apply equivalence partitioning", "Apply boundary value analysis", "Measure coverage"]
+        },
+        {
+          "topic": "Test Design: Decision Tables, State Transitions and Use Cases",
+          "subtopics": ["Decision tables", "Collapsing decision tables", "State transition diagrams", "Valid and invalid transitions", "Use case testing", "Pairwise testing in brief", "Choosing a technique", "Combining techniques"],
+          "tools": ["Excel", "Miro", "PICT"],
+          "lab_task": "Build a decision table for loan approval rules, a state diagram for an order life cycle and pairwise tests for browser and device combinations, then derive test cases.",
+          "deliverable": "Decision table, state diagram, pairwise set and test cases",
+          "checks": [["Review the decision table", "All rule combinations covered", "Table"], ["Test an invalid transition", "System prevents it or a defect is logged", "Test run"], ["Generate pairwise tests", "Fewer tests covering every pair", "PICT output"]],
+          "objectives": ["Use decision tables", "Test state transitions", "Reduce combinations with pairwise"]
+        },
+        {
+          "topic": "Experience-Based and Exploratory Testing",
+          "subtopics": ["Error guessing", "Checklists", "Exploratory testing", "Session-based test management", "Charters", "Heuristics such as SFDPOT", "Note-taking and reporting", "When to explore"],
+          "tools": ["Session notes template", "Browser developer tools"],
+          "lab_task": "Run two 60-minute exploratory sessions with charters on the course app, take notes, log defects and write session reports.",
+          "deliverable": "Charters, notes, defects and session reports",
+          "checks": [["Review charters", "Each has a mission, area and time-box", "Charters"], ["Log defects", "At least three new defects found", "Jira issues"], ["Review session reports", "Coverage, findings and issues summarised", "Reports"]],
+          "objectives": ["Test by exploring", "Use charters and heuristics", "Report sessions"]
+        },
+        {
+          "topic": "Writing Test Cases and Test Suites",
+          "subtopics": ["Test case structure", "Preconditions and test data", "Steps and expected results", "Levels of detail", "Reusable test cases", "Organising suites", "Reviewing test cases", "Maintaining tests"],
+          "tools": ["TestRail or Zephyr"],
+          "lab_task": "Write 30 test cases for checkout and account management, organise them into suites, review a partner's cases and fix issues found.",
+          "deliverable": "Test suites and review comments",
+          "checks": [["Review test cases", "Each has preconditions, steps and expected results", "Test suite"], ["Peer review", "At least five issues found and fixed", "Review comments"], ["Organise suites", "Suites by feature and priority", "Screenshot"]],
+          "objectives": ["Write clear test cases", "Organise suites", "Review tests"]
+        },
+        {
+          "topic": "Defect Reporting and the Defect Life Cycle",
+          "subtopics": ["What makes a good defect report", "Severity and priority", "Reproduction steps", "Evidence: screenshots, logs and recordings", "Defect life cycle", "Triage meetings", "Duplicate and rejected defects", "Defect metrics"],
+          "tools": ["Jira", "Browser developer tools", "Screen recorder"],
+          "lab_task": "Report five defects with evidence and console logs, run a triage meeting role play to set severity and priority and follow one defect through to closure.",
+          "deliverable": "Defect reports, triage notes and closed defect history",
+          "checks": [["Review the defect reports", "Another tester can reproduce each", "Jira issues"], ["Run triage", "Severity and priority set with reasons", "Triage notes"], ["Close a defect", "Fix confirmed and status history complete", "Jira history"]],
+          "objectives": ["Report defects well", "Set severity and priority", "Manage defect life cycles"]
+        },
+        {
+          "topic": "Static Testing and Reviews",
+          "subtopics": ["Static versus dynamic testing", "Reviewing requirements", "Review types: informal, walkthrough, technical review, inspection", "Review roles", "Checklists for requirements", "Finding ambiguity", "Static analysis tools in brief", "Benefits of early reviews"],
+          "tools": ["Word", "Review checklist"],
+          "lab_task": "Review a requirements document with a checklist, find ambiguous and untestable requirements, rewrite five of them and log review findings.",
+          "deliverable": "Review log and rewritten requirements",
+          "checks": [["Find ambiguous requirements", "At least eight found", "Review log"], ["Rewrite five", "Each is clear and testable", "Rewritten requirements"], ["Explain the review type used", "Correct roles and steps", "Written answer"]],
+          "objectives": ["Run reviews", "Find requirement defects early", "Write testable requirements"]
+        },
+        {
+          "topic": "Testing Web Applications",
+          "subtopics": ["How browsers and servers work", "HTML forms and validation", "Cookies and sessions", "Browser compatibility", "Responsive design testing", "Accessibility checks", "Using browser developer tools", "Common web defects"],
+          "tools": ["Chrome DevTools", "Lighthouse", "axe DevTools"],
+          "lab_task": "Test the course app on three browsers and two screen sizes, check forms, sessions and accessibility with DevTools and axe, and report defects.",
+          "deliverable": "Compatibility matrix, accessibility results and defects",
+          "checks": [["Run axe on three pages", "Accessibility issues listed by severity", "axe report"], ["Test on mobile size", "Layout defects reported", "Screenshots"], ["Check session expiry", "Behaviour matches the requirement or a defect is logged", "Test notes"]],
+          "objectives": ["Test web applications", "Check compatibility and accessibility", "Use developer tools"]
+        },
+        {
+          "topic": "API Testing with Postman",
+          "subtopics": ["REST API basics", "HTTP methods and status codes", "Requests, headers and bodies", "Environments and variables", "Assertions with tests", "Authentication", "Collections and runner", "Common API defects"],
+          "tools": ["Postman"],
+          "lab_task": "Build a Postman collection for the course app API with environments, authentication, assertions for status, body and time, and run it with the collection runner.",
+          "deliverable": "Postman collection and run results",
+          "checks": [["Run the collection", "All passing tests green and failures reported", "Runner results"], ["Send an invalid token", "401 returned and asserted", "Postman test result"], ["Check response time", "Assertion fails above the limit", "Postman test result"]],
+          "objectives": ["Test APIs", "Write Postman assertions", "Run API collections"]
+        },
+        {
+          "topic": "Database Testing with SQL",
+          "subtopics": ["Why testers need SQL", "SELECT, WHERE and JOIN", "Checking data after UI actions", "Data integrity checks", "Test data set-up with INSERT", "Cleaning up test data", "Comparing data before and after", "Common data defects"],
+          "tools": ["PostgreSQL", "DBeaver"],
+          "lab_task": "Check that orders placed in the UI are stored correctly, find orphan records with joins and prepare and clean test data with SQL.",
+          "deliverable": "SQL checks and results",
+          "checks": [["Place an order and query it", "Stored values match the UI", "Query result"], ["Find orphan records", "Orphans found or none reported", "Query result"], ["Clean up test data", "Test rows removed", "Row counts"]],
+          "objectives": ["Use SQL in testing", "Check data integrity", "Manage test data"]
+        },
+        {
+          "topic": "Testing in Agile Teams",
+          "subtopics": ["Tester role in Scrum", "Testing in sprints", "Acceptance criteria and examples", "Three amigos sessions", "Definition of done", "Test pyramid", "Continuous testing", "Agile test quadrants"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Run a three amigos session for five user stories, write acceptance examples, plan testing across the quadrants and test the stories within a simulated sprint.",
+          "deliverable": "Acceptance examples, test plan and sprint test results",
+          "checks": [["Write acceptance examples", "Each story has examples for normal and edge cases", "Stories"], ["Map tests to quadrants", "All four quadrants considered", "Quadrant map"], ["Finish testing in the sprint", "All stories tested by sprint end", "Board"]],
+          "objectives": ["Test in agile teams", "Write acceptance examples", "Plan with the test quadrants"]
+        },
+        {
+          "topic": "Mobile Application Testing",
+          "subtopics": ["Mobile app types", "Device and OS fragmentation", "Gestures and orientation", "Network conditions", "Interruptions: calls and notifications", "Installation and updates", "Emulators and real devices", "Mobile-specific defects"],
+          "tools": ["Android emulator", "Chrome DevTools device mode", "BrowserStack trial"],
+          "lab_task": "Test the mobile version of the app on two emulated devices and one cloud device, including offline mode, rotation and an incoming call, and report defects.",
+          "deliverable": "Device matrix, test results and defects",
+          "checks": [["Test offline mode", "Behaviour matches the requirement or a defect is logged", "Test notes"], ["Rotate during a form", "Data kept or a defect is logged", "Screenshot"], ["Test on a cloud device", "Results recorded", "BrowserStack session"]],
+          "objectives": ["Test mobile apps", "Cover devices and conditions", "Report mobile defects"]
+        },
+        {
+          "topic": "First Steps in Test Automation",
+          "subtopics": ["What to automate and what not to", "Automation pyramid", "Record and playback tools", "Selenium and Playwright overview", "Locators", "Writing a first script", "Running tests in a browser", "Maintaining scripts"],
+          "tools": ["Selenium IDE", "Playwright codegen"],
+          "lab_task": "Record a login and search flow with Selenium IDE and Playwright codegen, add assertions, run them and break one by changing a locator to see the maintenance cost.",
+          "deliverable": "Two recorded tests and notes",
+          "checks": [["Run the recorded tests", "Both pass", "Test output"], ["Change a locator", "Test fails at that step", "Test output"], ["Choose tests to automate", "Choice justified by value and stability", "Notes"]],
+          "objectives": ["Decide what to automate", "Record first automated tests", "Understand maintenance"]
+        },
+        {
+          "topic": "Performance Testing: Load, Stress and Response Times",
+          "subtopics": ["Load, stress and soak testing", "Response time and throughput", "Think time and pacing", "Test scenarios", "JMeter basics", "Reading results", "Finding bottlenecks in brief", "Performance requirements"],
+          "tools": ["JMeter"],
+          "lab_task": "Build a JMeter test for the login and search API with 50 users, run it, read response times and throughput and compare them with the requirement.",
+          "deliverable": "JMeter plan and results report",
+          "checks": [["Run 50 users", "Response times and error rate reported", "JMeter report"], ["Compare with the requirement", "Pass or fail stated with numbers", "Report"], ["Increase to 200 users", "Point where response time rises sharply identified", "Report"]],
+          "objectives": ["Plan performance tests", "Run JMeter tests", "Read performance results"]
+        },
+        {
+          "topic": "Security Testing for Testers",
+          "subtopics": ["Why testers test security", "OWASP Top 10 in brief", "Input validation tests", "Authentication and session tests", "Access control tests", "Using OWASP ZAP", "Reporting security defects", "When to involve specialists"],
+          "tools": ["OWASP ZAP", "Browser developer tools"],
+          "lab_task": "Run a ZAP baseline scan of the course app, test for broken access control by changing IDs in requests and report two security defects responsibly.",
+          "deliverable": "ZAP report and security defects",
+          "checks": [["Run the baseline scan", "Alerts listed by risk", "ZAP report"], ["Test access control", "Other users' data accessible or not, recorded", "Test notes"], ["Report security defects", "Clear steps and restricted visibility", "Jira issues"]],
+          "objectives": ["Test basic security", "Use ZAP", "Report security defects"]
+        },
+        {
+          "topic": "Test Management, Estimation and Reporting",
+          "subtopics": ["Test estimation techniques", "Test schedules", "Risk-based testing", "Test monitoring", "Test reports and dashboards", "Exit decisions", "Communicating quality", "Test completion reports"],
+          "tools": ["TestRail or Zephyr", "Jira", "Excel"],
+          "lab_task": "Estimate testing for a release, prioritise tests by risk, track execution for a simulated week and write a test completion report with a release recommendation.",
+          "deliverable": "Estimate, risk-based plan, dashboard and completion report",
+          "checks": [["Estimate effort", "Method stated with numbers", "Estimate"], ["Track execution", "Progress and defects shown", "Dashboard"], ["Recommend release", "Recommendation backed by results and risks", "Completion report"]],
+          "objectives": ["Manage testing", "Use risk-based testing", "Report quality"]
+        },
+        {
+          "topic": "ISTQB Foundation Level Exam Preparation",
+          "subtopics": ["Syllabus chapters", "Key terms", "Test techniques questions", "Test management questions", "Tool support questions", "Practice exams", "Time management", "Study plan", "Reviewing a full mock exam", "Exam-day checklist"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take a 40-question timed ISTQB Foundation practice exam, review every wrong answer against the syllabus and plan final study.",
+          "deliverable": "Practice score, review notes and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus section", "Review notes"], ["Review the study plan", "Weak chapters covered", "Study plan"]],
+          "objectives": ["Prepare for ISTQB Foundation", "Learn the syllabus terms", "Practise exam questions"]
+        },
+        {
+          "topic": "Beginner Capstone: Full Test Cycle for a Web Application",
+          "subtopics": ["Test planning", "Test design with techniques", "Manual, API and database testing", "Defect reporting and triage", "First automated checks", "Test completion report"],
+          "tools": ["Jira", "TestRail or Zephyr", "Postman", "Selenium IDE or Playwright codegen"],
+          "lab_task": "Run a complete test cycle for a new release of the course app: plan, design tests with techniques, execute UI, API and database tests, report defects, add two automated checks and present the completion report.",
+          "deliverable": "Test plan, suites, defects, automated checks and a 10-minute presentation",
+          "checks": [["Review test design", "Techniques applied and named", "Test suite"], ["Review defect reports", "Reproducible with evidence", "Jira issues"], ["Present the completion report", "Release recommendation supported by data", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one test cycle", "Test a release end to end", "Present quality to stakeholders"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers with some experience who are moving into automation. Covers programming for testers, automation frameworks for web, API and mobile, behaviour-driven development, test data, CI/CD integration, performance and accessibility testing, contract testing, test strategy and ISTQB Advanced topics.",
+      "prerequisites": ["Has worked as a manual tester or on a QA team", "Knows test design techniques and defect management", "Basic programming in Python, Java or JavaScript"],
+      "outcomes": ["Build maintainable automation for web, API and mobile", "Run automated tests in CI/CD pipelines", "Plan performance, accessibility and contract testing", "Write test strategies for agile and DevOps teams"],
+      "days": [
+        {
+          "topic": "Programming for Testers",
+          "subtopics": ["Variables, conditions and loops", "Functions", "Lists and dictionaries", "Reading files and JSON", "Classes in brief", "Exceptions", "Using packages", "Writing clean test code"],
+          "tools": ["Python 3.12 or Java", "VS Code or IntelliJ"],
+          "lab_task": "Write a small program that reads test data from CSV and JSON, validates it and produces a summary report, with clean functions and error handling.",
+          "deliverable": "Program and test data report",
+          "checks": [["Run on valid data", "Report matches the expected summary", "Program output"], ["Run on a file with bad rows", "Errors reported without crashing", "Program output"], ["Review the code", "Small named functions and no copy-paste", "Code review"]],
+          "objectives": ["Program for test automation", "Handle data in code", "Write clean code"]
+        },
+        {
+          "topic": "Web Automation with Selenium WebDriver",
+          "subtopics": ["WebDriver architecture", "Locators: ID, CSS and XPath", "Explicit and implicit waits", "Interacting with elements", "Handling alerts, frames and windows", "Screenshots on failure", "Running in headless mode", "Common flaky test causes"],
+          "tools": ["Selenium WebDriver", "Python or Java", "pytest or TestNG"],
+          "lab_task": "Automate login, search, add to cart and checkout with Selenium, use explicit waits and stable locators, and take screenshots on failure.",
+          "deliverable": "Selenium test suite and run report",
+          "checks": [["Run the suite five times", "Passes every time", "Test reports"], ["Break the checkout", "Test fails with a screenshot", "Report and screenshot"], ["Review locators", "No brittle absolute XPaths", "Code review"]],
+          "objectives": ["Automate web tests with Selenium", "Use waits correctly", "Reduce flakiness"]
+        },
+        {
+          "topic": "Page Object Model and Framework Design",
+          "subtopics": ["Why frameworks", "Page Object Model", "Base pages and components", "Configuration management", "Test data management in frameworks", "Logging and reporting", "Folder structure", "Framework anti-patterns"],
+          "tools": ["Selenium WebDriver", "pytest or TestNG", "Allure"],
+          "lab_task": "Refactor the Selenium suite into a Page Object framework with configuration for environments, Allure reporting and shared components.",
+          "deliverable": "Framework repository and Allure report",
+          "checks": [["Change a locator in one page object", "All affected tests fixed by one change", "Code diff and test run"], ["Switch environment by configuration", "Tests run against the other environment", "Test run"], ["Open the Allure report", "Steps and screenshots shown", "Allure report"]],
+          "objectives": ["Design automation frameworks", "Use the Page Object Model", "Report results"]
+        },
+        {
+          "topic": "Modern Web Automation with Playwright",
+          "subtopics": ["Playwright architecture", "Auto-waiting", "Locators by role and text", "Fixtures", "Network interception and mocking", "Tracing and debugging", "Parallel runs", "Cross-browser testing"],
+          "tools": ["Playwright", "TypeScript or Python"],
+          "lab_task": "Rewrite the main flows in Playwright, mock a slow API response, run tests in parallel on three browsers and debug a failure with the trace viewer.",
+          "deliverable": "Playwright suite, trace and run report",
+          "checks": [["Run on three browsers in parallel", "All pass", "Playwright report"], ["Mock the API", "Test checks the loading state", "Test code and report"], ["Debug a failure", "Cause found in the trace viewer", "Trace screenshot"]],
+          "objectives": ["Automate with Playwright", "Mock network calls", "Debug with traces"]
+        },
+        {
+          "topic": "API Test Automation",
+          "subtopics": ["API testing in code", "REST Assured or requests with pytest", "Schema validation", "Data-driven API tests", "Authentication flows", "Chaining requests", "Negative and boundary tests for APIs", "Reporting"],
+          "tools": ["REST Assured or pytest with requests", "JSON Schema"],
+          "lab_task": "Build an automated API test suite with schema validation, data-driven tests from CSV, an OAuth token flow and negative tests, and report the results.",
+          "deliverable": "API suite and report",
+          "checks": [["Validate responses against the schema", "Schema violations fail tests", "Test report"], ["Run data-driven tests", "One run per data row", "Test report"], ["Send boundary values", "Errors handled as specified or defects logged", "Test report"]],
+          "objectives": ["Automate API tests", "Validate schemas", "Drive tests with data"]
+        },
+        {
+          "topic": "Behaviour-Driven Development with Cucumber",
+          "subtopics": ["BDD principles", "Gherkin: Given, When, Then", "Writing good scenarios", "Scenario outlines", "Step definitions", "Sharing scenarios with business users", "Living documentation", "BDD anti-patterns"],
+          "tools": ["Cucumber or pytest-bdd", "Selenium or Playwright"],
+          "lab_task": "Write feature files for checkout with business-readable scenarios, implement step definitions and generate living documentation.",
+          "deliverable": "Feature files, step definitions and documentation",
+          "checks": [["Review scenarios", "Business language, no UI details", "Feature files"], ["Run the scenarios", "All pass", "Test report"], ["Use a scenario outline", "Several examples run from one scenario", "Test report"]],
+          "objectives": ["Practise BDD", "Write good Gherkin", "Automate scenarios"]
+        },
+        {
+          "topic": "Test Data Management",
+          "subtopics": ["Types of test data", "Synthetic data generation", "Masking production data", "Data set-up and teardown", "Factories and builders", "Data in parallel tests", "Environments and data refresh", "Data privacy rules"],
+          "tools": ["Faker", "SQL", "Python or Java"],
+          "lab_task": "Generate synthetic customers and orders with Faker, mask a copy of production-like data and make the automated tests create and clean their own data.",
+          "deliverable": "Data generators, masked data and updated tests",
+          "checks": [["Run tests in parallel", "No conflicts over shared data", "Test report"], ["Inspect masked data", "No real names or emails", "Data sample"], ["Run teardown", "Test data removed", "Row counts"]],
+          "objectives": ["Manage test data", "Generate synthetic data", "Protect personal data"]
+        },
+        {
+          "topic": "Continuous Integration for Tests",
+          "subtopics": ["CI concepts", "Running tests in GitHub Actions or Jenkins", "Test stages in pipelines", "Parallel and sharded runs", "Test reports in CI", "Handling flaky tests in CI", "Quality gates", "Notifications"],
+          "tools": ["GitHub Actions or Jenkins", "Allure or JUnit reports"],
+          "lab_task": "Run the UI and API suites in a CI pipeline on every pull request with sharding, publish reports and block merges when tests fail.",
+          "deliverable": "Pipeline configuration and run evidence",
+          "checks": [["Open a pull request with a failing test", "Merge blocked", "Pipeline log"], ["Shard the UI tests", "Run time reduced", "Pipeline timings"], ["Open the published report", "Results from all shards combined", "Report"]],
+          "objectives": ["Run tests in CI", "Speed up test runs", "Use quality gates"]
+        },
+        {
+          "topic": "Mobile Test Automation with Appium",
+          "subtopics": ["Appium architecture", "Desired capabilities", "Locating mobile elements", "Gestures", "Android and iOS differences", "Running on emulators and device clouds", "Mobile page objects", "Mobile flakiness"],
+          "tools": ["Appium", "Android emulator", "BrowserStack or Sauce Labs"],
+          "lab_task": "Automate login and search on the mobile app with Appium using page objects, run on an emulator and a cloud device and handle a swipe gesture.",
+          "deliverable": "Appium suite and run reports",
+          "checks": [["Run on the emulator", "Tests pass", "Test report"], ["Run on a cloud device", "Tests pass or failures explained", "Cloud session"], ["Automate the swipe", "Gesture performed and verified", "Test report"]],
+          "objectives": ["Automate mobile tests", "Use Appium", "Run on device clouds"]
+        },
+        {
+          "topic": "Performance Testing with JMeter and k6",
+          "subtopics": ["Workload modelling", "Parameterisation and correlation", "Assertions and thresholds", "Distributed load", "Monitoring servers during tests", "Analysing bottlenecks", "k6 scripting", "Performance tests in CI"],
+          "tools": ["JMeter", "k6", "Grafana"],
+          "lab_task": "Model a peak-hour workload, script it in JMeter with correlation and in k6 with thresholds, run it while monitoring the server and identify the bottleneck.",
+          "deliverable": "Scripts, results and bottleneck analysis",
+          "checks": [["Correlate the session token", "Script works for many users", "JMeter results"], ["Set k6 thresholds", "Run fails when p95 is above the limit", "k6 output"], ["Identify the bottleneck", "Supported by server metrics", "Analysis"]],
+          "objectives": ["Model workloads", "Script performance tests", "Find bottlenecks"]
+        },
+        {
+          "topic": "Accessibility Testing",
+          "subtopics": ["Why accessibility matters", "WCAG 2.2 principles", "Automated checks with axe", "Keyboard testing", "Screen reader testing", "Colour contrast", "Accessible forms", "Reporting accessibility issues"],
+          "tools": ["axe DevTools", "NVDA or VoiceOver", "Lighthouse"],
+          "lab_task": "Audit three pages against WCAG 2.2 with axe, keyboard-only use and a screen reader, report issues by success criterion and add axe checks to the automated suite.",
+          "deliverable": "Accessibility audit and automated checks",
+          "checks": [["Complete a keyboard-only checkout", "Possible or blockers reported", "Test notes"], ["Map issues to WCAG criteria", "Each issue has a criterion", "Audit report"], ["Run automated axe checks", "Violations fail the test", "Test report"]],
+          "objectives": ["Test accessibility", "Apply WCAG", "Automate accessibility checks"]
+        },
+        {
+          "topic": "Contract and Integration Testing for Microservices",
+          "subtopics": ["Integration testing challenges", "Consumer-driven contracts", "Pact", "Provider verification", "Service virtualisation and mocks", "Testing with containers", "Test environments for microservices", "Choosing integration test strategies"],
+          "tools": ["Pact", "WireMock", "Testcontainers"],
+          "lab_task": "Write consumer contracts for the order service's call to inventory with Pact, verify the provider, and test against a WireMock stub and a containerised database.",
+          "deliverable": "Contracts, verification results and integration tests",
+          "checks": [["Change the provider response field", "Provider verification fails", "Pact output"], ["Run against the WireMock stub", "Tests pass without the real service", "Test report"], ["Run with Testcontainers", "Database created and cleaned per run", "Test report"]],
+          "objectives": ["Test microservice integrations", "Use contract testing", "Virtualise services"]
+        },
+        {
+          "topic": "Visual Regression Testing",
+          "subtopics": ["What visual testing catches", "Baseline images", "Pixel versus AI-based comparison", "Handling dynamic content", "Cross-browser visual checks", "Reviewing visual diffs", "Visual tests in CI", "When visual tests are worth it"],
+          "tools": ["Playwright screenshots", "Percy or Applitools trial"],
+          "lab_task": "Add visual tests for five key pages, mask dynamic areas, introduce a CSS change and review the diff to approve or reject it.",
+          "deliverable": "Visual test suite and review record",
+          "checks": [["Introduce a CSS change", "Visual diff shown", "Diff screenshot"], ["Mask the date area", "No false failures from changing dates", "Test report"], ["Approve the intended change", "Baseline updated", "Review record"]],
+          "objectives": ["Add visual tests", "Handle dynamic content", "Review visual diffs"]
+        },
+        {
+          "topic": "Test Strategy for Agile and DevOps Teams",
+          "subtopics": ["Test strategy contents", "Shift left and shift right", "Test pyramid and trophy", "Risk-based strategy", "Environments", "Automation goals", "Quality metrics", "Reviewing the strategy"],
+          "tools": ["Confluence", "Miro"],
+          "lab_task": "Write a test strategy for a product team moving to weekly releases, including levels, automation targets, environments, shift-right practices and metrics.",
+          "deliverable": "Test strategy document",
+          "checks": [["Review the strategy", "Every risk area has a testing approach", "Strategy"], ["Review automation targets", "Measurable by level", "Strategy"], ["Review metrics", "Linked to quality goals", "Strategy"]],
+          "objectives": ["Write test strategies", "Balance the test pyramid", "Plan shift-left and shift-right"]
+        },
+        {
+          "topic": "Testing in Production and Observability for QA",
+          "subtopics": ["Why test in production", "Feature flags", "Canary releases", "Synthetic monitoring", "Using logs and traces in testing", "A/B tests and their quality", "Error budgets", "Safe production testing rules"],
+          "tools": ["Grafana", "Synthetic monitoring tool", "Feature flag tool"],
+          "lab_task": "Add synthetic checks for the main user journey, verify a canary release with metrics and traces and roll back when the error rate rises.",
+          "deliverable": "Synthetic checks, canary review and rollback record",
+          "checks": [["Run synthetic checks", "Journey checked every five minutes", "Monitoring dashboard"], ["Review the canary", "Error rate compared with the stable version", "Dashboard"], ["Trigger the rollback", "Rollback done when the threshold is crossed", "Release log"]],
+          "objectives": ["Test in production safely", "Use observability in QA", "Support canary releases"]
+        },
+        {
+          "topic": "Testing Data and ETL Pipelines",
+          "subtopics": ["Data pipeline testing challenges", "Source-to-target checks", "Row counts and checksums", "Data quality rules", "Great Expectations", "Testing transformations", "Regression for data", "Reporting data defects"],
+          "tools": ["SQL", "Great Expectations", "Python"],
+          "lab_task": "Test a provided ETL pipeline with source-to-target reconciliation, quality rules in Great Expectations and transformation tests, and report data defects.",
+          "deliverable": "Test suite, reconciliation results and defects",
+          "checks": [["Reconcile row counts", "Differences found and explained", "Reconciliation report"], ["Run quality rules", "Failing rows reported", "Great Expectations report"], ["Test a transformation", "Output matches expected values", "Test report"]],
+          "objectives": ["Test data pipelines", "Reconcile data", "Automate data quality checks"]
+        },
+        {
+          "topic": "AI-Assisted Testing",
+          "subtopics": ["AI for test case generation", "AI for test data", "Self-healing locators", "AI in exploratory testing", "Reviewing AI-generated tests", "Risks of AI in testing", "Tool landscape", "Measuring the benefit"],
+          "tools": ["GitHub Copilot or ChatGPT", "Playwright"],
+          "lab_task": "Use AI to generate test cases and Playwright tests for a new feature, review and fix them, and compare coverage and time against writing them by hand.",
+          "deliverable": "AI-generated tests, review notes and comparison",
+          "checks": [["Review AI test cases", "Gaps and wrong expectations fixed", "Review notes"], ["Run the AI-written tests", "Pass after fixes", "Test report"], ["Compare time and coverage", "Both measured", "Comparison"]],
+          "objectives": ["Use AI in testing", "Review AI output", "Measure the benefit"]
+        },
+        {
+          "topic": "Defect Prevention, Metrics and Quality Reporting",
+          "subtopics": ["Defect prevention techniques", "Root cause analysis of escaped defects", "Defect density and leakage", "Test coverage metrics", "Flaky test rate", "Quality dashboards", "Reporting to stakeholders", "Improving with data"],
+          "tools": ["Jira", "Power BI or Excel"],
+          "lab_task": "Analyse escaped defects from three releases, find root causes, build a quality dashboard and propose three prevention actions.",
+          "deliverable": "Root cause analysis, dashboard and actions",
+          "checks": [["Calculate defect leakage", "Leakage per release calculated", "Dashboard"], ["Find root causes", "Causes grouped with counts", "Analysis"], ["Propose prevention actions", "Each linked to a root cause", "Action list"]],
+          "objectives": ["Prevent defects", "Use quality metrics", "Report quality"]
+        },
+        {
+          "topic": "ISTQB Advanced and Agile Tester Exam Preparation",
+          "subtopics": ["Advanced Test Analyst topics", "Test Automation Engineering topics", "Agile Tester topics", "Scenario questions", "Practice exams", "Time management", "Study plan", "Choosing the next certification"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take timed practice exams for an ISTQB Advanced module and Agile Tester, review wrong answers and plan study.",
+          "deliverable": "Practice scores, review notes and study plan",
+          "checks": [["Complete the practice exams", "Scores recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus section", "Review notes"], ["Review the study plan", "Weak topics covered", "Study plan"]],
+          "objectives": ["Prepare for advanced ISTQB exams", "Practise scenario questions", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Automation Framework and CI Pipeline",
+          "subtopics": ["Strategy and framework design", "Web, API and mobile automation", "Test data and contracts", "Performance and accessibility checks", "CI pipeline and reporting", "Demo and design defence"],
+          "tools": ["Playwright or Selenium", "REST Assured or pytest", "Appium", "k6", "GitHub Actions"],
+          "lab_task": "Build a framework with web, API and mobile tests, managed test data, a contract test, accessibility and performance checks, all running in CI with reports and gates, then present it.",
+          "deliverable": "Framework repository, pipeline, reports and a 15-minute demo",
+          "checks": [["Run the full pipeline", "All test types run and report", "Pipeline log"], ["Break a feature", "Correct tests fail and the merge is blocked", "Pipeline log"], ["Present the strategy", "Coverage and risks explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one framework", "Prove quality in CI", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior QA engineers, SDETs, test architects and QA leads. Covers test architecture at scale, advanced automation design, performance engineering, chaos and resilience testing, security test automation, testing AI and ML systems, quality engineering in DevOps, test environments and data at scale, QA leadership, metrics and building a QA function.",
+      "prerequisites": ["Builds and maintains automation frameworks in CI", "Knows performance, API and contract testing", "Has led testing for a product or release"],
+      "outcomes": ["Architect test automation and environments for large systems", "Lead performance, resilience and security testing", "Test AI and data systems", "Lead quality engineering and QA teams"],
+      "days": [
+        {
+          "topic": "Test Architecture for Large Systems",
+          "subtopics": ["Quality attributes and risks", "Test architecture layers", "Choosing tools across teams", "Shared libraries and services", "Test environment architecture", "Test data architecture", "Reporting architecture", "Architecture decision records"],
+          "tools": ["Miro", "Architecture decision record template"],
+          "lab_task": "Design the test architecture for a 40-service platform with shared libraries, environments, data and reporting, and record the main decisions.",
+          "deliverable": "Test architecture and decision records",
+          "checks": [["Review the architecture", "Every layer and quality attribute covered", "Architecture document"], ["Review decision records", "Options and trade-offs recorded", "Decision records"], ["Map risks to tests", "Each high risk has a testing approach", "Risk map"]],
+          "objectives": ["Architect testing for large systems", "Choose shared tools", "Record decisions"]
+        },
+        {
+          "topic": "Advanced Automation Design Patterns",
+          "subtopics": ["Screenplay pattern", "Fluent page objects", "Dependency injection in tests", "Test builders and factories", "Parallel-safe design", "Retry and wait strategies", "Plugin architectures for frameworks", "Refactoring large suites"],
+          "tools": ["Playwright or Selenium", "Java or TypeScript"],
+          "lab_task": "Refactor part of a 500-test suite to the screenplay pattern with builders and dependency injection, make it parallel-safe and measure run time and maintenance effort.",
+          "deliverable": "Refactored suite and measurements",
+          "checks": [["Run in parallel", "No shared-state failures", "Test report"], ["Compare run time", "Faster with parallel runs", "Timing"], ["Make a UI change", "Fewer files changed than before", "Code diff"]],
+          "objectives": ["Apply advanced design patterns", "Make suites parallel-safe", "Reduce maintenance"]
+        },
+        {
+          "topic": "Flaky Tests and Test Reliability Engineering",
+          "subtopics": ["Causes of flakiness", "Detecting flaky tests", "Quarantine processes", "Fixing timing and data issues", "Test isolation", "Measuring reliability", "Retries and their dangers", "Reliability targets"],
+          "tools": ["CI analytics", "Playwright or Selenium", "Allure"],
+          "lab_task": "Analyse a month of CI results to find flaky tests, quarantine them, fix the top five causes and set a reliability target with monitoring.",
+          "deliverable": "Flaky test analysis, fixes and reliability dashboard",
+          "checks": [["Identify flaky tests", "Listed with failure rates", "Analysis"], ["Fix the top five", "Each passes 50 runs in a row", "Test runs"], ["Set monitoring", "Flaky rate shown on a dashboard", "Dashboard"]],
+          "objectives": ["Find and fix flaky tests", "Engineer test reliability", "Monitor reliability"]
+        },
+        {
+          "topic": "Performance Engineering and Capacity Testing",
+          "subtopics": ["Performance requirements and SLOs", "Workload models from production data", "Load, stress, spike and soak tests", "Profiling during load", "Database and cache bottlenecks", "Capacity planning", "Performance in CI", "Reporting to stakeholders"],
+          "tools": ["k6", "Gatling or JMeter", "Grafana", "APM tool"],
+          "lab_task": "Build a production-like workload model, run load, spike and soak tests with server profiling, find two bottlenecks and produce a capacity plan.",
+          "deliverable": "Workload model, test results, bottleneck analysis and capacity plan",
+          "checks": [["Run the soak test", "Memory growth checked over hours", "Monitoring graph"], ["Find bottlenecks", "Two identified with evidence", "Analysis"], ["Review the capacity plan", "Instance counts for the target load", "Plan"]],
+          "objectives": ["Engineer performance", "Find bottlenecks", "Plan capacity"]
+        },
+        {
+          "topic": "Chaos Engineering and Resilience Testing",
+          "subtopics": ["Principles of chaos engineering", "Steady-state hypotheses", "Fault injection: latency, errors, instance loss", "Blast radius control", "Game days", "Chaos in Kubernetes", "Learning from experiments", "Running chaos safely"],
+          "tools": ["Chaos Mesh or LitmusChaos", "Toxiproxy", "Grafana"],
+          "lab_task": "Define steady state for a service, inject latency, pod loss and dependency failure, measure the impact and run a game day with the team.",
+          "deliverable": "Experiment plans, results and game day report",
+          "checks": [["Inject pod loss", "Service stays within its SLO or the gap is recorded", "Dashboard"], ["Inject dependency latency", "Timeouts and fallbacks work or a defect is logged", "Results"], ["Run the game day", "Findings with owners", "Game day report"]],
+          "objectives": ["Test resilience", "Run chaos experiments safely", "Learn from failures"]
+        },
+        {
+          "topic": "Security Test Automation",
+          "subtopics": ["Security in the test strategy", "SAST and DAST in pipelines", "API security testing", "Authentication and authorisation test suites", "Fuzzing", "Secrets and dependency checks", "Triaging security findings", "Working with security teams"],
+          "tools": ["OWASP ZAP", "Semgrep", "RESTler or Schemathesis", "GitHub Actions"],
+          "lab_task": "Add DAST, API fuzzing and an automated authorisation test matrix to the pipeline, triage the findings and agree gates with the security team.",
+          "deliverable": "Security tests in the pipeline, triage log and gate rules",
+          "checks": [["Run API fuzzing", "Crashes or errors reported", "Fuzzing report"], ["Run the authorisation matrix", "Every role tested against every endpoint", "Test report"], ["Agree gates", "Severity thresholds documented", "Gate rules"]],
+          "objectives": ["Automate security testing", "Fuzz APIs", "Test authorisation at scale"]
+        },
+        {
+          "topic": "Testing Microservices and Event-Driven Systems",
+          "subtopics": ["Testing asynchronous flows", "Testing Kafka and queues", "End-to-end tests across services", "Contract testing at scale", "Testing idempotency", "Eventual consistency in tests", "Observability-driven testing", "Environment strategies"],
+          "tools": ["Testcontainers", "Kafka", "Pact Broker", "OpenTelemetry"],
+          "lab_task": "Test an order flow across three services and Kafka, check idempotency with duplicate events, wait correctly for eventual consistency and use traces to find a failure.",
+          "deliverable": "Test suite, idempotency results and trace analysis",
+          "checks": [["Send duplicate events", "Order processed once", "Test report"], ["Wait for eventual consistency", "No fixed sleeps, polling with timeouts", "Code review"], ["Find the failing hop", "Identified from the trace", "Trace screenshot"]],
+          "objectives": ["Test distributed systems", "Test asynchronous flows", "Use traces in testing"]
+        },
+        {
+          "topic": "Testing AI and Machine Learning Systems",
+          "subtopics": ["How AI systems fail", "Testing data and models", "Metamorphic testing", "Bias and fairness testing", "Robustness testing", "Testing LLM applications", "Evaluation sets and judges", "Monitoring AI in production"],
+          "tools": ["Python 3.12", "promptfoo", "Fairlearn"],
+          "lab_task": "Test an ML classifier with metamorphic and fairness tests and an LLM assistant with an evaluation set and prompt injection tests, and report the findings.",
+          "deliverable": "Test suites and findings report",
+          "checks": [["Run metamorphic tests", "Violations found or ruled out", "Test report"], ["Run fairness tests", "Differences by group measured", "Fairness report"], ["Run the LLM evaluation", "Scores and failures recorded", "promptfoo report"]],
+          "objectives": ["Test AI systems", "Use metamorphic testing", "Evaluate LLM applications"]
+        },
+        {
+          "topic": "Test Environments and Infrastructure as Code",
+          "subtopics": ["Environment needs by test level", "Ephemeral environments", "Infrastructure as code for tests", "Containers and Kubernetes for testing", "Service virtualisation at scale", "Environment booking and cost", "Environment health monitoring", "Production-like data"],
+          "tools": ["Terraform", "Kubernetes", "Docker Compose", "WireMock"],
+          "lab_task": "Create ephemeral test environments per pull request with infrastructure as code, seed them with data, run tests and tear them down automatically.",
+          "deliverable": "Environment code, pipeline and cost report",
+          "checks": [["Open a pull request", "Environment created and tests run in it", "Pipeline log"], ["Merge or close the pull request", "Environment destroyed", "Pipeline log"], ["Report cost", "Cost per environment measured", "Cost report"]],
+          "objectives": ["Build test environments as code", "Use ephemeral environments", "Control environment cost"]
+        },
+        {
+          "topic": "Test Data at Scale and Privacy",
+          "subtopics": ["Data subsetting", "Synthetic data at scale", "Referential integrity in generated data", "Masking pipelines", "Data versioning", "Data for performance tests", "Privacy laws and test data", "Data governance for QA"],
+          "tools": ["Python 3.12", "SQL", "Synthetic data tools"],
+          "lab_task": "Build a pipeline that subsets and masks production-like data with referential integrity, versions it and provides it to three test environments.",
+          "deliverable": "Data pipeline, versioned datasets and privacy check",
+          "checks": [["Check referential integrity", "No broken foreign keys", "Check output"], ["Check masking", "No personal data remains", "Privacy check"], ["Load a dataset version", "Environments get the same version", "Load log"]],
+          "objectives": ["Manage test data at scale", "Mask data safely", "Version test data"]
+        },
+        {
+          "topic": "Quality Engineering in DevOps",
+          "subtopics": ["From QA to quality engineering", "Quality in every pipeline stage", "DORA metrics and quality", "Continuous testing", "Feature flags and testing", "Shift-right feedback", "Developer testing culture", "Measuring quality engineering"],
+          "tools": ["GitHub Actions or Jenkins", "Feature flag tool", "Dashboard"],
+          "lab_task": "Map quality activities to every pipeline stage for a team, measure DORA and quality metrics and propose a plan to move testing left and right.",
+          "deliverable": "Quality map, metrics and plan",
+          "checks": [["Map activities", "Every stage has quality checks", "Quality map"], ["Measure metrics", "DORA and defect metrics calculated", "Metrics sheet"], ["Review the plan", "Shift-left and shift-right actions with owners", "Plan"]],
+          "objectives": ["Lead quality engineering", "Embed quality in pipelines", "Measure delivery and quality"]
+        },
+        {
+          "topic": "Model-Based and Property-Based Testing",
+          "subtopics": ["Model-based testing concepts", "Building models of behaviour", "Generating tests from models", "Property-based testing", "Shrinking failing examples", "Stateful property testing", "When these methods pay off", "Tools"],
+          "tools": ["Hypothesis or fast-check", "GraphWalker"],
+          "lab_task": "Model the order life cycle and generate tests from it, then write property-based tests for the pricing rules and fix the bugs they find.",
+          "deliverable": "Model, generated tests, property tests and bug fixes",
+          "checks": [["Generate tests from the model", "All transitions covered", "Coverage report"], ["Run property tests", "A shrunk failing example found", "Test output"], ["Fix and rerun", "Properties hold", "Test output"]],
+          "objectives": ["Generate tests from models", "Use property-based testing", "Find edge-case bugs"]
+        },
+        {
+          "topic": "Mobile Testing at Scale with Device Farms",
+          "subtopics": ["Choosing a device coverage matrix from usage data", "Real devices versus emulators at scale", "Device farms: BrowserStack, Sauce Labs, AWS Device Farm", "Parallel mobile runs", "Testing app updates and OS upgrades", "Mobile performance and battery checks", "Crash reporting in testing", "Cost of device coverage"],
+          "tools": ["Appium", "BrowserStack or AWS Device Farm", "Firebase Crashlytics"],
+          "lab_task": "Build a device matrix from analytics data, run the Appium suite in parallel on 15 real devices in a device farm, test an OS upgrade path and compare cost against coverage.",
+          "deliverable": "Device matrix, parallel run results and cost comparison",
+          "checks": [["Build the matrix", "Devices cover the agreed share of users", "Matrix"], ["Run on 15 devices in parallel", "Results per device with failures triaged", "Device farm report"], ["Compare cost and coverage", "Recommended matrix justified", "Comparison"]],
+          "objectives": ["Plan mobile coverage from data", "Run tests on device farms", "Balance cost and coverage"]
+        },
+        {
+          "topic": "Accessibility Programmes and Compliance",
+          "subtopics": ["Legal requirements for accessibility", "Accessibility in the development process", "Automated and manual coverage", "Assistive technology testing at scale", "Accessibility conformance reports", "Training teams", "Accessibility metrics", "Working with disabled users"],
+          "tools": ["axe", "Screen readers", "VPAT template"],
+          "lab_task": "Build an accessibility programme for a product with process, automation, manual testing and training, and produce a conformance report for one release.",
+          "deliverable": "Programme design and conformance report",
+          "checks": [["Review the programme", "Process, tools and training covered", "Programme design"], ["Produce the conformance report", "Status for each WCAG criterion", "Report"], ["Define metrics", "Issues by severity tracked over releases", "Metrics"]],
+          "objectives": ["Run accessibility programmes", "Produce conformance reports", "Build team skills"]
+        },
+        {
+          "topic": "QA Leadership and Building a QA Function",
+          "subtopics": ["QA team structures", "Hiring and skills", "Career paths for testers", "Working with development and product", "Budgets and tools", "Outsourcing and vendors", "Leading change in quality culture", "QA leadership anti-patterns"],
+          "tools": ["Skills matrix template", "Excel"],
+          "lab_task": "Design a QA function for a 60-engineer organisation with structure, roles, skills matrix, tooling budget and a six-month plan to improve quality culture.",
+          "deliverable": "QA function design and plan",
+          "checks": [["Review the structure", "Roles and reporting lines clear", "Design"], ["Review the skills matrix", "Gaps and training planned", "Skills matrix"], ["Review the plan", "Measurable goals", "Plan"]],
+          "objectives": ["Build QA functions", "Develop testers", "Lead quality culture"]
+        },
+        {
+          "topic": "Quality Metrics, Economics and Reporting to Leadership",
+          "subtopics": ["Cost of quality", "Return on automation", "Risk-based quality reporting", "Release readiness", "Quality OKRs", "Benchmarking", "Executive dashboards", "Telling the quality story"],
+          "tools": ["Power BI or Excel"],
+          "lab_task": "Calculate the cost of quality and the return on automation for a product, define quality OKRs and present a release readiness report to a mock leadership team.",
+          "deliverable": "Cost model, OKRs and presentation",
+          "checks": [["Calculate return on automation", "Based on stated effort and savings", "Cost model"], ["Define OKRs", "Outcome-based and measurable", "OKR sheet"], ["Present release readiness", "Recommendation backed by data", "Presentation"]],
+          "objectives": ["Measure the value of quality", "Report to leadership", "Set quality goals"]
+        },
+        {
+          "topic": "Testing in Regulated Industries",
+          "subtopics": ["Regulated testing needs: finance, healthcare, aviation", "Validation versus verification", "Computer system validation", "Traceability and audit trails", "Test evidence requirements", "Risk-based validation", "Automation in validated environments", "Audits"],
+          "tools": ["Jira", "TestRail or Zephyr", "Validation templates"],
+          "lab_task": "Plan risk-based validation for a regulated healthcare application with traceability, evidence rules and validated automation, and pass a mock audit.",
+          "deliverable": "Validation plan, traceability and audit result",
+          "checks": [["Trace a requirement", "Requirement, risk, test and evidence linked", "Traceability report"], ["Review evidence", "Meets the stated evidence rules", "Evidence pack"], ["Pass the mock audit", "Questions answered with evidence", "Audit record"]],
+          "objectives": ["Test in regulated settings", "Plan validation", "Prepare for audits"]
+        },
+        {
+          "topic": "Test Automation Tool Selection and Migration",
+          "subtopics": ["Evaluation criteria", "Proofs of concept", "Total cost of ownership", "Migrating from Selenium to Playwright", "Running old and new together", "Training teams", "Measuring migration success", "Avoiding tool lock-in"],
+          "tools": ["Playwright", "Selenium", "Excel"],
+          "lab_task": "Evaluate two tools against criteria with a proof of concept, plan the migration of a 300-test suite and migrate 20 tests with measured effort.",
+          "deliverable": "Evaluation, migration plan and pilot results",
+          "checks": [["Score the tools", "Weighted scores with PoC results", "Evaluation"], ["Migrate 20 tests", "All pass in the new tool", "Test report"], ["Estimate the full migration", "Based on pilot effort", "Migration plan"]],
+          "objectives": ["Select test tools", "Plan migrations", "Measure migration effort"]
+        },
+        {
+          "topic": "Troubleshooting Release Quality Crises",
+          "subtopics": ["Escaped critical defects", "Unstable test suites before release", "Environment outages", "Release go or no-go under pressure", "Hotfix testing", "Communicating risk", "Post-release reviews", "Preventing repeats"],
+          "tools": ["Jira", "CI dashboards"],
+          "lab_task": "Handle three injected crises before a release (a critical escaped defect, a failing suite and an environment outage), make the go or no-go call and run the review.",
+          "deliverable": "Crisis log, decision and review report",
+          "checks": [["Test the hotfix", "Fix confirmed with targeted regression", "Test report"], ["Make the go or no-go call", "Decision backed by risk evidence", "Decision record"], ["Run the review", "Actions to prevent repeats", "Review report"]],
+          "objectives": ["Lead in quality crises", "Make release decisions", "Prevent repeat failures"]
+        },
+        {
+          "topic": "Advanced Capstone: Quality Engineering Strategy for a Platform",
+          "subtopics": ["Test architecture and strategy", "Automation, environments and data", "Performance, resilience and security testing", "AI and data testing", "Metrics and leadership reporting", "Board presentation and defence"],
+          "tools": ["Playwright", "k6", "Chaos Mesh", "OWASP ZAP", "Terraform", "Power BI"],
+          "lab_task": "Produce and prove a quality engineering strategy for a microservices platform with test architecture, ephemeral environments, performance, chaos and security testing, AI testing, metrics and a leadership presentation.",
+          "deliverable": "Strategy, working pipeline, test reports and a 20-minute presentation",
+          "checks": [["Run the pipeline", "Functional, performance and security tests run with gates", "Pipeline log"], ["Run a chaos experiment", "Result recorded against the SLO", "Experiment report"], ["Answer leadership questions", "Strategy defended with data", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one strategy", "Prove quality at scale", "Lead quality engineering"]
+        }
+      ]
+    }
+  }
+}

@@ -1990,6 +1990,155 @@
           "Link operations to the backlog"
         ]
       }
+    },
+    {
+      "between": [
+        "Testing & QA",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "From Manual Test Cases to Selenium Automation",
+        "subtopics": [
+          "Choosing which manual tests to automate",
+          "Turning test cases into automated scripts",
+          "Keeping test design techniques in automated tests",
+          "Mapping test cases to page objects",
+          "Linking automated results back to the test management tool",
+          "Splitting work between manual and automated testing",
+          "Maintaining both suites after each release",
+          "Reporting combined coverage"
+        ],
+        "tools": [
+          "TestRail or Zephyr",
+          "Selenium 4",
+          "TestNG",
+          "Jira"
+        ],
+        "lab_task": "Pick 15 manual regression cases by value and stability, automate them with Selenium using boundary and decision-table data, push results back to the test management tool and report combined coverage.",
+        "deliverable": "Selection sheet, automated tests and combined coverage report",
+        "checks": [
+          [
+            "Review the selection",
+            "Each chosen case justified by frequency, value and stability",
+            "Selection sheet"
+          ],
+          [
+            "Run the automated tests",
+            "Results appear against the original test cases",
+            "Test management screenshot"
+          ],
+          [
+            "Report combined coverage",
+            "Manual and automated coverage per feature",
+            "Coverage report"
+          ]
+        ],
+        "objectives": [
+          "Move from manual to automated testing",
+          "Keep test design in automation",
+          "Report combined coverage"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cybersecurity",
+        "Cloud Security"
+      ],
+      "day": {
+        "topic": "Cloud Attacks in the SOC: Detecting and Responding Across On-Premise and Cloud",
+        "subtopics": [
+          "How attackers move from on-premise to the cloud",
+          "Hybrid identity as the bridge",
+          "Correlating endpoint, identity and cloud logs",
+          "Cloud detections in the SOC workflow",
+          "Playbooks for cloud credential theft",
+          "Containment across both environments",
+          "Evidence from cloud and endpoints together",
+          "Reporting hybrid incidents"
+        ],
+        "tools": [
+          "Microsoft Sentinel",
+          "Microsoft Defender for Endpoint",
+          "AWS CloudTrail",
+          "Entra ID"
+        ],
+        "lab_task": "Investigate a simulated attack that starts with a phished laptop, steals a synced identity and reaches cloud storage, correlating endpoint, identity and cloud logs, then contain it in both places.",
+        "deliverable": "Correlated timeline, containment record and incident report",
+        "checks": [
+          [
+            "Correlate the logs",
+            "One timeline from laptop to cloud storage",
+            "Timeline"
+          ],
+          [
+            "Contain in both environments",
+            "Laptop isolated and cloud sessions revoked",
+            "Containment record"
+          ],
+          [
+            "Review the report",
+            "Entry, path and fixes clear",
+            "Incident report"
+          ]
+        ],
+        "objectives": [
+          "Detect hybrid attacks",
+          "Correlate logs across environments",
+          "Respond across on-premise and cloud"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cybersecurity",
+        "DevOps"
+      ],
+      "day": {
+        "topic": "DevSecOps: Security in the DevOps Pipeline",
+        "subtopics": [
+          "Where attackers target CI/CD",
+          "Securing source control and pipelines",
+          "Code, dependency and secret scanning",
+          "Infrastructure as code and image scanning",
+          "Signing artefacts",
+          "Security gates that do not block delivery",
+          "Monitoring pipelines for attacks",
+          "Shared responsibility between security and DevOps teams"
+        ],
+        "tools": [
+          "GitHub Actions or Jenkins",
+          "Semgrep",
+          "Trivy",
+          "Gitleaks",
+          "Checkov",
+          "cosign"
+        ],
+        "lab_task": "Harden a CI/CD pipeline with branch protection and least-privilege tokens, add code, dependency, secret, infrastructure and image scanning with sensible gates, sign the image and alert on suspicious pipeline changes.",
+        "deliverable": "Hardened pipeline, scan reports and alert evidence",
+        "checks": [
+          [
+            "Push a hard-coded secret",
+            "Pipeline blocks the change",
+            "Pipeline log"
+          ],
+          [
+            "Change the pipeline file without review",
+            "Branch protection blocks it and an alert fires",
+            "Alert"
+          ],
+          [
+            "Verify the image signature",
+            "Valid signature before deployment",
+            "cosign output"
+          ]
+        ],
+        "objectives": [
+          "Secure DevOps pipelines",
+          "Automate security checks",
+          "Share security work with DevOps teams"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -3256,6 +3405,152 @@
           "Combine project, agile and service management",
           "Design an operating model",
           "Defend it to leadership"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Testing & QA",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Release Testing with Manual and Selenium Automation",
+        "subtopics": [
+          "Test plan and risk-based scope",
+          "Manual test design and execution",
+          "Selenium regression automation",
+          "Defect management",
+          "CI runs and reporting",
+          "Release recommendation"
+        ],
+        "tools": [
+          "Jira",
+          "TestRail or Zephyr",
+          "Selenium 4",
+          "TestNG",
+          "GitHub Actions"
+        ],
+        "lab_task": "Test a release with a risk-based plan, manual exploratory and scripted tests, a Selenium regression suite running in CI and defect triage, then present a release recommendation.",
+        "deliverable": "Test plan, results, automated suite, defects and a 15-minute presentation",
+        "checks": [
+          [
+            "Run the Selenium suite in CI",
+            "Passes with the report published",
+            "CI log"
+          ],
+          [
+            "Review defects",
+            "Reproducible with evidence and triaged",
+            "Jira issues"
+          ],
+          [
+            "Present the recommendation",
+            "Supported by manual and automated results",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine manual and automated testing",
+          "Test a release end to end",
+          "Recommend release with evidence"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Java",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Java Selenium Automation Framework",
+        "subtopics": [
+          "Java design for the framework",
+          "Page objects and utilities",
+          "TestNG suites and data-driven tests",
+          "Parallel runs on Selenium Grid",
+          "CI and reporting",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Java 21",
+          "Selenium 4",
+          "TestNG",
+          "Maven",
+          "Selenium Grid",
+          "Allure"
+        ],
+        "lab_task": "Build a Java Selenium framework with clean classes, page objects, data-driven TestNG tests, parallel Grid runs and Allure reports in CI, then present it.",
+        "deliverable": "Framework repository, CI run and a 15-minute demo",
+        "checks": [
+          [
+            "Run tests in parallel on the Grid",
+            "All pass with no shared-state failures",
+            "Allure report"
+          ],
+          [
+            "Review Java design",
+            "Small classes, no duplicated code",
+            "Code review"
+          ],
+          [
+            "Break a feature",
+            "The right tests fail with screenshots",
+            "Allure report"
+          ]
+        ],
+        "objectives": [
+          "Combine Java and Selenium",
+          "Build a maintainable framework",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Cybersecurity",
+        "Cloud Security"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Securing and Defending a Hybrid Organisation",
+        "subtopics": [
+          "Assessment of on-premise and cloud",
+          "Hardening and guardrails",
+          "Detection across endpoints, identity and cloud",
+          "Attack simulation",
+          "Response and recovery",
+          "Report and presentation"
+        ],
+        "tools": [
+          "SIEM",
+          "EDR",
+          "AWS or Azure",
+          "Prowler",
+          "Atomic Red Team",
+          "Stratus Red Team"
+        ],
+        "lab_task": "Assess and harden a lab organisation with on-premise systems and a cloud account, build detections across both, run a hybrid attack simulation, respond and present the security report.",
+        "deliverable": "Assessment, detections, incident report and a 15-minute presentation",
+        "checks": [
+          [
+            "Run the hybrid attack simulation",
+            "Each stage detected or the gap recorded",
+            "Detection log"
+          ],
+          [
+            "Contain the attack",
+            "Endpoint and cloud access removed",
+            "Containment record"
+          ],
+          [
+            "Present the report",
+            "Risks, fixes and next steps clear",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine cybersecurity and cloud security",
+          "Defend a hybrid organisation",
+          "Report to leadership"
         ]
       }
     }
