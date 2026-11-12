@@ -1,0 +1,605 @@
+{
+  "domain": "Kubernetes",
+  "name": "Kubernetes",
+  "category": "DevOps and CI/CD",
+  "icon": "box",
+  "aliases": ["K8s", "Kubernetes Administration", "CKA", "CKAD", "Kubernetes Developer", "Container Orchestration"],
+  "certifications": [
+    "KCNA: Kubernetes and Cloud Native Associate",
+    "CKAD: Certified Kubernetes Application Developer",
+    "CKA: Certified Kubernetes Administrator",
+    "CKS: Certified Kubernetes Security Specialist"
+  ],
+  "tools": ["kubectl", "kind", "Helm", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For people who know basic Linux and have run a container. Covers the Kubernetes objects needed to deploy, expose, configure and troubleshoot an application.",
+      "prerequisites": [
+        "Basic Linux command line (files, processes, editing YAML)",
+        "Has built or run a Docker container",
+        "Laptop able to run Docker and a local cluster such as kind or minikube"
+      ],
+      "outcomes": [
+        "Explain the Kubernetes architecture and how the control plane reconciles desired state",
+        "Deploy, scale, update and roll back applications with Deployments",
+        "Expose applications with Services and Ingress and configure them with ConfigMaps and Secrets",
+        "Diagnose common pod failures with kubectl"
+      ],
+      "days": [
+        {
+          "topic": "Kubernetes Architecture and Local Cluster Setup",
+          "subtopics": ["Why container orchestration", "Control plane: API server, etcd, scheduler, controller manager", "Worker nodes: kubelet, kube-proxy, container runtime", "Desired state and reconciliation", "Installing kubectl", "Creating a local cluster with kind", "kubeconfig, contexts and namespaces", "kubectl get, describe and explain", "Reading API resources and versions", "Kubernetes release cycle and versions"],
+          "tools": ["kind", "kubectl", "Docker"],
+          "lab_task": "Create a three-node kind cluster, list its nodes and system pods, and draw how a kubectl apply request travels through the control plane.",
+          "deliverable": "Cluster creation transcript, node list and an annotated architecture diagram",
+          "checks": [["Run kubectl get nodes", "Shows one control-plane node and two workers in Ready state", "Command output"], ["Delete a kube-system pod managed by a DaemonSet", "Kubernetes recreates it", "Before and after pod list"], ["Explain the diagram", "Request path from kubectl to etcd and back to the kubelet is correct", "Annotated diagram"]],
+          "objectives": ["Describe each control plane and node component", "Run a local cluster and switch contexts", "Explain reconciliation of desired state"]
+        },
+        {
+          "topic": "Pods and Container Lifecycle",
+          "subtopics": ["What a pod is", "Writing a pod manifest", "Multi-container pods and sidecars", "Init containers", "Restart policies", "Pod phases and container states", "kubectl logs and exec", "Labels and selectors"],
+          "tools": ["kubectl"],
+          "lab_task": "Write a pod with an init container that waits for a file and a sidecar that tails the main container's log, then inspect each container's logs and states.",
+          "deliverable": "Pod manifest and kubectl outputs for each container",
+          "checks": [["Apply the pod before the file exists", "Pod stays in Init until the file is created", "kubectl get pod -w output"], ["Read the sidecar logs", "Shows the main container's log lines", "kubectl logs output"], ["Make the main container exit with an error", "Restart count increases under restartPolicy Always", "kubectl describe output"]],
+          "objectives": ["Write pod manifests", "Use init and sidecar containers", "Read pod and container states"]
+        },
+        {
+          "topic": "Deployments, ReplicaSets and Rolling Updates",
+          "subtopics": ["Why not run bare pods", "ReplicaSets", "Deployments", "Scaling replicas", "Rolling update strategy: maxSurge and maxUnavailable", "Rollout history and rollback", "Pausing and resuming rollouts", "Recreate strategy"],
+          "tools": ["kubectl"],
+          "lab_task": "Deploy a web app with 4 replicas, roll out a new image version while a load loop runs, then roll back a broken version.",
+          "deliverable": "Deployment manifest, rollout history and the load loop log",
+          "checks": [["Update the image during the load loop", "No failed requests during the rollout", "Load loop log"], ["Deploy a non-existent image tag", "Rollout stalls and old pods keep serving", "kubectl rollout status output"], ["Run kubectl rollout undo", "Previous version is restored", "Rollout history"]],
+          "objectives": ["Manage applications with Deployments", "Perform rolling updates and rollbacks", "Tune rollout strategy settings"]
+        },
+        {
+          "topic": "Services and Service Discovery",
+          "subtopics": ["Why pods need a stable address", "ClusterIP Services", "NodePort and LoadBalancer Services", "Endpoints and EndpointSlices", "Cluster DNS names", "Headless Services", "Session affinity", "Debugging a Service with no endpoints"],
+          "tools": ["kubectl", "CoreDNS"],
+          "lab_task": "Expose the web app with a ClusterIP Service, reach it by DNS name from another pod, then break the selector and fix it using the endpoint list.",
+          "deliverable": "Service manifests, DNS test output and the debugging notes",
+          "checks": [["curl the Service DNS name from a test pod", "App responds", "curl output"], ["Change the Service selector to a wrong label", "Endpoints list becomes empty and requests fail", "kubectl get endpoints output"], ["Scale the Deployment to 6", "Endpoints show 6 pod IPs", "kubectl output"]],
+          "objectives": ["Expose pods with Services", "Use cluster DNS for discovery", "Troubleshoot Services through endpoints"]
+        },
+        {
+          "topic": "ConfigMaps and Secrets",
+          "subtopics": ["Separating configuration from images", "ConfigMaps from literals and files", "Environment variables from ConfigMaps", "Mounting configuration as files", "Secrets and base64 encoding", "Why Secrets are not encrypted by default", "Updating configuration without rebuilding", "Immutable ConfigMaps"],
+          "tools": ["kubectl"],
+          "lab_task": "Move the app's settings into a ConfigMap and its database password into a Secret, mount the settings as a file, and update a setting without rebuilding the image.",
+          "deliverable": "ConfigMap, Secret and Deployment manifests with before and after app output",
+          "checks": [["Read the setting inside the pod", "Matches the ConfigMap value", "kubectl exec output"], ["Change the mounted ConfigMap", "File inside the pod updates within about a minute", "Before and after file contents"], ["Decode the Secret with kubectl", "Participant explains why base64 is not encryption", "Command output and explanation"]],
+          "objectives": ["Configure apps with ConfigMaps", "Supply credentials with Secrets", "Explain the security limits of Secrets"]
+        },
+        {
+          "topic": "Namespaces, Labels and Resource Organisation",
+          "subtopics": ["Namespaces for teams and environments", "Labels and annotations", "Label selectors in queries", "Resource quotas", "LimitRanges", "Default namespace and context switching", "Organising manifests in folders", "Cleaning up with label selectors"],
+          "tools": ["kubectl"],
+          "lab_task": "Create dev and test namespaces with a resource quota on test, deploy the app to both, and delete only the test resources using labels.",
+          "deliverable": "Namespace, quota and LimitRange manifests with the quota test results",
+          "checks": [["Deploy more replicas than the test quota allows", "Extra pods are rejected with a quota error", "kubectl events"], ["Create a pod without limits in test", "LimitRange applies default limits", "kubectl describe output"], ["Delete resources by label in test", "Dev resources are untouched", "Resource lists for both namespaces"]],
+          "objectives": ["Organise workloads with namespaces and labels", "Limit resource use with quotas", "Apply default limits"]
+        },
+        {
+          "topic": "Storage: Volumes, PersistentVolumes and Claims",
+          "subtopics": ["Ephemeral volumes: emptyDir", "PersistentVolumes", "PersistentVolumeClaims", "StorageClasses and dynamic provisioning", "Access modes", "Reclaim policies", "Mounting a claim in a pod", "What happens to data when a pod is deleted"],
+          "tools": ["kubectl", "local-path provisioner"],
+          "lab_task": "Run a database pod with a PersistentVolumeClaim, write data, delete the pod, and show the data survives in the replacement pod.",
+          "deliverable": "Claim and Deployment manifests with the data persistence test",
+          "checks": [["Delete the database pod", "New pod starts and the data is still there", "Query output"], ["Use emptyDir instead and repeat", "Data is lost, and the participant explains why", "Query output and explanation"], ["List PersistentVolumes", "Dynamically provisioned volume is bound to the claim", "kubectl output"]],
+          "objectives": ["Provide persistent storage to pods", "Use StorageClasses for dynamic provisioning", "Choose access modes and reclaim policies"]
+        },
+        {
+          "topic": "StatefulSets and DaemonSets",
+          "subtopics": ["When a Deployment is not enough", "StatefulSet identities and ordered start-up", "volumeClaimTemplates", "Headless Services with StatefulSets", "DaemonSets for one pod per node", "Node selectors for DaemonSets", "Updating StatefulSets and DaemonSets", "Typical uses: databases, log agents"],
+          "tools": ["kubectl"],
+          "lab_task": "Run a three-member Redis StatefulSet with stable names and its own volume per pod, and a log-collector DaemonSet on every worker node.",
+          "deliverable": "StatefulSet and DaemonSet manifests with identity and placement evidence",
+          "checks": [["Delete redis-1", "Replacement keeps the name redis-1 and its volume", "Pod and claim list"], ["Resolve redis-0 through the headless Service", "Returns that pod's IP", "nslookup output"], ["Add a worker node to the kind cluster", "DaemonSet starts a pod on it", "Pod list"]],
+          "objectives": ["Run stateful workloads with StatefulSets", "Run node agents with DaemonSets", "Explain stable network identity"]
+        },
+        {
+          "topic": "Jobs and CronJobs",
+          "subtopics": ["Batch work in Kubernetes", "Jobs: completions and parallelism", "backoffLimit and activeDeadlineSeconds", "CronJob schedules", "Concurrency policy", "History limits", "Cleaning up finished Jobs with TTL", "Debugging failed Jobs"],
+          "tools": ["kubectl"],
+          "lab_task": "Run a Job that processes 10 work items with 3 in parallel, and a CronJob that backs up a ConfigMap every 5 minutes without overlapping runs.",
+          "deliverable": "Job and CronJob manifests with run histories",
+          "checks": [["Run the Job", "10 completions with at most 3 pods at once", "kubectl get pods history"], ["Make one item fail", "Job retries up to backoffLimit and reports failure", "kubectl describe job"], ["Make the CronJob run longer than its schedule", "No overlapping runs with concurrencyPolicy Forbid", "CronJob history"]],
+          "objectives": ["Run batch work with Jobs", "Schedule work with CronJobs", "Handle Job failures and cleanup"]
+        },
+        {
+          "topic": "Ingress and HTTP Routing",
+          "subtopics": ["Why Ingress", "Installing an ingress controller", "Host-based routing", "Path-based routing", "TLS termination with a Secret", "Default backends", "Annotations for controller features", "Gateway API overview"],
+          "tools": ["ingress-nginx", "kubectl", "openssl"],
+          "lab_task": "Install ingress-nginx and route app.local to the web app and api.local/v1 to an API service, with TLS using a self-signed certificate.",
+          "deliverable": "Ingress manifests, certificate Secret and curl test results",
+          "checks": [["curl https://app.local", "Web app responds over TLS", "curl output"], ["curl https://api.local/v1/health", "API responds", "curl output"], ["Request an unknown host", "Default backend returns 404", "curl output"]],
+          "objectives": ["Route HTTP traffic with Ingress", "Terminate TLS at the ingress", "Explain how Gateway API differs"]
+        },
+        {
+          "topic": "Health Probes and Self-Healing",
+          "subtopics": ["Liveness probes", "Readiness probes", "Startup probes", "HTTP, TCP and exec probes", "Probe timing settings", "How readiness affects Services", "Graceful shutdown and preStop hooks", "terminationGracePeriodSeconds"],
+          "tools": ["kubectl"],
+          "lab_task": "Add liveness, readiness and startup probes to the web app, then show a hung pod being restarted and a not-ready pod being removed from the Service.",
+          "deliverable": "Updated Deployment and event logs for both failures",
+          "checks": [["Make the app stop answering on /healthz", "Liveness failure restarts the container", "Pod events"], ["Make /ready return 503", "Pod is removed from Service endpoints but not restarted", "Endpoints and events"], ["Give the app a 40-second start-up", "Startup probe prevents early restarts", "Pod events"]],
+          "objectives": ["Configure the three probe types", "Explain how probes drive restarts and traffic", "Shut pods down gracefully"]
+        },
+        {
+          "topic": "Resource Requests, Limits and Scheduling",
+          "subtopics": ["CPU and memory requests", "Limits and throttling", "OOMKilled containers", "Quality of Service classes", "Node selectors", "Affinity and anti-affinity", "Taints and tolerations", "Why a pod stays Pending"],
+          "tools": ["kubectl", "metrics-server"],
+          "lab_task": "Set requests and limits for the app, cause an OOMKill, spread replicas across nodes with anti-affinity, and fix a Pending pod caused by a taint.",
+          "deliverable": "Manifests and evidence for each scheduling scenario",
+          "checks": [["Allocate more memory than the limit", "Container is OOMKilled", "kubectl describe output"], ["Check replica placement", "No two replicas on the same node", "kubectl get pods -o wide"], ["Taint a node and deploy without a toleration", "Pod is Pending with a taint message, then schedules after adding the toleration", "Events before and after"]],
+          "objectives": ["Size containers with requests and limits", "Control placement with affinity and taints", "Diagnose Pending pods"]
+        },
+        {
+          "topic": "Horizontal Pod Autoscaling",
+          "subtopics": ["metrics-server", "HorizontalPodAutoscaler on CPU", "Target utilisation and requests", "Scaling behaviour and stabilisation windows", "Scaling on memory", "Custom metrics overview", "Vertical Pod Autoscaler overview", "Cluster autoscaling overview"],
+          "tools": ["metrics-server", "kubectl", "hey"],
+          "lab_task": "Configure an HPA for the web app between 2 and 10 replicas at 60% CPU, generate load, and record the scale-up and scale-down timeline.",
+          "deliverable": "HPA manifest and the scaling timeline",
+          "checks": [["Run the load test for 5 minutes", "Replicas increase above 2", "kubectl get hpa output"], ["Stop the load", "Replicas return to 2 after the stabilisation window", "Timeline"], ["Remove CPU requests from the Deployment", "HPA cannot calculate utilisation, and the participant explains why", "kubectl describe hpa"]],
+          "objectives": ["Autoscale workloads with HPA", "Explain how requests drive autoscaling", "Tune scaling behaviour"]
+        },
+        {
+          "topic": "Packaging Applications with Helm",
+          "subtopics": ["Why package manifests", "Charts, values and releases", "Installing and upgrading releases", "Templating with values", "Helper templates", "Rolling back a release", "Chart repositories", "helm lint and helm template"],
+          "tools": ["Helm", "kubectl"],
+          "lab_task": "Package the web app, its Service, Ingress and ConfigMap as a Helm chart with dev and prod values files, install both, and roll back a bad upgrade.",
+          "deliverable": "Chart folder, two values files and release history",
+          "checks": [["Install with dev and prod values", "Each release has the expected replicas and host name", "kubectl output"], ["Upgrade with an invalid value", "Upgrade fails and helm rollback restores the release", "helm history"], ["Run helm lint", "No errors", "Lint output"]],
+          "objectives": ["Package Kubernetes apps as Helm charts", "Manage environments with values files", "Upgrade and roll back releases"]
+        },
+        {
+          "topic": "Role-Based Access Control and Service Accounts",
+          "subtopics": ["Authentication and authorisation", "Users versus service accounts", "Roles and ClusterRoles", "RoleBindings and ClusterRoleBindings", "Least privilege for pods", "kubectl auth can-i", "Default service account token mounting", "Auditing permissions"],
+          "tools": ["kubectl"],
+          "lab_task": "Give a developer service account read-only access to the dev namespace and a CI service account permission to update Deployments only, and verify both with can-i.",
+          "deliverable": "Role, binding and service account manifests with can-i results",
+          "checks": [["can-i delete pods as the developer", "Returns no", "Command output"], ["CI account updates the Deployment image", "Succeeds", "kubectl output"], ["CI account reads Secrets", "Forbidden", "Error output"]],
+          "objectives": ["Grant least-privilege access with RBAC", "Use service accounts for workloads and automation", "Verify permissions"]
+        },
+        {
+          "topic": "Network Policies",
+          "subtopics": ["Default allow-all networking", "CNI plugins that enforce policies", "Ingress and egress rules", "Pod and namespace selectors", "Default-deny policies", "Allowing DNS", "Testing policies", "Common mistakes"],
+          "tools": ["Calico", "kubectl"],
+          "lab_task": "Apply default-deny to the app namespace, then allow only the frontend to call the API and the API to call the database, keeping DNS working.",
+          "deliverable": "Network policy manifests and a connectivity test matrix",
+          "checks": [["Frontend calls the API", "Allowed", "curl output"], ["Frontend calls the database directly", "Blocked", "curl timeout"], ["API resolves the database DNS name", "Works because DNS egress is allowed", "nslookup output"]],
+          "objectives": ["Restrict pod traffic with network policies", "Write default-deny with explicit allows", "Test policy effects"]
+        },
+        {
+          "topic": "Observing a Cluster: Logs, Events and Metrics",
+          "subtopics": ["kubectl events and describe", "Container logs and previous logs", "kubectl top", "Prometheus and Grafana with kube-prometheus-stack", "Key cluster and pod metrics", "Centralised logging overview", "Dashboards for a workload", "Alerts on pod restarts"],
+          "tools": ["Prometheus", "Grafana", "Helm", "kubectl"],
+          "lab_task": "Install kube-prometheus-stack, build a dashboard for the web app showing requests, CPU, memory and restarts, and alert when a pod restarts more than 3 times in 10 minutes.",
+          "deliverable": "Dashboard JSON, alert rule and a fired alert screenshot",
+          "checks": [["Crash the app 4 times in 10 minutes", "Restart alert fires", "Alertmanager screenshot"], ["Open the dashboard during the load test", "CPU and replica panels change", "Dashboard screenshot"], ["Read previous container logs after a crash", "Shows the crashing container's last lines", "kubectl logs --previous output"]],
+          "objectives": ["Collect metrics and logs from a cluster", "Build workload dashboards", "Alert on workload health"]
+        },
+        {
+          "topic": "Troubleshooting Applications on Kubernetes",
+          "subtopics": ["A troubleshooting checklist", "CrashLoopBackOff", "ImagePullBackOff", "Pending pods", "Service without endpoints", "Ingress returning 502 or 404", "DNS failures", "Ephemeral debug containers"],
+          "tools": ["kubectl"],
+          "lab_task": "Fix six broken deployments prepared by the trainer, each with a different fault, using the checklist, and record cause, evidence and fix for each.",
+          "deliverable": "Troubleshooting log with cause, evidence and fix for all six faults",
+          "checks": [["Fix all six faults within the time limit", "All six apps respond", "Final curl results"], ["Read the log for the ImagePullBackOff fault", "Cause and evidence from events are recorded", "Troubleshooting log"], ["Use kubectl debug on a distroless pod", "Debug container attaches and the participant runs a network test", "Command output"]],
+          "objectives": ["Troubleshoot common pod and network failures", "Use events, logs and debug containers", "Record faults clearly"]
+        },
+        {
+          "topic": "Deploying a Multi-Tier Application",
+          "subtopics": ["Breaking an app into frontend, API and database", "Ordering dependencies", "Configuration and secrets per tier", "Storage for the database tier", "Internal and external routing", "Health probes for each tier", "Scaling the stateless tiers", "Kustomize overlays for environments"],
+          "tools": ["kubectl", "Kustomize", "Helm"],
+          "lab_task": "Deploy a three-tier app (React frontend, API, PostgreSQL) with Kustomize base and dev overlay, probes, a claim for the database and Ingress routing.",
+          "deliverable": "Kustomize folder structure, deployed app and a health check of each tier",
+          "checks": [["Open the app through Ingress and create a record", "Record is saved and shown", "Browser screenshot"], ["Delete the API pods", "App recovers without losing data", "Before and after record list"], ["Render the dev overlay", "Overlay changes only replicas and host names", "kustomize build diff"]],
+          "objectives": ["Deploy a complete multi-tier application", "Manage environments with Kustomize", "Apply probes, storage and routing together"]
+        },
+        {
+          "topic": "Beginner Capstone: Production-Ready Web Application on Kubernetes",
+          "subtopics": ["Requirement walkthrough", "Manifests or Helm chart for all tiers", "Configuration, secrets and storage", "Ingress with TLS", "Probes, limits and autoscaling", "Demo and troubleshooting walkthrough"],
+          "tools": ["kubectl", "Helm", "ingress-nginx", "Prometheus"],
+          "lab_task": "Deliver a web application on Kubernetes with a Helm chart, TLS ingress, persistent database, probes, resource limits, autoscaling and a dashboard, then demonstrate a failure and recovery.",
+          "deliverable": "Helm chart repository, deployed application, dashboard and a 10-minute demo",
+          "checks": [["Kill a node during the demo", "Application stays available and pods reschedule", "Demo recording or pod events"], ["Run the load test", "HPA scales the API and latency stays acceptable", "HPA output and dashboard"], ["Install the chart in a fresh namespace", "Works with only a values file change", "helm install output"]],
+          "objectives": ["Deliver a production-ready application on Kubernetes", "Combine configuration, storage, routing and scaling", "Demonstrate recovery from failure"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who deploy applications to Kubernetes. Covers cluster administration, security, advanced scheduling, operators, GitOps, service mesh and production operations.",
+      "prerequisites": [
+        "Deploys applications with Deployments, Services, Ingress and Helm",
+        "Comfortable with kubectl, YAML and container images",
+        "Linux administration basics and networking (IP, DNS, TLS)"
+      ],
+      "outcomes": [
+        "Install, upgrade, back up and restore a Kubernetes cluster",
+        "Secure clusters and workloads with RBAC, admission policies and secrets management",
+        "Extend Kubernetes with CRDs and operators and deliver apps with GitOps",
+        "Operate workloads with service mesh, observability and capacity planning"
+      ],
+      "days": [
+        {
+          "topic": "Cluster Installation with kubeadm",
+          "subtopics": ["Cluster prerequisites: swap, kernel modules, container runtime", "kubeadm init and join", "Choosing and installing a CNI", "Certificates generated by kubeadm", "Highly available control planes", "Static pods", "Node maintenance: cordon and drain", "Comparing kubeadm with managed services"],
+          "tools": ["kubeadm", "containerd", "Calico"],
+          "lab_task": "Build a three-node cluster on virtual machines with kubeadm and Calico, then drain a worker for maintenance without dropping traffic.",
+          "deliverable": "Build runbook, cluster status and the drain test log",
+          "checks": [["Run kubectl get nodes", "All three nodes Ready on the expected version", "Command output"], ["Drain a worker during a load loop", "Pods move and the load loop has no failures", "Load loop log"], ["List kubeadm certificates and expiry", "Expiry dates are shown and explained", "kubeadm certs check-expiration output"]],
+          "objectives": ["Install a cluster with kubeadm", "Perform node maintenance safely", "Explain control plane certificates"]
+        },
+        {
+          "topic": "Cluster Upgrades, etcd Backup and Restore",
+          "subtopics": ["Version skew policy", "Upgrading the control plane with kubeadm", "Upgrading kubelets node by node", "etcd snapshots", "Restoring etcd", "Testing a restore", "Upgrade runbooks", "Managed cluster upgrade differences"],
+          "tools": ["kubeadm", "etcdctl"],
+          "lab_task": "Back up etcd, upgrade the cluster one minor version, delete a namespace by mistake, and restore it from the snapshot.",
+          "deliverable": "Upgrade and restore runbook with command logs",
+          "checks": [["Check versions after the upgrade", "Control plane and kubelets on the new version", "kubectl version and node list"], ["Restore the snapshot after deleting the namespace", "Namespace and its resources are back", "Resource list"], ["Upgrade a kubelet two versions ahead of the API server", "Participant explains why skew policy forbids it", "Written explanation"]],
+          "objectives": ["Upgrade clusters safely", "Back up and restore etcd", "Plan upgrades within the version skew policy"]
+        },
+        {
+          "topic": "Kubernetes Networking Internals",
+          "subtopics": ["Pod networking model", "CNI plugins compared", "kube-proxy modes: iptables and IPVS", "eBPF data planes with Cilium", "CoreDNS configuration", "Service traffic path", "NodeLocal DNSCache", "Debugging networking with tcpdump"],
+          "tools": ["Cilium", "CoreDNS", "tcpdump"],
+          "lab_task": "Trace one request from a pod to a Service and back with tcpdump on both nodes, then replace kube-proxy with Cilium and compare the data path.",
+          "deliverable": "Annotated packet traces and a comparison note",
+          "checks": [["Capture traffic on the source and destination node", "Shows the Service IP translated to a pod IP", "tcpdump output"], ["Run cilium status after replacement", "kube-proxy replacement is enabled and Services work", "Command output"], ["Break CoreDNS upstream configuration", "Participant identifies and fixes external name resolution", "Before and after nslookup"]],
+          "objectives": ["Explain the pod-to-Service traffic path", "Compare CNI and kube-proxy options", "Debug cluster DNS and networking"]
+        },
+        {
+          "topic": "Gateway API and Ingress Patterns",
+          "subtopics": ["Limits of Ingress", "Gateway API resources: GatewayClass, Gateway, HTTPRoute", "Traffic splitting", "Header-based routing", "Cross-namespace routing with ReferenceGrant", "TLS with cert-manager", "Rate limiting at the gateway", "Migrating from Ingress"],
+          "tools": ["Envoy Gateway", "cert-manager", "kubectl"],
+          "lab_task": "Install a Gateway API implementation, issue certificates with cert-manager, and split traffic 90/10 between two app versions with header-based override.",
+          "deliverable": "Gateway resources, certificate status and traffic split evidence",
+          "checks": [["Send 100 requests", "About 90 reach v1 and 10 reach v2", "Response tally"], ["Send a request with the canary header", "Always reaches v2", "curl output"], ["Check the certificate", "Issued by cert-manager and valid", "kubectl describe certificate"]],
+          "objectives": ["Route traffic with Gateway API", "Automate certificates with cert-manager", "Split traffic for releases"]
+        },
+        {
+          "topic": "Pod Security and Admission Control",
+          "subtopics": ["Pod Security Standards: privileged, baseline, restricted", "Pod Security Admission labels", "securityContext settings", "Running as non-root and read-only filesystems", "Linux capabilities", "Validating admission policies with CEL", "Kyverno policies", "Mutating defaults"],
+          "tools": ["Kyverno", "kubectl"],
+          "lab_task": "Enforce the restricted Pod Security Standard on the app namespace, fix the app to comply, and add a Kyverno policy that blocks images from untrusted registries.",
+          "deliverable": "Namespace labels, fixed manifests and Kyverno policy with test results",
+          "checks": [["Deploy a privileged pod in the namespace", "Rejected by Pod Security Admission", "Error output"], ["Deploy an image from an untrusted registry", "Rejected by Kyverno", "Error output"], ["Deploy the fixed app", "Runs as non-root with a read-only root filesystem", "kubectl describe output"]],
+          "objectives": ["Apply Pod Security Standards", "Harden workloads with securityContext", "Enforce policies at admission"]
+        },
+        {
+          "topic": "Secrets Management with External Secrets and Vault",
+          "subtopics": ["Risks of plain Kubernetes Secrets", "Encrypting Secrets at rest", "HashiCorp Vault Kubernetes auth", "External Secrets Operator", "Secret rotation", "Sealed Secrets for GitOps", "Limiting Secret access with RBAC", "Auditing Secret reads"],
+          "tools": ["Vault", "External Secrets Operator", "Sealed Secrets"],
+          "lab_task": "Store the database password in Vault, sync it into the namespace with External Secrets Operator, rotate it, and show the app picks up the new value.",
+          "deliverable": "Vault configuration, ExternalSecret manifest and rotation evidence",
+          "checks": [["Change the password in Vault", "Kubernetes Secret updates within the refresh interval", "Before and after Secret version"], ["Search the Git repository for the password", "Not present", "grep output"], ["Read the Secret as a non-authorised service account", "Forbidden", "Error output"]],
+          "objectives": ["Keep secrets out of Git", "Sync secrets from Vault", "Rotate secrets safely"]
+        },
+        {
+          "topic": "Custom Resources and Operators",
+          "subtopics": ["Extending the API with CustomResourceDefinitions", "Controllers and the reconcile loop", "The operator pattern", "Installing and using an operator", "Writing a simple operator with Kopf or kubebuilder", "Status and conditions", "Finalizers", "Operator maturity levels"],
+          "tools": ["kubebuilder", "Kopf", "kubectl"],
+          "lab_task": "Write a small operator that watches a Website custom resource and creates a Deployment, Service and Ingress for it, updating status conditions.",
+          "deliverable": "CRD, operator code and a demo of creating, updating and deleting a Website",
+          "checks": [["Create a Website resource", "Deployment, Service and Ingress are created and status shows Ready", "kubectl output"], ["Change the replica count in the Website", "Deployment is updated by the operator", "kubectl output"], ["Delete the Website", "Finalizer cleans up the child resources", "Resource list"]],
+          "objectives": ["Extend Kubernetes with CRDs", "Implement a reconcile loop", "Use finalizers and status conditions"]
+        },
+        {
+          "topic": "GitOps with Argo CD",
+          "subtopics": ["GitOps principles", "Argo CD applications and projects", "Sync policies and self-healing", "Helm and Kustomize sources", "App of apps", "Sync waves and hooks", "Drift detection", "Access control in Argo CD"],
+          "tools": ["Argo CD", "Git", "Helm"],
+          "lab_task": "Manage dev and prod environments of the three-tier app with Argo CD from Git, promote a change from dev to prod by pull request, and show drift being corrected.",
+          "deliverable": "GitOps repository structure, Argo CD applications and promotion evidence",
+          "checks": [["Merge a change to the dev folder", "Argo CD syncs dev only", "Argo CD history"], ["Edit a prod Deployment with kubectl", "Argo CD reverts the drift", "Argo CD event"], ["Promote to prod by pull request", "Prod updates after merge", "Pull request and sync history"]],
+          "objectives": ["Deliver applications with GitOps", "Structure environments in Git", "Detect and correct drift"]
+        },
+        {
+          "topic": "Progressive Delivery with Argo Rollouts",
+          "subtopics": ["Canary and blue-green on Kubernetes", "Rollout resources", "Traffic shaping with ingress or mesh", "Analysis templates with Prometheus", "Automatic promotion and abort", "Manual gates", "Experiment resources", "Rollback behaviour"],
+          "tools": ["Argo Rollouts", "Prometheus"],
+          "lab_task": "Convert the API Deployment to a Rollout with a 20-50-100 canary and Prometheus error-rate analysis, then release a good and a bad version.",
+          "deliverable": "Rollout and AnalysisTemplate manifests with both release histories",
+          "checks": [["Release a healthy version", "Canary promotes through all steps", "Rollout history"], ["Release a version with 10% errors", "Analysis fails and the rollout aborts", "Rollout history"], ["Pause at a manual gate", "Rollout waits until promoted", "kubectl argo rollouts output"]],
+          "objectives": ["Run canary and blue-green releases", "Automate release decisions with metrics", "Abort bad releases automatically"]
+        },
+        {
+          "topic": "Service Mesh with Istio",
+          "subtopics": ["What a service mesh adds", "Sidecar and ambient modes", "Mutual TLS between services", "Traffic management: VirtualService and DestinationRule", "Retries, timeouts and circuit breaking", "Authorization policies", "Mesh observability with Kiali", "Cost of running a mesh"],
+          "tools": ["Istio", "Kiali", "Prometheus"],
+          "lab_task": "Install Istio, enforce strict mutual TLS for the app namespace, add retries and a circuit breaker for the API, and allow only the frontend to call it.",
+          "deliverable": "Mesh configuration, Kiali graph and policy test results",
+          "checks": [["Call the API from a pod outside the mesh", "Rejected because mTLS is strict", "curl output"], ["Inject 50% failures in the API", "Retries hide transient errors and the circuit opens under sustained failure", "Kiali and logs"], ["Call the API from a non-frontend service", "Denied by authorization policy", "HTTP 403"]],
+          "objectives": ["Secure service-to-service traffic with mTLS", "Control traffic with retries and circuit breakers", "Judge when a mesh is worth its cost"]
+        },
+        {
+          "topic": "Advanced Scheduling and Workload Placement",
+          "subtopics": ["Topology spread constraints", "Pod priority and preemption", "PodDisruptionBudgets", "Node affinity across zones", "Scheduling GPU workloads", "Descheduler", "Overcommit and bin packing", "Scheduler profiles"],
+          "tools": ["kubectl", "descheduler"],
+          "lab_task": "Spread the API evenly across zones, protect it with a PodDisruptionBudget during node drains, and give the payment service priority over batch jobs.",
+          "deliverable": "Manifests and evidence for spread, disruption and preemption tests",
+          "checks": [["Scale the API to 6 across 3 zones", "Two pods per zone", "Pod placement list"], ["Drain two nodes at once", "PDB keeps the minimum available pods running", "Drain output and pod count"], ["Fill the cluster with batch jobs and deploy the payment service", "Batch pods are preempted for the higher-priority pods", "Events"]],
+          "objectives": ["Control placement across failure zones", "Protect availability during disruptions", "Prioritise critical workloads"]
+        },
+        {
+          "topic": "Cluster Autoscaling and Capacity Planning",
+          "subtopics": ["Cluster Autoscaler", "Karpenter", "Node pools for different workloads", "Vertical Pod Autoscaler recommendations", "KEDA event-driven autoscaling", "Right-sizing requests", "Cost visibility with OpenCost", "Capacity planning reports"],
+          "tools": ["Karpenter", "KEDA", "VPA", "OpenCost"],
+          "lab_task": "Scale a queue worker with KEDA based on queue length, let the cluster add nodes for it, and use VPA recommendations and OpenCost to right-size the namespace.",
+          "deliverable": "Autoscaling configuration, scaling timeline and a right-sizing report with cost impact",
+          "checks": [["Push 10,000 messages to the queue", "Workers and nodes scale up, then back down when empty", "Scaling timeline"], ["Compare requests with VPA recommendations", "Over-provisioned workloads are identified", "Recommendation table"], ["Read the OpenCost report", "Cost per namespace before and after right-sizing", "OpenCost screenshots"]],
+          "objectives": ["Autoscale pods on events and nodes on demand", "Right-size workloads", "Report cluster cost"]
+        },
+        {
+          "topic": "Observability at Scale: Prometheus, Loki and Tempo",
+          "subtopics": ["Prometheus operator: ServiceMonitor and PrometheusRule", "Recording rules", "Log aggregation with Loki", "Tracing with Tempo and OpenTelemetry", "Correlating metrics, logs and traces", "SLO dashboards", "Alert routing with Alertmanager", "Retention and storage sizing"],
+          "tools": ["Prometheus", "Loki", "Tempo", "Grafana", "OpenTelemetry"],
+          "lab_task": "Add ServiceMonitors, recording rules, Loki logs and Tempo traces for the three-tier app, and build a Grafana view that jumps from a slow request to its logs and trace.",
+          "deliverable": "Monitoring manifests, dashboards and a correlated investigation screenshot",
+          "checks": [["Make one request slow", "Trace shows the slow span and links to its logs", "Grafana screenshot"], ["Trigger the error-rate alert", "Alert reaches the right receiver", "Alertmanager history"], ["Query a recording rule", "Returns the pre-computed series", "PromQL result"]],
+          "objectives": ["Operate Prometheus with the operator", "Correlate metrics, logs and traces", "Route alerts to the right team"]
+        },
+        {
+          "topic": "Multi-Tenancy and Cluster Governance",
+          "subtopics": ["Soft and hard multi-tenancy", "Namespace-per-team patterns", "Quotas, limits and network isolation per tenant", "Hierarchical namespaces", "Virtual clusters with vcluster", "Policy governance with Kyverno", "Tenant onboarding automation", "Chargeback by namespace"],
+          "tools": ["Kyverno", "vcluster", "kubectl"],
+          "lab_task": "Onboard three teams with an automated template that creates namespaces, quotas, network policies, RBAC and Kyverno policies, and give one team a vcluster.",
+          "deliverable": "Onboarding template, three onboarded tenants and isolation test results",
+          "checks": [["Team A reaches Team B's service", "Blocked", "curl output"], ["Team A exceeds its quota", "Pods are rejected", "Events"], ["Team C installs a CRD in its vcluster", "Works without affecting the host cluster", "kubectl output from both"]],
+          "objectives": ["Design multi-tenant clusters", "Automate tenant onboarding", "Choose between namespaces and virtual clusters"]
+        },
+        {
+          "topic": "Supply Chain Security for Container Images",
+          "subtopics": ["Image scanning with Trivy", "Software bills of materials", "Signing images with cosign", "Verifying signatures at admission", "Minimal and distroless images", "Pinning images by digest", "Private registries and pull secrets", "SLSA levels overview"],
+          "tools": ["Trivy", "cosign", "Kyverno", "Syft"],
+          "lab_task": "Scan and sign the app images in CI, generate SBOMs, and block unsigned or critically vulnerable images from running in the cluster.",
+          "deliverable": "CI configuration, SBOMs and admission test results",
+          "checks": [["Deploy an unsigned image", "Rejected at admission", "Error output"], ["Deploy an image with a critical vulnerability", "Rejected by policy", "Error output"], ["Deploy the signed, scanned image", "Runs, and the signature verifies", "cosign verify output"]],
+          "objectives": ["Scan and sign images", "Produce SBOMs", "Enforce image trust at admission"]
+        },
+        {
+          "topic": "Runtime Security and Cluster Hardening",
+          "subtopics": ["CIS Kubernetes Benchmark with kube-bench", "API server audit logging", "Falco runtime detection", "Seccomp and AppArmor profiles", "Restricting kubelet access", "Encrypting etcd", "Node hardening", "Incident response for a compromised pod"],
+          "tools": ["kube-bench", "Falco", "kubectl"],
+          "lab_task": "Run kube-bench and fix the top five findings, enable audit logging, and use Falco to detect a shell opened inside a production pod.",
+          "deliverable": "Before and after kube-bench report, audit policy and the Falco alert",
+          "checks": [["Rerun kube-bench", "The five fixed checks pass", "kube-bench output"], ["Open a shell in a production pod", "Falco raises an alert", "Falco log"], ["Search the audit log for the Secret read", "Shows the user, time and resource", "Audit log entry"]],
+          "objectives": ["Harden clusters against the CIS benchmark", "Detect suspicious runtime behaviour", "Audit API activity"]
+        },
+        {
+          "topic": "Disaster Recovery with Velero",
+          "subtopics": ["What to back up: resources and volumes", "Velero backups and schedules", "Volume snapshots and file-level backup", "Restoring to the same or another cluster", "Namespace mapping on restore", "Backup hooks for databases", "Testing recovery time", "DR runbooks"],
+          "tools": ["Velero", "MinIO", "kubectl"],
+          "lab_task": "Schedule Velero backups of the three-tier app including its database volume, destroy the namespace, and restore it into a second cluster within a measured time.",
+          "deliverable": "Backup schedule, restore runbook and the timed recovery report",
+          "checks": [["Restore into the second cluster", "App works with all records present", "Browser screenshot and record count"], ["Measure recovery time", "Within the stated target", "Timeline"], ["Check the database backup hook", "Database is flushed before the snapshot", "Velero backup log"]],
+          "objectives": ["Back up workloads and volumes", "Restore across clusters", "Measure and document recovery"]
+        },
+        {
+          "topic": "Managed Kubernetes: EKS, AKS and GKE Compared",
+          "subtopics": ["What managed control planes take care of", "Node groups and node pools", "Cloud load balancer integration", "Workload identity on each cloud", "Storage classes per cloud", "Cluster add-ons", "Upgrade models", "Cost and pricing differences"],
+          "tools": ["eksctl", "Azure CLI", "gcloud", "Terraform"],
+          "lab_task": "Deploy the same Helm chart to a managed cluster on two clouds, configure workload identity on each, and compare setup steps, add-ons and monthly cost.",
+          "deliverable": "Terraform or CLI scripts, deployed apps and a comparison table",
+          "checks": [["Open the app on both clouds", "Both respond through cloud load balancers", "Browser screenshots"], ["Read cloud storage from a pod on each cloud", "Works with workload identity and no keys", "kubectl exec output"], ["Read the comparison", "Covers setup, upgrades, identity and cost with figures", "Comparison table"]],
+          "objectives": ["Run workloads on managed Kubernetes", "Use cloud workload identity", "Compare managed offerings"]
+        },
+        {
+          "topic": "Kubernetes Platform Operations Runbooks",
+          "subtopics": ["On-call basics for clusters", "Runbooks for node failure", "Runbooks for certificate expiry", "Runbooks for etcd pressure", "API server latency investigation", "Capacity alerts", "Change management for cluster changes", "Post-incident reviews"],
+          "tools": ["kubectl", "Prometheus", "Grafana"],
+          "lab_task": "Handle four injected platform incidents (node NotReady, expiring certificates, full etcd disk, API latency) using runbooks you write, and complete one post-incident review.",
+          "deliverable": "Four runbooks, incident timelines and one post-incident review",
+          "checks": [["Resolve the expiring certificate incident", "Certificates renewed before expiry with no outage", "kubeadm output and timeline"], ["Resolve the etcd disk incident", "Space recovered and alarms cleared", "etcdctl output"], ["Read the post-incident review", "Includes impact, root cause and owned actions", "Review document"]],
+          "objectives": ["Operate clusters with runbooks", "Diagnose control plane problems", "Run post-incident reviews"]
+        },
+        {
+          "topic": "Intermediate Capstone: GitOps Platform for Three Teams",
+          "subtopics": ["Platform requirements", "Cluster build and hardening", "Tenant onboarding and policies", "GitOps delivery with progressive releases", "Observability and alerting", "Backup, recovery and demo"],
+          "tools": ["kubeadm", "Argo CD", "Argo Rollouts", "Kyverno", "Prometheus", "Velero"],
+          "lab_task": "Build a hardened cluster for three teams with automated onboarding, policies, GitOps delivery with canary releases, observability and tested backups, then present it.",
+          "deliverable": "Platform repository, runbooks, dashboards, recovery test and a 15-minute demo",
+          "checks": [["Onboard a fourth team from the template", "Team can deploy through GitOps within the stated time", "Onboarding log"], ["Release a faulty version for one team", "Canary aborts and other teams are unaffected", "Rollout history"], ["Restore one team's namespace from backup", "Restored within the target time", "Recovery timeline"]],
+          "objectives": ["Design and build a multi-team Kubernetes platform", "Combine security, delivery, observability and recovery", "Explain platform decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run Kubernetes in production. Covers fleet architecture, multi-cluster networking, deep security, performance engineering, platform engineering and running AI workloads.",
+      "prerequisites": [
+        "Has administered production Kubernetes clusters",
+        "Comfortable with GitOps, Helm, RBAC, network policies and observability stacks",
+        "CKA level knowledge or equivalent experience"
+      ],
+      "outcomes": [
+        "Design multi-cluster and multi-region Kubernetes architectures",
+        "Run zero-trust security and compliance across a cluster fleet",
+        "Engineer performance, reliability and cost at scale with measured results",
+        "Build an internal developer platform on Kubernetes and defend its design"
+      ],
+      "days": [
+        {
+          "topic": "Fleet Architecture: How Many Clusters and Why",
+          "subtopics": ["Single large cluster versus many small clusters", "Blast radius and failure domains", "Cluster per environment, team or region", "Control plane scaling limits", "Fleet management with Cluster API", "Fleet inventory and versions", "Standardising cluster baselines", "Decision records for cluster topology"],
+          "tools": ["Cluster API", "kind", "Argo CD"],
+          "lab_task": "Write a cluster topology decision for a company with 30 teams in 3 regions, then create two workload clusters from one management cluster with Cluster API.",
+          "deliverable": "Topology decision record and Cluster API manifests with two running clusters",
+          "checks": [["Create a third cluster by changing one manifest", "Cluster appears with the standard baseline", "clusterctl describe output"], ["Read the decision record", "Options, criteria and blast radius trade-offs are explained", "Decision record"], ["Upgrade one workload cluster through Cluster API", "Nodes roll to the new version", "Machine list"]],
+          "objectives": ["Choose a cluster topology with clear trade-offs", "Manage cluster lifecycles with Cluster API", "Standardise cluster baselines"]
+        },
+        {
+          "topic": "Multi-Cluster Networking and Service Discovery",
+          "subtopics": ["Why services span clusters", "Cilium Cluster Mesh", "Istio multi-cluster topologies", "Multi-Cluster Services API", "Global load balancing", "Failover between clusters", "Latency-aware routing", "Network address planning across clusters"],
+          "tools": ["Cilium Cluster Mesh", "Istio", "kubectl"],
+          "lab_task": "Connect two clusters with Cilium Cluster Mesh, make the API a global service, and show automatic failover to the second cluster when the first cluster's API pods fail.",
+          "deliverable": "Mesh configuration, global service manifests and the failover timeline",
+          "checks": [["Call the global service from cluster A", "Requests are served by local pods", "Response origin"], ["Scale cluster A's API to zero", "Requests fail over to cluster B", "Response origin and timeline"], ["Read the IP plan", "No overlapping pod or service ranges", "IP plan document"]],
+          "objectives": ["Connect services across clusters", "Fail over between clusters", "Plan addressing for multi-cluster networks"]
+        },
+        {
+          "topic": "Multi-Region Resilience and Stateful Workloads",
+          "subtopics": ["Active-active versus active-passive clusters", "Stateful workloads across regions", "Database operators: CloudNativePG and others", "Cross-region replication", "Recovery point and recovery time targets", "Region evacuation", "DNS and traffic failover", "Chaos testing a region loss"],
+          "tools": ["CloudNativePG", "Velero", "external-dns"],
+          "lab_task": "Run PostgreSQL with CloudNativePG and a replica cluster in a second region, then simulate region loss, promote the replica and measure recovery point and time.",
+          "deliverable": "Architecture, operator configuration and the measured recovery report",
+          "checks": [["Simulate loss of the primary region", "Replica is promoted and the app reconnects", "Timeline and app status"], ["Compare lost writes with the recovery point target", "Within target or the gap is explained", "Write log comparison"], ["Fail back after recovery", "Original region becomes primary without data loss", "Operator status"]],
+          "objectives": ["Design multi-region Kubernetes architectures", "Run stateful workloads with operators", "Measure and meet recovery targets"]
+        },
+        {
+          "topic": "Zero-Trust Security Architecture for Kubernetes",
+          "subtopics": ["Zero-trust principles for clusters", "Workload identity with SPIFFE and SPIRE", "Mutual TLS everywhere", "Layer 7 authorization policies", "Egress control and DNS policies", "Short-lived credentials", "Securing the control plane endpoint", "Measuring trust boundaries"],
+          "tools": ["SPIRE", "Istio", "Cilium"],
+          "lab_task": "Issue SPIFFE identities with SPIRE, enforce identity-based authorization between all services, and restrict egress to approved domains only.",
+          "deliverable": "Security architecture, identity configuration and an access test matrix",
+          "checks": [["Call a service with a valid identity but wrong permissions", "Denied", "HTTP 403 and policy log"], ["Resolve and call an unapproved external domain", "Blocked by egress policy", "Command output"], ["Check certificate lifetime on a workload", "Certificates are short-lived and rotated", "Certificate details"]],
+          "objectives": ["Apply zero-trust principles to clusters", "Issue and use workload identities", "Control egress precisely"]
+        },
+        {
+          "topic": "Policy as Code and Compliance Across a Fleet",
+          "subtopics": ["Mapping compliance controls to policies", "Kyverno and OPA Gatekeeper compared", "Policy testing in CI", "Audit mode before enforce mode", "Policy exceptions", "Reporting with Policy Reporter", "Distributing policies with GitOps", "Evidence for auditors"],
+          "tools": ["Kyverno", "OPA Gatekeeper", "Policy Reporter", "Argo CD"],
+          "lab_task": "Map 12 controls to policies, test them in CI, roll them out in audit mode then enforce mode across two clusters, and produce an evidence report.",
+          "deliverable": "Control mapping, policy repository with tests, rollout plan and evidence report",
+          "checks": [["Push a policy that breaks a test", "CI fails before the policy reaches a cluster", "CI log"], ["Switch from audit to enforce", "Violating workloads found in audit were fixed first", "Policy reports before and after"], ["Request an exception", "Exception is scoped and time-limited", "PolicyException resource"]],
+          "objectives": ["Implement compliance as policy code", "Roll out policies safely across a fleet", "Produce audit evidence"]
+        },
+        {
+          "topic": "Control Plane Performance and Scaling",
+          "subtopics": ["API server request flow and priority and fairness", "etcd performance limits", "Watch and list costs", "Controller and client rate limits", "Large clusters: object counts and limits", "Monitoring control plane health", "Reducing API load from tools", "Tuning for thousands of nodes"],
+          "tools": ["kube-burner", "Prometheus", "etcdctl"],
+          "lab_task": "Load the control plane with kube-burner, find the first bottleneck from metrics, apply API priority and fairness rules to protect critical controllers, and rerun the test.",
+          "deliverable": "Load test reports before and after, with the bottleneck analysis",
+          "checks": [["Run kube-burner before the change", "Bottleneck identified with API and etcd metrics", "Report and dashboards"], ["Run after adding priority and fairness rules", "Critical controller requests are not throttled", "API metrics"], ["Compare etcd latency", "Within the stated target at the test load", "Metrics"]],
+          "objectives": ["Explain control plane scaling limits", "Load test and monitor the control plane", "Protect critical traffic with priority and fairness"]
+        },
+        {
+          "topic": "Workload Performance Engineering",
+          "subtopics": ["CPU throttling and CFS quotas", "Memory pressure and eviction", "Topology manager and CPU pinning", "Network performance tuning", "Storage performance and IOPS", "Profiling services in pods", "Load testing inside the cluster", "Performance budgets"],
+          "tools": ["k6", "Prometheus", "perf", "kubectl"],
+          "lab_task": "Bring a latency-sensitive service from 400 ms to under 100 ms p99 at the target load by fixing throttling, memory eviction and storage bottlenecks, measuring each change.",
+          "deliverable": "Performance report with each change and its measured effect",
+          "checks": [["Run the final load test", "p99 under 100 ms at target load", "k6 report"], ["Show throttling metrics before and after", "Throttling is removed or reduced", "Metric graphs"], ["Explain one change that did not help", "Measured result explains why it was reverted", "Report section"]],
+          "objectives": ["Diagnose CPU, memory, network and storage bottlenecks in pods", "Tune workloads with measured evidence", "Set performance budgets"]
+        },
+        {
+          "topic": "Reliability Engineering: SLOs and Chaos on Kubernetes",
+          "subtopics": ["Service level indicators for Kubernetes workloads", "SLOs and error budgets", "Burn-rate alerting", "Chaos Mesh experiments", "Pod, node and network faults", "Game days", "Error budget policies", "Reliability reviews"],
+          "tools": ["Chaos Mesh", "Prometheus", "Sloth"],
+          "lab_task": "Define SLOs for the three-tier app, generate burn-rate alerts, run four Chaos Mesh experiments in a game day, and fix the two biggest weaknesses found.",
+          "deliverable": "SLO definitions, alert rules, game day report and fixes",
+          "checks": [["Run the network delay experiment", "SLO burn alert fires as designed", "Alert history"], ["Rerun after the fixes", "Error budget impact is lower", "Before and after budget"], ["Read the game day report", "Each experiment has hypothesis, result and action", "Report"]],
+          "objectives": ["Define SLOs for Kubernetes services", "Run controlled chaos experiments", "Improve reliability from evidence"]
+        },
+        {
+          "topic": "Kubernetes FinOps and Cost Engineering",
+          "subtopics": ["Where cluster cost comes from", "Requests versus usage gaps", "Bin packing and node shapes", "Spot and preemptible nodes", "Showback and chargeback by namespace", "Idle cost", "Cost per request", "Automated right-sizing"],
+          "tools": ["OpenCost", "Karpenter", "VPA", "Grafana"],
+          "lab_task": "Cut the cost of a provided cluster by at least 35% while keeping SLOs: right-size requests, change node shapes, use spot nodes for suitable workloads and report cost per team.",
+          "deliverable": "Cost reduction plan, applied changes and before and after reports with SLO evidence",
+          "checks": [["Compare monthly cost estimates", "At least 35% lower or the gap is explained", "OpenCost reports"], ["Check SLO dashboards during the change", "SLOs still met", "Dashboard screenshots"], ["Interrupt a spot node", "Workloads on it reschedule without SLO breach", "Events and SLO graph"]],
+          "objectives": ["Measure and attribute cluster cost", "Reduce cost without breaking SLOs", "Report cost per team and per request"]
+        },
+        {
+          "topic": "Platform Engineering: Internal Developer Platform on Kubernetes",
+          "subtopics": ["Platform as a product", "Golden-path templates with Backstage", "Self-service infrastructure with Crossplane", "Abstractions teams actually need", "Platform APIs", "Guardrails versus gates", "Developer experience metrics", "Platform roadmap and adoption"],
+          "tools": ["Backstage", "Crossplane", "Argo CD"],
+          "lab_task": "Build a golden path in Backstage that creates a service repository, a Crossplane-managed database and a GitOps deployment in one request, with guardrails applied.",
+          "deliverable": "Template, Crossplane compositions, a created service and a platform scorecard",
+          "checks": [["Create a new service from Backstage", "Repository, database and deployment exist and the service responds", "Created resources and URL"], ["Request an oversized database", "Rejected by the composition's limits", "Error message"], ["Time from request to running service", "Within the scorecard target", "Timing evidence"]],
+          "objectives": ["Design an internal developer platform", "Provide self-service infrastructure with Crossplane", "Measure platform adoption and value"]
+        },
+        {
+          "topic": "Writing Production-Grade Operators",
+          "subtopics": ["Operator design principles", "Idempotent reconciliation", "Status, conditions and events", "Owner references and garbage collection", "Leader election", "Webhooks for validation and defaults", "Testing operators with envtest", "Upgrading CRD versions"],
+          "tools": ["kubebuilder", "Go", "envtest"],
+          "lab_task": "Build an operator in Go with kubebuilder that manages a Database custom resource with validation webhooks, conditions, leader election and envtest tests, and add a v2 CRD version.",
+          "deliverable": "Operator repository, tests and an upgrade demo from v1 to v2",
+          "checks": [["Run envtest tests", "All pass", "Test output"], ["Create an invalid Database resource", "Webhook rejects it with a clear message", "Error output"], ["Upgrade to v2 with existing v1 resources", "Existing resources keep working after conversion", "kubectl output"]],
+          "objectives": ["Build operators that are safe to run in production", "Validate and default custom resources", "Version CRDs"]
+        },
+        {
+          "topic": "AI and GPU Workloads on Kubernetes",
+          "subtopics": ["GPU device plugins and drivers", "GPU sharing: time slicing and MIG", "Scheduling GPU nodes", "Model serving with KServe", "Batch training jobs with Kueue", "Autoscaling inference", "Monitoring GPU use", "Cost of idle GPUs"],
+          "tools": ["NVIDIA GPU Operator", "KServe", "Kueue", "DCGM exporter"],
+          "lab_task": "Serve a model with KServe on GPU nodes with autoscaling, queue training jobs with Kueue fair sharing between two teams, and report GPU utilisation.",
+          "deliverable": "Serving and queue configuration, load test results and a GPU utilisation report",
+          "checks": [["Load test the model endpoint", "Replicas scale and latency meets the stated target", "Load test report"], ["Submit jobs from both teams beyond capacity", "Kueue shares GPUs according to quotas", "Queue status"], ["Read the GPU report", "Shows utilisation per team and idle time", "Dashboard"]],
+          "objectives": ["Schedule and share GPUs", "Serve and scale models on Kubernetes", "Manage AI batch workloads fairly"]
+        },
+        {
+          "topic": "Edge and Hybrid Kubernetes",
+          "subtopics": ["When to run Kubernetes at the edge", "Lightweight distributions: k3s and others", "Intermittent connectivity", "Fleet updates with GitOps pull models", "Hybrid clusters with on-premises nodes", "Azure Arc and Anthos style management", "Securing remote clusters", "Monitoring many small clusters"],
+          "tools": ["k3s", "Fleet", "Argo CD"],
+          "lab_task": "Run 5 simulated edge sites on k3s managed by a pull-based GitOps tool, roll an update in waves, and show a disconnected site catching up when it reconnects.",
+          "deliverable": "Edge architecture, fleet configuration and the wave rollout record",
+          "checks": [["Roll an update in two waves", "Second wave starts only after the first is healthy", "Rollout record"], ["Disconnect a site during the update", "Site applies the update after reconnecting", "Site status timeline"], ["Read the security notes", "Remote access, secrets and updates are covered", "Architecture document"]],
+          "objectives": ["Design edge Kubernetes deployments", "Update fleets in safe waves", "Handle intermittent connectivity"]
+        },
+        {
+          "topic": "Kubernetes Upgrade Strategy for Large Fleets",
+          "subtopics": ["Deprecations and removed APIs", "Finding deprecated API use with Pluto", "Canary clusters", "Blue-green cluster upgrades", "In-place versus replace upgrades", "Add-on compatibility matrices", "Upgrade automation", "Communicating upgrades to teams"],
+          "tools": ["Pluto", "Cluster API", "Argo CD"],
+          "lab_task": "Plan and run a fleet upgrade: find deprecated APIs with Pluto, fix them, upgrade a canary cluster, then move a workload to a new blue-green cluster with no downtime.",
+          "deliverable": "Upgrade plan, deprecated API report, compatibility matrix and the migration record",
+          "checks": [["Run Pluto before fixes", "Deprecated APIs are listed with locations", "Pluto output"], ["Upgrade the canary cluster", "All workloads healthy after the upgrade", "Health report"], ["Move traffic to the new cluster", "No failed requests during the cut-over", "Load test log"]],
+          "objectives": ["Plan upgrades for many clusters", "Remove deprecated API use before upgrading", "Upgrade with canary and blue-green clusters"]
+        },
+        {
+          "topic": "Advanced Troubleshooting of Clusters and Workloads",
+          "subtopics": ["Systematic diagnosis under pressure", "kubelet and container runtime logs", "Node pressure and eviction storms", "Network policy and mesh conflicts", "DNS at scale", "Certificate and webhook failures", "Stuck finalizers and namespaces", "Reading control plane metrics"],
+          "tools": ["kubectl", "crictl", "journalctl", "tcpdump"],
+          "lab_task": "Diagnose and fix eight hard failures injected by the trainer, including a failing admission webhook, a stuck namespace and an eviction storm, within a time limit.",
+          "deliverable": "Diagnosis log with symptom, evidence, root cause and fix for each failure",
+          "checks": [["Fix the failing admission webhook", "Deployments can be created again and the cause is recorded", "Log entry and kubectl output"], ["Remove the stuck namespace", "Namespace is deleted after resolving the finalizer correctly", "kubectl output"], ["Stop the eviction storm", "Root cause found from node pressure metrics", "Metrics and log entry"]],
+          "objectives": ["Troubleshoot complex cluster failures", "Use node-level tools and control plane metrics", "Document root causes clearly"]
+        },
+        {
+          "topic": "Securing the Software Delivery Pipeline to Kubernetes",
+          "subtopics": ["Threats to CI/CD pipelines", "Signed commits and protected branches", "Provenance attestations", "SLSA build levels", "Admission verification of provenance", "Secrets in pipelines", "Least privilege for GitOps controllers", "Recovering from a compromised pipeline"],
+          "tools": ["cosign", "SLSA GitHub generator", "Kyverno", "Argo CD"],
+          "lab_task": "Generate SLSA provenance for builds, verify it at admission, restrict the GitOps controller's permissions, and run a tabletop of a compromised pipeline.",
+          "deliverable": "Pipeline configuration, admission policies, permission review and tabletop notes",
+          "checks": [["Deploy an image built outside the pipeline", "Rejected because provenance is missing", "Error output"], ["Review Argo CD permissions", "Limited to its namespaces and resource types", "RBAC review"], ["Read the tabletop notes", "Detection, containment and recovery steps are defined", "Tabletop document"]],
+          "objectives": ["Secure the path from commit to cluster", "Verify build provenance", "Limit delivery controller privileges"]
+        },
+        {
+          "topic": "Observability Architecture for a Cluster Fleet",
+          "subtopics": ["Central versus per-cluster observability", "Long-term metrics with Thanos or Mimir", "Log volume and cost control", "Sampling traces", "Multi-tenant observability", "Fleet-wide alerting", "SLO reporting across clusters", "Observability cost budgets"],
+          "tools": ["Thanos", "Loki", "Tempo", "OpenTelemetry Collector", "Grafana"],
+          "lab_task": "Design and build central observability for three clusters with Thanos, Loki and Tempo, apply log and trace sampling to meet a cost budget, and show fleet-wide SLO reports.",
+          "deliverable": "Observability architecture, deployment and a cost and coverage report",
+          "checks": [["Query a metric across all clusters", "Returns series from all three", "Grafana query"], ["Compare log volume before and after sampling rules", "Within the stated budget", "Volume report"], ["Open the fleet SLO report", "Shows each service's SLO across clusters", "Dashboard"]],
+          "objectives": ["Design observability for many clusters", "Control observability cost", "Report SLOs across a fleet"]
+        },
+        {
+          "topic": "Kubernetes Security Incident Response",
+          "subtopics": ["Common attack paths in clusters", "Detection with audit logs and Falco", "Containing a compromised workload", "Forensic capture of pods and nodes", "Credential rotation after compromise", "Rebuilding versus cleaning", "Communication during incidents", "Lessons learned and hardening"],
+          "tools": ["Falco", "kubectl", "crictl"],
+          "lab_task": "Respond to a simulated cluster compromise: detect it, contain the workload, capture evidence, rotate exposed credentials, and present a timeline and hardening plan.",
+          "deliverable": "Incident timeline, evidence package, rotation record and hardening plan",
+          "checks": [["Contain the workload", "Network isolated and evidence preserved before deletion", "Timeline and evidence list"], ["Use old service account tokens after rotation", "Rejected", "Error output"], ["Read the hardening plan", "Each attack step has a preventive control", "Plan document"]],
+          "objectives": ["Respond to Kubernetes security incidents", "Preserve forensic evidence", "Harden clusters from incident findings"]
+        },
+        {
+          "topic": "Kubernetes Architecture Reviews and Design Trade-offs",
+          "subtopics": ["Reviewing cluster and workload designs", "Reliability, security, cost and operability criteria", "Architecture decision records", "Reviewing another team's design", "Common anti-patterns", "Technical debt in platforms", "Presenting trade-offs to leaders", "Reference architectures"],
+          "tools": ["Draw.io", "Decision records"],
+          "lab_task": "Review another team's platform capstone design, write two architecture decision records for its biggest risks, and present recommendations with cost and risk evidence.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Options, criteria and the reason for the choice are stated", "Decision record"], ["Q&A on one recommendation", "Participant defends it with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Run structured Kubernetes architecture reviews", "Record decisions and trade-offs", "Communicate recommendations clearly"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Cluster Production Platform",
+          "subtopics": ["Business and reliability requirements", "Fleet and network design", "Zero-trust security and compliance", "Multi-region data and recovery", "Platform self-service and cost model", "Architecture defence"],
+          "tools": ["Cluster API", "Cilium", "Argo CD", "Kyverno", "CloudNativePG", "Backstage", "Thanos"],
+          "lab_task": "Design and build a multi-cluster platform across two regions with zero-trust security, compliance policies, multi-region data, self-service golden paths and a cost model, then defend it to a review board.",
+          "deliverable": "Architecture document, working platform, failover and security test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run a region failure test", "Services recover within the stated RTO and RPO", "Test timeline"], ["Run the compliance report", "No unresolved critical violations", "Policy reports"], ["Create a service through the golden path", "Running in both regions within the target time", "Timing evidence"]],
+          "objectives": ["Design and build a multi-cluster production platform", "Prove reliability, security and cost with evidence", "Defend platform decisions to a review board"]
+        }
+      ]
+    }
+  }
+}

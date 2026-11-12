@@ -60,7 +60,7 @@ def categories():
 def category_for(domain_name):
     key = _key(domain_name)
     for category in categories():
-        if any(_key(domain) == key for domain in category.get("domains", [])):
+        if any(_key(domain) == key for domain in [*category.get("domains", []), *category.get("planned", [])]):
             return category.get("name")
     course = get_level_course(domain_name)
     return (course or {}).get("category")
@@ -435,14 +435,19 @@ def canonical_name(name):
 
 
 def coverage_report():
-    """Which domains in each category already have level courses."""
+    """Which domains in each category already have level courses.
+
+    pending: catalog domains still on the old dataset. planned: market technologies
+    with no course at all yet.
+    """
     built = {_key(course["domain"]) for course in _load_courses().values()}
     report = []
     for category in categories():
         domains = category.get("domains", [])
-        done = [d for d in domains if _key(d) in built]
-        report.append({"category": category.get("name"), "built": done,
-                       "pending": [d for d in domains if _key(d) not in built]})
+        planned = [d for d in category.get("planned", []) if _key(d) not in built]
+        done = [d for d in [*domains, *category.get("planned", [])] if _key(d) in built]
+        report.append({"category": category.get("name"), "built": list(dict.fromkeys(done)),
+                       "pending": [d for d in domains if _key(d) not in built], "planned": planned})
     return report
 
 
@@ -475,9 +480,11 @@ def _check():
             print(f"     - {problem}")
     total = built = 0
     for row in coverage_report():
-        total += len(row["built"]) + len(row["pending"])
+        size = len(row["built"]) + len(row["pending"]) + len(row["planned"])
+        total += size
         built += len(row["built"])
-        print(f"{row['category']}: {len(row['built'])}/{len(row['built']) + len(row['pending'])} built")
+        print(f"{row['category']}: {len(row['built'])}/{size} built"
+              + (f" (no course yet: {', '.join(row['planned'])})" if row["planned"] else ""))
     print(f"Domains with level courses: {built}/{total}")
     return 1 if failed else 0
 
