@@ -1,6 +1,7 @@
 """Reference-inspired client TOCs rendered from one validated curriculum."""
 import io
 import math
+import re
 import textwrap
 
 from shared.toc_layouts import REFERENCE_LAYOUTS
@@ -19,6 +20,120 @@ THEMES = {
     "mist_plan": {"header_bg": "FFE4EAF0", "header_fg": "FF2C3E50", "band": "FFEEF3F6", "paper": "FFF8FAFB", "ink": "FF2C3E50", "line": "FFD5DEE6", "rule": "FF8AA0B4", "label_bg": "FFE4EAF0", "label_fg": "FF2C3E50", "tab": "5C7388", "style": "open", "header_align": "center", "header_size": 11, "zebra": True, "label_italic": True},
     "olive_plan": {"header_bg": "FF556B2F", "header_fg": "FFF8FBEA", "band": "FFF0F3E4", "paper": "FFFBFCF6", "ink": "FF333E1E", "line": "FFE0E6CC", "rule": "FFA3B56A", "label_bg": "FFF0F3E4", "label_fg": "FF556B2F", "tab": "556B2F", "style": "ledger", "header_align": "left", "header_size": 11, "zebra": False, "label_italic": False},
 }
+
+
+# Soft tints that mark each technology's days in a combined programme.
+TRACK_COLOURS = ("FFDCEBF7", "FFE3F1DF", "FFFCE8D6", "FFEDE3F4", "FFFFF2CC", "FFE0F2F1", "FFF8E1E1", "FFE8EAF6")
+_INTEGRATED_COLOUR = "FFEDEDED"
+
+
+def _technology_tracks(toc):
+    """Per-technology blocks of a combined programme, from the generator's decision layer."""
+    reasoning = (toc.get("curriculum_decision_layer") or {}).get("technology_reasoning") or []
+    allocations = toc.get("technology_allocations") or []
+    if len(reasoning) < 2 and len(allocations) < 2:
+        return []
+    tracks = []
+    for index, item in enumerate(reasoning or allocations):
+        technology = str(item.get("technology") or "").strip()
+        if not technology:
+            continue
+        days = int(item.get("allocated_days") or item.get("days") or 0)
+        numbers = [int(value) for value in re.findall(r"\d+", str(item.get("day_range") or ""))]
+        start, end = (numbers[0], numbers[-1]) if numbers else (None, None)
+        source = {"level_dataset": "Level course", "domain_dataset": "Catalog course",
+                  "admin_knowledge_base": "Saved client knowledge"}.get(item.get("source"), "Catalog course")
+        tracks.append({
+            "technology": technology, "days": days, "start": start, "end": end,
+            "day_range": f"Days {start}-{end}" if start and end and start != end else f"Day {start}" if start else "To be confirmed",
+            "level": str(item.get("level") or toc.get("level") or "intermediate"),
+            "source": source,
+            "topics": [str(topic) for topic in item.get("selected_topics") or []],
+            "integration_days": [str(topic) for topic in item.get("integration_days") or []],
+            "colour": TRACK_COLOURS[index % len(TRACK_COLOURS)],
+        })
+    return tracks
+
+
+def _week_of(day, index):
+    try:
+        return int(day.get("week"))
+    except (TypeError, ValueError):
+        try:
+            return (int(day.get("day")) - 1) // 5 + 1
+        except (TypeError, ValueError):
+            return (index - 1) // 5 + 1
+
+
+def _track_for_day(tracks, day, day_number, module):
+    """(technology label, level, colour) for one schedule row."""
+    if not tracks:
+        return ("", "", None)
+    module_text = str(module or "")
+    for track in tracks:
+        if module_text in track["integration_days"]:
+            # "Python on AWS: Automation with boto3" -> "Integration: Python on AWS"
+            subject = module_text.split(":")[0].strip() if ":" in module_text else ""
+            return (f"Integration: {subject}" if subject else "Integration", "Integrated", _INTEGRATED_COLOUR)
+    if "capstone" in module_text.lower() and tracks and str(day_number) == str(tracks[-1]["end"]):
+        return ("All technologies", "Integrated", _INTEGRATED_COLOUR)
+    try:
+        number = int(day_number)
+    except (TypeError, ValueError):
+        number = None
+    for track in tracks:
+        if number is not None and track["start"] and track["start"] <= number <= track["end"]:
+            return (track["technology"], track["level"].title(), track["colour"])
+    return ("", "", None)
+
+
+def _mark_weeks_and_tracks(ws, day_weeks, day_tracks, tracks, theme, Border, PatternFill, Side, Font):
+    """Draw a rule above the first row of each new week and colour each technology's days."""
+    rule = Side(style="medium", color=theme["rule"])
+    record, previous_week = -1, None
+    for row in range(2, ws.max_row + 1):
+        if ws.cell(row, 1).value in (None, ""):
+            continue  # continuation row of the record above
+        record += 1
+        if record >= len(day_weeks):
+            break
+        week = day_weeks[record]
+        if previous_week is not None and week != previous_week:
+            for column in range(1, ws.max_column + 1):
+                cell = ws.cell(row, column)
+                cell.border = Border(left=cell.border.left, right=cell.border.right, top=rule, bottom=cell.border.bottom)
+        previous_week = week
+        colour = day_tracks[record][2]
+        if tracks and colour:
+            for column in (1, ws.max_column - 1):
+                cell = ws.cell(row, column)
+                cell.fill = PatternFill("solid", fgColor=colour)
+                cell.font = Font(name="Calibri", size=11, bold=True, color=theme["ink"])
+
+
+def _weekly_rows(toc, days, plan_rows, day_weeks, text):
+    """One row per week: the days, theme, modules, assessment and outcome."""
+    planned = {int(item.get("week")): item for item in toc.get("weekly_programme") or []
+               if str(item.get("week") or "").isdigit()}
+    grouped = {}
+    for row, week in zip(plan_rows, day_weeks):
+        grouped.setdefault(week, []).append(row)
+    if len(grouped) < 2 and not planned:
+        return []
+    rows = []
+    for week, members in sorted(grouped.items()):
+        numbers = [member[0] for member in members]
+        modules = list(dict.fromkeys(str(member[3]) for member in members))
+        plan = planned.get(week) or {}
+        rows.append([
+            f"Week {week}",
+            f"Days {numbers[0]}-{numbers[-1]}" if numbers[0] != numbers[-1] else f"Day {numbers[0]}",
+            text(plan.get("theme")) or "To be confirmed",
+            "\n".join(modules),
+            text(plan.get("assessment_activity")) or "Weekly knowledge check",
+            text(plan.get("outcome")) or "To be confirmed",
+        ])
+    return rows
 
 
 def render_reference_toc(toc):
@@ -156,7 +271,8 @@ def render_reference_toc(toc):
 
     durations = [hours(day) for day in days]
     brief = toc.get("requirement_brief") or {}
-    overview = sheet("Program Overview", ["Programme", "Details"], [
+    tracks = _technology_tracks(toc)
+    overview_rows = [
         ["Title", ("DRAFT - FOR REVIEW: " if toc.get("draft_export") else "") + str(toc.get("title") or toc.get("domain") or "Training Programme")],
         ["Overview", text(toc.get("overview"))],
         ["Audience", brief.get("audience") or toc.get("audience_level") or toc.get("level") or "To be confirmed"],
@@ -165,7 +281,23 @@ def render_reference_toc(toc):
         ["Delivery mode", toc.get("mode") or "To be confirmed"],
         ["Prerequisites", text(toc.get("prerequisites")) or "To be confirmed"],
         ["Learning outcomes", text(toc.get("learning_outcomes"))],
-    ], [28, 105])
+    ]
+    # Rows below are appended after the original eight so their cell positions do not move.
+    if toc.get("level"):
+        overview_rows.append(["Level", str(toc["level"]).replace("_", " ").title()])
+    if tracks:
+        overview_rows.append(["Technologies", "\n".join(
+            f"{track['technology']}: {track['day_range']} ({track['days']} days, {track['level'].title()})"
+            for track in tracks)])
+    if toc.get("category"):
+        overview_rows.append(["Course category", text(toc.get("category"))])
+    if toc.get("certification_roadmap"):
+        overview_rows.append(["Certification roadmap", text(toc.get("certification_roadmap"))])
+    if toc.get("tools_software"):
+        overview_rows.append(["Tools and software", ", ".join(text(tool) for tool in toc["tools_software"][:25])])
+    if toc.get("review_warnings"):
+        overview_rows.append(["Content status", text(toc.get("review_warnings"))])
+    overview = sheet("Program Overview", ["Programme", "Details"], overview_rows, [28, 105])
 
     plan_rows, outcomes, assessments, delivery_rows = [], [], [], []
     for index, day in enumerate(days, 1):
@@ -208,12 +340,33 @@ def render_reference_toc(toc):
         "olive_plan": ("Learning Syllabus", syllabus_headers, plan_rows, [8, 17, 24, 38, 10, 58, 52, 48, 36, 40, 26]),
     }
     schedule_name, schedule_headers, schedule_rows, schedule_widths = schedules[layout]
+    # Week, and for combined programmes Technology and Level, are added as the last
+    # columns so existing column positions (Day, Date, ..., Hours in E) stay fixed.
+    day_weeks = [_week_of(day, index) for index, day in enumerate(days, 1)]
+    day_tracks = [_track_for_day(tracks, day, row[0], row[3]) for day, row in zip(days, plan_rows)]
+    schedule_headers = schedule_headers + ["Week"] + (["Technology", "Level"] if tracks else [])
+    schedule_widths = schedule_widths + [9] + ([22, 14] if tracks else [])
+    schedule_rows = [row + [f"Week {week}"] + ([label, level] if tracks else [])
+                     for row, week, (label, level, _key) in zip(schedule_rows, day_weeks, day_tracks)]
     schedule = sheet(schedule_name, schedule_headers, schedule_rows, schedule_widths)
     for row in range(2, schedule.max_row + 1):
         schedule.cell(row, 5).number_format = "0.##"
     if days and all(value is not None for value in durations):
         overview.cell(6, 2, f"=SUM('{schedule.title}'!E2:E{schedule.max_row})")
         overview.cell(6, 2).number_format = "0.##"
+    _mark_weeks_and_tracks(schedule, day_weeks, day_tracks, tracks, theme, Border, PatternFill, Side, Font)
+    weekly_rows = _weekly_rows(toc, days, plan_rows, day_weeks, text)
+    if weekly_rows:
+        sheet("Weekly Plan", ["Week", "Days", "Theme", "Modules", "Weekly assessment", "Outcome"],
+              weekly_rows, [10, 14, 30, 70, 46, 52])
+    if tracks:
+        legend = sheet("Technology Plan", ["Technology", "Level", "Days", "Day range", "Content source", "Modules", "Integration days"], [
+            [track["technology"], track["level"].title(), track["days"], track["day_range"], track["source"],
+             "\n".join(track["topics"]), "\n".join(track["integration_days"]) or "None"]
+            for track in tracks], [24, 14, 8, 16, 26, 70, 46])
+        for index, track in enumerate(tracks, 2):
+            # The same colour marks this technology's days on the schedule.
+            legend.cell(index, 1).fill = PatternFill("solid", fgColor=track["colour"])
     sheet("Module Outcomes", ["Day", "Module", "Learning outcomes"], outcomes, [8, 42, 100])
     sheet("Assessment", ["Day", "Module", "Assessment / success measure", "Deliverable"], assessments, [8, 40, 85, 65])
     sheet("Training Delivery", ["Day", "Module", "Step", "Teaching method", "Minutes", "Trainer / participant activity", "Evidence of completion"],
@@ -248,6 +401,12 @@ def render_reference_toc(toc):
     if scenario_rows:
         sheet("Scenarios", ["Day", "Module", "Scenario", "Participant activity", "Expected outcome", "Evidence"],
               scenario_rows, [8, 38, 60, 60, 55, 45])
+    certifications = [text(item) for item in toc.get("certification_roadmap") or [] if text(item)]
+    if certifications:
+        sheet("Certification Roadmap", ["Order", "Certification", "Suggested timing"], [
+            [order, certification, "After the programme, once the related labs are complete" if order == 1
+             else "After the previous certification and on-the-job practice"]
+            for order, certification in enumerate(certifications, 1)], [8, 70, 60])
     readiness = []
     if toc.get("draft_export"):
         quality = toc.get("quality") or {}

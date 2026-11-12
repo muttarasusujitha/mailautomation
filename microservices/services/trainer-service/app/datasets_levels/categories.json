@@ -1,0 +1,367 @@
+{
+  "description": "Top-level course categories. 'domains' are courses in the catalog (datasets_compact or datasets_levels); every one belongs to exactly one category. 'planned' are technologies the market asks for that have no course yet; a planned technology moves into 'domains' when its level course is added.",
+  "categories": [
+    {
+      "id": "programming_languages",
+      "name": "Programming Languages",
+      "domains": [
+        "Python",
+        "Java",
+        "Kotlin",
+        "Scala",
+        "Ruby",
+        "Dart",
+        "Swift",
+        "R Programming",
+        "MATLAB",
+        "PowerShell",
+        "Shell Automation",
+        "DSA & Algorithms"
+      ],
+      "planned": [
+        "Go",
+        "Rust",
+        "C",
+        "C++",
+        "C#",
+        "JavaScript",
+        "TypeScript",
+        "SQL"
+      ]
+    },
+    {
+      "id": "web_full_stack",
+      "name": "Web and Full Stack Development",
+      "domains": [
+        "React",
+        "Full Stack",
+        "Java Full Stack",
+        "Python Full Stack",
+        "Ruby on Rails"
+      ],
+      "planned": [
+        "Angular",
+        "Vue.js",
+        "Next.js",
+        "Node.js",
+        "MERN Stack",
+        ".NET Full Stack",
+        "HTML and CSS"
+      ]
+    },
+    {
+      "id": "backend_apis",
+      "name": "Backend, APIs and Web Servers",
+      "domains": [
+        "SOAP APIs",
+        "Webhooks",
+        "WebSocket",
+        "Tomcat",
+        "Nginx",
+        "Firebase",
+        "Supabase"
+      ],
+      "planned": [
+        "Spring Boot",
+        "Django",
+        "FastAPI",
+        "ASP.NET Core",
+        "GraphQL",
+        "Microservices",
+        "System Design",
+        "REST API Design"
+      ]
+    },
+    {
+      "id": "mobile",
+      "name": "Mobile Development",
+      "domains": [
+        "Flutter",
+        "React Native"
+      ],
+      "planned": [
+        "Android Development",
+        "iOS Development"
+      ]
+    },
+    {
+      "id": "databases",
+      "name": "Databases",
+      "domains": [
+        "MariaDB",
+        "PL/SQL",
+        "Apache Cassandra",
+        "CouchDB"
+      ],
+      "planned": [
+        "PostgreSQL",
+        "MySQL",
+        "MongoDB",
+        "Oracle Database",
+        "SQL Server",
+        "Redis"
+      ]
+    },
+    {
+      "id": "data_engineering",
+      "name": "Data Engineering and Analytics",
+      "domains": [
+        "Data Engineering",
+        "Amazon Redshift",
+        "Apache Beam",
+        "Apache Flink",
+        "Apache Hive",
+        "BigQuery",
+        "Data Lakes",
+        "Data Warehousing",
+        "Databricks",
+        "dbt",
+        "ETL/ELT",
+        "Snowflake",
+        "Power BI"
+      ],
+      "planned": [
+        "Apache Spark",
+        "Apache Kafka",
+        "Apache Airflow",
+        "Hadoop",
+        "Tableau",
+        "Microsoft Fabric",
+        "Advanced Excel",
+        "Data Analytics"
+      ]
+    },
+    {
+      "id": "data_science_ml",
+      "name": "Data Science and Machine Learning",
+      "domains": [
+        "Data Science",
+        "Machine Learning",
+        "Deep Learning",
+        "Computer Vision",
+        "Transformers",
+        "Hugging Face",
+        "Quantization",
+        "Model Monitoring"
+      ],
+      "planned": [
+        "MLOps",
+        "Natural Language Processing",
+        "PyTorch",
+        "TensorFlow",
+        "Statistics for Data Science"
+      ]
+    },
+    {
+      "id": "generative_ai",
+      "name": "Generative AI and Agents",
+      "domains": [
+        "Agentic AI",
+        "AI Guardrails",
+        "AutoGen",
+        "Claude APIs",
+        "CrewAI",
+        "Function Calling",
+        "Gemini APIs",
+        "LangGraph",
+        "Llama",
+        "LlamaIndex",
+        "LLM Evaluation",
+        "LLMOps",
+        "MCP",
+        "Multi-Agent Systems",
+        "Ollama",
+        "OpenAI APIs",
+        "Prompt Engineering",
+        "RAG Pipelines",
+        "Semantic Kernel",
+        "Tool Calling",
+        "Kubernetes AI Deployment",
+        "Vector Search",
+        "Chroma",
+        "FAISS",
+        "Milvus",
+        "Pinecone",
+        "Qdrant",
+        "Weaviate"
+      ],
+      "planned": [
+        "Generative AI for Business",
+        "LangChain",
+        "Microsoft Copilot",
+        "Fine-Tuning LLMs"
+      ]
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud",
+      "domains": [
+        "Cloud",
+        "AWS",
+        "Azure",
+        "AWS AI",
+        "Azure AI"
+      ],
+      "planned": [
+        "GCP",
+        "Cloud Security",
+        "Oracle Cloud"
+      ]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps and CI/CD",
+      "domains": [
+        "DevOps",
+        "Azure DevOps",
+        "Argo CD",
+        "Bamboo",
+        "CircleCI",
+        "TeamCity",
+        "Docker Compose",
+        "Chef",
+        "Puppet",
+        "Pulumi",
+        "Vagrant",
+        "Consul",
+        "Istio",
+        "Linux Administration"
+      ],
+      "planned": [
+        "Kubernetes",
+        "Docker",
+        "Terraform",
+        "Ansible",
+        "Jenkins",
+        "GitHub Actions",
+        "Git",
+        "GitLab CI",
+        "Helm",
+        "OpenShift",
+        "Platform Engineering"
+      ]
+    },
+    {
+      "id": "observability_sre",
+      "name": "Observability and SRE",
+      "domains": [
+        "Observability",
+        "SRE",
+        "OpenTelemetry",
+        "Jaeger",
+        "Loki",
+        "Splunk",
+        "New Relic",
+        "AppDynamics"
+      ],
+      "planned": [
+        "Prometheus",
+        "Grafana",
+        "ELK Stack",
+        "Datadog",
+        "Dynatrace"
+      ]
+    },
+    {
+      "id": "networking",
+      "name": "Networking",
+      "domains": [
+        "CDN",
+        "DNS",
+        "Load Balancing",
+        "TCP/IP",
+        "VPN",
+        "Firewall"
+      ],
+      "planned": [
+        "CCNA Networking",
+        "SD-WAN"
+      ]
+    },
+    {
+      "id": "cybersecurity",
+      "name": "Cybersecurity and Identity",
+      "domains": [
+        "Cybersecurity",
+        "IAM",
+        "JWT",
+        "Keycloak",
+        "OpenID Connect",
+        "SAML",
+        "OWASP",
+        "Penetration Testing",
+        "SIEM",
+        "Vault",
+        "Vulnerability Management",
+        "Zero Trust"
+      ],
+      "planned": [
+        "Ethical Hacking",
+        "CompTIA Security+",
+        "SOC Analyst",
+        "Cloud Security Posture Management",
+        "ISO 27001",
+        "CISSP Preparation"
+      ]
+    },
+    {
+      "id": "testing_qa",
+      "name": "Testing and QA",
+      "domains": [
+        "Testing & QA",
+        "Appium",
+        "Cucumber",
+        "JMeter",
+        "LoadRunner",
+        "Mockito",
+        "REST Assured",
+        "Robot Framework",
+        "TestNG"
+      ],
+      "planned": [
+        "Selenium",
+        "Playwright",
+        "Cypress",
+        "Postman API Testing",
+        "Performance Testing",
+        "Test Automation with Python"
+      ]
+    },
+    {
+      "id": "enterprise_platforms",
+      "name": "Enterprise Platforms (ERP, CRM, ITSM)",
+      "domains": [
+        "SAP",
+        "Salesforce",
+        "ServiceNow"
+      ],
+      "planned": [
+        "SAP S/4HANA",
+        "SAP FICO",
+        "SAP MM",
+        "Salesforce Admin",
+        "Microsoft Dynamics 365",
+        "Workday",
+        "Oracle Fusion",
+        "Power Apps",
+        "Power Automate",
+        "SharePoint"
+      ]
+    },
+    {
+      "id": "project_management",
+      "name": "Project Management",
+      "domains": [
+        "Project Management"
+      ],
+      "planned": [
+        "Agile Scrum",
+        "PMP Preparation",
+        "ITIL",
+        "Jira",
+        "SAFe",
+        "Product Management"
+      ]
+    }
+  ]
+}

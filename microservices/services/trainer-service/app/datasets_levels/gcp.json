@@ -1,0 +1,606 @@
+{
+  "domain": "GCP",
+  "name": "GCP",
+  "category": "Cloud",
+  "icon": "cloud",
+  "aliases": ["Google Cloud", "Google Cloud Platform", "GCP Cloud", "Google Cloud Engineering"],
+  "certifications": [
+    "Google Cloud Digital Leader",
+    "Google Cloud Associate Cloud Engineer",
+    "Google Cloud Professional Cloud Architect",
+    "Google Cloud Professional Cloud DevOps Engineer"
+  ],
+  "tools": ["Google Cloud console", "gcloud CLI", "Cloud Shell", "Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No cloud experience assumed. Participants learn Google Cloud's resource hierarchy, IAM, compute, storage, networking, databases, serverless and monitoring, and deploy a small web application.",
+      "prerequisites": [
+        "Basic computer and networking knowledge (IP address, DNS, web browser)",
+        "No prior cloud experience required",
+        "A Google Cloud project or trainer-provided sandbox with a budget alert"
+      ],
+      "outcomes": [
+        "Explain cloud computing, Google Cloud regions and zones and the shared responsibility model",
+        "Organise resources in organisations, folders and projects and control access with IAM",
+        "Deploy and secure Compute Engine, Cloud Storage, VPC networks and Cloud SQL",
+        "Deploy, monitor and cost-control a simple web application on Google Cloud"
+      ],
+      "days": [
+        {
+          "topic": "Cloud Computing Concepts and Google Cloud Global Infrastructure",
+          "shared_key": "cloud-concepts",
+          "subtopics": ["What cloud computing is: on-demand, pay-as-you-go", "IaaS, PaaS and SaaS", "Public, private and hybrid cloud", "Google Cloud regions, zones and the private network", "Shared responsibility model", "Creating a project and enabling billing", "Console, Cloud Shell and gcloud CLI", "Free tier and pricing calculator", "Creating a budget alert", "Enabling APIs"],
+          "tools": ["Google Cloud console", "Cloud Shell", "Cloud Billing"],
+          "lab_task": "Set up a project for training: create a 10 USD budget with an email alert, open Cloud Shell, enable the Compute Engine API and choose a region with a written reason.",
+          "deliverable": "Screenshots of the budget and Cloud Shell session, plus a region choice note",
+          "checks": [["Open Billing budgets", "A 10 USD budget with an alert exists", "Budget screenshot"], ["Run gcloud config list in Cloud Shell", "Shows the training project", "Command output"], ["Ask: who patches the OS of a Compute Engine VM?", "Participant answers the customer, citing the shared responsibility model", "Written answer"]],
+          "objectives": ["Explain cloud service and deployment models", "Describe regions and zones", "Protect a new project with a budget"]
+        },
+        {
+          "topic": "Resource Hierarchy, Projects and IAM",
+          "subtopics": ["Organisation, folders and projects", "IAM principals: users, groups, service accounts", "Basic, predefined and custom roles", "Policy inheritance down the hierarchy", "Granting least privilege", "Service accounts and keys", "Why to avoid service account keys", "Policy Troubleshooter"],
+          "tools": ["IAM", "gcloud CLI"],
+          "lab_task": "Give a developer group the Viewer role on the project and Storage Object Viewer on one bucket, and prove a developer cannot delete a VM.",
+          "deliverable": "IAM bindings screenshot and the denied delete attempt",
+          "checks": [["Developer lists VMs", "VMs are listed", "CLI output"], ["Developer deletes a VM", "Permission denied", "CLI output"], ["Explain why a basic Owner role is risky", "Participant explains the breadth of basic roles", "Written explanation"]],
+          "objectives": ["Organise resources in the hierarchy", "Grant least-privilege IAM roles", "Use service accounts safely"]
+        },
+        {
+          "topic": "Compute Engine Virtual Machines",
+          "subtopics": ["Machine families and types", "Images and boot disks", "SSH with OS Login and IAP", "Startup scripts", "Firewall rules for VMs", "External and internal IPs", "Preemptible and Spot VMs", "Committed and sustained use discounts"],
+          "tools": ["Compute Engine", "gcloud CLI", "IAP"],
+          "lab_task": "Create a Debian VM with a startup script that installs a web server, connect over IAP with no public SSH port, and show the web page.",
+          "deliverable": "VM details, firewall rules and the web page",
+          "checks": [["Browse to the VM external IP on port 80", "Web page loads", "Browser screenshot"], ["SSH to the external IP on port 22 from the internet", "Blocked", "Terminal output"], ["Connect with gcloud compute ssh --tunnel-through-iap", "Connects", "Terminal output"]],
+          "objectives": ["Create and connect to VMs securely", "Bootstrap VMs with startup scripts", "Explain VM pricing options"]
+        },
+        {
+          "topic": "Persistent Disks, Snapshots and Images",
+          "subtopics": ["Disk types: balanced, SSD, standard", "Attaching and mounting a disk", "Snapshots and schedules", "Restoring from a snapshot", "Custom images", "Regional disks", "Encryption with Google and customer keys", "Local SSD trade-offs"],
+          "tools": ["Compute Engine", "Cloud KMS"],
+          "lab_task": "Attach a disk, write a test file, snapshot it on a schedule, delete the disk, restore it from the snapshot, and build a custom image of the web server.",
+          "deliverable": "Command log, restored file contents and a VM started from the custom image",
+          "checks": [["Read the test file on the restored disk", "Contents match", "Terminal output"], ["View the snapshot schedule", "Attached to the disk", "Console screenshot"], ["Start a VM from the custom image", "Web server works without reinstalling", "Browser screenshot"]],
+          "objectives": ["Manage disks and snapshots", "Restore data", "Build custom images"]
+        },
+        {
+          "topic": "Cloud Storage",
+          "subtopics": ["Buckets and objects", "Location types: region, dual-region, multi-region", "Storage classes and lifecycle rules", "Object versioning", "Uniform bucket-level access", "Public access prevention", "Signed URLs", "gcloud storage commands"],
+          "tools": ["Cloud Storage", "gcloud CLI"],
+          "lab_task": "Create a versioned bucket with public access prevention, overwrite and restore a file, add a lifecycle rule, and share one object with a 15-minute signed URL.",
+          "deliverable": "Bucket settings, version history and signed URL test",
+          "checks": [["Open the object without a signed URL", "Access denied", "Browser result"], ["Open the signed URL within 15 minutes", "File downloads", "Browser result"], ["Restore the previous version", "Original contents are back", "Object listing and contents"]],
+          "objectives": ["Store data in Cloud Storage", "Protect data with versioning and lifecycle rules", "Share data with signed URLs"]
+        },
+        {
+          "topic": "VPC Networks, Subnets and Firewall Rules",
+          "subtopics": ["Global VPC networks", "Regional subnets", "Auto and custom mode networks", "Firewall rules and priorities", "Network tags and service accounts as targets", "Routes", "Cloud NAT", "Private Google Access"],
+          "tools": ["VPC", "Cloud NAT"],
+          "lab_task": "Build a custom VPC with web and app subnets in two regions, firewall rules using network tags, and Cloud NAT so private VMs can reach the internet.",
+          "deliverable": "Network diagram, firewall rules and connectivity results",
+          "checks": [["From a private VM, curl a public site", "Succeeds through Cloud NAT", "Terminal output"], ["From the internet, reach the private VM", "Blocked", "Test result"], ["Reach the app VM from a VM without the web tag", "Blocked by firewall", "Test result"]],
+          "objectives": ["Design VPC networks and subnets", "Control traffic with firewall rules", "Give private VMs outbound access"]
+        },
+        {
+          "topic": "Load Balancing and Managed Instance Groups",
+          "subtopics": ["Load balancer types", "Global external Application Load Balancer", "Backend services and health checks", "Instance templates", "Managed instance groups", "Autoscaling policies", "Autohealing", "Rolling updates of instance groups"],
+          "tools": ["Cloud Load Balancing", "Compute Engine"],
+          "lab_task": "Put a managed instance group of web servers behind a global HTTP load balancer with autoscaling and autohealing, then delete an instance and watch it return.",
+          "deliverable": "Load balancer and group configuration with scaling history",
+          "checks": [["Refresh the load balancer IP several times", "Responses come from more than one instance", "Responses"], ["Run a CPU load test", "Autoscaler adds instances", "Group history"], ["Break the health check on one VM", "Autohealing recreates it", "Group events"]],
+          "objectives": ["Distribute traffic with load balancers", "Scale and heal VM groups automatically", "Update instance groups safely"]
+        },
+        {
+          "topic": "Cloud SQL Managed Databases",
+          "subtopics": ["Cloud SQL engines", "Machine types and storage", "High availability configuration", "Read replicas", "Backups and point-in-time recovery", "Private IP connectivity", "Cloud SQL Auth Proxy", "Maintenance windows"],
+          "tools": ["Cloud SQL", "Cloud SQL Auth Proxy"],
+          "lab_task": "Create a PostgreSQL Cloud SQL instance with private IP, connect from the app VM, create a table, and restore a point-in-time clone.",
+          "deliverable": "Instance configuration, connection test and restore evidence",
+          "checks": [["Query from the app VM", "Returns rows", "Query output"], ["Connect from your laptop without the proxy", "Fails because the instance has no public IP", "Error output"], ["Clone to a time before a row was deleted", "Clone contains the row", "Query output"]],
+          "objectives": ["Deploy managed relational databases", "Connect privately and securely", "Use backups and point-in-time recovery"]
+        },
+        {
+          "topic": "Firestore and Bigtable NoSQL",
+          "subtopics": ["Document data in Firestore", "Collections, documents and indexes", "Queries and composite indexes", "Wide-column data in Bigtable", "Row key design", "When to choose Firestore, Bigtable or Cloud SQL", "Pricing models", "Security rules overview"],
+          "tools": ["Firestore", "Bigtable", "gcloud CLI"],
+          "lab_task": "Store orders in Firestore with a composite index for customer and date queries, and design a Bigtable row key for time-series sensor data with a sample query.",
+          "deliverable": "Data models, index definition and query results",
+          "checks": [["Query one customer's orders by date", "Correct orders return using the index", "Query result"], ["Run the query before creating the index", "Fails with an index error", "Error output"], ["Read the Bigtable row key design", "Avoids hotspots and supports the query", "Design note"]],
+          "objectives": ["Model data in Firestore", "Design Bigtable row keys", "Choose the right database service"]
+        },
+        {
+          "topic": "Cloud DNS and Cloud CDN",
+          "subtopics": ["How DNS works", "Public and private zones", "Record types", "DNS forwarding", "Cloud CDN with the load balancer", "Cache keys and TTLs", "Managed SSL certificates", "Cache invalidation"],
+          "tools": ["Cloud DNS", "Cloud CDN"],
+          "lab_task": "Create a private DNS zone for internal services, enable Cloud CDN with a managed certificate on the load balancer, and invalidate a cached file after an update.",
+          "deliverable": "DNS configuration, CDN settings and cache test results",
+          "checks": [["Resolve an internal name from a VM", "Returns the private IP", "nslookup output"], ["Request a static file twice", "Second response is a cache hit", "Response headers"], ["Update the file and invalidate", "New version is served", "Before and after responses"]],
+          "objectives": ["Manage DNS on Google Cloud", "Serve content through Cloud CDN", "Use managed certificates"]
+        },
+        {
+          "topic": "Cloud Monitoring and Cloud Logging",
+          "subtopics": ["Metrics and the Ops Agent", "Dashboards", "Uptime checks", "Alerting policies and notification channels", "Log Explorer and query language", "Log-based metrics", "Log sinks", "Audit logs"],
+          "tools": ["Cloud Monitoring", "Cloud Logging", "Ops Agent"],
+          "lab_task": "Install the Ops Agent on the web servers, build a dashboard, add an uptime check, and alert by email when CPU stays above 70% for 5 minutes.",
+          "deliverable": "Dashboard, alert policy and the received alert",
+          "checks": [["Run a CPU stress test for 6 minutes", "Alert fires and email arrives", "Incident and email"], ["Stop the web server", "Uptime check fails", "Uptime check history"], ["Find who deleted a test bucket", "Admin Activity audit log shows the user", "Log entry"]],
+          "objectives": ["Monitor resources and services", "Query and route logs", "Alert on problems"]
+        },
+        {
+          "topic": "gcloud CLI and Scripting",
+          "subtopics": ["gcloud configurations and profiles", "Output formats and filters", "--format and --filter flags", "Scripting with Bash", "Service account impersonation", "Using gcloud in Cloud Shell", "Idempotent scripts", "gcloud components and alpha or beta commands"],
+          "tools": ["gcloud CLI", "Cloud Shell"],
+          "lab_task": "Write a script that lists running VMs with their zone and machine type and stops those labelled env=dev, using service account impersonation instead of keys.",
+          "deliverable": "Script, output and before and after VM states",
+          "checks": [["Run the script", "Lists VMs in a table", "Script output"], ["Check dev-labelled VMs", "Stopped; others unchanged", "VM states"], ["Search the environment for key files", "None used; impersonation is used", "Command output"]],
+          "objectives": ["Automate Google Cloud with gcloud", "Filter and format output", "Authenticate scripts without keys"]
+        },
+        {
+          "topic": "Cloud Run Serverless Containers",
+          "subtopics": ["What Cloud Run manages", "Deploying a container image", "Revisions and traffic splitting", "Concurrency and scaling settings", "Scaling to zero and minimum instances", "Environment settings and secrets", "Service identity", "Cloud Run jobs"],
+          "tools": ["Cloud Run", "Artifact Registry", "Secret Manager"],
+          "lab_task": "Deploy a container to Cloud Run with a secret from Secret Manager, release a second revision with 20% of traffic, and run a scheduled Cloud Run job.",
+          "deliverable": "Service and job configuration with traffic split evidence",
+          "checks": [["Send 100 requests", "About 20 reach the new revision", "Response tally"], ["Check the service environment", "Secret comes from Secret Manager", "Service configuration"], ["Wait for the job schedule", "Job runs and logs success", "Job execution history"]],
+          "objectives": ["Run containers serverlessly on Cloud Run", "Release revisions with traffic splitting", "Use secrets and service identities"]
+        },
+        {
+          "topic": "Cloud Functions and Eventarc",
+          "subtopics": ["Event-driven functions", "HTTP and event triggers", "Eventarc triggers from Cloud Storage", "Function runtimes", "Service accounts for functions", "Retries and idempotency", "Logs and errors", "Pricing"],
+          "tools": ["Cloud Functions", "Eventarc", "Cloud Storage"],
+          "lab_task": "Write a function triggered by uploads to a bucket that records file name, size and time in Firestore, with retries and idempotent writes.",
+          "deliverable": "Function code, trigger configuration and Firestore documents for three uploads",
+          "checks": [["Upload three files", "Three matching documents appear", "Firestore view"], ["Upload the same file twice", "One document is kept", "Firestore view"], ["Remove the function's Firestore role", "Function errors are visible in logs", "Log entry"]],
+          "objectives": ["Build event-driven functions", "Trigger functions with Eventarc", "Make event handlers idempotent"]
+        },
+        {
+          "topic": "Pub/Sub Messaging",
+          "subtopics": ["Topics and subscriptions", "Pull and push delivery", "Acknowledgement deadlines", "Dead-letter topics", "Message ordering", "Filtering", "Exactly-once delivery", "Fan-out patterns"],
+          "tools": ["Pub/Sub", "Cloud Run"],
+          "lab_task": "Publish order events to a topic with a push subscription to a Cloud Run service and a pull subscription for reporting, with a dead-letter topic for failures.",
+          "deliverable": "Topic and subscription configuration with delivery evidence",
+          "checks": [["Publish a valid event", "Both subscribers receive it", "Logs"], ["Publish an event the service rejects", "Moves to the dead-letter topic after max attempts", "Dead-letter message"], ["Explain the acknowledgement deadline", "Participant explains redelivery of slow messages", "Written explanation"]],
+          "objectives": ["Decouple services with Pub/Sub", "Handle failed messages", "Choose push or pull delivery"]
+        },
+        {
+          "topic": "Infrastructure as Code on Google Cloud",
+          "subtopics": ["Why infrastructure as code", "Terraform Google provider", "Remote state in Cloud Storage", "Infrastructure Manager", "Resource naming and labels", "Planning and applying changes", "Importing existing resources", "Destroying safely"],
+          "tools": ["Terraform", "Infrastructure Manager", "Cloud Storage"],
+          "lab_task": "Recreate the VPC, Cloud Run service and Cloud SQL instance in Terraform with remote state in Cloud Storage, then change a setting through a plan and apply.",
+          "deliverable": "Terraform code, plan and apply outputs",
+          "checks": [["Run terraform plan with no changes", "Plan shows no changes", "Plan output"], ["Change the Cloud Run memory and plan", "Only that change appears", "Plan output"], ["Destroy and recreate the network", "Rebuilt with no manual steps", "Apply output"]],
+          "objectives": ["Manage Google Cloud with Terraform", "Store state remotely", "Change infrastructure through plans"]
+        },
+        {
+          "topic": "Containers on Google Cloud: Artifact Registry and GKE Autopilot",
+          "subtopics": ["Artifact Registry repositories", "Building images with Cloud Build", "GKE Standard and Autopilot", "Deploying workloads to Autopilot", "Exposing services with a load balancer", "Workload Identity Federation for GKE", "Vulnerability scanning", "Choosing Cloud Run or GKE"],
+          "tools": ["Artifact Registry", "Cloud Build", "GKE Autopilot", "kubectl"],
+          "lab_task": "Build an image with Cloud Build into Artifact Registry, deploy it to a GKE Autopilot cluster with Workload Identity reading Cloud Storage, and expose it.",
+          "deliverable": "Build configuration, Kubernetes manifests and access test results",
+          "checks": [["Open the service URL", "App responds", "Browser screenshot"], ["Read the bucket from the pod", "Succeeds with no key files", "kubectl exec output"], ["View the image scan", "Vulnerabilities are listed in Artifact Registry", "Scan screenshot"]],
+          "objectives": ["Store and scan images", "Run containers on GKE Autopilot", "Grant pods Google Cloud access without keys"]
+        },
+        {
+          "topic": "Security Basics: Secret Manager, Cloud KMS and Security Command Center",
+          "subtopics": ["Encryption at rest and in transit", "Cloud KMS keys and rotation", "Secret Manager", "Organisation policy constraints", "Security Command Center findings", "VPC Service Controls overview", "Cloud Armor overview", "Responding to findings"],
+          "tools": ["Secret Manager", "Cloud KMS", "Security Command Center", "Organization Policy"],
+          "lab_task": "Move the database password to Secret Manager, encrypt a bucket with a customer-managed key, apply a policy that blocks external VM IPs, and fix two Security Command Center findings.",
+          "deliverable": "Configuration evidence and before and after findings",
+          "checks": [["Create a VM with an external IP", "Blocked by the organisation policy", "Error message"], ["Search the app configuration for the password", "Not present", "grep output"], ["Compare findings", "Two findings are resolved", "Security Command Center screenshots"]],
+          "objectives": ["Manage secrets and keys", "Apply organisation policies", "Act on security findings"]
+        },
+        {
+          "topic": "Cost Management and the Google Cloud Architecture Framework",
+          "subtopics": ["Billing reports and export to BigQuery", "Budgets and alerts", "Labels for cost allocation", "Recommender for idle and oversized resources", "Committed use discounts", "Architecture Framework pillars", "Reviewing a workload", "Cleaning up unused resources"],
+          "tools": ["Cloud Billing", "BigQuery", "Recommender"],
+          "lab_task": "Export billing to BigQuery, find the three most expensive resources by label, apply two Recommender suggestions, and review the course app against the Architecture Framework.",
+          "deliverable": "Billing query results, savings proposals and the review summary",
+          "checks": [["Query billing by the project label", "Shows lab costs only", "Query result"], ["Present one savings proposal", "Includes current cost, change and saving", "Proposal table"], ["List the review's top risks", "At least three with an improvement each", "Review summary"]],
+          "objectives": ["Track and reduce Google Cloud costs", "Explain the Architecture Framework", "Review a workload against best practices"]
+        },
+        {
+          "topic": "Beginner Capstone: Highly Available Web Application on Google Cloud",
+          "subtopics": ["Requirement walkthrough", "Cloud Run or managed instance group design", "Cloud SQL with private IP", "Cloud Storage and Cloud CDN", "Monitoring, alerts and budget", "Demo and cost estimate"],
+          "tools": ["Cloud Run", "Cloud SQL", "Cloud Load Balancing", "Cloud CDN", "Cloud Monitoring"],
+          "lab_task": "Deploy a two-tier web application with Cloud Run or a managed instance group, a private Cloud SQL database, static files on Cloud CDN, alerts and a budget, then present it.",
+          "deliverable": "Architecture diagram, deployed application, monitoring dashboard, monthly cost estimate and a 10-minute demo",
+          "checks": [["Release a new revision during the demo", "Site stays available", "Demo recording or revision history"], ["Try to reach the database from the internet", "Connection fails", "Test result"], ["Show the cost estimate", "Pricing calculator estimate matches the design", "Calculator export"]],
+          "objectives": ["Design and deploy a highly available web application", "Apply IAM, networking, security and monitoring together", "Present an architecture with its cost"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who have used core Google Cloud services. Covers organisation design, shared VPC, Terraform at scale, GKE, data and analytics services, CI/CD with Cloud Build and Cloud Deploy, and operations.",
+      "prerequisites": [
+        "Has deployed Compute Engine, Cloud Storage, VPC, Cloud SQL and Cloud Run",
+        "Comfortable with gcloud and IAM roles",
+        "Basic Linux command line, Git and Docker"
+      ],
+      "outcomes": [
+        "Design organisation, folder, project and shared VPC structures",
+        "Build infrastructure with Terraform modules for Google Cloud",
+        "Run workloads on GKE and data pipelines with BigQuery, Dataflow and Pub/Sub",
+        "Deliver workloads with Cloud Build and Cloud Deploy, with observability and cost controls"
+      ],
+      "days": [
+        {
+          "topic": "Organisation Design: Folders, Projects and Organisation Policies",
+          "subtopics": ["Google Cloud landing zone blueprint", "Folder strategy by environment and business unit", "Project factory pattern", "Organisation policy constraints", "Hierarchical firewall policies", "Groups-based IAM", "Billing account structure", "Audit logging configuration"],
+          "tools": ["Resource Manager", "Organization Policy", "Terraform"],
+          "lab_task": "Design a folder structure for three business units, create projects with a project factory in Terraform, and apply organisation policies restricting regions and service account keys.",
+          "deliverable": "Hierarchy diagram, project factory code and policy test results",
+          "checks": [["Create a resource in a disallowed region", "Blocked by the location constraint", "Error output"], ["Create a service account key", "Blocked by policy", "Error output"], ["Create a new project from the factory", "Has the baseline APIs, IAM and labels", "Project details"]],
+          "objectives": ["Design the resource hierarchy", "Automate project creation", "Enforce organisation policies"]
+        },
+        {
+          "topic": "Shared VPC, Peering and Private Service Connect",
+          "subtopics": ["Shared VPC host and service projects", "VPC Network Peering", "Private Service Connect", "Hybrid connectivity: Cloud VPN and Interconnect", "Cloud Router and BGP", "Private DNS across projects", "Firewall policies at scale", "IP address planning"],
+          "tools": ["VPC", "Cloud VPN", "Private Service Connect"],
+          "lab_task": "Set up a shared VPC for two service projects, publish an internal service through Private Service Connect, and connect a simulated on-premises network with HA VPN.",
+          "deliverable": "Network design, configuration and connectivity results",
+          "checks": [["From a service project VM, reach the shared subnet", "Works", "Test output"], ["Consume the published service through its endpoint", "Responds on a private IP", "curl output"], ["Fail one VPN tunnel", "Traffic continues over the second tunnel", "Test output and tunnel status"]],
+          "objectives": ["Centralise networking with shared VPC", "Publish services privately", "Connect on-premises networks"]
+        },
+        {
+          "topic": "Terraform Modules for Google Cloud",
+          "subtopics": ["Cloud Foundation Toolkit modules", "Writing project, network and service modules", "Remote state per environment", "Provider configuration and impersonation", "Policy checks with gcloud terraform vet", "Testing modules", "Versioning modules", "Plan review in pull requests"],
+          "tools": ["Terraform", "Cloud Foundation Toolkit", "Cloud Build"],
+          "lab_task": "Build modules for a project, network and Cloud Run service, deploy dev and prod with impersonated service accounts, and block a policy-breaking plan with terraform vet.",
+          "deliverable": "Module code, environment configurations and pipeline results",
+          "checks": [["Plan prod with no changes", "No changes", "Plan output"], ["Plan a public bucket", "Blocked by terraform vet", "Pipeline output"], ["Search the repository for key files", "None; impersonation is used", "grep output"]],
+          "objectives": ["Build Google Cloud infrastructure with modules", "Authenticate Terraform with impersonation", "Check plans against policy"]
+        },
+        {
+          "topic": "GKE Standard Clusters in Depth",
+          "subtopics": ["Regional and zonal clusters", "Node pools and machine types", "VPC-native networking", "Private clusters", "Workload Identity Federation for GKE", "GKE Ingress and Gateway", "Cluster autoscaler and node auto-provisioning", "Release channels and upgrades"],
+          "tools": ["GKE", "kubectl", "Helm"],
+          "lab_task": "Create a private regional GKE cluster with two node pools, deploy an app through the Gateway API with a managed certificate, and upgrade it through its release channel.",
+          "deliverable": "Cluster configuration, manifests and upgrade record",
+          "checks": [["Open the app through the gateway", "Responds over HTTPS", "Browser screenshot"], ["Reach the control plane from the internet", "Blocked by the private cluster setup", "Command output"], ["Run the upgrade", "Nodes upgrade without app downtime", "Load test log"]],
+          "objectives": ["Run production GKE clusters", "Expose apps with the Gateway API", "Upgrade clusters safely"]
+        },
+        {
+          "topic": "Data Warehousing with BigQuery",
+          "subtopics": ["Datasets and tables", "Loading and streaming data", "Partitioning and clustering", "Query cost and slots", "Views and materialised views", "Access control and authorised views", "BigQuery ML overview", "Cost controls"],
+          "tools": ["BigQuery"],
+          "lab_task": "Load sales data into partitioned and clustered tables, write reporting queries, compare bytes scanned with and without partitioning, and share an authorised view.",
+          "deliverable": "Table definitions, queries, cost comparison and the authorised view",
+          "checks": [["Run the monthly report on the partitioned table", "Scans far fewer bytes than the unpartitioned one", "Query statistics"], ["Query the authorised view as an analyst", "Sees only permitted columns", "Query result"], ["Run a query over the cost cap", "Blocked by maximum bytes billed", "Error message"]],
+          "objectives": ["Model and load data in BigQuery", "Reduce query cost", "Share data safely"]
+        },
+        {
+          "topic": "Data Pipelines with Dataflow and Pub/Sub",
+          "subtopics": ["Batch and streaming pipelines", "Apache Beam model", "Dataflow templates", "Windowing and triggers", "Writing to BigQuery", "Handling late data", "Dead-letter outputs", "Monitoring pipelines"],
+          "tools": ["Dataflow", "Pub/Sub", "BigQuery", "Apache Beam"],
+          "lab_task": "Build a streaming pipeline from Pub/Sub to BigQuery that computes per-minute order totals, sends malformed messages to a dead-letter table, and handles late events.",
+          "deliverable": "Pipeline code, job graph and results for a 10-minute replay",
+          "checks": [["Replay 10 minutes of events", "Per-minute totals match the expected values", "BigQuery query"], ["Send malformed messages", "They land in the dead-letter table", "Table rows"], ["Send late events within the allowed lateness", "Totals are updated", "Query result"]],
+          "objectives": ["Build streaming pipelines with Dataflow", "Handle late and bad data", "Load results into BigQuery"]
+        },
+        {
+          "topic": "Orchestration with Cloud Composer and Workflows",
+          "subtopics": ["When to use Composer or Workflows", "Airflow DAGs on Cloud Composer", "Operators for Google Cloud services", "Workflows for service orchestration", "Retries and error handling", "Scheduling with Cloud Scheduler", "Secrets in DAGs", "Monitoring orchestration"],
+          "tools": ["Cloud Composer", "Workflows", "Cloud Scheduler"],
+          "lab_task": "Write an Airflow DAG that loads daily files to BigQuery and runs quality checks, and a Workflow that calls two Cloud Run services with retries.",
+          "deliverable": "DAG, Workflow definition and run histories",
+          "checks": [["Run the DAG for one day", "Files load and checks pass", "Airflow run history"], ["Break a quality check", "DAG fails at the check and alerts", "Task log and alert"], ["Make one service fail twice then succeed", "Workflow retries and completes", "Execution history"]],
+          "objectives": ["Orchestrate data pipelines with Composer", "Orchestrate services with Workflows", "Handle failures and retries"]
+        },
+        {
+          "topic": "CI/CD with Cloud Build and Cloud Deploy",
+          "subtopics": ["Cloud Build triggers and steps", "Private pools", "Build provenance", "Cloud Deploy delivery pipelines", "Targets and promotion", "Approvals", "Canary deployments to Cloud Run and GKE", "Rollbacks"],
+          "tools": ["Cloud Build", "Cloud Deploy", "Artifact Registry"],
+          "lab_task": "Create a pipeline that builds and scans an image, deploys to dev, promotes to prod with approval as a 25% canary, and rolls back a bad release.",
+          "deliverable": "Build and delivery configuration with release history",
+          "checks": [["Push a commit", "Image is built and deployed to dev", "Build and release history"], ["Promote to prod", "Requires approval and starts at 25%", "Release history"], ["Roll back the bad release", "Previous release serves all traffic", "Rollout history"]],
+          "objectives": ["Build images with Cloud Build", "Promote releases with Cloud Deploy", "Run canary releases and rollbacks"]
+        },
+        {
+          "topic": "Identity for Workloads and Pipelines",
+          "subtopics": ["Service account design", "Service account impersonation", "Workload Identity Federation for external systems", "GitHub Actions to Google Cloud without keys", "IAM Conditions", "Privileged access with temporary grants", "IAM recommender", "Auditing service account use"],
+          "tools": ["IAM", "Workload Identity Federation", "GitHub Actions"],
+          "lab_task": "Let a GitHub Actions workflow deploy to Cloud Run through Workload Identity Federation, add an IAM Condition that limits a role to working hours, and remove unused permissions.",
+          "deliverable": "Federation configuration, workflow run and IAM changes",
+          "checks": [["Run the GitHub workflow", "Deploys with no stored key", "Workflow run"], ["Use the conditioned role outside working hours", "Denied", "Error output"], ["Apply IAM recommender suggestions", "Unused permissions are removed", "Before and after bindings"]],
+          "objectives": ["Authenticate external systems without keys", "Use conditional IAM", "Reduce excess permissions"]
+        },
+        {
+          "topic": "Application Security: Cloud Armor, IAP and VPC Service Controls",
+          "subtopics": ["Cloud Armor security policies", "Preconfigured WAF rules", "Rate limiting", "Identity-Aware Proxy for internal apps", "VPC Service Controls perimeters", "Access levels", "reCAPTCHA Enterprise overview", "Testing protections"],
+          "tools": ["Cloud Armor", "Identity-Aware Proxy", "VPC Service Controls"],
+          "lab_task": "Protect the public app with Cloud Armor WAF rules and rate limits, put an internal admin app behind IAP, and add a service perimeter around the data projects.",
+          "deliverable": "Security policies, IAP settings and perimeter test results",
+          "checks": [["Send a SQL injection test string", "Blocked by Cloud Armor", "HTTP 403 and log"], ["Open the admin app without the right group", "IAP denies access", "Browser result"], ["Copy data from the perimeter to an outside bucket", "Blocked by VPC Service Controls", "Error output"]],
+          "objectives": ["Protect web apps with Cloud Armor", "Secure internal apps with IAP", "Prevent data exfiltration with perimeters"]
+        },
+        {
+          "topic": "Observability: Cloud Trace, Profiler and Managed Prometheus",
+          "subtopics": ["OpenTelemetry on Google Cloud", "Cloud Trace", "Cloud Profiler", "Google Cloud Managed Service for Prometheus", "Service monitoring and SLOs", "Error Reporting", "Log-based alerts", "Dashboards as code"],
+          "tools": ["Cloud Trace", "Cloud Profiler", "Managed Service for Prometheus", "OpenTelemetry"],
+          "lab_task": "Instrument the services with OpenTelemetry, find a slow request in Cloud Trace, find a CPU hotspot with Cloud Profiler, and define an SLO with a burn-rate alert.",
+          "deliverable": "Trace and profile screenshots, SLO definition and alert",
+          "checks": [["Make one request slow", "Trace shows the slow span", "Trace screenshot"], ["Read the profile", "Hotspot function identified", "Profiler screenshot"], ["Inject errors", "SLO burn-rate alert fires", "Alert history"]],
+          "objectives": ["Trace and profile services", "Monitor with managed Prometheus", "Define SLOs and burn-rate alerts"]
+        },
+        {
+          "topic": "Backup, Disaster Recovery and Multi-Region Design",
+          "subtopics": ["RPO and RTO", "Backup and DR Service", "Cloud SQL cross-region replicas", "Multi-region Cloud Storage", "Spanner multi-region overview", "Global load balancing failover", "DR patterns", "Testing recovery"],
+          "tools": ["Backup and DR Service", "Cloud SQL", "Cloud Load Balancing"],
+          "lab_task": "Set RPO and RTO for the app, add a cross-region Cloud SQL replica and a second Cloud Run region behind the global load balancer, and run a timed failover test.",
+          "deliverable": "DR plan, configuration and failover timeline",
+          "checks": [["Fail the primary region", "Load balancer sends traffic to the second region", "Test results"], ["Promote the replica", "App writes to the promoted database", "Query output"], ["Compare measured recovery with the RTO", "Within target or the gap is explained", "Timeline"]],
+          "objectives": ["Define RPO and RTO", "Implement multi-region recovery", "Test and time failover"]
+        },
+        {
+          "topic": "Operations: OS Config, Patching and Fleet Management",
+          "subtopics": ["VM Manager and OS Config", "Patch jobs and schedules", "OS inventory", "OS policies", "Managed instance group updates", "Migrate to Virtual Machines overview", "Ops Agent policies", "Runbooks with Cloud Functions"],
+          "tools": ["VM Manager", "OS Config", "Cloud Functions"],
+          "lab_task": "Patch all dev VMs with a scheduled patch job, enforce an OS policy that keeps the web server installed, and write a function that restarts unhealthy VMs from an alert.",
+          "deliverable": "Patch job report, OS policy and automated remediation evidence",
+          "checks": [["Open patch compliance after the window", "Dev VMs are patched", "Patch report"], ["Remove the web server package", "OS policy reinstalls it", "Compliance view"], ["Make a VM unhealthy", "Function restarts it from the alert", "Function log"]],
+          "objectives": ["Automate patching", "Enforce VM configuration", "Automate remediation"]
+        },
+        {
+          "topic": "Cost Optimisation for Running Workloads on Google Cloud",
+          "subtopics": ["Unit cost metrics", "Right-sizing with Recommender", "Spot VMs for fault-tolerant work", "Committed use discounts", "Cloud Run minimum instances and concurrency", "BigQuery editions and slot reservations", "Storage classes and Autoclass", "Network egress costs"],
+          "tools": ["Recommender", "Cloud Billing", "BigQuery"],
+          "lab_task": "Reduce the monthly cost of the course workload by at least 30% with right-sizing, Spot VMs, Cloud Run tuning, Autoclass and BigQuery settings, measuring before and after.",
+          "deliverable": "Cost analysis with before and after estimates and the changes made",
+          "checks": [["Compare estimates", "Reduction of at least 30% or a documented reason", "Cost table"], ["Preempt a Spot VM", "Workload continues", "Event log"], ["Compare BigQuery costs", "Lower after the change, with figures", "Billing query"]],
+          "objectives": ["Measure cost per unit of work", "Apply compute, serverless, storage and analytics savings", "Prove savings with numbers"]
+        },
+        {
+          "topic": "Migrating Workloads to Google Cloud",
+          "subtopics": ["Migration Center assessment", "Migrate to Virtual Machines", "Database Migration Service", "Transfer Service for storage", "Moving containers to GKE or Cloud Run", "Migration waves", "Cut-over planning", "Validating migrated workloads"],
+          "tools": ["Migration Center", "Database Migration Service", "Storage Transfer Service"],
+          "lab_task": "Assess a simulated on-premises environment, migrate a MySQL database with continuous replication to Cloud SQL, and cut over with less than 5 minutes of write downtime.",
+          "deliverable": "Assessment, migration job configuration and cut-over timeline",
+          "checks": [["Compare row counts after the initial load", "Source and target match", "Query output"], ["Write rows to the source during replication", "Rows appear in Cloud SQL within a minute", "Query output"], ["Measure write downtime at cut-over", "Under 5 minutes", "Timeline"]],
+          "objectives": ["Assess workloads for migration", "Migrate databases with minimal downtime", "Plan cut-overs"]
+        },
+        {
+          "topic": "Vertex AI and Generative AI Integration",
+          "subtopics": ["Vertex AI overview", "Gemini models through Vertex AI", "Prompt design and grounding", "Vertex AI Search for retrieval", "Calling models from Cloud Run", "Quotas and cost", "Safety settings", "Private access to AI services"],
+          "tools": ["Vertex AI", "Gemini", "Vertex AI Search", "Cloud Run"],
+          "lab_task": "Add a question-answering feature to the web app with Gemini on Vertex AI grounded on the course FAQs through Vertex AI Search, called from Cloud Run with a service account.",
+          "deliverable": "Feature code, configuration and answers for 10 test questions",
+          "checks": [["Ask the 10 test questions", "Answers cite the correct FAQ entries", "Answer table"], ["Ask a question outside the FAQs", "App says it does not know instead of inventing an answer", "Response"], ["Check the service configuration", "No API keys stored; service account identity used", "Configuration"]],
+          "objectives": ["Integrate Gemini through Vertex AI", "Ground answers with Vertex AI Search", "Secure AI service access"]
+        },
+        {
+          "topic": "Governance: Policy as Code, Asset Inventory and Compliance",
+          "subtopics": ["Cloud Asset Inventory", "Asset queries and exports", "Custom organisation policy constraints", "Policy Intelligence", "Security Command Center posture management", "Compliance reporting", "Labels for ownership", "Exceptions"],
+          "tools": ["Cloud Asset Inventory", "Organization Policy", "Security Command Center"],
+          "lab_task": "Write a custom organisation policy constraint, query Asset Inventory for unlabelled resources across projects, and produce a compliance report for leadership.",
+          "deliverable": "Constraint definition, asset queries and the compliance report",
+          "checks": [["Create a resource breaking the custom constraint", "Blocked", "Error output"], ["Run the unlabelled resources query", "Lists resources by project", "Query result"], ["Read the report", "Shows compliance by project with owners", "Report"]],
+          "objectives": ["Govern resources with custom constraints", "Inventory assets across projects", "Report compliance"]
+        },
+        {
+          "topic": "Hybrid and Multi-Cloud with GKE Enterprise",
+          "subtopics": ["GKE Enterprise overview", "Fleets", "Attached clusters on other clouds", "Config Sync", "Policy Controller", "Service mesh across clusters", "Connect gateway", "When hybrid management helps"],
+          "tools": ["GKE Enterprise", "Config Sync", "Policy Controller"],
+          "lab_task": "Register two clusters in a fleet, manage their configuration with Config Sync from Git, enforce a policy with Policy Controller, and reach both through the Connect gateway.",
+          "deliverable": "Fleet configuration, Git repository and policy test results",
+          "checks": [["Commit a namespace to Git", "Appears in both clusters", "kubectl output from both"], ["Deploy a privileged pod", "Blocked by Policy Controller", "Error output"], ["Run kubectl through the Connect gateway", "Works without direct cluster network access", "Command output"]],
+          "objectives": ["Manage clusters as a fleet", "Apply configuration and policy from Git", "Access clusters through the Connect gateway"]
+        },
+        {
+          "topic": "Comparing Google Cloud with AWS and Azure",
+          "subtopics": ["Service mapping across the three clouds", "Resource hierarchy differences", "Networking model differences: global VPC", "Identity model differences", "Serverless and container options", "Data and analytics strengths", "Pricing differences", "Choosing a cloud for a workload"],
+          "tools": ["Pricing calculators", "Terraform"],
+          "lab_task": "Deploy the same container web service on Cloud Run and one other cloud's serverless container service with Terraform, and compare setup effort, cost and operations.",
+          "deliverable": "Terraform code, service mapping table and a one-page comparison",
+          "checks": [["Open both endpoints", "Same service responds on both clouds", "Responses"], ["Read the cost comparison", "Uses the same assumptions for both", "Calculator exports"], ["Read the recommendation", "Justified with at least three criteria", "Comparison document"]],
+          "objectives": ["Map services between Google Cloud and other clouds", "Explain model differences", "Choose a cloud with evidence"]
+        },
+        {
+          "topic": "Intermediate Capstone: Data-Driven Application Platform on Google Cloud",
+          "subtopics": ["Requirements and architecture review", "Organisation, shared VPC and Terraform modules", "Cloud Run or GKE services", "Pub/Sub, Dataflow and BigQuery analytics", "Security controls and CI/CD with canary release", "Monitoring, cost and demo"],
+          "tools": ["Terraform", "Cloud Run", "Pub/Sub", "Dataflow", "BigQuery", "Cloud Deploy"],
+          "lab_task": "Build an order platform that streams events through Pub/Sub and Dataflow into BigQuery dashboards, with secured services, infrastructure as code and a canary pipeline, then present it.",
+          "deliverable": "Repository, architecture diagram, dashboards, cost estimate and a 15-minute demo",
+          "checks": [["Place 100 orders", "They appear in the BigQuery report within a few minutes", "Query result"], ["Release a faulty version", "Canary fails and rolls back", "Release history"], ["Rebuild the environment from code", "Rebuilt with no manual steps", "Deployment log"]],
+          "objectives": ["Design and build a data-driven platform end to end", "Combine infrastructure as code, data, security and delivery", "Explain design and cost decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Google Cloud engineers. Covers enterprise foundations, global architecture, security at scale, platform engineering, large-scale data and AI platforms, FinOps, SRE and architecture reviews.",
+      "prerequisites": [
+        "Two or more years building and operating workloads on Google Cloud",
+        "Has used Terraform, CI/CD and GKE or Cloud Run in production",
+        "Associate Cloud Engineer level knowledge or equivalent experience"
+      ],
+      "outcomes": [
+        "Design enterprise foundations and global architectures on Google Cloud",
+        "Run security, compliance and data protection at scale",
+        "Build platforms and data or AI platforms that teams can self-serve",
+        "Lead architecture reviews and justify trade-offs with evidence"
+      ],
+      "days": [
+        {
+          "topic": "Enterprise Landing Zone Blueprint Implementation",
+          "subtopics": ["Security foundations blueprint", "Bootstrap, organisation, environments and networks stages", "Centralised logging and monitoring projects", "Hub-and-spoke or shared VPC per environment", "Project factory at scale", "Pipeline for foundation changes", "Customising for regulated industries", "Operating the foundation"],
+          "tools": ["Terraform", "Cloud Build", "Resource Manager"],
+          "lab_task": "Deploy the foundation stages for a company with three business units using Terraform pipelines, and vend a new application project that inherits all baselines.",
+          "deliverable": "Foundation repositories, pipeline runs and a vended project",
+          "checks": [["Vend a project through the pipeline", "Project has networking, logging and policies", "Pipeline log and project view"], ["Change a foundation policy", "Change flows through review and pipeline only", "Pull request and run"], ["Deploy a non-compliant resource in the new project", "Blocked by inherited policy", "Error output"]],
+          "objectives": ["Implement enterprise foundations", "Automate project vending", "Govern foundation changes"]
+        },
+        {
+          "topic": "Global Architecture: Multi-Region Active-Active on Google Cloud",
+          "subtopics": ["When active-active is worth the cost", "Cloud Spanner for global consistency", "Global external load balancing", "Regional Cloud Run and GKE deployments", "Cross-region data replication choices", "Latency-based routing", "Region evacuation runbooks", "Testing region loss"],
+          "tools": ["Cloud Spanner", "Cloud Load Balancing", "Cloud Run"],
+          "lab_task": "Build an active-active API in two regions on Cloud Spanner behind the global load balancer, simulate losing one region, and measure read and write impact.",
+          "deliverable": "Decision record, deployment and the failure test report",
+          "checks": [["Write the same record from both regions", "Spanner keeps one consistent result", "Query output"], ["Disable one region's backends", "Traffic moves within the stated time", "Measured timeline"], ["Read the decision record", "Extra cost compared with one region is quantified", "Decision record"]],
+          "objectives": ["Design global architectures", "Use Spanner for consistent global data", "Test and measure region failure"]
+        },
+        {
+          "topic": "Resilience Engineering and Chaos Testing on Google Cloud",
+          "subtopics": ["Failure modes and blast radius", "Zonal and regional redundancy", "Static stability", "Retries, timeouts and load shedding", "Chaos experiments on GKE and Compute Engine", "Dependency failure injection", "Game days", "Reliability reviews"],
+          "tools": ["Chaos Mesh", "Cloud Monitoring", "GKE"],
+          "lab_task": "Run three chaos experiments (zone loss, dependency latency, Pub/Sub backlog) against the course platform, and fix one weakness each experiment reveals.",
+          "deliverable": "Experiment plans, results and resilience improvements",
+          "checks": [["Run the zone-loss experiment", "Service stays within its error budget", "Dashboard"], ["Inject dependency latency", "Timeouts and fallbacks behave as designed", "Traces"], ["Rerun after fixes", "Impact is lower than before", "Before and after metrics"]],
+          "objectives": ["Design for failure", "Run controlled chaos experiments", "Improve resilience from evidence"]
+        },
+        {
+          "topic": "Security at Scale: Security Command Center, Chronicle and Response",
+          "subtopics": ["Security Command Center Premium or Enterprise", "Threat detection services", "Google Security Operations overview", "Automated response with Cloud Functions", "Incident response runbooks", "Isolating compromised VMs", "Forensic disk snapshots", "Measuring mean time to respond"],
+          "tools": ["Security Command Center", "Google Security Operations", "Cloud Functions"],
+          "lab_task": "Automate response to a simulated compromised VM: isolate it with firewall rules, snapshot its disk for forensics, disable its service account and open a ticket with the evidence.",
+          "deliverable": "Response automation, runbook and incident timeline",
+          "checks": [["Trigger the simulated finding", "VM is isolated within 2 minutes", "Firewall change and timeline"], ["Check forensic evidence", "Snapshot exists and is labelled with the finding ID", "Snapshot list"], ["Use the disabled service account", "Requests are denied", "Error output"]],
+          "objectives": ["Detect threats across the organisation", "Automate incident response", "Preserve forensic evidence"]
+        },
+        {
+          "topic": "Data Protection: Cloud KMS, Confidential Computing and Sensitive Data Protection",
+          "subtopics": ["Key hierarchy and Cloud HSM", "Cloud External Key Manager", "CMEK across services", "Confidential VMs and GKE nodes", "Sensitive Data Protection discovery and de-identification", "Data classification", "Key access justifications", "Protecting keys from deletion"],
+          "tools": ["Cloud KMS", "Cloud HSM", "Sensitive Data Protection", "Confidential Computing"],
+          "lab_task": "Apply CMEK to storage, BigQuery and Cloud SQL for confidential data, discover and de-identify personal data in BigQuery, and prove that disabling a key blocks access.",
+          "deliverable": "Encryption design, de-identification results and access test results",
+          "checks": [["Disable the key", "Data in the protected services becomes unreadable until re-enabled", "Error output"], ["Run discovery on the dataset", "Personal data columns are identified", "Discovery results"], ["Query the de-identified table", "Personal data is masked", "Query result"]],
+          "objectives": ["Design key management for regulated data", "Discover and protect sensitive data", "Use confidential computing"]
+        },
+        {
+          "topic": "Zero-Trust Access with BeyondCorp and VPC Service Controls",
+          "subtopics": ["Zero-trust principles", "Context-aware access", "IAP for TCP and HTTP", "Access levels from device and location", "VPC Service Controls at scale", "Perimeter bridges and ingress or egress rules", "Dry-run mode", "Measuring exposure"],
+          "tools": ["Identity-Aware Proxy", "Access Context Manager", "VPC Service Controls"],
+          "lab_task": "Replace VPN access to internal tools with context-aware IAP, design perimeters for three data projects in dry-run then enforce mode, and allow one approved data flow.",
+          "deliverable": "Access design, perimeter configuration and test matrix",
+          "checks": [["Access an internal tool from an unmanaged device", "Denied by the access level", "Browser result"], ["Move data across the perimeter without a rule", "Blocked", "Error output"], ["Run the approved flow", "Allowed by the egress rule", "Job output"]],
+          "objectives": ["Apply zero-trust access", "Protect data with service perimeters", "Roll out perimeters safely with dry-run"]
+        },
+        {
+          "topic": "Platform Engineering on Google Cloud",
+          "subtopics": ["Internal developer platforms", "Golden paths for Cloud Run and GKE", "Backstage on Google Cloud", "Self-service with Config Connector or Terraform", "Guardrails versus gates", "Platform APIs", "Developer experience metrics", "Platform roadmaps"],
+          "tools": ["Backstage", "Config Connector", "Cloud Deploy"],
+          "lab_task": "Build a golden path that creates a service with repository, Cloud Deploy pipeline, Cloud Run service, monitoring and SLOs in one self-service request.",
+          "deliverable": "Template code, a service created from it and a platform scorecard",
+          "checks": [["Create a service from the template", "Repository, pipeline, service and SLO dashboard exist", "Created resources"], ["Request a disallowed region", "Rejected by guardrails", "Error message"], ["Time the creation", "Within the scorecard target", "Timing evidence"]],
+          "objectives": ["Design internal platforms around golden paths", "Provide self-service with guardrails", "Measure platform value"]
+        },
+        {
+          "topic": "GKE at Scale: Fleets, Multi-Tenancy and Cost",
+          "subtopics": ["Cluster topology choices", "Fleet management", "Team scopes and namespaces", "Multi-cluster Gateway", "Network policies with Dataplane V2", "Node auto-provisioning and Spot", "GKE cost allocation", "Coordinated upgrades"],
+          "tools": ["GKE", "Fleet", "Multi-cluster Gateway"],
+          "lab_task": "Run a multi-tenant fleet of two GKE clusters for three teams with team scopes, network policies and a multi-cluster gateway, and report cost per team.",
+          "deliverable": "Fleet configuration, tenant policies and a cost allocation report",
+          "checks": [["Team A pod calls a Team B service", "Blocked", "kubectl exec output"], ["Fail one cluster's backends", "Multi-cluster gateway serves from the other", "Test results"], ["Open the cost allocation report", "Shows cost per team namespace", "Report"]],
+          "objectives": ["Run multi-tenant GKE fleets", "Route across clusters", "Allocate cost per team"]
+        },
+        {
+          "topic": "Serverless and Event-Driven Architecture at Scale",
+          "subtopics": ["Cloud Run scaling limits and concurrency", "Pub/Sub throughput and ordering keys", "Eventarc patterns", "Workflows for sagas", "Idempotency and exactly-once delivery", "Backpressure", "Cold starts and minimum instances", "Cost at high volume"],
+          "tools": ["Cloud Run", "Pub/Sub", "Eventarc", "Workflows"],
+          "lab_task": "Load test the order platform to 3,000 events per second, find the first limit, and redesign with ordering keys, concurrency tuning and idempotency until it meets the latency target.",
+          "deliverable": "Load test reports, limits found and redesign with results",
+          "checks": [["Run the load test before the redesign", "First limit identified with evidence", "Report"], ["Run after the redesign", "p99 meets the stated target", "Report"], ["Redeliver a processed event", "Processed once", "Data and logs"]],
+          "objectives": ["Find and handle serverless scaling limits", "Design idempotent event processing", "Balance latency and cost"]
+        },
+        {
+          "topic": "Enterprise Data Platform: BigQuery Lakehouse and Dataplex",
+          "subtopics": ["Lakehouse on Google Cloud", "BigLake tables over Cloud Storage", "Apache Iceberg support", "Dataplex lakes, zones and data quality", "Fine-grained access with policy tags", "Data lineage", "BigQuery editions and workload management", "Cost and performance tuning"],
+          "tools": ["BigQuery", "BigLake", "Dataplex"],
+          "lab_task": "Build a governed lakehouse with BigLake tables, Dataplex quality rules and policy tags on sensitive columns, then tune a slow reporting workload with reservations.",
+          "deliverable": "Lakehouse design, governance configuration, quality results and tuning report",
+          "checks": [["Analyst queries a policy-tagged column", "Access denied or masked", "Query result"], ["Load data that breaks a quality rule", "Dataplex reports the failure", "Quality scan result"], ["Compare reporting time and cost", "Improvement measured after tuning", "Query statistics"]],
+          "objectives": ["Design a governed lakehouse", "Apply fine-grained data access and quality", "Tune analytics cost and speed"]
+        },
+        {
+          "topic": "Production AI Platforms on Vertex AI",
+          "subtopics": ["Vertex AI platform components", "Model Garden and tuning options", "RAG with Vertex AI Search or vector search", "Evaluation services", "Safety filters and grounding", "Private endpoints and VPC Service Controls", "Monitoring cost, latency and quality", "Responsible AI reviews"],
+          "tools": ["Vertex AI", "Gemini", "Vertex AI Vector Search", "Vertex AI Evaluation"],
+          "lab_task": "Build a RAG assistant over the course runbooks on Vertex AI with private access, safety settings, an evaluation set of 20 questions, and dashboards for tokens, latency and quality.",
+          "deliverable": "Assistant code, safety configuration, evaluation results and dashboard",
+          "checks": [["Run the evaluation set", "Groundedness and correctness meet the stated thresholds", "Evaluation report"], ["Send a prompt injection test", "Blocked or safely refused", "Response"], ["Call the endpoint from outside the perimeter", "Denied", "Error output"]],
+          "objectives": ["Build production RAG on Vertex AI", "Secure and evaluate AI applications", "Monitor AI cost and quality"]
+        },
+        {
+          "topic": "FinOps Practice on Google Cloud",
+          "subtopics": ["FinOps lifecycle", "Billing export analysis in BigQuery", "Showback and chargeback", "Unit economics", "Commitment portfolio management", "Anomaly detection", "Looker Studio cost dashboards", "Forecasting"],
+          "tools": ["BigQuery", "Looker Studio", "Cloud Billing"],
+          "lab_task": "Build a chargeback dashboard per business unit from the billing export, define a cost-per-order metric, and recommend a committed use discount purchase.",
+          "deliverable": "Chargeback dashboard, unit cost metric and commitment recommendation",
+          "checks": [["Compare chargeback totals with the invoice", "Reconcile within 1%", "Reconciliation table"], ["Inject a cost anomaly", "Alert reaches the owner", "Alert"], ["Present the commitment recommendation", "Includes coverage, utilisation and break-even", "Recommendation"]],
+          "objectives": ["Run FinOps reporting and chargeback", "Measure unit economics", "Plan commitments with data"]
+        },
+        {
+          "topic": "Compliance Automation and Assured Workloads",
+          "subtopics": ["Mapping controls to frameworks", "Assured Workloads for regulated data", "Security Command Center compliance reports", "Organisation policy sets for frameworks", "Automated remediation", "Evidence collection", "Policy checks in pipelines", "Exceptions"],
+          "tools": ["Assured Workloads", "Security Command Center", "Organization Policy"],
+          "lab_task": "Create an Assured Workloads folder for a regulated workload, map 10 controls to policies and pipeline checks, automate remediation for two, and produce an evidence report.",
+          "deliverable": "Assured Workloads configuration, control mapping, remediation code and evidence report",
+          "checks": [["Create a non-compliant resource", "Blocked or remediated automatically", "Event log"], ["Push a template that breaks a pipeline check", "Pipeline fails before deployment", "Pipeline log"], ["Open the evidence report", "Each control has current evidence", "Report"]],
+          "objectives": ["Run regulated workloads on Google Cloud", "Automate compliance controls", "Prepare audit evidence continuously"]
+        },
+        {
+          "topic": "Performance Engineering for Google Cloud Workloads",
+          "subtopics": ["Setting performance targets", "Load testing at scale", "Query Insights for Cloud SQL", "Caching with Memorystore", "Network tiers and latency", "Connection management", "Quotas and limits", "Capacity planning"],
+          "tools": ["Cloud SQL Query Insights", "Memorystore", "Cloud Trace"],
+          "lab_task": "Bring a slow API from 900 ms to under 200 ms p95 at the target load using Query Insights, Memorystore and connection tuning, documenting each change and its effect.",
+          "deliverable": "Performance report with each change and its effect, and the final load test",
+          "checks": [["Run the final load test", "p95 under 200 ms at target load", "Load test report"], ["Show the top query before and after", "Fixed with evidence", "Query Insights screenshots"], ["Hit a quota during the test", "Participant identifies and plans for it", "Quota page and plan"]],
+          "objectives": ["Set and test performance targets", "Diagnose database and network bottlenecks", "Plan capacity and quotas"]
+        },
+        {
+          "topic": "Large-Scale Migration and Modernisation Strategy on Google Cloud",
+          "subtopics": ["Portfolio discovery with Migration Center", "Total cost of ownership analysis", "Wave planning and dependencies", "Rehost, replatform and refactor choices", "Modernising to Cloud Run and GKE", "Mainframe and legacy options", "Migration landing zones", "Tracking progress"],
+          "tools": ["Migration Center"],
+          "lab_task": "Produce a migration plan for a 60-application portfolio: classify each by strategy, plan three waves with dependencies, and write the business case for wave 1.",
+          "deliverable": "Portfolio analysis, wave plan and business case",
+          "checks": [["Review the wave plan", "No application moves before its dependencies", "Dependency map"], ["Pick three applications", "Each strategy choice is justified", "Decision table"], ["Check the business case", "Includes costs, savings, risks and payback", "Business case"]],
+          "objectives": ["Plan migrations across a portfolio", "Choose modernisation strategies", "Build a migration business case"]
+        },
+        {
+          "topic": "SRE Practice on Google Cloud",
+          "subtopics": ["Choosing SLIs", "SLOs in Cloud Monitoring", "Error budget policies", "Burn-rate alerting", "Incident roles and command", "Communication during incidents", "Blameless post-incident reviews", "Reducing toil with automation"],
+          "tools": ["Cloud Monitoring", "Cloud Logging"],
+          "lab_task": "Define SLOs for the order platform, set multi-window burn-rate alerts, and run a 60-minute incident simulation with assigned roles followed by a post-incident review.",
+          "deliverable": "SLO definitions, alert policies, incident timeline and review",
+          "checks": [["Inject errors that burn 10% of the budget in an hour", "Fast burn alert fires", "Alert history"], ["Read the incident timeline", "Roles, decisions and updates are recorded", "Timeline"], ["Read the review", "Root cause and at least three owned actions", "Review"]],
+          "objectives": ["Define SLOs and error budgets", "Alert on budget burn", "Lead incidents and learn from them"]
+        },
+        {
+          "topic": "Hybrid and Distributed Cloud Strategy",
+          "subtopics": ["Google Distributed Cloud overview", "GKE Enterprise on-premises and on other clouds", "Edge locations", "Data residency requirements", "Network connectivity options", "Consistent policy across environments", "Operating many sites", "When hybrid is justified"],
+          "tools": ["GKE Enterprise", "Config Sync"],
+          "lab_task": "Evaluate a data-residency requirement for a provided client, prototype consistent policy and configuration across a cloud and an on-premises cluster, and recommend an approach.",
+          "deliverable": "Prototype, evaluation and recommendation",
+          "checks": [["Apply one policy change in Git", "Both clusters update", "kubectl output from both"], ["Read the residency analysis", "Each data type has a location and reason", "Analysis"], ["Read the recommendation", "Uses cost, risk and operational evidence", "Recommendation"]],
+          "objectives": ["Evaluate hybrid requirements", "Manage policy consistently across environments", "Recommend with evidence"]
+        },
+        {
+          "topic": "Infrastructure Governance at Scale with Terraform and Config Connector",
+          "subtopics": ["Choosing Terraform or Config Connector", "Module and package catalogues", "Policy as code in pipelines", "Drift detection", "Change risk tiers", "Bulk refactors", "Measuring infrastructure delivery", "Ownership of shared resources"],
+          "tools": ["Terraform", "Config Connector", "Policy Controller"],
+          "lab_task": "Manage the same Cloud SQL product through Terraform and Config Connector, compare the developer experience and governance, and set a standard for the organisation.",
+          "deliverable": "Both implementations, comparison and the organisation standard",
+          "checks": [["Create the database with each tool", "Both produce compliant instances", "Resource details"], ["Break a policy with each tool", "Both are blocked before creation", "Error outputs"], ["Read the standard", "States when to use each tool and why", "Standard document"]],
+          "objectives": ["Compare infrastructure management approaches", "Govern infrastructure at scale", "Set organisation standards"]
+        },
+        {
+          "topic": "Google Cloud Architecture Reviews and Trade-off Decisions",
+          "subtopics": ["Architecture Framework reviews", "Architecture decision records", "Evaluating options against requirements", "Cost, risk and complexity trade-offs", "Reviewing other teams' designs", "Technical debt management", "Presenting to stakeholders", "Reference architectures in the Architecture Center"],
+          "tools": ["Architecture Framework", "Architecture Center"],
+          "lab_task": "Review another team's capstone design with the Architecture Framework, write two decision records for its biggest risks, and present recommendations.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Participant defends it with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Run structured architecture reviews", "Document decisions and trade-offs", "Communicate recommendations"]
+        },
+        {
+          "topic": "Advanced Capstone: Global Regulated Platform on Google Cloud",
+          "subtopics": ["Business and non-functional requirements", "Foundations and project design", "Global workload architecture", "Security, data protection and compliance evidence", "Platform automation, data and FinOps", "Architecture defence"],
+          "tools": ["Terraform", "Cloud Spanner", "GKE", "Cloud Run", "VPC Service Controls", "Assured Workloads", "BigQuery"],
+          "lab_task": "Design and build a global platform for a regulated client, including foundations, workloads, data protection, compliance automation, recovery and a cost model, then defend it to a review board.",
+          "deliverable": "Architecture document, working deployment, security and recovery test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run a region failure test", "Recovery meets the stated RTO and RPO", "Test timeline"], ["Run the compliance report", "No unresolved critical findings", "Security Command Center and policy reports"], ["Review the cost model", "Monthly cost is broken down and reconciles with the pricing calculator", "Cost model"]],
+          "objectives": ["Design an enterprise-grade Google Cloud platform end to end", "Prove reliability, security and cost with evidence", "Defend architecture decisions to a review board"]
+        }
+      ]
+    }
+  }
+}

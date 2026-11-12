@@ -1,0 +1,606 @@
+{
+  "domain": "Azure",
+  "name": "Azure",
+  "category": "Cloud",
+  "icon": "cloud",
+  "aliases": ["Microsoft Azure", "Azure Cloud", "Azure Administrator", "Azure Cloud Engineering"],
+  "certifications": [
+    "AZ-900: Microsoft Azure Fundamentals",
+    "AZ-104: Microsoft Azure Administrator",
+    "AZ-204: Developing Solutions for Microsoft Azure",
+    "AZ-305: Designing Microsoft Azure Infrastructure Solutions"
+  ],
+  "tools": ["Azure portal", "Azure CLI", "Bicep", "Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No cloud experience assumed. Participants learn the core Azure services for identity, compute, storage, networking, databases and monitoring, and deploy a small web application.",
+      "prerequisites": [
+        "Basic computer and networking knowledge (IP address, DNS, web browser)",
+        "No prior cloud experience required",
+        "An Azure subscription or trainer-provided sandbox with a budget alert"
+      ],
+      "outcomes": [
+        "Explain cloud computing, Azure global infrastructure and the shared responsibility model",
+        "Organise resources with management groups, subscriptions, resource groups and tags",
+        "Deploy and secure virtual machines, storage accounts, virtual networks and Azure SQL",
+        "Deploy, monitor and cost-control a simple web application on Azure"
+      ],
+      "days": [
+        {
+          "topic": "Cloud Computing Concepts and Azure Global Infrastructure",
+          "shared_key": "cloud-concepts",
+          "subtopics": ["What cloud computing is: on-demand, pay-as-you-go", "IaaS, PaaS and SaaS", "Public, private and hybrid cloud", "Azure regions, region pairs and availability zones", "Shared responsibility model", "Creating a subscription and signing in", "The Azure portal, Cloud Shell and Azure CLI", "Pricing calculator and free account limits", "Creating a budget alert in Cost Management", "Azure service categories"],
+          "tools": ["Azure portal", "Cloud Shell", "Cost Management"],
+          "lab_task": "Set up a subscription for training: create a budget of 10 USD with an email alert, open Cloud Shell, and choose a region and its pair with a written reason.",
+          "deliverable": "Screenshots of the budget alert and Cloud Shell session, plus a region choice note",
+          "checks": [["Open Cost Management budgets", "A 10 USD budget with an email alert exists", "Budget screenshot"], ["Run az account show in Cloud Shell", "Shows the training subscription", "Command output"], ["Ask: who patches the operating system of an Azure VM?", "Participant answers the customer, citing the shared responsibility model", "Written answer"]],
+          "objectives": ["Explain cloud service and deployment models", "Describe regions, region pairs and availability zones", "Protect a new subscription with a budget"]
+        },
+        {
+          "topic": "Microsoft Entra ID Users, Groups and Role-Based Access",
+          "subtopics": ["Microsoft Entra ID tenants", "Users and groups", "Azure RBAC: roles, scopes and assignments", "Built-in roles: Owner, Contributor, Reader", "Entra roles versus Azure roles", "Multi-factor authentication", "Guest users", "Checking access with the IAM blade"],
+          "tools": ["Microsoft Entra ID", "Azure RBAC", "Azure CLI"],
+          "lab_task": "Create Admins and Developers groups, give Developers the Reader role on one resource group, and prove a developer cannot delete a storage account in it.",
+          "deliverable": "Group and role assignment screenshots and the denied delete attempt",
+          "checks": [["Developer lists resources in the resource group", "Resources are listed", "CLI output"], ["Developer deletes a storage account", "AuthorizationFailed error", "CLI output"], ["Explain the scope of the role assignment", "Participant explains inheritance from resource group to resources", "Written explanation"]],
+          "objectives": ["Manage users and groups in Microsoft Entra ID", "Assign Azure RBAC roles at the right scope", "Test access with the CLI"]
+        },
+        {
+          "topic": "Resource Groups, Subscriptions and Azure Resource Manager",
+          "subtopics": ["Management group, subscription and resource group hierarchy", "Azure Resource Manager", "Naming conventions", "Tags for cost and ownership", "Resource locks", "Moving resources", "Resource providers", "Deleting resource groups safely"],
+          "tools": ["Azure portal", "Azure CLI", "Azure Resource Manager"],
+          "lab_task": "Create dev and test resource groups with naming and tagging standards, add a delete lock to test, and show that the lock stops a delete.",
+          "deliverable": "Naming and tagging standard, resource group list and lock test result",
+          "checks": [["Delete the locked resource group", "Delete is blocked by the lock", "Error message"], ["Filter resources by the project tag", "Only tagged resources appear", "Portal screenshot"], ["Explain the hierarchy", "Participant places each level correctly with an example", "Diagram"]],
+          "objectives": ["Organise resources in the Azure hierarchy", "Apply naming, tags and locks", "Explain Azure Resource Manager"]
+        },
+        {
+          "topic": "Azure Virtual Machines",
+          "subtopics": ["VM sizes and families", "Images and the Marketplace", "Disks: OS and data, Standard and Premium SSD", "Connecting with SSH, RDP and Azure Bastion", "Custom script extension", "Availability sets and availability zones", "Stopping versus deallocating", "Reserved instances and Spot VMs"],
+          "tools": ["Azure Virtual Machines", "Azure Bastion", "Azure CLI"],
+          "lab_task": "Create an Ubuntu VM with a script extension that installs a web server, connect through Bastion with no public SSH port, and show the web page.",
+          "deliverable": "VM details, connection screenshot and the web page",
+          "checks": [["Browse to the VM public IP on port 80", "Web page loads", "Browser screenshot"], ["Try SSH to the public IP on port 22", "Connection is refused because the port is closed", "Terminal output"], ["Stop the VM in the OS, then deallocate it in the portal", "Participant explains which state still costs money", "Explanation with portal status"]],
+          "objectives": ["Create and connect to Azure VMs securely", "Choose VM sizes and disks", "Explain VM availability and pricing options"]
+        },
+        {
+          "topic": "Azure Storage Accounts and Blob Storage",
+          "subtopics": ["Storage account types and redundancy: LRS, ZRS, GRS", "Blob containers and access tiers", "Lifecycle management", "Soft delete and versioning", "Shared access signatures", "Public access settings", "Azure Files shares", "Azure Storage Explorer"],
+          "tools": ["Azure Storage", "Storage Explorer", "AzCopy"],
+          "lab_task": "Create a storage account with versioning and soft delete, upload and overwrite a file, restore the old version, and share one blob with a 15-minute SAS.",
+          "deliverable": "Storage settings, version history and SAS test results",
+          "checks": [["Open the blob URL without a SAS", "Access is denied", "Browser result"], ["Open the SAS URL within 15 minutes", "File downloads", "Browser result"], ["Delete a blob and restore it", "Blob is recovered through soft delete", "Container listing"]],
+          "objectives": ["Store data in Azure Blob Storage", "Protect data with versioning and soft delete", "Share data safely with SAS tokens"]
+        },
+        {
+          "topic": "Azure Virtual Networks and Network Security Groups",
+          "subtopics": ["Virtual networks and address spaces", "Subnets", "Network security groups and rules", "Application security groups", "Public and private IP addresses", "VNet peering", "Service endpoints and private endpoints", "Azure DNS"],
+          "tools": ["Azure Virtual Network", "NSG", "Azure CLI"],
+          "lab_task": "Build a VNet with web and app subnets, apply NSGs so only the web subnet can reach the app subnet on port 8080, and peer it to a second VNet.",
+          "deliverable": "Network diagram, NSG rules and connectivity test results",
+          "checks": [["From the web VM, call the app VM on 8080", "Succeeds", "curl output"], ["From the internet, call the app VM", "Blocked", "Test result"], ["From the peered VNet, reach the web VM private IP", "Succeeds over peering", "Ping or curl output"]],
+          "objectives": ["Design virtual networks and subnets", "Filter traffic with NSGs", "Connect VNets with peering"]
+        },
+        {
+          "topic": "Azure Load Balancer and Virtual Machine Scale Sets",
+          "subtopics": ["Why load balancing", "Azure Load Balancer: public and internal", "Health probes", "Load balancing rules", "Virtual Machine Scale Sets", "Autoscale rules", "Zone-redundant scale sets", "Upgrading scale set instances"],
+          "tools": ["Azure Load Balancer", "VM Scale Sets", "Azure Monitor"],
+          "lab_task": "Put a web scale set behind a public load balancer across zones with CPU-based autoscale, then delete one instance and watch it get replaced.",
+          "deliverable": "Load balancer and scale set configuration with the scaling history",
+          "checks": [["Refresh the load balancer IP several times", "Responses come from more than one instance", "Responses with host names"], ["Run a CPU load test", "Autoscale adds an instance", "Scale history"], ["Delete an instance", "Scale set returns to the desired count", "Instance list"]],
+          "objectives": ["Distribute traffic with Azure Load Balancer", "Scale VMs with scale sets", "Configure autoscale rules"]
+        },
+        {
+          "topic": "Azure App Service Web Apps",
+          "subtopics": ["App Service plans and tiers", "Creating a web app", "Deploying from Git or a ZIP file", "App settings and connection strings", "Deployment slots and swaps", "Custom domains and HTTPS", "Scaling up and out", "Diagnostic logs"],
+          "tools": ["Azure App Service", "Azure CLI", "Git"],
+          "lab_task": "Deploy a web app to App Service, add a staging slot, deploy version 2 to staging, test it, and swap it into production.",
+          "deliverable": "App URLs for both slots, slot settings and swap evidence",
+          "checks": [["Open the staging URL", "Shows version 2 while production shows version 1", "Browser screenshots"], ["Swap the slots", "Production shows version 2 without downtime", "Browser and activity log"], ["Mark one setting as a slot setting and swap", "That setting stays with its slot", "Settings screenshots"]],
+          "objectives": ["Host web apps on App Service", "Release safely with deployment slots", "Configure app settings and scaling"]
+        },
+        {
+          "topic": "Azure SQL Database",
+          "subtopics": ["Deployment options: single database, elastic pool, managed instance", "vCore and DTU purchasing", "Logical servers and firewall rules", "Private endpoints for SQL", "Automated backups and point-in-time restore", "Geo-replication overview", "Microsoft Entra authentication for SQL", "Connecting from an application"],
+          "tools": ["Azure SQL Database", "Azure Data Studio"],
+          "lab_task": "Create an Azure SQL database reachable only through a private endpoint, connect from the app VM, create a table and restore a point-in-time copy.",
+          "deliverable": "Database configuration, connection test and restore evidence",
+          "checks": [["Query from the app VM", "Query returns rows", "Query output"], ["Connect from your laptop", "Connection fails because public access is disabled", "Error message"], ["Restore to a time before a row was deleted", "Restored copy contains the row", "Query output"]],
+          "objectives": ["Deploy Azure SQL Database securely", "Use private endpoints", "Restore data with point-in-time restore"]
+        },
+        {
+          "topic": "Azure Cosmos DB",
+          "subtopics": ["Multi-model NoSQL", "Accounts, databases and containers", "Partition keys", "Request units and throughput modes", "Consistency levels", "Querying with the NoSQL API", "Time to live", "When to choose Cosmos DB or Azure SQL"],
+          "tools": ["Azure Cosmos DB", "Data Explorer"],
+          "lab_task": "Design an Orders container partitioned by customer ID, load sample data, and query one customer's orders, comparing request unit charges with a cross-partition query.",
+          "deliverable": "Container design note, queries and request unit comparison",
+          "checks": [["Query one customer's orders", "Only that customer's orders return", "Query results"], ["Run a cross-partition query for the same data", "Higher request unit charge is shown", "RU charge comparison"], ["Set a TTL of 60 seconds on a test item", "Item disappears after expiry", "Before and after query"]],
+          "objectives": ["Model data with partition keys", "Explain request units and consistency levels", "Choose between Cosmos DB and Azure SQL"]
+        },
+        {
+          "topic": "Azure DNS, Front Door and CDN",
+          "subtopics": ["How DNS works", "Azure DNS zones and records", "Alias records", "Azure Front Door routing", "Caching and compression", "HTTPS with managed certificates", "Origin groups and health probes", "Web Application Firewall on Front Door overview"],
+          "tools": ["Azure DNS", "Azure Front Door"],
+          "lab_task": "Serve the App Service app through Front Door with HTTPS and caching for static files, and add a second origin so Front Door fails over when the first is stopped.",
+          "deliverable": "Front Door configuration and failover test results",
+          "checks": [["Open the Front Door endpoint", "App loads over HTTPS", "Browser screenshot"], ["Stop the primary origin", "Front Door serves from the second origin", "Browser and probe status"], ["Request a static file twice", "Second response shows a cache hit", "Response headers"]],
+          "objectives": ["Manage DNS in Azure", "Deliver apps globally with Front Door", "Configure origin failover and caching"]
+        },
+        {
+          "topic": "Azure Monitor, Log Analytics and Alerts",
+          "subtopics": ["Metrics and logs", "Log Analytics workspaces", "Azure Monitor Agent and data collection rules", "KQL queries", "Metric and log alerts", "Action groups", "Workbooks and dashboards", "Activity log"],
+          "tools": ["Azure Monitor", "Log Analytics", "KQL"],
+          "lab_task": "Send VM and App Service logs to a Log Analytics workspace, write KQL queries for errors and top client IPs, and alert by email when CPU stays above 70% for 5 minutes.",
+          "deliverable": "Workspace setup, three KQL queries, alert configuration and the received alert",
+          "checks": [["Run a CPU stress test for 6 minutes", "Alert fires and email arrives", "Alert history and email"], ["Run the error query after causing 10 errors", "Returns the 10 errors", "Query result"], ["Find who deleted a test resource", "Activity log shows the user and time", "Activity log entry"]],
+          "objectives": ["Collect metrics and logs with Azure Monitor", "Query logs with KQL", "Create alerts with action groups"]
+        },
+        {
+          "topic": "Azure CLI, PowerShell and Scripting",
+          "subtopics": ["Azure CLI installation and login", "Az PowerShell module", "Output formats and --query with JMESPath", "Subscriptions and default settings", "Scripting loops and conditions", "Service principals for automation", "Running scripts in Cloud Shell", "Idempotent scripts"],
+          "tools": ["Azure CLI", "Az PowerShell", "Cloud Shell"],
+          "lab_task": "Write a script that lists all VMs in a subscription with their size and power state, and deallocates those tagged environment=dev.",
+          "deliverable": "Script, output and before and after power states",
+          "checks": [["Run the script", "Lists VMs with size and state in a table", "Script output"], ["Check dev-tagged VMs", "They are deallocated; others are unchanged", "VM state list"], ["Run the script twice", "Second run makes no changes and does not fail", "Script output"]],
+          "objectives": ["Automate Azure with the CLI and PowerShell", "Filter output with --query", "Write repeatable scripts"]
+        },
+        {
+          "topic": "Azure Functions Serverless",
+          "subtopics": ["What serverless means", "Function apps and hosting plans", "Triggers and bindings", "HTTP, timer and blob triggers", "Application settings", "Managed identity for functions", "Logs and Application Insights", "Pricing in the Consumption and Flex plans"],
+          "tools": ["Azure Functions", "Azure Storage", "Application Insights"],
+          "lab_task": "Create a function triggered by uploads to a blob container that writes the file name, size and upload time to a Table Storage table using an output binding.",
+          "deliverable": "Function code, binding configuration and table rows for three uploads",
+          "checks": [["Upload three files", "Three matching rows appear", "Table rows"], ["Break the storage connection setting", "Function fails with a clear error in Application Insights", "Log entry"], ["Upload a 0-byte file", "Row is written with size 0", "Table row"]],
+          "objectives": ["Build event-driven functions", "Use triggers and bindings", "Troubleshoot functions with Application Insights"]
+        },
+        {
+          "topic": "Azure Key Vault and Managed Identities",
+          "subtopics": ["Why secrets do not belong in code", "Key Vault secrets, keys and certificates", "Access with Azure RBAC", "System-assigned and user-assigned managed identities", "Key Vault references in App Service", "Soft delete and purge protection", "Rotating secrets", "Auditing Key Vault access"],
+          "tools": ["Azure Key Vault", "Managed Identity", "App Service"],
+          "lab_task": "Move the database password into Key Vault, give the web app a managed identity with read access, and use a Key Vault reference so no secret is stored in app settings.",
+          "deliverable": "Key Vault configuration, identity role assignment and app settings showing the reference",
+          "checks": [["Open the app settings", "Shows a Key Vault reference, not the password", "Settings screenshot"], ["Remove the identity's role and restart the app", "App reports it cannot read the secret", "App log"], ["Delete the secret and recover it", "Secret is restored from soft delete", "Key Vault history"]],
+          "objectives": ["Store secrets in Key Vault", "Access Azure services with managed identities", "Remove secrets from application configuration"]
+        },
+        {
+          "topic": "Infrastructure as Code with Bicep",
+          "subtopics": ["Why infrastructure as code", "ARM templates and Bicep", "Parameters, variables and outputs", "Resource dependencies", "Modules", "What-if deployments", "Deployment scopes", "Deployment history and rollback"],
+          "tools": ["Bicep", "Azure CLI", "VS Code Bicep extension"],
+          "lab_task": "Write Bicep files for a storage account and an App Service web app with a module per resource, preview with what-if, deploy, then change a setting and redeploy.",
+          "deliverable": "Bicep files, what-if output and deployment history",
+          "checks": [["Run what-if after changing the SKU", "Shows only the SKU change", "what-if output"], ["Deploy the same file twice", "Second deployment makes no changes", "Deployment output"], ["Deploy with an invalid parameter", "Deployment fails with a clear validation error", "Error output"]],
+          "objectives": ["Describe infrastructure as code benefits", "Write modular Bicep files", "Preview and deploy changes safely"]
+        },
+        {
+          "topic": "Containers on Azure: Container Registry and Container Apps",
+          "subtopics": ["Containers recap", "Azure Container Registry", "Building images with ACR tasks", "Azure Container Instances", "Azure Container Apps environments", "Revisions and traffic splitting", "Scaling rules", "Pulling images with managed identity"],
+          "tools": ["Azure Container Registry", "Azure Container Apps", "Docker"],
+          "lab_task": "Push a web app image to ACR, run it in Container Apps pulled with a managed identity, then deploy a new revision and split traffic 80/20.",
+          "deliverable": "Registry, app configuration and traffic split evidence",
+          "checks": [["Open the app URL", "Version 1 responds", "Browser screenshot"], ["Split traffic 80/20 and send 100 requests", "Roughly 80 go to version 1 and 20 to version 2", "Response tally"], ["Check registry credentials in the app", "No admin password is used; managed identity pulls the image", "App configuration"]],
+          "objectives": ["Store images in Azure Container Registry", "Run containers on Container Apps", "Release revisions with traffic splitting"]
+        },
+        {
+          "topic": "Cloud Security with Microsoft Defender for Cloud and Azure Policy",
+          "subtopics": ["Secure score", "Defender for Cloud recommendations", "Defender plans for servers and storage", "Azure Policy definitions and assignments", "Built-in initiatives", "Deny and audit effects", "Remediation tasks", "Just-in-time VM access"],
+          "tools": ["Defender for Cloud", "Azure Policy"],
+          "lab_task": "Assign a policy that denies storage accounts with public access and one that audits VMs without backup, fix two Defender recommendations, and record the secure score change.",
+          "deliverable": "Policy assignments, compliance results and before and after secure score",
+          "checks": [["Create a storage account with public blob access", "Creation is denied by policy", "Error message"], ["Open policy compliance", "VMs without backup are listed as non-compliant", "Compliance screenshot"], ["Compare secure scores", "Score improves after the two fixes", "Score screenshots"]],
+          "objectives": ["Improve security posture with Defender for Cloud", "Enforce rules with Azure Policy", "Remediate non-compliant resources"]
+        },
+        {
+          "topic": "Cost Management and the Azure Well-Architected Framework",
+          "subtopics": ["Cost analysis views", "Budgets and alerts", "Cost allocation with tags", "Azure Advisor recommendations", "Reservations and savings plans", "The five Well-Architected pillars", "Well-Architected Review assessment", "Cleaning up unused resources"],
+          "tools": ["Cost Management", "Azure Advisor", "Well-Architected Review"],
+          "lab_task": "Tag all lab resources, find the three most expensive in cost analysis, propose savings using Advisor, and run a Well-Architected Review of the course web app.",
+          "deliverable": "Cost report with savings proposals and the review summary",
+          "checks": [["Group cost analysis by the project tag", "Shows lab costs only", "Cost analysis screenshot"], ["Present one savings proposal", "Includes current cost, change and estimated saving", "Proposal table"], ["List the review's top risks", "At least three with an improvement each", "Review summary"]],
+          "objectives": ["Track and reduce Azure costs", "Explain the Well-Architected pillars", "Review a workload against best practices"]
+        },
+        {
+          "topic": "Beginner Capstone: Highly Available Web Application on Azure",
+          "subtopics": ["Requirement walkthrough", "App Service with deployment slots", "Azure SQL with a private endpoint", "Front Door and Key Vault", "Monitoring, alerts and budget", "Demo and cost estimate"],
+          "tools": ["App Service", "Azure SQL Database", "Front Door", "Key Vault", "Azure Monitor"],
+          "lab_task": "Deploy a two-tier web application with App Service, a private Azure SQL database, Front Door, secrets in Key Vault, alerts and a budget, then present it.",
+          "deliverable": "Architecture diagram, deployed application, monitoring workbook, monthly cost estimate and a 10-minute demo",
+          "checks": [["Swap a new version into production during the demo", "Site stays available", "Demo recording or activity log"], ["Try to reach the database from the internet", "Connection fails", "Test result"], ["Show the cost estimate", "Monthly estimate from the pricing calculator matches the design", "Calculator export"]],
+          "objectives": ["Design and deploy a highly available web application", "Apply identity, networking, security and monitoring together", "Present an architecture with its cost"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who have used core Azure services. Covers landing zones, hub-spoke networking, Terraform and Bicep at scale, AKS, integration services, data services, Azure DevOps and GitHub Actions pipelines, and operations.",
+      "prerequisites": [
+        "Has deployed VMs, storage, VNets, App Service and Azure SQL resources",
+        "Comfortable with the Azure CLI and Azure RBAC",
+        "Basic Linux command line, Git and Docker"
+      ],
+      "outcomes": [
+        "Set up governed management groups, subscriptions and hub-spoke networks",
+        "Build infrastructure with Bicep and Terraform modules",
+        "Run containers on AKS and integration workflows with Service Bus, Event Grid and Logic Apps",
+        "Deliver workloads through pipelines with monitoring, Application Insights and cost controls"
+      ],
+      "days": [
+        {
+          "topic": "Management Groups, Subscriptions and Landing Zone Concepts",
+          "subtopics": ["Cloud Adoption Framework", "Landing zone design areas", "Management group hierarchy", "Subscription vending", "Policy initiatives at management group scope", "Platform and application landing zones", "Privileged Identity Management", "Naming and tagging at scale"],
+          "tools": ["Management groups", "Azure Policy", "Entra Privileged Identity Management"],
+          "lab_task": "Build a management group hierarchy for platform and workload subscriptions, assign a policy initiative at the top, and give admins just-in-time Owner rights through PIM.",
+          "deliverable": "Hierarchy diagram, policy assignments and a PIM activation record",
+          "checks": [["Create a resource that breaks the initiative in a workload subscription", "Denied or flagged by the inherited policy", "Error or compliance result"], ["Admin activates Owner through PIM", "Role is active only for the requested time", "PIM history"], ["Try an Owner action without activation", "Denied", "Error message"]],
+          "objectives": ["Design a management group and subscription structure", "Apply governance at scale with policy initiatives", "Grant privileged access just in time"]
+        },
+        {
+          "topic": "Hub-and-Spoke Networking with Azure Firewall",
+          "subtopics": ["Hub-and-spoke topology", "Azure Firewall rules and policies", "User-defined routes", "Forced tunnelling", "Private DNS zones", "Private endpoints at scale", "VPN Gateway and ExpressRoute overview", "Azure Virtual WAN overview"],
+          "tools": ["Azure Firewall", "Virtual Network", "Private DNS"],
+          "lab_task": "Build a hub VNet with Azure Firewall and two spoke VNets, route spoke-to-spoke and internet traffic through the firewall, and allow only approved outbound domains.",
+          "deliverable": "Network diagram, route tables, firewall policy and test results",
+          "checks": [["From spoke A, reach a VM in spoke B", "Allowed and visible in firewall logs", "Firewall log entry"], ["From a spoke, browse to an unapproved domain", "Blocked by the firewall", "curl output and log"], ["Resolve a private endpoint name from a spoke", "Returns the private IP", "nslookup output"]],
+          "objectives": ["Design hub-and-spoke networks", "Inspect and control traffic with Azure Firewall", "Resolve private endpoints with Private DNS"]
+        },
+        {
+          "topic": "Terraform for Azure",
+          "subtopics": ["Terraform workflow: init, plan, apply", "AzureRM provider and authentication", "Remote state in Azure Storage with locking", "Modules and the Azure Verified Modules library", "Variables, outputs and locals", "Environment separation", "Importing existing resources", "Plan review in pull requests"],
+          "tools": ["Terraform", "Azure Storage", "Azure CLI"],
+          "lab_task": "Write a Terraform module for a spoke network with subnets and NSGs, store state in a storage account with locking, and deploy dev and prod with different address spaces.",
+          "deliverable": "Module code, environment configurations and plan and apply outputs",
+          "checks": [["Run terraform plan with no changes", "Plan shows no changes", "Plan output"], ["Run apply from two terminals at once", "Second run waits or fails on the state lock", "Terminal output"], ["Import a manually created NSG", "Resource is in state and plan shows no changes", "Import and plan output"]],
+          "objectives": ["Manage Azure infrastructure with Terraform", "Share infrastructure through modules", "Store and lock state safely"]
+        },
+        {
+          "topic": "Bicep at Scale: Modules, Registries and Deployment Stacks",
+          "subtopics": ["Module design", "Private Bicep module registry", "Template specs", "Deployment stacks and deny settings", "Parameter files per environment", "Linting with bicepconfig", "Testing with what-if in pipelines", "Bicep compared with Terraform"],
+          "tools": ["Bicep", "Azure Container Registry", "Deployment stacks"],
+          "lab_task": "Publish a versioned web-app module to a private Bicep registry, deploy it through a deployment stack with deny settings, and show that manual deletion is blocked.",
+          "deliverable": "Module registry, stack configuration and the blocked deletion evidence",
+          "checks": [["Reference module version 1.0.0 and deploy", "Deployment succeeds from the registry", "Deployment output"], ["Delete a stack-managed resource manually", "Blocked by deny settings", "Error message"], ["Run the linter with a hard-coded location", "Lint warning is reported", "Linter output"]],
+          "objectives": ["Share Bicep modules through a registry", "Protect deployments with deployment stacks", "Choose between Bicep and Terraform"]
+        },
+        {
+          "topic": "Azure Kubernetes Service Clusters",
+          "subtopics": ["AKS architecture and node pools", "Azure CNI networking options", "Ingress with Application Gateway for Containers or NGINX", "Microsoft Entra Workload ID", "Pulling from ACR", "Cluster autoscaler", "Node pool upgrades", "Azure Monitor for containers"],
+          "tools": ["AKS", "kubectl", "Helm", "Azure Container Registry"],
+          "lab_task": "Create an AKS cluster with system and user node pools, deploy a web app with ingress, and give a pod access to Blob Storage through Workload ID with no stored keys.",
+          "deliverable": "Cluster configuration, manifests and access test results",
+          "checks": [["Open the ingress URL", "App responds", "Browser screenshot"], ["From the pod, list the allowed container", "Succeeds without keys in the pod", "kubectl exec output"], ["From a pod without the identity, list the container", "Access denied", "kubectl exec output"]],
+          "objectives": ["Run workloads on AKS", "Expose apps through ingress", "Grant pods Azure access with Workload ID"]
+        },
+        {
+          "topic": "Integration Services: Service Bus, Event Grid and Logic Apps",
+          "subtopics": ["Choosing a messaging service", "Service Bus queues and topics", "Sessions and dead-letter queues", "Event Grid topics and subscriptions", "Event Hubs overview", "Logic Apps workflows and connectors", "Retries and error handling", "Idempotent consumers"],
+          "tools": ["Service Bus", "Event Grid", "Logic Apps", "Azure Functions"],
+          "lab_task": "Build an order flow: a function publishes orders to a Service Bus topic, one subscriber function processes payments, a Logic App emails the customer, and failures go to the dead-letter queue.",
+          "deliverable": "Architecture diagram, configuration and test evidence for success and failure",
+          "checks": [["Submit a valid order", "Payment is processed and an email arrives", "Logs and email"], ["Submit an order that the processor rejects", "Message moves to the dead-letter queue after max deliveries", "DLQ message"], ["Send the same order twice", "Processed once", "Logs and data"]],
+          "objectives": ["Choose between Service Bus, Event Grid and Event Hubs", "Build message-driven workflows", "Handle failures and duplicates"]
+        },
+        {
+          "topic": "API Management",
+          "subtopics": ["API Management tiers", "Importing APIs from OpenAPI", "Products and subscriptions", "Policies: rate limits, quotas, transformation", "JWT validation with Microsoft Entra ID", "Backend configuration", "Versions and revisions", "Developer portal"],
+          "tools": ["API Management", "Microsoft Entra ID", "Azure Functions"],
+          "lab_task": "Publish the order API through API Management with JWT validation, a 10-calls-per-minute rate limit and a response transformation, and release a new revision.",
+          "deliverable": "API configuration, policy XML and test results",
+          "checks": [["Call the API without a token", "Returns 401", "curl output"], ["Make 15 calls in a minute with a valid token", "Calls over the limit return 429", "Test output"], ["Make the new revision current", "Callers get the new behaviour with no URL change", "Response comparison"]],
+          "objectives": ["Publish and protect APIs with API Management", "Apply policies for security and throttling", "Release API revisions"]
+        },
+        {
+          "topic": "Data Services: Azure SQL Tuning, Cosmos DB Patterns and Azure Cache for Redis",
+          "subtopics": ["Azure SQL performance insights", "Indexes and query store", "Elastic pools", "Cosmos DB change feed", "Cosmos DB partition design for scale", "Azure Cache for Redis", "Cache-aside pattern", "Choosing data services"],
+          "tools": ["Azure SQL Database", "Cosmos DB", "Azure Cache for Redis"],
+          "lab_task": "Fix a slow Azure SQL query using Query Store, add Redis caching in front of it, and use the Cosmos DB change feed to build a read model.",
+          "deliverable": "Before and after query timings, cache configuration and change feed code",
+          "checks": [["Compare query duration before and after the index", "Faster with Query Store evidence", "Query Store screenshots"], ["Call the cached endpoint twice", "Second call is served from Redis", "Latency measurements"], ["Insert an order in Cosmos DB", "Read model updates through the change feed", "Read model data"]],
+          "objectives": ["Tune Azure SQL with Query Store", "Cache data with Redis", "Build read models with the change feed"]
+        },
+        {
+          "topic": "CI/CD with Azure DevOps and GitHub Actions",
+          "subtopics": ["Azure Pipelines YAML", "Stages, jobs and environments", "Service connections with workload identity federation", "GitHub Actions with OIDC to Azure", "Approvals and checks", "Pipeline artifacts", "Variable groups and Key Vault", "Deploying to App Service and AKS"],
+          "tools": ["Azure DevOps", "GitHub Actions", "Azure CLI"],
+          "lab_task": "Create a pipeline that authenticates to Azure with workload identity federation (no secrets), builds and pushes an image to ACR, deploys to dev, and waits for approval before prod.",
+          "deliverable": "Pipeline YAML, service connection configuration and two pipeline runs",
+          "checks": [["Inspect the service connection", "Uses workload identity federation with no client secret", "Configuration screenshot"], ["Push a change", "Image is built and deployed to dev", "Pipeline run"], ["Approve the prod environment", "Prod is updated only after approval", "Pipeline run"]],
+          "objectives": ["Build deployment pipelines for Azure", "Authenticate pipelines without secrets", "Add approvals for production"]
+        },
+        {
+          "topic": "Deployment Strategies: Slots, Revisions and Blue/Green on Azure",
+          "subtopics": ["Rolling, blue/green and canary", "App Service slot swaps with auto swap", "Container Apps revision traffic splitting", "AKS blue/green with two deployments", "Front Door weighted routing", "Health checks and rollback", "Database changes during deployments", "Feature flags with App Configuration"],
+          "tools": ["App Service", "Container Apps", "Azure App Configuration"],
+          "lab_task": "Release a Container Apps revision as a 10% canary with a feature flag in App Configuration, watch error metrics, and roll back when errors rise.",
+          "deliverable": "Release configuration, metrics and evidence of a rollback",
+          "checks": [["Release a healthy revision", "Traffic moves to 100% after checks pass", "Revision history"], ["Release a faulty revision", "Errors are detected and traffic returns to the old revision", "Metrics and revision history"], ["Turn the feature flag off", "Feature disappears without a redeploy", "App behaviour"]],
+          "objectives": ["Compare deployment strategies on Azure", "Run canary releases and roll back", "Separate releases from deployments with feature flags"]
+        },
+        {
+          "topic": "Application Insights and Distributed Tracing",
+          "subtopics": ["Application Insights resources", "OpenTelemetry distro for Azure Monitor", "Requests, dependencies and exceptions", "Application map", "Distributed tracing across services", "Availability tests", "Smart detection", "Workbooks for a service"],
+          "tools": ["Application Insights", "Azure Monitor OpenTelemetry Distro", "KQL"],
+          "lab_task": "Instrument the order flow with OpenTelemetry, view one order across the function, Service Bus and API, add an availability test, and build a service workbook.",
+          "deliverable": "Application map, workbook and availability test results",
+          "checks": [["Place one order", "One end-to-end transaction is visible across services", "Transaction view"], ["Break the API for 5 minutes", "Availability test fails and an alert fires", "Test history and alert"], ["Query exceptions by operation ID", "All related telemetry is returned", "KQL result"]],
+          "objectives": ["Instrument apps with Application Insights", "Trace requests across services", "Monitor availability"]
+        },
+        {
+          "topic": "Workload Protection: WAF, DDoS Protection and Microsoft Sentinel",
+          "subtopics": ["Web Application Firewall on Front Door and Application Gateway", "Managed rule sets and custom rules", "Azure DDoS Protection", "Microsoft Sentinel workspace", "Data connectors", "Analytics rules", "Incidents and automation", "Defender for Cloud alerts"],
+          "tools": ["Azure WAF", "Microsoft Sentinel", "Defender for Cloud"],
+          "lab_task": "Protect the app with WAF managed rules and a rate limit, connect Azure activity and WAF logs to Sentinel, and write an analytics rule that creates an incident for repeated blocks.",
+          "deliverable": "WAF policy, Sentinel rule and the generated incident",
+          "checks": [["Send a SQL injection test string", "Blocked by WAF", "HTTP 403 and WAF log"], ["Send 500 requests a minute from one IP", "Rate rule blocks the IP", "WAF log"], ["Repeat blocked requests", "Sentinel creates an incident", "Incident screenshot"]],
+          "objectives": ["Protect web apps with WAF", "Collect and analyse security logs in Sentinel", "Automate detection of attacks"]
+        },
+        {
+          "topic": "Backup, Site Recovery and Business Continuity",
+          "subtopics": ["RPO and RTO", "Azure Backup for VMs and files", "Recovery Services vaults", "Azure Site Recovery replication", "Failover and failback", "Geo-redundant storage failover", "Azure SQL failover groups", "Testing recovery"],
+          "tools": ["Azure Backup", "Azure Site Recovery", "Azure SQL failover groups"],
+          "lab_task": "Set RPO and RTO for the app, replicate its VM with Site Recovery, add an Azure SQL failover group, and run a timed test failover to the paired region.",
+          "deliverable": "Continuity plan, configuration and the test failover timeline",
+          "checks": [["Run a test failover", "App works in the secondary region", "Test failover report"], ["Compare measured recovery with the RTO", "Within the RTO or the gap is explained", "Timeline"], ["Restore a single file from backup", "File matches the backup point", "Restore output"]],
+          "objectives": ["Define RPO and RTO", "Protect workloads with Backup and Site Recovery", "Test and time a failover"]
+        },
+        {
+          "topic": "Operations with Azure Automation and Update Manager",
+          "subtopics": ["Azure Update Manager", "Maintenance configurations", "Azure Automation runbooks", "Hybrid runbook workers", "Machine configuration", "Change tracking and inventory", "Azure Arc for servers overview", "Run Command"],
+          "tools": ["Azure Update Manager", "Azure Automation", "Azure Arc"],
+          "lab_task": "Patch all dev VMs in a maintenance window with Update Manager and write a runbook that restarts the web service on a schedule and checks its health.",
+          "deliverable": "Patch compliance report, runbook code and job history",
+          "checks": [["Open update compliance after the window", "Dev VMs are compliant", "Compliance report"], ["Run the restart runbook", "Service restarts and the health check passes", "Job output"], ["Stop the service manually and wait for the schedule", "Runbook brings it back", "Job history"]],
+          "objectives": ["Automate patching", "Write and schedule runbooks", "Track configuration and inventory"]
+        },
+        {
+          "topic": "Cost Optimisation for Running Azure Workloads",
+          "subtopics": ["Cost exports and analysis", "Unit cost metrics", "Rightsizing with Advisor", "Spot VMs for fault-tolerant work", "Reservations and savings plan coverage", "Storage tiers and lifecycle", "Autoscale schedules", "Dev/Test pricing"],
+          "tools": ["Cost Management", "Azure Advisor"],
+          "lab_task": "Reduce the monthly cost of the course workload by at least 30% with rightsizing, autoscale schedules, storage tiering and Spot where safe, measuring before and after.",
+          "deliverable": "Cost analysis with before and after estimates and the changes made",
+          "checks": [["Compare cost estimates", "Reduction of at least 30% or a documented reason", "Cost table"], ["Evict a Spot VM in the test", "Workload continues without failure", "Eviction log"], ["Show the autoscale schedule", "Scales down outside working hours", "Scale history"]],
+          "objectives": ["Measure costs per unit of work", "Apply compute and storage cost savings", "Prove savings with numbers"]
+        },
+        {
+          "topic": "Hybrid and Migration with Azure Migrate and Azure Arc",
+          "subtopics": ["Migration approaches: rehost, refactor, rearchitect", "Azure Migrate discovery and assessment", "Server migration", "Azure Database Migration Service", "Azure Arc-enabled servers", "Arc-enabled Kubernetes", "Hybrid DNS and connectivity", "Planning migration waves"],
+          "tools": ["Azure Migrate", "Azure Database Migration Service", "Azure Arc"],
+          "lab_task": "Assess a simulated on-premises environment with Azure Migrate, migrate a SQL Server database online to Azure SQL, and onboard a non-Azure server with Arc for policy and monitoring.",
+          "deliverable": "Assessment report, migration timeline and Arc server compliance view",
+          "checks": [["Compare row counts after migration", "Source and target match", "Query output"], ["Measure write downtime during cut-over", "Under 5 minutes", "Timeline"], ["View the Arc server in the portal", "Policy compliance and monitoring data appear", "Portal screenshot"]],
+          "objectives": ["Assess and plan migrations", "Migrate databases with minimal downtime", "Manage hybrid servers with Azure Arc"]
+        },
+        {
+          "topic": "Analytics with Microsoft Fabric and Azure Data Factory",
+          "subtopics": ["Analytics service landscape", "Data Factory pipelines and activities", "Linked services and integration runtimes", "Copy activity and mapping data flows", "Microsoft Fabric lakehouse", "OneLake", "Scheduling and triggers", "Monitoring pipeline runs"],
+          "tools": ["Azure Data Factory", "Microsoft Fabric", "Azure Storage"],
+          "lab_task": "Build a Data Factory pipeline that copies daily sales files from Blob Storage into a Fabric lakehouse table, runs on a schedule, and alerts on failure.",
+          "deliverable": "Pipeline definition, run history and lakehouse query results",
+          "checks": [["Run the pipeline for one day's files", "Row count in the table matches the files", "Query output"], ["Drop a malformed file", "Pipeline fails or routes the bad file as designed and alerts", "Run history and alert"], ["Rerun the same day", "No duplicate rows", "Query output"]],
+          "objectives": ["Move data with Data Factory pipelines", "Store analytics data in a Fabric lakehouse", "Monitor and rerun pipelines safely"]
+        },
+        {
+          "topic": "Azure OpenAI and AI Services Integration",
+          "subtopics": ["Azure AI services overview", "Azure OpenAI deployments and quotas", "Calling models from an app", "Content filters", "Retrieval with Azure AI Search", "Private endpoints for AI services", "Managed identity authentication", "Cost and token limits"],
+          "tools": ["Azure OpenAI", "Azure AI Search", "App Service"],
+          "lab_task": "Add a question-answering feature to the web app using Azure OpenAI and Azure AI Search over the course FAQs, authenticated with managed identity over private endpoints.",
+          "deliverable": "Feature code, configuration and answers for 10 test questions",
+          "checks": [["Ask the 10 test questions", "Answers cite the correct FAQ entries", "Answer table"], ["Ask a question outside the FAQ", "App says it does not know instead of inventing an answer", "Response"], ["Check the app configuration", "No API keys are stored; managed identity is used", "Configuration screenshot"]],
+          "objectives": ["Integrate Azure OpenAI into an application", "Ground answers with Azure AI Search", "Secure AI services with identity and private access"]
+        },
+        {
+          "topic": "Governance: Azure Policy as Code and Compliance Reporting",
+          "subtopics": ["Custom policy definitions", "Policy initiatives", "Policy as code in Git", "Exemptions", "DeployIfNotExists and Modify effects", "Regulatory compliance dashboards", "Resource Graph queries", "Reporting to stakeholders"],
+          "tools": ["Azure Policy", "Azure Resource Graph", "GitHub Actions"],
+          "lab_task": "Store custom policies in Git, deploy them through a pipeline, add a Modify policy that applies a required tag automatically, and report compliance with Resource Graph.",
+          "deliverable": "Policy repository, pipeline run and the compliance report",
+          "checks": [["Create a resource without the required tag", "Tag is added automatically", "Resource tags"], ["Change a policy in Git", "Pipeline deploys the new version", "Pipeline run"], ["Run the Resource Graph report", "Lists non-compliant resources by subscription", "Query result"]],
+          "objectives": ["Manage policies as code", "Remediate automatically with policy effects", "Report compliance across subscriptions"]
+        },
+        {
+          "topic": "Intermediate Capstone: Event-Driven Order Platform on Azure",
+          "subtopics": ["Requirements and architecture review", "Infrastructure with Bicep or Terraform", "AKS or Container Apps services with Service Bus", "Security and identity", "Pipeline with canary release", "Monitoring, cost and demo"],
+          "tools": ["Container Apps", "Service Bus", "Cosmos DB", "API Management", "Bicep", "Azure DevOps"],
+          "lab_task": "Build an event-driven order platform with API Management, containerised services, Service Bus, Cosmos DB, managed identities, infrastructure as code and a canary pipeline, then present it.",
+          "deliverable": "Repository, architecture diagram, workbook, cost estimate and a 15-minute demo",
+          "checks": [["Run the end-to-end order test", "Order completes across services and is traced in Application Insights", "Test output and trace"], ["Release a faulty version", "Canary detects errors and rolls back", "Revision and metric history"], ["Delete and redeploy the environment from code", "Environment is rebuilt with no manual steps", "Deployment log"]],
+          "objectives": ["Design and build an event-driven platform end to end", "Combine infrastructure as code, pipelines, security and monitoring", "Explain design and cost decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Azure engineers. Covers enterprise landing zones, multi-region resilience, identity and security at scale, platform engineering, AKS fleets, FinOps, compliance and architecture reviews.",
+      "prerequisites": [
+        "Two or more years building and operating workloads on Azure",
+        "Has used infrastructure as code, pipelines and containers in production",
+        "AZ-104 or AZ-204 level knowledge or equivalent experience"
+      ],
+      "outcomes": [
+        "Design enterprise landing zones and multi-region Azure architectures that meet stated goals",
+        "Build platforms and guardrails that teams can self-serve",
+        "Run security, cost and reliability programmes with measurable results",
+        "Lead architecture reviews and justify trade-offs with evidence"
+      ],
+      "days": [
+        {
+          "topic": "Enterprise-Scale Landing Zone Implementation",
+          "subtopics": ["Azure landing zone accelerators", "Platform subscriptions: identity, management, connectivity", "Subscription vending automation", "Policy-driven governance", "Centralised logging", "Landing zone customisation", "Brownfield adoption", "Operating the platform team"],
+          "tools": ["Azure Landing Zones", "Terraform", "Azure Policy", "Management groups"],
+          "lab_task": "Deploy an Azure landing zone for a company with three business units using the Terraform accelerator, and automate vending of a new application subscription with baseline networking and policy.",
+          "deliverable": "Landing zone design, automation code and a vended subscription",
+          "checks": [["Vend a new subscription through the pipeline", "Subscription has baseline network, policy and logging", "Pipeline log and portal view"], ["Review the management group design", "Each group has a stated purpose and policy set", "Design document"], ["Deploy a non-compliant resource in the new subscription", "Blocked by inherited policy", "Error message"]],
+          "objectives": ["Implement enterprise-scale landing zones", "Automate subscription vending", "Govern through policy at scale"]
+        },
+        {
+          "topic": "Multi-Region Active-Active Architecture on Azure",
+          "subtopics": ["When active-active is worth the cost", "Front Door global routing", "Cosmos DB multi-region writes and conflict policies", "Azure SQL active geo-replication", "Zone-redundant services", "Region-independent deployment pipelines", "Region evacuation runbooks", "Testing region failure"],
+          "tools": ["Azure Front Door", "Cosmos DB", "Azure SQL", "Container Apps"],
+          "lab_task": "Build an active-active API in two regions with Cosmos DB multi-region writes and Front Door, simulate loss of one region, and measure the impact on reads and writes.",
+          "deliverable": "Architecture decision record, deployment and the failure test report",
+          "checks": [["Write the same item in both regions at once", "Conflict is resolved as configured and explained", "Item versions and explanation"], ["Disable one region's origin", "Traffic moves to the other within the stated time", "Measured timeline"], ["Read the decision record", "Extra cost compared with one region is quantified", "Decision record"]],
+          "objectives": ["Design active-active systems on Azure", "Handle multi-region data and conflicts", "Test and measure region failure"]
+        },
+        {
+          "topic": "Resilience Engineering with Azure Chaos Studio",
+          "subtopics": ["Failure modes and blast radius", "Deployment stamps", "Health modelling", "Retries, circuit breakers and timeouts", "Chaos Studio experiments and faults", "Agent-based and service-direct faults", "Stopping experiments safely", "Game days"],
+          "tools": ["Azure Chaos Studio", "Azure Monitor", "AKS"],
+          "lab_task": "Run three Chaos Studio experiments (zone loss for VMs, AKS pod failures, Cosmos DB failover) against the course service, and fix one weakness each experiment reveals.",
+          "deliverable": "Experiment definitions, results and the resilience improvements",
+          "checks": [["Run the zone-loss experiment", "Service stays within its error budget", "Workbook during the experiment"], ["Cancel an experiment mid-run", "Faults are removed and the service recovers", "Experiment log"], ["Rerun after the fix", "Impact is lower than before", "Before and after metrics"]],
+          "objectives": ["Design for failure with stamps and health models", "Run controlled chaos experiments", "Improve resilience from evidence"]
+        },
+        {
+          "topic": "Identity Architecture: Conditional Access and Workload Identities",
+          "subtopics": ["Zero-trust identity principles", "Conditional Access policies", "Authentication strengths", "Privileged Identity Management at scale", "Workload identity federation for external systems", "Managed identity design", "Access reviews", "Break-glass accounts"],
+          "tools": ["Microsoft Entra ID", "Conditional Access", "PIM"],
+          "lab_task": "Design Conditional Access for admins and developers, require phishing-resistant MFA for privileged roles, federate a GitHub workflow identity, and set quarterly access reviews.",
+          "deliverable": "Identity design, policies and test results",
+          "checks": [["Admin signs in without the required authentication strength", "Access is blocked", "Sign-in log"], ["GitHub workflow deploys with federation", "Succeeds with no stored secret", "Workflow run"], ["Run an access review", "Unused access is removed after review", "Review results"]],
+          "objectives": ["Design identity controls for people and workloads", "Protect privileged access", "Govern access over time"]
+        },
+        {
+          "topic": "Security Operations at Scale with Defender XDR and Sentinel",
+          "subtopics": ["Sentinel architecture for many subscriptions", "Analytics rules and hunting queries", "Automation rules and playbooks", "Defender for Cloud workload protection", "Incident response runbooks", "Isolating a compromised VM", "Collecting forensic evidence", "Measuring mean time to respond"],
+          "tools": ["Microsoft Sentinel", "Defender for Cloud", "Logic Apps"],
+          "lab_task": "Automate response to a simulated compromised VM: isolate it with an NSG, snapshot its disks, disable the managed identity, and open an incident with the evidence.",
+          "deliverable": "Playbook, runbook and the incident timeline",
+          "checks": [["Trigger the simulated alert", "VM is isolated within 2 minutes", "NSG change and timeline"], ["Check evidence", "Disk snapshots exist and are tagged with the incident ID", "Snapshot list"], ["Run a hunting query for related sign-ins", "Returns related activity", "Query result"]],
+          "objectives": ["Run security operations across subscriptions", "Automate incident response", "Preserve evidence for investigation"]
+        },
+        {
+          "topic": "Data Protection: Encryption, Key Management and Confidential Computing",
+          "subtopics": ["Platform-managed versus customer-managed keys", "Key Vault Managed HSM", "Double encryption", "Key rotation policies", "Data classification with Microsoft Purview", "Confidential VMs and containers", "Private access to data services", "Protecting keys from deletion"],
+          "tools": ["Key Vault Managed HSM", "Microsoft Purview", "Azure Storage", "Azure SQL"],
+          "lab_task": "Apply customer-managed keys to storage and Azure SQL for confidential data, classify data with Purview, and prove that disabling a key blocks access.",
+          "deliverable": "Encryption design, configuration and access test results",
+          "checks": [["Disable the customer-managed key", "Storage access fails until the key is enabled", "Error output"], ["Run a Purview scan", "Sensitive columns are classified", "Scan results"], ["Try to purge the key", "Purge protection blocks it", "Error message"]],
+          "objectives": ["Design key management for regulated data", "Classify data", "Guard against key loss"]
+        },
+        {
+          "topic": "Platform Engineering on Azure with Golden Paths",
+          "subtopics": ["Internal developer platforms", "Golden-path templates", "Azure Deployment Environments", "Backstage on Azure", "Self-service with guardrails", "Platform APIs and automation", "Measuring developer experience", "Product thinking for platforms"],
+          "tools": ["Azure Deployment Environments", "Backstage", "Bicep", "GitHub Actions"],
+          "lab_task": "Build a golden-path template that creates a containerised service with repository, pipeline, Container Apps environment, monitoring and alerts in one self-service request.",
+          "deliverable": "Template code, a service created from it and a platform scorecard",
+          "checks": [["Create a service from the template", "Repository, pipeline, infrastructure and workbook exist and the service deploys", "Created resources"], ["Request a disallowed SKU", "Rejected by guardrails", "Error message"], ["Time the creation", "Under the target in the scorecard", "Timing evidence"]],
+          "objectives": ["Design internal platforms around golden paths", "Provide self-service with guardrails", "Measure platform value"]
+        },
+        {
+          "topic": "AKS Fleet Management and Multi-Tenancy",
+          "subtopics": ["Cluster topology choices", "Azure Kubernetes Fleet Manager", "Namespace isolation and quotas", "Network policies with Azure CNI powered by Cilium", "Pod security admission", "Node auto-provisioning", "Spot node pools", "Coordinated cluster upgrades"],
+          "tools": ["AKS", "Kubernetes Fleet Manager", "kubectl", "Helm"],
+          "lab_task": "Configure a multi-tenant AKS cluster for three teams with quotas and network policies, and use Fleet Manager to roll an upgrade across two clusters in stages.",
+          "deliverable": "Cluster configuration, tenant policies and the staged upgrade record",
+          "checks": [["Team A pod calls a Team B service", "Blocked by network policy", "kubectl exec output"], ["Exceed Team A's quota", "New pods are rejected", "kubectl output"], ["Run the staged upgrade", "Second cluster upgrades only after the first passes checks", "Fleet update run"]],
+          "objectives": ["Run multi-tenant AKS clusters safely", "Manage many clusters with Fleet Manager", "Plan staged upgrades"]
+        },
+        {
+          "topic": "GitOps with Flux and Progressive Delivery on AKS",
+          "subtopics": ["GitOps principles", "Flux extension for AKS", "Kustomizations and Helm releases", "Multi-cluster configuration", "Flagger canary analysis", "Metrics-based promotion with Managed Prometheus", "Secrets with the Key Vault CSI driver", "Drift handling"],
+          "tools": ["Flux", "Flagger", "AKS", "Azure Monitor managed Prometheus"],
+          "lab_task": "Manage two AKS clusters with Flux and release a service with a Flagger canary that promotes or rolls back based on Prometheus error-rate analysis.",
+          "deliverable": "GitOps repository, canary configuration and two release histories",
+          "checks": [["Release a healthy version", "Canary is promoted automatically", "Flagger events"], ["Release a version with 10% errors", "Canary fails and rolls back", "Flagger events"], ["Edit a deployment with kubectl", "Flux restores the declared state", "Flux event"]],
+          "objectives": ["Operate AKS through GitOps", "Automate canary analysis", "Keep secrets out of Git"]
+        },
+        {
+          "topic": "Serverless and Integration at Scale",
+          "subtopics": ["Functions Flex Consumption scaling", "Durable Functions orchestrations", "Service Bus premium and partitioning", "Event Hubs throughput and partitions", "Backpressure and throttling", "Idempotency patterns", "Concurrency limits", "Cost at high volume"],
+          "tools": ["Azure Functions", "Durable Functions", "Service Bus", "Event Hubs"],
+          "lab_task": "Load test the order workflow to 2,000 messages per second, find the first limit, and redesign with partitioning, Durable Functions and idempotency until it meets the latency target.",
+          "deliverable": "Load test reports, limits found and the redesign with results",
+          "checks": [["Run the load test before the redesign", "First limit is identified with evidence", "Report and metrics"], ["Run after the redesign", "p99 meets the stated target", "Report"], ["Resend a processed message", "Processed once", "Data and logs"]],
+          "objectives": ["Find and handle scaling limits in serverless and messaging", "Orchestrate long-running work", "Design idempotent high-volume processing"]
+        },
+        {
+          "topic": "Enterprise Integration Patterns and Event Architecture",
+          "subtopics": ["Event schemas and versioning", "Choreography versus orchestration", "Outbox pattern with Cosmos DB", "Saga pattern", "Event Grid namespaces and MQTT", "Replay and archiving", "Cross-tenant and cross-subscription events", "Observability for events"],
+          "tools": ["Event Grid", "Service Bus", "Cosmos DB", "Durable Functions"],
+          "lab_task": "Implement the outbox pattern with Cosmos DB change feed and Service Bus across two subscriptions, version an event schema without breaking consumers, and replay archived events.",
+          "deliverable": "Architecture, code, schema versions and replay evidence",
+          "checks": [["Fail the publisher after the database write", "Event is still delivered later through the outbox", "Logs and event"], ["Publish version 2 of the event", "Version 1 consumers keep working", "Consumer logs"], ["Replay archived events", "Consumers rebuild state correctly", "State comparison"]],
+          "objectives": ["Apply enterprise event patterns", "Evolve event schemas safely", "Replay and observe events"]
+        },
+        {
+          "topic": "Data Platform Architecture with Fabric and Databricks",
+          "subtopics": ["Lakehouse architecture", "Medallion layers", "Fabric workspaces and capacity", "Azure Databricks with Unity Catalog", "Delta tables and time travel", "Fine-grained access control", "Data quality checks", "Cost and performance tuning"],
+          "tools": ["Microsoft Fabric", "Azure Databricks", "Unity Catalog", "Delta Lake"],
+          "lab_task": "Build bronze, silver and gold layers for sales data with Delta tables, apply column-level access in Unity Catalog, add data quality checks, and compare the cost of two compute options.",
+          "deliverable": "Lakehouse design, notebooks, access rules, quality results and cost comparison",
+          "checks": [["Analyst queries a restricted column", "Access is denied", "Query error"], ["Load a batch that breaks a quality rule", "Bad rows are quarantined as designed", "Job output"], ["Query yesterday's table version", "Time travel returns the earlier data", "Query output"]],
+          "objectives": ["Design a governed lakehouse on Azure", "Apply fine-grained data access", "Compare compute options by cost and speed"]
+        },
+        {
+          "topic": "FinOps Practice on Azure",
+          "subtopics": ["FinOps lifecycle", "Cost exports to a data store", "FinOps toolkit and hubs", "Showback and chargeback", "Unit economics", "Commitment management", "Anomaly alerts", "Forecasting and budgeting"],
+          "tools": ["Cost Management exports", "FinOps toolkit", "Power BI"],
+          "lab_task": "Build a chargeback report per business unit from cost exports with the FinOps toolkit and Power BI, define a cost-per-order metric, and recommend a savings plan purchase.",
+          "deliverable": "Chargeback report, unit cost metric and commitment recommendation",
+          "checks": [["Compare chargeback totals with the invoice", "Reconcile within 1%", "Reconciliation table"], ["Inject a cost anomaly", "Anomaly alert reaches the owner", "Alert"], ["Present the savings plan recommendation", "Includes coverage, utilisation and break-even", "Recommendation document"]],
+          "objectives": ["Run FinOps reporting and chargeback on Azure", "Measure unit economics", "Plan commitments with data"]
+        },
+        {
+          "topic": "Compliance Automation and Audit Readiness on Azure",
+          "subtopics": ["Mapping controls to frameworks", "Regulatory compliance in Defender for Cloud", "Policy initiatives for frameworks", "Automated remediation", "Evidence collection", "Policy checks in pipelines with PSRule", "Exemption management", "Continuous compliance reporting"],
+          "tools": ["Defender for Cloud", "Azure Policy", "PSRule for Azure"],
+          "lab_task": "Map 10 controls from a chosen framework to policies and pipeline checks, add automated remediation for two, and produce an audit evidence report.",
+          "deliverable": "Control mapping, policies, remediation code and evidence report",
+          "checks": [["Create a non-compliant resource", "Remediation fixes it automatically", "Compliance history"], ["Push a template that breaks a PSRule rule", "Pipeline fails before deployment", "Pipeline log"], ["Open the evidence report", "Each control has current evidence", "Report"]],
+          "objectives": ["Automate compliance controls", "Shift compliance checks into pipelines", "Prepare audit evidence continuously"]
+        },
+        {
+          "topic": "Performance Engineering for Azure Workloads",
+          "subtopics": ["Setting performance targets", "Azure Load Testing", "Database performance analysis", "Caching layers", "Network latency and proximity placement", "Connection management", "Scaling limits and quotas", "Capacity planning"],
+          "tools": ["Azure Load Testing", "Application Insights", "Azure SQL", "Azure Cache for Redis"],
+          "lab_task": "Bring a slow API from 900 ms to under 200 ms p95 at the target load using Azure Load Testing, Application Insights and database tuning, documenting each change and its measured effect.",
+          "deliverable": "Performance report with each change and its effect, and the final load test",
+          "checks": [["Run the final load test", "p95 under 200 ms at target load", "Load test report"], ["Show the slowest dependency before and after", "Fixed with evidence", "Application Insights screenshots"], ["Add a failure criterion to the load test", "Test fails when latency exceeds the target", "Load test result"]],
+          "objectives": ["Set and test performance targets", "Diagnose application and database bottlenecks", "Plan capacity from measurements"]
+        },
+        {
+          "topic": "Production Generative AI on Azure AI Foundry",
+          "subtopics": ["Azure AI Foundry projects", "Model deployment options and quotas", "Retrieval-augmented generation with Azure AI Search", "Content safety and prompt shields", "Evaluations", "Network isolation", "Monitoring tokens, latency and cost", "Responsible AI reviews"],
+          "tools": ["Azure AI Foundry", "Azure OpenAI", "Azure AI Search", "Azure AI Content Safety"],
+          "lab_task": "Build a RAG assistant over the course runbooks with network isolation, content safety, an evaluation set of 20 questions, and dashboards for tokens and latency.",
+          "deliverable": "Assistant code, safety configuration, evaluation results and the dashboard",
+          "checks": [["Run the evaluation set", "Groundedness and relevance meet the stated thresholds", "Evaluation report"], ["Send a prompt injection test", "Prompt shield blocks it", "Response"], ["Call the endpoint from outside the private network", "Request is denied", "Error output"]],
+          "objectives": ["Build production RAG applications on Azure", "Apply content safety and network isolation", "Evaluate and monitor model output"]
+        },
+        {
+          "topic": "Large-Scale Migration and Modernisation Strategy on Azure",
+          "subtopics": ["Portfolio discovery with Azure Migrate", "Business case tooling", "Wave planning and dependencies", "Rehost, replatform and refactor decisions", "Application modernisation to PaaS", "Strangler fig migration", "Migration landing zone", "Tracking progress"],
+          "tools": ["Azure Migrate", "Dependency analysis"],
+          "lab_task": "Produce a migration plan for a 60-application portfolio: classify each by strategy, plan three waves with dependencies, and write the business case for wave 1.",
+          "deliverable": "Portfolio analysis, wave plan and business case",
+          "checks": [["Review the wave plan", "No application moves before its dependencies", "Dependency map"], ["Pick three applications", "Each strategy choice is justified", "Decision table"], ["Check the business case", "Includes costs, savings, risks and payback", "Business case"]],
+          "objectives": ["Plan migrations across a portfolio", "Choose modernisation strategies", "Build a migration business case"]
+        },
+        {
+          "topic": "SRE Practice on Azure: SLOs, Error Budgets and Incident Command",
+          "subtopics": ["Choosing SLIs", "Writing SLOs", "Error budgets and policies", "Burn-rate alerts with Azure Monitor", "Incident roles and command", "Communication during incidents", "Blameless post-incident reviews", "Reducing toil"],
+          "tools": ["Azure Monitor", "Application Insights", "Azure Monitor workbooks"],
+          "lab_task": "Define SLOs for the order API, build burn-rate alerts, and run a 60-minute incident simulation with assigned roles followed by a post-incident review.",
+          "deliverable": "SLO document, alert rules, incident timeline and review",
+          "checks": [["Inject errors that burn 10% of the budget in an hour", "Fast burn-rate alert fires", "Alert history"], ["Read the incident timeline", "Roles, decisions and customer updates are recorded", "Timeline"], ["Read the review", "Root cause and at least three owned actions", "Review document"]],
+          "objectives": ["Define SLOs and error budgets", "Alert on budget burn", "Lead incidents and learn from them"]
+        },
+        {
+          "topic": "Azure Architecture Reviews and Trade-off Decisions",
+          "subtopics": ["Well-Architected reviews and service guides", "Architecture decision records", "Evaluating options against requirements", "Cost, risk and complexity trade-offs", "Reviewing other teams' designs", "Technical debt management", "Presenting to stakeholders", "Reference architectures in the Azure Architecture Center"],
+          "tools": ["Azure Well-Architected Review", "Azure Architecture Center"],
+          "lab_task": "Review another team's capstone design with the Well-Architected Review, write two architecture decision records for its biggest risks, and present recommendations.",
+          "deliverable": "Review report, two decision records and a 10-minute presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Lists options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Participant defends it with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Run structured architecture reviews", "Document decisions and trade-offs", "Communicate recommendations"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Enterprise Platform on Azure",
+          "subtopics": ["Business and non-functional requirements", "Landing zone and subscription design", "Multi-region workload architecture", "Identity, security and compliance evidence", "Platform automation and FinOps", "Architecture defence"],
+          "tools": ["Azure Landing Zones", "AKS", "Cosmos DB", "Front Door", "Azure Chaos Studio", "Terraform", "Microsoft Sentinel"],
+          "lab_task": "Design and build a multi-region platform for a regulated client, including landing zone, workloads, security automation, business continuity and a cost model, then defend it to an architecture review board.",
+          "deliverable": "Architecture document, working deployment, security and continuity test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run a region failure test", "Recovery meets the stated RTO and RPO", "Test timeline"], ["Run the compliance report", "No unresolved critical findings", "Defender for Cloud and Policy reports"], ["Review the cost model", "Monthly cost is broken down and reconciles with the pricing calculator", "Cost model"]],
+          "objectives": ["Design an enterprise-grade Azure platform end to end", "Prove reliability, security and cost with evidence", "Defend architecture decisions to a review board"]
+        }
+      ]
+    }
+  }
+}

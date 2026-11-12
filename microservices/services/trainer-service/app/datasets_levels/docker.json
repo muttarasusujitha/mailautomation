@@ -1,0 +1,603 @@
+{
+  "domain": "Docker",
+  "name": "Docker",
+  "category": "DevOps and CI/CD",
+  "icon": "box",
+  "aliases": ["Docker Containers", "Containerization", "Containerisation", "Docker Engine", "Container Fundamentals"],
+  "certifications": [
+    "Docker Certified Associate (DCA)",
+    "KCNA: Kubernetes and Cloud Native Associate (next step)"
+  ],
+  "tools": ["Docker Engine", "Docker Compose", "Docker Hub", "Trivy"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No container experience assumed. Participants learn to run, build, network, store data for and compose containers, ending with a containerised three-tier application.",
+      "prerequisites": [
+        "Basic Linux or Windows command line",
+        "Has run or written a simple web application",
+        "Laptop able to run Docker Desktop or Docker Engine"
+      ],
+      "outcomes": [
+        "Explain containers, images and how they differ from virtual machines",
+        "Build efficient images with Dockerfiles and publish them to a registry",
+        "Connect containers with networks and keep data with volumes",
+        "Run multi-container applications with Docker Compose"
+      ],
+      "days": [
+        {
+          "topic": "Containers versus Virtual Machines and Docker Setup",
+          "subtopics": ["What problem containers solve", "Containers compared with virtual machines", "Linux namespaces and cgroups in plain terms", "Docker Engine, CLI and daemon", "Installing Docker Desktop or Engine", "docker run, ps, stop and rm", "Interactive and detached containers", "Port publishing", "Viewing container logs", "Cleaning up containers and images"],
+          "tools": ["Docker Engine", "Docker CLI"],
+          "lab_task": "Install Docker, run an nginx container on port 8080, view its logs, open a shell inside it, and clean up all containers and images afterwards.",
+          "deliverable": "Command transcript with the web page screenshot and a short note on containers versus VMs",
+          "checks": [["Open http://localhost:8080", "nginx welcome page loads", "Browser screenshot"], ["Run docker ps -a after cleanup", "No containers remain", "Command output"], ["Ask: why does a container start faster than a VM?", "Participant explains shared kernel and no guest OS boot", "Written answer"]],
+          "objectives": ["Explain how containers differ from virtual machines", "Run, inspect and remove containers", "Publish container ports"]
+        },
+        {
+          "topic": "Images, Layers and Registries",
+          "subtopics": ["What an image is", "Image layers and the union filesystem", "Tags and digests", "Pulling from Docker Hub", "Official and verified images", "docker image inspect and history", "Pushing to a registry", "Image size and why it matters"],
+          "tools": ["Docker CLI", "Docker Hub"],
+          "lab_task": "Pull three versions of the python image, compare their sizes and layers, tag one, and push it to your Docker Hub account.",
+          "deliverable": "Size comparison table, layer history output and the pushed image URL",
+          "checks": [["Pull the pushed image on another machine or after deleting it locally", "Image downloads and runs", "Command output"], ["Compare python:3.12 and python:3.12-slim", "Slim image is smaller, with sizes recorded", "Size table"], ["Pull by digest", "Same image ID as the tag", "Command output"]],
+          "objectives": ["Explain image layers, tags and digests", "Use public and private registries", "Compare image sizes"]
+        },
+        {
+          "topic": "Writing Dockerfiles",
+          "subtopics": ["FROM, RUN, COPY and WORKDIR", "CMD and ENTRYPOINT", "ENV and ARG", "EXPOSE", "Build context and .dockerignore", "Layer caching and instruction order", "docker build and tags", "Reading build output"],
+          "tools": ["Docker CLI"],
+          "lab_task": "Write a Dockerfile for a small Python or Node.js web app, add a .dockerignore, and reorder instructions so a code change does not reinstall dependencies.",
+          "deliverable": "Dockerfile, .dockerignore and two build logs showing cache use",
+          "checks": [["Change one line of app code and rebuild", "Dependency install step uses the cache", "Build log"], ["Run the built image", "App responds on its port", "curl output"], ["Check the image for the .git folder", "Not present thanks to .dockerignore", "docker run ls output"]],
+          "objectives": ["Write Dockerfiles for applications", "Use the build cache well", "Control the build context"]
+        },
+        {
+          "topic": "Container Networking",
+          "subtopics": ["Default bridge network", "User-defined bridge networks", "Container DNS by name", "Host network mode", "Publishing ports versus exposing", "Connecting a container to several networks", "Inspecting networks", "Network troubleshooting with curl and ping"],
+          "tools": ["Docker CLI"],
+          "lab_task": "Create two user-defined networks, run a web container on both, a database only on the backend network, and prove the database is not reachable from the frontend network.",
+          "deliverable": "Network diagram, commands and connectivity test results",
+          "checks": [["From the web container, reach the database by name", "Connection succeeds", "Command output"], ["From a frontend-only container, reach the database", "Name does not resolve or connection fails", "Command output"], ["Inspect the backend network", "Lists the web and database containers", "docker network inspect output"]],
+          "objectives": ["Connect containers with user-defined networks", "Use container DNS names", "Isolate services with separate networks"]
+        },
+        {
+          "topic": "Volumes and Persistent Data",
+          "subtopics": ["Why container filesystems are temporary", "Named volumes", "Bind mounts", "tmpfs mounts", "Volume drivers", "Backing up a volume", "File permissions in volumes", "Choosing between volumes and bind mounts"],
+          "tools": ["Docker CLI"],
+          "lab_task": "Run PostgreSQL with a named volume, add data, delete and recreate the container, then back up the volume to a tar file and restore it into a new volume.",
+          "deliverable": "Commands, query results before and after, and the backup file",
+          "checks": [["Recreate the database container with the same volume", "Data is still present", "Query output"], ["Restore the backup into a new volume", "Restored database has the same rows", "Query output"], ["Run the database without a volume and recreate it", "Data is lost, and the participant explains why", "Query output and explanation"]],
+          "objectives": ["Keep data with volumes", "Use bind mounts for development", "Back up and restore volumes"]
+        },
+        {
+          "topic": "Docker Compose for Multi-Container Apps",
+          "subtopics": ["Why Compose", "compose.yaml services, networks and volumes", "depends_on and health checks", "Environment variables and .env files", "docker compose up, down, logs and ps", "Scaling a service", "Profiles", "Rebuilding a service"],
+          "tools": ["Docker Compose"],
+          "lab_task": "Write a compose file for a web app, API and PostgreSQL with health checks, a named volume and an .env file, and bring the whole stack up with one command.",
+          "deliverable": "compose.yaml, .env.example and a screenshot of the running app",
+          "checks": [["Run docker compose up -d", "All services healthy and the app works", "docker compose ps output"], ["Start the stack with the database slow to start", "API waits for the database health check", "Logs"], ["Run docker compose down and up again", "Data is still there", "App screenshot"]],
+          "objectives": ["Define multi-container apps with Compose", "Order start-up with health checks", "Manage configuration with .env files"]
+        },
+        {
+          "topic": "Runtime Configuration and Secrets for Containers",
+          "subtopics": ["Twelve-factor configuration", "ENV in images versus runtime variables", "--env and --env-file", "Configuration files mounted as volumes", "Docker secrets in Compose", "Keeping secrets out of images", "Inspecting configuration with docker inspect", "Overriding commands at runtime"],
+          "tools": ["Docker CLI", "Docker Compose"],
+          "lab_task": "Make the API read its database URL and log level from the environment, provide the password as a Compose secret, and prove no secret is baked into the image.",
+          "deliverable": "Updated app, compose file and image history check",
+          "checks": [["Change LOG_LEVEL and restart", "App logs at the new level without rebuilding", "Logs"], ["Run docker history on the image", "No password appears in any layer", "Command output"], ["Read the secret inside the container", "Available as a file under /run/secrets", "Command output"]],
+          "objectives": ["Configure containers at runtime", "Handle secrets safely", "Keep images environment-neutral"]
+        },
+        {
+          "topic": "Multi-Stage Builds and Smaller Images",
+          "subtopics": ["Why image size and attack surface matter", "Multi-stage builds", "Build stage and runtime stage", "Slim, Alpine and distroless base images", "Removing build tools from runtime images", "Copying only artifacts", "Comparing image sizes", "Trade-offs of Alpine"],
+          "tools": ["Docker CLI"],
+          "lab_task": "Convert a Java or Go application Dockerfile to a multi-stage build with a distroless runtime image, and compare size and vulnerability count with the original.",
+          "deliverable": "Both Dockerfiles and a comparison table of size and vulnerabilities",
+          "checks": [["Compare image sizes", "Multi-stage image is much smaller, with figures recorded", "Size table"], ["Run the new image", "App works", "curl output"], ["Look for compilers in the runtime image", "Not present", "Command output"]],
+          "objectives": ["Build small images with multi-stage builds", "Choose a suitable base image", "Reduce the attack surface"]
+        },
+        {
+          "topic": "Container Security Basics",
+          "subtopics": ["Running as a non-root user", "Read-only root filesystems", "Dropping Linux capabilities", "Scanning images with Trivy", "Pinning base images", "Keeping images patched", "Docker socket risks", "Rootless Docker overview"],
+          "tools": ["Trivy", "Docker CLI"],
+          "lab_task": "Scan the app image with Trivy, fix all critical findings, run the container as non-root with a read-only filesystem and dropped capabilities, and rescan.",
+          "deliverable": "Before and after scan reports and the hardened run command or compose settings",
+          "checks": [["Rescan the fixed image", "No critical vulnerabilities", "Trivy report"], ["Run whoami inside the container", "Not root", "Command output"], ["Try to write to / inside the container", "Write is denied", "Command output"]],
+          "objectives": ["Scan and fix image vulnerabilities", "Run containers with least privilege", "Explain common container security risks"]
+        },
+        {
+          "topic": "Debugging and Troubleshooting Containers",
+          "subtopics": ["Reading exit codes", "docker logs and --follow", "docker exec and debugging tools", "docker inspect for state and configuration", "Container that exits immediately", "Port conflicts", "Permission problems with volumes", "Out-of-memory kills"],
+          "tools": ["Docker CLI"],
+          "lab_task": "Fix five broken containers prepared by the trainer (wrong command, port conflict, missing variable, volume permissions, memory limit) and record cause, evidence and fix.",
+          "deliverable": "Troubleshooting log for all five faults",
+          "checks": [["Fix all five within the time limit", "All five containers run correctly", "docker ps and test output"], ["Read the log entry for the memory fault", "Exit code 137 and OOMKilled are recorded as evidence", "Log entry"], ["Explain the volume permission fix", "User ID mismatch is identified", "Log entry"]],
+          "objectives": ["Diagnose container failures", "Use logs, exec and inspect", "Record causes and fixes"]
+        },
+        {
+          "topic": "Resource Limits and Container Health Checks",
+          "subtopics": ["CPU and memory limits", "docker stats", "Restart policies", "HEALTHCHECK in Dockerfiles", "Health status in Compose", "What happens when a health check fails", "Logging drivers and log rotation", "Tuning for small machines"],
+          "tools": ["Docker CLI", "Docker Compose"],
+          "lab_task": "Add memory and CPU limits, a health check and a restart policy to the API, then make it unhealthy and show the restart behaviour and log rotation.",
+          "deliverable": "Updated compose file and evidence of limits, health status and restarts",
+          "checks": [["Make the health endpoint fail", "Container shows unhealthy", "docker ps output"], ["Exceed the memory limit", "Container is killed and restarted by its policy", "Events and restart count"], ["Generate large logs", "Log files rotate at the configured size", "Log directory listing"]],
+          "objectives": ["Limit container resources", "Add health checks and restart policies", "Control log growth"]
+        },
+        {
+          "topic": "Private Registries and Image Versioning",
+          "subtopics": ["Running a private registry", "Cloud registries: ECR, ACR, GCR and Artifact Registry", "Registry authentication", "Semantic versioning for images", "Immutable tags", "Cleaning old images", "Pulling by digest in production", "Mirroring images"],
+          "tools": ["Docker Registry", "Docker CLI"],
+          "lab_task": "Run a private registry with authentication, push versioned images using semantic version and Git SHA tags, and deploy a specific version by digest.",
+          "deliverable": "Registry setup, tagging scheme and deployment by digest",
+          "checks": [["Push without logging in", "Push is refused", "Error output"], ["List tags in the registry", "Shows semantic version and SHA tags", "API output"], ["Deploy by digest after retagging latest", "Deployed version does not change", "Container image ID"]],
+          "objectives": ["Run and use private registries", "Version images clearly", "Deploy immutable images"]
+        },
+        {
+          "topic": "Containerising Existing Applications",
+          "subtopics": ["Assessing an application for containers", "Externalising configuration", "Logging to stdout", "Handling file uploads and state", "Graceful shutdown and signals", "Database migrations at start-up", "Windows containers overview", "Common migration problems"],
+          "tools": ["Docker CLI", "Docker Compose"],
+          "lab_task": "Containerise a provided legacy web application that writes logs to files and stores uploads locally, fixing logging, state and shutdown so it runs as two replicas.",
+          "deliverable": "Dockerfile, compose file and a list of application changes made",
+          "checks": [["Run two replicas and upload a file through one", "File is available through the other", "Test output"], ["Stop a container", "It shuts down cleanly within the grace period", "Logs and timing"], ["Read the application logs with docker logs", "Logs go to stdout", "Command output"]],
+          "objectives": ["Prepare existing apps for containers", "Remove local state from containers", "Handle signals and logging correctly"]
+        },
+        {
+          "topic": "Docker in CI Pipelines",
+          "subtopics": ["Building images in CI", "Docker Buildx", "Build cache in CI", "Running tests inside containers", "Scanning in the pipeline", "Pushing on merge to main", "Tagging from Git", "Secrets for registries in CI"],
+          "tools": ["GitHub Actions", "Docker Buildx", "Trivy"],
+          "lab_task": "Create a GitHub Actions workflow that builds the image with cache, runs tests in a container, scans it with Trivy, and pushes tagged images only from main.",
+          "deliverable": "Workflow file and two pipeline runs (branch and main)",
+          "checks": [["Push to a feature branch", "Image builds and tests run but nothing is pushed", "Pipeline run"], ["Introduce a critical vulnerability", "Pipeline fails at the scan step", "Pipeline run"], ["Merge to main", "Image is pushed with the Git SHA tag", "Registry listing"]],
+          "objectives": ["Build and test images in CI", "Gate images on scan results", "Publish images from the main branch only"]
+        },
+        {
+          "topic": "Development Workflows with Containers",
+          "subtopics": ["Bind mounts for live code reload", "Compose override files", "Dev containers in VS Code", "Debugging an app inside a container", "Running databases for local development", "Test containers for integration tests", "Speeding up local builds", "Consistency between dev and production"],
+          "tools": ["Docker Compose", "VS Code Dev Containers", "Testcontainers"],
+          "lab_task": "Set up a dev container and a compose override for live reload, attach a debugger to the API, and run integration tests against a disposable database with Testcontainers.",
+          "deliverable": "Dev container configuration, override file and integration test run",
+          "checks": [["Edit code while the stack runs", "Change appears without rebuilding", "Before and after response"], ["Set a breakpoint in the containerised API", "Debugger stops at the breakpoint", "Screenshot"], ["Run integration tests", "Tests start and remove their own database", "Test output"]],
+          "objectives": ["Develop efficiently with containers", "Debug containerised apps", "Run integration tests with disposable containers"]
+        },
+        {
+          "topic": "Monitoring Containers",
+          "subtopics": ["docker stats and events", "cAdvisor", "Prometheus scraping container metrics", "Grafana dashboards", "Centralised logs with Loki", "Alerting on container restarts", "Labels for monitoring", "Monitoring overhead"],
+          "tools": ["cAdvisor", "Prometheus", "Grafana", "Loki"],
+          "lab_task": "Add cAdvisor, Prometheus, Grafana and Loki to the compose stack, build a dashboard for CPU, memory and restarts per service, and alert on repeated restarts.",
+          "deliverable": "Monitoring compose file, dashboard JSON and a fired alert",
+          "checks": [["Crash the API 3 times", "Restart alert fires", "Alert screenshot"], ["Open the dashboard during load", "CPU per service changes", "Dashboard screenshot"], ["Search logs for an error message", "Found in Loki with the container label", "Loki query result"]],
+          "objectives": ["Collect container metrics and logs", "Build container dashboards", "Alert on container health"]
+        },
+        {
+          "topic": "Docker Swarm and Moving to Orchestration",
+          "subtopics": ["Why a single host is not enough", "Docker Swarm services and stacks", "Rolling updates in Swarm", "Swarm secrets and configs", "Overlay networks", "Swarm compared with Kubernetes", "Translating Compose to Kubernetes manifests", "When to move to Kubernetes"],
+          "tools": ["Docker Swarm", "Kompose", "kubectl"],
+          "lab_task": "Deploy the compose stack to a three-node Swarm with a rolling update, then convert it to Kubernetes manifests and run it on a local cluster.",
+          "deliverable": "Swarm stack file, rolling update log, Kubernetes manifests and a comparison note",
+          "checks": [["Update the API image in Swarm", "Rolling update completes without downtime", "Service update log"], ["Stop one Swarm node", "Services reschedule to other nodes", "Service status"], ["Apply the converted manifests", "App runs on Kubernetes after fixing what Kompose missed", "kubectl output and notes"]],
+          "objectives": ["Run services across hosts with Swarm", "Compare Swarm and Kubernetes", "Move a Compose app to Kubernetes"]
+        },
+        {
+          "topic": "Container Storage and Backup Strategies",
+          "subtopics": ["Volume plugins and network storage", "Backing up databases running in containers", "Consistent snapshots", "Restoring to a new host", "Data migration between versions", "Disaster recovery for a single host", "Retention policies", "Testing restores"],
+          "tools": ["Docker CLI", "restic"],
+          "lab_task": "Schedule consistent backups of the PostgreSQL container with restic to object storage, then restore the whole stack on a new host and verify the data.",
+          "deliverable": "Backup scripts, schedule and the restore test record",
+          "checks": [["Restore on a new host", "App runs with all records", "Record count and screenshot"], ["Check backup consistency", "Database dump taken with the database in a consistent state", "Backup log"], ["Apply the retention policy", "Old backups are removed as configured", "restic snapshots output"]],
+          "objectives": ["Back up containerised databases consistently", "Restore stacks on new hosts", "Apply retention policies"]
+        },
+        {
+          "topic": "Containerising a Three-Tier Application End to End",
+          "subtopics": ["Requirements for each tier", "Dockerfiles for frontend and API", "Database with persistent volume", "Networking between tiers", "Configuration and secrets", "Health checks and limits", "Image scanning and versioning", "Documentation for running the stack"],
+          "tools": ["Docker Compose", "Trivy", "GitHub Actions"],
+          "lab_task": "Containerise a React frontend, a Python or Java API and PostgreSQL with secure images, health checks, limits, secrets and a CI pipeline that builds, scans and pushes them.",
+          "deliverable": "Repository with Dockerfiles, compose file, CI workflow and a README",
+          "checks": [["Clone the repository on a clean machine and run docker compose up", "Whole app works with no manual steps beyond the README", "Screenshot"], ["Run the CI pipeline", "All images build, pass the scan and are pushed", "Pipeline run"], ["Restart the database", "API reconnects and data is intact", "Logs and app screenshot"]],
+          "objectives": ["Containerise a complete application", "Apply security, health and configuration practices", "Automate image delivery"]
+        },
+        {
+          "topic": "Beginner Capstone: Containerised Application Delivery",
+          "subtopics": ["Requirement walkthrough", "Image design and security", "Compose stack with health checks", "Data persistence and backup", "CI pipeline with scanning", "Demo and troubleshooting walkthrough"],
+          "tools": ["Docker", "Docker Compose", "Trivy", "GitHub Actions"],
+          "lab_task": "Deliver a containerised application with small secure images, a Compose stack, persistent data with backups, monitoring and a CI pipeline, then demonstrate a failure and recovery.",
+          "deliverable": "Repository, running stack, backup test, dashboard and a 10-minute demo",
+          "checks": [["Kill the API container during the demo", "Restart policy brings it back and the app recovers", "Demo recording or logs"], ["Show the image scan", "No critical vulnerabilities", "Trivy report"], ["Restore from backup", "Data matches the backup point", "Query output"]],
+          "objectives": ["Deliver a containerised application end to end", "Combine images, networking, storage, security and CI", "Demonstrate recovery from failure"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who already build and run containers. Covers image engineering, BuildKit, runtime internals, security hardening, supply chain, registries at scale and preparing containers for production orchestration.",
+      "prerequisites": [
+        "Writes Dockerfiles and runs multi-container apps with Compose",
+        "Comfortable with Linux, networking basics and Git",
+        "Has used a CI system"
+      ],
+      "outcomes": [
+        "Engineer fast, reproducible, multi-platform image builds",
+        "Explain container runtime internals and debug at that level",
+        "Harden images and runtimes and secure the image supply chain",
+        "Prepare containerised applications for production orchestration"
+      ],
+      "days": [
+        {
+          "topic": "BuildKit and Advanced Build Techniques",
+          "subtopics": ["BuildKit architecture", "Cache mounts for package managers", "Secret mounts during builds", "SSH mounts for private dependencies", "Build arguments and targets", "Parallel stages", "Inline and registry cache", "Build reproducibility"],
+          "tools": ["BuildKit", "Docker Buildx"],
+          "lab_task": "Rewrite a slow Dockerfile using cache mounts, a secret mount for a private package token and parallel stages, and measure clean and incremental build times.",
+          "deliverable": "Optimised Dockerfile and a timing table before and after",
+          "checks": [["Compare incremental build times", "Optimised build is faster, with timings recorded", "Timing table"], ["Inspect image history for the token", "Token is not present", "docker history output"], ["Build twice from a clean cache with the same inputs", "Same layers are produced", "Image digests"]],
+          "objectives": ["Speed up builds with BuildKit features", "Use build secrets safely", "Make builds reproducible"]
+        },
+        {
+          "topic": "Multi-Platform Images for ARM and x86",
+          "subtopics": ["Why multi-platform images", "Image manifests and indexes", "Buildx builders", "QEMU emulation", "Cross-compilation in multi-stage builds", "Testing each platform", "Performance on Graviton and ARM laptops", "Publishing multi-platform images"],
+          "tools": ["Docker Buildx", "QEMU"],
+          "lab_task": "Publish one image tag that works on amd64 and arm64, using cross-compilation instead of emulation for the build stage, and test it on both platforms.",
+          "deliverable": "Buildx configuration, manifest inspection and test runs on both platforms",
+          "checks": [["Inspect the manifest", "Lists amd64 and arm64 entries", "docker buildx imagetools inspect output"], ["Run the tag on an arm64 machine", "Runs natively", "uname output from the container"], ["Compare emulated and cross-compiled build times", "Cross-compiled is faster", "Timing table"]],
+          "objectives": ["Build and publish multi-platform images", "Use cross-compilation to avoid slow emulation", "Test images on each platform"]
+        },
+        {
+          "topic": "Container Runtime Internals",
+          "subtopics": ["OCI image and runtime specifications", "containerd and runc", "Namespaces in detail", "cgroups v2", "Overlay filesystem", "Container lifecycle at the runtime level", "Inspecting containers with ctr and nsenter", "Alternative runtimes: gVisor and Kata"],
+          "tools": ["containerd", "runc", "nsenter"],
+          "lab_task": "Run a container directly with runc from an exported filesystem, inspect its namespaces and cgroup limits on the host, and compare it with the same container started by Docker.",
+          "deliverable": "Annotated commands and a diagram of the runtime stack",
+          "checks": [["List namespaces of the runc container", "Shows its own PID, network and mount namespaces", "lsns output"], ["Read the memory limit from cgroups", "Matches the configured limit", "cgroup file contents"], ["Explain the runtime diagram", "Docker, containerd and runc roles are correct", "Diagram"]],
+          "objectives": ["Explain the OCI runtime stack", "Inspect namespaces and cgroups", "Compare sandboxed runtimes"]
+        },
+        {
+          "topic": "Container Networking Internals",
+          "subtopics": ["Linux bridges and veth pairs", "iptables rules created by Docker", "Port publishing internals", "Embedded DNS server", "Macvlan and ipvlan", "Overlay networks and VXLAN", "IPv6 for containers", "Debugging with tcpdump in network namespaces"],
+          "tools": ["iproute2", "iptables", "tcpdump"],
+          "lab_task": "Trace a request from the host port to a container with tcpdump and iptables counters, then attach a container to the LAN with macvlan.",
+          "deliverable": "Annotated packet capture, iptables rules and the macvlan setup",
+          "checks": [["Show the NAT rule for a published port", "Rule matches the container IP and port", "iptables output"], ["Capture traffic inside the container namespace", "Shows the request arriving", "tcpdump output"], ["Reach the macvlan container from another LAN machine", "Responds on its own LAN IP", "curl output"]],
+          "objectives": ["Explain how Docker networking works underneath", "Debug traffic at the namespace level", "Use macvlan when containers need LAN addresses"]
+        },
+        {
+          "topic": "Hardening Container Runtimes",
+          "subtopics": ["Rootless Docker", "User namespace remapping", "Seccomp profiles", "AppArmor and SELinux profiles", "no-new-privileges", "Read-only containers with tmpfs", "CIS Docker Benchmark", "Docker Bench for Security"],
+          "tools": ["Docker Bench for Security", "seccomp", "AppArmor"],
+          "lab_task": "Run Docker Bench, fix the top findings, enable user namespace remapping, and apply a custom seccomp profile that blocks a system call the app does not need.",
+          "deliverable": "Before and after Docker Bench reports and the seccomp profile",
+          "checks": [["Rerun Docker Bench", "Fixed checks now pass", "Report"], ["Run a blocked system call inside the container", "Operation is not permitted", "Command output"], ["Check the container's root user on the host", "Mapped to an unprivileged host UID", "ps output"]],
+          "objectives": ["Harden the Docker daemon and host", "Restrict containers with seccomp and AppArmor", "Run containers without host root"]
+        },
+        {
+          "topic": "Image Supply Chain Security",
+          "subtopics": ["Supply chain threats", "Software bills of materials with Syft", "Vulnerability management with Grype or Trivy", "Signing images with cosign", "Attestations and provenance", "Verifying signatures before running", "Base image update automation", "Vulnerability exceptions with expiry"],
+          "tools": ["Syft", "Grype", "cosign", "Renovate"],
+          "lab_task": "Generate SBOMs, sign images and attach provenance in CI, verify signatures before deployment, and automate base image updates with Renovate.",
+          "deliverable": "CI workflow, SBOMs, signature verification output and a Renovate pull request",
+          "checks": [["Verify a signed image", "cosign verify succeeds", "Command output"], ["Deploy an unsigned image through the deploy script", "Deployment is blocked", "Script output"], ["Release a new base image version", "Renovate opens a pull request", "Pull request link"]],
+          "objectives": ["Produce SBOMs and provenance", "Sign and verify images", "Automate base image updates"]
+        },
+        {
+          "topic": "Registries at Scale",
+          "subtopics": ["Harbor registry features", "Projects, quotas and access", "Vulnerability scanning in the registry", "Replication between registries", "Retention and garbage collection", "Pull-through caches", "Content trust policies", "Registry high availability"],
+          "tools": ["Harbor", "Docker CLI"],
+          "lab_task": "Deploy Harbor with two projects, enforce scanning and signed-only pulls on production, replicate images to a second registry, and set retention rules.",
+          "deliverable": "Harbor configuration, policy tests and replication evidence",
+          "checks": [["Pull an unsigned image from the production project", "Pull is denied", "Error output"], ["Push to the source registry", "Image appears in the replica", "Replica listing"], ["Run retention", "Only the configured number of tags remain", "Tag list"]],
+          "objectives": ["Run an enterprise registry", "Enforce image policies at the registry", "Replicate and clean up images"]
+        },
+        {
+          "topic": "Compose for Complex Environments",
+          "subtopics": ["Multiple compose files and overrides", "Extends and includes", "Profiles for optional services", "Healthchecks and restart strategies", "Compose watch for development", "Environment interpolation rules", "Secrets and configs", "Compose in CI for integration tests"],
+          "tools": ["Docker Compose"],
+          "lab_task": "Restructure a 10-service compose setup into base, dev, test and CI files with profiles, run integration tests in CI with it, and use compose watch for local development.",
+          "deliverable": "Compose file set, CI job and a demo of compose watch",
+          "checks": [["Start only the core profile", "Optional services do not start", "docker compose ps output"], ["Run the CI integration job", "Stack starts, tests pass and the stack is removed", "CI log"], ["Edit code with compose watch running", "Service syncs or rebuilds automatically", "Logs"]],
+          "objectives": ["Organise large compose projects", "Use Compose for repeatable integration tests", "Speed up development with compose watch"]
+        },
+        {
+          "topic": "Performance Tuning for Containers",
+          "subtopics": ["CPU shares, quotas and pinning", "Memory limits and swap", "Storage driver performance", "Volume performance on Docker Desktop", "Network performance and host mode", "JVM and Python settings inside containers", "Benchmarking containers", "Right-sizing limits"],
+          "tools": ["docker stats", "k6", "perf"],
+          "lab_task": "Benchmark a Java and a Python service in containers, fix CPU throttling and memory settings, and document the performance gain for each change.",
+          "deliverable": "Benchmark reports and a tuning log with measured effects",
+          "checks": [["Compare throughput before and after", "Improvement measured for each change", "Benchmark table"], ["Show JVM memory settings respect the container limit", "Heap is sized from the limit", "JVM output"], ["Explain one change with no effect", "Measured result explains it", "Tuning log"]],
+          "objectives": ["Tune container resource settings", "Configure runtimes for container limits", "Prove tuning with benchmarks"]
+        },
+        {
+          "topic": "Logging and Observability for Containerised Apps",
+          "subtopics": ["Logging drivers", "Structured JSON logs", "Shipping logs with Fluent Bit", "OpenTelemetry instrumentation", "Tracing across containers", "Metrics endpoints", "Correlation IDs", "Observability cost"],
+          "tools": ["Fluent Bit", "OpenTelemetry Collector", "Jaeger", "Prometheus"],
+          "lab_task": "Ship structured logs with Fluent Bit, add OpenTelemetry tracing across the frontend, API and database calls, and find a slow request from its trace.",
+          "deliverable": "Collector configuration, trace screenshots and a log query",
+          "checks": [["Make one request slow", "Trace shows the slow span", "Jaeger screenshot"], ["Search logs by trace ID", "All related log lines appear", "Log query result"], ["Stop the log backend briefly", "Fluent Bit buffers and delivers logs later", "Before and after counts"]],
+          "objectives": ["Collect structured logs from containers", "Trace requests across containers", "Correlate logs and traces"]
+        },
+        {
+          "topic": "Windows Containers",
+          "subtopics": ["Windows container types: process and Hyper-V isolation", "Base images: Server Core and Nano Server", "Containerising a .NET Framework app", "Windows networking modes", "Volumes on Windows", "Image size considerations", "Running Windows containers on Kubernetes", "Limitations compared with Linux"],
+          "tools": ["Docker on Windows", ".NET"],
+          "lab_task": "Containerise a provided .NET Framework web app on Windows Server Core, run it with a mounted configuration file, and document the differences from Linux containers.",
+          "deliverable": "Dockerfile, running container evidence and a differences note",
+          "checks": [["Open the app in a browser", "App responds from the Windows container", "Screenshot"], ["Change the mounted configuration and restart", "App uses the new setting", "Before and after behaviour"], ["Read the differences note", "Covers isolation, image size and networking", "Note"]],
+          "objectives": ["Build and run Windows containers", "Containerise legacy .NET applications", "Explain Windows container limitations"]
+        },
+        {
+          "topic": "Preparing Containers for Kubernetes",
+          "subtopics": ["Twelve-factor checks", "Graceful shutdown on SIGTERM", "Liveness and readiness endpoints", "Statelessness and external state", "Configuration through environment and files", "Resource sizing data", "Non-root and read-only requirements", "Translating Compose to Helm charts"],
+          "tools": ["Docker", "Helm", "kind"],
+          "lab_task": "Audit the three-tier app against a Kubernetes-readiness checklist, fix every gap, and package it as a Helm chart running on a local cluster.",
+          "deliverable": "Readiness checklist with fixes, Helm chart and running deployment",
+          "checks": [["Send SIGTERM to the API under load", "In-flight requests finish before exit", "Load test log"], ["Run the chart with the restricted Pod Security Standard", "Pods start", "kubectl output"], ["Scale the API to 3 replicas", "Works without shared local state", "Test output"]],
+          "objectives": ["Make containers ready for orchestration", "Handle shutdown and health endpoints correctly", "Package apps for Kubernetes"]
+        },
+        {
+          "topic": "Container Testing Strategies",
+          "subtopics": ["Testing images, not just code", "Container structure tests", "Hadolint for Dockerfiles", "Integration tests with Testcontainers", "Smoke tests after build", "Testing health checks", "Contract tests between containers", "Test speed in CI"],
+          "tools": ["Hadolint", "container-structure-test", "Testcontainers"],
+          "lab_task": "Add Hadolint, container structure tests, Testcontainers integration tests and a smoke test to the CI pipeline for the three-tier app.",
+          "deliverable": "Test configuration and a CI run showing each stage",
+          "checks": [["Add a Dockerfile anti-pattern", "Hadolint fails the build", "CI log"], ["Remove the non-root user from the image", "Structure test fails", "Test output"], ["Run the full pipeline", "All stages pass within the stated time", "CI run"]],
+          "objectives": ["Test images as well as code", "Lint Dockerfiles", "Automate container tests in CI"]
+        },
+        {
+          "topic": "Serverless Containers: Fargate, Cloud Run and Container Apps",
+          "subtopics": ["What serverless containers manage for you", "AWS Fargate with ECS", "Google Cloud Run", "Azure Container Apps", "Scaling to zero", "Cold starts", "Networking and secrets on each service", "Cost compared with VMs and Kubernetes"],
+          "tools": ["AWS Fargate", "Cloud Run", "Azure Container Apps"],
+          "lab_task": "Deploy the same API image to Cloud Run and one other serverless container service, configure scaling and secrets on both, and compare cold start and monthly cost.",
+          "deliverable": "Deployment scripts, cold start measurements and a cost comparison",
+          "checks": [["Call both endpoints after idle", "Cold start times are measured and recorded", "Timing table"], ["Load test both", "Both scale out", "Instance counts"], ["Read the cost comparison", "Uses the same traffic assumptions for both", "Comparison table"]],
+          "objectives": ["Run containers on serverless platforms", "Configure scaling and secrets", "Compare cost and cold starts"]
+        },
+        {
+          "topic": "Container Incident Response",
+          "subtopics": ["Signs of a compromised container", "Runtime detection with Falco", "Capturing container state for forensics", "docker diff and export", "Isolating a container", "Rotating exposed secrets", "Rebuilding from trusted images", "Lessons learned"],
+          "tools": ["Falco", "Docker CLI"],
+          "lab_task": "Respond to a simulated compromised container: detect it with Falco, capture its filesystem changes, isolate it, rotate its secrets and rebuild from a trusted image.",
+          "deliverable": "Incident timeline, evidence files and remediation record",
+          "checks": [["Run the simulated attack", "Falco alerts on the shell and file write", "Falco log"], ["Show captured changes", "docker diff lists the attacker's files", "Command output"], ["Use the old secret after rotation", "Rejected", "Error output"]],
+          "objectives": ["Detect suspicious container activity", "Preserve container evidence", "Recover safely from a compromise"]
+        },
+        {
+          "topic": "Image Lifecycle Management in Organisations",
+          "subtopics": ["Golden base images", "Approved image catalogue", "Patch cadence and SLAs", "Deprecating old images", "Tracking which services use which base", "Automated rebuilds on CVE fixes", "Exceptions and risk acceptance", "Reporting image health"],
+          "tools": ["Harbor", "Renovate", "Trivy"],
+          "lab_task": "Create a golden base image with an automated weekly rebuild, a catalogue of approved images, and a report of which services run outdated bases.",
+          "deliverable": "Base image pipeline, catalogue and image health report",
+          "checks": [["Publish a base image fix", "Dependent service images rebuild automatically", "CI runs"], ["Open the image health report", "Lists services on outdated bases with age", "Report"], ["Deploy an image not in the catalogue", "Blocked by policy", "Error output"]],
+          "objectives": ["Manage base images across an organisation", "Automate patch rebuilds", "Report image health"]
+        },
+        {
+          "topic": "Edge and IoT Containers",
+          "subtopics": ["Running containers on small devices", "Resource limits on edge hardware", "Image size for slow links", "Offline updates", "Balena and similar platforms overview", "Remote logging", "Secure boot and device identity overview", "Rolling updates to device fleets"],
+          "tools": ["Docker", "Raspberry Pi or ARM VM", "Watchtower"],
+          "lab_task": "Run a sensor-reading service and a local dashboard on an ARM device or emulator, ship logs to a central server, and roll out an update to three devices in waves.",
+          "deliverable": "Device setup, update process and wave rollout record",
+          "checks": [["Roll out to the first device", "Update succeeds before the others are updated", "Rollout log"], ["Disconnect a device during the update", "Device updates after reconnecting", "Status timeline"], ["Check the central log server", "Logs from all three devices are present", "Log query"]],
+          "objectives": ["Run containers on edge devices", "Update device fleets safely", "Collect logs from remote devices"]
+        },
+        {
+          "topic": "Cost and Resource Efficiency for Container Hosts",
+          "subtopics": ["Measuring host utilisation", "Packing containers on hosts", "Choosing instance types", "Spot instances for container workloads", "Image pull costs and caching", "Idle containers", "Right-sizing limits from data", "Reporting cost per service"],
+          "tools": ["docker stats", "Prometheus", "Grafana"],
+          "lab_task": "Measure a host running 12 services, right-size their limits from a week of sample data, repack them onto fewer hosts and report the cost per service before and after.",
+          "deliverable": "Utilisation analysis, new limits and a cost report",
+          "checks": [["Compare host count before and after", "Fewer hosts with no service over its limit", "Placement table"], ["Run the load test after repacking", "Latency stays within the stated target", "Load test report"], ["Read the cost report", "Cost per service is calculated", "Report"]],
+          "objectives": ["Measure container resource use", "Right-size and pack containers efficiently", "Report container cost"]
+        },
+        {
+          "topic": "Migrating a Portfolio to Containers",
+          "subtopics": ["Assessing applications for containerisation", "Choosing lift-and-shift or refactor", "Handling stateful applications", "Licensing considerations", "Migration waves", "Testing containerised versions", "Cut-over and rollback plans", "Measuring migration success"],
+          "tools": ["Docker", "Docker Compose"],
+          "lab_task": "Assess 8 provided applications for containerisation, plan two migration waves, containerise two of them, and write cut-over and rollback plans.",
+          "deliverable": "Assessment table, wave plan, two containerised apps and cut-over plans",
+          "checks": [["Review the assessment", "Each app has a decision and reason", "Assessment table"], ["Run the two containerised apps", "Both pass their smoke tests", "Test output"], ["Read the rollback plan", "Describes how to return to the old deployment", "Plan document"]],
+          "objectives": ["Assess applications for containers", "Plan migration waves", "Plan cut-over and rollback"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure Container Platform for a Product Team",
+          "subtopics": ["Requirements and design", "Fast multi-platform builds", "Supply chain security", "Registry policies", "Observability and testing", "Demo and design defence"],
+          "tools": ["Docker Buildx", "cosign", "Harbor", "Trivy", "OpenTelemetry", "GitHub Actions"],
+          "lab_task": "Build a container delivery platform for a product team with multi-platform builds, signed images and SBOMs, registry policies, tests and observability, then present it.",
+          "deliverable": "Repository, pipeline runs, registry configuration, dashboards and a 15-minute demo",
+          "checks": [["Push a change", "Signed multi-platform image with SBOM reaches the registry", "Pipeline and registry evidence"], ["Try to run an unsigned image", "Blocked", "Error output"], ["Introduce a slow request", "Trace and logs pinpoint it", "Observability screenshots"]],
+          "objectives": ["Design a secure container delivery platform", "Combine builds, supply chain, registry and observability", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run containers at scale. Covers runtime and kernel internals, sandboxing, supply chain at organisation scale, build systems, performance engineering and container platform strategy.",
+      "prerequisites": [
+        "Has built and operated containerised services in production",
+        "Comfortable with Linux internals, networking and CI/CD",
+        "Has used Kubernetes or another orchestrator"
+      ],
+      "outcomes": [
+        "Debug containers at the kernel, runtime and network level",
+        "Design sandboxed and multi-tenant container runtimes",
+        "Run organisation-wide image supply chain and build platforms",
+        "Set container platform strategy with cost, security and reliability evidence"
+      ],
+      "days": [
+        {
+          "topic": "Linux Kernel Features Behind Containers",
+          "subtopics": ["Namespaces and their system calls", "cgroups v2 controllers in depth", "Capabilities and their risks", "Seccomp BPF", "Overlay and other storage drivers", "Building a container by hand", "Kernel version effects", "Observing containers with eBPF"],
+          "tools": ["unshare", "bpftrace", "cgroup tools"],
+          "lab_task": "Build a working container by hand with unshare, a cgroup and an overlay mount, then observe its system calls with bpftrace.",
+          "deliverable": "Script that builds the container and annotated bpftrace output",
+          "checks": [["Run ps inside the hand-built container", "Only its own processes are visible", "Command output"], ["Exceed its cgroup memory limit", "Process is killed by the kernel", "dmesg output"], ["Trace its system calls", "bpftrace shows the calls with counts", "Trace output"]],
+          "objectives": ["Explain the kernel features containers use", "Build a container from primitives", "Observe containers with eBPF"]
+        },
+        {
+          "topic": "Sandboxed Runtimes: gVisor, Kata Containers and Firecracker",
+          "subtopics": ["Why shared-kernel isolation is not enough for some workloads", "gVisor user-space kernel", "Kata Containers lightweight VMs", "Firecracker microVMs", "Performance costs of sandboxing", "Compatibility limits", "Choosing a runtime per workload", "Runtime classes in Kubernetes"],
+          "tools": ["gVisor", "Kata Containers", "Firecracker"],
+          "lab_task": "Run the same service under runc, gVisor and Kata, benchmark start-up time, throughput and memory, and write a runtime selection policy for untrusted workloads.",
+          "deliverable": "Benchmark results and a runtime selection policy",
+          "checks": [["Compare the three runtimes", "Start-up, throughput and memory figures are recorded", "Benchmark table"], ["Run a kernel exploit test case under gVisor", "Does not reach the host kernel", "Test output"], ["Read the policy", "Each workload class has a runtime and reason", "Policy document"]],
+          "objectives": ["Compare sandboxed runtimes", "Measure the cost of isolation", "Choose runtimes by workload risk"]
+        },
+        {
+          "topic": "eBPF Networking and Observability for Containers",
+          "subtopics": ["eBPF basics", "Cilium data path", "Network observability with Hubble", "Socket-level load balancing", "Tracing latency with eBPF", "Continuous profiling", "Security observability with Tetragon", "Overhead of eBPF tools"],
+          "tools": ["Cilium", "Hubble", "Tetragon", "Parca"],
+          "lab_task": "Use Hubble to map service traffic, Tetragon to detect a process opening a sensitive file, and continuous profiling to find the hottest function in a service.",
+          "deliverable": "Traffic map, Tetragon event and profiling report",
+          "checks": [["Open /etc/shadow in a container", "Tetragon reports the process and file", "Event output"], ["View the Hubble flow map", "Shows dropped and allowed flows", "Screenshot"], ["Read the profiling report", "Hottest function identified with share of CPU", "Profile output"]],
+          "objectives": ["Use eBPF for networking and security insight", "Profile services continuously", "Judge eBPF tool overhead"]
+        },
+        {
+          "topic": "Organisation-Wide Supply Chain Security",
+          "subtopics": ["SLSA levels and requirements", "Hermetic and isolated builds", "Provenance verification at deploy time", "Policy engines for images", "Vulnerability exploitability exchange (VEX)", "Dependency risk scoring", "Incident response for a poisoned dependency", "Metrics for supply chain programmes"],
+          "tools": ["SLSA tools", "cosign", "OpenVEX", "Kyverno"],
+          "lab_task": "Design a supply chain programme reaching SLSA level 3 for one service, publish VEX statements for non-exploitable CVEs, and run a tabletop exercise for a poisoned dependency.",
+          "deliverable": "Programme design, provenance evidence, VEX documents and tabletop notes",
+          "checks": [["Verify provenance of a release", "Build source, builder and inputs are verified", "Verification output"], ["Scan with VEX applied", "Non-exploitable findings are suppressed with justification", "Scan report"], ["Read the tabletop notes", "Detection, containment and recovery steps are defined", "Notes"]],
+          "objectives": ["Run supply chain security at organisation scale", "Use provenance and VEX", "Prepare for dependency compromise"]
+        },
+        {
+          "topic": "Build Platforms at Scale",
+          "subtopics": ["Remote build caches", "BuildKit in Kubernetes", "Ephemeral builders", "Build farm security", "Monorepo image builds", "Bazel and rules_oci", "Build time and cost metrics", "Reproducible builds verification"],
+          "tools": ["BuildKit", "Bazel", "rules_oci"],
+          "lab_task": "Run BuildKit in Kubernetes with a shared remote cache for a monorepo of 10 services, cut total build time by half, and verify two builds are bit-for-bit identical.",
+          "deliverable": "Build platform configuration, timing reports and reproducibility proof",
+          "checks": [["Compare total build time", "At least 50% faster or the gap is explained", "Timing report"], ["Build the same commit twice", "Identical image digests", "Digest comparison"], ["Review builder isolation", "Builds run in ephemeral, isolated builders", "Configuration review"]],
+          "objectives": ["Design build platforms for many services", "Share caches safely", "Prove reproducible builds"]
+        },
+        {
+          "topic": "Container Performance Engineering at Scale",
+          "subtopics": ["Noisy neighbours", "CPU pinning and NUMA", "Huge pages", "Network performance with SR-IOV and DPDK overview", "Storage I/O isolation", "Image pull performance and lazy loading", "Start-up time optimisation", "Fleet-wide performance metrics"],
+          "tools": ["perf", "eStargz or SOCI", "Prometheus"],
+          "lab_task": "Reduce p99 latency of a latency-sensitive service sharing hosts with batch work, and cut container start-up time with lazy image loading, measuring each change.",
+          "deliverable": "Performance report with measured effect of each change",
+          "checks": [["Run the latency test alongside batch load", "p99 within the stated target after changes", "Load test report"], ["Compare start-up times", "Lazy loading reduces start-up time, with figures", "Timing table"], ["Explain the noisy-neighbour fix", "Evidence shows the contention source", "Report section"]],
+          "objectives": ["Isolate performance-sensitive containers", "Speed up container start-up", "Measure performance across a fleet"]
+        },
+        {
+          "topic": "Multi-Tenant Container Platforms",
+          "subtopics": ["Tenancy models", "Isolation layers: runtime, network, storage", "Per-tenant registries and quotas", "Noisy tenant controls", "Secrets isolation", "Auditing tenant activity", "Tenant onboarding automation", "Pricing and chargeback"],
+          "tools": ["Kubernetes", "Kata Containers", "Harbor"],
+          "lab_task": "Design and build isolation for three untrusted tenants running customer code, with sandboxed runtimes, network isolation, quotas, separate registries and audit logs.",
+          "deliverable": "Tenancy design, configuration and an isolation test report",
+          "checks": [["Tenant A tries to reach Tenant B's containers", "Blocked", "Test output"], ["Tenant A runs a CPU-heavy job", "Tenant B's latency stays within target", "Metrics"], ["Read the audit log", "Tenant actions are recorded with identity", "Log entries"]],
+          "objectives": ["Design multi-tenant container platforms", "Combine runtime, network and storage isolation", "Audit and charge tenants"]
+        },
+        {
+          "topic": "Container Security Operations Programme",
+          "subtopics": ["Vulnerability SLAs by severity", "Runtime detection coverage", "Admission policies for the whole organisation", "Exception management", "Security metrics and dashboards", "Red team exercises against containers", "Integrating with the SOC", "Continuous improvement"],
+          "tools": ["Falco", "Trivy", "Kyverno", "SIEM"],
+          "lab_task": "Set up a container security operations programme: vulnerability SLAs with dashboards, runtime detection alerts sent to a SIEM, and a red team exercise with findings and fixes.",
+          "deliverable": "Programme document, dashboards, SIEM integration and red team report",
+          "checks": [["Trigger a runtime alert", "Alert appears in the SIEM with context", "SIEM screenshot"], ["Open the SLA dashboard", "Shows open vulnerabilities by age against SLA", "Dashboard"], ["Read the red team report", "Each finding has a fix and owner", "Report"]],
+          "objectives": ["Run container security as an operational programme", "Measure security posture", "Connect container security to the SOC"]
+        },
+        {
+          "topic": "Container Platform Reliability Engineering",
+          "subtopics": ["Failure modes of container hosts", "Registry outages and pull failures", "Runtime and daemon upgrades", "Image cache warming", "Chaos tests for container platforms", "SLOs for the platform itself", "Capacity buffers", "Runbooks and automation"],
+          "tools": ["Chaos Mesh", "Prometheus", "Harbor"],
+          "lab_task": "Define platform SLOs, then run chaos tests for a registry outage, a runtime upgrade and a host failure, adding mitigations such as pull-through caches and pre-pulled images.",
+          "deliverable": "Platform SLOs, chaos results and mitigations with before and after evidence",
+          "checks": [["Take the registry down during a deployment", "Deployment succeeds from the cache", "Deployment log"], ["Upgrade the runtime on a node under load", "No failed requests", "Load test log"], ["Read the SLO report", "Platform SLOs met during the tests", "SLO dashboard"]],
+          "objectives": ["Engineer reliability for container platforms", "Mitigate registry and runtime failures", "Measure platform SLOs"]
+        },
+        {
+          "topic": "WebAssembly and the Future of Workload Packaging",
+          "subtopics": ["What WebAssembly brings to server workloads", "WASI", "Running Wasm with containerd shims", "Spin and wasmCloud overview", "Start-up time and size compared with containers", "Language support", "Security model", "When to choose Wasm over containers"],
+          "tools": ["Spin", "containerd Wasm shim", "Rust"],
+          "lab_task": "Build the same HTTP function as a container and as a WebAssembly component, run both, and compare size, start-up time, throughput and language limits.",
+          "deliverable": "Both implementations and a comparison report with a recommendation",
+          "checks": [["Compare artefact sizes and start-up times", "Measured figures for both", "Comparison table"], ["Run the Wasm component through containerd", "Responds to HTTP requests", "curl output"], ["Read the recommendation", "States when each option fits with reasons", "Report"]],
+          "objectives": ["Explain WebAssembly for server workloads", "Run Wasm alongside containers", "Choose packaging by measured trade-offs"]
+        },
+        {
+          "topic": "Container Networking at Scale",
+          "subtopics": ["IP address management for large fleets", "Overlay versus native routing", "BGP with containers", "Service load balancing at scale", "Egress gateways", "Network policy at scale", "Multi-cluster networking", "Troubleshooting at scale"],
+          "tools": ["Cilium", "BGP", "tcpdump"],
+          "lab_task": "Replace an overlay network with native routing announced over BGP, add an egress gateway with fixed source IPs, and compare latency and throughput.",
+          "deliverable": "Network design, configuration and a performance comparison",
+          "checks": [["Compare latency and throughput", "Native routing improves both, with figures", "Benchmark table"], ["Check egress source IP at an external server", "Matches the egress gateway IP", "Server log"], ["Withdraw a BGP route", "Traffic fails over as designed", "Routing table and test"]],
+          "objectives": ["Design container networking for large fleets", "Use BGP and egress gateways", "Measure networking trade-offs"]
+        },
+        {
+          "topic": "Storage for Containers at Scale",
+          "subtopics": ["Container Storage Interface", "Block, file and object storage choices", "Distributed storage with Rook Ceph", "Snapshots and clones", "Storage performance testing", "Data locality", "Backup at scale", "Stateful workload placement"],
+          "tools": ["Rook", "Ceph", "fio"],
+          "lab_task": "Deploy Rook Ceph, benchmark block and file storage with fio, run a database on it, and test recovery from a failed storage node.",
+          "deliverable": "Storage design, benchmark results and the recovery test",
+          "checks": [["Run fio on block and file storage", "IOPS and latency recorded for each", "fio output"], ["Fail a storage node", "Database keeps running and data stays consistent", "Database checks"], ["Restore from a snapshot clone", "Clone contains the snapshot data", "Query output"]],
+          "objectives": ["Design container storage at scale", "Benchmark storage choices", "Test storage failure recovery"]
+        },
+        {
+          "topic": "Compliance and Audit for Container Platforms",
+          "subtopics": ["Mapping container controls to frameworks", "CIS benchmarks for Docker and Kubernetes", "Image provenance as audit evidence", "Runtime audit trails", "Change management evidence", "Continuous compliance reporting", "Handling auditors' requests", "Exceptions and risk acceptance"],
+          "tools": ["kube-bench", "Docker Bench", "Policy Reporter"],
+          "lab_task": "Map 15 controls to container platform evidence, automate evidence collection, and run a mock audit answering five auditor requests from the evidence store.",
+          "deliverable": "Control mapping, evidence automation and the mock audit record",
+          "checks": [["Answer an auditor request for image provenance", "Evidence is produced from the store within minutes", "Evidence file"], ["Run the compliance report", "Each control shows current status", "Report"], ["Review an exception", "Owner, reason and expiry are recorded", "Exception record"]],
+          "objectives": ["Prepare container platforms for audits", "Automate compliance evidence", "Manage exceptions properly"]
+        },
+        {
+          "topic": "Cost Engineering for Container Platforms",
+          "subtopics": ["Cost drivers: compute, storage, network, registry", "Bin packing and over-commit", "Spot capacity strategies", "Registry storage and egress costs", "Build platform cost", "Showback by team", "Unit economics per request", "Cost guardrails"],
+          "tools": ["OpenCost", "Prometheus", "Grafana"],
+          "lab_task": "Cut container platform cost by at least 30% across compute, registry and build costs while meeting SLOs, and publish showback per team.",
+          "deliverable": "Cost analysis, changes made, SLO evidence and showback report",
+          "checks": [["Compare monthly costs", "At least 30% lower or the gap is explained", "Cost report"], ["Check SLOs after the changes", "SLOs still met", "Dashboard"], ["Open the showback report", "Cost per team reconciles with the total", "Report"]],
+          "objectives": ["Find and reduce container platform costs", "Keep SLOs while saving", "Report cost per team"]
+        },
+        {
+          "topic": "Container Strategy for Legacy Modernisation",
+          "subtopics": ["Containers as a modernisation step", "Strangler fig with containers", "Mainframe and legacy integration", "Data migration patterns", "Licensing for containerised software", "Measuring modernisation value", "Organisational change", "Roadmaps"],
+          "tools": ["Docker", "Kubernetes"],
+          "lab_task": "Produce a modernisation roadmap for a portfolio of 40 legacy applications using containers, with a strangler fig plan for one core system and a value case.",
+          "deliverable": "Roadmap, strangler fig plan and value case",
+          "checks": [["Review the roadmap", "Applications are grouped and sequenced with dependencies", "Roadmap"], ["Read the strangler fig plan", "Each step can be rolled back", "Plan document"], ["Check the value case", "Includes costs, benefits and risks", "Value case"]],
+          "objectives": ["Use containers in modernisation programmes", "Plan incremental migrations", "Justify modernisation with a value case"]
+        },
+        {
+          "topic": "Running AI and GPU Workloads in Containers",
+          "subtopics": ["GPU drivers and the container toolkit", "CUDA base images", "Image size for ML frameworks", "Model files: in image or mounted", "GPU sharing", "Serving models in containers", "Monitoring GPU use", "Security of model artefacts"],
+          "tools": ["NVIDIA Container Toolkit", "CUDA images", "Triton Inference Server"],
+          "lab_task": "Containerise a model with Triton Inference Server on a GPU host, compare model-in-image and mounted-model approaches, and measure throughput and GPU use.",
+          "deliverable": "Dockerfiles, serving configuration and a performance comparison",
+          "checks": [["Run inference requests", "Server responds using the GPU", "nvidia-smi output and responses"], ["Compare the two model packaging approaches", "Image size, start-up and update effort recorded", "Comparison table"], ["Load test the endpoint", "Throughput and GPU use recorded", "Load test report"]],
+          "objectives": ["Run GPU workloads in containers", "Package models sensibly", "Measure inference performance"]
+        },
+        {
+          "topic": "Container Platform Architecture Decisions",
+          "subtopics": ["Choosing orchestrators and managed services", "Build versus buy for platforms", "Runtime choices", "Registry strategy", "Security architecture", "Cost model", "Team structure for platforms", "Architecture decision records"],
+          "tools": ["Decision records"],
+          "lab_task": "For a provided company scenario, choose orchestrator, runtimes, registry and security architecture, write four architecture decision records, and present them.",
+          "deliverable": "Four decision records and a 10-minute presentation",
+          "checks": [["Read a decision record", "Options, criteria and the chosen option with reasons", "Decision record"], ["Q&A on the orchestrator choice", "Participant defends it with cost and risk evidence", "Trainer notes"], ["Check consistency across the four records", "Decisions do not conflict", "Review notes"]],
+          "objectives": ["Make container platform architecture decisions", "Document trade-offs", "Present decisions to stakeholders"]
+        },
+        {
+          "topic": "Advanced Troubleshooting of Container Hosts",
+          "subtopics": ["Daemon and containerd logs", "Stuck containers and zombie processes", "Disk exhaustion from images and logs", "Network namespace leaks", "Overlay filesystem corruption", "Kernel bugs affecting containers", "Collecting diagnostics bundles", "Systematic root cause analysis"],
+          "tools": ["journalctl", "crictl", "nsenter", "strace"],
+          "lab_task": "Diagnose and fix seven host-level container failures injected by the trainer, including disk exhaustion, a stuck container and a leaked network namespace.",
+          "deliverable": "Diagnosis log with symptom, evidence, root cause and fix for each",
+          "checks": [["Fix the disk exhaustion", "Space recovered and cause prevented", "df output and log entry"], ["Remove the stuck container", "Removed after finding the held resource", "Log entry"], ["Explain one root cause", "Supported by logs or traces", "Log entry"]],
+          "objectives": ["Troubleshoot host-level container problems", "Use runtime and kernel tools", "Find and prevent root causes"]
+        },
+        {
+          "topic": "Container Platform Roadmap and Governance",
+          "subtopics": ["Platform maturity models", "Standards and paved roads", "Governance without blocking teams", "Adoption metrics", "Deprecation policies", "Security and compliance roadmap", "Budgeting", "Communicating with leadership"],
+          "tools": ["Roadmap templates"],
+          "lab_task": "Assess a provided organisation's container maturity, write a 12-month platform roadmap with governance rules and adoption metrics, and present it to a mock leadership panel.",
+          "deliverable": "Maturity assessment, roadmap and leadership presentation",
+          "checks": [["Read the maturity assessment", "Each area has evidence and a level", "Assessment"], ["Review the roadmap", "Items have outcomes, owners and metrics", "Roadmap"], ["Panel Q&A", "Participant answers budget and risk questions with evidence", "Trainer notes"]],
+          "objectives": ["Assess container platform maturity", "Plan a platform roadmap", "Govern container use across teams"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Container Platform Design",
+          "subtopics": ["Business and risk requirements", "Runtime, network and storage architecture", "Supply chain and security operations", "Build platform and registries", "Reliability, cost and governance", "Architecture defence"],
+          "tools": ["Kubernetes", "Kata Containers", "Cilium", "Harbor", "cosign", "BuildKit", "OpenCost"],
+          "lab_task": "Design and prototype an enterprise container platform for a regulated client covering runtimes, networking, storage, supply chain, build platform, reliability and cost, then defend it to a review board.",
+          "deliverable": "Architecture document, working prototype, security and reliability test evidence, cost model and a 20-minute review presentation",
+          "checks": [["Run the security test suite", "Unsigned, unscanned or privileged workloads are blocked", "Test results"], ["Run the reliability tests", "Platform SLOs met during registry and node failures", "SLO report"], ["Review the cost model", "Monthly cost is broken down and justified", "Cost model"]],
+          "objectives": ["Design an enterprise container platform end to end", "Prove security, reliability and cost with evidence", "Defend the design to a review board"]
+        }
+      ]
+    }
+  }
+}

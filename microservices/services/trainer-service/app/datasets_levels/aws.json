@@ -1,0 +1,597 @@
+{
+  "domain": "AWS",
+  "name": "AWS",
+  "category": "Cloud",
+  "icon": "cloud",
+  "aliases": ["Amazon Web Services", "AWS Cloud", "AWS Solutions Architect", "AWS Cloud Engineering"],
+  "certifications": [
+    "AWS Certified Cloud Practitioner",
+    "AWS Certified Solutions Architect - Associate",
+    "AWS Certified Developer - Associate",
+    "AWS Certified Solutions Architect - Professional"
+  ],
+  "tools": ["AWS Management Console", "AWS CLI", "CloudFormation", "Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No cloud experience assumed. Participants learn the core AWS services for compute, storage, networking, databases, identity and monitoring, and deploy a small web application.",
+      "prerequisites": [
+        "Basic computer and networking knowledge (IP address, DNS, web browser)",
+        "No prior cloud experience required",
+        "An AWS account or trainer-provided sandbox account with a budget alert"
+      ],
+      "outcomes": [
+        "Explain cloud computing, AWS global infrastructure and the shared responsibility model",
+        "Launch and secure EC2 instances, S3 buckets, RDS databases and a VPC",
+        "Control access with IAM users, groups, roles and policies",
+        "Deploy, monitor and cost-control a simple web application on AWS"
+      ],
+      "days": [
+        {
+          "topic": "Cloud Computing Concepts and the AWS Global Infrastructure",
+          "shared_key": "cloud-concepts",
+          "subtopics": ["What cloud computing is: on-demand, pay-as-you-go", "IaaS, PaaS and SaaS", "Public, private and hybrid cloud", "Regions, Availability Zones and edge locations", "Shared responsibility model", "AWS account setup and the root user", "Turning on MFA for the root user", "Billing dashboard and the Free Tier", "Creating a budget alert", "Navigating the AWS Management Console"],
+          "tools": ["AWS Management Console", "AWS Budgets"],
+          "lab_task": "Secure a new AWS account: enable MFA on the root user, create a monthly budget of 10 USD with an email alert, and choose a home Region with a written reason.",
+          "deliverable": "Screenshots of root MFA enabled and the budget alert, plus a one-paragraph Region choice note",
+          "checks": [["Open the IAM security recommendations", "Root user shows MFA enabled", "Console screenshot"], ["View AWS Budgets", "A 10 USD monthly budget with an email alert exists", "Budget screenshot"], ["Ask: who patches the EC2 guest OS?", "Participant answers the customer, citing the shared responsibility model", "Written answer"]],
+          "objectives": ["Explain cloud service and deployment models", "Describe Regions, AZs and the shared responsibility model", "Secure and cost-protect a new AWS account"]
+        },
+        {
+          "topic": "IAM Users, Groups and Policies",
+          "subtopics": ["Why not to use the root user", "IAM users and groups", "Managed and inline policies", "Reading a JSON policy: Effect, Action, Resource", "Least privilege", "Password policy and MFA for users", "Access keys and when to avoid them", "IAM Access Analyzer basics"],
+          "tools": ["IAM", "AWS CLI"],
+          "lab_task": "Create Admins and Developers groups, an admin user with MFA, and a developer user that can only read S3; prove the developer cannot delete a bucket.",
+          "deliverable": "IAM setup screenshots and the AccessDenied result from the developer's delete attempt",
+          "checks": [["Developer runs aws s3 ls", "Bucket list is returned", "CLI output"], ["Developer runs aws s3 rb on a bucket", "AccessDenied error is returned", "CLI output"], ["Explain each line of the developer policy", "Effect, Action and Resource are explained correctly", "Annotated policy"]],
+          "objectives": ["Create IAM users and groups with MFA", "Write and read least-privilege policies", "Test permissions with the CLI"]
+        },
+        {
+          "topic": "EC2 Instances and Key Pairs",
+          "subtopics": ["What EC2 is", "AMIs and instance types", "Key pairs and SSH or Session Manager access", "Security groups as virtual firewalls", "Instance lifecycle: stop, start, terminate", "User data scripts", "Public and private IP addresses", "On-Demand, Spot and Savings Plans pricing"],
+          "tools": ["EC2", "Session Manager", "AWS CLI"],
+          "lab_task": "Launch an Amazon Linux instance with a user data script that installs a web server, allow HTTP only from your IP, and show the web page.",
+          "deliverable": "Running instance details, security group rules and a screenshot of the web page",
+          "checks": [["Browse to the instance public IP", "Web page from the user data script loads", "Browser screenshot"], ["Browse from a different network or IP", "Connection is blocked by the security group", "Screenshot or curl timeout"], ["Stop and start the instance", "Participant explains why the public IP changed", "Before and after IPs with explanation"]],
+          "objectives": ["Launch and connect to EC2 instances", "Control traffic with security groups", "Explain EC2 pricing options"]
+        },
+        {
+          "topic": "EBS Volumes, Snapshots and AMIs",
+          "subtopics": ["EBS volume types: gp3, io2, st1", "Attaching and mounting a volume", "Volume and instance lifecycle", "Snapshots for backup", "Restoring a volume from a snapshot", "Creating a custom AMI", "Instance store versus EBS", "Encrypting volumes with KMS"],
+          "tools": ["EC2", "EBS", "KMS"],
+          "lab_task": "Attach an encrypted gp3 volume, write a test file, snapshot it, delete the volume, restore it from the snapshot and confirm the file is intact.",
+          "deliverable": "Command log and screenshots of each step with the restored file contents",
+          "checks": [["Read the test file on the restored volume", "File contents match the original", "Terminal output"], ["Open the volume details", "Encryption shows enabled with a KMS key", "Console screenshot"], ["Launch a new instance from your custom AMI", "Web server works without reinstalling", "Browser screenshot"]],
+          "objectives": ["Create, attach and back up EBS volumes", "Restore data from snapshots", "Build and use custom AMIs"]
+        },
+        {
+          "topic": "Amazon S3 Storage",
+          "subtopics": ["Buckets and objects", "Bucket naming and Regions", "Storage classes and lifecycle rules", "Versioning", "Block Public Access", "Bucket policies", "Static website hosting", "Pre-signed URLs"],
+          "tools": ["S3", "AWS CLI"],
+          "lab_task": "Create a versioned bucket with Block Public Access on, upload and overwrite a file, restore the old version, add a lifecycle rule, and share one object with a 15-minute pre-signed URL.",
+          "deliverable": "Bucket configuration screenshots, version history and the pre-signed URL test results",
+          "checks": [["Open the object URL without a pre-signed link", "Access is denied", "Browser screenshot"], ["Open the pre-signed URL within 15 minutes", "File downloads", "Browser screenshot"], ["Restore the previous version", "Original contents are back", "Object version list and contents"]],
+          "objectives": ["Store and protect data in S3", "Use versioning and lifecycle rules", "Share objects safely with pre-signed URLs"]
+        },
+        {
+          "topic": "VPC Networking: Subnets and Route Tables",
+          "subtopics": ["What a VPC is", "CIDR blocks and IP ranges", "Public and private subnets", "Internet Gateway", "Route tables", "NAT Gateway for private subnets", "Network ACLs compared with security groups", "VPC across Availability Zones"],
+          "tools": ["VPC", "EC2"],
+          "lab_task": "Build a VPC with public and private subnets in two AZs, an Internet Gateway and a NAT Gateway; place a web instance in public and an app instance in private.",
+          "deliverable": "Network diagram, route table screenshots and connectivity test results",
+          "checks": [["From the private instance, run curl to a public website", "Succeeds through the NAT Gateway", "Terminal output"], ["From the internet, try to reach the private instance", "No route; connection fails", "Test result"], ["Remove the NAT route and retry from the private instance", "Outbound access fails, and the participant explains why", "Terminal output and explanation"]],
+          "objectives": ["Design a VPC with public and private subnets", "Route traffic with Internet and NAT Gateways", "Compare NACLs and security groups"]
+        },
+        {
+          "topic": "Elastic Load Balancing and Auto Scaling",
+          "subtopics": ["Why load balancing", "Application Load Balancer, listeners and target groups", "Health checks", "Launch templates", "Auto Scaling groups: desired, min and max", "Target tracking scaling policies", "Spreading instances across AZs", "Replacing unhealthy instances"],
+          "tools": ["ELB", "EC2 Auto Scaling", "CloudWatch"],
+          "lab_task": "Put two web instances behind an ALB using an Auto Scaling group across two AZs, then terminate one instance and watch it get replaced.",
+          "deliverable": "ALB and Auto Scaling configuration, plus a timeline of the replacement",
+          "checks": [["Refresh the ALB DNS name several times", "Responses come from both instances", "Responses showing two instance IDs"], ["Terminate one instance", "Auto Scaling launches a replacement and the site stays up", "Activity history screenshot"], ["Run a CPU load test", "Target tracking adds an instance", "Scaling activity screenshot"]],
+          "objectives": ["Distribute traffic with an Application Load Balancer", "Keep capacity healthy with Auto Scaling", "Configure scaling policies"]
+        },
+        {
+          "topic": "Amazon RDS Relational Databases",
+          "subtopics": ["Managed databases versus self-managed", "RDS engines", "DB instance classes and storage", "Multi-AZ deployments", "Read replicas", "Automated backups and snapshots", "Placing RDS in private subnets", "Connecting securely from an application"],
+          "tools": ["RDS", "MySQL client"],
+          "lab_task": "Create a MySQL RDS instance in private subnets, allow access only from the app security group, create a table and restore a point-in-time copy.",
+          "deliverable": "RDS configuration, connection test and point-in-time restore evidence",
+          "checks": [["Connect from the app instance", "Connection succeeds and a query returns rows", "Terminal output"], ["Connect from your laptop", "Connection fails because the database is private", "Error output"], ["Restore to a time before a row was deleted", "Restored database contains the row", "Query output"]],
+          "objectives": ["Deploy a managed relational database", "Secure database access with networking", "Use backups and point-in-time restore"]
+        },
+        {
+          "topic": "Amazon DynamoDB NoSQL",
+          "subtopics": ["Key-value and document data", "Tables, items and attributes", "Partition keys and sort keys", "On-demand and provisioned capacity", "Query versus Scan", "Global secondary indexes", "TTL for expiring items", "When to choose DynamoDB or RDS"],
+          "tools": ["DynamoDB", "AWS CLI"],
+          "lab_task": "Design an Orders table with a customer partition key and order-date sort key, load sample data, and query a customer's orders for one month.",
+          "deliverable": "Table design note, CLI commands and query results",
+          "checks": [["Query one customer for March", "Only that customer's March orders return", "CLI output"], ["Compare the same lookup with Scan", "Participant shows Scan reads far more items", "Consumed capacity output"], ["Add a GSI on order status and query pending orders", "Pending orders return from the index", "CLI output"]],
+          "objectives": ["Model data with partition and sort keys", "Query efficiently instead of scanning", "Choose between DynamoDB and RDS"]
+        },
+        {
+          "topic": "Route 53 and CloudFront",
+          "subtopics": ["How DNS resolution works", "Hosted zones and record types", "Alias records", "Routing policies: simple, weighted, failover", "Health checks", "CloudFront distributions", "Origins and caching", "HTTPS with ACM certificates"],
+          "tools": ["Route 53", "CloudFront", "ACM"],
+          "lab_task": "Serve the S3 static website through CloudFront over HTTPS with origin access control, and create a weighted Route 53 record split 80/20 between two endpoints.",
+          "deliverable": "CloudFront and Route 53 configuration plus test results",
+          "checks": [["Open the site through the CloudFront URL", "Loads over HTTPS", "Browser screenshot"], ["Open the S3 object URL directly", "Access denied because only CloudFront can read the bucket", "Browser screenshot"], ["Resolve the weighted record 50 times", "Roughly 80/20 split between endpoints", "dig results tally"]],
+          "objectives": ["Explain DNS and Route 53 routing policies", "Deliver content through CloudFront with HTTPS", "Restrict origin access"]
+        },
+        {
+          "topic": "CloudWatch Monitoring and Alarms",
+          "subtopics": ["Metrics, namespaces and dimensions", "Default EC2 metrics", "CloudWatch agent for memory and disk", "Log groups and log streams", "Metric filters", "Alarms and SNS notifications", "Dashboards", "Logs Insights queries"],
+          "tools": ["CloudWatch", "SNS", "CloudWatch agent"],
+          "lab_task": "Install the CloudWatch agent on the web server, ship its access log, create a 404-count metric filter, and alarm by email when CPU stays above 70% for 5 minutes.",
+          "deliverable": "Dashboard screenshot, alarm configuration and the received alarm email",
+          "checks": [["Run a CPU stress test for 6 minutes", "Alarm goes to ALARM and an email arrives", "Alarm history and email"], ["Request 20 missing pages", "404 metric shows 20", "Metric graph"], ["Run a Logs Insights query for the top client IPs", "Returns IPs with counts", "Query result"]],
+          "objectives": ["Collect metrics and logs with CloudWatch", "Create alarms with notifications", "Query logs with Logs Insights"]
+        },
+        {
+          "topic": "AWS CLI and Scripting",
+          "subtopics": ["Installing and configuring the CLI", "Profiles and named credentials", "Output formats and --query with JMESPath", "Filtering results", "Waiters", "Scripting with Bash or PowerShell", "Pagination", "Using CloudShell"],
+          "tools": ["AWS CLI", "CloudShell", "Bash"],
+          "lab_task": "Write a script that lists all running EC2 instances in a Region with their Name tag and type, and stops those tagged Environment=dev.",
+          "deliverable": "Script, its output and a before-and-after instance state list",
+          "checks": [["Run the script on the lab account", "Lists instances with Name and type in a table", "Script output"], ["Check instances tagged Environment=dev", "They are stopped; others keep running", "Instance state list"], ["Run with an invalid profile name", "Script exits with a clear error", "Terminal output"]],
+          "objectives": ["Configure and use the AWS CLI", "Filter results with --query", "Automate routine tasks with scripts"]
+        },
+        {
+          "topic": "AWS Lambda Serverless Functions",
+          "subtopics": ["What serverless means", "Lambda functions, runtimes and handlers", "Triggers and event sources", "Execution role permissions", "Memory, timeout and concurrency", "Environment variables", "Viewing logs in CloudWatch", "Lambda pricing"],
+          "tools": ["Lambda", "S3", "CloudWatch"],
+          "lab_task": "Create a Lambda function triggered by uploads to an S3 bucket that writes the file name, size and upload time to a DynamoDB table.",
+          "deliverable": "Function code, IAM role policy and DynamoDB items for three uploads",
+          "checks": [["Upload three files", "Three matching items appear in DynamoDB", "Table items"], ["Remove DynamoDB write permission from the role and upload again", "Function fails with AccessDenied in the logs", "CloudWatch log line"], ["Upload a 0-byte file", "Item is written with size 0 without errors", "Table item"]],
+          "objectives": ["Build event-driven Lambda functions", "Grant functions least-privilege roles", "Troubleshoot functions with CloudWatch Logs"]
+        },
+        {
+          "topic": "API Gateway with Lambda",
+          "subtopics": ["REST and HTTP APIs", "Routes and methods", "Lambda proxy integration", "Request validation", "Stages and deployments", "CORS", "Throttling and usage plans", "API keys and authorisers overview"],
+          "tools": ["API Gateway", "Lambda", "DynamoDB"],
+          "lab_task": "Build an HTTP API with GET /notes and POST /notes backed by Lambda and DynamoDB, with throttling set to 5 requests per second.",
+          "deliverable": "API definition, function code and curl test results",
+          "checks": [["POST a note then GET /notes", "New note is returned", "curl output"], ["POST an empty body", "Returns 400 with a message", "curl output"], ["Send 50 requests in one second", "Some receive 429 Too Many Requests", "Load test output"]],
+          "objectives": ["Expose Lambda functions through API Gateway", "Validate requests and return correct status codes", "Protect APIs with throttling"]
+        },
+        {
+          "topic": "Messaging with SQS and SNS",
+          "subtopics": ["Why decouple components", "SQS standard and FIFO queues", "Visibility timeout", "Dead-letter queues", "SNS topics and subscriptions", "Fan-out from SNS to several SQS queues", "Long polling", "Message filtering"],
+          "tools": ["SQS", "SNS", "Lambda"],
+          "lab_task": "Publish order events to an SNS topic that fans out to an email subscription and an SQS queue processed by Lambda, with a dead-letter queue for failures.",
+          "deliverable": "Architecture diagram, configuration and test evidence",
+          "checks": [["Publish a valid order event", "Email arrives and Lambda processes the queue message", "Email and log line"], ["Publish a malformed event that the function rejects", "Message lands in the dead-letter queue after the retry limit", "DLQ message"], ["Explain visibility timeout using the logs", "Participant explains why a slow function caused a repeat delivery", "Written explanation"]],
+          "objectives": ["Decouple services with queues and topics", "Handle failures with dead-letter queues", "Fan out messages to several consumers"]
+        },
+        {
+          "topic": "Infrastructure as Code with CloudFormation",
+          "subtopics": ["Why infrastructure as code", "Template structure: Parameters, Resources, Outputs", "Intrinsic functions: Ref, GetAtt, Sub", "Creating and updating stacks", "Change sets", "Stack rollback", "Drift detection", "Deleting stacks safely"],
+          "tools": ["CloudFormation", "AWS CLI"],
+          "lab_task": "Write a CloudFormation template for a versioned S3 bucket and a Lambda function with its role, deploy it, update it through a change set, and detect manual drift.",
+          "deliverable": "Template file, change set screenshot and drift detection result",
+          "checks": [["Deploy the stack", "Stack reaches CREATE_COMPLETE", "Stack events"], ["Add a bad property and update", "Update fails and rolls back to the previous state", "Stack events"], ["Change the bucket tags in the console and run drift detection", "Drift is reported on the bucket", "Drift result"]],
+          "objectives": ["Describe infrastructure as code benefits", "Write and deploy CloudFormation templates", "Update stacks safely with change sets"]
+        },
+        {
+          "topic": "Containers on AWS: ECR and ECS Fargate",
+          "subtopics": ["Containers recap", "Pushing images to ECR", "ECS clusters, task definitions and services", "Fargate versus EC2 launch type", "Task roles", "Service behind an Application Load Balancer", "Rolling deployments", "Container logs in CloudWatch"],
+          "tools": ["ECR", "ECS", "Fargate", "Docker"],
+          "lab_task": "Containerise a small web app, push it to ECR, run it as an ECS Fargate service with two tasks behind an ALB, then deploy a new version with a rolling update.",
+          "deliverable": "Dockerfile, task definition, service configuration and deployment evidence",
+          "checks": [["Open the ALB URL", "App version 1 responds from two tasks", "Responses with task IDs"], ["Deploy version 2", "Rolling update completes with no failed requests during the deploy", "Load test log"], ["Stop one task manually", "ECS starts a replacement", "Service events"]],
+          "objectives": ["Store images in ECR", "Run containers on ECS Fargate", "Deploy new versions with rolling updates"]
+        },
+        {
+          "topic": "Cloud Security Services: KMS, Secrets Manager and CloudTrail",
+          "subtopics": ["Encryption at rest and in transit", "KMS keys and key policies", "Secrets Manager and rotation", "Systems Manager Parameter Store", "CloudTrail event history and trails", "AWS Config rules", "GuardDuty findings", "Security Hub overview"],
+          "tools": ["KMS", "Secrets Manager", "CloudTrail", "AWS Config", "GuardDuty"],
+          "lab_task": "Move the database password into Secrets Manager, read it from the app at start-up, enable a CloudTrail trail, and add an AWS Config rule that flags unencrypted EBS volumes.",
+          "deliverable": "Updated app configuration, trail settings and the Config compliance report",
+          "checks": [["Search the app code and environment for the password", "Password is not present; the app reads it from Secrets Manager", "grep output and app log"], ["Create an unencrypted volume", "Config marks it NON_COMPLIANT", "Config screenshot"], ["Find who deleted a test bucket", "CloudTrail shows the user, time and API call", "CloudTrail event"]],
+          "objectives": ["Manage secrets and encryption keys", "Audit account activity with CloudTrail", "Detect misconfiguration with AWS Config"]
+        },
+        {
+          "topic": "Cost Management and the Well-Architected Framework",
+          "subtopics": ["Cost Explorer", "Budgets and anomaly detection", "Cost allocation tags", "Right-sizing and Compute Optimizer", "Savings Plans and Reserved Instances", "The six Well-Architected pillars", "Running a Well-Architected review", "Cleaning up unused resources"],
+          "tools": ["Cost Explorer", "AWS Budgets", "Compute Optimizer", "Well-Architected Tool"],
+          "lab_task": "Tag all lab resources by project, find the three most expensive resources in Cost Explorer, propose savings, and run a Well-Architected review of the course web app.",
+          "deliverable": "Cost report with savings proposals and the Well-Architected review summary",
+          "checks": [["Filter Cost Explorer by the project tag", "Shows costs for lab resources only", "Cost Explorer screenshot"], ["Present one savings proposal", "Includes current cost, proposed change and estimated saving", "Proposal table"], ["List the review's high-risk items", "At least three risks with an improvement for each", "Review summary"]],
+          "objectives": ["Track and reduce AWS costs", "Explain the Well-Architected pillars", "Review a workload against best practices"]
+        },
+        {
+          "topic": "Beginner Capstone: Highly Available Web Application on AWS",
+          "subtopics": ["Requirement walkthrough", "VPC, ALB and Auto Scaling design", "RDS database in private subnets", "S3 and CloudFront for static files", "Monitoring, alarms and budget", "Demo and cost estimate"],
+          "tools": ["VPC", "EC2", "ELB", "RDS", "S3", "CloudFront", "CloudWatch"],
+          "lab_task": "Deploy a two-tier web application across two Availability Zones with an ALB, Auto Scaling, a private RDS database, static files on CloudFront, alarms and a budget, then present it.",
+          "deliverable": "Architecture diagram, deployed application, monitoring dashboard, monthly cost estimate and a 10-minute demo",
+          "checks": [["Terminate an instance during the demo", "Site stays available and the instance is replaced", "Demo recording or activity history"], ["Try to reach the database from the internet", "Connection fails because it is private", "Test result"], ["Show the cost estimate", "Monthly estimate is calculated with the Pricing Calculator and matches the design", "Pricing Calculator export"]],
+          "objectives": ["Design and deploy a highly available web application", "Apply networking, security and monitoring basics together", "Present an architecture with its cost"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who have used core AWS services. Covers multi-account setup, advanced networking, Terraform and CDK, containers on EKS, serverless patterns, data services, CI/CD and operations.",
+      "prerequisites": [
+        "Has deployed EC2, S3, VPC, RDS and IAM resources on AWS",
+        "Comfortable with the AWS CLI and reading JSON policies",
+        "Basic Linux command line, Git and Docker"
+      ],
+      "outcomes": [
+        "Set up a governed multi-account AWS environment",
+        "Build infrastructure with Terraform and the AWS CDK",
+        "Run containers on EKS and serverless workflows with Step Functions and EventBridge",
+        "Deliver workloads through CI/CD with monitoring, tracing and cost controls"
+      ],
+      "days": [
+        {
+          "topic": "Multi-Account Structure with AWS Organizations and IAM Identity Center",
+          "subtopics": ["Why use several accounts", "Organizations, OUs and the management account", "Service control policies", "IAM Identity Center users and permission sets", "Cross-account roles and AssumeRole", "Consolidated billing", "Tag policies", "Account vending basics"],
+          "tools": ["AWS Organizations", "IAM Identity Center", "AWS CLI"],
+          "lab_task": "Create dev and prod accounts in OUs, apply an SCP that blocks leaving the organisation and disabling CloudTrail, and give developers read-only access to prod through Identity Center.",
+          "deliverable": "OU structure, SCP JSON and access test evidence",
+          "checks": [["Developer signs in to prod through Identity Center", "Can view but not change resources", "AccessDenied on a write attempt"], ["Try to stop the CloudTrail trail in dev as an admin", "Blocked by the SCP", "Error message"], ["Assume the cross-account role from the CLI", "Temporary credentials work in the target account", "CLI output"]],
+          "objectives": ["Structure accounts with Organizations and OUs", "Apply guardrails with service control policies", "Manage access centrally with IAM Identity Center"]
+        },
+        {
+          "topic": "IAM Policy Design: Conditions, Boundaries and Roles",
+          "subtopics": ["Policy evaluation logic", "Identity-based and resource-based policies", "Condition keys: tags, IP, MFA", "Permission boundaries", "Attribute-based access control with tags", "IAM roles for EC2 and Lambda", "IAM Access Analyzer policy validation", "Debugging AccessDenied errors"],
+          "tools": ["IAM", "IAM Access Analyzer", "IAM Policy Simulator"],
+          "lab_task": "Implement tag-based access so developers can only start and stop instances tagged with their team, under a permission boundary, and prove it with the policy simulator.",
+          "deliverable": "Policies, boundary, simulator results and a short explanation of the evaluation order",
+          "checks": [["Team A developer stops a Team A instance", "Allowed", "CLI output"], ["Team A developer stops a Team B instance", "AccessDenied", "CLI output"], ["Developer tries to create a role without the boundary", "Denied by the boundary policy", "Error message"]],
+          "objectives": ["Explain IAM policy evaluation", "Use conditions and tags for fine-grained access", "Limit delegated permissions with boundaries"]
+        },
+        {
+          "topic": "Advanced VPC: Peering, Transit Gateway and PrivateLink",
+          "subtopics": ["VPC peering and its limits", "Transit Gateway hubs and route tables", "VPC endpoints: gateway and interface", "PrivateLink services", "Site-to-Site VPN overview", "VPC Flow Logs", "DNS resolution across VPCs", "IP address planning for many VPCs"],
+          "tools": ["VPC", "Transit Gateway", "VPC Flow Logs"],
+          "lab_task": "Connect three VPCs through a Transit Gateway, add an S3 gateway endpoint so private subnets reach S3 without NAT, and use Flow Logs to find rejected traffic.",
+          "deliverable": "Network diagram, route tables, endpoint policy and Flow Log analysis",
+          "checks": [["Ping between instances in VPC A and VPC C", "Succeeds through the Transit Gateway", "Terminal output"], ["Upload to S3 from a private subnet with the NAT removed", "Succeeds through the gateway endpoint", "CLI output"], ["Query Flow Logs for REJECT records", "Identifies the blocked source and port", "Logs Insights result"]],
+          "objectives": ["Connect VPCs at scale", "Reach AWS services privately with endpoints", "Analyse traffic with Flow Logs"]
+        },
+        {
+          "topic": "Terraform for AWS",
+          "subtopics": ["Terraform workflow: init, plan, apply", "AWS provider and authentication", "Resources, variables and outputs", "Remote state in S3 with locking", "Modules", "Workspaces or separate state per environment", "Importing existing resources", "terraform fmt, validate and plan review"],
+          "tools": ["Terraform", "S3", "AWS CLI"],
+          "lab_task": "Write a reusable Terraform module for a VPC with public and private subnets, store state remotely in S3 with locking, and deploy it to dev and prod with different CIDRs.",
+          "deliverable": "Module code, environment configurations and plan and apply outputs",
+          "checks": [["Run terraform plan with no changes", "Plan shows no changes", "Plan output"], ["Run apply from two terminals at once", "Second run waits or fails on the state lock", "Terminal output"], ["Change a subnet CIDR and run plan", "Plan shows the replacement and the participant explains its impact", "Plan output and explanation"]],
+          "objectives": ["Manage AWS infrastructure with Terraform", "Share infrastructure with modules", "Store and lock state safely"]
+        },
+        {
+          "topic": "AWS CDK with Python",
+          "subtopics": ["CDK apps, stacks and constructs", "L1, L2 and L3 constructs", "cdk synth, diff and deploy", "Context and environment settings", "Passing values between stacks", "Unit testing CDK stacks", "CDK compared with Terraform and CloudFormation", "Bootstrapping accounts"],
+          "tools": ["AWS CDK", "Python", "CloudFormation"],
+          "lab_task": "Build a CDK app in Python that deploys an API Gateway, Lambda and DynamoDB stack, and write assertion tests that require encryption and point-in-time recovery on the table.",
+          "deliverable": "CDK project, synthesized template and passing tests",
+          "checks": [["Run cdk diff after changing the Lambda memory", "Shows only the memory change", "Diff output"], ["Remove point-in-time recovery and run the tests", "Assertion test fails", "pytest output"], ["Deploy and call the API", "API returns data from DynamoDB", "curl output"]],
+          "objectives": ["Define infrastructure in Python with the CDK", "Test infrastructure code", "Choose between CDK, Terraform and CloudFormation"]
+        },
+        {
+          "topic": "Amazon EKS Clusters",
+          "subtopics": ["EKS architecture: control plane and nodes", "Managed node groups and Fargate profiles", "kubectl access and the aws-auth or access entries", "Deploying workloads", "AWS Load Balancer Controller", "IAM roles for service accounts", "Cluster Autoscaler or Karpenter", "Upgrading EKS versions"],
+          "tools": ["EKS", "kubectl", "eksctl", "Helm"],
+          "lab_task": "Create an EKS cluster with a managed node group, deploy a web app exposed through the AWS Load Balancer Controller, and give a pod read access to S3 through IAM roles for service accounts.",
+          "deliverable": "Cluster configuration, Kubernetes manifests and access test results",
+          "checks": [["Open the Ingress URL", "App responds through an ALB", "Browser screenshot"], ["From the pod, list the allowed S3 bucket", "Succeeds without access keys in the pod", "kubectl exec output"], ["From a pod without the service account, list the bucket", "AccessDenied", "kubectl exec output"]],
+          "objectives": ["Run Kubernetes workloads on EKS", "Expose services through AWS load balancers", "Grant pods AWS permissions without keys"]
+        },
+        {
+          "topic": "Serverless Workflows with Step Functions and EventBridge",
+          "subtopics": ["Event-driven design", "EventBridge buses, rules and patterns", "Scheduled rules", "Step Functions state machines", "Task, Choice, Parallel and Map states", "Retries and catch blocks", "Standard and Express workflows", "Idempotency in serverless workflows"],
+          "tools": ["Step Functions", "EventBridge", "Lambda", "DynamoDB"],
+          "lab_task": "Build an order workflow in Step Functions (validate, charge, reserve stock, notify) triggered by an EventBridge rule, with retries and a compensation step when charging fails.",
+          "deliverable": "State machine definition, EventBridge rule and execution history for success and failure",
+          "checks": [["Send a valid order event", "Execution succeeds through all steps", "Execution graph"], ["Make the charge step fail twice then succeed", "Retries complete the execution", "Execution history"], ["Make charging fail permanently", "Compensation step runs and stock is released", "Execution history and table data"]],
+          "objectives": ["Route events with EventBridge", "Orchestrate steps with Step Functions", "Design retries and compensation"]
+        },
+        {
+          "topic": "Data Services: Aurora, ElastiCache and S3 Data Lakes",
+          "subtopics": ["Aurora architecture and replicas", "Aurora Serverless v2", "ElastiCache for Redis caching", "Cache-aside pattern", "S3 data lake layout and partitions", "AWS Glue Data Catalog and crawlers", "Querying with Athena", "Choosing a data service"],
+          "tools": ["Aurora", "ElastiCache", "Glue", "Athena", "S3"],
+          "lab_task": "Add Redis caching in front of an Aurora query, measure the latency change, and load application logs into an S3 data lake queried with Athena.",
+          "deliverable": "Latency comparison, cache configuration and three Athena query results",
+          "checks": [["Call the cached endpoint twice", "Second call is served from Redis with lower latency", "Latency measurements"], ["Update the record", "Cache is invalidated and the new value returns", "Test output"], ["Run an Athena query on one day's partition", "Scans only that partition", "Query statistics"]],
+          "objectives": ["Use Aurora and ElastiCache together", "Apply the cache-aside pattern", "Query an S3 data lake with Athena"]
+        },
+        {
+          "topic": "CI/CD on AWS with CodePipeline and GitHub Actions",
+          "subtopics": ["CodeCommit alternatives and source options", "CodeBuild buildspec", "CodePipeline stages", "GitHub Actions with OIDC to AWS", "Deploying to ECS and Lambda", "Manual approval stages", "Artifact storage", "Secure pipeline credentials"],
+          "tools": ["CodePipeline", "CodeBuild", "GitHub Actions", "ECR", "ECS"],
+          "lab_task": "Create a GitHub Actions pipeline that authenticates to AWS with OIDC (no stored keys), builds and pushes an image to ECR, and deploys to ECS with a manual approval for prod.",
+          "deliverable": "Workflow file, IAM OIDC role trust policy and two pipeline runs",
+          "checks": [["Search the repository secrets for AWS access keys", "None are stored; OIDC is used", "Secrets list and trust policy"], ["Push a change to main", "Image is built, pushed and deployed to dev", "Workflow run"], ["Approve the prod stage", "Prod is updated only after approval", "Workflow run"]],
+          "objectives": ["Build deployment pipelines for AWS", "Authenticate pipelines with OIDC instead of keys", "Add approvals for production"]
+        },
+        {
+          "topic": "Deployment Strategies: Blue/Green and Canary on AWS",
+          "subtopics": ["Rolling, blue/green and canary", "CodeDeploy deployment groups", "ECS blue/green with CodeDeploy", "Lambda aliases and weighted traffic", "ALB weighted target groups", "Automatic rollback on alarms", "Database changes during deployments", "Choosing a strategy"],
+          "tools": ["CodeDeploy", "ECS", "Lambda", "CloudWatch"],
+          "lab_task": "Deploy a Lambda function with a 10% canary for 5 minutes tied to an error alarm, and show automatic rollback when the new version returns errors.",
+          "deliverable": "Deployment configuration and evidence of one successful and one rolled-back deployment",
+          "checks": [["Deploy a healthy version", "Traffic shifts to 100% after 5 minutes", "CodeDeploy history"], ["Deploy a version that returns errors", "Alarm fires and traffic rolls back automatically", "CodeDeploy history and alarm"], ["Explain how the database schema change was made safe", "Backward-compatible change is described", "Written explanation"]],
+          "objectives": ["Compare deployment strategies", "Run canary and blue/green deployments", "Roll back automatically on alarms"]
+        },
+        {
+          "topic": "Observability with CloudWatch, X-Ray and OpenTelemetry",
+          "subtopics": ["Structured logs", "Embedded metric format", "Custom metrics", "X-Ray tracing and service maps", "AWS Distro for OpenTelemetry", "CloudWatch Synthetics canaries", "Composite alarms", "Dashboards for a service"],
+          "tools": ["CloudWatch", "X-Ray", "ADOT", "CloudWatch Synthetics"],
+          "lab_task": "Instrument the order workflow with structured logs, a custom orders-per-minute metric and X-Ray tracing, add a Synthetics canary, and build a service dashboard.",
+          "deliverable": "Dashboard, service map screenshot and canary results",
+          "checks": [["Place one order", "X-Ray shows one trace through API Gateway, Lambda and DynamoDB", "Service map and trace"], ["Break the API for 5 minutes", "Canary fails and the alarm fires", "Canary history and alarm"], ["Query logs by order ID", "All log lines for that order are returned", "Logs Insights result"]],
+          "objectives": ["Instrument services with logs, metrics and traces", "Monitor user journeys with canaries", "Build service dashboards"]
+        },
+        {
+          "topic": "Workload Security: WAF, Shield and Security Hub",
+          "subtopics": ["AWS WAF web ACLs and managed rules", "Rate-based rules", "Shield Standard and Advanced", "Security Hub standards", "GuardDuty threat detection", "Inspector vulnerability scanning", "Macie for sensitive data in S3", "Responding to findings"],
+          "tools": ["AWS WAF", "Security Hub", "GuardDuty", "Inspector", "Macie"],
+          "lab_task": "Protect the API with AWS WAF managed rules and a rate limit, enable Security Hub with the foundational standard, and fix the three highest-severity findings.",
+          "deliverable": "WAF configuration, test results and before and after Security Hub scores",
+          "checks": [["Send a SQL injection test string to the API", "Request is blocked by WAF", "HTTP 403 and WAF log"], ["Send 500 requests a minute from one IP", "Rate rule blocks the IP", "WAF metrics"], ["Compare Security Hub scores", "Score improves after fixing three findings", "Score screenshots"]],
+          "objectives": ["Protect web workloads with WAF", "Detect threats and misconfigurations", "Prioritise and fix security findings"]
+        },
+        {
+          "topic": "Backup, Disaster Recovery and Multi-Region Design",
+          "subtopics": ["RPO and RTO", "AWS Backup plans and vaults", "Cross-Region replication for S3", "Aurora Global Database", "DynamoDB global tables", "DR strategies: backup and restore, pilot light, warm standby, active-active", "Route 53 failover", "Testing recovery"],
+          "tools": ["AWS Backup", "S3", "Aurora", "Route 53"],
+          "lab_task": "Set RPO and RTO for the web app, implement pilot-light DR in a second Region with cross-Region backups and Route 53 failover, and run a timed failover test.",
+          "deliverable": "DR plan with RPO and RTO, configuration and the failover test timeline",
+          "checks": [["Fail the primary health check", "Route 53 sends traffic to the second Region", "dig output and browser test"], ["Compare measured recovery time with the RTO", "Measured time is within the RTO or the gap is explained", "Timeline"], ["Restore yesterday's backup in the second Region", "Data matches the backup point", "Query output"]],
+          "objectives": ["Define RPO and RTO for a workload", "Implement a DR strategy across Regions", "Test and time a recovery"]
+        },
+        {
+          "topic": "Systems Manager for Operations",
+          "subtopics": ["Session Manager instead of SSH", "Run Command", "Patch Manager and patch baselines", "State Manager associations", "Parameter Store hierarchies", "Automation runbooks", "Inventory", "OpsCenter"],
+          "tools": ["Systems Manager", "EC2"],
+          "lab_task": "Remove SSH access from the fleet, patch all dev instances with Patch Manager in a maintenance window, and write an Automation runbook that restarts the web service and checks health.",
+          "deliverable": "Patch compliance report, runbook document and execution history",
+          "checks": [["Connect to an instance with port 22 closed", "Session Manager connects", "Session screenshot"], ["Open patch compliance after the window", "Dev instances show compliant", "Compliance report"], ["Run the restart runbook", "Service restarts and the health check passes", "Execution output"]],
+          "objectives": ["Operate fleets without SSH", "Automate patching and runbooks", "Track inventory and compliance"]
+        },
+        {
+          "topic": "Cost Optimisation for Running Workloads",
+          "subtopics": ["Cost and Usage Reports", "Unit cost metrics", "Graviton instances", "Spot for fault-tolerant work", "Savings Plans coverage", "S3 Intelligent-Tiering", "Lambda memory tuning", "Data transfer costs"],
+          "tools": ["Cost Explorer", "Compute Optimizer", "Lambda Power Tuning"],
+          "lab_task": "Reduce the monthly cost of the course workload by at least 30%: move suitable compute to Graviton or Spot, tune Lambda memory, and apply S3 Intelligent-Tiering, measuring before and after.",
+          "deliverable": "Cost analysis with before and after estimates and the changes made",
+          "checks": [["Compare the before and after cost estimates", "Reduction of at least 30% or a documented reason", "Cost table"], ["Run Lambda Power Tuning on one function", "Chosen memory setting is justified by cost and duration", "Tuning chart"], ["Interrupt a Spot instance in the test", "Workload continues without failure", "Interruption log"]],
+          "objectives": ["Measure costs per unit of work", "Apply compute, storage and serverless cost savings", "Prove savings with numbers"]
+        },
+        {
+          "topic": "Hybrid Connectivity and Migration Services",
+          "subtopics": ["Site-to-Site VPN and Direct Connect", "Route 53 Resolver for hybrid DNS", "Application Migration Service", "Database Migration Service", "DataSync and Snow family", "The 7 Rs of migration", "Migration Hub", "Planning a migration wave"],
+          "tools": ["Site-to-Site VPN", "DMS", "Application Migration Service", "DataSync"],
+          "lab_task": "Migrate a simulated on-premises MySQL database to RDS with DMS using full load and ongoing replication, then cut over with less than 5 minutes of write downtime.",
+          "deliverable": "Migration plan, DMS task configuration and cut-over timeline",
+          "checks": [["Compare row counts after the full load", "Source and target counts match", "Query output"], ["Write new rows to the source during replication", "Rows appear in the target within one minute", "Query output"], ["Measure write downtime during cut-over", "Under 5 minutes", "Timeline"]],
+          "objectives": ["Connect on-premises networks to AWS", "Migrate databases with DMS", "Plan migrations with the 7 Rs"]
+        },
+        {
+          "topic": "Event Streaming with Kinesis and MSK",
+          "subtopics": ["Streams versus queues", "Kinesis Data Streams shards and retention", "Producers and consumers", "Lambda consumers and batching", "Amazon Data Firehose to S3", "Amazon MSK overview", "Ordering and duplicates", "Scaling streams"],
+          "tools": ["Kinesis Data Streams", "Firehose", "Lambda", "S3"],
+          "lab_task": "Stream clickstream events into Kinesis, compute per-minute page views with a Lambda consumer into DynamoDB, and archive raw events to S3 with Firehose.",
+          "deliverable": "Pipeline diagram, consumer code and results for a 10-minute replay",
+          "checks": [["Replay 10 minutes of sample events", "Per-minute counts match the trainer's expected totals", "DynamoDB items"], ["Check the S3 archive", "Raw events are stored in time-partitioned folders", "S3 listing"], ["Send duplicate events", "Consumer handles them idempotently and counts stay correct", "Test output"]],
+          "objectives": ["Ingest real-time data with Kinesis", "Process streams with Lambda", "Archive streams to S3"]
+        },
+        {
+          "topic": "Governance with Control Tower and Tagging Strategy",
+          "subtopics": ["Landing zone concept", "AWS Control Tower setup", "Preventive and detective controls", "Account Factory", "Tagging standards", "Enforcing tags with tag policies and Config", "Centralised logging account", "Reporting compliance"],
+          "tools": ["Control Tower", "AWS Config", "Organizations"],
+          "lab_task": "Define a tagging standard, enforce it with a tag policy and an AWS Config rule across accounts, and report non-compliant resources from the audit account.",
+          "deliverable": "Tagging standard document, policies and the compliance report",
+          "checks": [["Create a resource without required tags", "Flagged as non-compliant", "Config result"], ["Use an invalid value for the cost-centre tag", "Tag policy reports it", "Tag policy compliance report"], ["Open the central log archive", "CloudTrail logs from all accounts are present", "S3 listing"]],
+          "objectives": ["Govern many accounts with Control Tower", "Enforce tagging standards", "Report compliance centrally"]
+        },
+        {
+          "topic": "Intermediate Capstone: Serverless Order Platform on AWS",
+          "subtopics": ["Requirements and architecture review", "Infrastructure with CDK or Terraform", "API, workflow and events", "Security controls", "CI/CD with canary deployment", "Monitoring, cost and demo"],
+          "tools": ["API Gateway", "Lambda", "Step Functions", "DynamoDB", "EventBridge", "CDK", "GitHub Actions"],
+          "lab_task": "Build a serverless order platform with an API, a Step Functions workflow, event notifications, WAF protection, infrastructure as code and a canary deployment pipeline, then present it.",
+          "deliverable": "Repository, architecture diagram, dashboard, cost estimate and a 15-minute demo",
+          "checks": [["Run the end-to-end order test", "Order completes and a notification event is published", "Test output and trace"], ["Deploy a faulty version through the pipeline", "Canary detects errors and rolls back", "Pipeline and CodeDeploy history"], ["Destroy and recreate the stack from code", "Environment is rebuilt with no manual steps", "Deployment log"]],
+          "objectives": ["Design and build a serverless platform end to end", "Combine infrastructure as code, CI/CD, security and monitoring", "Explain design and cost decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced AWS engineers. Covers enterprise architecture, multi-Region resilience, security at scale, platform engineering, FinOps, large-scale Kubernetes and serverless, and architecture reviews.",
+      "prerequisites": [
+        "Two or more years building and operating workloads on AWS",
+        "Has used infrastructure as code, CI/CD and containers in production",
+        "Solutions Architect - Associate level knowledge or equivalent experience"
+      ],
+      "outcomes": [
+        "Design multi-account, multi-Region AWS architectures that meet stated reliability and security goals",
+        "Build internal platforms and guardrails that teams can self-serve",
+        "Run security, cost and reliability programmes with measurable results",
+        "Lead architecture reviews and justify trade-offs with evidence"
+      ],
+      "days": [
+        {
+          "topic": "Enterprise Landing Zone Design",
+          "subtopics": ["Account and OU strategy for large organisations", "Network topology: hub and spoke", "Identity federation with an external identity provider", "Centralised logging and security accounts", "Control Tower customisations", "Account Factory for Terraform", "Guardrail design and exceptions", "Migrating existing accounts into the landing zone"],
+          "tools": ["Control Tower", "Organizations", "IAM Identity Center", "Terraform"],
+          "lab_task": "Design a landing zone for a company with 3 business units and 40 workload accounts, then automate account creation with Account Factory for Terraform including baseline networking and guardrails.",
+          "deliverable": "Landing zone design document, automation code and a newly vended account",
+          "checks": [["Vend a new account through the pipeline", "Account is created with baseline network, logging and guardrails", "Pipeline log and account settings"], ["Review the OU design", "Each OU has a stated purpose and policy set", "Design document"], ["Request a guardrail exception", "Exception process is documented and time-limited", "Exception record"]],
+          "objectives": ["Design an enterprise account and network structure", "Automate account vending with baselines", "Manage guardrail exceptions"]
+        },
+        {
+          "topic": "Multi-Region Active-Active Architecture",
+          "subtopics": ["When active-active is worth the cost", "Data replication choices and consistency", "DynamoDB global tables conflict handling", "Aurora Global Database failover", "Route 53 latency and failover routing", "Global Accelerator", "Region evacuation runbooks", "Testing Region failure"],
+          "tools": ["DynamoDB global tables", "Aurora Global Database", "Route 53", "Global Accelerator"],
+          "lab_task": "Build an active-active API in two Regions with DynamoDB global tables and latency routing, then simulate a Region failure and measure impact on writes and reads.",
+          "deliverable": "Architecture decision record, deployment and the failure test report",
+          "checks": [["Write the same item in both Regions at once", "Conflict is resolved as documented and the participant explains the rule", "Item versions and explanation"], ["Block one Region", "Traffic moves to the other within the stated time", "Measured timeline"], ["Read the cost section of the decision record", "Extra cost versus single-Region is quantified", "Decision record"]],
+          "objectives": ["Design active-active systems across Regions", "Handle replication and conflicts", "Test and measure Region failure"]
+        },
+        {
+          "topic": "Resilience Engineering and Chaos Testing with AWS FIS",
+          "subtopics": ["Failure modes and blast radius", "Cell-based architecture", "Static stability", "Timeouts, retries and backoff with jitter", "Load shedding", "AWS Fault Injection Service experiments", "Stop conditions", "Game days"],
+          "tools": ["AWS FIS", "CloudWatch", "ECS", "EKS"],
+          "lab_task": "Run three FIS experiments (AZ power loss on EC2, API throttling, increased latency) against the course service with stop conditions, and fix one weakness each experiment reveals.",
+          "deliverable": "Experiment templates, results and the resilience improvements made",
+          "checks": [["Run the AZ failure experiment", "Service stays within its error budget", "Dashboard during the experiment"], ["Trigger a stop condition", "Experiment halts automatically", "FIS execution log"], ["Rerun an experiment after the fix", "Measured impact is lower than before", "Before and after metrics"]],
+          "objectives": ["Design for failure with cells and static stability", "Run controlled chaos experiments", "Improve resilience from evidence"]
+        },
+        {
+          "topic": "Security at Scale: Detection, Response and Forensics",
+          "subtopics": ["Centralised GuardDuty and Security Hub", "Security Lake", "Automated response with EventBridge and Lambda", "Incident response runbooks", "Isolating a compromised instance", "Forensic snapshots", "Detective investigations", "Measuring mean time to respond"],
+          "tools": ["GuardDuty", "Security Hub", "Security Lake", "Detective", "EventBridge"],
+          "lab_task": "Automate response to a simulated compromised EC2 instance: isolate it, snapshot its volumes for forensics, revoke its role sessions, and notify the security team.",
+          "deliverable": "Response automation code, runbook and the incident timeline",
+          "checks": [["Trigger the simulated GuardDuty finding", "Instance is isolated within 2 minutes", "Security group change and timeline"], ["Check forensic evidence", "Snapshots are created and tagged with the finding ID", "Snapshot list"], ["Use the old role credentials after response", "Requests are denied", "Error output"]],
+          "objectives": ["Centralise threat detection across accounts", "Automate incident response", "Preserve evidence for investigation"]
+        },
+        {
+          "topic": "Data Protection and Encryption Architecture",
+          "subtopics": ["KMS key hierarchy and multi-Region keys", "Key policies and grants", "Customer managed versus AWS managed keys", "CloudHSM and external key stores", "Envelope encryption", "Data classification", "Cross-account encrypted data sharing", "Key rotation and deletion safeguards"],
+          "tools": ["KMS", "CloudHSM", "S3", "Macie"],
+          "lab_task": "Design key separation for three data classes, share encrypted S3 data with a partner account using a key policy and grant, and prove a deleted-key safeguard works.",
+          "deliverable": "Encryption design, key policies and access test results",
+          "checks": [["Partner account reads the shared object", "Succeeds with the grant", "CLI output"], ["Partner reads an object of another data class", "AccessDenied from KMS", "CLI output"], ["Schedule key deletion", "Alarm fires on the scheduled deletion event", "Alarm notification"]],
+          "objectives": ["Design an encryption key strategy", "Share encrypted data across accounts safely", "Guard against accidental key loss"]
+        },
+        {
+          "topic": "Zero-Trust Networking on AWS",
+          "subtopics": ["Zero-trust principles", "Verified Access for applications", "VPC Lattice for service-to-service access", "Network Firewall inspection", "Egress control and DNS Firewall", "Private CA and mutual TLS", "Segmenting workloads", "Measuring network exposure"],
+          "tools": ["Verified Access", "VPC Lattice", "Network Firewall", "Route 53 Resolver DNS Firewall"],
+          "lab_task": "Replace a VPN for an internal app with Verified Access, connect two services through VPC Lattice with IAM auth policies, and block outbound traffic to unapproved domains.",
+          "deliverable": "Network design, policies and access test results",
+          "checks": [["Access the internal app as a user without the required group", "Access denied by Verified Access", "Browser result"], ["Call service B from an unauthorised service", "Lattice auth policy denies it", "HTTP 403"], ["Resolve an unapproved domain from a workload", "DNS Firewall blocks it", "dig output"]],
+          "objectives": ["Apply zero-trust access to users and services", "Inspect and control egress traffic", "Segment workloads by identity"]
+        },
+        {
+          "topic": "Platform Engineering with Service Catalog and Golden Paths",
+          "subtopics": ["Internal developer platforms", "Golden paths and paved roads", "Service Catalog products and portfolios", "Proton or Backstage templates", "Self-service with guardrails", "Platform APIs", "Measuring developer experience", "Product thinking for platforms"],
+          "tools": ["Service Catalog", "Backstage", "Terraform", "CDK"],
+          "lab_task": "Build a golden-path template that creates a containerised service with repository, pipeline, infrastructure, monitoring and alarms in one self-service request.",
+          "deliverable": "Template code, a service created from it and a platform scorecard",
+          "checks": [["Create a new service from the template", "Repository, pipeline, infrastructure and dashboard exist and the service deploys", "Created resources list"], ["Request a non-approved instance type through the template", "Request is rejected by guardrails", "Error message"], ["Time the creation", "Under the target time stated in the scorecard", "Timing evidence"]],
+          "objectives": ["Design internal platforms around golden paths", "Provide self-service with guardrails", "Measure platform value"]
+        },
+        {
+          "topic": "EKS at Scale: Multi-Tenancy and Karpenter",
+          "subtopics": ["Cluster topology: shared or per-team clusters", "Namespace isolation and resource quotas", "Network policies", "Pod Security Standards", "EKS Pod Identity", "Karpenter node provisioning", "Spot and Graviton node pools", "Cluster upgrade strategy"],
+          "tools": ["EKS", "Karpenter", "kubectl", "Helm"],
+          "lab_task": "Configure a multi-tenant EKS cluster for three teams with quotas, network policies and Pod Identity, and replace managed node groups with Karpenter using Spot and Graviton.",
+          "deliverable": "Cluster configuration, tenant policies and a cost and scaling comparison",
+          "checks": [["Team A pod calls a Team B service", "Blocked by network policy", "kubectl exec result"], ["Deploy 200 pending pods", "Karpenter adds suitable nodes within minutes", "Node events and timeline"], ["Exceed Team A's quota", "New pods are rejected", "kubectl output"]],
+          "objectives": ["Run multi-tenant EKS clusters safely", "Scale nodes efficiently with Karpenter", "Plan cluster upgrades"]
+        },
+        {
+          "topic": "GitOps and Progressive Delivery on EKS",
+          "subtopics": ["GitOps principles", "Argo CD applications and projects", "ApplicationSets for many clusters", "Argo Rollouts canary analysis", "Metrics-based promotion", "Secrets in GitOps", "Drift handling", "Promotion between environments"],
+          "tools": ["Argo CD", "Argo Rollouts", "EKS", "Prometheus"],
+          "lab_task": "Manage two EKS clusters with Argo CD ApplicationSets and release a service with an Argo Rollouts canary that promotes or aborts based on Prometheus error-rate analysis.",
+          "deliverable": "GitOps repository, rollout definitions and two release histories",
+          "checks": [["Release a healthy version", "Canary is promoted automatically", "Rollout history"], ["Release a version with 10% errors", "Analysis fails and the rollout aborts", "Rollout history"], ["Change a deployment with kubectl", "Argo CD reverts the drift", "Argo CD event"]],
+          "objectives": ["Operate clusters through GitOps", "Automate canary analysis", "Promote releases across environments"]
+        },
+        {
+          "topic": "Serverless at Scale: Concurrency, Cold Starts and Limits",
+          "subtopics": ["Lambda scaling and concurrency limits", "Reserved and provisioned concurrency", "Cold start causes and SnapStart", "Service quotas", "Backpressure with queues", "Powertools for Lambda", "Idempotency and partial batch failures", "Cost at high volume"],
+          "tools": ["Lambda", "SQS", "Powertools for AWS Lambda", "Service Quotas"],
+          "lab_task": "Load test the order API to 2,000 requests per second, find the first limit hit, and redesign with queues, provisioned concurrency and idempotency until it meets the latency target.",
+          "deliverable": "Load test reports, the limits found and the redesign with results",
+          "checks": [["Run the load test before the redesign", "First limit is identified with evidence", "Load test report and metrics"], ["Run after the redesign", "p99 latency meets the stated target", "Load test report"], ["Retry the same request ID", "Processed once thanks to idempotency", "Table data and logs"]],
+          "objectives": ["Find and handle serverless scaling limits", "Reduce cold starts", "Design idempotent high-volume functions"]
+        },
+        {
+          "topic": "Event-Driven Architecture Patterns at Enterprise Scale",
+          "subtopics": ["Event schemas and the EventBridge schema registry", "Event versioning", "Choreography versus orchestration", "Outbox pattern", "Saga pattern", "Event replay and archives", "Cross-account event buses", "Observability for events"],
+          "tools": ["EventBridge", "Step Functions", "DynamoDB Streams", "SQS"],
+          "lab_task": "Implement the outbox pattern with DynamoDB Streams and EventBridge across two accounts, version an event schema without breaking consumers, and replay a day of events.",
+          "deliverable": "Architecture, code, schema versions and replay evidence",
+          "checks": [["Fail the publisher after the database write", "Event is still delivered later through the outbox", "Logs and event"], ["Publish version 2 of the event", "Version 1 consumers keep working", "Consumer logs"], ["Replay yesterday's archive", "Consumers rebuild state correctly", "State comparison"]],
+          "objectives": ["Apply enterprise event patterns", "Evolve event schemas safely", "Replay and observe events"]
+        },
+        {
+          "topic": "Data Architecture: Lakehouse and Analytics Platforms",
+          "subtopics": ["Lake, warehouse and lakehouse", "Apache Iceberg tables on S3", "Lake Formation permissions", "Glue ETL jobs", "Redshift Serverless", "Streaming ingestion", "Data quality checks", "Cost and performance tuning"],
+          "tools": ["S3", "Apache Iceberg", "Lake Formation", "Glue", "Redshift Serverless", "Athena"],
+          "lab_task": "Build a lakehouse with Iceberg tables, column-level Lake Formation permissions and a Glue job with data quality rules, and compare query cost in Athena and Redshift Serverless.",
+          "deliverable": "Lakehouse design, permissions, job code, data quality results and the cost comparison",
+          "checks": [["Analyst queries a restricted column", "Access is denied by Lake Formation", "Query error"], ["Load a batch that breaks a quality rule", "Job stops or quarantines the bad rows as designed", "Job log"], ["Query an older table snapshot", "Iceberg time travel returns the earlier data", "Query output"]],
+          "objectives": ["Design a governed lakehouse on AWS", "Apply fine-grained data permissions", "Compare analytics engines by cost and speed"]
+        },
+        {
+          "topic": "FinOps Practice on AWS",
+          "subtopics": ["FinOps lifecycle: inform, optimise, operate", "Showback and chargeback", "Cost allocation with tags and accounts", "Commitment portfolio management", "Anomaly detection and response", "Unit economics", "Engineering cost reviews", "Forecasting"],
+          "tools": ["Cost and Usage Reports", "Athena", "QuickSight", "Cost Anomaly Detection"],
+          "lab_task": "Build a chargeback report per business unit from Cost and Usage Reports in Athena and QuickSight, define a cost per order unit metric, and plan a Savings Plans purchase.",
+          "deliverable": "Chargeback dashboard, unit cost metric and a commitment purchase recommendation",
+          "checks": [["Compare chargeback totals with the bill", "Totals reconcile within 1%", "Reconciliation table"], ["Inject a cost anomaly", "Anomaly detection alerts the owner", "Alert"], ["Present the Savings Plans plan", "Includes coverage, utilisation and break-even", "Recommendation document"]],
+          "objectives": ["Run FinOps reporting and chargeback", "Measure unit economics", "Plan commitments with data"]
+        },
+        {
+          "topic": "Compliance Automation and Audit Readiness",
+          "subtopics": ["Mapping controls to frameworks", "AWS Audit Manager", "Config conformance packs", "Automated remediation", "Evidence collection", "Policy as code with cfn-guard or OPA", "Continuous compliance in pipelines", "Exception management"],
+          "tools": ["Audit Manager", "AWS Config", "cfn-guard", "Security Hub"],
+          "lab_task": "Map 10 controls from a chosen framework to Config rules and pipeline checks, add automated remediation for two, and produce an audit evidence report.",
+          "deliverable": "Control mapping, rules, remediation code and the evidence report",
+          "checks": [["Create a non-compliant S3 bucket", "Remediation fixes it automatically", "Config timeline"], ["Push a template that breaks a policy-as-code rule", "Pipeline fails before deployment", "Pipeline log"], ["Open the evidence report", "Each control has current evidence", "Audit Manager report"]],
+          "objectives": ["Automate compliance controls", "Shift compliance checks into pipelines", "Prepare audit evidence continuously"]
+        },
+        {
+          "topic": "Performance Engineering for AWS Workloads",
+          "subtopics": ["Setting performance targets", "Load testing at scale", "Database performance insights", "Caching layers", "Network latency and placement", "Connection pooling with RDS Proxy", "Instance and storage tuning", "Capacity planning"],
+          "tools": ["Distributed Load Testing on AWS", "RDS Performance Insights", "RDS Proxy", "ElastiCache"],
+          "lab_task": "Bring a slow API from 900 ms to under 200 ms p95 at the target load using Performance Insights, RDS Proxy and caching, documenting each change and its measured effect.",
+          "deliverable": "Performance report with each change and its effect, and the final load test",
+          "checks": [["Run the final load test", "p95 under 200 ms at target load", "Load test report"], ["Show the top SQL before and after", "Worst query is fixed with evidence", "Performance Insights screenshots"], ["Kill connections during load", "RDS Proxy keeps the app working", "Error rate graph"]],
+          "objectives": ["Set and test performance targets", "Diagnose database and network bottlenecks", "Plan capacity from measurements"]
+        },
+        {
+          "topic": "Generative AI Workloads on Amazon Bedrock",
+          "subtopics": ["Bedrock models and pricing", "Retrieval-augmented generation with Knowledge Bases", "Guardrails for Bedrock", "Agents for Bedrock", "Private access with VPC endpoints", "Evaluating outputs", "Cost and latency control", "Data privacy"],
+          "tools": ["Amazon Bedrock", "Knowledge Bases", "Guardrails", "Lambda"],
+          "lab_task": "Build a RAG assistant over the course runbooks with Bedrock Knowledge Bases, guardrails that block personal data, private network access, and an evaluation set of 20 questions.",
+          "deliverable": "Assistant code, guardrail configuration and the evaluation results",
+          "checks": [["Ask the 20 evaluation questions", "Accuracy meets the stated threshold with sources cited", "Evaluation table"], ["Ask it to reveal a phone number from the documents", "Guardrail blocks the answer", "Response"], ["Call Bedrock from outside the VPC endpoint policy", "Request is denied", "Error output"]],
+          "objectives": ["Build RAG applications on Bedrock", "Apply guardrails and private access", "Evaluate model output quality"]
+        },
+        {
+          "topic": "Large-Scale Migration and Modernisation Strategy",
+          "subtopics": ["Portfolio discovery", "Migration readiness assessment", "Wave planning", "Rehost, replatform and refactor decisions", "Mainframe and legacy patterns", "Strangler fig modernisation", "Migration landing zone", "Business case and tracking"],
+          "tools": ["Migration Hub", "Application Discovery Service", "Application Migration Service"],
+          "lab_task": "Produce a migration plan for a 60-application portfolio: classify each with the 7 Rs, plan three waves with dependencies, and write the business case for wave 1.",
+          "deliverable": "Portfolio analysis, wave plan and business case",
+          "checks": [["Review the wave plan", "No application moves before the applications it depends on", "Dependency map"], ["Pick three applications", "Each strategy choice is justified", "Decision table"], ["Check the business case", "Includes costs, savings, risks and payback period", "Business case document"]],
+          "objectives": ["Plan migrations across a portfolio", "Choose modernisation strategies", "Build a migration business case"]
+        },
+        {
+          "topic": "SRE Practice: SLOs, Error Budgets and Incident Command",
+          "subtopics": ["Choosing SLIs", "Writing SLOs", "Error budgets and policies", "Burn-rate alerts", "Incident roles and command", "Communication during incidents", "Blameless post-incident reviews", "Reducing toil"],
+          "tools": ["CloudWatch Application Signals", "CloudWatch", "Incident Manager"],
+          "lab_task": "Define SLOs for the order API, set multi-window burn-rate alarms, and run a 60-minute incident simulation with assigned roles followed by a post-incident review.",
+          "deliverable": "SLO document, alarm configuration, incident timeline and the review",
+          "checks": [["Inject errors that burn 10% of the budget in an hour", "Fast burn-rate alarm fires", "Alarm history"], ["Read the incident timeline", "Roles, decisions and customer updates are recorded", "Timeline document"], ["Read the review", "Has root cause and at least three action items with owners", "Review document"]],
+          "objectives": ["Define SLOs and error budgets", "Alert on budget burn", "Lead incidents and learn from them"]
+        },
+        {
+          "topic": "Architecture Reviews and Trade-off Decisions",
+          "subtopics": ["Well-Architected reviews at scale", "Architecture decision records", "Evaluating options against requirements", "Cost, risk and complexity trade-offs", "Reviewing designs from other teams", "Technical debt management", "Presenting to stakeholders", "Lenses: serverless, SaaS, data"],
+          "tools": ["Well-Architected Tool", "Draw.io"],
+          "lab_task": "Review another team's capstone design using the Well-Architected Tool and a lens, write two architecture decision records for its biggest risks, and present recommendations.",
+          "deliverable": "Review report, two decision records and a 10-minute recommendation presentation",
+          "checks": [["Read the review report", "Each high risk has evidence and a recommendation", "Report"], ["Read a decision record", "Lists options, criteria and the reason for the choice", "Decision record"], ["Q&A on one recommendation", "Participant defends it with cost and risk evidence", "Trainer notes"]],
+          "objectives": ["Run structured architecture reviews", "Document decisions and trade-offs", "Communicate recommendations"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Enterprise Platform on AWS",
+          "subtopics": ["Business and non-functional requirements", "Landing zone and account design", "Multi-Region workload architecture", "Security, compliance and DR evidence", "Platform automation and FinOps", "Architecture defence"],
+          "tools": ["Control Tower", "EKS", "Lambda", "DynamoDB global tables", "AWS FIS", "Terraform", "Security Hub"],
+          "lab_task": "Design and build a multi-Region platform for a regulated client, including landing zone, workloads, security automation, DR and cost model, then defend it in an architecture review board.",
+          "deliverable": "Architecture document, working deployment, test evidence for security and DR, cost model and a 20-minute review presentation",
+          "checks": [["Run a Region failure test", "Recovery meets the stated RTO and RPO", "Test timeline"], ["Run the compliance report", "No unresolved critical findings", "Security Hub and Config reports"], ["Review the cost model", "Monthly cost is broken down and reconciles with the Pricing Calculator", "Cost model"]],
+          "objectives": ["Design an enterprise-grade AWS platform end to end", "Prove reliability, security and cost with evidence", "Defend architecture decisions to a review board"]
+        }
+      ]
+    }
+  }
+}
