@@ -34,7 +34,11 @@ LEGACY_TECHNOLOGIES = ("DevOps", "AWS", "Azure", "Kubernetes", "Python", "Agenti
 # not in free-text notes, and dropped when a more specific technology of the same
 # family is also requested (for example "cloud" when AWS is named).
 _WEAK_ALIASES = {"cloud", "testing", "qa", "agile", "observability", "monitoring", "automation", "security"}
-_UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI"}}
+_UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP"}}
+# Programme courses whose listed tools stay inside them when both are requested:
+# "DevOps; AWS; Azure; Git; Docker" keeps Docker as a DevOps topic even though
+# Docker now has its own course. Requested alone, Docker uses that course.
+_ABSORBING_COURSES = {"DevOps", "Agentic AI", "Data Engineering", "Full Stack", "Java Full Stack", "Python Full Stack"}
 _PRIOR_KNOWLEDGE = re.compile(
     r"\b(?:know|knows|knowledge of|familiar with|experience (?:in|with)|experienced in|"
     r"prerequisites?|prior|already (?:use|using|work with))\s+(?:[a-z0-9+#.]+\s+){0,3}$")
@@ -147,8 +151,8 @@ def detect_technologies(primary_text, secondary_text=""):
         if domain in LEGACY_TECHNOLOGIES:
             return False
         own_name = matched[domain] == _norm(domain)
-        return any(other != domain and matched[domain] in raw.get(other, set()) for other in detected) \
-            and (not own_name or linked[domain])
+        hosts = [other for other in detected if other != domain and matched[domain] in raw.get(other, set())]
+        return bool(hosts) and (not own_name or linked[domain] or any(host in _ABSORBING_COURSES for host in hosts))
 
     return [domain for domain in detected if not folded(domain)]
 
