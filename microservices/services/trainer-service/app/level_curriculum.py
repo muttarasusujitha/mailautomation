@@ -309,6 +309,24 @@ def level_programme(domain_name, duration, level):
     }
 
 
+_TOPIC_STOP_WORDS = {"and", "the", "with", "on", "for", "of", "a", "an", "to", "in", "using", "aws", "azure",
+                     "python", "amazon", "microsoft"}
+
+
+def _similar_topics(first, second):
+    """True when two day titles cover the same subject, for example
+    "Enterprise-Scale Landing Zone Implementation" and
+    "Azure Enterprise Landing Zone and Identity Governance"."""
+    def words(value):
+        return set(re.findall(r"[a-z0-9]+", str(value).lower())) - _TOPIC_STOP_WORDS
+    a, b = words(first), words(second)
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    return min(len(a), len(b)) >= 3 and len(a & b) / min(len(a), len(b)) >= 0.5
+
+
 def combined_track(course, level, count, used_shared=None, exclude_topics=()):
     """Non-capstone days for one technology inside a combined programme.
 
@@ -318,11 +336,12 @@ def combined_track(course, level, count, used_shared=None, exclude_topics=()):
     if count <= 0:
         return []
     used_shared = used_shared if used_shared is not None else set()
-    excluded = {str(topic).strip().lower() for topic in exclude_topics}
+    excluded = [str(topic).strip().lower() for topic in exclude_topics if topic]
 
     def body(name):
         return [day for day in _split(course["levels"][name])[0]
-                if day.get("shared_key") not in used_shared and day["topic"].strip().lower() not in excluded]
+                if day.get("shared_key") not in used_shared
+                and not any(_similar_topics(day["topic"], other) for other in excluded)]
 
     if level == "mixed":
         shares = [count // 3 + (1 if i < count % 3 else 0) for i in range(3)]

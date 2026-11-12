@@ -106,6 +106,8 @@ _SCOPE_TECHNOLOGY_RULES = (
     ("Agentic AI", (r"\bagentic\s*ai\b", r"\bai agents?\b", r"\blangchain\b", r"\blanggraph\b")),
 )
 _FOUNDATION_TECHNOLOGIES = {"Python"}
+# Weight for a technology without an entry in _COMBINED_SCOPE_WEIGHTS (same as AWS or Azure).
+_DEFAULT_SCOPE_WEIGHT = 3
 _COMBINED_SCOPE_WEIGHTS = {
     "DevOps": 7,
     "AWS": 3,
@@ -202,16 +204,51 @@ async def _load_toc_knowledge_overrides(
     return overrides
 
 
+def _primary_scope_text(payload: TocRequest) -> str:
+    """The client's stated scope: title, technology and requested topics."""
+    return " ; ".join(str(value or "").strip() for value in (
+        payload.domain, payload.technology, payload.custom_topics,
+    ) if str(value or "").strip())
+
+
+def _secondary_scope_text(payload: TocRequest) -> str:
+    return " ; ".join(str(value or "").strip() for value in (
+        payload.client_notes, payload.notes, json.dumps(payload.client_context or {}, ensure_ascii=False),
+    ) if str(value or "").strip())
+
+
 def _detected_scope_technologies(payload: TocRequest) -> List[str]:
-    """Extract named technologies from the requirement, not just its short title."""
+    """Extract every named catalog technology from the requirement, in order of mention.
+
+    The stated scope is read against the whole course catalog (about 140
+    technologies and their aliases); notes are only read for the original six
+    programme technologies, so a passing tool mention does not add a block.
+    """
     if payload.technology_allocations:
         return [item.technology.strip() for item in payload.technology_allocations if item.technology.strip()]
-    scope = _scope_text(payload).lower()
-    detected = []
-    for technology, patterns in _SCOPE_TECHNOLOGY_RULES:
-        if any(re.search(pattern, scope, flags=re.IGNORECASE) for pattern in patterns):
-            detected.append(technology)
-    return detected
+    from app.scope_detection import detect_technologies
+    return detect_technologies(_primary_scope_text(payload), _secondary_scope_text(payload))
+
+
+def _weighted_split(technologies: List[str], total_days: int) -> List[int]:
+    """Largest-remainder split of total_days by technology weight; every technology gets at least one day."""
+    weights = [_COMBINED_SCOPE_WEIGHTS.get(technology, _DEFAULT_SCOPE_WEIGHT) for technology in technologies]
+    weight_total = sum(weights) or len(technologies)
+    raw = [total_days * weight / weight_total for weight in weights]
+    allocated = [max(1, int(value)) for value in raw]
+    while sum(allocated) < total_days:
+        index = max(range(len(technologies)), key=lambda item: (raw[item] - int(raw[item]), weights[item], -item))
+        allocated[index] += 1
+        raw[index] = int(raw[index])
+    while sum(allocated) > total_days:
+        index = max((item for item in range(len(technologies)) if allocated[item] > 1), key=lambda item: (allocated[item], weights[item]))
+        allocated[index] -= 1
+    return allocated
+
+
+def _is_foundation_technology(technology: str) -> bool:
+    from app.level_curriculum import category_for
+    return technology in _FOUNDATION_TECHNOLOGIES or category_for(technology) == "Programming Languages"
 
 
 def _inferred_technology_allocations(payload: TocRequest) -> List[dict]:
@@ -228,25 +265,24 @@ def _inferred_technology_allocations(payload: TocRequest) -> List[dict]:
     total_days = int(payload.duration_days or 0)
     if len(technologies) < 2 or total_days < len(technologies):
         return []
-    # Teach the programming language before the platforms that use it
+    # Teach programming languages before the platforms that use them
     # (for example Python before Python-on-AWS and Python-on-Azure days).
-    technologies = sorted(technologies, key=lambda technology: technology not in _FOUNDATION_TECHNOLOGIES)
-    weights = [_COMBINED_SCOPE_WEIGHTS.get(technology, 1) for technology in technologies]
-    weight_total = sum(weights) or len(technologies)
-    raw = [total_days * weight / weight_total for weight in weights]
-    allocated = [max(1, int(value)) for value in raw]
+    technologies = sorted(technologies, key=lambda technology: not _is_foundation_technology(technology))
 
-    # Largest-remainder allocation keeps the exact requested duration.
-    while sum(allocated) < total_days:
-        index = max(range(len(technologies)), key=lambda item: (raw[item] - int(raw[item]), weights[item], -item))
-        allocated[index] += 1
-        raw[index] = int(raw[index])
-    while sum(allocated) > total_days:
-        index = max((item for item in range(len(technologies)) if allocated[item] > 1), key=lambda item: (allocated[item], weights[item]))
-        allocated[index] -= 1
+    # Days and levels the client wrote next to a technology ("Python 5 days",
+    # "advanced AWS") are kept; the remaining days are split by weight.
+    from app.scope_detection import stated_plan
+    stated_days, stated_levels = stated_plan(_primary_scope_text(payload), technologies)
+    fixed = {technology: days for technology, days in stated_days.items() if 0 < days < total_days}
+    unfixed = [technology for technology in technologies if technology not in fixed]
+    remaining = total_days - sum(fixed.values())
+    if (len(unfixed) and remaining < len(unfixed)) or (not unfixed and remaining != 0):
+        fixed, unfixed, remaining = {}, list(technologies), total_days
+    split = dict(zip(unfixed, _weighted_split(unfixed, remaining))) if unfixed else {}
     return [
-        {"technology": technology, "days": days}
-        for technology, days in zip(technologies, allocated)
+        {"technology": technology, "days": fixed.get(technology) or split[technology],
+         **({"level": stated_levels[technology]} if technology in stated_levels else {})}
+        for technology in technologies
     ]
 
 

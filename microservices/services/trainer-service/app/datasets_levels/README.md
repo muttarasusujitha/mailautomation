@@ -22,7 +22,19 @@ The TOC generator (`app/level_curriculum.py`) uses these files when a domain has
 - `combined.json` holds integration days, such as "Python on AWS" and "AWS and Azure Compared". One is added when both technologies are requested, at the end of the later technology's block, as long as that block keeps at least 2 of its own days.
 - The last day is the authored capstone from `combined.json` whose `applies_to` covers every requested technology. When none matches, the generic integrated capstone is used.
 - The TOC goes to `requires_review` when a topic repeats under two technologies, or when a beginner topic (setup, basics, fundamentals, introduction...) appears in an intermediate or advanced track.
-- Inferred allocations put Python before the platforms that use it.
+- Inferred allocations put programming languages before the platforms that use them.
+- The TOC flags a gap honestly instead of hiding it. Some older template courses share the same day titles. When one technology runs out of new days because an earlier one already taught them, the TOC shows a review warning. That course needs a level file.
+
+## Finding the technologies in a request (`app/scope_detection.py`)
+
+When a request has no explicit `technology_allocations`, the TOC route reads the client's stated scope (title, technology and topics) against every course name and alias in `datasets_compact` and `datasets_levels`:
+
+- Longest phrase first: "Java Full Stack" is one technology, and "Azure DevOps" is the Azure DevOps product.
+- A tool word listed inside another requested course is folded into it. "DevOps; AWS; Azure; Git; Docker" gives three technologies, and "Agentic AI with LangGraph" gives one.
+- Broad words ("cloud", "testing", "agile") count only in the stated scope. "Cloud" is dropped when AWS or Azure is named.
+- Prerequisites are not topics: "participants already know Python" does not add Python.
+- Notes are read only for the original six programme technologies (DevOps, AWS, Azure, Kubernetes, Python, Agentic AI).
+- Days and levels written next to a technology are kept: "Python 5 days, AWS 3 days", "basic Python, advanced AWS". Remaining days are split by weight. A single level word such as "Advanced DevOps with AWS" applies to the whole programme instead.
 
 ## File format
 

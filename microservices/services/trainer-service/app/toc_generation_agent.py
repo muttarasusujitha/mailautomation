@@ -975,7 +975,7 @@ def _advanced_track_items(technology: str, days: int) -> list:
 
 # Topic titles that only belong in a beginner track.
 _BEGINNER_TOPIC = re.compile(
-    r"\b(?:setup|set up|syntax|basics?|fundamentals?|introduction|intro|orientation|getting started|overview|first steps)\b",
+    r"\b(?:setup|set up|syntax|basics?|fundamentals?|foundations?|introduction|intro|orientation|getting started|overview|first steps)\b",
     re.IGNORECASE,
 )
 
@@ -1183,6 +1183,32 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
     return result
 
 
+# Categories whose capstone is a deployed system to operate (deploy, observe, roll back).
+_OPERATIONAL_CATEGORIES = {
+    "Cloud", "DevOps and CI/CD", "Observability and SRE", "Networking", "Cybersecurity and Identity",
+    "Backend, APIs and Web Servers", "Generative AI and Agents",
+}
+# One concrete capstone task per category, used when no authored capstone covers the request.
+_CAPSTONE_WORK = {
+    "Programming Languages": "Implement and unit-test the code that ties the solution together",
+    "Web and Full Stack Development": "Build the user interface and its API end to end",
+    "Backend, APIs and Web Servers": "Expose and secure the solution's APIs",
+    "Mobile Development": "Build and test the mobile client against the solution's API",
+    "Databases": "Design the data model, key queries and backup approach",
+    "Data Engineering and Analytics": "Build the pipeline from source data to report with data-quality checks",
+    "Data Science and Machine Learning": "Train, evaluate and compare models with documented metrics",
+    "Generative AI and Agents": "Ground, evaluate and guard the AI workflow",
+    "Cloud": "Deploy the solution on the requested cloud services",
+    "DevOps and CI/CD": "Automate build, test and deployment with a pipeline",
+    "Observability and SRE": "Instrument the solution and define alerts and service level objectives",
+    "Networking": "Design and verify the network path, DNS and access rules",
+    "Cybersecurity and Identity": "Threat-model the solution and verify its security controls",
+    "Testing and QA": "Run the automated functional, API and performance test suites and report results",
+    "Enterprise Platforms (ERP, CRM, ITSM)": "Configure one end-to-end business process across the platforms",
+    "Project Management": "Plan and track the capstone with a sprint board and status report",
+}
+
+
 def _base_topic(name) -> str:
     """A day title without its "Technology: " prefix, for comparing topics across technologies."""
     return re.sub(r"^[^:]{1,40}:\s*", "", str(name or "")).strip().lower()
@@ -1200,7 +1226,7 @@ def _combined_sequence_warnings(days: list, day_levels: list) -> list:
             seen[base] = day.get("day")
     for day, day_level in zip(days, day_levels):
         if day_level in {"intermediate", "advanced"} and _BEGINNER_TOPIC.search(str(day.get("focus_area") or "")):
-            warnings.append(f"Day {day.get('day')} is a beginner topic inside a {day_level} track: {day.get('focus_area')}")
+            warnings.append(f"Day {day.get('day')} is a beginner topic inside an {day_level} track: {day.get('focus_area')}")
     return warnings
 
 
@@ -1308,40 +1334,62 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
         day_levels[-1] = None
     elif with_capstone and combined_days:
         final_version = str(combined_days[-1].get("content_enrichment_version") or "")
-        final_source = combined_days[-1].get("content_quality_stage") or final_version
-        if final_version.startswith("level-curriculum"):
-            # A level-course day is a regular module, not an authored final module:
-            # rebuild a clean final day before turning it into the integrated capstone.
+        # Only a manually authored final module (or saved client knowledge) keeps its
+        # content. Catalog days carry an enrichment version too, but they are regular
+        # modules, so the programme still ends with an integrated capstone.
+        final_source = (domain_overrides.get(names[-1].strip().lower())
+                        or (combined_days[-1].get("content_quality_stage") and not final_version.startswith("level-curriculum")))
+        if not final_source:
+            # Rebuild a clean final day so the capstone does not keep the replaced
+            # module's deliverable, checks and delivery steps.
             combined_days[-1] = _day_entry(domains[-1], {"topic": f"Integrated {combined_name} Capstone",
                                                          "subtopics": [], "tools": names, "lab": "Integrated capstone"},
                                            duration, duration, notes)
-            final_source = None
-        if not final_source:
             # Authored final-day modules retain their source topic and content.
             # Generated tracks receive a synthesized integrated capstone.
             includes_agentic_ai = any(
                 re.search(r"\b(?:agentic\s*ai|llmops|ai\s+agents?)\b", name, re.I)
                 for name in names
             )
+            from app.level_curriculum import category_for
+            categories = list(dict.fromkeys(filter(None, (category_for(name) for name in names))))
+            operational = not categories or any(category in _OPERATIONAL_CATEGORIES for category in categories)
             final_day = combined_days[-1]
             final_day["title"] = f"Day {duration}: Integrated Capstone - {combined_name}"
             final_day["focus_area"] = f"Integrated {combined_name} Capstone"
-            final_day["subtopics"] = [
-                "Integrate the requested technologies into one delivery workflow",
-                "Validate logs, deployment status, alerts and remediation recommendations",
-                "Apply secure identity, secrets handling, policy checks and approval gates",
-                ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
-                 if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
-                "Demonstrate rollback, incident triage and recovery decisions",
-                "Present the solution architecture, evidence and operational trade-offs",
-            ]
-            final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
+            category_work = [_CAPSTONE_WORK[category] for category in categories if category in _CAPSTONE_WORK][:3]
+            if operational:
+                final_day["subtopics"] = [
+                    "Integrate the requested technologies into one delivery workflow",
+                    *category_work,
+                    "Validate logs, deployment status, alerts and remediation recommendations",
+                    "Apply secure identity, secrets handling, policy checks and approval gates",
+                    ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
+                     if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
+                    "Demonstrate rollback, incident triage and recovery decisions",
+                    "Present the solution architecture, evidence and operational trade-offs",
+                ]
+                final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
+            else:
+                # Data, ML, testing, enterprise-platform or language programmes are not
+                # deployments to operate; their capstone is an integrated build and review.
+                final_day["subtopics"] = [
+                    f"Integrate {combined_name} into one end-to-end solution",
+                    *category_work,
+                    "Verify acceptance criteria, automated checks and delivery evidence",
+                    "Present the solution design, evidence and trade-offs",
+                ]
+                final_day["lab"] = f"Build, test and demonstrate one integrated {combined_name} solution against a written client scenario"
             final_day["tools"] = " + ".join(combined_tools or names)
             final_day["learning_objectives"] = [
                 "Integrate the requested technologies into one production-oriented delivery workflow",
                 ("Validate deployment, observability, security controls, LLMOps evaluation gates and AI-agent guardrails using evidence"
                  if includes_agentic_ai else "Validate deployment, observability and security controls using test evidence"),
                 "Explain design, rollback and incident-response decisions to stakeholders",
+            ] if operational else [
+                f"Combine {combined_name} skills in one end-to-end solution",
+                "Verify the solution against written acceptance criteria",
+                "Explain design decisions and trade-offs to stakeholders",
             ]
             final_day["morning_session"]["title"] = "Integrated Capstone - Design and Demonstration"
             final_day["afternoon_session"]["title"] = "Integrated Capstone - Hands-on"
