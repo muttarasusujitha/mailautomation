@@ -1008,7 +1008,7 @@ def _combined_track_items(technology: str, days: int, level: str, domain_overrid
     if course:
         from app.level_curriculum import combined_track
         level_days = combined_track(course, normalized_level, requested_days - len(explicit), used_shared,
-                                    exclude_topics=[item.get("topic") for item in explicit] + sorted(taught))
+                                    exclude_topics=[item.get("topic") for item in explicit], taught_topics=taught)
         if level_days is not None:
             return [_standardize_compact_day_item(day, course["domain"]) for day in level_days] + explicit
 

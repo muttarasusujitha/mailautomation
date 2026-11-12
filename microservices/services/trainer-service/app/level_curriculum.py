@@ -327,20 +327,25 @@ def _similar_topics(first, second):
     return min(len(a), len(b)) >= 3 and len(a & b) / min(len(a), len(b)) >= 0.5
 
 
-def combined_track(course, level, count, used_shared=None, exclude_topics=()):
+def combined_track(course, level, count, used_shared=None, exclude_topics=(), taught_topics=()):
     """Non-capstone days for one technology inside a combined programme.
 
     Follows the same level rules as select_level_days. Days whose shared_key was
     already taught by an earlier technology (for example cloud concepts) are skipped.
+    exclude_topics are this technology's own hand-written modules: a level day on a
+    similar subject is skipped. taught_topics come from other technologies and only
+    skip a day with the same title (AWS IAM and Azure Entra ID are both needed).
     """
     if count <= 0:
         return []
     used_shared = used_shared if used_shared is not None else set()
     excluded = [str(topic).strip().lower() for topic in exclude_topics if topic]
+    taught = {str(topic).strip().lower() for topic in taught_topics if topic}
 
     def body(name):
         return [day for day in _split(course["levels"][name])[0]
                 if day.get("shared_key") not in used_shared
+                and day["topic"].strip().lower() not in taught
                 and not any(_similar_topics(day["topic"], other) for other in excluded)]
 
     if level == "mixed":
