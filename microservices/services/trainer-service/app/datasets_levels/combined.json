@@ -1216,6 +1216,249 @@
           "Fix plan regressions with Query Store"
         ]
       }
+    },
+    {
+      "between": [
+        "Generative AI",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Generative AI on AWS: Amazon Bedrock Models, Guardrails and Knowledge Bases",
+        "subtopics": [
+          "Model access and regions in Amazon Bedrock",
+          "Invoking models with the Converse API",
+          "Bedrock Guardrails",
+          "Knowledge Bases for retrieval",
+          "IAM policies for model access",
+          "VPC endpoints and private access",
+          "Monitoring usage with CloudWatch",
+          "Cost controls and provisioned throughput"
+        ],
+        "tools": [
+          "Amazon Bedrock",
+          "AWS Lambda",
+          "IAM",
+          "CloudWatch"
+        ],
+        "lab_task": "Call two Bedrock models through the Converse API from a Lambda function, add a Guardrail that blocks personal data, restrict access to one model with IAM and chart token usage in CloudWatch.",
+        "deliverable": "Lambda code, guardrail configuration, IAM policy and usage dashboard",
+        "checks": [
+          [
+            "Send a prompt containing a card number",
+            "Guardrail blocks or masks it",
+            "Lambda response and guardrail log"
+          ],
+          [
+            "Call a model the IAM policy does not allow",
+            "AccessDeniedException",
+            "Lambda log"
+          ],
+          [
+            "Open the CloudWatch dashboard",
+            "Input and output tokens per model are shown",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Use generative AI models on AWS",
+          "Apply guardrails and IAM",
+          "Monitor usage and cost"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Generative AI on Azure: Azure OpenAI, AI Foundry and Content Safety",
+        "subtopics": [
+          "Azure OpenAI deployments and quotas",
+          "Calling models with Entra ID instead of keys",
+          "Azure AI Foundry projects",
+          "Prompt flow and evaluations in Foundry",
+          "Azure AI Content Safety filters",
+          "Private endpoints for Azure OpenAI",
+          "Monitoring with Azure Monitor",
+          "Regional availability and data residency"
+        ],
+        "tools": [
+          "Azure OpenAI",
+          "Azure AI Foundry",
+          "Azure AI Content Safety",
+          "Azure Monitor"
+        ],
+        "lab_task": "Deploy a model in Azure OpenAI, call it with a managed identity from a Container App over a private endpoint, configure content filters and run a Foundry evaluation on 20 questions.",
+        "deliverable": "Deployment, app code, filter settings and evaluation results",
+        "checks": [
+          [
+            "Call the endpoint from the public internet",
+            "Blocked by the private endpoint",
+            "Client error"
+          ],
+          [
+            "Send a harmful prompt",
+            "Content filter blocks it",
+            "API response"
+          ],
+          [
+            "Run the Foundry evaluation",
+            "Scores recorded for the 20 questions",
+            "Evaluation report"
+          ]
+        ],
+        "objectives": [
+          "Use generative AI models on Azure",
+          "Secure access with identity and networking",
+          "Evaluate in AI Foundry"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI",
+        "GCP"
+      ],
+      "day": {
+        "topic": "Generative AI on Google Cloud: Vertex AI and Gemini",
+        "subtopics": [
+          "Gemini models in Vertex AI",
+          "Calling models with service accounts",
+          "Grounding with Google Search and Vertex AI Search",
+          "Safety settings",
+          "Model Garden and open models",
+          "VPC Service Controls",
+          "Monitoring and quotas",
+          "Pricing and cost tracking"
+        ],
+        "tools": [
+          "Vertex AI",
+          "Gemini API",
+          "Cloud Run",
+          "Cloud Monitoring"
+        ],
+        "lab_task": "Deploy a Cloud Run service that calls Gemini through Vertex AI with a service account, grounds answers in a Vertex AI Search data store and applies safety settings.",
+        "deliverable": "Service code, data store and grounded answers with sources",
+        "checks": [
+          [
+            "Ask a question about the data store",
+            "Answer cites the data store documents",
+            "Service response"
+          ],
+          [
+            "Call Vertex AI with a service account lacking the role",
+            "Permission denied",
+            "Service log"
+          ],
+          [
+            "Send a prompt that breaks the safety settings",
+            "Blocked with a safety reason",
+            "Service response"
+          ]
+        ],
+        "objectives": [
+          "Use generative AI on Google Cloud",
+          "Ground answers in company data",
+          "Apply safety settings"
+        ]
+      }
+    },
+    {
+      "between": [
+        "RAG Pipelines",
+        "Azure"
+      ],
+      "day": {
+        "topic": "RAG on Azure: Azure AI Search with Integrated Vectorisation",
+        "subtopics": [
+          "Azure AI Search indexes and skillsets",
+          "Integrated vectorisation",
+          "Hybrid search and semantic ranker",
+          "Indexers for Blob Storage and SharePoint",
+          "Security trimming with document permissions",
+          "Azure OpenAI On Your Data",
+          "Private networking",
+          "Index sizing and cost"
+        ],
+        "tools": [
+          "Azure AI Search",
+          "Azure OpenAI",
+          "Azure Blob Storage"
+        ],
+        "lab_task": "Index a Blob Storage document set in Azure AI Search with integrated vectorisation, hybrid search and the semantic ranker, trim results by user group and answer questions through Azure OpenAI.",
+        "deliverable": "Index definition, indexer configuration and answers with citations",
+        "checks": [
+          [
+            "Search with hybrid and semantic ranking on 20 questions",
+            "Hit rate recorded against vector-only search",
+            "Results table"
+          ],
+          [
+            "Search as a user outside the document's group",
+            "Document is not returned",
+            "Search response"
+          ],
+          [
+            "Add a file to the container",
+            "Indexer picks it up on the next run",
+            "Indexer history"
+          ]
+        ],
+        "objectives": [
+          "Build RAG with Azure AI Search",
+          "Use hybrid search and semantic ranking",
+          "Trim results by permission"
+        ]
+      }
+    },
+    {
+      "between": [
+        "RAG Pipelines",
+        "AWS"
+      ],
+      "day": {
+        "topic": "RAG on AWS: Bedrock Knowledge Bases and OpenSearch Serverless",
+        "subtopics": [
+          "Knowledge Bases for Amazon Bedrock",
+          "Data sources in S3",
+          "Chunking options",
+          "OpenSearch Serverless vector collections",
+          "Metadata filtering",
+          "RetrieveAndGenerate with citations",
+          "Syncing data sources",
+          "Cost of vector storage"
+        ],
+        "tools": [
+          "Amazon Bedrock Knowledge Bases",
+          "Amazon OpenSearch Serverless",
+          "Amazon S3"
+        ],
+        "lab_task": "Create a Bedrock knowledge base over documents in S3 with an OpenSearch Serverless vector store, filter by department metadata and answer 20 questions with citations.",
+        "deliverable": "Knowledge base configuration and evaluated answers",
+        "checks": [
+          [
+            "Run the 20 questions",
+            "Accuracy and citation correctness recorded",
+            "Results sheet"
+          ],
+          [
+            "Filter on one department",
+            "Only that department's documents are cited",
+            "API response"
+          ],
+          [
+            "Delete a file from S3 and sync",
+            "Its content is no longer retrieved",
+            "API response"
+          ]
+        ],
+        "objectives": [
+          "Build RAG on AWS",
+          "Use managed vector storage",
+          "Filter retrieval with metadata"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -1857,6 +2100,154 @@
         "objectives": [
           "Combine TypeScript and SQL with end-to-end types",
           "Protect data with constraints",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Generative AI",
+        "RAG Pipelines"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Grounded Generative AI Assistant",
+        "subtopics": [
+          "Requirements and document sources",
+          "Ingestion and retrieval pipeline",
+          "Assistant with structured outputs and citations",
+          "Evaluation and guardrails",
+          "Deployment and monitoring",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Python 3.12",
+          "LlamaIndex",
+          "Qdrant",
+          "Ragas",
+          "Langfuse",
+          "FastAPI"
+        ],
+        "lab_task": "Build an assistant that answers from company documents with citations, fills structured forms from requests, passes a Ragas evaluation, blocks injection and personal data leaks and is deployed with tracing, then present it.",
+        "deliverable": "Repository, evaluation report, dashboards and a 15-minute demo",
+        "checks": [
+          [
+            "Run the evaluation suite",
+            "Meets the agreed faithfulness and accuracy targets",
+            "Ragas report"
+          ],
+          [
+            "Plant an instruction in a document",
+            "Assistant ignores it",
+            "Trace"
+          ],
+          [
+            "Ask a question the documents do not cover",
+            "Assistant says it cannot answer",
+            "Demo"
+          ]
+        ],
+        "objectives": [
+          "Combine generative AI and retrieval in one product",
+          "Prove quality and safety",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Generative AI",
+        "Agentic AI",
+        "RAG Pipelines"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Agentic Knowledge Assistant with Tools and Retrieval",
+        "subtopics": [
+          "Requirements and architecture",
+          "Retrieval over documents and data",
+          "Agent with tools and human approval",
+          "Evaluation of answers and actions",
+          "Guardrails, tracing and cost limits",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "LangGraph",
+          "LlamaIndex",
+          "Qdrant",
+          "MCP Python SDK",
+          "Langfuse",
+          "FastAPI"
+        ],
+        "lab_task": "Build an agent that answers from documents with citations, takes actions in a ticket system through MCP tools with approval, passes answer and trajectory evaluations and stays within a cost budget, then present it.",
+        "deliverable": "Repository, evaluation reports, traces and a 15-minute demo",
+        "checks": [
+          [
+            "Run answer and trajectory evaluations",
+            "Both meet the agreed thresholds",
+            "Evaluation reports"
+          ],
+          [
+            "Ask the agent to close a ticket",
+            "Approval requested before the action",
+            "Demo and audit log"
+          ],
+          [
+            "Show cost per task",
+            "Within the budget",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Combine agents, generative AI and retrieval",
+          "Control agent actions",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Python",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python Generative AI Application",
+        "subtopics": [
+          "Requirements and design",
+          "Python service with model calls",
+          "Structured outputs and validation",
+          "Tests and evaluation",
+          "Deployment and monitoring",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Python 3.12",
+          "FastAPI",
+          "Pydantic",
+          "pytest",
+          "promptfoo",
+          "Docker"
+        ],
+        "lab_task": "Build a Python service that classifies and summarises incoming requests with validated structured output, has unit tests and a prompt evaluation suite, runs in Docker and logs cost per request, then present it.",
+        "deliverable": "Repository, test and evaluation reports and a 15-minute demo",
+        "checks": [
+          [
+            "Run pytest and the evaluation suite",
+            "Both pass the agreed thresholds",
+            "Test and evaluation output"
+          ],
+          [
+            "Send a malformed request",
+            "Service returns a clear validation error",
+            "API response"
+          ],
+          [
+            "Show cost per request",
+            "Logged for every call",
+            "Log output"
+          ]
+        ],
+        "objectives": [
+          "Combine Python engineering and generative AI",
+          "Prove quality with tests",
           "Defend design decisions"
         ]
       }
