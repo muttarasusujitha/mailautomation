@@ -1556,6 +1556,297 @@
           "Explain the Universal Journal end to end"
         ]
       }
+    },
+    {
+      "between": [
+        "SQL",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "SQL for Power BI: Views, DirectQuery and Query Folding",
+        "subtopics": [
+          "Preparing reporting views in the database",
+          "Star schema in SQL for Power BI",
+          "Native queries versus folded Power Query steps",
+          "DirectQuery and the SQL it generates",
+          "Indexes and columnstore for BI workloads",
+          "Incremental refresh with date filters in SQL",
+          "Row-level security in the database versus in Power BI",
+          "Monitoring BI queries on the server"
+        ],
+        "tools": [
+          "SQL Server or Azure SQL",
+          "Power BI Desktop",
+          "DAX Studio"
+        ],
+        "lab_task": "Build reporting views for a star schema, connect Power BI with import and DirectQuery, check that Power Query steps fold, capture the SQL Power BI sends and add an index that speeds up the slowest visual.",
+        "deliverable": "Views, Power BI model, captured SQL and before and after timings",
+        "checks": [
+          [
+            "View native query for the folded steps",
+            "Steps fold into one SQL statement",
+            "Screenshot"
+          ],
+          [
+            "Capture the DirectQuery SQL for a visual",
+            "SQL captured and explained",
+            "Query text"
+          ],
+          [
+            "Add the index",
+            "Slowest visual at least twice as fast",
+            "Performance analyser output"
+          ]
+        ],
+        "objectives": [
+          "Prepare SQL for Power BI",
+          "Keep queries folding",
+          "Tune BI queries in the database"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Advanced Excel",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "From Excel to Power BI: Reusing Power Query, Data Models and Measures",
+        "subtopics": [
+          "What carries over from Excel to Power BI",
+          "Moving Power Query queries",
+          "Importing an Excel data model into Power BI",
+          "Converting Power Pivot measures",
+          "Replacing Excel dashboards with Power BI reports",
+          "Analyse in Excel on published models",
+          "Keeping Excel users productive",
+          "Deciding which reports to move"
+        ],
+        "tools": [
+          "Microsoft Excel (Microsoft 365)",
+          "Power BI Desktop",
+          "Power BI Service"
+        ],
+        "lab_task": "Import an Excel workbook with Power Query and a Power Pivot model into Power BI, rebuild its dashboard as a report, publish it and give Excel users a pivot table on the published model.",
+        "deliverable": "Power BI file, published report and connected Excel workbook",
+        "checks": [
+          [
+            "Compare measures in Excel and Power BI",
+            "Values match",
+            "Comparison"
+          ],
+          [
+            "Refresh the published model",
+            "Report and Excel pivot both update",
+            "Screenshots"
+          ],
+          [
+            "Review the move list",
+            "Each report has a move or keep decision with a reason",
+            "Decision list"
+          ]
+        ],
+        "objectives": [
+          "Move Excel work into Power BI",
+          "Reuse queries and measures",
+          "Support Excel users"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Data Engineering",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Data Engineering on Azure: Data Factory, ADLS and Fabric",
+        "subtopics": [
+          "Azure Data Lake Storage Gen2 and hierarchical namespace",
+          "Azure Data Factory pipelines and integration runtimes",
+          "Mapping data flows",
+          "Microsoft Fabric lakehouse and OneLake",
+          "Databricks on Azure in brief",
+          "Managed identities for pipelines",
+          "Monitoring and alerts",
+          "Cost of Azure data services"
+        ],
+        "tools": [
+          "Azure Data Factory",
+          "Azure Data Lake Storage Gen2",
+          "Microsoft Fabric",
+          "Azure Monitor"
+        ],
+        "lab_task": "Build an Azure Data Factory pipeline that copies data from an on-premise SQL source through a self-hosted runtime into ADLS, transforms it into a Fabric lakehouse and alerts on failure, using managed identities only.",
+        "deliverable": "Pipeline, lakehouse tables, alert rule and identity configuration",
+        "checks": [
+          [
+            "Run the pipeline",
+            "Data lands in bronze and silver tables",
+            "Pipeline run and table counts"
+          ],
+          [
+            "Search the pipeline for keys and passwords",
+            "None; managed identities are used",
+            "Configuration review"
+          ],
+          [
+            "Break the source connection",
+            "Alert fires",
+            "Azure Monitor alert"
+          ]
+        ],
+        "objectives": [
+          "Build pipelines on Azure",
+          "Use managed identities",
+          "Monitor Azure data services"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Data Engineering",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Data Engineering on AWS: Glue, S3, Athena and Redshift",
+        "subtopics": [
+          "S3 data lake layout and Lake Formation",
+          "AWS Glue crawlers and the Data Catalog",
+          "Glue Spark jobs",
+          "Querying the lake with Athena",
+          "Loading Redshift and Redshift Spectrum",
+          "Step Functions or MWAA for orchestration",
+          "IAM roles for data jobs",
+          "Cost of AWS data services"
+        ],
+        "tools": [
+          "Amazon S3",
+          "AWS Glue",
+          "Amazon Athena",
+          "Amazon Redshift",
+          "AWS Lake Formation"
+        ],
+        "lab_task": "Build a Glue job that converts raw CSV in S3 to partitioned Parquet, catalogue it with a crawler, query it in Athena, load a Redshift table and restrict a column with Lake Formation.",
+        "deliverable": "Glue job, catalogue, Athena queries, Redshift load and permissions",
+        "checks": [
+          [
+            "Query one partition in Athena",
+            "Scanned bytes are a small fraction of the full table",
+            "Athena statistics"
+          ],
+          [
+            "Query the restricted column as an analyst",
+            "Access denied",
+            "Athena error"
+          ],
+          [
+            "Compare Redshift and Athena query times",
+            "Both recorded",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Build pipelines on AWS",
+          "Catalogue and query lake data",
+          "Govern access with Lake Formation"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Machine Learning",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Machine Learning on AWS with Amazon SageMaker",
+        "subtopics": [
+          "SageMaker Studio and domains",
+          "Training jobs and built-in algorithms",
+          "Bring your own scikit-learn or XGBoost script",
+          "Hyperparameter tuning jobs",
+          "Model registry",
+          "Real-time and serverless endpoints",
+          "Model Monitor",
+          "Cost controls"
+        ],
+        "tools": [
+          "Amazon SageMaker",
+          "Amazon S3",
+          "IAM"
+        ],
+        "lab_task": "Train an XGBoost model as a SageMaker training job from a script, tune it, register it, deploy a serverless endpoint and enable Model Monitor on captured requests.",
+        "deliverable": "Training and tuning jobs, registered model, endpoint and monitor schedule",
+        "checks": [
+          [
+            "Call the endpoint",
+            "Prediction returned",
+            "API response"
+          ],
+          [
+            "Review the tuning job",
+            "Best job and metric shown",
+            "SageMaker console"
+          ],
+          [
+            "Send drifted requests",
+            "Model Monitor reports violations",
+            "Monitor report"
+          ]
+        ],
+        "objectives": [
+          "Train and deploy models on AWS",
+          "Tune with SageMaker",
+          "Monitor endpoints"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Machine Learning",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Machine Learning on Azure with Azure Machine Learning",
+        "subtopics": [
+          "Workspaces, compute and datastores",
+          "Jobs and environments",
+          "MLflow tracking in Azure ML",
+          "Pipelines and components",
+          "Registries",
+          "Managed online endpoints",
+          "Responsible AI dashboard",
+          "Cost controls"
+        ],
+        "tools": [
+          "Azure Machine Learning",
+          "MLflow",
+          "Azure Monitor"
+        ],
+        "lab_task": "Run a training pipeline in Azure ML that logs to MLflow, register the model, deploy it to a managed online endpoint with blue-green traffic and review it in the Responsible AI dashboard.",
+        "deliverable": "Pipeline, registered model, endpoint and dashboard review",
+        "checks": [
+          [
+            "Split traffic 90/10 between two deployments",
+            "Requests split as configured",
+            "Endpoint metrics"
+          ],
+          [
+            "Call the endpoint",
+            "Prediction returned",
+            "API response"
+          ],
+          [
+            "Open the Responsible AI dashboard",
+            "Error analysis and feature importance shown",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Train and deploy models on Azure",
+          "Release with blue-green traffic",
+          "Review models responsibly"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -2490,6 +2781,197 @@
           "Combine S/4HANA, finance, ABAP and BTP",
           "Plan a programme with a working prototype",
           "Defend decisions to a steering committee"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Advanced Excel",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Excel and Power BI Reporting Solution",
+        "subtopics": [
+          "Requirements and data sources",
+          "Power Query preparation shared by both tools",
+          "Data model and measures",
+          "Power BI report and Excel analysis workbook",
+          "Refresh, security and sharing",
+          "Presentation"
+        ],
+        "tools": [
+          "Microsoft Excel (Microsoft 365)",
+          "Power BI Desktop",
+          "Power BI Service"
+        ],
+        "lab_task": "Build a sales reporting solution where Power BI publishes a secured model and report and finance users analyse the same model in Excel, all refreshing on a schedule, then present it.",
+        "deliverable": "Power BI model and report, Excel workbook and a 15-minute presentation",
+        "checks": [
+          [
+            "Compare totals in Power BI and Excel",
+            "Values match",
+            "Comparison"
+          ],
+          [
+            "Open as a regional user in both tools",
+            "Only that region's data",
+            "Screenshots"
+          ],
+          [
+            "Run scheduled refresh",
+            "Both outputs show the new data",
+            "Refresh history"
+          ]
+        ],
+        "objectives": [
+          "Combine Excel and Power BI",
+          "Share one model across tools",
+          "Present results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Python",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python Machine Learning Application",
+        "subtopics": [
+          "Problem framing and data",
+          "Python data preparation and features",
+          "Model training and evaluation",
+          "Tests and packaging",
+          "Prediction API and monitoring",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Python 3.12",
+          "pandas",
+          "scikit-learn",
+          "pytest",
+          "FastAPI",
+          "MLflow"
+        ],
+        "lab_task": "Build a tested Python package that prepares data, trains and evaluates a model tracked in MLflow, and serves predictions through a FastAPI service with input validation and drift logging, then present it.",
+        "deliverable": "Repository, test report, MLflow runs, API and a 15-minute demo",
+        "checks": [
+          [
+            "Run pytest",
+            "Data and model tests pass",
+            "pytest output"
+          ],
+          [
+            "Call the API with invalid input",
+            "Clear validation error",
+            "API response"
+          ],
+          [
+            "Reproduce the model from MLflow",
+            "Same metric",
+            "Notebook or script output"
+          ]
+        ],
+        "objectives": [
+          "Combine Python engineering and ML",
+          "Prove quality with tests",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Data Engineering",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Data Pipeline to Power BI Dashboard",
+        "subtopics": [
+          "Requirements and sources",
+          "Ingestion and transformation pipeline",
+          "Gold tables for reporting",
+          "Power BI model and report",
+          "Refresh orchestration, quality and security",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Python 3.12",
+          "Apache Airflow",
+          "dbt",
+          "PostgreSQL or a lakehouse",
+          "Power BI"
+        ],
+        "lab_task": "Build a pipeline that loads and models sales data into gold tables with quality checks, then a Power BI model and report that refreshes after each successful pipeline run, then present it.",
+        "deliverable": "Pipeline repository, Power BI report and a 15-minute demo",
+        "checks": [
+          [
+            "Run the pipeline with new data",
+            "Report shows it after the triggered refresh",
+            "Demo"
+          ],
+          [
+            "Feed bad data",
+            "Pipeline stops and the report keeps the last good data",
+            "Logs and report"
+          ],
+          [
+            "Compare report totals with source totals",
+            "Values match",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Combine data engineering and BI",
+          "Keep reports in step with pipelines",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Python",
+        "SQL",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python, SQL and Power BI Analytics Solution",
+        "subtopics": [
+          "Requirements and data",
+          "Python ingestion and cleaning",
+          "SQL schema and reporting views",
+          "Power BI model and report",
+          "Tests, refresh and security",
+          "Presentation"
+        ],
+        "tools": [
+          "Python 3.12",
+          "PostgreSQL or SQL Server",
+          "Power BI Desktop",
+          "Power BI Service"
+        ],
+        "lab_task": "Load and clean raw files with Python into a SQL star schema, expose reporting views, build a secured Power BI report on them with scheduled refresh, and present the findings.",
+        "deliverable": "Python scripts, SQL scripts, Power BI report and a 15-minute presentation",
+        "checks": [
+          [
+            "Reconcile Power BI totals with SQL",
+            "Values match",
+            "Comparison"
+          ],
+          [
+            "Load a file with bad rows",
+            "Python rejects them with reasons",
+            "Rejects file"
+          ],
+          [
+            "Open as a restricted user",
+            "Only allowed rows shown",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Combine Python, SQL and Power BI",
+          "Build a reliable analytics flow",
+          "Present findings"
         ]
       }
     }

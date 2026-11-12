@@ -1,0 +1,573 @@
+{
+  "domain": "Advanced Excel",
+  "name": "Advanced Excel",
+  "category": "Data Engineering and Analytics",
+  "icon": "table",
+  "aliases": ["Excel", "MS Excel", "Microsoft Excel", "Advanced MS Excel", "Excel VBA", "Excel Macros", "Excel for Business", "Excel Training", "Excel Dashboards", "Excel for Data Analysis"],
+  "certifications": ["Microsoft Office Specialist: Excel Associate (MO-200)", "Microsoft Office Specialist: Excel Expert (MO-201)", "Microsoft Certified: Power BI Data Analyst Associate (PL-300) as a next step"],
+  "tools": ["Microsoft Excel (Microsoft 365)", "Power Query", "Power Pivot", "VBA editor", "Office Scripts", "Power Automate"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For office staff and analysts who use Excel occasionally. Covers workbook basics, formulas and references, essential functions, tables, sorting and filtering, charts, conditional formatting, data validation, lookups and a first pivot table, ending with a monthly report built from raw data.",
+      "prerequisites": ["Can use Windows or macOS and a mouse and keyboard", "Has opened a spreadsheet before", "Microsoft 365 Excel installed"],
+      "outcomes": ["Build clean workbooks with correct formulas and references", "Use the essential text, date, logical and lookup functions", "Summarise data with tables, charts and pivot tables", "Protect, print and share workbooks safely"],
+      "days": [
+        {
+          "topic": "Excel Setup, Workbook Basics and Navigation",
+          "subtopics": ["The ribbon, Quick Access Toolbar and status bar", "Workbooks, worksheets and cells", "Entering numbers, text and dates", "Selecting ranges quickly", "Keyboard shortcuts that save time", "Freeze panes and split windows", "Saving formats: XLSX, XLSM, CSV", "AutoSave and OneDrive", "Undo, redo and version history", "Course project overview"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Create a workbook with three sheets for an expense log, enter 30 rows, freeze the header row, use ten keyboard shortcuts and save it to OneDrive with version history.",
+          "deliverable": "Workbook and a list of the shortcuts used",
+          "checks": [["Scroll down 30 rows", "Header row stays visible", "Screenshot"], ["Restore an earlier version", "Previous version opens from version history", "Screenshot"], ["Save as CSV and reopen", "Explain which features were lost", "Written note"]],
+          "objectives": ["Navigate Excel quickly", "Organise workbooks", "Save and recover work"]
+        },
+        {
+          "topic": "Formulas, Operators and Cell References",
+          "subtopics": ["Writing formulas", "Arithmetic operators and order of operations", "Relative references", "Absolute and mixed references", "Copying formulas", "References to other sheets", "Named ranges", "Showing and checking formulas"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a price list that calculates tax and discount with one rate cell using absolute references, copies formulas down and across, and uses a named range for the tax rate.",
+          "deliverable": "Price list workbook",
+          "checks": [["Change the tax rate cell", "Every price updates", "Screenshot"], ["Copy a formula across", "Mixed references keep the right row and column", "Formula view"], ["Show formulas with Ctrl+`", "All formulas visible and consistent", "Screenshot"]],
+          "objectives": ["Write formulas", "Use relative, absolute and mixed references", "Use named ranges"]
+        },
+        {
+          "topic": "Essential Functions: SUM, AVERAGE, COUNT, MIN and MAX",
+          "subtopics": ["Function syntax", "SUM and AutoSum", "AVERAGE, MIN and MAX", "COUNT, COUNTA and COUNTBLANK", "ROUND, ROUNDUP and ROUNDDOWN", "The function wizard", "Status bar quick totals", "Common errors: #VALUE!, #DIV/0!, #NAME?"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Summarise a sales sheet with totals, averages, minimum and maximum per month, count blank cells, round results and fix three planted errors.",
+          "deliverable": "Summary sheet and error fixes",
+          "checks": [["Compare totals with the status bar", "Values match", "Screenshot"], ["Fix the #DIV/0! error", "Formula shows blank or zero instead", "Screenshot"], ["Count blank cells", "Correct count", "Screenshot"]],
+          "objectives": ["Use essential functions", "Round correctly", "Fix common errors"]
+        },
+        {
+          "topic": "Logical Functions: IF, AND, OR and IFS",
+          "subtopics": ["IF", "Nested IF", "AND and OR inside IF", "IFS", "IFERROR", "Comparison operators", "Logical tests on text and dates", "Readable logic"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Calculate bonus eligibility, a performance grade with IFS and a commission rate with AND and OR rules for 50 employees, and handle missing data with IFERROR.",
+          "deliverable": "Employee workbook with logic columns",
+          "checks": [["Check five employees by hand", "Grades and bonuses match the rules", "Comparison"], ["Leave a sales value blank", "IFERROR shows the agreed message", "Screenshot"], ["Replace a nested IF with IFS", "Same results", "Screenshot"]],
+          "objectives": ["Write logical formulas", "Combine conditions", "Handle errors"]
+        },
+        {
+          "topic": "Text and Date Functions",
+          "subtopics": ["LEFT, RIGHT, MID and LEN", "TRIM, UPPER, LOWER and PROPER", "CONCAT, TEXTJOIN and the & operator", "FIND and SEARCH", "TEXT for formatting", "TODAY, NOW, DATE and DATEDIF", "WEEKDAY, NETWORKDAYS and EOMONTH", "Converting text to dates"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Clean a customer list by splitting names, fixing case and spaces, building email IDs, and calculate age, tenure and working days to each renewal date.",
+          "deliverable": "Cleaned list with date calculations",
+          "checks": [["Build email IDs", "Format firstname.lastname@company.com for all rows", "Screenshot"], ["Calculate working days to renewal", "Matches NETWORKDAYS by hand for two rows", "Comparison"], ["Convert text dates", "All become real dates", "Screenshot"]],
+          "objectives": ["Clean text with functions", "Calculate with dates", "Convert text to dates"]
+        },
+        {
+          "topic": "Formatting, Number Formats and Conditional Formatting",
+          "subtopics": ["Fonts, borders and alignment", "Number, currency, percentage and date formats", "Custom number formats", "Cell styles", "Conditional formatting rules", "Data bars, colour scales and icon sets", "Formula-based conditional formatting", "Managing rules"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Format a sales report with currency and percentage formats, a custom format for thousands, highlight overdue invoices with a formula rule and add data bars for sales.",
+          "deliverable": "Formatted report",
+          "checks": [["Enter 1500000 in the thousands format", "Shows 1,500K", "Screenshot"], ["Change an invoice date to the past", "Row turns red", "Screenshot"], ["Open Manage Rules", "Each rule has a clear range", "Screenshot"]],
+          "objectives": ["Format data clearly", "Use custom formats", "Highlight data with rules"]
+        },
+        {
+          "topic": "Excel Tables, Sorting and Filtering",
+          "subtopics": ["Converting ranges to tables", "Table styles and total rows", "Structured references", "Sorting by one and many columns", "Custom sort orders", "AutoFilter", "Advanced filter", "Slicers on tables"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Convert sales data to a table, add a total row and calculated columns with structured references, sort by region then amount and filter with slicers.",
+          "deliverable": "Table workbook with slicers",
+          "checks": [["Add a row to the table", "Formulas and formatting extend automatically", "Screenshot"], ["Filter with the region slicer", "Totals update for the region", "Screenshot"], ["Sort by a custom month order", "Months in calendar order", "Screenshot"]],
+          "objectives": ["Work with Excel tables", "Sort and filter data", "Use structured references"]
+        },
+        {
+          "topic": "Charts and Sparklines",
+          "subtopics": ["Choosing a chart type", "Column, bar, line and pie charts", "Combo charts with a secondary axis", "Chart titles, labels and legends", "Formatting charts", "Sparklines", "Charts from tables", "Common chart mistakes"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a column chart of monthly sales, a combo chart of sales and margin percent, and sparklines per product, and fix a misleading chart with a cut axis.",
+          "deliverable": "Chart sheet with notes",
+          "checks": [["Add a new month to the table", "Chart updates automatically", "Screenshot"], ["Show margin percent on a secondary axis", "Both series readable", "Screenshot"], ["Fix the misleading chart", "Axis starts at zero and the note explains why", "Screenshot and note"]],
+          "objectives": ["Create clear charts", "Use combo charts and sparklines", "Avoid misleading charts"]
+        },
+        {
+          "topic": "Lookup Functions: VLOOKUP and XLOOKUP",
+          "subtopics": ["Why lookups are needed", "VLOOKUP exact match", "VLOOKUP approximate match for bands", "Common VLOOKUP mistakes", "XLOOKUP", "Default values when not found", "Looking up to the left", "HLOOKUP in brief"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Bring product names and prices into an order sheet with VLOOKUP and XLOOKUP, assign discount bands with approximate match and show \"Not found\" for missing codes.",
+          "deliverable": "Order sheet with lookups",
+          "checks": [["Look up a missing product code", "Shows \"Not found\"", "Screenshot"], ["Look up a value to the left of the key", "XLOOKUP returns it", "Screenshot"], ["Assign discount bands", "Bands correct at the boundaries", "Comparison"]],
+          "objectives": ["Use VLOOKUP and XLOOKUP", "Handle missing values", "Look up bands"]
+        },
+        {
+          "topic": "Conditional Aggregation: SUMIFS, COUNTIFS and AVERAGEIFS",
+          "subtopics": ["SUMIF and SUMIFS", "COUNTIF and COUNTIFS", "AVERAGEIFS", "Criteria with operators", "Date ranges as criteria", "Wildcards in criteria", "Criteria from cells", "Building a summary table"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a summary table of sales by region and month with SUMIFS, count large orders with COUNTIFS and average order value for products matching a wildcard.",
+          "deliverable": "Summary table",
+          "checks": [["Compare the SUMIFS table with a filtered total", "Values match", "Comparison"], ["Change the month in the criteria cell", "Summary updates", "Screenshot"], ["Use a wildcard for products starting with \"Pro\"", "Correct average", "Screenshot"]],
+          "objectives": ["Aggregate with conditions", "Use date and wildcard criteria", "Build summary tables"]
+        },
+        {
+          "topic": "Data Validation and Drop-Down Lists",
+          "subtopics": ["Validation rules for numbers, dates and text", "Drop-down lists", "Lists from a table", "Dependent drop-downs", "Input messages and error alerts", "Circling invalid data", "Preventing duplicates", "Validation for shared forms"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a data entry form sheet with drop-downs from a table, a dependent city list, date limits, a duplicate check and clear error messages.",
+          "deliverable": "Data entry workbook",
+          "checks": [["Enter a date outside the allowed range", "Error alert shown", "Screenshot"], ["Choose a state", "City list shows only that state's cities", "Screenshot"], ["Enter a duplicate ID", "Entry is blocked", "Screenshot"]],
+          "objectives": ["Control data entry", "Build drop-down lists", "Prevent bad data"]
+        },
+        {
+          "topic": "Pivot Tables: First Steps",
+          "subtopics": ["Preparing data for pivot tables", "Creating a pivot table", "Rows, columns, values and filters", "Summarising by sum, count and average", "Grouping dates", "Sorting and filtering pivot tables", "Refreshing", "Pivot charts"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build pivot tables of sales by region and product, group dates by month and quarter, show order counts and averages, and add a pivot chart.",
+          "deliverable": "Pivot table sheet with chart",
+          "checks": [["Compare the pivot total with the data total", "Values match", "Comparison"], ["Add new data and refresh", "Pivot includes it", "Screenshot"], ["Group dates by quarter", "Four quarters shown", "Screenshot"]],
+          "objectives": ["Summarise data with pivot tables", "Group dates", "Build pivot charts"]
+        },
+        {
+          "topic": "Cleaning and Preparing Data",
+          "subtopics": ["Removing duplicates", "Text to columns", "Flash Fill", "Find and replace", "Fixing numbers stored as text", "Removing blank rows", "Go To Special", "Checking data quality"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Clean a messy export with duplicates, combined columns, numbers stored as text, extra spaces and blank rows so it is ready for a pivot table.",
+          "deliverable": "Cleaned dataset and a cleaning log",
+          "checks": [["Remove duplicates", "Correct number of rows left", "Screenshot"], ["Sum a numbers-as-text column after fixing", "Sum works", "Screenshot"], ["Use Flash Fill to split names", "All rows correct", "Screenshot"]],
+          "objectives": ["Clean data quickly", "Use Flash Fill and text to columns", "Check data quality"]
+        },
+        {
+          "topic": "Printing, Page Layout and PDF Export",
+          "subtopics": ["Page layout view", "Print areas", "Page breaks", "Headers and footers", "Repeating title rows", "Fit to page", "Exporting to PDF", "Printing charts"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Set up a 200-row report to print on A4 with repeating headers, page numbers, a company footer and set page breaks per region, then export it to PDF.",
+          "deliverable": "Print-ready workbook and PDF",
+          "checks": [["Preview page 3", "Header row repeats", "PDF"], ["Check page breaks", "Each region starts on a new page", "PDF"], ["Check the footer", "Page numbers and company name on every page", "PDF"]],
+          "objectives": ["Prepare sheets for printing", "Control page breaks", "Export to PDF"]
+        },
+        {
+          "topic": "Protecting and Sharing Workbooks",
+          "subtopics": ["Locking and unlocking cells", "Protecting sheets", "Protecting workbook structure", "Passwords and their limits", "Sharing through OneDrive and SharePoint", "Co-authoring", "Comments and notes", "Sensitivity labels"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "OneDrive"],
+          "lab_task": "Protect a budget template so users can enter only input cells, share it for co-authoring, collect comments from two colleagues and apply a sensitivity label.",
+          "deliverable": "Protected shared template with comments",
+          "checks": [["Try to edit a formula cell", "Blocked by sheet protection", "Screenshot"], ["Edit at the same time as a colleague", "Both changes saved", "Screenshot"], ["Check the sensitivity label", "Label shown on the file", "Screenshot"]],
+          "objectives": ["Protect workbooks", "Share and co-author", "Label sensitive files"]
+        },
+        {
+          "topic": "Percentages, Growth and Business Calculations",
+          "subtopics": ["Percentages and percent change", "Margin and markup", "Running totals", "Share of total", "Compound growth", "Rounding money correctly", "Comparing periods", "Building a KPI table"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a KPI table with month-on-month growth, margin, markup, running totals and share of total for six products, and check two results by hand.",
+          "deliverable": "KPI workbook",
+          "checks": [["Check margin and markup for one product", "Both match manual calculations", "Comparison"], ["Check the running total", "Last value equals the total", "Screenshot"], ["Check share of total", "Shares add up to 100 percent", "Screenshot"]],
+          "objectives": ["Do business calculations in Excel", "Avoid percentage mistakes", "Build KPI tables"]
+        },
+        {
+          "topic": "Working with Multiple Sheets and Workbooks",
+          "subtopics": ["3D references", "Consolidate tool", "Linking workbooks", "Updating and breaking links", "Grouping sheets for edits", "Moving and copying sheets", "Hyperlinks between sheets", "Risks of linked workbooks"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Combine 12 monthly sheets into a yearly summary with 3D references, link a summary workbook to a regional workbook and add a navigation sheet with hyperlinks.",
+          "deliverable": "Summary workbook and linked files",
+          "checks": [["Change a value on one month's sheet", "Yearly total updates", "Screenshot"], ["Move the linked file and open the summary", "Broken link found and fixed", "Edit links dialog"], ["Click navigation links", "Each opens the right sheet", "Screenshot"]],
+          "objectives": ["Work across sheets", "Link workbooks safely", "Navigate large workbooks"]
+        },
+        {
+          "topic": "Combining Files with Power Query",
+          "subtopics": ["Get Data from files and folders", "The Power Query editor", "Changing types and removing columns", "Filtering rows", "Combining files from a folder", "Loading to a table", "Refreshing queries", "Why Power Query beats copy and paste"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Query"],
+          "lab_task": "Combine 12 monthly CSV files from a folder with Power Query, clean them, load the result to a table and refresh after adding a new month.",
+          "deliverable": "Workbook with the query",
+          "checks": [["Add a 13th file and refresh", "New month appears", "Screenshot"], ["Compare totals with the source files", "Totals match", "Comparison"], ["Read the applied steps", "Each step named", "Screenshot"]],
+          "objectives": ["Import and combine data with Power Query", "Refresh instead of copy and paste", "Keep steps clear"]
+        },
+        {
+          "topic": "Copilot and AI Features in Excel",
+          "subtopics": ["Copilot in Excel", "Asking for formulas", "Highlighting and sorting with Copilot", "Generating charts and pivot tables", "Analyze Data", "Checking AI suggestions", "Data that should not go to AI", "Writing good prompts for Excel"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Copilot in Excel"],
+          "lab_task": "Use Copilot to create three formulas, a chart and a pivot summary on the sales table, check every result yourself and note any wrong answer.",
+          "deliverable": "Copilot results with checks",
+          "checks": [["Check a Copilot formula", "Correct or corrected with the reason", "Check sheet"], ["Check the Copilot pivot summary", "Totals match your own pivot", "Comparison"], ["List data that should not be used with AI", "List follows company policy", "Note"]],
+          "objectives": ["Use Copilot in Excel", "Check AI results", "Use AI safely"]
+        },
+        {
+          "topic": "Beginner Capstone: Monthly Sales Report Workbook",
+          "subtopics": ["Requirements", "Importing and cleaning data", "Formulas and lookups", "Pivot tables and charts", "Formatting, validation and protection", "Presentation"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Query"],
+          "lab_task": "Build a monthly sales report from raw exports: import with Power Query, clean, add lookups and KPIs, build pivots and charts, validate inputs, protect formulas and present the results.",
+          "deliverable": "Report workbook and a 10-minute presentation",
+          "checks": [["Refresh with next month's data", "Report updates with no manual changes", "Screenshot"], ["Compare totals with the source", "Totals match", "Comparison"], ["Try to overwrite a formula", "Protection blocks it", "Screenshot"]],
+          "objectives": ["Combine the beginner topics in one report", "Build a refreshable workbook", "Present results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For regular Excel users who want advanced skills. Covers INDEX/MATCH and XLOOKUP patterns, dynamic arrays, LET and LAMBDA, advanced pivot tables, Power Query transformations, Power Pivot and DAX, dashboards, what-if analysis, Solver, statistics, financial functions and recorded macros.",
+      "prerequisites": ["Uses formulas, IF, VLOOKUP or XLOOKUP and SUMIFS", "Builds simple pivot tables and charts", "Comfortable with tables and data validation"],
+      "outcomes": ["Solve complex problems with modern Excel functions", "Build data models with Power Query and Power Pivot", "Create interactive dashboards", "Use what-if analysis, Solver and simple macros"],
+      "days": [
+        {
+          "topic": "Advanced Lookups: INDEX, MATCH and XLOOKUP Patterns",
+          "subtopics": ["INDEX and MATCH", "Two-way lookups", "Lookups with several criteria", "XLOOKUP with search modes", "Returning several columns", "Approximate matches for tiers", "Lookups across sheets", "Choosing the right lookup"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a pricing tool with two-way INDEX/MATCH, a multi-criteria XLOOKUP for region and product, tier pricing with approximate match and return several columns at once.",
+          "deliverable": "Pricing tool workbook",
+          "checks": [["Look up a price by region and product", "Correct price", "Screenshot"], ["Test tier boundaries", "Correct tier at each boundary", "Comparison"], ["Return three columns with one XLOOKUP", "All three filled", "Screenshot"]],
+          "objectives": ["Use INDEX and MATCH", "Look up with several criteria", "Choose lookup methods"]
+        },
+        {
+          "topic": "Dynamic Arrays: FILTER, SORT, UNIQUE and SEQUENCE",
+          "subtopics": ["Spill ranges", "FILTER", "SORT and SORTBY", "UNIQUE", "SEQUENCE", "Referencing spills with #", "Combining dynamic functions", "The #SPILL! error"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a live report that lists unique customers, filters orders by a chosen region and date range, sorts by amount and numbers the rows, all with dynamic arrays.",
+          "deliverable": "Dynamic report sheet",
+          "checks": [["Change the region", "Filtered list updates instantly", "Screenshot"], ["Block the spill range", "#SPILL! appears and is explained", "Screenshot"], ["Reference the spill with # in a chart", "Chart grows with the list", "Screenshot"]],
+          "objectives": ["Use dynamic array functions", "Build live reports", "Fix spill errors"]
+        },
+        {
+          "topic": "LET, LAMBDA and Reusable Formulas",
+          "subtopics": ["LET for readable formulas", "LAMBDA", "Named LAMBDA functions", "Helper functions: MAP, REDUCE, BYROW, BYCOL", "Recursive LAMBDA in brief", "Testing custom functions", "Documenting named functions", "Sharing functions across workbooks"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Rewrite three long formulas with LET, create named LAMBDA functions for tax and working-day calculations and apply BYROW to a table.",
+          "deliverable": "Workbook with named functions and tests",
+          "checks": [["Compare old and new formulas", "Same results", "Comparison"], ["Use the named tax function on ten rows", "Results correct", "Screenshot"], ["Use BYROW for row totals", "Matches SUM per row", "Comparison"]],
+          "objectives": ["Write readable formulas with LET", "Create LAMBDA functions", "Reuse custom functions"]
+        },
+        {
+          "topic": "Advanced Pivot Tables",
+          "subtopics": ["Calculated fields and items", "Show values as: percent of total, running total, rank", "Grouping numbers and text", "Multiple pivot tables from one cache", "Slicers and timelines", "Report filter pages", "GETPIVOTDATA", "Pivot table layouts"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build pivot tables with percent of total, running totals and ranks, a calculated margin field, timelines and slicers connected to three pivots, and create one sheet per region.",
+          "deliverable": "Pivot report workbook",
+          "checks": [["Use a timeline", "All connected pivots update", "Screenshot"], ["Show percent of column total", "Columns add to 100 percent", "Screenshot"], ["Create report filter pages", "One sheet per region", "Screenshot"]],
+          "objectives": ["Build advanced pivot tables", "Connect slicers and timelines", "Use calculated fields"]
+        },
+        {
+          "topic": "Power Query Transformations",
+          "subtopics": ["Merge queries", "Append queries", "Unpivot and pivot", "Group by", "Conditional and custom columns", "Parameters", "Query dependencies", "Error rows"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Query"],
+          "lab_task": "Unpivot a wide budget sheet, merge actuals from a database export, group by department and month, and handle error rows in a separate query.",
+          "deliverable": "Query set and result tables",
+          "checks": [["Unpivot the budget", "One row per department and month", "Screenshot"], ["Merge actuals", "No rows lost", "Row counts"], ["View error rows", "Bad rows listed in the error query", "Screenshot"]],
+          "objectives": ["Reshape data in Power Query", "Merge and append", "Handle errors"]
+        },
+        {
+          "topic": "Power Pivot and the Data Model",
+          "subtopics": ["Why the data model", "Loading tables to the data model", "Relationships", "Star schema in Excel", "Hierarchies", "KPIs in Power Pivot", "Pivot tables from the data model", "Handling large data"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Pivot"],
+          "lab_task": "Load sales, products, customers and dates into the data model, create relationships and hierarchies, and build a pivot from 2 million rows.",
+          "deliverable": "Data model workbook",
+          "checks": [["Build a pivot from related tables", "Fields from all tables work together", "Screenshot"], ["Load 2 million rows", "Loads beyond the sheet row limit", "Screenshot"], ["Use the date hierarchy", "Drill from year to month", "Screenshot"]],
+          "objectives": ["Build data models in Excel", "Relate tables", "Analyse large data"]
+        },
+        {
+          "topic": "DAX Measures in Power Pivot",
+          "subtopics": ["Calculated columns and measures", "SUM, DIVIDE and DISTINCTCOUNT", "CALCULATE", "Time intelligence", "Percent of total", "Year-over-year growth", "CUBE functions", "Measure formatting"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Pivot"],
+          "lab_task": "Write DAX measures for revenue, margin percent, year-to-date and year-over-year growth, and use CUBEVALUE to build a custom formatted report.",
+          "deliverable": "Measures and CUBE report",
+          "checks": [["Compare margin percent with a manual calculation", "Values match", "Comparison"], ["Check year-to-date at June", "Equals January to June", "Comparison"], ["Change a slicer", "CUBE report updates", "Screenshot"]],
+          "objectives": ["Write DAX in Excel", "Use time intelligence", "Build CUBE function reports"]
+        },
+        {
+          "topic": "Interactive Dashboards in Excel",
+          "subtopics": ["Dashboard planning", "KPI cards with formulas", "Charts from pivots and dynamic ranges", "Slicers and timelines", "Form controls", "Layout and design", "Refresh and maintenance", "Testing with users"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a one-page sales dashboard with KPI cards, trend and regional charts, slicers, a drop-down for the metric and a refresh button, and test it with a colleague.",
+          "deliverable": "Dashboard workbook and test notes",
+          "checks": [["Choose a different metric from the drop-down", "Charts and cards change", "Screenshot"], ["Refresh with new data", "Dashboard updates", "Screenshot"], ["Test with a colleague", "Main questions answered in under a minute", "Test notes"]],
+          "objectives": ["Design dashboards", "Add interactivity", "Make dashboards maintainable"]
+        },
+        {
+          "topic": "Advanced Charts",
+          "subtopics": ["Waterfall charts", "Histograms and Pareto charts", "Box and whisker", "Gantt charts with bar charts", "Bullet charts", "Dynamic chart titles", "Charts with target lines", "Templates"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a waterfall of profit changes, a Pareto of defects, a Gantt chart for a project plan and a bullet chart against target with a dynamic title.",
+          "deliverable": "Chart workbook",
+          "checks": [["Check the waterfall", "Starting and ending profit match the data", "Screenshot"], ["Check the Pareto", "Cumulative line reaches 100 percent", "Screenshot"], ["Change the selected month", "Dynamic title updates", "Screenshot"]],
+          "objectives": ["Build advanced charts", "Show targets and variances", "Save chart templates"]
+        },
+        {
+          "topic": "What-If Analysis: Goal Seek, Scenarios and Data Tables",
+          "subtopics": ["Goal Seek", "Scenario Manager", "Scenario summary reports", "One-variable data tables", "Two-variable data tables", "Sensitivity analysis", "Building input and output areas", "Explaining results"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Use Goal Seek to find the break-even price, build best, base and worst scenarios for a product launch and a two-variable data table of profit by price and volume.",
+          "deliverable": "What-if workbook with a summary",
+          "checks": [["Run Goal Seek", "Profit equals zero at the found price", "Screenshot"], ["Create the scenario summary", "Three scenarios compared", "Summary sheet"], ["Build the two-variable table", "Values match spot checks", "Comparison"]],
+          "objectives": ["Run what-if analysis", "Compare scenarios", "Analyse sensitivity"]
+        },
+        {
+          "topic": "Optimisation with Solver",
+          "subtopics": ["Setting up a Solver model", "Objective, variables and constraints", "Integer and binary constraints", "Solving methods", "Product mix problems", "Staff scheduling problems", "Reading Solver reports", "Limits of Solver"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Solver add-in"],
+          "lab_task": "Use Solver to find the product mix that maximises profit within machine hours and materials, and a staff rota that meets demand at lowest cost.",
+          "deliverable": "Solver models and answer reports",
+          "checks": [["Solve the product mix", "Constraints are met and profit is maximal", "Answer report"], ["Solve the staff rota", "Every shift covered", "Rota sheet"], ["Change a constraint", "New solution differs as expected", "Comparison"]],
+          "objectives": ["Model optimisation problems", "Use Solver", "Read Solver reports"]
+        },
+        {
+          "topic": "Statistics for Business in Excel",
+          "subtopics": ["Descriptive statistics", "Median, mode and percentiles", "Standard deviation", "Correlation", "Regression with LINEST and the Analysis ToolPak", "Moving averages", "Forecast functions: FORECAST.LINEAR and FORECAST.ETS", "Interpreting results"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Analysis ToolPak"],
+          "lab_task": "Describe a sales dataset, test the correlation between ad spend and sales, fit a regression and forecast the next six months with FORECAST.ETS.",
+          "deliverable": "Statistics workbook with interpretation notes",
+          "checks": [["Run descriptive statistics", "Mean, median and standard deviation reported", "ToolPak output"], ["Fit the regression", "Coefficients and R-squared reported and explained", "Output and notes"], ["Forecast six months", "Forecast with confidence bounds", "Chart"]],
+          "objectives": ["Describe data with statistics", "Run regression", "Forecast with Excel"]
+        },
+        {
+          "topic": "Financial Functions",
+          "subtopics": ["PMT, IPMT and PPMT", "FV and PV", "NPV and XNPV", "IRR and XIRR", "Loan amortisation schedules", "Depreciation functions", "Discount rates", "Checking financial models"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a loan amortisation schedule, compare two investment options with NPV and IRR on irregular dates and calculate straight-line and declining depreciation.",
+          "deliverable": "Financial workbook",
+          "checks": [["Check the schedule", "Final balance is zero", "Screenshot"], ["Compare XNPV and NPV for irregular dates", "Difference explained", "Notes"], ["Compare IRR results", "Better option identified with reasons", "Notes"]],
+          "objectives": ["Use financial functions", "Evaluate investments", "Build amortisation schedules"]
+        },
+        {
+          "topic": "Recording Macros and Automating Simple Tasks",
+          "subtopics": ["When to automate", "Recording a macro", "Relative and absolute recording", "Running macros from buttons", "Personal macro workbook", "Editing recorded code", "Macro security", "Saving as XLSM"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "VBA editor"],
+          "lab_task": "Record a macro that formats a weekly export, run it from a button on new files, edit it to remove hard-coded ranges and store it in the personal macro workbook.",
+          "deliverable": "Macro workbook and before and after files",
+          "checks": [["Run the macro on a new export with more rows", "All rows formatted", "Screenshot"], ["Open the file with macros disabled", "Security warning shown", "Screenshot"], ["Run from the personal macro workbook", "Works in any open workbook", "Screenshot"]],
+          "objectives": ["Record macros", "Edit recorded code", "Use macros safely"]
+        },
+        {
+          "topic": "Advanced Data Validation and Form Design",
+          "subtopics": ["Validation with custom formulas", "Dynamic drop-downs with FILTER", "Searchable drop-downs", "Input forms on a sheet", "Form controls and ActiveX in brief", "Templates for data collection", "Checking submitted data", "Protecting forms"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a data collection template with custom validation formulas, a dynamic drop-down that filters by category, form controls and protection, then collect and check five submissions.",
+          "deliverable": "Template and collected data",
+          "checks": [["Enter an invalid combination", "Custom rule blocks it", "Screenshot"], ["Choose a category", "Product drop-down shows only that category", "Screenshot"], ["Check five submissions", "Invalid data found or none present", "Check sheet"]],
+          "objectives": ["Design data collection templates", "Use advanced validation", "Protect forms"]
+        },
+        {
+          "topic": "Error Checking and Formula Auditing",
+          "subtopics": ["Trace precedents and dependents", "Evaluate Formula", "Watch window", "Error checking rules", "Circular references", "Inquire add-in", "Spreadsheet comparison", "Documenting a model"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Inquire add-in"],
+          "lab_task": "Audit a provided budget model with ten planted errors using trace arrows, Evaluate Formula, the watch window and Inquire, fix them and document the model.",
+          "deliverable": "Error log, fixed model and documentation",
+          "checks": [["Find the circular reference", "Located and fixed", "Screenshot"], ["Compare old and new versions with Inquire", "Changes listed", "Inquire report"], ["Review the error log", "All ten errors found", "Error log"]],
+          "objectives": ["Audit formulas", "Find and fix errors", "Document models"]
+        },
+        {
+          "topic": "Collaboration, Co-Authoring and Excel Online",
+          "subtopics": ["Excel for the web", "Co-authoring rules", "Comments and @mentions", "Sheet views", "Version history", "Sharing links and permissions", "Excel in Teams", "Limits of Excel for the web"],
+          "tools": ["Microsoft Excel for the web", "Microsoft Teams"],
+          "lab_task": "Co-author a planning workbook in Teams with two colleagues using sheet views and @mentions, restore an overwritten section from version history and set link permissions.",
+          "deliverable": "Shared workbook and version history evidence",
+          "checks": [["Filter in a sheet view", "Colleague's view is unaffected", "Screenshot"], ["Restore an earlier version of the sheet", "Overwritten data recovered", "Screenshot"], ["Open the link as an external user", "Access follows the link settings", "Screenshot"]],
+          "objectives": ["Collaborate in Excel", "Use sheet views", "Manage sharing"]
+        },
+        {
+          "topic": "Excel with Power BI and Other Tools",
+          "subtopics": ["Exporting Excel to Power BI", "Analyse in Excel from Power BI", "Excel as a data source", "Connecting to SQL databases", "Importing from web pages", "Publishing to SharePoint", "When to move from Excel to Power BI", "Data refresh in shared files"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power BI", "SQL Server"],
+          "lab_task": "Connect Excel to a SQL database with Power Query, analyse a Power BI semantic model in a pivot table and decide which of three reports should move to Power BI.",
+          "deliverable": "Connected workbooks and a decision note",
+          "checks": [["Refresh from SQL", "Latest data loaded", "Screenshot"], ["Build a pivot on the Power BI model", "Values match the Power BI report", "Comparison"], ["Review the decision note", "Criteria applied to each report", "Note"]],
+          "objectives": ["Connect Excel to other data tools", "Use Power BI data in Excel", "Decide when to move to Power BI"]
+        },
+        {
+          "topic": "Copilot and Python in Excel for Analysis",
+          "subtopics": ["Copilot for analysis tasks", "Copilot for formulas and conditional formatting", "Python in Excel basics", "pandas DataFrames in cells", "Charts with Python", "Mixing formulas and Python", "Checking results", "Privacy considerations"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Copilot in Excel", "Python in Excel"],
+          "lab_task": "Use Copilot to suggest an analysis of the sales table, then write Python in Excel cells to clean the data and produce a seaborn chart, checking both against formulas.",
+          "deliverable": "Workbook with Copilot and Python results",
+          "checks": [["Compare the Python totals with SUMIFS", "Values match", "Comparison"], ["Check a Copilot insight", "Verified or corrected", "Check sheet"], ["Produce the Python chart", "Chart appears in the sheet", "Screenshot"]],
+          "objectives": ["Analyse with Copilot", "Use Python in Excel", "Verify results"]
+        },
+        {
+          "topic": "Intermediate Capstone: Interactive Business Dashboard and Model",
+          "subtopics": ["Requirements and data sources", "Power Query and the data model", "DAX measures and dynamic formulas", "Dashboard with interactivity", "What-if analysis and documentation", "Presentation"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Query", "Power Pivot"],
+          "lab_task": "Build a refreshable workbook that combines three sources in a data model, uses DAX and dynamic arrays, has an interactive dashboard and a scenario sheet, and is audited and documented, then present it.",
+          "deliverable": "Workbook, audit notes and a 15-minute presentation",
+          "checks": [["Refresh with new data", "Dashboard and measures update", "Screenshot"], ["Compare key totals with the sources", "Totals match", "Comparison"], ["Run the scenarios", "Results summarised in the scenario report", "Summary sheet"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Prove accuracy", "Present insights"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For power users, analysts and finance professionals who automate Excel. Covers VBA programming, user forms, automation across files, Office Scripts and Power Automate, financial modelling standards, forecasting and simulation, advanced LAMBDA, Python in Excel, large data, integration with databases and APIs, and spreadsheet risk management.",
+      "prerequisites": ["Uses dynamic arrays, pivot tables, Power Query and Power Pivot", "Has recorded and run macros", "Builds models used by other people"],
+      "outcomes": ["Write maintainable VBA and Office Scripts automations", "Build robust financial and forecasting models", "Connect Excel to databases, APIs and Power Automate", "Manage spreadsheet risk and build Excel tools for teams"],
+      "days": [
+        {
+          "topic": "VBA Programming: Procedures, Data Types and the Object Model",
+          "subtopics": ["The VBA editor", "Modules and procedures", "Variables and data types", "Option Explicit", "The Excel object model: Workbook, Worksheet, Range", "Reading and writing cells", "Message boxes and input boxes", "Debugging with breakpoints and Immediate window"],
+          "tools": ["VBA editor", "Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Write a VBA procedure that reads every row of an order sheet, calculates totals, writes results to a summary sheet and reports the count in a message box, using Option Explicit.",
+          "deliverable": "XLSM workbook with commented code",
+          "checks": [["Run on 1,000 rows", "Summary matches SUMIFS results", "Comparison"], ["Misspell a variable with Option Explicit", "Compile error shown", "Screenshot"], ["Step through with F8", "Variables visible in the Locals window", "Screenshot"]],
+          "objectives": ["Write VBA procedures", "Use the Excel object model", "Debug VBA"]
+        },
+        {
+          "topic": "VBA Control Flow, Loops and Error Handling",
+          "subtopics": ["If and Select Case", "For, For Each and Do loops", "Working with ranges efficiently", "Arrays in VBA", "On Error handling", "Error logging", "Screen updating and calculation settings", "Speeding up macros"],
+          "tools": ["VBA editor"],
+          "lab_task": "Rewrite a slow cell-by-cell macro to use arrays and turn off screen updating, add error handling that logs bad rows, and compare run times on 100,000 rows.",
+          "deliverable": "Optimised macro and timing comparison",
+          "checks": [["Compare run times", "Array version at least ten times faster", "Timing log"], ["Include a bad row", "Logged and processing continues", "Log sheet"], ["Force an error", "Settings are restored in the error handler", "Screenshot"]],
+          "objectives": ["Control flow in VBA", "Handle errors", "Write fast macros"]
+        },
+        {
+          "topic": "Automating Across Workbooks and Files",
+          "subtopics": ["Opening and closing workbooks", "Looping through files in a folder", "FileSystemObject and Dir", "Copying data between workbooks", "Creating new workbooks", "Saving as PDF and CSV", "Working with file paths safely", "Logging runs"],
+          "tools": ["VBA editor", "Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a macro that opens every regional workbook in a folder, consolidates them into one report, saves a PDF per region and logs which files were processed.",
+          "deliverable": "Consolidation macro, outputs and log",
+          "checks": [["Run with 12 regional files", "Consolidated totals match the sum of the files", "Comparison"], ["Add a corrupt file", "Logged and skipped", "Log sheet"], ["Check the PDFs", "One per region with the right data", "PDF files"]],
+          "objectives": ["Automate file handling", "Consolidate workbooks", "Produce outputs automatically"]
+        },
+        {
+          "topic": "User Forms and Custom Interfaces",
+          "subtopics": ["UserForms", "Text boxes, combo boxes and list boxes", "Validating input", "Writing form data to tables", "Searching and editing records", "Custom ribbon buttons", "Events: Workbook_Open and Worksheet_Change", "Designing for users"],
+          "tools": ["VBA editor", "Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a UserForm for entering and editing customer records with validation, a search box and save to a table, and a ribbon button that opens it.",
+          "deliverable": "Form-based workbook",
+          "checks": [["Save a record with a missing required field", "Form refuses with a message", "Screenshot"], ["Search and edit a record", "Table row is updated", "Screenshot"], ["Click the ribbon button", "Form opens", "Screenshot"]],
+          "objectives": ["Build user forms", "Validate input", "Respond to events"]
+        },
+        {
+          "topic": "Classes, Collections and Maintainable VBA",
+          "subtopics": ["Class modules", "Collections and dictionaries", "Separating logic from sheets", "Naming conventions", "Reusable modules", "Version control for VBA with exported modules", "Code review checklist", "Documentation"],
+          "tools": ["VBA editor", "Git"],
+          "lab_task": "Refactor the consolidation macro into class modules and a dictionary-based lookup, export modules to Git and review the code against a checklist.",
+          "deliverable": "Refactored code, Git history and review notes",
+          "checks": [["Run the refactored macro", "Same output as before", "Comparison"], ["Look up 10,000 keys with a dictionary", "Faster than looping", "Timing log"], ["Review against the checklist", "Issues fixed or listed", "Review notes"]],
+          "objectives": ["Structure VBA code", "Use classes and dictionaries", "Manage VBA in version control"]
+        },
+        {
+          "topic": "Automating Outlook, Word and PowerPoint from Excel",
+          "subtopics": ["Late and early binding", "Sending emails from Excel through Outlook", "Mail merge with attachments", "Creating Word documents from templates", "Updating PowerPoint charts", "Security prompts", "Error handling across applications", "When to use Power Automate instead"],
+          "tools": ["VBA editor", "Outlook", "Word", "PowerPoint"],
+          "lab_task": "Send each regional manager an email with their PDF report attached, create a Word summary from a template and update charts in a PowerPoint deck from Excel.",
+          "deliverable": "Automation workbook and generated files",
+          "checks": [["Run the email macro in test mode", "Drafts created with the right attachments", "Outlook drafts"], ["Generate the Word summary", "Figures filled from Excel", "Word document"], ["Update the PowerPoint deck", "Charts show the new data", "PowerPoint file"]],
+          "objectives": ["Automate other Office apps", "Generate documents", "Choose VBA or Power Automate"]
+        },
+        {
+          "topic": "Office Scripts and Power Automate for Excel",
+          "subtopics": ["Office Scripts in Excel for the web", "TypeScript basics for scripts", "Recording and editing scripts", "Running scripts from Power Automate", "Triggering on new files or emails", "Writing results to SharePoint and Teams", "VBA versus Office Scripts", "Security and sharing"],
+          "tools": ["Office Scripts", "Power Automate", "Excel for the web", "SharePoint"],
+          "lab_task": "Write an Office Script that formats and summarises a report, and a Power Automate flow that runs it whenever a file lands in SharePoint and posts the summary to Teams.",
+          "deliverable": "Script, flow and run history",
+          "checks": [["Drop a file in the SharePoint folder", "Flow runs the script", "Flow run history"], ["Check the Teams post", "Summary values match the file", "Teams screenshot"], ["Run with a malformed file", "Flow handles the error and notifies", "Flow run history"]],
+          "objectives": ["Automate Excel in the cloud", "Use Office Scripts", "Build flows with Power Automate"]
+        },
+        {
+          "topic": "Financial Modelling Standards and Structure",
+          "subtopics": ["Modelling standards such as FAST", "Inputs, calculations and outputs separation", "Timelines and flags", "Consistent formulas across rows", "Checks and balances", "Model documentation", "Version control for models", "Review before sign-off"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Restructure a messy provided model into separate input, calculation and output sheets with a timeline, flags, checks and documentation, keeping the results identical.",
+          "deliverable": "Restructured model and check sheet",
+          "checks": [["Compare outputs", "Same results as the original", "Comparison"], ["Break the balance sheet", "Check sheet flags the error", "Screenshot"], ["Review formula consistency", "One formula per row across periods", "Review notes"]],
+          "objectives": ["Apply modelling standards", "Build checks", "Document models"]
+        },
+        {
+          "topic": "Three-Statement Financial Models",
+          "subtopics": ["Revenue and cost drivers", "Income statement", "Balance sheet", "Cash flow statement", "Working capital", "Debt schedule", "Linking the statements", "Balancing checks"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a five-year three-statement model with drivers, working capital and a debt schedule that balances in every period.",
+          "deliverable": "Three-statement model",
+          "checks": [["Check the balance sheet every year", "Balances in all periods", "Check row"], ["Change the growth driver", "All statements update consistently", "Screenshot"], ["Reconcile cash", "Cash flow closing equals balance sheet cash", "Check row"]],
+          "objectives": ["Build three-statement models", "Link statements", "Balance models"]
+        },
+        {
+          "topic": "Valuation Models: DCF and Scenario Analysis",
+          "subtopics": ["Free cash flow", "Discount rate and WACC", "Terminal value methods", "Discounted cash flow valuation", "Sensitivity tables", "Scenario switches", "Football field charts", "Presenting valuations"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Build a DCF valuation from the three-statement model with WACC, two terminal value methods, a sensitivity table and scenario switches, and present a valuation range.",
+          "deliverable": "Valuation model and summary",
+          "checks": [["Compare terminal value methods", "Both calculated with the difference explained", "Notes"], ["Switch to the downside scenario", "Valuation updates", "Screenshot"], ["Build the sensitivity table", "Values match spot checks", "Comparison"]],
+          "objectives": ["Value a business in Excel", "Run sensitivity analysis", "Present valuation ranges"]
+        },
+        {
+          "topic": "Forecasting Methods in Excel",
+          "subtopics": ["Time series components", "Moving averages and exponential smoothing", "Seasonality", "FORECAST.ETS and Forecast Sheet", "Regression-based forecasts", "Forecast accuracy measures", "Comparing methods", "Communicating uncertainty"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Forecast monthly demand with moving averages, ETS and regression, compare them on a holdout period with MAPE and present the best forecast with a range.",
+          "deliverable": "Forecast workbook and comparison",
+          "checks": [["Compute MAPE for each method", "All three compared on the holdout", "Comparison table"], ["Show seasonality", "Seasonal pattern detected", "Chart"], ["Present the forecast range", "Upper and lower bounds shown", "Chart"]],
+          "objectives": ["Forecast with Excel", "Measure forecast accuracy", "Communicate uncertainty"]
+        },
+        {
+          "topic": "Monte Carlo Simulation and Risk Analysis",
+          "subtopics": ["Why simulate", "Random variables with RAND and distributions", "Simulation with data tables", "Simulation with dynamic arrays", "Summarising results", "Probability of loss", "Tornado charts", "Limits of simulation in Excel"],
+          "tools": ["Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Simulate 10,000 outcomes of a project's profit with uncertain price, volume and cost, report the distribution and probability of loss and rank drivers with a tornado chart.",
+          "deliverable": "Simulation workbook and risk summary",
+          "checks": [["Run 10,000 iterations", "Histogram and percentiles reported", "Chart and table"], ["Report probability of loss", "Calculated from the results", "Summary"], ["Build the tornado chart", "Drivers ranked by impact", "Chart"]],
+          "objectives": ["Simulate uncertainty", "Quantify risk", "Rank risk drivers"]
+        },
+        {
+          "topic": "Advanced LAMBDA and Formula Engineering",
+          "subtopics": ["Building function libraries", "Recursive LAMBDA", "Array manipulation: TAKE, DROP, CHOOSECOLS, VSTACK, HSTACK", "Text parsing with TEXTSPLIT and REGEX functions", "Error-proof formulas", "Performance of large formulas", "Testing custom functions", "Sharing libraries with the Advanced Formula Environment"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Advanced Formula Environment"],
+          "lab_task": "Build a library of five named LAMBDA functions for parsing, cleaning and reporting, test them on edge cases and share the library through the Advanced Formula Environment.",
+          "deliverable": "Function library and test sheet",
+          "checks": [["Run the tests", "All edge cases pass", "Test sheet"], ["Parse a messy address column with TEXTSPLIT", "Parts split correctly", "Screenshot"], ["Import the library into a new workbook", "Functions work", "Screenshot"]],
+          "objectives": ["Engineer formula libraries", "Use array manipulation functions", "Test and share functions"]
+        },
+        {
+          "topic": "Python in Excel for Advanced Analysis",
+          "subtopics": ["Python cells and the xl() function", "pandas for cleaning and grouping", "Statistics and regression with Python", "Charts with matplotlib and seaborn", "Machine learning in brief with scikit-learn", "Performance and limits", "Security model", "When to use Python or formulas"],
+          "tools": ["Python in Excel", "Microsoft Excel (Microsoft 365)"],
+          "lab_task": "Use Python in Excel to segment customers by purchase behaviour, fit a regression for spend and chart the segments, and compare with an Excel-only approach.",
+          "deliverable": "Workbook with Python analysis",
+          "checks": [["Compare group totals with a pivot table", "Values match", "Comparison"], ["Fit the regression", "Coefficients reported and explained", "Output"], ["Chart the segments", "Chart appears in the sheet", "Screenshot"]],
+          "objectives": ["Analyse with Python in Excel", "Combine Python and formulas", "Choose the right approach"]
+        },
+        {
+          "topic": "Working with Large Data and Performance",
+          "subtopics": ["Excel limits", "Calculation modes", "Volatile functions", "Efficient lookups on large data", "Data model instead of sheets", "File size reduction", "Binary format XLSB", "Measuring calculation time"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Pivot"],
+          "lab_task": "Speed up a slow 80 MB workbook by replacing volatile functions, moving data to the data model and switching formats, and show the calculation time and size drop.",
+          "deliverable": "Optimised workbook and measurements",
+          "checks": [["Measure calculation time", "At least 70 percent faster", "Timing log"], ["Compare file size", "Much smaller", "File properties"], ["Find volatile functions", "All listed and replaced", "Notes"]],
+          "objectives": ["Handle large data in Excel", "Remove slow formulas", "Reduce file size"]
+        },
+        {
+          "topic": "Connecting Excel to Databases and APIs",
+          "subtopics": ["ODBC and native connectors", "Parameterised SQL queries from Power Query", "Calling REST APIs with Power Query", "Authentication with keys and OAuth", "Paging through API results", "Refresh and credentials", "Writing data back with VBA or Power Automate", "Security of connection details"],
+          "tools": ["Power Query", "SQL Server", "Power Automate"],
+          "lab_task": "Pull data from SQL with a parameterised query and from a paged REST API in Power Query, refresh both from one button and write approved changes back through Power Automate.",
+          "deliverable": "Connected workbook and write-back flow",
+          "checks": [["Change the query parameter and refresh", "Only matching rows load", "Screenshot"], ["Load all API pages", "Row count matches the API total", "Screenshot"], ["Approve a change", "Flow writes it to the database", "Database row"]],
+          "objectives": ["Connect Excel to data systems", "Use APIs in Power Query", "Write back safely"]
+        },
+        {
+          "topic": "Spreadsheet Risk, Controls and Governance",
+          "subtopics": ["Spreadsheet errors and their costs", "End-user computing policies", "Risk rating of spreadsheets", "Controls: checks, reviews, locking and versioning", "Change logs", "Independent model review", "Moving critical spreadsheets to systems", "Audit evidence"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Inquire add-in", "SharePoint"],
+          "lab_task": "Risk-rate five provided business spreadsheets, add controls to the riskiest one, run an independent review with Inquire and write a recommendation on which should move to a system.",
+          "deliverable": "Risk ratings, control set-up, review report and recommendation",
+          "checks": [["Rate the five spreadsheets", "Ratings justified with criteria", "Risk register"], ["Review the riskiest model", "Errors and risks found", "Review report"], ["Review the recommendation", "Based on risk and usage", "Recommendation"]],
+          "objectives": ["Manage spreadsheet risk", "Apply controls", "Decide when to replace spreadsheets"]
+        },
+        {
+          "topic": "Building Excel Tools and Add-ins for Teams",
+          "subtopics": ["Templates for teams", "Add-ins from XLAM files", "Office Add-ins in brief", "Distributing tools through SharePoint", "Versioning and updates", "Support and documentation", "Training users", "Measuring adoption"],
+          "tools": ["VBA editor", "Microsoft Excel (Microsoft 365)", "SharePoint"],
+          "lab_task": "Package the team's macros as an XLAM add-in with a custom ribbon, distribute it through SharePoint, release an update and write a one-page user guide.",
+          "deliverable": "Add-in, update release and user guide",
+          "checks": [["Install the add-in", "Ribbon tab appears", "Screenshot"], ["Release version 2", "Users get the update from SharePoint", "Screenshot"], ["Follow the user guide", "A new user completes the main task", "Test notes"]],
+          "objectives": ["Build tools for teams", "Distribute add-ins", "Support users"]
+        },
+        {
+          "topic": "Troubleshooting Broken Workbooks and Macros",
+          "subtopics": ["Corrupt files and recovery", "Broken links", "Macros failing after changes", "Reference errors in VBA", "Calculation problems", "Slow workbooks", "Root cause analysis", "Runbooks for teams"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "VBA editor", "Inquire add-in"],
+          "lab_task": "Fix four injected problems (a corrupt file, broken links, a failing macro after a sheet rename and wrong results from manual calculation), and write runbooks.",
+          "deliverable": "Incident notes, fixed files and runbooks",
+          "checks": [["Recover the corrupt file", "Data recovered", "Screenshot"], ["Fix the macro after the rename", "Macro runs", "Screenshot"], ["Write a runbook for broken links", "Another user can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot workbooks", "Fix macros", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Automated Financial Planning Model",
+          "subtopics": ["Model design and standards", "Data connections and refresh", "Three-statement model with scenarios", "Forecasting and simulation", "VBA or Office Scripts automation", "Controls, review and presentation"],
+          "tools": ["Microsoft Excel (Microsoft 365)", "Power Query", "VBA editor", "Office Scripts", "Power Automate"],
+          "lab_task": "Build a planning model that refreshes actuals from a database, forecasts demand, links three statements with scenarios and simulation, distributes regional reports automatically and passes an independent review, then present it.",
+          "deliverable": "Model, automation, review report and a 20-minute presentation",
+          "checks": [["Refresh actuals", "Model updates and balances in every period", "Check sheet"], ["Run the distribution", "Each region receives its report", "Run log"], ["Run the independent review", "No high-risk findings open", "Review report"]],
+          "objectives": ["Combine the advanced topics in one model", "Prove accuracy and controls", "Present to decision makers"]
+        }
+      ]
+    }
+  }
+}
