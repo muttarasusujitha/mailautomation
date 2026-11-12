@@ -1,0 +1,573 @@
+{
+  "domain": "C#",
+  "name": "C# and .NET",
+  "category": "Programming Languages",
+  "icon": "hash",
+  "aliases": [".NET", "C# .NET", ".NET Core", "dotnet", "C# Programming", ".NET Developer", "ASP.NET", "ASP.NET Core", ".NET Full Stack Developer", "C# and .NET"],
+  "certifications": ["Microsoft Certified: Azure Developer Associate (AZ-204)", "Microsoft Foundational C# with freeCodeCamp", "Microsoft Certified: DevOps Engineer Expert (AZ-400) as a next step"],
+  "tools": [".NET 8 SDK", "C# 12", "Visual Studio 2022 or VS Code", "Entity Framework Core", "SQL Server", "xUnit"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new developers and those moving to C# from other languages. Covers the .NET platform, C# syntax, types, control flow, methods, object-oriented programming, collections and LINQ, exceptions, files, async basics, unit testing and a first ASP.NET Core API with Entity Framework Core.",
+      "prerequisites": ["Comfortable with computers and installing software", "Basic logical thinking; earlier programming helps", "Windows, macOS or Linux machine"],
+      "outcomes": ["Write C# programs with classes, interfaces and collections", "Query data with LINQ and handle errors", "Write unit tests with xUnit", "Build a simple ASP.NET Core Web API backed by a database"],
+      "days": [
+        {
+          "topic": ".NET Platform Overview and Setup",
+          "subtopics": ["What .NET is: runtime, SDK and libraries", ".NET versus .NET Framework", "C#, F# and Visual Basic", "Installing the .NET 8 SDK", "Visual Studio and VS Code with C# Dev Kit", "dotnet new, build and run", "Project and solution files", "NuGet packages", "Console applications", "Course project overview"],
+          "tools": [".NET 8 SDK", "Visual Studio 2022 or VS Code"],
+          "lab_task": "Install the SDK, create a solution with a console app and a class library, reference one from the other, add a NuGet package and print a formatted receipt.",
+          "deliverable": "Solution and run output",
+          "checks": [["Run dotnet --info", "SDK 8 listed", "Terminal output"], ["Run the console app", "Receipt printed", "Terminal output"], ["Add a NuGet package", "Package referenced in the csproj and used", "Project file"]],
+          "objectives": ["Explain the .NET platform", "Create solutions and projects", "Use NuGet"]
+        },
+        {
+          "topic": "C# Syntax, Variables and Types",
+          "subtopics": ["Statements and blocks", "Value types and reference types", "int, decimal, double, bool, char, string", "var and type inference", "Constants", "Nullable types", "Type conversion and parsing", "String interpolation", "Operators", "Reading compiler errors"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Write a loan calculator that reads amounts from the console, parses them safely, uses decimal for money and prints a formatted schedule.",
+          "deliverable": "Calculator source and output",
+          "checks": [["Enter \"abc\" for the amount", "Program asks again without crashing", "Terminal output"], ["Compare decimal and double for 0.1 + 0.2", "decimal is exact, double is not", "Terminal output"], ["Print the schedule", "Amounts formatted as currency", "Terminal output"]],
+          "objectives": ["Use C# types", "Parse input safely", "Format output"]
+        },
+        {
+          "topic": "Control Flow and Pattern Matching",
+          "subtopics": ["if and else", "switch statements", "switch expressions", "Pattern matching: type, property and relational patterns", "for, foreach, while and do loops", "break and continue", "Ternary operator", "Guard clauses"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Write a shipping calculator that uses switch expressions with relational and property patterns for weight and destination, and loops over a list of parcels.",
+          "deliverable": "Calculator source and test table",
+          "checks": [["Run ten test parcels", "Costs match the rule table", "Terminal output"], ["Pass an unknown destination", "Clear error", "Terminal output"], ["Review the switch", "Uses patterns instead of nested ifs", "Code review"]],
+          "objectives": ["Write control flow", "Use pattern matching", "Keep logic readable"]
+        },
+        {
+          "topic": "Methods, Parameters and Records",
+          "subtopics": ["Defining methods", "Parameters: optional, named and params", "ref, out and in", "Return values and tuples", "Local functions", "Expression-bodied members", "Records", "Immutability with init"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Refactor the calculator into small methods returning tuples, model a parcel as a record and show value equality and with expressions.",
+          "deliverable": "Refactored source",
+          "checks": [["Compare two equal records", "Equality returns true", "Terminal output"], ["Use a with expression", "New record with one changed property", "Terminal output"], ["Call with named arguments", "Works in any order", "Terminal output"]],
+          "objectives": ["Write methods", "Use records", "Work with immutable data"]
+        },
+        {
+          "topic": "Classes and Object-Oriented Programming",
+          "subtopics": ["Classes and objects", "Fields, properties and constructors", "Access modifiers", "Static members", "Encapsulation", "Primary constructors in C# 12", "Object initialisers", "Overriding ToString and Equals"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Model a library with Book and Member classes, properties with validation and constructors, and a static counter, then print a report.",
+          "deliverable": "Class library and console report",
+          "checks": [["Create a book with an empty title", "Constructor throws ArgumentException", "Terminal output"], ["Set a private field from outside", "Compile error", "Compiler output"], ["Print a book", "ToString shows the main details", "Terminal output"]],
+          "objectives": ["Write classes", "Encapsulate data", "Validate in constructors"]
+        },
+        {
+          "topic": "Inheritance, Interfaces and Polymorphism",
+          "subtopics": ["Inheritance and base classes", "virtual, override and sealed", "Abstract classes", "Interfaces", "Default interface methods", "Polymorphism", "Composition over inheritance", "SOLID in brief"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Build a payroll system with an abstract Employee, salaried and hourly subclasses, an IPayable interface also implemented by invoices, and process all items in one loop.",
+          "deliverable": "Payroll source and output",
+          "checks": [["Run payroll", "Each pay amount follows its rule", "Terminal output"], ["Add a contractor type", "No change to the processing loop", "Code diff"], ["Explain abstract class versus interface", "Correct explanation", "Written answer"]],
+          "objectives": ["Use inheritance and interfaces", "Apply polymorphism", "Design for change"]
+        },
+        {
+          "topic": "Collections and Generics",
+          "subtopics": ["Arrays", "List<T>", "Dictionary<TKey, TValue>", "HashSet<T>", "Queue<T> and Stack<T>", "Generic methods and classes", "Constraints", "Choosing a collection"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Count word frequency in a text file with a Dictionary, find unique words with a HashSet and write a generic Repository<T> with add, find and list.",
+          "deliverable": "Source and output",
+          "checks": [["Count words in the sample", "Top ten match the answer file", "Terminal output"], ["Add a Member to a Repository<Book>", "Compile error", "Compiler output"], ["Look up a missing key with TryGetValue", "Handled without an exception", "Terminal output"]],
+          "objectives": ["Use collections", "Write generic code", "Choose collections by need"]
+        },
+        {
+          "topic": "LINQ: Querying Data in C#",
+          "subtopics": ["LINQ query and method syntax", "Where, Select and OrderBy", "GroupBy", "Join", "Aggregates: Sum, Count, Average", "First, Single and Any", "Deferred execution", "LINQ over objects versus databases"],
+          "tools": [".NET 8 SDK", "C# 12", "LINQPad"],
+          "lab_task": "Load sales data into objects and use LINQ to find revenue by region, top products, monthly totals and customers with no orders.",
+          "deliverable": "LINQ queries and results",
+          "checks": [["Group revenue by region", "Totals match the answer sheet", "Terminal output"], ["Find customers with no orders", "Correct list", "Terminal output"], ["Show deferred execution", "Explained with output", "Notes and output"]],
+          "objectives": ["Query data with LINQ", "Group and join data", "Understand deferred execution"]
+        },
+        {
+          "topic": "Exceptions and Error Handling",
+          "subtopics": ["try, catch and finally", "Exception types", "Throwing exceptions", "Custom exceptions", "using statements and IDisposable", "Exception filters", "Logging errors", "When not to use exceptions"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Add a bank account class that throws a custom InsufficientFundsException, a transfer method that never loses money and file reading that disposes resources.",
+          "deliverable": "Source and output for success and failure cases",
+          "checks": [["Transfer more than the balance", "Custom exception and balances unchanged", "Terminal output"], ["Read a missing file", "Clear message and file handle released", "Terminal output"], ["Filter an exception", "Exception filter catches only the intended case", "Terminal output"]],
+          "objectives": ["Handle errors", "Write custom exceptions", "Dispose resources"]
+        },
+        {
+          "topic": "Files, JSON and Configuration",
+          "subtopics": ["File and Directory classes", "Streams", "Reading and writing text files", "System.Text.Json", "Serialising and deserialising objects", "Paths across operating systems", "appsettings.json and configuration", "Environment variables"],
+          "tools": [".NET 8 SDK", "System.Text.Json"],
+          "lab_task": "Read orders from JSON, validate them, write a CSV report and read settings from appsettings.json with an environment variable override.",
+          "deliverable": "Program, report and configuration",
+          "checks": [["Deserialise the orders file", "All orders loaded", "Terminal output"], ["Override a setting with an environment variable", "New value used", "Terminal output"], ["Write the CSV report", "File opens correctly in Excel", "CSV file"]],
+          "objectives": ["Work with files", "Serialise JSON", "Read configuration"]
+        },
+        {
+          "topic": "Asynchronous Programming with async and await",
+          "subtopics": ["Why async", "Tasks", "async and await", "Calling HTTP APIs with HttpClient", "Running tasks in parallel with Task.WhenAll", "Cancellation tokens", "Exceptions in async code", "Common async mistakes"],
+          "tools": [".NET 8 SDK", "HttpClient"],
+          "lab_task": "Call a weather API for five cities in parallel with HttpClient, cancel after a timeout and handle a failed city without losing the others.",
+          "deliverable": "Async program and output",
+          "checks": [["Run in parallel", "Faster than one at a time", "Timing output"], ["Set a two-second timeout", "Slow call cancelled", "Terminal output"], ["Fail one city", "Other results still printed", "Terminal output"]],
+          "objectives": ["Write async code", "Call APIs", "Cancel and handle async errors"]
+        },
+        {
+          "topic": "Unit Testing with xUnit",
+          "subtopics": ["Why unit tests", "xUnit test projects", "Facts and theories", "Assertions", "Arrange, act, assert", "Testing exceptions", "Mocking with Moq or NSubstitute", "Running tests and coverage"],
+          "tools": ["xUnit", "Moq or NSubstitute", "coverlet"],
+          "lab_task": "Write unit tests for the bank account and payroll code with theories, exception tests and a mocked repository, and measure coverage.",
+          "deliverable": "Test project and coverage report",
+          "checks": [["Run dotnet test", "All pass", "Test output"], ["Break a rule", "A named test fails", "Test output"], ["Measure coverage", "At least 80 percent of the domain code", "Coverage report"]],
+          "objectives": ["Write unit tests", "Use theories and mocks", "Measure coverage"]
+        },
+        {
+          "topic": "Debugging and Code Quality",
+          "subtopics": ["Visual Studio and VS Code debugger", "Breakpoints, watch and immediate windows", "Conditional breakpoints", "Reading stack traces", "Analysers and warnings", "Nullable reference types", "Code style with .editorconfig", "Refactoring tools"],
+          "tools": ["Visual Studio 2022 or VS Code", ".NET analysers"],
+          "lab_task": "Find five planted bugs with the debugger, turn on nullable reference types and fix the warnings, and apply a shared code style.",
+          "deliverable": "Fixed code, warning report and .editorconfig",
+          "checks": [["Use a conditional breakpoint", "Stops only on the failing record", "Screenshot"], ["Enable nullable reference types", "Warnings fixed", "Build output"], ["Run format check", "No style violations", "dotnet format output"]],
+          "objectives": ["Debug C# code", "Use nullable reference types", "Keep code clean"]
+        },
+        {
+          "topic": "Your First ASP.NET Core Web API",
+          "subtopics": ["What ASP.NET Core is", "Minimal APIs and controllers", "Routing", "Request and response models", "Status codes", "Dependency injection basics", "Swagger with OpenAPI", "Running and testing with HTTP files"],
+          "tools": ["ASP.NET Core 8", "Swagger", "Postman"],
+          "lab_task": "Build a products Web API with list, get, create, update and delete endpoints, correct status codes and Swagger documentation.",
+          "deliverable": "Web API and Swagger page",
+          "checks": [["Create a product with a missing name", "400 with validation details", "API response"], ["Get a missing product", "404", "API response"], ["Open Swagger", "All endpoints documented", "Screenshot"]],
+          "objectives": ["Build a Web API", "Use routing and status codes", "Document APIs"]
+        },
+        {
+          "topic": "Entity Framework Core and SQL Server",
+          "subtopics": ["What an ORM does", "DbContext and entities", "Migrations", "Querying with LINQ", "Relationships", "Tracking and no-tracking queries", "Seeding data", "SQL Server and SQLite options"],
+          "tools": ["Entity Framework Core", "SQL Server or SQLite", "SQL Server Management Studio"],
+          "lab_task": "Store products and categories with EF Core, create migrations, query with LINQ including related data and inspect the generated SQL.",
+          "deliverable": "DbContext, migrations and SQL log",
+          "checks": [["Run migrations", "Tables created", "Database screenshot"], ["Query products with categories", "Related data loaded in one query", "SQL log"], ["Add a column with a migration", "Existing data kept", "Database query"]],
+          "objectives": ["Use EF Core", "Manage migrations", "Query related data"]
+        },
+        {
+          "topic": "Validation, Errors and Logging in APIs",
+          "subtopics": ["Data annotations", "FluentValidation", "Problem details for errors", "Global exception handling", "Logging with ILogger", "Structured logging with Serilog", "Log levels", "Not logging sensitive data"],
+          "tools": ["ASP.NET Core 8", "FluentValidation", "Serilog"],
+          "lab_task": "Add FluentValidation, a global exception handler returning problem details and Serilog structured logging with request IDs to the API.",
+          "deliverable": "Updated API and log samples",
+          "checks": [["Send invalid data", "Problem details with field errors", "API response"], ["Throw an exception", "500 with problem details and no stack trace in the response", "API response"], ["Check logs", "Each request logged with an ID", "Log file"]],
+          "objectives": ["Validate API input", "Handle errors consistently", "Log in a structured way"]
+        },
+        {
+          "topic": "Authentication with ASP.NET Core Identity and JWT",
+          "subtopics": ["Authentication and authorisation", "ASP.NET Core Identity", "Password hashing", "JWT bearer tokens", "[Authorize] and roles", "Policies", "Securing Swagger", "Testing secured endpoints"],
+          "tools": ["ASP.NET Core Identity", "JWT", "ASP.NET Core 8"],
+          "lab_task": "Add registration and login with Identity, issue JWTs, protect create and delete endpoints by role and test access for anonymous, user and admin.",
+          "deliverable": "Auth code and test results",
+          "checks": [["Delete as a normal user", "403 Forbidden", "API response"], ["Call without a token", "401 Unauthorized", "API response"], ["Inspect the users table", "Passwords stored hashed", "Database screenshot"]],
+          "objectives": ["Add authentication", "Authorise by role and policy", "Test secured APIs"]
+        },
+        {
+          "topic": "Building a Simple Web UI with Razor Pages or Blazor",
+          "subtopics": ["Razor Pages and Blazor options", "Razor syntax", "Forms and model binding", "Calling the API", "Components in Blazor", "Validation in the UI", "Layouts", "Choosing a UI approach"],
+          "tools": ["Blazor or Razor Pages", "ASP.NET Core 8"],
+          "lab_task": "Build a Blazor or Razor Pages front end that lists products from the API, shows details and has a validated create form for admins.",
+          "deliverable": "Web UI",
+          "checks": [["Load the product list", "Data from the API", "Screenshot"], ["Submit the form with errors", "Validation messages shown", "Screenshot"], ["Open the admin form as a normal user", "Access denied", "Screenshot"]],
+          "objectives": ["Build a .NET web UI", "Bind forms", "Call your API"]
+        },
+        {
+          "topic": "Packaging, Running and Deploying .NET Apps",
+          "subtopics": ["Build configurations", "dotnet publish", "Self-contained and framework-dependent apps", "Docker images for .NET", "Configuration per environment", "Health checks", "Deploying to Azure App Service", "Viewing logs in production"],
+          "tools": ["Docker", "Azure App Service", ".NET 8 SDK"],
+          "lab_task": "Publish the API as a Docker image with health checks, deploy it to Azure App Service with production settings and view the logs.",
+          "deliverable": "Dockerfile, live URL and log screenshot",
+          "checks": [["Run the container", "API answers on the mapped port", "curl output"], ["Call /health", "Healthy response", "curl output"], ["View App Service logs", "Request logs visible", "Screenshot"]],
+          "objectives": ["Publish .NET apps", "Containerise .NET", "Deploy to Azure"]
+        },
+        {
+          "topic": "Beginner Capstone: Library Management Web API",
+          "subtopics": ["Requirements and model", "Domain classes and LINQ rules", "EF Core persistence", "Validated, secured Web API", "Tests and logging", "Deployment and demo"],
+          "tools": [".NET 8 SDK", "ASP.NET Core 8", "EF Core", "SQL Server or SQLite", "xUnit", "Azure App Service"],
+          "lab_task": "Build a library API for books, members and loans with borrowing rules, fines, EF Core storage, validation, JWT security, unit tests and logging, deploy it and demo it.",
+          "deliverable": "Repository, test report, live URL and a 10-minute demo",
+          "checks": [["Borrow a book that is already on loan", "Rejected with a clear problem details error", "API response"], ["Return a book late", "Correct fine calculated", "API response and test"], ["Run the tests", "All pass", "Test output"]],
+          "objectives": ["Combine the beginner topics in one API", "Apply rules with tests", "Demo a deployed .NET app"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For C# developers who have built simple apps. Covers modern C# features, clean architecture, advanced ASP.NET Core, EF Core in depth, caching, background services, messaging, gRPC and SignalR, testing at every level, performance, security, Azure services and CI/CD.",
+      "prerequisites": ["Writes C# with classes, interfaces, LINQ and async", "Has built an ASP.NET Core API with EF Core", "Uses Git and unit tests"],
+      "outcomes": ["Structure .NET solutions with clean architecture", "Build robust APIs with EF Core, caching, messaging and real-time features", "Test, profile and secure .NET applications", "Deploy to Azure with CI/CD"],
+      "days": [
+        {
+          "topic": "Modern C# Features from C# 9 to 12",
+          "subtopics": ["Records and record structs", "Init-only and required members", "Pattern matching improvements", "Global usings and file-scoped namespaces", "Raw string literals", "Collection expressions", "Primary constructors", "Nullable reference types in depth"],
+          "tools": [".NET 8 SDK", "C# 12"],
+          "lab_task": "Modernise a provided C# 7 codebase with records, required members, pattern matching, collection expressions and primary constructors, keeping all tests passing.",
+          "deliverable": "Modernised code and test results",
+          "checks": [["Run the existing tests", "All pass after the changes", "Test output"], ["Create an object without a required member", "Compile error", "Compiler output"], ["Compare line counts", "Code is shorter", "Line count"]],
+          "objectives": ["Use modern C#", "Write concise, safe code", "Modernise old code safely"]
+        },
+        {
+          "topic": "Clean Architecture and Solution Structure",
+          "subtopics": ["Layers: domain, application, infrastructure, API", "Dependency rule", "CQRS with MediatR", "Domain entities and value objects", "Repository and unit of work debate", "Vertical slice architecture", "Architecture tests with NetArchTest", "Choosing a structure"],
+          "tools": ["MediatR", "NetArchTest", ".NET 8 SDK"],
+          "lab_task": "Restructure the library API into clean architecture with MediatR commands and queries, value objects for money and email, and architecture tests that enforce layers.",
+          "deliverable": "Restructured solution and architecture tests",
+          "checks": [["Reference infrastructure from the domain", "Architecture test fails", "Test output"], ["Create a member with an invalid email", "Value object rejects it", "Test output"], ["Run all tests", "Pass", "Test output"]],
+          "objectives": ["Structure .NET solutions", "Apply CQRS", "Enforce architecture rules"]
+        },
+        {
+          "topic": "Dependency Injection and the Options Pattern",
+          "subtopics": ["Service lifetimes: singleton, scoped, transient", "Registering services", "Keyed services", "Options pattern and validation", "Configuration providers", "Secrets in development with user secrets", "Avoiding captive dependencies", "Testing with DI"],
+          "tools": ["Microsoft.Extensions.DependencyInjection", "Options", "User Secrets"],
+          "lab_task": "Register services with correct lifetimes, bind and validate typed options at start-up, use keyed services for two payment providers and fix a captive dependency bug.",
+          "deliverable": "DI configuration and test results",
+          "checks": [["Start with an invalid option", "App fails at start with a clear message", "Terminal output"], ["Resolve the keyed providers", "Correct provider for each key", "Test output"], ["Fix the captive dependency", "Scoped service no longer held by a singleton", "Code diff"]],
+          "objectives": ["Use DI correctly", "Configure with options", "Avoid lifetime bugs"]
+        },
+        {
+          "topic": "Advanced ASP.NET Core: Middleware, Filters and Versioning",
+          "subtopics": ["The middleware pipeline", "Custom middleware", "Filters", "API versioning", "Content negotiation", "Rate limiting middleware", "Output caching", "Health checks in depth"],
+          "tools": ["ASP.NET Core 8", "Asp.Versioning"],
+          "lab_task": "Add custom request timing middleware, API versioning with v1 and v2, rate limiting per client, output caching and health checks for the database.",
+          "deliverable": "Updated API and test results",
+          "checks": [["Call v1 and v2", "Each returns its own format", "API responses"], ["Exceed the rate limit", "429 returned", "API response"], ["Stop the database", "Health check reports unhealthy", "Health response"]],
+          "objectives": ["Customise the request pipeline", "Version APIs", "Protect APIs with rate limits"]
+        },
+        {
+          "topic": "Entity Framework Core in Depth",
+          "subtopics": ["Configuring models with Fluent API", "Owned types and value conversions", "Loading strategies", "The N+1 problem", "Compiled queries", "Concurrency tokens", "Transactions", "Raw SQL and Dapper"],
+          "tools": ["EF Core", "Dapper", "SQL Server"],
+          "lab_task": "Configure the model with Fluent API and owned types, fix an N+1 query, add optimistic concurrency and compare a heavy report query in EF Core and Dapper.",
+          "deliverable": "Model configuration, SQL logs and comparison",
+          "checks": [["Load orders with lines before and after the fix", "Query count drops to one", "SQL log"], ["Update the same row from two contexts", "Second save throws a concurrency exception", "Test output"], ["Compare EF Core and Dapper", "Timings recorded", "Benchmark output"]],
+          "objectives": ["Use EF Core in depth", "Fix query problems", "Handle concurrency"]
+        },
+        {
+          "topic": "Caching in .NET Applications",
+          "subtopics": ["In-memory caching", "Distributed caching with Redis", "HybridCache", "Cache invalidation", "Output caching versus data caching", "Cache stampedes", "Measuring cache benefits", "What not to cache"],
+          "tools": ["Redis", "Microsoft.Extensions.Caching", "ASP.NET Core 8"],
+          "lab_task": "Cache product lists in Redis with invalidation on updates, protect against a cache stampede and load-test before and after.",
+          "deliverable": "Caching code and load test results",
+          "checks": [["Load-test the product list", "Throughput improved", "Load test output"], ["Update a product", "Cached data refreshed", "API response"], ["Expire the cache under load", "Only one database query fills it", "Database log"]],
+          "objectives": ["Cache data in .NET", "Invalidate correctly", "Prevent stampedes"]
+        },
+        {
+          "topic": "Background Services and Scheduled Jobs",
+          "subtopics": ["IHostedService and BackgroundService", "Worker services", "Hangfire or Quartz.NET", "Scheduled jobs", "Retries", "Graceful shutdown", "Scoped services in background work", "Monitoring jobs"],
+          "tools": ["Worker Service", "Hangfire or Quartz.NET"],
+          "lab_task": "Add a background service that sends overdue loan reminders nightly with Hangfire, retries failures and stops cleanly on shutdown.",
+          "deliverable": "Job code and dashboard screenshots",
+          "checks": [["Run the nightly job", "Reminders sent to overdue members", "Job log"], ["Make the email service fail once", "Job retried and succeeds", "Hangfire dashboard"], ["Stop the app during a job", "Job finishes or is resumed cleanly", "Logs"]],
+          "objectives": ["Run background work", "Schedule jobs", "Shut down gracefully"]
+        },
+        {
+          "topic": "Messaging with RabbitMQ, Azure Service Bus and MassTransit",
+          "subtopics": ["Why messaging", "Queues and topics", "MassTransit", "Publishing and consuming messages", "Retries and dead-letter queues", "Idempotent consumers", "Outbox pattern", "Testing message flows"],
+          "tools": ["MassTransit", "RabbitMQ", "Azure Service Bus"],
+          "lab_task": "Publish a loan-created event with MassTransit and the outbox pattern, consume it in a notification service idempotently and route failures to a dead-letter queue.",
+          "deliverable": "Producer, consumer and tests",
+          "checks": [["Deliver the same message twice", "Processed once", "Database rows"], ["Send a bad message", "Moved to the dead-letter queue after retries", "Queue view"], ["Crash before publishing", "Message still sent from the outbox", "Logs"]],
+          "objectives": ["Build message-driven services", "Use the outbox", "Handle failures"]
+        },
+        {
+          "topic": "gRPC and SignalR",
+          "subtopics": ["gRPC in ASP.NET Core", "Protocol Buffers", "Streaming calls", "gRPC clients", "SignalR hubs", "Real-time notifications", "Scaling SignalR with Azure SignalR Service", "Choosing REST, gRPC or SignalR"],
+          "tools": ["gRPC", "SignalR", "Azure SignalR Service"],
+          "lab_task": "Add a gRPC inventory service with server streaming and a SignalR hub that pushes loan status changes to connected browsers.",
+          "deliverable": "gRPC service, SignalR hub and demo",
+          "checks": [["Call the gRPC service", "Streamed updates received", "Client output"], ["Change a loan status", "Browser receives the update instantly", "Screen recording"], ["Compare payload sizes", "gRPC smaller than JSON", "Measurements"]],
+          "objectives": ["Build gRPC services", "Push real-time updates", "Choose communication styles"]
+        },
+        {
+          "topic": "Integration Testing with WebApplicationFactory and Testcontainers",
+          "subtopics": ["Integration tests in ASP.NET Core", "WebApplicationFactory", "Testcontainers for SQL Server", "Replacing services in tests", "Authentication in tests", "Respawn for database reset", "Testing messaging", "Fast test suites"],
+          "tools": ["xUnit", "WebApplicationFactory", "Testcontainers", "Respawn"],
+          "lab_task": "Write integration tests for the API against a real SQL Server container, with test authentication and database resets between tests.",
+          "deliverable": "Integration test project and results",
+          "checks": [["Run the tests", "Pass against a real database", "Test output"], ["Call a protected endpoint in a test", "Test user authenticated", "Test output"], ["Run tests in any order", "No shared data failures", "Test output"]],
+          "objectives": ["Write integration tests", "Use real databases in tests", "Keep tests isolated"]
+        },
+        {
+          "topic": "Performance and Diagnostics in .NET",
+          "subtopics": ["Measuring with BenchmarkDotNet", "Allocations and garbage collection", "Span<T> and Memory<T>", "String handling performance", "dotnet-counters and dotnet-trace", "Profiling in Visual Studio", "Async performance", "Performance budgets"],
+          "tools": ["BenchmarkDotNet", "dotnet-counters", "dotnet-trace", "Visual Studio profiler"],
+          "lab_task": "Benchmark and optimise a CSV parsing hot path with Span<T>, cut allocations, profile the API under load and fix the top CPU hot spot.",
+          "deliverable": "Benchmarks, profiles and fixes",
+          "checks": [["Compare benchmarks", "Allocations and time reduced", "BenchmarkDotNet output"], ["Watch counters under load", "GC and request counters recorded", "dotnet-counters output"], ["Fix the hot spot", "CPU time reduced", "Profile comparison"]],
+          "objectives": ["Measure .NET performance", "Reduce allocations", "Profile applications"]
+        },
+        {
+          "topic": "Security for ASP.NET Core Applications",
+          "subtopics": ["OWASP Top 10 for .NET", "Data protection API", "Secure headers", "CORS", "Anti-forgery", "Secrets in Azure Key Vault", "Dependency vulnerability scanning", "Security testing"],
+          "tools": ["ASP.NET Core 8", "Azure Key Vault", "dotnet list package --vulnerable", "OWASP ZAP"],
+          "lab_task": "Find and fix five planted vulnerabilities, move secrets to Key Vault, configure CORS and security headers and scan dependencies.",
+          "deliverable": "Fixes, configuration and scan report",
+          "checks": [["Try SQL injection through a raw query", "Blocked after the fix", "Test output"], ["Call from a disallowed origin", "Blocked by CORS", "Browser console"], ["Scan packages", "No vulnerable packages", "Scan output"]],
+          "objectives": ["Secure .NET apps", "Manage secrets", "Scan dependencies"]
+        },
+        {
+          "topic": "Authentication with OpenID Connect and Microsoft Entra ID",
+          "subtopics": ["OAuth 2.0 and OpenID Connect", "Microsoft Entra ID app registrations", "Microsoft.Identity.Web", "Scopes and app roles", "Calling downstream APIs", "Service-to-service auth", "Token validation", "Testing with Entra ID"],
+          "tools": ["Microsoft Entra ID", "Microsoft.Identity.Web", "ASP.NET Core 8"],
+          "lab_task": "Protect the API with Entra ID, require scopes for read and write, use app roles for admins and call a downstream API on behalf of the user.",
+          "deliverable": "App registrations, API configuration and tests",
+          "checks": [["Call write endpoints with a read-only token", "403 Forbidden", "API response"], ["Call as an admin app role", "Access granted", "API response"], ["Call the downstream API", "Token passed on behalf of the user", "Logs"]],
+          "objectives": ["Use Entra ID with .NET", "Enforce scopes and roles", "Call downstream APIs"]
+        },
+        {
+          "topic": "Azure Services for .NET Developers",
+          "subtopics": ["Azure App Service", "Azure Functions with .NET", "Azure SQL Database", "Azure Storage", "Azure Service Bus", "Managed identities", "Application Insights", "AZ-204 topics overview"],
+          "tools": ["Azure App Service", "Azure Functions", "Azure SQL", "Application Insights"],
+          "lab_task": "Deploy the API to App Service with Azure SQL and Storage using managed identity, add an Azure Function triggered by Service Bus and monitor with Application Insights.",
+          "deliverable": "Azure deployment and monitoring screenshots",
+          "checks": [["Connect to Azure SQL", "Managed identity used, no passwords", "Configuration"], ["Send a Service Bus message", "Function runs", "Function log"], ["Open Application Insights", "Requests and dependencies tracked", "Screenshot"]],
+          "objectives": ["Use Azure services from .NET", "Use managed identities", "Monitor .NET apps"]
+        },
+        {
+          "topic": "Containers and Docker for .NET",
+          "subtopics": [".NET container images", "Multi-stage builds", "Chiseled images", "Publishing containers without a Dockerfile", "Docker Compose for API, database and Redis", "Health checks in containers", "Configuration in containers", "Image scanning"],
+          "tools": ["Docker", "Docker Compose", "Trivy"],
+          "lab_task": "Build small images for the API and worker, run them with SQL Server and Redis in Compose, and scan the images.",
+          "deliverable": "Images, Compose file and scan report",
+          "checks": [["Compare image sizes", "Chiseled image much smaller", "docker images output"], ["Run the stack with Compose", "API and worker work together", "Screenshot"], ["Scan images", "No critical vulnerabilities", "Trivy report"]],
+          "objectives": ["Containerise .NET apps", "Run multi-container stacks", "Secure images"]
+        },
+        {
+          "topic": "CI/CD with GitHub Actions and Azure DevOps",
+          "subtopics": ["Pipeline stages for .NET", "Restore, build, test and publish", "Code coverage in pipelines", "Database migrations in pipelines", "Deploying to Azure", "Environments and approvals", "Azure DevOps pipelines", "Release rollback"],
+          "tools": ["GitHub Actions", "Azure DevOps Pipelines", "Azure App Service"],
+          "lab_task": "Build a pipeline that tests with coverage, applies EF Core migrations and deploys to staging and production slots with approval and slot swap.",
+          "deliverable": "Pipeline files and deployment history",
+          "checks": [["Push a failing test", "Pipeline stops", "CI log"], ["Deploy to staging and swap", "Production updated with no downtime", "Deployment log"], ["Swap back", "Previous version restored", "Deployment log"]],
+          "objectives": ["Automate .NET delivery", "Deploy with slots", "Roll back safely"]
+        },
+        {
+          "topic": "Observability with OpenTelemetry in .NET",
+          "subtopics": ["Logging, metrics and traces", "OpenTelemetry for .NET", "Custom metrics", "Distributed tracing across services", ".NET Aspire dashboard", "Exporting to Application Insights or Grafana", "Alerting", "Troubleshooting with traces"],
+          "tools": ["OpenTelemetry", ".NET Aspire", "Application Insights or Grafana"],
+          "lab_task": "Instrument the API, worker and notification service with OpenTelemetry, follow one loan through all three in traces and add a custom metric with an alert.",
+          "deliverable": "Instrumentation and dashboard screenshots",
+          "checks": [["Create a loan", "One trace across three services", "Trace screenshot"], ["Check the custom metric", "Loans per minute shown", "Dashboard"], ["Raise the error rate", "Alert fires", "Alert"]],
+          "objectives": ["Instrument .NET apps", "Trace across services", "Alert on problems"]
+        },
+        {
+          "topic": "Building Cloud-Native Apps with .NET Aspire",
+          "subtopics": ["What .NET Aspire provides", "App host and service defaults", "Adding Redis, SQL and messaging", "Service discovery", "Local orchestration", "Dashboard", "Deploying Aspire apps", "When to use Aspire"],
+          "tools": [".NET Aspire", "Docker", "Azure Container Apps"],
+          "lab_task": "Move the solution to .NET Aspire with an app host, service defaults, Redis, SQL Server and RabbitMQ, run it locally and deploy to Azure Container Apps.",
+          "deliverable": "Aspire solution and deployment",
+          "checks": [["Run the app host", "All services start with the dashboard", "Screenshot"], ["Call between services by name", "Service discovery resolves them", "Logs"], ["Deploy to Container Apps", "Services running in Azure", "Azure portal screenshot"]],
+          "objectives": ["Use .NET Aspire", "Orchestrate services locally", "Deploy cloud-native .NET apps"]
+        },
+        {
+          "topic": "Front Ends with Blazor",
+          "subtopics": ["Blazor render modes in .NET 8", "Components and parameters", "State management", "Forms and validation", "Calling APIs", "Authentication in Blazor", "JavaScript interop", "Testing with bUnit"],
+          "tools": ["Blazor", "bUnit", "ASP.NET Core 8"],
+          "lab_task": "Build a Blazor admin app with interactive server and WebAssembly components, Entra ID sign-in, validated forms and bUnit tests.",
+          "deliverable": "Blazor app and tests",
+          "checks": [["Sign in", "Admin pages shown only to admins", "Screenshot"], ["Submit an invalid form", "Validation shown", "Screenshot"], ["Run bUnit tests", "All pass", "Test output"]],
+          "objectives": ["Build Blazor apps", "Secure Blazor", "Test components"]
+        },
+        {
+          "topic": "Intermediate Capstone: Cloud-Native .NET Library Platform",
+          "subtopics": ["Clean architecture and domain", "API with EF Core, caching and messaging", "Real-time updates and background jobs", "Security with Entra ID", "Tests, observability and Aspire", "CI/CD to Azure and demo"],
+          "tools": [".NET 8", "ASP.NET Core", "EF Core", "MassTransit", "SignalR", ".NET Aspire", "Azure", "GitHub Actions"],
+          "lab_task": "Deliver a library platform with clean architecture, cached API, messaging, SignalR notifications, background jobs, Entra ID, integration tests, OpenTelemetry and CI/CD to Azure, then present it.",
+          "deliverable": "Repository, pipeline, Azure deployment, dashboards and a 15-minute demo",
+          "checks": [["Run the pipeline", "Tests pass and the app deploys", "CI log"], ["Create a loan", "Event, notification and trace all visible", "Demo"], ["Call write endpoints without the scope", "403 Forbidden", "API response"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Prove quality and operations", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior .NET developers and architects. Covers runtime internals and performance, advanced async and concurrency, domain-driven design, microservices and event-driven systems on .NET, high-performance APIs, data at scale, distributed system resilience, security architecture, Azure architecture, modernising .NET Framework apps and technical leadership.",
+      "prerequisites": ["Builds production ASP.NET Core services", "Knows EF Core, messaging, testing and Azure", "Leads design or code reviews"],
+      "outcomes": ["Tune .NET runtime performance and concurrency", "Architect domain-driven, event-driven .NET systems", "Build resilient, secure services on Azure at scale", "Modernise legacy .NET and lead teams"],
+      "days": [
+        {
+          "topic": ".NET Runtime Internals: CLR, JIT and Garbage Collection",
+          "subtopics": ["The CLR and IL", "JIT, tiered compilation and ReadyToRun", "Native AOT", "Garbage collector generations and modes", "Server versus workstation GC", "Large object heap", "Memory dumps", "GC tuning"],
+          "tools": ["dotnet-dump", "dotnet-gcdump", "PerfView", "ILSpy"],
+          "lab_task": "Inspect IL for a hot method, compare start-up with ReadyToRun and Native AOT, analyse a memory dump from a leaking service and tune GC settings.",
+          "deliverable": "IL notes, start-up comparison, dump analysis and GC settings",
+          "checks": [["Compare start-up times", "Native AOT fastest, recorded", "Timing table"], ["Analyse the dump", "Leaking type and root found", "dotnet-dump output"], ["Change GC mode under load", "Effect on latency recorded", "Comparison"]],
+          "objectives": ["Explain .NET runtime internals", "Diagnose memory problems", "Tune GC"]
+        },
+        {
+          "topic": "High-Performance C#",
+          "subtopics": ["Span<T>, Memory<T> and stackalloc", "ArrayPool and object pooling", "System.IO.Pipelines", "Struct design", "Avoiding boxing", "SIMD with Vector<T>", "Source generators", "Benchmarking honestly"],
+          "tools": ["BenchmarkDotNet", "System.IO.Pipelines", ".NET 8"],
+          "lab_task": "Rewrite a log parser with Pipelines, Span and ArrayPool to reach zero allocations per line, and use a source generator to replace reflection-based mapping.",
+          "deliverable": "Optimised code and benchmarks",
+          "checks": [["Benchmark the parser", "Zero allocations per operation", "BenchmarkDotNet output"], ["Compare with the original", "At least 5 times faster", "BenchmarkDotNet output"], ["Replace reflection with a source generator", "Same results and faster", "Benchmark output"]],
+          "objectives": ["Write high-performance C#", "Avoid allocations", "Use source generators"]
+        },
+        {
+          "topic": "Advanced Async and Concurrency",
+          "subtopics": ["Task internals and the thread pool", "ConfigureAwait and synchronisation contexts", "ValueTask", "Channels", "Parallel.ForEachAsync", "Locks, SemaphoreSlim and interlocked operations", "Async streams", "Deadlocks and thread pool starvation"],
+          "tools": [".NET 8", "dotnet-counters", "System.Threading.Channels"],
+          "lab_task": "Build a producer-consumer pipeline with Channels and bounded capacity, fix a thread pool starvation incident and a sync-over-async deadlock.",
+          "deliverable": "Pipeline code, incident fixes and counters",
+          "checks": [["Run the pipeline at high load", "Back-pressure keeps memory stable", "dotnet-counters output"], ["Fix starvation", "Thread pool queue length returns to normal", "dotnet-counters output"], ["Fix the deadlock", "Request completes", "Test output"]],
+          "objectives": ["Master async in .NET", "Use Channels", "Fix concurrency problems"]
+        },
+        {
+          "topic": "Domain-Driven Design with .NET",
+          "subtopics": ["Strategic design: bounded contexts and context maps", "Aggregates and invariants", "Domain events", "Value objects", "Repositories and EF Core mapping", "Anti-corruption layers", "Event storming", "DDD in code reviews"],
+          "tools": [".NET 8", "EF Core", "Miro"],
+          "lab_task": "Run an event storming session for an insurance claims domain, define bounded contexts and build the Claim aggregate with invariants and domain events in .NET.",
+          "deliverable": "Event storming board, context map and aggregate code with tests",
+          "checks": [["Break an invariant", "Aggregate rejects the change", "Test output"], ["Raise a domain event", "Handler runs after save", "Test output"], ["Review the context map", "Relationships between contexts defined", "Context map"]],
+          "objectives": ["Apply DDD", "Model aggregates", "Use domain events"]
+        },
+        {
+          "topic": "Microservices Architecture on .NET",
+          "subtopics": ["Service boundaries", "API gateways with YARP", "Service-to-service communication", "Data per service", "Sagas with MassTransit", "Configuration and secrets", "Service templates", "When microservices are wrong"],
+          "tools": ["YARP", "MassTransit", ".NET Aspire", "Docker"],
+          "lab_task": "Split the claims system into claims, payments and documents services behind YARP, coordinate claim payment with a MassTransit saga and handle a payment failure.",
+          "deliverable": "Services, gateway and saga",
+          "checks": [["Fail a payment", "Saga compensates and the claim returns to review", "Logs and database"], ["Route through YARP", "Each path reaches the right service", "Gateway log"], ["Review the split decision", "Reasons recorded", "Decision record"]],
+          "objectives": ["Design .NET microservices", "Use YARP", "Coordinate with sagas"]
+        },
+        {
+          "topic": "Event-Driven Systems and Event Sourcing",
+          "subtopics": ["Event-driven patterns", "Kafka with .NET", "Event sourcing with Marten or EventStoreDB", "Projections and read models", "Snapshots", "Event versioning", "Replaying events", "Testing event-sourced systems"],
+          "tools": ["Marten or EventStoreDB", "Kafka", ".NET 8"],
+          "lab_task": "Event-source the Claim aggregate, build projections for a claims dashboard, version an event and rebuild projections from scratch.",
+          "deliverable": "Event store, projections and tests",
+          "checks": [["Rebuild the projection", "Matches the original", "Comparison"], ["Load old event versions", "Upcast and handled", "Test output"], ["Append from two writers", "Concurrency conflict detected", "Test output"]],
+          "objectives": ["Build event-sourced systems", "Build projections", "Version events"]
+        },
+        {
+          "topic": "High-Performance APIs and Minimal APIs at Scale",
+          "subtopics": ["Minimal APIs in depth", "Kestrel tuning", "Response compression and caching", "Native AOT for APIs", "JSON source generation", "Connection limits", "Load testing", "Capacity planning"],
+          "tools": ["ASP.NET Core 8", "k6 or bombardier", "Native AOT"],
+          "lab_task": "Build a Native AOT minimal API with JSON source generation, tune Kestrel, load-test it and compare throughput and memory with the JIT version.",
+          "deliverable": "API, load test results and comparison",
+          "checks": [["Load-test both versions", "Throughput and memory recorded", "Load test output"], ["Check start-up", "Native AOT starts much faster", "Timing"], ["Write a capacity plan", "Instance counts for the target load", "Plan"]],
+          "objectives": ["Build fast APIs", "Use Native AOT", "Plan capacity"]
+        },
+        {
+          "topic": "Data at Scale with SQL Server and Azure SQL",
+          "subtopics": ["Query plans and indexing", "Partitioning", "Read replicas and read scale-out", "Sharding with elastic tools", "Bulk operations", "Temporal tables", "Zero-downtime migrations", "Cosmos DB for scale"],
+          "tools": ["SQL Server", "Azure SQL", "EF Core", "Azure Cosmos DB"],
+          "lab_task": "Tune the slowest queries from Query Store, route reads to a replica, use temporal tables for claim history, run a zero-downtime migration and model one service in Cosmos DB.",
+          "deliverable": "Tuning results, configuration and migration log",
+          "checks": [["Tune the slowest query", "Plan improved and time reduced", "Query Store screenshot"], ["Query claim history", "Temporal table returns past versions", "Query result"], ["Run the migration under load", "No failed requests", "Load test output"]],
+          "objectives": ["Scale relational data", "Use temporal tables", "Migrate without downtime"]
+        },
+        {
+          "topic": "Resilience with Polly and Distributed Systems Patterns",
+          "subtopics": ["Timeouts, retries and circuit breakers", "Microsoft.Extensions.Resilience", "Hedging", "Bulkheads", "Rate limiting", "Idempotency keys", "Chaos testing with Simmy", "Monitoring resilience"],
+          "tools": ["Polly", "Microsoft.Extensions.Resilience", "Simmy"],
+          "lab_task": "Add resilience pipelines to service calls, inject faults with Simmy, verify the circuit breaker and fallback behaviour and make payment requests idempotent.",
+          "deliverable": "Resilience configuration and chaos test results",
+          "checks": [["Inject latency", "Calls time out and fall back", "Test output"], ["Inject failures", "Circuit opens and recovers", "Metrics"], ["Repeat a payment request", "One payment made", "Database rows"]],
+          "objectives": ["Build resilient services", "Test with chaos", "Use idempotency"]
+        },
+        {
+          "topic": "Security Architecture for .NET Platforms",
+          "subtopics": ["Threat modelling", "Zero trust for services", "Managed identities everywhere", "Secrets and certificates", "Data encryption", "Supply chain security for NuGet", "Security logging and Microsoft Defender", "Security reviews"],
+          "tools": ["Microsoft Entra ID", "Azure Key Vault", "Microsoft Defender for Cloud", "NuGet audit"],
+          "lab_task": "Threat-model the claims platform, remove every stored secret with managed identities, encrypt sensitive fields, enable NuGet auditing and act on Defender recommendations.",
+          "deliverable": "Threat model, configuration and findings record",
+          "checks": [["Search configuration for secrets", "None stored", "Search output"], ["Read an encrypted field from the database directly", "Unreadable", "Query result"], ["Run NuGet audit", "No vulnerable packages", "Build output"]],
+          "objectives": ["Design secure .NET platforms", "Remove stored secrets", "Secure the NuGet supply chain"]
+        },
+        {
+          "topic": "Azure Architecture for .NET Workloads",
+          "subtopics": ["Choosing compute: App Service, Container Apps, AKS, Functions", "Networking and private endpoints", "Multi-region deployment", "Azure Front Door", "Storage and data services", "Cost optimisation", "Well-Architected Framework", "Architecture decision records"],
+          "tools": ["Azure", "Azure Front Door", "Bicep or Terraform"],
+          "lab_task": "Design and deploy the claims platform across two Azure regions with Front Door, private endpoints and Container Apps using Bicep, and review it against the Well-Architected Framework.",
+          "deliverable": "Bicep templates, architecture and review",
+          "checks": [["Fail one region", "Front Door sends traffic to the other", "Test output"], ["Reach the database from the internet", "Blocked by private endpoint", "Test output"], ["Complete the review", "Findings for each pillar", "Review document"]],
+          "objectives": ["Architect .NET on Azure", "Deploy across regions", "Review against Well-Architected"]
+        },
+        {
+          "topic": "Kubernetes and AKS for .NET Services",
+          "subtopics": ["Containers on AKS", "Deployments, probes and graceful shutdown", "Resource limits for .NET", "Autoscaling with KEDA", "Workload identity", "Helm charts", "GitOps", "Troubleshooting .NET pods"],
+          "tools": ["AKS", "Helm", "KEDA", "Argo CD or Flux"],
+          "lab_task": "Deploy the services to AKS with probes, workload identity and KEDA autoscaling on queue length, roll out a new version under load and fix a crash loop.",
+          "deliverable": "Charts, autoscaling evidence and incident notes",
+          "checks": [["Grow the queue", "KEDA scales the worker", "kubectl output"], ["Roll out under load", "Zero failed requests", "Load test output"], ["Fix the crash loop", "Cause found and fixed", "Pod events and fix"]],
+          "objectives": ["Run .NET on AKS", "Autoscale on events", "Deploy without downtime"]
+        },
+        {
+          "topic": "Testing Strategy for Large .NET Systems",
+          "subtopics": ["Test pyramid for services", "Contract testing with Pact", "Architecture tests", "Mutation testing with Stryker.NET", "Performance tests in CI", "Test data builders", "Snapshot testing with Verify", "Keeping test suites fast"],
+          "tools": ["Pact", "Stryker.NET", "Verify", "NetArchTest"],
+          "lab_task": "Add contract tests between claims and payments, mutation-test the domain to 80 percent, snapshot-test API responses and add architecture tests.",
+          "deliverable": "Test suites and reports",
+          "checks": [["Change the payments response", "Contract test fails", "Test output"], ["Run Stryker.NET", "Mutation score at least 80 percent", "Stryker report"], ["Change an API response", "Snapshot test shows the difference", "Verify output"]],
+          "objectives": ["Test large systems", "Measure test quality", "Protect contracts"]
+        },
+        {
+          "topic": "Modernising .NET Framework Applications",
+          "subtopics": ["Assessing .NET Framework apps", ".NET Upgrade Assistant", "Moving from Web Forms and MVC 5", "WCF to gRPC or CoreWCF", "Entity Framework 6 to EF Core", "Strangler fig approach", "Running old and new side by side", "Measuring progress"],
+          "tools": [".NET Upgrade Assistant", "CoreWCF", "YARP"],
+          "lab_task": "Upgrade a provided .NET Framework MVC app with a WCF service, move two pages behind YARP to ASP.NET Core and replace the WCF service with gRPC.",
+          "deliverable": "Assessment, migrated parts and progress report",
+          "checks": [["Run the assessment", "Blockers and effort listed", "Assessment report"], ["Serve a migrated page", "Same behaviour from the new app", "Test output"], ["Call the new gRPC service", "Old clients updated and working", "Test output"]],
+          "objectives": ["Modernise legacy .NET", "Use the strangler pattern", "Replace WCF"]
+        },
+        {
+          "topic": "Observability and Incident Response at Scale",
+          "subtopics": ["Distributed tracing at scale", "Sampling", "SLOs and burn-rate alerts", "Dumps and traces in production", "Diagnosing slow requests", "On-call practices", "Post-incident reviews", "Runbooks"],
+          "tools": ["OpenTelemetry", "Application Insights", "Grafana", "dotnet-dump"],
+          "lab_task": "Set SLOs with burn-rate alerts, then handle three injected incidents (a slow database call, a memory leak and a thread pool starvation), and write runbooks.",
+          "deliverable": "SLOs, incident records and runbooks",
+          "checks": [["Burn the error budget", "Alert fires", "Alert"], ["Find the memory leak", "Leaking type found in a dump", "dotnet-dump output"], ["Write a runbook for starvation", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Run .NET in production", "Alert on SLOs", "Respond to incidents"]
+        },
+        {
+          "topic": "AI Features in .NET Applications",
+          "subtopics": ["Microsoft.Extensions.AI", "Semantic Kernel", "Azure OpenAI from .NET", "Retrieval with Azure AI Search", "Function calling", "Evaluating AI features", "Cost and safety", "Responsible AI"],
+          "tools": ["Semantic Kernel", "Azure OpenAI", "Azure AI Search"],
+          "lab_task": "Add a claims assistant that answers from policy documents with Azure AI Search, calls a claim lookup function, logs cost and is evaluated on 20 questions.",
+          "deliverable": "AI feature, evaluation and cost note",
+          "checks": [["Ask a policy question", "Answer cites the policy document", "Demo"], ["Ask about a claim", "Lookup function called with the right ID", "Logs"], ["Run the 20 questions", "Accuracy recorded", "Evaluation sheet"]],
+          "objectives": ["Build AI features in .NET", "Use Semantic Kernel", "Evaluate AI features"]
+        },
+        {
+          "topic": "Cross-Platform Client Apps with .NET MAUI",
+          "subtopics": [".NET MAUI architecture", "XAML and MVVM", "Platform-specific code", "Calling secured APIs from mobile", "Offline storage with SQLite", "Push notifications", "Packaging for Android, iOS and Windows", "MAUI versus Blazor Hybrid"],
+          "tools": [".NET MAUI", "CommunityToolkit.Mvvm", "SQLite"],
+          "lab_task": "Build a .NET MAUI claims app for Android and Windows that signs in with Entra ID, lists claims offline from SQLite, syncs when online and receives a push notification.",
+          "deliverable": "MAUI app, packages and demo",
+          "checks": [["Use the app offline", "Cached claims shown", "Screen recording"], ["Reconnect", "Changes synced to the API", "API log"], ["Send a push notification", "Device receives it", "Screenshot"]],
+          "objectives": ["Build cross-platform apps with MAUI", "Use MVVM", "Support offline use"]
+        },
+        {
+          "topic": "Libraries, Packages and Internal Platforms",
+          "subtopics": ["Designing reusable libraries", "Versioning and NuGet packaging", "Private NuGet feeds", "Source link and symbols", "Analysers and code fixes", "Templates with dotnet new", "Documentation with DocFX", "Supporting internal users"],
+          "tools": ["NuGet", "Azure Artifacts or GitHub Packages", "Roslyn analysers", "DocFX"],
+          "lab_task": "Package shared service defaults as a NuGet library with source link, write a Roslyn analyser that flags a banned API, publish a dotnet new template and document it.",
+          "deliverable": "Package, analyser, template and docs",
+          "checks": [["Use the banned API", "Analyser warning shown with a code fix", "Build output"], ["Create a project from the template", "Builds and runs", "Terminal output"], ["Debug into the package", "Source link opens the source", "Screenshot"]],
+          "objectives": ["Build internal libraries", "Write analysers", "Create templates"]
+        },
+        {
+          "topic": "Technical Leadership for .NET Teams",
+          "subtopics": ["Technical vision and standards", "Architecture decision records", "Code review culture", "Technical debt management", "Upgrade planning for .NET releases", "Mentoring", "Hiring .NET engineers", "Communicating with stakeholders"],
+          "tools": ["Architecture decision record template", "Roadmap template"],
+          "lab_task": "Write a .NET upgrade and standards plan for a team with ten services, rank technical debt by impact and mentor a junior developer through a review.",
+          "deliverable": "Plan, debt register and mentoring notes",
+          "checks": [["Review the upgrade plan", "Each service has a target version and order", "Plan"], ["Rank debt", "Ranked by impact and effort", "Debt register"], ["Mentor through a review", "Pull request improved", "Pull request history"]],
+          "objectives": ["Lead .NET teams", "Plan upgrades", "Manage technical debt"]
+        },
+        {
+          "topic": "Advanced Capstone: Event-Driven Claims Platform on Azure",
+          "subtopics": ["Domain design and bounded contexts", "Event-sourced services and sagas", "High-performance APIs and data at scale", "Resilience and security architecture", "AKS, multi-region and observability", "Leadership presentation and defence"],
+          "tools": [".NET 8", "Marten or EventStoreDB", "MassTransit", "YARP", "AKS", "Azure Front Door", "OpenTelemetry"],
+          "lab_task": "Deliver a claims platform with DDD services, event sourcing, sagas, resilience, managed identities, multi-region AKS deployment, SLO monitoring and an AI assistant, then load-test, fail over and present it.",
+          "deliverable": "Repositories, deployment, load and failover reports and a 20-minute presentation",
+          "checks": [["Fail over a region under load", "Service continues within SLOs", "Load test report"], ["Rebuild projections", "Read models match", "Comparison"], ["Answer leadership questions", "Architecture defended with data", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove scale and resilience", "Lead .NET architecture"]
+        }
+      ]
+    }
+  }
+}
