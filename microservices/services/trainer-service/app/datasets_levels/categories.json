@@ -26,7 +26,8 @@
         "C#",
         "JavaScript",
         "TypeScript",
-        "SQL"
+        "SQL",
+        "COBOL and Mainframe"
       ]
     },
     {
@@ -128,7 +129,8 @@
         "Tableau",
         "Microsoft Fabric",
         "Advanced Excel",
-        "Data Analytics"
+        "Data Analytics",
+        "Informatica"
       ]
     },
     {
@@ -189,7 +191,8 @@
         "Generative AI for Business",
         "LangChain",
         "Microsoft Copilot",
-        "Fine-Tuning LLMs"
+        "Fine-Tuning LLMs",
+        "Generative AI"
       ]
     },
     {
@@ -275,7 +278,8 @@
       ],
       "planned": [
         "CCNA Networking",
-        "SD-WAN"
+        "SD-WAN",
+        "Palo Alto Firewalls"
       ]
     },
     {
@@ -301,7 +305,8 @@
         "SOC Analyst",
         "Cloud Security Posture Management",
         "ISO 27001",
-        "CISSP Preparation"
+        "CISSP Preparation",
+        "GRC (Governance, Risk and Compliance)"
       ]
     },
     {
@@ -324,7 +329,8 @@
         "Cypress",
         "Postman API Testing",
         "Performance Testing",
-        "Test Automation with Python"
+        "Test Automation with Python",
+        "Manual Testing and ISTQB"
       ]
     },
     {
@@ -345,7 +351,13 @@
         "Oracle Fusion",
         "Power Apps",
         "Power Automate",
-        "SharePoint"
+        "SharePoint",
+        "SAP BTP",
+        "SAP ABAP",
+        "SAP Fiori",
+        "SAP SuccessFactors",
+        "SAP SD",
+        "SAP BW/4HANA"
       ]
     },
     {
@@ -361,6 +373,27 @@
         "Jira",
         "SAFe",
         "Product Management"
+      ]
+    },
+    {
+      "id": "infrastructure_virtualisation",
+      "name": "Infrastructure and Virtualisation",
+      "domains": [],
+      "planned": [
+        "VMware vSphere",
+        "Nutanix",
+        "Windows Server and Active Directory",
+        "Microsoft 365 Administration"
+      ]
+    },
+    {
+      "id": "professional_skills",
+      "name": "Professional and Soft Skills",
+      "domains": [],
+      "planned": [
+        "Soft Skills",
+        "Business Communication",
+        "Leadership and People Management"
       ]
     }
   ]

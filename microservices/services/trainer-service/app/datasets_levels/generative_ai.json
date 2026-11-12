@@ -1,0 +1,577 @@
+{
+  "domain": "Generative AI",
+  "name": "Generative AI",
+  "category": "Generative AI and Agents",
+  "icon": "sparkles",
+  "aliases": ["GenAI", "Gen AI", "Generative AI Fundamentals", "Generative AI Development", "Generative AI Engineering", "LLM Applications", "Large Language Models", "Building with LLMs"],
+  "certifications": ["Microsoft Azure AI Engineer Associate (AI-102)", "AWS Certified AI Practitioner (AIF-C01)", "Google Cloud Generative AI Leader"],
+  "tools": ["Python 3.12", "OpenAI or Azure OpenAI API", "Ollama", "Jupyter", "VS Code"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For technical and business participants new to generative AI. Covers how large language models work, writing good prompts, using chat assistants safely at work, calling a model API from Python and building a first small AI application.",
+      "prerequisites": ["Comfortable using a computer and web applications", "Basic Python is helpful for the API days but not required for the first week", "Access to a chat assistant and an API key or a local Ollama install"],
+      "outcomes": ["Explain how LLMs generate text and where they fail", "Write prompts that give reliable, structured answers", "Use generative AI safely for documents, data and code", "Build a small Python application that calls an LLM API"],
+      "days": [
+        {
+          "topic": "Generative AI Overview and Course Setup",
+          "subtopics": ["What generative AI is and what it is not", "Text, image, audio and code generation", "Large language models in plain terms", "Well-known models: GPT, Claude, Gemini, Llama, Mistral", "Chat assistants versus APIs versus local models", "Typical business uses and where they fail", "Setting up a chat assistant account", "Installing Ollama and running a local model", "Setting up Python and a Jupyter notebook", "Course project and ground rules for data"],
+          "tools": ["Ollama", "Jupyter", "Chat assistant"],
+          "lab_task": "Run the same five tasks (summary, email draft, table extraction, translation and arithmetic) in a hosted chat assistant and a local Ollama model, record the results and mark where each one is wrong.",
+          "deliverable": "Comparison table of five tasks across two models with errors marked",
+          "checks": [["Run a local model with Ollama", "Model answers a prompt on the participant's machine", "Terminal output"], ["Ask both models a multi-step arithmetic question", "At least one wrong answer is identified and explained", "Comparison table"], ["Explain the difference between a chat assistant and an API", "Correct explanation in the participant's words", "Written answer"]],
+          "objectives": ["Explain what generative AI can and cannot do", "Set up the tools for the course", "Compare hosted and local models"]
+        },
+        {
+          "topic": "How Large Language Models Work: Tokens, Training and Prediction",
+          "subtopics": ["Tokens and tokenisers", "Predicting the next token", "Pre-training on large text collections", "Instruction tuning and human feedback", "Context windows and their limits", "Temperature and sampling", "Why models hallucinate", "Knowledge cut-off dates"],
+          "tools": ["OpenAI tokenizer page", "Ollama", "Jupyter"],
+          "lab_task": "Count tokens for the same paragraph in English and Hindi, run one prompt ten times at temperature 0 and 1, and produce three hallucinations about a made-up company with an explanation of why they happen.",
+          "deliverable": "Token counts, variability results and a hallucination log",
+          "checks": [["Run a prompt ten times at temperature 0", "Answers are identical or nearly identical", "Results table"], ["Run it ten times at temperature 1", "Answers vary, and the variation is described", "Results table"], ["Ask about an event after the knowledge cut-off", "Participant identifies the made-up or outdated answer", "Hallucination log"]],
+          "objectives": ["Explain tokens and next-token prediction", "Control randomness with temperature", "Recognise hallucinations and their causes"]
+        },
+        {
+          "topic": "Prompt Writing Essentials",
+          "subtopics": ["Clear instructions and the task", "Giving context and audience", "Roles and personas", "Examples in the prompt (few-shot)", "Asking for a format: lists, tables, JSON", "Breaking a task into steps", "Telling the model what not to do", "Iterating on a prompt"],
+          "tools": ["Chat assistant", "Ollama"],
+          "lab_task": "Improve three weak prompts (a customer email, a meeting summary and a product description) through at least four versions each, scoring every version against a short checklist.",
+          "deliverable": "Prompt versions with scores and the final prompts",
+          "checks": [["Score the first and final versions", "Final versions score higher on every checklist item", "Scoring sheet"], ["Ask for a table with fixed columns", "Output has exactly the requested columns", "Model output"], ["Swap in a new customer email", "Final prompt still gives a usable reply", "Model output"]],
+          "objectives": ["Write clear prompts", "Use examples and formats", "Improve prompts step by step"]
+        },
+        {
+          "topic": "Prompt Patterns for Reasoning and Reliable Answers",
+          "subtopics": ["Step-by-step reasoning prompts", "Asking the model to check its own answer", "Breaking problems into sub-questions", "Giving the model a way to say \"I don't know\"", "Grounding answers in a pasted document", "Quoting sources from the provided text", "Comparing several answers", "Prompt templates for a team"],
+          "tools": ["Chat assistant", "Ollama"],
+          "lab_task": "Answer 15 questions about a provided 10-page policy document using a grounding prompt that must quote the supporting sentence or say the answer is not in the document.",
+          "deliverable": "Grounding prompt, answers with quotes and an accuracy count",
+          "checks": [["Ask a question the document does not answer", "Model says it is not in the document", "Model output"], ["Check every quote against the document", "All quotes appear word for word", "Accuracy sheet"], ["Compare accuracy with and without the grounding prompt", "Grounding prompt gives more correct answers", "Accuracy sheet"]],
+          "objectives": ["Get reasoned, grounded answers", "Reduce hallucinations with prompts", "Build reusable templates"]
+        },
+        {
+          "topic": "Generative AI for Documents, Email and Meetings",
+          "subtopics": ["Summarising long documents", "Drafting and rewriting emails", "Meeting notes and action items", "Changing tone and reading level", "Translating with care", "Extracting tables from text", "Comparing two versions of a document", "Checking the output before sending"],
+          "tools": ["Chat assistant", "Microsoft Copilot or Google Gemini"],
+          "lab_task": "Turn a provided meeting transcript into minutes with decisions and action items, draft three follow-up emails in different tones and compare two contract versions to list every change.",
+          "deliverable": "Minutes, three emails and a change list",
+          "checks": [["Compare action items with the transcript", "Every action item has an owner and date found in the transcript", "Minutes and transcript"], ["Compare the change list with a diff tool", "All real changes are listed with no invented ones", "Change list and diff"], ["Rewrite one email for a senior reader", "Shorter and more formal, with the same facts", "Email versions"]],
+          "objectives": ["Use generative AI for daily office work", "Check outputs for accuracy", "Adapt tone and format"]
+        },
+        {
+          "topic": "Generative AI for Data Analysis and Spreadsheets",
+          "subtopics": ["Describing data to a model", "Asking for formulas and explaining them", "Cleaning messy data with AI help", "Generating charts with a code interpreter", "Checking AI calculations", "Writing summaries of results", "Privacy when uploading data", "Limits with large files"],
+          "tools": ["Chat assistant with data analysis", "Excel or Google Sheets"],
+          "lab_task": "Clean and analyse a provided sales spreadsheet with AI help, produce three charts and a summary, and verify every number in the summary against your own spreadsheet formulas.",
+          "deliverable": "Cleaned spreadsheet, charts and a checked summary",
+          "checks": [["Recompute the summary totals with spreadsheet formulas", "All totals match", "Spreadsheet"], ["Ask for a formula that finds duplicates", "Formula works on the sheet", "Spreadsheet"], ["Point out one wrong AI claim", "Error found and corrected", "Correction note"]],
+          "objectives": ["Analyse data with AI help", "Verify AI calculations", "Protect data while using AI"]
+        },
+        {
+          "topic": "Generative AI for Code",
+          "subtopics": ["Explaining unfamiliar code", "Generating functions from a description", "Writing tests with AI help", "Finding bugs", "Converting code between languages", "AI coding assistants in the editor", "Reviewing AI-written code", "Licence and security concerns"],
+          "tools": ["GitHub Copilot or a coding assistant", "VS Code", "Python 3.12"],
+          "lab_task": "Use an AI assistant to explain a provided Python script, write tests for it, find and fix two planted bugs and convert one function to JavaScript, reviewing every suggestion before accepting it.",
+          "deliverable": "Tests, fixed script, converted function and a review log",
+          "checks": [["Run the AI-written tests on the original script", "Tests catch both planted bugs", "Test output"], ["Run the tests after the fixes", "All pass", "Test output"], ["Show one rejected AI suggestion", "Reason for rejecting it is given", "Review log"]],
+          "objectives": ["Use AI to read and write code", "Review AI suggestions critically", "Test AI-written code"]
+        },
+        {
+          "topic": "Image, Audio and Multimodal Generation",
+          "subtopics": ["Text-to-image models", "Writing image prompts", "Image editing and variations", "Reading images with vision models", "Speech-to-text and text-to-speech", "Video generation in brief", "Copyright and brand concerns", "Labelling AI-generated media"],
+          "tools": ["DALL-E or Stable Diffusion", "Whisper", "Vision-capable chat model"],
+          "lab_task": "Generate four marketing images for a product within brand rules, extract data from a photographed invoice with a vision model and transcribe a five-minute audio clip, checking each output.",
+          "deliverable": "Images with prompts, extracted invoice fields and a checked transcript",
+          "checks": [["Compare extracted invoice fields with the photo", "All fields correct or errors marked", "Comparison sheet"], ["Measure transcript errors on one minute of audio", "Error count recorded", "Transcript comparison"], ["Check images against the brand rules", "Each rule is met or the image is regenerated", "Review sheet"]],
+          "objectives": ["Generate and edit images", "Use vision and speech models", "Handle copyright and labelling"]
+        },
+        {
+          "topic": "Responsible AI, Privacy and Company Policy",
+          "subtopics": ["What data not to paste into AI tools", "Enterprise versus consumer AI services", "Bias in model outputs", "Copyright and ownership of outputs", "Disclosing AI use", "Company AI policies", "Regulation overview: EU AI Act and India's DPDP Act", "Human review rules"],
+          "tools": ["Chat assistant", "Sample company AI policy"],
+          "lab_task": "Review ten workplace scenarios, decide whether each AI use is allowed under a sample company policy, fix the unsafe ones and test a model for bias with paired prompts.",
+          "deliverable": "Scenario decisions with reasons and a bias test record",
+          "checks": [["Classify the ten scenarios", "At least nine match the policy answer key", "Scenario sheet"], ["Run the paired bias prompts", "Differences are recorded and discussed", "Bias test record"], ["Rewrite an unsafe scenario", "Personal data removed and still useful", "Rewritten prompt"]],
+          "objectives": ["Use AI within policy and law", "Protect personal and company data", "Recognise bias"]
+        },
+        {
+          "topic": "Calling an LLM API from Python",
+          "subtopics": ["API keys and environment variables", "The chat completions request", "System, user and assistant messages", "Model choice and parameters", "Reading the response and token usage", "Handling errors and rate limits", "Calling a local model through Ollama's API", "Cost per request"],
+          "tools": ["Python 3.12", "OpenAI Python SDK", "Ollama"],
+          "lab_task": "Write a Python script that sends a prompt to a hosted model and to a local Ollama model, prints the answer, token usage and estimated cost, and retries on rate-limit errors.",
+          "deliverable": "Script, sample output and a cost estimate for 1,000 calls",
+          "checks": [["Run the script without the API key set", "Clear error message, no crash", "Terminal output"], ["Run the script against both models", "Both answers and token counts are printed", "Terminal output"], ["Estimate the cost of 1,000 calls", "Calculation uses the measured token counts", "Cost sheet"]],
+          "objectives": ["Call LLM APIs from Python", "Handle keys, errors and limits", "Estimate cost"]
+        },
+        {
+          "topic": "Structured Output and JSON from LLMs",
+          "subtopics": ["Why free text is hard for programs", "Asking for JSON", "JSON mode and structured outputs", "Defining a schema with Pydantic", "Validating and retrying", "Extracting fields from documents", "Classification into fixed labels", "Measuring extraction accuracy"],
+          "tools": ["Python 3.12", "Pydantic", "OpenAI Python SDK"],
+          "lab_task": "Extract name, date, amount and category from 30 sample invoices into Pydantic objects, retry when validation fails and measure accuracy against the answer file.",
+          "deliverable": "Extraction script, results file and accuracy report",
+          "checks": [["Run on the 30 invoices", "Every result passes schema validation", "Results file"], ["Compare with the answer file", "At least 90 percent of fields correct", "Accuracy report"], ["Feed a document that is not an invoice", "Returns the \"not an invoice\" label instead of made-up fields", "Model output"]],
+          "objectives": ["Get structured output from LLMs", "Validate results", "Measure extraction accuracy"]
+        },
+        {
+          "topic": "Building a Chat Application with Conversation Memory",
+          "subtopics": ["Message history", "Trimming history to fit the context window", "Summarising old messages", "System prompts for behaviour", "Streaming responses", "A simple web interface with Streamlit", "Storing conversations", "Basic usage logging"],
+          "tools": ["Python 3.12", "Streamlit", "OpenAI Python SDK"],
+          "lab_task": "Build a Streamlit chat assistant for a company FAQ that streams answers, remembers the conversation, trims old messages when the history gets long and logs token usage per conversation.",
+          "deliverable": "Chat application and a recorded demo",
+          "checks": [["Ask a follow-up question that refers to an earlier answer", "Assistant uses the earlier context", "Demo recording"], ["Hold a 40-message conversation", "History is trimmed and the app keeps working", "Logs"], ["Open the usage log", "Token count per conversation is recorded", "Log file"]],
+          "objectives": ["Build a chat interface", "Manage conversation memory", "Log usage"]
+        },
+        {
+          "topic": "Embeddings and Semantic Search",
+          "subtopics": ["What embeddings are", "Creating embeddings with an API or a local model", "Cosine similarity", "Semantic search versus keyword search", "Chunking documents", "Storing vectors in a simple index", "Searching and ranking results", "Clustering similar texts"],
+          "tools": ["Python 3.12", "sentence-transformers", "NumPy", "Chroma"],
+          "lab_task": "Embed 200 support tickets, build a semantic search that finds similar tickets for a new one, compare it with keyword search on ten queries and group the tickets into topics.",
+          "deliverable": "Search script, comparison table and topic groups",
+          "checks": [["Search with a query that uses different words from the ticket", "Semantic search finds it, keyword search does not", "Comparison table"], ["Rank the top five results for ten queries", "At least 8 of 10 have a relevant first result", "Comparison table"], ["Inspect the topic groups", "Each group has a sensible label", "Topic list"]],
+          "objectives": ["Explain embeddings", "Build semantic search", "Compare with keyword search"]
+        },
+        {
+          "topic": "Grounding Answers with Retrieval-Augmented Generation",
+          "subtopics": ["Why models need your documents", "The retrieve-then-generate pattern", "Chunking and embedding documents", "Retrieving the top chunks", "Prompting with retrieved context", "Citing sources in answers", "Saying \"not found\" when retrieval fails", "Checking answer quality on test questions"],
+          "tools": ["Python 3.12", "Chroma", "OpenAI Python SDK"],
+          "lab_task": "Build a question-answering assistant over a provided HR policy folder that retrieves relevant chunks, answers with citations and refuses when the answer is not in the documents.",
+          "deliverable": "RAG script, 20 test questions and results",
+          "checks": [["Ask 20 test questions", "At least 16 correct with a correct citation", "Results sheet"], ["Ask a question the policies do not cover", "Assistant says it cannot find the answer", "Model output"], ["Open a cited chunk", "Chunk supports the answer", "Citation check"]],
+          "objectives": ["Ground answers in documents", "Build a first RAG application", "Test answer quality"],
+          "shared_key": "rag-core"
+        },
+        {
+          "topic": "Tool Calling and Simple Agents",
+          "subtopics": ["What tool calling is", "Describing tools with JSON schemas", "The model choosing a tool", "Running the tool and returning results", "Several tool calls in a row", "A simple agent loop", "Limiting what tools can do", "Logging tool calls"],
+          "tools": ["Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Give a model three tools (weather lookup, currency conversion and a calendar search) and build a loop that answers travel questions by calling them, with a step limit and a log of every call.",
+          "deliverable": "Agent script, tool definitions and call logs",
+          "checks": [["Ask a question that needs two tools", "Both tools are called and the answer uses both results", "Call log"], ["Ask a question that needs no tools", "Answered directly with no tool call", "Call log"], ["Make a tool fail", "Agent reports the failure instead of inventing data", "Model output"]],
+          "objectives": ["Connect models to tools", "Build a simple agent loop", "Keep tool use safe"],
+          "shared_key": "agent-tools"
+        },
+        {
+          "topic": "Evaluating Generative AI Outputs",
+          "subtopics": ["Why \"it looks good\" is not enough", "Test sets of questions and expected answers", "Exact match, keyword and similarity checks", "Using a model as a judge", "Human review rubrics", "Comparing prompts and models", "Tracking quality over time", "Cost and latency alongside quality"],
+          "tools": ["Python 3.12", "pandas", "promptfoo"],
+          "lab_task": "Build a test set of 30 questions for the FAQ assistant, score two prompts and two models with automatic checks and a model judge, and pick the best combination on quality, cost and speed.",
+          "deliverable": "Test set, evaluation results and a recommendation",
+          "checks": [["Run the evaluation on two prompts", "Scores are reported per question and overall", "Evaluation output"], ["Compare the model judge with your own marks on ten answers", "Agreement rate recorded", "Comparison sheet"], ["Recommend a combination", "Choice is supported by quality, cost and latency numbers", "Recommendation"]],
+          "objectives": ["Test generative AI systems", "Compare prompts and models with evidence", "Balance quality, cost and speed"]
+        },
+        {
+          "topic": "AI Safety Risks: Prompt Injection, Data Leaks and Jailbreaks",
+          "subtopics": ["Prompt injection through user input", "Indirect injection through documents and web pages", "Jailbreak attempts", "Leaking the system prompt", "Leaking personal data", "Input and output filters", "Limiting tools and permissions", "Testing your app against attacks"],
+          "tools": ["Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Attack your own FAQ assistant with ten prompt injection and data-leak attempts, record which succeed, add defences and rerun the attacks.",
+          "deliverable": "Attack log before and after the defences",
+          "checks": [["Hide an instruction in a retrieved document", "Injection succeeds before and is blocked after", "Attack log"], ["Ask the assistant to reveal its system prompt", "Refused after the defences", "Model output"], ["Rerun all ten attacks", "Fewer succeed than before, with the rest explained", "Attack log"]],
+          "objectives": ["Recognise attacks on AI apps", "Add basic defences", "Test defences"]
+        },
+        {
+          "topic": "Choosing Models: Hosted, Open-Weight and Small Models",
+          "subtopics": ["Hosted APIs versus self-hosted models", "Open-weight models: Llama, Mistral, Qwen, Gemma", "Model size, speed and cost", "Quantised models on a laptop", "Context length", "Data residency and privacy", "Benchmarks and their limits", "A model selection checklist"],
+          "tools": ["Ollama", "OpenAI Python SDK", "Python 3.12"],
+          "lab_task": "Run the evaluation test set against one hosted model and two local models of different sizes, measure quality, speed and cost, and fill in a model selection checklist for a given use case.",
+          "deliverable": "Results table and completed selection checklist",
+          "checks": [["Measure tokens per second for each model", "Speed recorded for all three", "Results table"], ["Run the test set on each model", "Quality score recorded for all three", "Results table"], ["Choose a model for a privacy-sensitive use case", "Choice justified with the checklist", "Checklist"]],
+          "objectives": ["Compare hosted and open-weight models", "Measure speed, cost and quality", "Choose a model for a use case"]
+        },
+        {
+          "topic": "Generative AI Use Cases and Business Value",
+          "subtopics": ["Finding good use cases", "Estimating time saved", "Build, buy or use an existing tool", "Running a pilot", "Measuring adoption and quality", "Change management for AI tools", "Risks that stop a project", "Writing a one-page proposal"],
+          "tools": ["Chat assistant", "Spreadsheet"],
+          "lab_task": "Pick a process from your own work, estimate time and cost saved with and without AI, list the risks, and write a one-page pilot proposal with success measures.",
+          "deliverable": "One-page pilot proposal with an estimate sheet",
+          "checks": [["Review the estimate sheet", "Savings are based on stated, checkable assumptions", "Estimate sheet"], ["Review the risk list", "Covers data, accuracy and adoption risks", "Proposal"], ["Present the proposal in three minutes", "Success measures are clear and measurable", "Presentation"]],
+          "objectives": ["Identify valuable AI use cases", "Estimate benefits honestly", "Plan a pilot"]
+        },
+        {
+          "topic": "Beginner Capstone: AI Assistant for a Business Team",
+          "subtopics": ["Problem and users", "Prompts and grounding documents", "Python application with structured output", "Evaluation test set", "Safety and policy checks", "Demo and lessons learned"],
+          "tools": ["Python 3.12", "Streamlit", "Chroma", "OpenAI Python SDK or Ollama"],
+          "lab_task": "Build an assistant for one team (HR, sales or support) that answers from its documents with citations, fills a structured form from emails, passes a 20-question test set and blocks basic injection attempts, then demo it.",
+          "deliverable": "Application, test set results, safety test log and a 10-minute demo",
+          "checks": [["Run the 20-question test set", "At least 16 correct with citations", "Evaluation output"], ["Paste an email into the form filler", "All required fields are filled and valid", "Demo output"], ["Try three injection attacks", "All three are blocked", "Attack log"]],
+          "objectives": ["Combine the beginner topics in one application", "Prove quality with tests", "Explain risks and limits"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have called an LLM API. Covers production application design: provider abstraction, advanced prompting, structured output, RAG, tool use, evaluation, guardrails, observability, cost control and deployment of generative AI services.",
+      "prerequisites": ["Writes Python confidently, including APIs and packages", "Has called an LLM API and built a small prompt-based script", "Knows basic web APIs and JSON"],
+      "outcomes": ["Design and build production-style LLM applications", "Measure quality with automated evaluation", "Add guardrails, monitoring and cost controls", "Deploy a generative AI service as an API"],
+      "days": [
+        {
+          "topic": "Generative AI Application Architecture",
+          "subtopics": ["Components of an LLM application", "Prompt layer, retrieval layer, tool layer", "Synchronous and streaming APIs", "Provider abstraction", "Configuration of models and prompts", "Caching responses", "Failure modes and fallbacks", "Reference architectures on AWS, Azure and GCP"],
+          "tools": ["Python 3.12", "FastAPI", "LiteLLM"],
+          "lab_task": "Design the architecture of a customer-support assistant, then build a FastAPI service with a provider-independent client that falls back to a second model when the first one fails.",
+          "deliverable": "Architecture diagram, service code and failover demo",
+          "checks": [["Stop the primary provider", "Requests are served by the fallback model", "Logs"], ["Change the model in configuration", "No code change needed", "Config diff and logs"], ["Review the diagram", "Every component and data flow is labelled", "Diagram"]],
+          "objectives": ["Design LLM applications", "Abstract providers", "Plan for failures"]
+        },
+        {
+          "topic": "Advanced Prompt Engineering for Developers",
+          "subtopics": ["Prompt templates and variables", "System prompt design", "Few-shot example selection", "Chain-of-thought and its costs", "Decomposing tasks into prompt chains", "Prompt versioning", "Prompt compression", "Testing prompts like code"],
+          "tools": ["Python 3.12", "Jinja2", "promptfoo"],
+          "lab_task": "Turn the support assistant's single prompt into a versioned chain (classify, retrieve, answer, check), choose few-shot examples dynamically and prove the chain beats the single prompt on the test set.",
+          "deliverable": "Prompt chain code, versioned templates and evaluation results",
+          "checks": [["Run both versions on the test set", "Chain scores higher", "Evaluation output"], ["Change one template version", "Test run shows the effect of the change", "promptfoo report"], ["Count tokens per request", "Compressed prompt uses fewer tokens with the same score", "Token report"]],
+          "objectives": ["Build maintainable prompts", "Chain prompts for complex tasks", "Test and version prompts"]
+        },
+        {
+          "topic": "Structured Outputs, Function Schemas and Data Extraction at Scale",
+          "subtopics": ["Strict JSON schemas", "Pydantic models with nested fields", "Enums and constrained values", "Handling partial and invalid outputs", "Batch processing with rate limits", "Batch APIs for lower cost", "Human review queues for low confidence", "Accuracy dashboards"],
+          "tools": ["Python 3.12", "Pydantic", "Instructor", "OpenAI Batch API"],
+          "lab_task": "Process 1,000 purchase orders into nested Pydantic records with the batch API, route low-confidence records to a review queue and report accuracy per field.",
+          "deliverable": "Pipeline code, review queue and accuracy report",
+          "checks": [["Run on 1,000 documents", "All outputs validate or go to the review queue", "Pipeline report"], ["Compare cost with the standard API", "Batch run is cheaper", "Cost report"], ["Check accuracy per field", "Weakest field identified with examples", "Accuracy report"]],
+          "objectives": ["Extract structured data reliably", "Process documents in bulk", "Route uncertain results to people"]
+        },
+        {
+          "topic": "Production RAG: Chunking, Hybrid Search and Reranking",
+          "subtopics": ["Chunking strategies and sizes", "Metadata and filters", "Vector databases", "Hybrid search: keywords plus vectors", "Reranking retrieved chunks", "Query rewriting", "Citations and source links", "Retrieval metrics: recall and precision"],
+          "tools": ["Python 3.12", "Qdrant or pgvector", "Cohere Rerank or a cross-encoder", "LlamaIndex"],
+          "lab_task": "Rebuild the policy assistant with metadata filters, hybrid search and a reranker, and show the change in retrieval recall and answer accuracy on a 50-question test set.",
+          "deliverable": "RAG service, retrieval metrics and answer accuracy before and after",
+          "checks": [["Measure retrieval recall@5 before and after", "Recall improves", "Metrics report"], ["Filter by department", "Only that department's documents are used", "Retrieval log"], ["Measure answer accuracy", "Improves on the 50 questions", "Evaluation output"]],
+          "objectives": ["Improve retrieval quality", "Use hybrid search and reranking", "Measure retrieval and answers"],
+          "shared_key": "rag-production"
+        },
+        {
+          "topic": "Document Ingestion Pipelines: PDFs, Office Files and Web Pages",
+          "subtopics": ["Parsing PDFs with layout", "Word, PowerPoint and Excel files", "Scanned pages and OCR", "Cleaning headers, footers and boilerplate", "Tables as text or structured data", "Crawling internal web pages", "Incremental re-ingestion of changed files", "Ingestion quality checks"],
+          "tools": ["Unstructured", "PyMuPDF", "Azure AI Document Intelligence", "Python 3.12"],
+          "lab_task": "Build an ingestion pipeline for a folder of mixed PDFs, Office files and scanned pages that keeps tables, removes boilerplate, records the source page and only reprocesses files that changed.",
+          "deliverable": "Pipeline code, sample chunks with metadata and a quality report",
+          "checks": [["Ingest the folder twice with one file changed", "Only the changed file is reprocessed", "Pipeline log"], ["Inspect a chunk from a table", "Table rows and headers are kept", "Chunk output"], ["Search for a footer phrase", "Boilerplate does not appear in chunks", "Search output"]],
+          "objectives": ["Ingest real-world documents", "Keep structure and source details", "Re-ingest efficiently"]
+        },
+        {
+          "topic": "LLM Frameworks in Practice: LangChain and LlamaIndex",
+          "subtopics": ["What frameworks add and what they hide", "LangChain runnables and chains", "LlamaIndex indexes and query engines", "Swapping models and vector stores", "Callbacks and tracing", "Testing framework-based code", "Upgrading framework versions", "When to use plain SDK calls instead"],
+          "tools": ["LangChain", "LlamaIndex", "Python 3.12"],
+          "lab_task": "Rebuild the policy assistant twice, once with LangChain and once with LlamaIndex, compare code size, quality and latency with the plain SDK version and recommend one for the team.",
+          "deliverable": "Two implementations, comparison table and recommendation",
+          "checks": [["Run the 50-question test set on all three versions", "Scores recorded for each", "Evaluation output"], ["Swap the vector store in each framework", "Done through configuration with tests still passing", "Code diff and test output"], ["Review the recommendation", "Based on measured quality, latency and maintenance", "Recommendation"]],
+          "objectives": ["Use LangChain and LlamaIndex", "Compare frameworks with plain SDKs", "Choose tools on evidence"]
+        },
+        {
+          "topic": "Model Context Protocol: Connecting Assistants to Tools and Data",
+          "subtopics": ["What MCP is and why it exists", "MCP servers, clients and hosts", "Tools, resources and prompts in MCP", "Writing an MCP server in Python", "Connecting MCP servers to assistants and IDEs", "Authentication and permissions", "Logging and limits for MCP tools", "Security risks of third-party servers"],
+          "tools": ["MCP Python SDK", "Claude Desktop or VS Code", "Python 3.12"],
+          "lab_task": "Write an MCP server that exposes read-only order lookup and a document search resource, connect it to an assistant, and add authentication and per-tool rate limits.",
+          "deliverable": "MCP server code, connection configuration and a demo",
+          "checks": [["Ask the assistant for an order status", "It calls the MCP tool and answers with the real status", "Demo and server log"], ["Call the server without credentials", "Request is rejected", "Server log"], ["Exceed the tool rate limit", "Calls are throttled", "Server log"]],
+          "objectives": ["Build MCP servers", "Connect assistants to company tools", "Secure MCP integrations"]
+        },
+        {
+          "topic": "Function Calling and Tool Integration with Business Systems",
+          "subtopics": ["Designing tool interfaces", "Parameter validation before execution", "Read-only versus write tools", "Calling internal REST APIs", "Database query tools with safety limits", "Confirmation before actions", "Parallel tool calls", "Auditing tool use"],
+          "tools": ["Python 3.12", "FastAPI", "OpenAI Python SDK"],
+          "lab_task": "Connect the support assistant to an order API with read tools and a refund tool that needs user confirmation, validate every argument and keep an audit log of every call.",
+          "deliverable": "Tool code, audit log and a demo of the confirmation flow",
+          "checks": [["Ask for a refund above the limit", "Assistant asks for confirmation and the tool enforces the limit", "Demo and audit log"], ["Send a tool argument with a SQL injection string", "Validation rejects it", "Logs"], ["Check the audit log", "Every call shows user, tool, arguments and result", "Audit log"]],
+          "objectives": ["Integrate LLMs with business systems", "Make write actions safe", "Audit tool use"]
+        },
+        {
+          "topic": "Automated Evaluation Pipelines for LLM Applications",
+          "subtopics": ["Building golden test sets", "Reference-based and reference-free metrics", "LLM-as-judge with rubrics", "RAG metrics: faithfulness and answer relevance", "Regression tests in CI", "Comparing versions with statistics", "Human evaluation sampling", "Evaluation cost"],
+          "tools": ["Ragas", "DeepEval", "promptfoo", "GitHub Actions"],
+          "lab_task": "Add an evaluation suite with faithfulness, relevance and rubric scores to the assistant's repository and make CI fail when a pull request lowers the score by more than three points.",
+          "deliverable": "Evaluation suite, CI workflow and a failing and a passing pull request",
+          "checks": [["Open a pull request with a worse prompt", "CI fails on the score drop", "CI log"], ["Open a pull request with a better prompt", "CI passes and reports the gain", "CI log"], ["Compare judge scores with human marks on 20 answers", "Agreement measured", "Comparison sheet"]],
+          "objectives": ["Automate LLM evaluation", "Catch quality regressions in CI", "Validate automatic judges"]
+        },
+        {
+          "topic": "Guardrails and Content Safety",
+          "subtopics": ["Input validation and topic limits", "Output checks for personal data", "Content moderation APIs", "Prompt injection detection", "Guardrail libraries", "Refusal design", "Logging blocked requests", "Measuring false blocks"],
+          "tools": ["Guardrails AI", "NeMo Guardrails", "Presidio", "Azure AI Content Safety"],
+          "lab_task": "Add input and output guardrails to the assistant that block off-topic requests, mask personal data and detect injection, then measure how many safe requests are wrongly blocked.",
+          "deliverable": "Guardrail configuration, test results and false block rate",
+          "checks": [["Send a request containing a phone number", "Number is masked in logs and output", "Logs and response"], ["Send an injection attempt", "Blocked and logged", "Logs"], ["Send 50 normal requests", "False block rate below 5 percent", "Test results"]],
+          "objectives": ["Add guardrails to LLM applications", "Protect personal data", "Balance safety and usefulness"]
+        },
+        {
+          "topic": "Observability and Tracing for LLM Applications",
+          "subtopics": ["Tracing prompts, retrieval and tool calls", "Token, latency and cost per request", "Langfuse or LangSmith", "OpenTelemetry for LLMs", "User feedback capture", "Finding bad answers from traces", "Dashboards and alerts", "Privacy in logs"],
+          "tools": ["Langfuse", "OpenTelemetry", "Grafana"],
+          "lab_task": "Instrument the assistant with Langfuse traces for every step, capture thumbs up and down from users, and use the traces to find and fix the cause of the three worst-rated answers.",
+          "deliverable": "Tracing setup, dashboard and three fixed issues with trace evidence",
+          "checks": [["Open one request trace", "Shows prompt, retrieval, tool calls, tokens and latency", "Trace screenshot"], ["Filter answers rated thumbs down", "List of poor answers with traces", "Dashboard"], ["Fix the three worst answers", "Rerun shows better answers", "Before and after traces"]],
+          "objectives": ["Trace LLM applications", "Measure cost and latency", "Use feedback to improve quality"]
+        },
+        {
+          "topic": "Cost and Latency Optimisation",
+          "subtopics": ["Measuring cost per conversation", "Choosing smaller models by task", "Model routing", "Prompt caching", "Semantic caching of answers", "Streaming for perceived speed", "Batching and async calls", "Budgets and alerts"],
+          "tools": ["Python 3.12", "LiteLLM", "Redis"],
+          "lab_task": "Cut the assistant's cost per conversation by at least 40 percent with routing, prompt caching and a semantic cache while keeping the evaluation score within one point.",
+          "deliverable": "Cost and latency report before and after with evaluation scores",
+          "checks": [["Measure cost per conversation", "At least 40 percent lower", "Cost report"], ["Run the evaluation suite", "Score within one point of before", "Evaluation output"], ["Ask a repeated question", "Served from the semantic cache", "Logs"]],
+          "objectives": ["Reduce LLM cost", "Lower latency", "Keep quality while optimising"]
+        },
+        {
+          "topic": "Multimodal Applications: Documents, Images and Speech",
+          "subtopics": ["Vision models for documents and screenshots", "PDF and scanned document processing", "Table extraction from images", "Speech-to-text pipelines", "Text-to-speech responses", "Image generation in applications", "Cost and accuracy of multimodal calls", "Accessibility uses"],
+          "tools": ["Python 3.12", "Vision-capable model API", "Whisper", "Azure AI Document Intelligence"],
+          "lab_task": "Build a pipeline that reads scanned insurance claims with tables and handwriting, extracts fields, transcribes an attached voice note and compares accuracy of a vision model and a document AI service.",
+          "deliverable": "Pipeline code and an accuracy comparison",
+          "checks": [["Process 20 scanned claims", "Fields extracted for all with accuracy recorded", "Accuracy report"], ["Transcribe the voice notes", "Transcripts attached to the right claims", "Pipeline output"], ["Compare vision model and document AI", "Better choice per field type explained", "Comparison sheet"]],
+          "objectives": ["Build multimodal pipelines", "Process scanned documents", "Compare approaches by accuracy and cost"]
+        },
+        {
+          "topic": "Working with Open-Weight Models and Local Inference",
+          "subtopics": ["Hugging Face model hub", "Running models with Ollama and vLLM", "Quantisation formats: GGUF, AWQ, GPTQ", "Hardware sizing for GPU and CPU", "OpenAI-compatible local endpoints", "Licences of open-weight models", "Throughput and concurrency", "When local models are the right choice"],
+          "tools": ["Ollama", "vLLM", "Hugging Face", "Docker"],
+          "lab_task": "Serve an open-weight model with vLLM in Docker behind an OpenAI-compatible endpoint, switch the assistant to it with configuration only and compare quality, speed and cost with the hosted model.",
+          "deliverable": "Serving setup, comparison report and licence notes",
+          "checks": [["Point the assistant at the local endpoint", "Works with no code change", "Logs"], ["Load-test 20 concurrent users", "Throughput and latency recorded", "Load test output"], ["Review the model licence", "Commercial use conditions stated", "Licence notes"]],
+          "objectives": ["Serve open-weight models", "Size hardware", "Compare with hosted models"]
+        },
+        {
+          "topic": "Fine-Tuning Essentials: When and How",
+          "subtopics": ["Prompting, RAG or fine-tuning", "Preparing training data", "Supervised fine-tuning through a provider API", "LoRA fine-tuning of an open model", "Train, validation and test splits", "Measuring improvement", "Overfitting and forgetting", "Cost of training and serving"],
+          "tools": ["OpenAI fine-tuning API", "Hugging Face PEFT", "Python 3.12"],
+          "lab_task": "Fine-tune a small model to classify support tickets into 12 categories with 1,000 examples, compare it with a few-shot prompt on a held-out test set and calculate the cost of each approach.",
+          "deliverable": "Training data, fine-tuned model, comparison and cost sheet",
+          "checks": [["Evaluate on the held-out set", "Fine-tuned and prompt accuracy both reported", "Evaluation output"], ["Check for leakage between train and test", "No duplicates across splits", "Data check output"], ["Compare total cost for 100,000 tickets", "Cheaper option identified", "Cost sheet"]],
+          "objectives": ["Decide when to fine-tune", "Fine-tune a model", "Measure the benefit honestly"]
+        },
+        {
+          "topic": "Building Generative AI APIs with FastAPI",
+          "subtopics": ["API design for LLM features", "Streaming with server-sent events", "Request validation", "Authentication and rate limits per user", "Background jobs for long tasks", "Timeouts and cancellation", "API documentation", "Load testing an LLM API"],
+          "tools": ["FastAPI", "Redis", "Locust"],
+          "lab_task": "Expose the assistant as a FastAPI service with streaming answers, per-user rate limits, a background job for document ingestion and OpenAPI docs, then load-test it.",
+          "deliverable": "API code, OpenAPI page and load test report",
+          "checks": [["Call the streaming endpoint with curl", "Tokens arrive as they are generated", "curl output"], ["Exceed the user's rate limit", "429 response", "API response"], ["Run a load test with 50 users", "Error rate and p95 latency recorded", "Locust report"]],
+          "objectives": ["Build LLM APIs", "Stream responses", "Protect the service with limits"]
+        },
+        {
+          "topic": "Deploying Generative AI Services on the Cloud",
+          "subtopics": ["Managed model services: Azure OpenAI, Amazon Bedrock, Vertex AI", "Private networking to model endpoints", "Secrets and keys", "Containers on Cloud Run, Container Apps or ECS", "Quotas and capacity", "Regional availability and data residency", "Blue-green deployment of prompts and models", "Monitoring in production"],
+          "tools": ["Docker", "Azure OpenAI or Amazon Bedrock", "Terraform"],
+          "lab_task": "Deploy the assistant in a container to one cloud using its managed model service through a private endpoint, with keys in a secret store and a staged rollout of a new prompt version.",
+          "deliverable": "Deployment files, endpoint URL and rollout record",
+          "checks": [["Call the model endpoint from the public internet", "Blocked", "Client error"], ["Roll out a new prompt to 10 percent of traffic", "Only that share uses the new version", "Logs"], ["Read the application configuration", "No keys in code or images", "Config and image scan"]],
+          "objectives": ["Deploy LLM services to the cloud", "Secure model access", "Roll out changes safely"]
+        },
+        {
+          "topic": "Data Privacy, Security and Compliance for LLM Systems",
+          "subtopics": ["Data flows in LLM systems", "Personal data and retention", "Provider data-use terms", "Encryption and access control", "Threat modelling LLM applications", "OWASP Top 10 for LLM applications", "Audit trails", "Regulation: EU AI Act risk classes and India's DPDP Act"],
+          "tools": ["OWASP LLM Top 10", "Presidio", "Threat modelling template"],
+          "lab_task": "Threat-model the assistant against the OWASP LLM Top 10, fix the three highest risks, set retention rules for prompts and logs and write the data flow record.",
+          "deliverable": "Threat model, fixes, retention configuration and data flow record",
+          "checks": [["Map each OWASP LLM risk to the design", "Every risk has a status and owner", "Threat model"], ["Check logs after the retention period", "Old prompts are deleted", "Log storage listing"], ["Review the data flow record", "Shows where personal data goes and why", "Data flow record"]],
+          "objectives": ["Threat-model LLM systems", "Meet privacy requirements", "Keep audit evidence"]
+        },
+        {
+          "topic": "Generative AI Product Delivery: Pilots to Production",
+          "subtopics": ["Defining success measures", "Running pilots with real users", "A/B testing prompts and models", "Feedback loops", "Rollout and training plans", "Support and incident handling", "Measuring business impact", "Deciding to scale or stop"],
+          "tools": ["Langfuse", "Spreadsheet", "Feature flags"],
+          "lab_task": "Run an A/B test of two assistant versions with simulated users, analyse quality, satisfaction and cost, and write a go or no-go recommendation for production.",
+          "deliverable": "A/B test results and a go or no-go memo",
+          "checks": [["Compare the two versions", "Difference reported with sample sizes", "Analysis sheet"], ["Check the memo", "Recommendation follows from the measures", "Memo"], ["List production readiness items", "Support, monitoring and rollback are covered", "Checklist"]],
+          "objectives": ["Run AI pilots with evidence", "A/B test changes", "Decide on production rollout"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production Customer Support Assistant",
+          "subtopics": ["Requirements and architecture", "RAG with hybrid search and citations", "Tools with confirmation and audit", "Evaluation in CI and guardrails", "Observability, cost controls and deployment", "Demo and design defence"],
+          "tools": ["Python 3.12", "FastAPI", "Qdrant or pgvector", "Langfuse", "promptfoo", "Docker"],
+          "lab_task": "Deliver a support assistant that answers from documents with citations, looks up and changes orders through safe tools, passes CI evaluation, has guardrails and tracing, meets a cost budget and is deployed to a cloud, then present it.",
+          "deliverable": "Repository, CI evaluation report, dashboards, deployment and a 15-minute demo",
+          "checks": [["Run the evaluation suite in CI", "Meets the agreed quality threshold", "CI log"], ["Ask for a refund above the limit", "Confirmation required and audited", "Demo and audit log"], ["Show cost per conversation", "Within the agreed budget", "Dashboard"]],
+          "objectives": ["Combine the intermediate topics in one product", "Prove quality, safety and cost", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who build LLM applications in production. Covers model internals, training and alignment, serving at scale, advanced retrieval and agents, evaluation science, security, governance, LLMOps platforms and the economics of generative AI.",
+      "prerequisites": ["Has shipped an LLM application with RAG or tools", "Writes Python and works with cloud services", "Understands evaluation and basic machine learning ideas"],
+      "outcomes": ["Explain transformer internals and make informed model choices", "Fine-tune, align and serve models efficiently", "Build and govern enterprise generative AI platforms", "Evaluate, secure and run LLM systems at scale"],
+      "days": [
+        {
+          "topic": "Transformer Architecture in Depth",
+          "subtopics": ["Attention and multi-head attention", "Positional encodings and RoPE", "Feed-forward layers and residuals", "Decoder-only models", "KV cache", "Mixture of experts", "Long-context techniques", "Reading a model card and config"],
+          "tools": ["PyTorch", "Hugging Face Transformers", "Jupyter"],
+          "lab_task": "Implement single-head attention in PyTorch, load a small open model, inspect its attention patterns and KV cache size, and estimate memory for a 32k-token context.",
+          "deliverable": "Notebook with attention code, visualisations and memory estimate",
+          "checks": [["Compare your attention output with the library's", "Values match within tolerance", "Notebook output"], ["Estimate KV cache memory for 32k tokens", "Estimate matches measured usage within 20 percent", "Notebook output"], ["Explain mixture of experts from a model card", "Correct description of active parameters", "Written answer"]],
+          "objectives": ["Explain transformer internals", "Estimate memory and compute", "Read model configurations"]
+        },
+        {
+          "topic": "Pre-Training, Instruction Tuning and Alignment",
+          "subtopics": ["Pre-training data and scaling laws", "Supervised instruction tuning", "Reinforcement learning from human feedback", "Direct preference optimisation", "Constitutional and rule-based alignment", "Reward hacking", "Safety tuning trade-offs", "Evaluating alignment"],
+          "tools": ["Hugging Face TRL", "PyTorch", "Python 3.12"],
+          "lab_task": "Run direct preference optimisation on a small model with a provided preference dataset, compare outputs before and after on 30 prompts and measure helpfulness and refusal changes.",
+          "deliverable": "Training run, comparison set and evaluation report",
+          "checks": [["Compare preferred-response rate before and after", "Rate increases", "Evaluation report"], ["Measure refusals on safe prompts", "Over-refusal change recorded", "Evaluation report"], ["Explain reward hacking with an example from the run or literature", "Correct example given", "Written answer"]],
+          "objectives": ["Explain how models are aligned", "Run preference optimisation", "Measure alignment trade-offs"]
+        },
+        {
+          "topic": "Parameter-Efficient Fine-Tuning at Scale",
+          "subtopics": ["LoRA and QLoRA", "Choosing rank and target modules", "Data quality and deduplication", "Multi-GPU training with DeepSpeed or FSDP", "Experiment tracking", "Merging adapters", "Evaluating fine-tuned models", "Serving many adapters"],
+          "tools": ["Hugging Face PEFT", "DeepSpeed", "Weights & Biases", "vLLM"],
+          "lab_task": "Fine-tune a 7B-class model with QLoRA on a domain dataset, track experiments, compare three ranks, then serve two adapters from one vLLM instance.",
+          "deliverable": "Training configs, experiment dashboard and multi-adapter serving demo",
+          "checks": [["Compare three ranks on the test set", "Best rank chosen with scores", "Experiment dashboard"], ["Serve two adapters from one server", "Requests route to the right adapter", "Logs"], ["Check GPU memory during training", "Fits on the planned GPU", "Monitoring output"]],
+          "objectives": ["Fine-tune large models efficiently", "Track experiments", "Serve adapters at scale"]
+        },
+        {
+          "topic": "Synthetic Data Generation and Data Curation",
+          "subtopics": ["Uses of synthetic data", "Generating instruction and question data", "Self-instruct and evolution methods", "Filtering by quality", "Deduplication and decontamination", "Bias and diversity checks", "Licensing of generated data", "Mixing real and synthetic data"],
+          "tools": ["Python 3.12", "distilabel", "datasketch"],
+          "lab_task": "Generate 5,000 synthetic question-answer pairs from company documents, filter and deduplicate them, check that no test questions leaked in and measure the effect on a fine-tuned model.",
+          "deliverable": "Generation pipeline, curated dataset and effect report",
+          "checks": [["Run deduplication", "Near duplicates removed and counted", "Pipeline output"], ["Check overlap with the test set", "No leaked test questions", "Decontamination report"], ["Compare models trained with and without synthetic data", "Effect measured", "Evaluation report"]],
+          "objectives": ["Generate synthetic training data", "Curate data quality", "Avoid test contamination"]
+        },
+        {
+          "topic": "High-Throughput Model Serving and Inference Optimisation",
+          "subtopics": ["Batching and continuous batching", "PagedAttention and KV cache management", "Quantisation for serving: INT8, INT4, FP8", "Speculative decoding", "Tensor and pipeline parallelism", "Serving engines: vLLM, TGI, TensorRT-LLM", "Autoscaling GPU workloads", "Cost per million tokens"],
+          "tools": ["vLLM", "TensorRT-LLM", "Kubernetes", "Prometheus"],
+          "lab_task": "Benchmark an open model under load with and without quantisation and speculative decoding, tune batching and compute cost per million tokens for each setup.",
+          "deliverable": "Benchmark report and recommended serving configuration",
+          "checks": [["Load-test the baseline and the optimised setup", "Throughput at least doubled", "Benchmark report"], ["Run the quality test set on the quantised model", "Score drop under two points", "Evaluation output"], ["Compute cost per million tokens", "Calculation shown for every setup", "Cost sheet"]],
+          "objectives": ["Optimise inference throughput", "Use quantisation and speculative decoding", "Calculate serving cost"]
+        },
+        {
+          "topic": "Advanced Retrieval: GraphRAG, Agentic Retrieval and Long Context",
+          "subtopics": ["Limits of chunk-based retrieval", "Knowledge graphs from documents", "GraphRAG and community summaries", "Multi-hop question answering", "Retrieval as a tool for agents", "Long-context models versus retrieval", "Late-interaction retrieval with ColBERT", "Evaluating multi-hop answers"],
+          "tools": ["Neo4j", "Microsoft GraphRAG", "LlamaIndex", "ColBERT"],
+          "lab_task": "Build a knowledge graph from a set of contracts, answer 20 multi-hop questions with GraphRAG, plain RAG and a long-context model, and compare accuracy and cost.",
+          "deliverable": "Graph, three pipelines and a comparison report",
+          "checks": [["Answer the 20 multi-hop questions with each approach", "Accuracy recorded per approach", "Comparison report"], ["Inspect the graph for one contract", "Parties, dates and obligations are linked correctly", "Graph screenshot"], ["Compare cost per question", "Cost recorded per approach", "Comparison report"]],
+          "objectives": ["Go beyond basic RAG", "Build graph-based retrieval", "Choose between retrieval and long context"],
+          "shared_key": "rag-advanced"
+        },
+        {
+          "topic": "Agent Architectures for Production",
+          "subtopics": ["Single agent versus multi-agent designs", "Planning, reflection and tool use", "State machines for agents", "Memory: short-term, long-term and episodic", "Human-in-the-loop checkpoints", "Agent failure modes", "Agent evaluation", "Cost and latency of agents"],
+          "tools": ["LangGraph", "OpenAI Agents SDK", "Langfuse"],
+          "lab_task": "Rebuild a multi-step claims-handling workflow as a LangGraph agent with explicit states, human approval for payments and evaluation on 30 scenarios, comparing it with a free-form agent.",
+          "deliverable": "Agent code, state diagram and scenario evaluation",
+          "checks": [["Run 30 scenarios on both designs", "State-machine agent completes more correctly", "Evaluation output"], ["Trigger a payment", "Agent pauses for human approval", "Trace"], ["Measure cost per scenario", "Cost recorded for both designs", "Cost report"]],
+          "objectives": ["Design reliable agents", "Add human checkpoints", "Evaluate agents"]
+        },
+        {
+          "topic": "Evaluation Science for LLM Systems",
+          "subtopics": ["Validity of benchmarks", "Building representative test sets", "Statistical significance and confidence intervals", "Judge model bias and calibration", "Pairwise comparison and Elo ratings", "Online evaluation and A/B tests", "Red-team evaluation", "Reporting evaluation honestly"],
+          "tools": ["Python 3.12", "SciPy", "Ragas", "promptfoo"],
+          "lab_task": "Compare two model versions on 300 questions with pairwise judging, compute confidence intervals, measure judge position bias and write an evaluation report that states its limits.",
+          "deliverable": "Evaluation code, statistics and report",
+          "checks": [["Swap answer order for the judge", "Position bias measured", "Evaluation output"], ["Compute confidence intervals", "Report says whether the difference is significant", "Statistics output"], ["Review the report", "Limits and test set coverage are stated", "Report"]],
+          "objectives": ["Evaluate LLM systems rigorously", "Use statistics in comparisons", "Detect judge bias"]
+        },
+        {
+          "topic": "Red Teaming and Adversarial Testing of LLMs",
+          "subtopics": ["Threat actors and goals", "Jailbreak techniques", "Indirect prompt injection in RAG and agents", "Data extraction attacks", "Automated red teaming tools", "Severity scoring", "Defence in depth", "Reporting and retesting"],
+          "tools": ["PyRIT", "garak", "promptfoo red team"],
+          "lab_task": "Run an automated and a manual red-team exercise against the capstone assistant from the intermediate level, score findings by severity, fix the top three and retest.",
+          "deliverable": "Red-team report with findings, fixes and retest results",
+          "checks": [["Run garak or PyRIT", "Findings logged with attack type", "Tool output"], ["Fix the top three findings", "Retest shows them blocked", "Retest log"], ["Score each finding", "Severity assigned with reasons", "Report"]],
+          "objectives": ["Attack LLM systems systematically", "Prioritise findings", "Verify defences"]
+        },
+        {
+          "topic": "Enterprise Generative AI Platform and Gateway Design",
+          "subtopics": ["Central AI gateway", "Model catalogue and approvals", "Usage quotas per team", "Shared prompt and tool libraries", "Shared retrieval services", "Logging, privacy and retention", "Chargeback of AI costs", "Self-service for product teams"],
+          "tools": ["LiteLLM proxy", "Kong or Azure API Management", "Kubernetes", "Langfuse"],
+          "lab_task": "Deploy an AI gateway that routes requests from three teams to approved models, enforces quotas, masks personal data, logs usage and produces a monthly cost report per team.",
+          "deliverable": "Gateway configuration, quota tests and cost report",
+          "checks": [["Exceed a team's quota", "Requests are rejected for that team only", "Gateway logs"], ["Request an unapproved model", "Rejected", "Gateway logs"], ["Generate the monthly cost report", "Costs split by team", "Cost report"]],
+          "objectives": ["Design an enterprise AI platform", "Govern model access", "Charge back costs"]
+        },
+        {
+          "topic": "LLMOps: CI/CD for Prompts, Models and Data",
+          "subtopics": ["Versioning prompts, models and datasets", "Evaluation gates in pipelines", "Canary releases for models", "Monitoring drift in inputs and quality", "Rollback of prompts and models", "Feature stores and retrieval indexes", "Reproducible builds of indexes", "Incident response for AI quality"],
+          "tools": ["MLflow", "GitHub Actions", "Langfuse", "Argo Rollouts"],
+          "lab_task": "Build a pipeline that versions the prompt, model and index together, runs evaluation gates, releases to 10 percent of traffic, watches quality metrics and rolls back automatically on a drop.",
+          "deliverable": "Pipeline definition, release record and rollback demo",
+          "checks": [["Release a worse prompt", "Canary detects the drop and rolls back", "Pipeline and monitoring logs"], ["Rebuild the index from the recorded version", "Same retrieval results as before", "Comparison output"], ["Look up the version of a production answer", "Prompt, model and index versions are traceable", "Trace"]],
+          "objectives": ["Operate LLM systems with CI/CD", "Release changes safely", "Trace every answer to its versions"]
+        },
+        {
+          "topic": "Responsible AI Governance and Regulation",
+          "subtopics": ["AI risk management frameworks: NIST AI RMF, ISO/IEC 42001", "EU AI Act obligations by risk class", "India's DPDP Act and sector rules", "Model cards and system cards", "Impact assessments", "Human oversight requirements", "Incident reporting", "Audit readiness"],
+          "tools": ["NIST AI RMF", "ISO/IEC 42001", "Model card template"],
+          "lab_task": "Classify three company AI systems under the EU AI Act, complete an impact assessment and a system card for the highest-risk one, and list the controls needed for audit.",
+          "deliverable": "Classification, impact assessment, system card and control list",
+          "checks": [["Classify the three systems", "Classes justified against the regulation text", "Classification sheet"], ["Review the system card", "Covers purpose, data, limits, evaluation and oversight", "System card"], ["Map controls to ISO/IEC 42001 clauses", "Each control is mapped", "Control list"]],
+          "objectives": ["Govern AI systems", "Meet regulatory duties", "Prepare for audits"]
+        },
+        {
+          "topic": "Privacy-Preserving and On-Premises Generative AI",
+          "subtopics": ["Air-gapped deployments", "Confidential computing", "Differential privacy in training", "Federated approaches", "Personal data removal from training sets", "Machine unlearning limits", "On-premises GPU platforms", "Choosing between cloud and on-premises"],
+          "tools": ["vLLM", "Kubernetes", "NVIDIA GPU Operator", "Presidio"],
+          "lab_task": "Design and build an on-premises assistant that runs with no internet access, removes personal data from its documents before indexing and meets a stated data residency rule.",
+          "deliverable": "Architecture, deployment and privacy test results",
+          "checks": [["Block all outbound traffic", "Assistant still works", "Network test and demo"], ["Search the index for planted personal data", "None found", "Search output"], ["Compare on-premises and cloud cost for the stated load", "Comparison with assumptions", "Cost sheet"]],
+          "objectives": ["Run generative AI without sending data out", "Protect personal data", "Decide between cloud and on-premises"]
+        },
+        {
+          "topic": "Multimodal and Speech Systems at Scale",
+          "subtopics": ["Vision-language models", "Document understanding pipelines", "Real-time voice assistants", "Latency budgets for voice", "Speech models: Whisper and alternatives", "Text-to-speech quality", "Evaluating multimodal outputs", "Cost at scale"],
+          "tools": ["Whisper", "Vision-language model", "WebRTC", "Python 3.12"],
+          "lab_task": "Build a real-time voice assistant that answers questions from documents with under 1.5 seconds response time, and measure transcription accuracy and answer quality on 30 calls.",
+          "deliverable": "Voice assistant, latency report and evaluation results",
+          "checks": [["Measure response time on 30 calls", "p90 under 1.5 seconds", "Latency report"], ["Measure word error rate", "Recorded and compared with a target", "Evaluation output"], ["Interrupt the assistant while it speaks", "It stops and listens", "Demo recording"]],
+          "objectives": ["Build multimodal systems", "Meet latency budgets", "Evaluate speech and vision quality"]
+        },
+        {
+          "topic": "Small Language Models and Edge Deployment",
+          "subtopics": ["When small models are enough", "Distillation from large models", "Running models on CPUs and phones", "ONNX and llama.cpp", "Memory and battery limits", "Updating models on devices", "Accuracy versus size trade-offs", "Hybrid edge and cloud designs"],
+          "tools": ["llama.cpp", "ONNX Runtime", "Hugging Face"],
+          "lab_task": "Distil a classification task from a large model into a small model, run it on a CPU-only device with llama.cpp or ONNX and compare accuracy, speed and size with the large model.",
+          "deliverable": "Distilled model, device benchmark and comparison",
+          "checks": [["Run on a CPU-only device", "Answers within the latency target", "Benchmark output"], ["Compare accuracy with the large model", "Gap recorded", "Evaluation output"], ["Measure model size", "Fits the device memory", "Size report"]],
+          "objectives": ["Use small models where they fit", "Distil large models", "Deploy to edge devices"]
+        },
+        {
+          "topic": "Content Provenance, Watermarking and Copyright",
+          "subtopics": ["Copyright questions for training data and outputs", "Licensing of models and datasets", "Watermarking generated text and images", "C2PA content credentials", "Detecting AI-generated content and its limits", "Indemnities from providers", "Brand and trademark risks", "Policies for publishing AI content"],
+          "tools": ["C2PA tools", "Image generation API", "Python 3.12"],
+          "lab_task": "Add C2PA content credentials to generated marketing images, test two AI-text detectors on 40 human and AI texts, and write a publishing policy based on the results.",
+          "deliverable": "Signed images, detector test results and a publishing policy",
+          "checks": [["Inspect a signed image with a C2PA verifier", "Credentials show the generator and edits", "Verifier output"], ["Run both detectors on the 40 texts", "Error rates recorded", "Test results"], ["Review the publishing policy", "Matches the detector limits found", "Policy document"]],
+          "objectives": ["Track the origin of generated content", "Understand copyright and licence risks", "Set publishing rules"]
+        },
+        {
+          "topic": "Economics of Generative AI",
+          "subtopics": ["Total cost of ownership", "Token pricing and committed use", "Self-hosting versus API break-even", "GPU utilisation", "Measuring productivity gains", "Pricing AI features for customers", "Budget forecasting", "Reporting value to leadership"],
+          "tools": ["Spreadsheet", "Cloud pricing calculators"],
+          "lab_task": "Build a three-year cost model for an AI feature comparing API use and self-hosting at three traffic levels, find the break-even point and present a recommendation to leadership.",
+          "deliverable": "Cost model and a five-slide recommendation",
+          "checks": [["Find the break-even traffic", "Break-even calculated with stated assumptions", "Cost model"], ["Change the GPU utilisation assumption", "Model updates and the effect is explained", "Cost model"], ["Present the recommendation", "Supported by the numbers", "Slides"]],
+          "objectives": ["Model AI costs", "Compare build and buy", "Report value to leadership"]
+        },
+        {
+          "topic": "Generative AI Incident Management and Production Troubleshooting",
+          "subtopics": ["Quality incidents and hallucination spikes", "Provider outages", "Cost spikes", "Data leaks through outputs", "Diagnosing with traces", "Rolling back prompts, models and indexes", "Communicating with users", "Post-incident reviews"],
+          "tools": ["Langfuse", "Grafana", "PagerDuty"],
+          "lab_task": "Handle three injected incidents (a hallucination spike after an index change, a provider outage and a cost spike from a loop), restore service, find root causes and write runbooks.",
+          "deliverable": "Incident timelines, fixes and runbooks",
+          "checks": [["Restore answer quality after the index incident", "Evaluation score back to baseline", "Evaluation output"], ["Handle the provider outage", "Traffic moves to the fallback model", "Logs"], ["Find the cause of the cost spike", "Looping request identified and capped", "Trace and fix"]],
+          "objectives": ["Respond to AI incidents", "Diagnose with traces", "Write runbooks"]
+        },
+        {
+          "topic": "Generative AI Strategy and Architecture Reviews",
+          "subtopics": ["Reviewing an AI system design", "Build versus buy decisions", "Vendor lock-in and portability", "Capability roadmaps", "Skills and team structure", "Platform versus product teams", "Architecture decision records for AI", "Presenting to an architecture board"],
+          "tools": ["Architecture decision record template", "Diagramming tool"],
+          "lab_task": "Review two proposed generative AI designs from a provided case study, find their main risks, write architecture decision records and present a recommendation to a mock architecture board.",
+          "deliverable": "Review notes, decision records and presentation",
+          "checks": [["List the risks in each design", "Main risks found with evidence", "Review notes"], ["Write decision records", "Each has options, trade-offs and a decision", "Decision records"], ["Answer board questions", "Recommendation defended with evidence", "Presentation"]],
+          "objectives": ["Review AI architectures", "Make and record decisions", "Communicate strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Generative AI Platform",
+          "subtopics": ["Platform architecture and governance", "Fine-tuned and served models", "Advanced retrieval and agents", "Evaluation, red teaming and LLMOps", "Security, privacy and cost model", "Board presentation and design defence"],
+          "tools": ["vLLM", "LiteLLM proxy", "LangGraph", "Langfuse", "Kubernetes", "MLflow"],
+          "lab_task": "Deliver an enterprise platform with a governed gateway, a fine-tuned served model, graph-based retrieval, an agent with human approval, evaluation gates, red-team results and a cost model, then present it to a mock board.",
+          "deliverable": "Platform repository, evaluation and red-team reports, cost model and a 20-minute presentation",
+          "checks": [["Release a worse model through the pipeline", "Evaluation gate blocks it", "Pipeline log"], ["Run the red-team suite", "No critical findings open", "Red-team report"], ["Show the cost model", "Break-even and budget are justified", "Cost model"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove quality, safety and cost", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

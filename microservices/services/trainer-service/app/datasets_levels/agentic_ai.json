@@ -1,0 +1,576 @@
+{
+  "domain": "Agentic AI",
+  "name": "Agentic AI",
+  "category": "Generative AI and Agents",
+  "icon": "bot",
+  "aliases": ["Agentic AI Development", "Agentic AI Engineering", "Autonomous AI Agents", "Building AI Agents", "AI Agent Development", "Agentic Workflows"],
+  "certifications": ["No single vendor certification; assessed by capstone project", "Microsoft Azure AI Engineer Associate (AI-102)", "AWS Certified Machine Learning Engineer - Associate (MLA-C01)"],
+  "tools": ["Python 3.12", "LangGraph", "OpenAI Agents SDK", "CrewAI", "MCP Python SDK", "Langfuse"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers new to AI agents. Covers what agents are, how LLMs call tools, the agent loop, memory, planning, retrieval for agents, a first look at LangGraph, CrewAI and MCP, and safe limits, ending with a working single-agent assistant.",
+      "prerequisites": ["Writes basic Python: functions, classes, packages and virtual environments", "Has called a REST API", "Access to an LLM API key or a local Ollama install"],
+      "outcomes": ["Explain how agents differ from chatbots and fixed workflows", "Build agents that use tools, memory and retrieval", "Build a first graph-based agent with LangGraph", "Add step limits, logging and approval for risky actions"],
+      "days": [
+        {
+          "topic": "Agentic AI Overview and Environment Setup",
+          "subtopics": ["Chatbots, workflows and agents compared", "What makes software agentic: goals, tools, loops", "Typical enterprise agent use cases", "Where agents fail today", "Hosted and local models for agents", "Setting up Python, uv and a virtual environment", "API keys in environment variables", "Installing Ollama for local experiments", "Project structure for agent code", "Course project overview"],
+          "tools": ["Python 3.12", "uv", "Ollama", "VS Code"],
+          "lab_task": "Set up the course environment, call a hosted and a local model from Python, and classify ten provided business tasks as best suited to a chatbot, a fixed workflow or an agent with reasons.",
+          "deliverable": "Working environment, two model calls and the classification table",
+          "checks": [["Run the hosted and local model calls", "Both return answers", "Terminal output"], ["Run the script without an API key", "Clear error message", "Terminal output"], ["Review the ten classifications", "At least eight match the answer key with reasons", "Classification table"]],
+          "objectives": ["Explain what an agent is", "Set up an agent development environment", "Choose agents only where they fit"]
+        },
+        {
+          "topic": "LLM Calls for Agents: Messages, Roles and Structured Replies",
+          "subtopics": ["System, user, assistant and tool messages", "Model parameters that matter for agents", "Structured replies with JSON schemas", "Pydantic models for agent outputs", "Handling refusals and invalid replies", "Retries with back-off", "Token usage and cost per step", "Choosing a model for agent work"],
+          "tools": ["Python 3.12", "OpenAI Python SDK", "Pydantic"],
+          "lab_task": "Write a helper that calls a model, validates its reply against a Pydantic schema, retries on invalid output and logs tokens and cost for each call.",
+          "deliverable": "Helper module, tests and a cost log",
+          "checks": [["Make the model return invalid JSON in a test", "Helper retries and then raises a clear error", "Test output"], ["Run 20 calls", "Every reply validates against the schema", "Log output"], ["Read the cost log", "Tokens and cost per call recorded", "Log file"]],
+          "objectives": ["Call models reliably from agent code", "Get structured replies", "Track cost per step"]
+        },
+        {
+          "topic": "Tool Calling: Letting Models Use Functions",
+          "subtopics": ["Describing tools with JSON schemas", "How the model selects a tool", "Executing tool calls in code", "Returning results to the model", "Parallel tool calls", "Tool errors and timeouts", "Read-only and write tools", "Writing good tool descriptions"],
+          "tools": ["Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Give a model weather, currency and calendar tools, execute its tool calls, return results and handle a failing tool, then improve the tool descriptions until it picks the right tool in 18 of 20 test questions.",
+          "deliverable": "Tool definitions, execution code and tool-choice test results",
+          "checks": [["Ask a question that needs two tools", "Both tools are called and both results are used", "Tool log"], ["Make a tool time out", "Model is told about the failure and does not invent data", "Model output"], ["Run the 20 tool-choice questions", "At least 18 choose the right tool", "Test results"]],
+          "objectives": ["Connect models to functions", "Handle tool failures", "Write tool descriptions that work"],
+          "shared_key": "agent-tools"
+        },
+        {
+          "topic": "The Agent Loop: Reason, Act, Observe",
+          "subtopics": ["The ReAct pattern", "Writing an agent loop by hand", "Stopping conditions", "Step limits and time limits", "Detecting loops", "Final answer formats", "Logging every step", "Debugging an agent run"],
+          "tools": ["Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Write an agent loop from scratch that researches a question with a search tool and a calculator, stops at a final answer or after eight steps and writes a readable step log.",
+          "deliverable": "Agent loop code and step logs for five questions",
+          "checks": [["Ask a question that needs search then calculation", "Agent searches, calculates and answers correctly", "Step log"], ["Give an impossible task", "Agent stops at the step limit with a clear message", "Step log"], ["Feed a tool result that repeats forever", "Loop detection stops the run", "Step log"]],
+          "objectives": ["Build an agent loop", "Set stopping rules", "Debug agent runs from logs"]
+        },
+        {
+          "topic": "Prompting Agents: Instructions, Personas and Policies",
+          "subtopics": ["System prompts for agents", "Describing goals and constraints", "Tool use rules in the prompt", "Asking for plans before actions", "Policies the agent must follow", "Handling unclear user requests", "Prompt changes and their side effects", "Testing prompts against scenarios"],
+          "tools": ["Python 3.12", "promptfoo"],
+          "lab_task": "Write the system prompt for an IT helpdesk agent with tool rules and a password-reset policy, then test it against 15 scenarios including unclear and policy-breaking requests.",
+          "deliverable": "System prompt and scenario test results",
+          "checks": [["Ask the agent to reset another person's password", "Agent refuses and explains the policy", "Scenario output"], ["Send an unclear request", "Agent asks a clarifying question", "Scenario output"], ["Run all 15 scenarios", "At least 13 behave as expected", "promptfoo report"]],
+          "objectives": ["Write agent instructions", "Encode policies", "Test agent behaviour"]
+        },
+        {
+          "topic": "Agent Memory: Conversation, Summaries and Long-Term Facts",
+          "subtopics": ["Short-term conversation memory", "Trimming and summarising history", "Long-term memory stores", "Saving user preferences", "Retrieving relevant memories", "Forgetting and user control", "Memory and privacy", "Testing memory behaviour"],
+          "tools": ["Python 3.12", "SQLite", "Chroma"],
+          "lab_task": "Add short-term and long-term memory to the helpdesk agent so it remembers a user's laptop model across sessions, summarises long chats and deletes memories on request.",
+          "deliverable": "Memory module, tests and demo",
+          "checks": [["Start a new session after giving the laptop model", "Agent remembers it", "Demo output"], ["Ask the agent to forget the user's details", "Memories are deleted and not used again", "Database query and demo"], ["Hold a 50-message chat", "Old messages are summarised and the agent still answers correctly", "Logs"]],
+          "objectives": ["Give agents memory", "Control what is remembered", "Protect user data in memory"]
+        },
+        {
+          "topic": "Retrieval for Agents: Searching Documents as a Tool",
+          "subtopics": ["Agents that decide when to search", "Building a document search tool", "Chunking and embeddings in brief", "Returning sources with results", "Several searches in one task", "Combining search with other tools", "Saying \"not found\"", "Measuring answer accuracy"],
+          "tools": ["Python 3.12", "Chroma", "sentence-transformers"],
+          "lab_task": "Give the helpdesk agent a search tool over IT policy documents, let it decide when to search, cite sources and combine search results with a ticket-creation tool.",
+          "deliverable": "Search tool, agent code and 15-question test results",
+          "checks": [["Ask a policy question", "Agent searches and cites the right document", "Agent output"], ["Ask a question the documents do not answer", "Agent says it cannot find it", "Agent output"], ["Ask to raise a ticket about a policy issue", "Agent searches, then creates a ticket with the policy reference", "Tool log"]],
+          "objectives": ["Use retrieval as an agent tool", "Cite sources", "Combine retrieval with actions"]
+        },
+        {
+          "topic": "Planning and Task Decomposition",
+          "subtopics": ["Plan-and-execute agents", "Breaking goals into steps", "Re-planning after failures", "Checklists and to-do state", "Reflection and self-critique", "When planning helps and when it wastes tokens", "Plan formats the code can check", "Showing plans to users"],
+          "tools": ["Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Build a plan-and-execute agent that turns \"prepare onboarding for a new hire\" into steps, runs them with tools, re-plans when one tool fails and compares cost and success with the plain loop.",
+          "deliverable": "Planner agent code and comparison results",
+          "checks": [["Make one step's tool fail", "Agent re-plans and completes the goal another way", "Step log"], ["Compare with the plain loop on ten goals", "Success rate and cost recorded for both", "Comparison table"], ["Print the plan before execution", "Plan is valid against the plan schema", "Agent output"]],
+          "objectives": ["Build planning agents", "Re-plan after failures", "Judge when planning is worth it"]
+        },
+        {
+          "topic": "LangGraph Essentials: States, Nodes and Edges",
+          "subtopics": ["Why graphs for agents", "State as a typed dictionary", "Nodes and edges", "Conditional edges", "Tool nodes", "Running and streaming a graph", "Visualising the graph", "Debugging with LangGraph Studio"],
+          "tools": ["LangGraph", "Python 3.12", "LangGraph Studio"],
+          "lab_task": "Rebuild the helpdesk agent as a LangGraph graph with a router node, a search node, a tool node and a response node, and show the graph and a streamed run.",
+          "deliverable": "Graph code, diagram and run trace",
+          "checks": [["Run a password question and a hardware question", "Router sends each to the right path", "Trace"], ["Draw the graph", "Diagram matches the intended design", "Graph image"], ["Stream a run", "Each node's output appears as it finishes", "Terminal output"]],
+          "objectives": ["Build agents with LangGraph", "Route between steps", "Debug graph runs"]
+        },
+        {
+          "topic": "Checkpoints, Persistence and Human Approval in LangGraph",
+          "subtopics": ["Checkpointers and thread IDs", "Resuming a conversation", "Interrupts before actions", "Approving, editing or rejecting a step", "Time travel to earlier states", "Persisting state in SQLite or Postgres", "Long-running tasks", "Audit records of approvals"],
+          "tools": ["LangGraph", "SQLite", "PostgreSQL"],
+          "lab_task": "Add persistence to the helpdesk graph, require human approval before any account change, let the approver edit the action and resume after a restart.",
+          "deliverable": "Graph code, approval demo and audit records",
+          "checks": [["Request an account change", "Graph pauses for approval", "Demo"], ["Restart the process during the pause", "Run resumes from the checkpoint", "Logs and demo"], ["Edit the action before approving", "Edited action is executed and recorded", "Audit record"]],
+          "objectives": ["Persist agent state", "Add human approval", "Resume long-running agents"]
+        },
+        {
+          "topic": "Multi-Agent Systems: Roles and Hand-Offs",
+          "subtopics": ["When one agent is not enough", "Supervisor and worker agents", "Hand-offs between agents", "Shared and private state", "Role prompts", "Avoiding agents talking in circles", "Cost of multi-agent systems", "Comparing with a single agent"],
+          "tools": ["LangGraph", "OpenAI Agents SDK", "Python 3.12"],
+          "lab_task": "Build a supervisor with research, writing and review agents that produces a one-page market brief, then compare quality and cost with a single agent on five topics.",
+          "deliverable": "Multi-agent code, five briefs and a comparison",
+          "checks": [["Run the five topics with both designs", "Quality scores and cost recorded for both", "Comparison table"], ["Inspect a hand-off", "Supervisor passes the right context to the writer", "Trace"], ["Make the reviewer reject a draft", "Writer revises and the run still finishes within the step limit", "Trace"]],
+          "objectives": ["Design multi-agent systems", "Manage hand-offs", "Compare against single agents"]
+        },
+        {
+          "topic": "Role-Based Agent Teams with CrewAI",
+          "subtopics": ["Agents, tasks and crews", "Sequential and hierarchical processes", "Tools in CrewAI", "Task outputs and dependencies", "Memory in crews", "Configuring crews with YAML", "Logging and limits", "CrewAI versus LangGraph"],
+          "tools": ["CrewAI", "Python 3.12"],
+          "lab_task": "Build the market brief as a CrewAI crew with researcher, analyst and writer roles in a sequential and a hierarchical process, and compare the results with the LangGraph version.",
+          "deliverable": "Crew configuration, outputs and comparison notes",
+          "checks": [["Run the sequential crew", "Brief is produced with each task's output recorded", "Crew log"], ["Run the hierarchical crew", "Manager assigns tasks and the brief is produced", "Crew log"], ["Compare with the LangGraph version", "Differences in control, cost and quality listed", "Comparison notes"]],
+          "objectives": ["Build agent teams with CrewAI", "Choose processes", "Compare frameworks"]
+        },
+        {
+          "topic": "Connecting Agents to Tools with the Model Context Protocol",
+          "subtopics": ["MCP hosts, clients and servers", "Tools, resources and prompts", "Using existing MCP servers", "Writing a small MCP server", "Connecting MCP tools to LangGraph", "Permissions and approval", "Trust in third-party servers", "Debugging MCP connections"],
+          "tools": ["MCP Python SDK", "LangGraph", "Claude Desktop or VS Code"],
+          "lab_task": "Write an MCP server that exposes the ticket system, connect it to the helpdesk agent and to an IDE assistant, and require approval for the create-ticket tool.",
+          "deliverable": "MCP server, agent integration and demo",
+          "checks": [["List tools from the agent", "Ticket tools appear from the MCP server", "Agent output"], ["Create a ticket through the agent", "Approval is requested before the call", "Demo"], ["Stop the MCP server", "Agent reports the tool is unavailable", "Agent output"]],
+          "objectives": ["Use MCP with agents", "Write MCP servers", "Control access to MCP tools"],
+          "shared_key": "mcp-agents"
+        },
+        {
+          "topic": "Agents That Work with Code and Data",
+          "subtopics": ["Code interpreter tools", "Running generated code in a sandbox", "Agents that query databases", "Read-only database users", "Checking generated SQL before running it", "Charts and reports from agents", "Limits on runtime and memory", "Risks of code execution"],
+          "tools": ["Python 3.12", "Docker", "SQLite", "pandas"],
+          "lab_task": "Build a data analyst agent that writes and runs Python in a Docker sandbox and SQL against a read-only database, answers ten business questions and refuses to run destructive SQL.",
+          "deliverable": "Agent code, sandbox setup and answers to the ten questions",
+          "checks": [["Ask a question that needs a chart", "Chart is produced from sandboxed code", "Output file"], ["Ask the agent to delete a table", "Refused, and the read-only user would block it anyway", "Agent output and database log"], ["Compare the ten answers with the answer key", "At least eight correct", "Answer sheet"]],
+          "objectives": ["Let agents run code safely", "Query data with agents", "Contain risky actions"]
+        },
+        {
+          "topic": "Browser and Web Agents",
+          "subtopics": ["Agents that read web pages", "Search APIs for agents", "Browser automation with Playwright", "Extracting structured data from pages", "Handling logins and forms safely", "Rate limits and site terms", "Prompt injection from web content", "When to use an API instead"],
+          "tools": ["Playwright", "Python 3.12", "Search API"],
+          "lab_task": "Build an agent that researches three competitors' public pricing pages with Playwright, extracts prices into a table and ignores a hidden instruction planted on one test page.",
+          "deliverable": "Agent code, price table and injection test result",
+          "checks": [["Run on the three test pages", "Prices extracted correctly", "Price table"], ["Visit the page with a hidden instruction", "Agent does not follow it", "Trace"], ["Hit the site rate limit setting", "Agent waits instead of retrying rapidly", "Logs"]],
+          "objectives": ["Build web research agents", "Extract data from pages", "Defend against injected web content"]
+        },
+        {
+          "topic": "Agent Safety: Permissions, Limits and Guardrails",
+          "subtopics": ["Least privilege for agent tools", "Step, time and cost budgets", "Confirmation for high-risk actions", "Input and output guardrails", "Prompt injection through tool results", "Allow lists and deny lists", "Kill switches", "Logging for audits"],
+          "tools": ["Python 3.12", "LangGraph", "Guardrails AI"],
+          "lab_task": "Add budgets, approval rules, an allow list of tools per user role and an output filter to the helpdesk agent, then run ten attack scenarios and record which are stopped.",
+          "deliverable": "Safety configuration and attack test results",
+          "checks": [["Run the agent past its cost budget", "It stops and reports the budget", "Logs"], ["Use a role without access to a tool", "Tool is not offered or called", "Trace"], ["Run the ten attack scenarios", "At least nine are stopped", "Test results"]],
+          "objectives": ["Limit what agents can do", "Add guardrails", "Test agent safety"]
+        },
+        {
+          "topic": "Testing and Evaluating Agents",
+          "subtopics": ["Why agents are hard to test", "Unit tests for tools", "Scenario tests for agent behaviour", "Checking tool-call sequences", "Success rate, steps and cost metrics", "LLM-as-judge for final answers", "Regression tests", "Mocking models in tests"],
+          "tools": ["pytest", "promptfoo", "Langfuse"],
+          "lab_task": "Write unit tests for every helpdesk tool, 20 scenario tests that check the tool calls and final answers, and a report of success rate, average steps and cost.",
+          "deliverable": "Test suite and evaluation report",
+          "checks": [["Run the tool unit tests", "All pass", "pytest output"], ["Break the router prompt", "Scenario tests fail", "Test output"], ["Read the evaluation report", "Success rate, steps and cost per scenario", "Report"]],
+          "objectives": ["Test agents systematically", "Measure agent performance", "Catch regressions"]
+        },
+        {
+          "topic": "Observability for Agents: Tracing Steps and Costs",
+          "subtopics": ["Tracing each step and tool call", "Langfuse and LangSmith", "Token and cost tracking per run", "Latency per step", "User feedback on runs", "Finding failing patterns", "Dashboards", "Keeping personal data out of traces"],
+          "tools": ["Langfuse", "LangGraph", "Python 3.12"],
+          "lab_task": "Trace every helpdesk run in Langfuse, build a dashboard of success, cost and latency, and use traces to find and fix the two most common failure patterns.",
+          "deliverable": "Tracing setup, dashboard and two fixes with evidence",
+          "checks": [["Open a run trace", "Every step, tool call, token count and latency is visible", "Trace screenshot"], ["Find the most common failure", "Pattern identified from traces", "Analysis note"], ["Rerun the failing scenarios after the fix", "They pass", "Test output"]],
+          "objectives": ["Trace agent runs", "Measure cost and latency", "Fix failures from evidence"]
+        },
+        {
+          "topic": "Deploying an Agent as a Service",
+          "subtopics": ["Serving agents behind an API", "Streaming agent steps to a UI", "Background runs for long tasks", "Authentication and per-user state", "Configuration and secrets", "Containers", "Rate limits and quotas", "A simple chat UI"],
+          "tools": ["FastAPI", "Docker", "Streamlit", "LangGraph"],
+          "lab_task": "Deploy the helpdesk agent as a FastAPI service in Docker with per-user threads, streamed steps to a Streamlit UI, background runs and rate limits.",
+          "deliverable": "Service, Docker image and UI demo",
+          "checks": [["Run two users at once", "Each sees only their own conversation", "Demo"], ["Start a long task", "Runs in the background and the user can check status", "API responses"], ["Exceed the rate limit", "429 response", "API response"]],
+          "objectives": ["Serve agents as APIs", "Stream steps to users", "Isolate users"]
+        },
+        {
+          "topic": "Beginner Capstone: IT Helpdesk Agent",
+          "subtopics": ["Requirements and tool design", "Agent graph with memory and retrieval", "Approval for risky actions", "Safety limits", "Tests, tracing and deployment", "Demo"],
+          "tools": ["Python 3.12", "LangGraph", "MCP Python SDK", "Langfuse", "FastAPI"],
+          "lab_task": "Deliver an IT helpdesk agent that answers from policies with citations, raises and updates tickets through MCP tools, asks approval for account changes, has budgets and guardrails, passes 20 scenario tests and runs as a service, then demo it.",
+          "deliverable": "Repository, test report, traces and a 10-minute demo",
+          "checks": [["Run the 20 scenario tests", "At least 18 pass", "Test report"], ["Request an account change", "Approval requested and recorded", "Demo and audit record"], ["Try a prompt injection through a policy document", "Agent ignores it", "Trace"]],
+          "objectives": ["Combine the beginner topics in one agent", "Prove behaviour with tests", "Explain safety choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a simple agent. Covers production agent design with LangGraph, multi-agent patterns, agent protocols, enterprise tool integration, retrieval-heavy agents, evaluation, guardrails, observability, cost control and deployment on cloud agent platforms.",
+      "prerequisites": ["Has built a tool-using agent in Python", "Knows LangGraph or a similar framework at a basic level", "Comfortable with REST APIs, Docker and Git"],
+      "outcomes": ["Design agent workflows that are reliable and observable", "Build multi-agent systems with clear hand-offs and protocols", "Evaluate, secure and control the cost of agents", "Deploy agents on cloud agent platforms"],
+      "days": [
+        {
+          "topic": "Agent Design Patterns: Routers, Workflows and Autonomous Loops",
+          "subtopics": ["Prompt chaining", "Routing", "Parallelisation", "Orchestrator and workers", "Evaluator and optimiser loops", "Autonomous agents", "Choosing the least autonomy that works", "Pattern selection checklist"],
+          "tools": ["LangGraph", "Python 3.12"],
+          "lab_task": "Implement the same expense-claim process as a chain, a router, an orchestrator-worker graph and an autonomous agent, and compare success, cost and predictability on 20 claims.",
+          "deliverable": "Four implementations and a comparison table",
+          "checks": [["Run the 20 claims on all four", "Success and cost recorded for each", "Comparison table"], ["Run each design five times on one claim", "Variation in steps measured", "Results"], ["Choose a design for production", "Choice justified with the table", "Recommendation"]],
+          "objectives": ["Apply agent design patterns", "Measure autonomy trade-offs", "Choose the simplest design that works"]
+        },
+        {
+          "topic": "Advanced LangGraph: Subgraphs, Parallel Branches and Reducers",
+          "subtopics": ["Subgraphs for modular agents", "Parallel branches with Send", "State reducers", "Map-reduce over documents", "Command and dynamic routing", "Error handling nodes", "Retry policies", "Graph testing"],
+          "tools": ["LangGraph", "Python 3.12", "pytest"],
+          "lab_task": "Build a contract review graph that splits a contract into clauses, reviews them in parallel subgraphs, merges findings with a reducer and retries failed clause reviews.",
+          "deliverable": "Graph code, tests and run traces",
+          "checks": [["Review a 40-clause contract", "All clauses reviewed in parallel and merged", "Trace"], ["Make two clause reviews fail once", "They are retried and the run completes", "Trace"], ["Test the subgraph alone", "Unit test passes without the parent graph", "Test output"]],
+          "objectives": ["Structure complex graphs", "Run work in parallel", "Handle errors in graphs"]
+        },
+        {
+          "topic": "Agent State, Memory and Context Engineering",
+          "subtopics": ["Deciding what goes into the context", "Context window budgets", "Summarisation strategies", "Semantic, episodic and procedural memory", "Memory stores with LangGraph", "Scratchpads and notes", "Context poisoning and how to avoid it", "Measuring context size and cost"],
+          "tools": ["LangGraph", "PostgreSQL", "pgvector"],
+          "lab_task": "Add long-term semantic and episodic memory to the contract agent so it reuses past decisions on similar clauses, keeping the context under a set token budget and measuring the effect.",
+          "deliverable": "Memory design, code and before and after measurements",
+          "checks": [["Review a clause similar to a past one", "Past decision is retrieved and cited", "Trace"], ["Measure context size per step", "Stays under the token budget", "Metrics"], ["Plant a wrong memory", "Agent flags the conflict instead of trusting it", "Trace"]],
+          "objectives": ["Engineer agent context", "Build long-term memory", "Avoid context poisoning"]
+        },
+        {
+          "topic": "Multi-Agent Architectures: Supervisor, Swarm and Hierarchical Teams",
+          "subtopics": ["Supervisor architecture", "Swarm and peer hand-offs", "Hierarchical teams", "Shared versus isolated context", "Agents as tools", "Termination rules", "Debugging multi-agent runs", "Cost control in multi-agent systems"],
+          "tools": ["LangGraph", "OpenAI Agents SDK", "AutoGen"],
+          "lab_task": "Build a customer onboarding system as a supervisor design and as a swarm design with KYC, account set-up and welcome agents, then compare reliability, cost and debugging effort.",
+          "deliverable": "Two implementations, traces and comparison",
+          "checks": [["Run 20 onboarding cases on both", "Success rate and cost recorded", "Comparison table"], ["Make the KYC agent fail a check", "Case stops with a clear reason in both designs", "Traces"], ["Count messages per case", "Termination rules keep messages under the limit", "Metrics"]],
+          "objectives": ["Choose multi-agent architectures", "Control hand-offs and termination", "Compare designs with evidence"]
+        },
+        {
+          "topic": "Agent Protocols: MCP and Agent-to-Agent Communication",
+          "subtopics": ["MCP for tools and data", "Remote MCP servers over HTTP", "OAuth for MCP servers", "Agent-to-agent (A2A) protocol concepts", "Agent cards and capability discovery", "Calling an agent built with another framework", "Versioning agent interfaces", "Security of cross-agent calls"],
+          "tools": ["MCP Python SDK", "A2A SDK", "LangGraph", "CrewAI"],
+          "lab_task": "Expose the KYC agent over A2A, call it from a LangGraph supervisor and a CrewAI crew, and connect both to a remote MCP server secured with OAuth.",
+          "deliverable": "A2A service, MCP server and integration demo",
+          "checks": [["Discover the KYC agent's card", "Capabilities are listed", "Client output"], ["Call the KYC agent from both frameworks", "Both get the same result", "Logs"], ["Call the MCP server without a token", "Rejected", "Server log"]],
+          "objectives": ["Connect agents with standard protocols", "Secure remote tools", "Integrate agents across frameworks"],
+          "shared_key": "agent-protocols"
+        },
+        {
+          "topic": "Enterprise Tool Integration: APIs, Databases and SaaS Systems",
+          "subtopics": ["Wrapping internal APIs as tools", "Tool input validation", "Idempotent write tools", "Database tools with query limits", "SaaS connectors: email, calendar, CRM", "OAuth on behalf of users", "Rate limits and retries", "Tool catalogues for teams"],
+          "tools": ["FastAPI", "OpenAPI", "Microsoft Graph or Google Workspace APIs", "LangGraph"],
+          "lab_task": "Give the onboarding agent tools for the HR API, the user's calendar through OAuth and a CRM, make write tools idempotent and publish them in a team tool catalogue.",
+          "deliverable": "Tool library, catalogue entries and integration tests",
+          "checks": [["Call the create-account tool twice with the same request ID", "One account is created", "API logs"], ["Schedule a meeting for a user", "Created in that user's calendar with their consent", "Calendar and consent record"], ["Exceed the CRM rate limit", "Tool backs off and succeeds", "Logs"]],
+          "objectives": ["Integrate agents with enterprise systems", "Make write tools safe", "Share tools across teams"]
+        },
+        {
+          "topic": "Agentic RAG: Agents That Plan Their Retrieval",
+          "subtopics": ["Query planning and rewriting", "Choosing between several indexes", "Multi-hop retrieval", "Checking retrieved evidence", "Corrective retrieval when evidence is weak", "Combining structured and unstructured data", "Citations across sources", "Measuring retrieval and answer quality"],
+          "tools": ["LangGraph", "LlamaIndex", "Qdrant", "PostgreSQL"],
+          "lab_task": "Build an agent that answers policy and data questions by choosing between a policy index, a product index and a SQL database, re-searching when evidence is weak and citing every source.",
+          "deliverable": "Agent code and evaluation on 40 questions",
+          "checks": [["Run the 40 questions", "Accuracy and citation correctness recorded", "Evaluation output"], ["Ask a question needing two sources", "Both are searched and cited", "Trace"], ["Give a question with weak first results", "Agent rewrites the query and searches again", "Trace"]],
+          "objectives": ["Build retrieval-planning agents", "Combine data sources", "Verify evidence before answering"]
+        },
+        {
+          "topic": "Human-in-the-Loop Workflows and Approvals",
+          "subtopics": ["Where people must stay in the loop", "Approval, edit and reject flows", "Escalation to a human agent", "Approval interfaces in Slack or Teams", "Timeouts for approvals", "Delegated authority limits", "Learning from human corrections", "Audit trails"],
+          "tools": ["LangGraph", "Slack or Microsoft Teams API", "PostgreSQL"],
+          "lab_task": "Send approval requests from the expense agent to Slack or Teams with approve, edit and reject buttons, escalate after a timeout, and record every decision.",
+          "deliverable": "Approval integration, audit trail and demo",
+          "checks": [["Submit a claim over the limit", "Approval request appears in the chat tool", "Screenshot"], ["Leave the request unanswered", "Escalated after the timeout", "Logs"], ["Reject a claim with a reason", "Agent informs the employee and records the reason", "Audit trail"]],
+          "objectives": ["Design human approval flows", "Integrate with chat tools", "Keep audit trails"]
+        },
+        {
+          "topic": "Evaluating Agents: Trajectories, Outcomes and Costs",
+          "subtopics": ["Outcome evaluation", "Trajectory evaluation of tool calls", "Benchmarks and custom test suites", "LLM judges for agent runs", "Simulated users", "Statistical comparison of versions", "Evaluation in CI", "Cost and latency budgets as tests"],
+          "tools": ["LangSmith or Langfuse", "promptfoo", "pytest", "GitHub Actions"],
+          "lab_task": "Build an evaluation suite for the onboarding system with simulated users, trajectory checks and outcome judges, and add it to CI with thresholds for success, cost and latency.",
+          "deliverable": "Evaluation suite, CI workflow and reports",
+          "checks": [["Open a pull request that adds an unnecessary tool call", "Trajectory check fails", "CI log"], ["Run simulated users", "Success rate and cost per case reported", "Evaluation report"], ["Exceed the latency budget", "CI fails", "CI log"]],
+          "objectives": ["Evaluate agent behaviour and outcomes", "Simulate users", "Gate changes in CI"]
+        },
+        {
+          "topic": "Guardrails, Policies and Safe Autonomy",
+          "subtopics": ["Policy engines for agent actions", "Open Policy Agent for authorisation", "Content and data guardrails", "Injection defences for tool results", "Sandboxing risky tools", "Escalation rules", "Testing guardrails", "Measuring false refusals"],
+          "tools": ["Open Policy Agent", "NeMo Guardrails", "Presidio", "Docker"],
+          "lab_task": "Move the expense agent's spending rules into Open Policy Agent, add data guardrails and injection defences, and test them with 30 normal and 15 attack scenarios.",
+          "deliverable": "Policy files, guardrail configuration and test results",
+          "checks": [["Approve a claim outside policy through the agent", "OPA denies it", "Logs"], ["Run the 15 attack scenarios", "At least 14 are stopped", "Test results"], ["Run the 30 normal scenarios", "False refusals at most two", "Test results"]],
+          "objectives": ["Control agent actions with policies", "Defend against injection", "Balance safety and usefulness"]
+        },
+        {
+          "topic": "Observability, Debugging and Replay of Agent Runs",
+          "subtopics": ["Distributed tracing for agents", "OpenTelemetry semantic conventions for generative AI", "Replaying a failed run", "Comparing two runs", "Error classification", "Alerting on failure and cost", "Sampling traces", "Privacy in traces"],
+          "tools": ["OpenTelemetry", "Langfuse", "Grafana"],
+          "lab_task": "Instrument the onboarding system with OpenTelemetry, replay three failed runs from their traces after fixes, and set alerts on failure rate and cost per run.",
+          "deliverable": "Instrumentation, replay results and alert rules",
+          "checks": [["Replay a failed run after the fix", "Run now succeeds with the same inputs", "Replay output"], ["Raise the failure rate in a test", "Alert fires", "Alert notification"], ["Search traces for an email address", "None stored in clear text", "Search output"]],
+          "objectives": ["Trace and replay agent runs", "Alert on agent health", "Keep traces private"]
+        },
+        {
+          "topic": "Cost and Latency Engineering for Agents",
+          "subtopics": ["Cost per task, not per call", "Smaller models for simple steps", "Model routing inside a graph", "Caching tool results and prompts", "Parallel steps", "Early exits", "Budgets per user and task", "Reporting cost to owners"],
+          "tools": ["LangGraph", "LiteLLM", "Redis"],
+          "lab_task": "Reduce the contract agent's cost per contract by at least 40 percent and its time by 30 percent with routing, caching and parallel steps, keeping its evaluation score within two points.",
+          "deliverable": "Optimisation report with cost, latency and quality before and after",
+          "checks": [["Measure cost per contract", "At least 40 percent lower", "Cost report"], ["Measure time per contract", "At least 30 percent faster", "Latency report"], ["Run the evaluation suite", "Score within two points", "Evaluation output"]],
+          "objectives": ["Optimise agent cost", "Reduce latency", "Keep quality while optimising"]
+        },
+        {
+          "topic": "Event-Driven Agents: Triggers, Schedules and Webhooks",
+          "subtopics": ["Agents that start without a chat message", "Webhooks from business systems", "Scheduled agent runs", "Queue-triggered agents", "Deduplicating events", "Ordering and concurrency limits", "Reporting results back to systems", "Dead-letter handling for failed runs"],
+          "tools": ["FastAPI", "Redis or RabbitMQ", "LangGraph", "cron"],
+          "lab_task": "Trigger the invoice agent from a webhook when a new invoice arrives and from a nightly schedule for overdue ones, deduplicate repeated events and send failed runs to a dead-letter queue.",
+          "deliverable": "Trigger services, queue configuration and run logs",
+          "checks": [["Send the same webhook twice", "Invoice is processed once", "Run logs"], ["Run the nightly schedule", "Every overdue invoice gets one reminder", "Run logs"], ["Make one run fail three times", "Moved to the dead-letter queue with the error", "Queue contents"]],
+          "objectives": ["Run agents from events and schedules", "Avoid duplicate work", "Handle failed runs"]
+        },
+        {
+          "topic": "Multi-Agent Collaboration with AutoGen and Semantic Kernel",
+          "subtopics": ["AutoGen agents and group chats", "Termination conditions in AutoGen", "Semantic Kernel agents and plugins", "Planners and function calling in Semantic Kernel", ".NET and Python options", "Integrating with Azure services", "Logging and limits", "Choosing between AutoGen, Semantic Kernel and LangGraph"],
+          "tools": ["AutoGen", "Semantic Kernel", "Python 3.12"],
+          "lab_task": "Build the market brief team in AutoGen with a group chat and in Semantic Kernel with plugins, apply the same step limits and compare both with the LangGraph version.",
+          "deliverable": "Two implementations and a framework comparison",
+          "checks": [["Run the AutoGen group chat", "Brief produced and the chat stops at the termination rule", "Chat log"], ["Run the Semantic Kernel version", "Plugins are called and the brief is produced", "Log"], ["Compare the three frameworks", "Control, cost and code size compared with numbers", "Comparison table"]],
+          "objectives": ["Build agents with AutoGen and Semantic Kernel", "Control group chats", "Choose a framework for the team"]
+        },
+        {
+          "topic": "Building Agents with the OpenAI Agents SDK",
+          "subtopics": ["Agents, tools and hand-offs in the SDK", "Guardrails in the SDK", "Sessions and memory", "Tracing built into the SDK", "Running agents with other model providers", "Voice agents in brief", "Comparing with LangGraph", "Migration between frameworks"],
+          "tools": ["OpenAI Agents SDK", "Python 3.12"],
+          "lab_task": "Rebuild the onboarding hand-off flow with the OpenAI Agents SDK, add input guardrails, view its traces and compare code, control and portability with the LangGraph version.",
+          "deliverable": "SDK implementation and comparison notes",
+          "checks": [["Run the 20 onboarding cases", "Same or better success than LangGraph version, or the gap explained", "Comparison table"], ["Trigger an input guardrail", "Run stops before the agent acts", "Trace"], ["Switch to a non-OpenAI model", "Runs with configuration changes only, or the limit is documented", "Logs"]],
+          "objectives": ["Build agents with the OpenAI Agents SDK", "Use built-in guardrails and tracing", "Compare frameworks"]
+        },
+        {
+          "topic": "Cloud Agent Platforms: Azure AI Foundry, Amazon Bedrock Agents and Vertex AI Agent Builder",
+          "subtopics": ["Managed agent services compared", "Defining agents and tools on each platform", "Knowledge bases and retrieval", "Identity and network isolation", "Monitoring on each platform", "Pricing models", "Portability and lock-in", "Choosing a platform"],
+          "tools": ["Azure AI Foundry Agent Service", "Amazon Bedrock Agents", "Vertex AI Agent Builder"],
+          "lab_task": "Build the same policy-answering agent with a ticket tool on two cloud agent platforms, compare set-up effort, quality, monitoring and cost, and recommend one for the company.",
+          "deliverable": "Two platform implementations and a recommendation",
+          "checks": [["Ask the same ten questions on both", "Accuracy recorded for both", "Comparison table"], ["Call the ticket tool from both", "Tickets are created", "Ticket system log"], ["Estimate monthly cost for 10,000 conversations", "Cost for both with assumptions", "Cost sheet"]],
+          "objectives": ["Use managed agent platforms", "Compare cloud options", "Recommend a platform with evidence"]
+        },
+        {
+          "topic": "Deploying Agents at Scale with Durable Execution",
+          "subtopics": ["Long-running agent tasks", "Queues and workers", "Durable execution with Temporal", "LangGraph Platform deployments", "Horizontal scaling", "Retries and idempotency at scale", "Blue-green releases of agents", "Capacity planning"],
+          "tools": ["Temporal", "LangGraph Platform", "Kubernetes", "Redis"],
+          "lab_task": "Run the contract agent as a durable workflow that survives worker crashes, scale workers to process 500 contracts and release a new agent version with blue-green deployment.",
+          "deliverable": "Deployment files, scaling results and release record",
+          "checks": [["Kill a worker mid-contract", "Work resumes on another worker without repeating side effects", "Workflow history"], ["Process 500 contracts", "All complete and throughput recorded", "Metrics"], ["Switch to the new version", "No running work is lost", "Release log"]],
+          "objectives": ["Run agents reliably at scale", "Survive failures", "Release agent versions safely"]
+        },
+        {
+          "topic": "Security for Agentic Systems",
+          "subtopics": ["OWASP Top 10 for LLM and agentic applications", "Excessive agency", "Identity for agents: service accounts and delegated access", "Secrets handling for tools", "Supply chain risks in tools and MCP servers", "Data exfiltration through tools", "Security testing of agents", "Incident response for agents"],
+          "tools": ["OWASP LLM Top 10", "garak", "Vault"],
+          "lab_task": "Threat-model the onboarding system, give each agent its own identity with least privilege, move tool secrets to Vault and run a security test for data exfiltration through tools.",
+          "deliverable": "Threat model, identity configuration and security test report",
+          "checks": [["Use the welcome agent's identity to call the KYC tool", "Denied", "Logs"], ["Search the code and images for secrets", "None found", "Scan output"], ["Attempt exfiltration through the email tool", "Blocked by policy", "Test log"]],
+          "objectives": ["Secure agentic systems", "Give agents least-privilege identities", "Test for exfiltration"]
+        },
+        {
+          "topic": "Agent Product Design and User Experience",
+          "subtopics": ["Designing tasks agents should own", "Showing progress and plans to users", "Explaining actions and sources", "Undo and correction", "Trust and adoption", "Measuring agent value", "Feedback loops", "Rolling out to users"],
+          "tools": ["Streamlit or React", "Langfuse"],
+          "lab_task": "Redesign the helpdesk agent's interface to show the plan, live progress, sources and an undo button, then run a usability test with five users and measure task success.",
+          "deliverable": "Updated interface and usability test results",
+          "checks": [["Run the five-user test", "Task success and time recorded", "Test results"], ["Undo an agent action", "Action is reversed and recorded", "Demo and audit record"], ["Show sources for an answer", "Every claim links to a source", "Screenshot"]],
+          "objectives": ["Design agent user experiences", "Build trust with transparency", "Measure value with users"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Agent Business Process Automation",
+          "subtopics": ["Process analysis and design", "Multi-agent graph with protocols", "Enterprise tools and approvals", "Evaluation, guardrails and observability", "Durable deployment and cost controls", "Demo and design defence"],
+          "tools": ["LangGraph", "MCP Python SDK", "A2A SDK", "Open Policy Agent", "Langfuse", "Temporal"],
+          "lab_task": "Automate a real business process such as employee onboarding or invoice handling with cooperating agents, enterprise tools through MCP, human approvals, policy guardrails, CI evaluation, tracing and durable deployment, then present it.",
+          "deliverable": "Repository, evaluation report, dashboards, deployment and a 15-minute demo",
+          "checks": [["Run the evaluation suite", "Meets the agreed success, cost and latency thresholds", "Evaluation report"], ["Kill a worker during a process", "Process resumes without duplicate actions", "Workflow history"], ["Request an action outside policy", "Denied and escalated", "Logs and audit trail"]],
+          "objectives": ["Combine the intermediate topics in one system", "Prove reliability and control", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers and architects running agents in production. Covers agent architecture at enterprise scale, reasoning models, learning agents, computer-use and coding agents, formal safety, security, governance, multi-agent platforms, evaluation research and the economics of agentic systems.",
+      "prerequisites": ["Has built and deployed a multi-agent system", "Uses evaluation, tracing and guardrails in practice", "Comfortable with cloud platforms and distributed systems"],
+      "outcomes": ["Architect agent platforms for many teams", "Use reasoning models, learning and computer-use agents well", "Govern, secure and evaluate autonomous systems at scale", "Make sound build, buy and cost decisions for agentic AI"],
+      "days": [
+        {
+          "topic": "Enterprise Agent Platform Architecture",
+          "subtopics": ["Platform versus single-agent projects", "Agent registry and discovery", "Shared tool and MCP server catalogue", "Identity, policy and audit services", "Shared memory and retrieval services", "Evaluation and release services", "Multi-tenant isolation", "Reference architectures"],
+          "tools": ["Kubernetes", "LiteLLM proxy", "MCP", "Open Policy Agent", "Langfuse"],
+          "lab_task": "Design and build a minimal agent platform with a registry, a governed tool catalogue, a policy service and shared tracing, then onboard two agents from different teams onto it.",
+          "deliverable": "Platform architecture, running services and onboarding record",
+          "checks": [["Register a new agent", "It appears in the registry with owner and capabilities", "Registry output"], ["Have one team's agent call another team's private tool", "Denied by policy", "Logs"], ["View traces for both agents", "Each team sees only its own", "Dashboard"]],
+          "objectives": ["Architect agent platforms", "Isolate teams", "Share tools safely"]
+        },
+        {
+          "topic": "Reasoning Models and Test-Time Compute",
+          "subtopics": ["How reasoning models differ", "When extended thinking helps", "Reasoning effort and budgets", "Planning with reasoning models", "Mixing reasoning and fast models", "Verifying reasoning outputs", "Cost and latency trade-offs", "Evaluating reasoning quality"],
+          "tools": ["Reasoning model APIs", "LangGraph", "Python 3.12"],
+          "lab_task": "Compare a reasoning model and a standard model as the planner in the contract agent on 30 hard cases at three reasoning budgets, and design a router that uses reasoning only when needed.",
+          "deliverable": "Comparison results and router design with measurements",
+          "checks": [["Run 30 cases at three budgets", "Accuracy, cost and latency recorded", "Results table"], ["Route with the new router", "Accuracy close to the best setting at lower cost", "Results table"], ["Verify a reasoning output with a checker step", "Wrong plans are caught", "Trace"]],
+          "objectives": ["Use reasoning models well", "Budget test-time compute", "Route between models"]
+        },
+        {
+          "topic": "Learning Agents: Feedback, Self-Improvement and Fine-Tuning",
+          "subtopics": ["Learning from user feedback", "Prompt optimisation with DSPy", "Storing successful trajectories", "Fine-tuning on agent trajectories", "Reinforcement learning for tool use in brief", "Avoiding feedback loops and drift", "Evaluation before adopting changes", "Governance of self-improving systems"],
+          "tools": ["DSPy", "Hugging Face TRL", "LangGraph", "MLflow"],
+          "lab_task": "Optimise the helpdesk agent's prompts with DSPy from logged feedback, fine-tune a small model on successful trajectories and accept changes only when the evaluation suite improves.",
+          "deliverable": "Optimisation runs, fine-tuned model and acceptance record",
+          "checks": [["Run DSPy optimisation", "Evaluation score improves", "MLflow run"], ["Swap in the fine-tuned model for simple steps", "Cost falls with score kept", "Evaluation output"], ["Feed in deliberately bad feedback", "Change is rejected by the evaluation gate", "Gate log"]],
+          "objectives": ["Make agents improve from data", "Optimise prompts systematically", "Govern learning loops"]
+        },
+        {
+          "topic": "Computer-Use and Desktop Automation Agents",
+          "subtopics": ["Computer-use models", "Screenshots, actions and coordinates", "Browser versus desktop automation", "Combining with RPA tools", "Sandboxed virtual machines", "Reliability and retries", "Human take-over", "Risks and controls"],
+          "tools": ["Computer-use model APIs", "Docker virtual desktop", "Playwright", "UiPath or Power Automate Desktop"],
+          "lab_task": "Automate a legacy desktop data-entry task with a computer-use agent in a sandboxed virtual desktop, add human take-over and compare reliability with an RPA script.",
+          "deliverable": "Agent setup, run recordings and reliability comparison",
+          "checks": [["Run 20 data-entry tasks", "Success rate recorded", "Run log"], ["Change the screen layout slightly", "Agent adapts where the RPA script fails, or limits are recorded", "Run log"], ["Trigger human take-over", "Agent pauses and hands control over", "Recording"]],
+          "objectives": ["Build computer-use agents", "Contain them in sandboxes", "Compare with RPA"]
+        },
+        {
+          "topic": "Coding Agents and Software Engineering Automation",
+          "subtopics": ["Coding agents in the IDE and CI", "Repository context and indexing", "Running tests as agent feedback", "Pull request agents", "Code review agents", "Permissions for repositories", "Measuring productivity and quality", "Risks: insecure code and licence issues"],
+          "tools": ["GitHub Copilot coding agent or similar", "GitHub Actions", "pytest", "Semgrep"],
+          "lab_task": "Set up a coding agent that takes labelled issues, writes code and tests in a branch, opens a pull request and must pass tests and a Semgrep scan, then measure results on ten issues.",
+          "deliverable": "Agent configuration, ten pull requests and a results report",
+          "checks": [["Run on ten labelled issues", "Merged, revised and rejected counts recorded", "Results report"], ["Introduce an insecure pattern", "Semgrep blocks the pull request", "CI log"], ["Check agent permissions", "Cannot push to the main branch", "Repository settings"]],
+          "objectives": ["Use coding agents safely", "Measure their quality", "Control repository access"]
+        },
+        {
+          "topic": "Formal Safety: Verification, Constraints and Safe Action Spaces",
+          "subtopics": ["Defining allowed action spaces", "Pre-conditions and post-conditions for tools", "Simulation before execution", "Dry runs and shadow mode", "Transaction rollback", "Formal policy checks", "Rate and blast-radius limits", "Proving properties of workflows"],
+          "tools": ["Open Policy Agent", "Temporal", "Python 3.12"],
+          "lab_task": "Add pre- and post-conditions to every finance tool, run the agent in shadow mode against a week of real requests and show that unsafe actions are blocked before execution.",
+          "deliverable": "Tool contracts, shadow-mode report and blocked-action log",
+          "checks": [["Run in shadow mode", "Agent decisions are recorded without side effects", "Shadow report"], ["Submit an action that breaks a post-condition", "Rolled back", "Logs"], ["Exceed the blast-radius limit", "Further actions are blocked", "Logs"]],
+          "objectives": ["Constrain agent actions formally", "Test agents in shadow mode", "Limit damage from mistakes"]
+        },
+        {
+          "topic": "Advanced Agent Security and Adversarial Testing",
+          "subtopics": ["Attack surfaces of multi-agent systems", "Cross-agent prompt injection", "Tool poisoning and malicious MCP servers", "Memory poisoning", "Confused deputy problems", "Automated red teaming of agents", "Monitoring for attacks", "Security reviews for agent releases"],
+          "tools": ["PyRIT", "garak", "Open Policy Agent", "SIEM"],
+          "lab_task": "Red-team the intermediate capstone system with cross-agent injection, a malicious MCP server and memory poisoning, fix the findings and add attack detection to monitoring.",
+          "deliverable": "Red-team report, fixes and detection rules",
+          "checks": [["Connect a malicious MCP server", "It is blocked by the tool allow list", "Logs"], ["Poison an agent's memory", "Poisoned entry is detected or ignored", "Trace"], ["Run the attacks again after fixes", "No critical findings remain", "Retest report"]],
+          "objectives": ["Attack agent systems realistically", "Fix and detect attacks", "Run security reviews for agents"]
+        },
+        {
+          "topic": "Governance, Accountability and Regulation for Autonomous Systems",
+          "subtopics": ["Accountability for agent decisions", "EU AI Act and agentic systems", "NIST AI RMF and ISO/IEC 42001", "Agent inventories and risk tiers", "Delegation of authority", "Record keeping and explanations", "Third-party agent risk", "Board reporting"],
+          "tools": ["NIST AI RMF", "ISO/IEC 42001", "Risk register template"],
+          "lab_task": "Build an agent inventory with risk tiers for five company agents, define delegated authority limits and records for the highest-risk one and prepare a board risk report.",
+          "deliverable": "Agent inventory, authority matrix and board report",
+          "checks": [["Assign risk tiers", "Tiers justified with stated criteria", "Inventory"], ["Review the authority matrix", "Every action has a limit and an accountable person", "Authority matrix"], ["Map controls to ISO/IEC 42001", "Each control is mapped", "Control list"]],
+          "objectives": ["Govern autonomous systems", "Define accountability", "Report risk to leadership"]
+        },
+        {
+          "topic": "Evaluation Research for Agents: Benchmarks and Simulation Environments",
+          "subtopics": ["Public agent benchmarks and their limits", "Building simulation environments", "Synthetic users and adversaries", "Measuring long-horizon success", "Variance and repeated trials", "Contamination of benchmarks", "Cost-aware evaluation", "Publishing internal benchmarks"],
+          "tools": ["Python 3.12", "Docker", "promptfoo", "SciPy"],
+          "lab_task": "Build a simulation environment for the onboarding process with synthetic users and adversaries, run three agent versions 30 times each and report success with confidence intervals and cost.",
+          "deliverable": "Simulation environment, results and benchmark report",
+          "checks": [["Run each version 30 times", "Success rates with confidence intervals reported", "Results"], ["Add an adversarial user", "Failure modes are recorded", "Results"], ["Check the benchmark for leaked training examples", "Contamination check passes", "Check output"]],
+          "objectives": ["Evaluate agents rigorously", "Build simulations", "Report results honestly"]
+        },
+        {
+          "topic": "Agent Interoperability Across Vendors and Clouds",
+          "subtopics": ["Portable agent definitions", "Protocols: MCP, A2A and OpenAPI tools", "Framework-neutral tool layers", "Moving agents between clouds", "Federated identity across platforms", "Contract testing between agents", "Version negotiation", "Avoiding lock-in"],
+          "tools": ["MCP", "A2A SDK", "LangGraph", "Azure AI Foundry or Amazon Bedrock Agents"],
+          "lab_task": "Run one workflow where a LangGraph agent on Kubernetes calls a managed cloud agent over A2A and shared MCP tools, with federated identity and contract tests on each interface.",
+          "deliverable": "Cross-platform workflow, identity set-up and contract tests",
+          "checks": [["Change a field in an agent's interface", "Contract test fails before release", "Test output"], ["Run the workflow end to end", "Completes across both platforms", "Trace"], ["Call across platforms without a valid token", "Rejected", "Logs"]],
+          "objectives": ["Connect agents across vendors", "Test interfaces", "Reduce lock-in"]
+        },
+        {
+          "topic": "Large-Scale Multi-Agent Orchestration",
+          "subtopics": ["Hundreds of agents and tasks", "Scheduling and priority", "Shared resources and contention", "Back-pressure and queues", "Coordination patterns: blackboard and market-based", "Failure isolation", "Observability at scale", "Simulating load"],
+          "tools": ["Temporal", "Kafka", "Kubernetes", "OpenTelemetry"],
+          "lab_task": "Run 200 concurrent research tasks across a pool of specialised agents with priorities, back-pressure and failure isolation, and keep cost and latency within budgets under load.",
+          "deliverable": "Orchestration design, load test results and dashboards",
+          "checks": [["Run 200 concurrent tasks", "All complete within the time budget", "Load test report"], ["Crash one agent type", "Other agents keep working and failed tasks retry", "Metrics"], ["Raise priority on ten tasks", "They finish first", "Scheduler log"]],
+          "objectives": ["Orchestrate many agents", "Control resources and priority", "Isolate failures"]
+        },
+        {
+          "topic": "Knowledge Graphs and Structured Reasoning for Agents",
+          "subtopics": ["When agents need structured knowledge", "Building graphs from documents", "Querying graphs as tools", "Ontologies for a business domain", "Combining graph and vector retrieval", "Keeping graphs up to date", "Explaining answers with graph paths", "Graph quality checks"],
+          "tools": ["Neo4j", "LlamaIndex", "LangGraph"],
+          "lab_task": "Build a supplier risk graph from contracts and news, give the agent graph query and vector search tools, and answer 20 multi-hop risk questions with graph-path explanations.",
+          "deliverable": "Graph, agent code and evaluation results",
+          "checks": [["Answer the 20 questions", "Accuracy recorded with graph and without", "Evaluation output"], ["Show the path behind one answer", "Path supports the answer", "Graph screenshot"], ["Add a new contract", "Graph updates and the agent uses it", "Trace"]],
+          "objectives": ["Give agents structured knowledge", "Combine graph and vector retrieval", "Explain answers with paths"]
+        },
+        {
+          "topic": "Voice and Real-Time Agents",
+          "subtopics": ["Speech-to-speech models", "Real-time APIs and WebRTC", "Turn-taking and interruption", "Tool calls during a call", "Latency budgets", "Call-centre integration", "Recording and consent", "Evaluating voice agents"],
+          "tools": ["Realtime voice model APIs", "WebRTC", "Twilio", "LangGraph"],
+          "lab_task": "Build a voice agent for appointment booking that calls calendar tools during the conversation, handles interruptions, keeps response time under one second and records consent.",
+          "deliverable": "Voice agent, latency report and call recordings",
+          "checks": [["Measure response time on 20 calls", "p90 under one second", "Latency report"], ["Interrupt the agent", "It stops and responds to the new input", "Recording"], ["Book an appointment by voice", "Created in the calendar", "Calendar and recording"]],
+          "objectives": ["Build real-time voice agents", "Meet latency targets", "Handle consent and recording"]
+        },
+        {
+          "topic": "Privacy and Data Governance for Agent Memory and Retrieval",
+          "subtopics": ["What agents store and where", "Personal data in memory, traces and indexes", "Retention and deletion across stores", "Access control on retrieved documents", "Data residency for agents", "Consent and purpose limits", "Right-to-erasure requests", "Audits of agent data"],
+          "tools": ["Presidio", "PostgreSQL", "Qdrant", "Langfuse"],
+          "lab_task": "Map every place the onboarding system stores personal data, enforce document-level access in retrieval, apply retention rules and carry out an erasure request across memory, traces and indexes.",
+          "deliverable": "Data map, access rules, retention configuration and erasure record",
+          "checks": [["Ask the agent for a document the user may not see", "Not retrieved and not mentioned", "Trace"], ["Run an erasure request for one person", "No data remains in memory, traces or indexes", "Search outputs"], ["Check stores after the retention period", "Expired data is gone", "Store listings"]],
+          "objectives": ["Govern agent data", "Enforce access in retrieval", "Handle erasure requests"]
+        },
+        {
+          "topic": "Agents in Regulated Industries: Banking, Healthcare and Insurance",
+          "subtopics": ["Regulatory expectations by sector", "Model risk management for agents", "Explainability of agent decisions", "Four-eyes approval rules", "Record keeping for regulators", "Testing for fairness", "Vendor and outsourcing rules", "Case studies of approved and failed deployments"],
+          "tools": ["Model risk template", "Langfuse", "Open Policy Agent"],
+          "lab_task": "Prepare a model risk file for a loan-document agent covering design, testing, fairness checks, explanations and controls, and test that every decision can be reconstructed from records.",
+          "deliverable": "Model risk file, fairness test results and decision reconstruction demo",
+          "checks": [["Reconstruct a decision from records", "Inputs, steps, sources and approver are all shown", "Demo"], ["Run fairness tests on two groups", "Difference measured against the threshold", "Test results"], ["Review the four-eyes rule", "No decision completes with one approver", "Policy test"]],
+          "objectives": ["Apply sector regulation to agents", "Prepare model risk evidence", "Make decisions reconstructable"]
+        },
+        {
+          "topic": "Economics and Operating Model of Agentic AI",
+          "subtopics": ["Cost per task and value per task", "Build, buy or use a platform", "Pricing models for agent products", "Staffing: agent engineers, evaluators and owners", "Measuring productivity and quality gains", "Portfolio management of agent projects", "Stopping projects that do not work", "Reporting to leadership"],
+          "tools": ["Spreadsheet", "Langfuse"],
+          "lab_task": "Build a value and cost model for three agent projects from real trace data, rank them, recommend which to scale and which to stop, and present it to leadership.",
+          "deliverable": "Cost and value model and a five-slide recommendation",
+          "checks": [["Compute cost per task from traces", "Matches the trace data", "Model"], ["Rank the three projects", "Ranking follows from value and cost", "Model"], ["Present the recommendation", "Scale and stop decisions are justified", "Slides"]],
+          "objectives": ["Model the economics of agents", "Manage an agent portfolio", "Report value to leadership"]
+        },
+        {
+          "topic": "Production Incident Response for Agents",
+          "subtopics": ["Runaway agents and loops", "Wrong actions in business systems", "Model or provider changes that break agents", "Tool outages", "Kill switches and safe modes", "Root cause from traces", "Compensating actions", "Post-incident reviews"],
+          "tools": ["Langfuse", "Grafana", "PagerDuty", "Temporal"],
+          "lab_task": "Handle three injected incidents (a runaway loop, an agent sending wrong emails and a provider model change), stop the damage, compensate the wrong actions, find root causes and write runbooks.",
+          "deliverable": "Incident timelines, compensating actions and runbooks",
+          "checks": [["Trigger the kill switch", "All affected agents stop within a minute", "Logs"], ["Compensate the wrong emails", "Corrections sent to every affected person", "Audit trail"], ["Write a runbook for model changes", "Another participant can follow it", "Runbook"]],
+          "objectives": ["Respond to agent incidents", "Compensate wrong actions", "Write runbooks"]
+        },
+        {
+          "topic": "Agentic AI Strategy and Architecture Reviews",
+          "subtopics": ["Assessing agent readiness", "Reviewing agent designs", "Choosing autonomy levels", "Roadmaps for agent adoption", "Team structure and skills", "Vendor and platform choices", "Architecture decision records", "Presenting to an architecture board"],
+          "tools": ["Architecture decision record template", "Diagramming tool"],
+          "lab_task": "Review two proposed agent designs from a case study, assess risk and readiness, write decision records and defend a recommendation to a mock architecture board.",
+          "deliverable": "Review notes, decision records and presentation",
+          "checks": [["List the risks in each design", "Main risks found with evidence", "Review notes"], ["Write the decision records", "Options, trade-offs and decisions recorded", "Decision records"], ["Answer board questions", "Recommendation defended with evidence", "Presentation"]],
+          "objectives": ["Review agent architectures", "Set autonomy levels", "Communicate strategy"]
+        },
+        {
+          "topic": "Edge Cases: Long-Horizon Tasks, Recovery and Goal Drift",
+          "subtopics": ["Tasks that run for days", "Checkpointing progress", "Recovering from partial failure", "Goal drift and how to detect it", "Re-anchoring to the original goal", "Progress reporting", "Stopping and handing back to people", "Testing long-horizon behaviour"],
+          "tools": ["LangGraph", "Temporal", "Langfuse"],
+          "lab_task": "Run a multi-day vendor onboarding task with simulated delays and failures, detect and correct goal drift, recover from two partial failures and report progress daily.",
+          "deliverable": "Long-running workflow, drift detection and progress reports",
+          "checks": [["Inject a partial failure on day two", "Workflow recovers without repeating completed steps", "Workflow history"], ["Inject a distracting request", "Drift detector flags it and the agent re-anchors", "Trace"], ["Read the daily reports", "Progress is accurate each day", "Reports"]],
+          "objectives": ["Run long-horizon agent tasks", "Detect and correct goal drift", "Recover from partial failure"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Enterprise Agent Platform",
+          "subtopics": ["Platform architecture and governance", "Agents across teams and vendors", "Formal safety and security testing", "Evaluation, learning and release gates", "Scale, cost and incident readiness", "Board presentation and design defence"],
+          "tools": ["LangGraph", "Temporal", "MCP", "A2A SDK", "Open Policy Agent", "Langfuse", "Kubernetes"],
+          "lab_task": "Deliver an agent platform that hosts agents from two teams and one vendor with a registry, governed tools, formal action constraints, red-team results, learning with evaluation gates, load tests and a cost model, then present it to a mock board.",
+          "deliverable": "Platform repository, security and evaluation reports, cost model and a 20-minute presentation",
+          "checks": [["Run the red-team suite", "No critical findings open", "Red-team report"], ["Release a worse agent version", "Evaluation gate blocks it", "Pipeline log"], ["Trigger the kill switch during load", "All agents stop safely and work resumes cleanly", "Load test and logs"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove safety, quality and cost", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

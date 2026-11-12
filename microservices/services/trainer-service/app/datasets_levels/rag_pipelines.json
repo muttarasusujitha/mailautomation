@@ -1,0 +1,576 @@
+{
+  "domain": "RAG Pipelines",
+  "name": "RAG Pipelines",
+  "category": "Generative AI and Agents",
+  "icon": "search",
+  "aliases": ["RAG", "Retrieval Augmented Generation", "Retrieval-Augmented Generation", "RAG Development", "RAG Engineering", "Enterprise RAG", "Document Question Answering"],
+  "certifications": ["No single vendor certification; assessed by capstone project", "Microsoft Azure AI Engineer Associate (AI-102)", "Databricks Certified Generative AI Engineer Associate"],
+  "tools": ["Python 3.12", "LlamaIndex", "LangChain", "Qdrant", "pgvector", "Ragas"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers new to retrieval-augmented generation. Covers why RAG is needed, loading and chunking documents, embeddings, vector stores, retrieval, prompting with context, citations and basic evaluation, ending with a working document question-answering assistant.",
+      "prerequisites": ["Writes basic Python and uses pip and virtual environments", "Has called an LLM API or is ready to use a local Ollama model", "Understands files, folders and JSON"],
+      "outcomes": ["Explain how RAG grounds model answers in documents", "Build a RAG pipeline from loading to answering with citations", "Choose chunking, embeddings and vector stores for a use case", "Measure retrieval and answer quality on a test set"],
+      "days": [
+        {
+          "topic": "RAG Overview, Use Cases and Environment Setup",
+          "subtopics": ["Why models need retrieval", "RAG versus fine-tuning versus long context", "The pipeline: ingest, index, retrieve, generate", "Typical use cases: policies, support, research", "Where RAG fails", "Installing Python packages for the course", "API keys or a local Ollama model", "The sample document collection", "Running a ready-made RAG demo", "Course project overview"],
+          "tools": ["Python 3.12", "Ollama", "Jupyter"],
+          "lab_task": "Ask a model 10 questions about the sample company handbook with and without the handbook pasted in, record the accuracy of both and list the problems that pasting the whole handbook causes.",
+          "deliverable": "Accuracy table for both approaches and a problem list",
+          "checks": [["Answer the 10 questions without the handbook", "Wrong or made-up answers are marked", "Accuracy table"], ["Answer them with the handbook pasted in", "Accuracy improves", "Accuracy table"], ["Paste a handbook larger than the context window", "Participant explains the error and why retrieval is needed", "Written note"]],
+          "objectives": ["Explain why RAG exists", "Set up the course tools", "Recognise RAG use cases"]
+        },
+        {
+          "topic": "Loading Documents: PDFs, Word Files, Web Pages and Databases",
+          "subtopics": ["Document loaders", "PDF text extraction", "Word and PowerPoint files", "HTML pages and cleaning", "Reading rows from a database", "Metadata: title, source, page, date", "Handling scanned PDFs with OCR", "Checking extraction quality"],
+          "tools": ["Python 3.12", "PyMuPDF", "python-docx", "BeautifulSoup", "LlamaIndex readers"],
+          "lab_task": "Load the sample collection of PDFs, Word files, web pages and a database table into one list of documents with source and page metadata, and report extraction problems.",
+          "deliverable": "Loader script, document count by type and extraction problem report",
+          "checks": [["Count documents by type", "Matches the source folder", "Script output"], ["Open a document from a PDF", "Has the source file and page number", "Script output"], ["Load the scanned PDF", "Text is extracted by OCR or the file is reported as needing OCR", "Script output"]],
+          "objectives": ["Load many document types", "Keep useful metadata", "Check extraction quality"]
+        },
+        {
+          "topic": "Chunking Strategies",
+          "subtopics": ["Why documents are split", "Fixed-size chunks and overlap", "Splitting by sentences and paragraphs", "Splitting by headings and structure", "Chunk size versus answer quality", "Keeping tables together", "Parent and child chunks", "Inspecting chunks by eye"],
+          "tools": ["Python 3.12", "LangChain text splitters", "LlamaIndex node parsers"],
+          "lab_task": "Chunk the handbook three ways (fixed size, by paragraph and by heading), inspect 20 chunks of each, and pick the method that keeps answers to five test questions inside single chunks.",
+          "deliverable": "Three chunk sets, inspection notes and the chosen method",
+          "checks": [["Find the answer to each test question", "Chosen method keeps each answer in one chunk", "Inspection notes"], ["Look at a chunk containing a table", "Table rows are not split", "Chunk output"], ["Compare chunk counts", "Counts and average sizes recorded for all three methods", "Script output"]],
+          "objectives": ["Split documents into chunks", "Compare chunking methods", "Keep meaning inside chunks"]
+        },
+        {
+          "topic": "Embeddings: Turning Text into Vectors",
+          "subtopics": ["What an embedding is", "Embedding models: hosted and open", "Vector size and cost", "Cosine similarity", "Embedding queries and documents", "Multilingual embeddings", "Embedding benchmarks such as MTEB", "Re-embedding when the model changes"],
+          "tools": ["Python 3.12", "sentence-transformers", "OpenAI embeddings API"],
+          "lab_task": "Embed the handbook chunks with a hosted and an open embedding model, run ten queries with each and compare which model ranks the correct chunk first more often.",
+          "deliverable": "Embedding script and a comparison of the two models",
+          "checks": [["Run the ten queries with both models", "Top-1 hit rate recorded for each", "Comparison table"], ["Query in Hindi against English chunks with a multilingual model", "Correct chunk is found", "Script output"], ["Calculate storage for 1 million chunks", "Size estimate from vector dimensions", "Calculation"]],
+          "objectives": ["Explain embeddings", "Compare embedding models", "Estimate cost and storage"]
+        },
+        {
+          "topic": "Vector Stores and Indexing",
+          "subtopics": ["What a vector store does", "Chroma for local work", "Qdrant and pgvector", "Collections and metadata", "Adding, updating and deleting vectors", "Approximate nearest neighbour indexes", "Filtering by metadata", "Persisting and reloading an index"],
+          "tools": ["Chroma", "Qdrant", "pgvector", "Docker"],
+          "lab_task": "Store the handbook chunks in Chroma and in Qdrant, filter searches by department metadata, update one document and delete another, and reload the index after a restart.",
+          "deliverable": "Index scripts and search results with filters",
+          "checks": [["Search with a department filter", "Only that department's chunks return", "Search output"], ["Update a document and search again", "New text is returned and the old text is gone", "Search output"], ["Restart and reload the index", "Searches work without re-embedding", "Terminal output"]],
+          "objectives": ["Store vectors with metadata", "Filter searches", "Maintain an index"]
+        },
+        {
+          "topic": "Retrieval: Top-k Search and Similarity Thresholds",
+          "subtopics": ["Top-k retrieval", "Choosing k", "Similarity score thresholds", "Maximal marginal relevance", "Metadata filters at query time", "Retrieval for short and long questions", "Logging what was retrieved", "Retrieval failures"],
+          "tools": ["Python 3.12", "Chroma", "LlamaIndex"],
+          "lab_task": "Tune k, a similarity threshold and maximal marginal relevance for the handbook retriever on 20 test questions, and log every retrieval for review.",
+          "deliverable": "Retriever settings, test results and retrieval log",
+          "checks": [["Measure hit rate at k = 3 and k = 8", "Both recorded with the chosen setting justified", "Results table"], ["Ask an unrelated question", "Nothing passes the threshold", "Retrieval log"], ["Turn on maximal marginal relevance", "Fewer near-duplicate chunks are returned", "Retrieval log"]],
+          "objectives": ["Tune retrieval settings", "Avoid irrelevant context", "Log retrieval for debugging"]
+        },
+        {
+          "topic": "Prompting with Retrieved Context",
+          "subtopics": ["Building the context block", "Instructions to use only the context", "Answer format and length", "Handling empty retrieval", "Context order and position", "Token limits for context", "Conversation history plus context", "Prompt templates for RAG"],
+          "tools": ["Python 3.12", "OpenAI Python SDK or Ollama", "Jinja2"],
+          "lab_task": "Write a RAG prompt template that answers only from the retrieved context, says when the answer is missing and fits within a token budget, and test it on 20 questions.",
+          "deliverable": "Prompt template and test results",
+          "checks": [["Ask a question whose answer is not in the context", "Model says it cannot find the answer", "Model output"], ["Count tokens for the largest prompt", "Within the budget", "Token count"], ["Run the 20 questions", "At least 16 correct", "Results sheet"]],
+          "objectives": ["Prompt models with context", "Prevent answers beyond the documents", "Control prompt size"]
+        },
+        {
+          "topic": "Your First RAG Pipeline End to End",
+          "subtopics": ["Connecting loader, chunker, embedder and store", "Query, retrieve, prompt and answer", "Returning sources with the answer", "A command-line question tool", "Configuration in one file", "Error handling", "Timing each stage", "Code structure for a RAG project"],
+          "tools": ["Python 3.12", "LlamaIndex or LangChain", "Chroma"],
+          "lab_task": "Build a complete RAG command-line tool over the handbook with sources in every answer, settings in one configuration file and timing for each stage.",
+          "deliverable": "RAG project, configuration file and timing output",
+          "checks": [["Ask five questions", "Every answer lists its source documents and pages", "Terminal output"], ["Change the chunk size in configuration", "Pipeline re-indexes with the new size and no code change", "Logs"], ["Print stage timings", "Retrieval and generation times are shown", "Terminal output"]],
+          "objectives": ["Build a RAG pipeline end to end", "Return sources", "Structure a RAG project"],
+          "shared_key": "rag-core"
+        },
+        {
+          "topic": "Citations and Source Attribution",
+          "subtopics": ["Why citations matter", "Citing chunk IDs in answers", "Mapping citations to documents and pages", "Quoting supporting sentences", "Checking citations automatically", "Showing sources in a UI", "Handling conflicting sources", "Dates and document versions"],
+          "tools": ["Python 3.12", "LlamaIndex", "Streamlit"],
+          "lab_task": "Make the assistant cite chunk IDs inline, convert them to document and page links, quote the supporting sentence and automatically check that each quote appears in the cited chunk.",
+          "deliverable": "Citation code, sample answers and the citation check report",
+          "checks": [["Run the citation checker on 20 answers", "Every quote is found in its cited chunk", "Checker report"], ["Ask about a topic with two conflicting documents", "Answer mentions both and the newer date", "Model output"], ["Click a source link in the UI", "Opens the right document page", "Demo"]],
+          "objectives": ["Attribute answers to sources", "Verify citations", "Handle conflicting documents"]
+        },
+        {
+          "topic": "Hybrid Search: Keywords and Vectors Together",
+          "subtopics": ["Keyword search with BM25", "Where vector search misses", "Combining scores", "Reciprocal rank fusion", "Product codes, names and numbers", "Hybrid search in Qdrant or Elasticsearch", "Weighting keyword and vector results", "Measuring the gain"],
+          "tools": ["Qdrant", "rank-bm25", "Elasticsearch", "Python 3.12"],
+          "lab_task": "Add BM25 keyword search to the retriever, combine it with vector search using reciprocal rank fusion and measure the gain on questions that mention policy numbers and product codes.",
+          "deliverable": "Hybrid retriever and before and after results",
+          "checks": [["Search for a policy number", "Hybrid finds it where vector search alone does not", "Search output"], ["Measure hit rate on 30 questions", "Hybrid scores higher than vector only", "Results table"], ["Change the fusion weights", "Effect on hit rate recorded", "Results table"]],
+          "objectives": ["Combine keyword and vector search", "Find exact terms reliably", "Measure retrieval gains"]
+        },
+        {
+          "topic": "Reranking Retrieved Results",
+          "subtopics": ["Why the first retrieval is rough", "Cross-encoder rerankers", "Hosted reranking APIs", "Retrieve many, rerank to few", "Latency cost of reranking", "Reranking with an LLM", "Choosing how many to rerank", "Measuring reranker gains"],
+          "tools": ["sentence-transformers cross-encoders", "Cohere Rerank", "Python 3.12"],
+          "lab_task": "Retrieve 30 chunks and rerank to 5 with a cross-encoder and a hosted reranker, then compare answer accuracy and latency with no reranking.",
+          "deliverable": "Reranking code and a comparison of accuracy and latency",
+          "checks": [["Measure answer accuracy on 30 questions", "Reranking improves accuracy", "Results table"], ["Measure added latency", "Recorded for each reranker", "Results table"], ["Choose a setting", "Choice balances accuracy and latency with numbers", "Recommendation"]],
+          "objectives": ["Rerank retrieved chunks", "Measure accuracy and latency", "Choose reranking settings"]
+        },
+        {
+          "topic": "Query Transformation: Rewriting, Expansion and Decomposition",
+          "subtopics": ["Vague user questions", "Rewriting queries with an LLM", "Query expansion with synonyms", "Hypothetical document embeddings (HyDE)", "Splitting multi-part questions", "Follow-up questions in a conversation", "Cost of extra model calls", "Measuring the effect"],
+          "tools": ["Python 3.12", "LlamaIndex", "OpenAI Python SDK"],
+          "lab_task": "Add query rewriting for follow-up questions, HyDE for vague questions and decomposition for multi-part questions, and measure each one's effect on 30 test questions.",
+          "deliverable": "Query transformation code and measured effects",
+          "checks": [["Ask a follow-up like \"and for contractors?\"", "Rewritten into a full question and answered correctly", "Trace"], ["Ask a two-part question", "Both parts are retrieved and answered", "Trace"], ["Compare accuracy with and without each method", "Effect of each recorded", "Results table"]],
+          "objectives": ["Improve retrieval with query transformation", "Handle follow-ups", "Measure the benefit"]
+        },
+        {
+          "topic": "Evaluating RAG: Retrieval and Answer Quality",
+          "subtopics": ["Building a test set of questions and answers", "Retrieval metrics: hit rate, recall and MRR", "Answer correctness", "Faithfulness to the context", "Answer relevance", "LLM-as-judge with Ragas", "Comparing pipeline versions", "Recording results over time"],
+          "tools": ["Ragas", "pandas", "Python 3.12"],
+          "lab_task": "Build a 40-question test set for the handbook, compute retrieval and answer metrics with Ragas for two pipeline versions and decide which to keep.",
+          "deliverable": "Test set, metric results and a decision note",
+          "checks": [["Compute hit rate and MRR", "Reported for both versions", "Results table"], ["Compute faithfulness", "Reported for both versions with low-scoring answers listed", "Ragas output"], ["Make a decision", "Choice follows from the metrics", "Decision note"]],
+          "objectives": ["Evaluate RAG systems", "Use retrieval and answer metrics", "Decide with evidence"]
+        },
+        {
+          "topic": "Conversational RAG with Chat History",
+          "subtopics": ["Chat history in RAG", "Rewriting questions using history", "Memory limits", "Session storage", "Streaming answers", "Showing sources in chat", "Resetting a conversation", "Testing multi-turn conversations"],
+          "tools": ["Python 3.12", "Streamlit", "LlamaIndex chat engine"],
+          "lab_task": "Build a Streamlit chat over the handbook that rewrites follow-up questions using history, streams answers with sources and passes a ten-turn scripted conversation test.",
+          "deliverable": "Chat application and multi-turn test results",
+          "checks": [["Run the ten-turn conversation", "Every turn answered correctly with sources", "Test results"], ["Reset the conversation and ask a follow-up", "Assistant asks what the user means", "Demo"], ["Watch an answer", "Text streams as it is generated", "Demo recording"]],
+          "objectives": ["Build conversational RAG", "Use chat history correctly", "Test multi-turn behaviour"]
+        },
+        {
+          "topic": "Structured and Tabular Data in RAG",
+          "subtopics": ["Tables inside documents", "Converting tables to text", "Text-to-SQL for databases", "Combining SQL answers with document answers", "Spreadsheets as sources", "Numbers and units", "Checking calculated answers", "Choosing between retrieval and SQL"],
+          "tools": ["Python 3.12", "SQLite", "LlamaIndex", "pandas"],
+          "lab_task": "Add a text-to-SQL tool over a leave-balance table to the handbook assistant, route each question to documents or SQL and verify ten numeric answers against direct queries.",
+          "deliverable": "Router, SQL tool and verification results",
+          "checks": [["Ask \"how many leave days does employee 1042 have left?\"", "Answered from SQL correctly", "Answer and SQL query"], ["Ask a policy question", "Answered from documents with a citation", "Answer"], ["Verify ten numeric answers", "All match direct SQL queries", "Verification sheet"]],
+          "objectives": ["Use tables and databases in RAG", "Route questions to the right source", "Verify numeric answers"]
+        },
+        {
+          "topic": "Keeping the Index Fresh: Updates, Deletes and Versions",
+          "subtopics": ["Detecting changed documents", "Incremental re-indexing", "Deleting removed documents", "Document versions and effective dates", "Scheduled ingestion", "Re-embedding after a model change", "Index snapshots", "Monitoring index freshness"],
+          "tools": ["Python 3.12", "Qdrant", "cron or a scheduler"],
+          "lab_task": "Build a scheduled ingestion job that re-indexes only changed handbook files, removes deleted ones, keeps the latest version by effective date and reports index freshness.",
+          "deliverable": "Ingestion job, run logs and freshness report",
+          "checks": [["Change one file and run the job", "Only that file is re-indexed", "Job log"], ["Delete a file and run the job", "Its chunks are gone from the index", "Search output"], ["Ask about a changed policy", "Answer uses the new version", "Model output"]],
+          "objectives": ["Keep indexes up to date", "Handle deletes and versions", "Monitor freshness"]
+        },
+        {
+          "topic": "Access Control and Security in RAG",
+          "subtopics": ["Who may see which document", "Document-level permissions in metadata", "Filtering retrieval by user", "Prompt injection inside documents", "Personal data in documents", "Logging and privacy", "Testing permission leaks", "Secure storage of indexes"],
+          "tools": ["Python 3.12", "Qdrant", "Presidio"],
+          "lab_task": "Add document permissions to the index, filter every search by the user's groups, mask personal data in answers and test for permission leaks and injected instructions.",
+          "deliverable": "Permission filter, masking and security test results",
+          "checks": [["Ask as a normal employee about a manager-only document", "Document is not retrieved or mentioned", "Trace"], ["Search with a document containing a hidden instruction", "Instruction is ignored", "Model output"], ["Ask for a colleague's phone number", "Number is masked or refused", "Model output"]],
+          "objectives": ["Enforce document permissions in RAG", "Defend against injected content", "Protect personal data"]
+        },
+        {
+          "topic": "Debugging RAG: Finding Why an Answer Went Wrong",
+          "subtopics": ["Separating retrieval failures from generation failures", "Checking whether the answer was in the index", "Inspecting retrieved chunks and scores", "Chunks that cut the answer in half", "Prompts that let the model ignore context", "Outdated or duplicate documents", "A debugging checklist", "Recording fixes as test questions"],
+          "tools": ["Python 3.12", "LlamaIndex", "Chroma"],
+          "lab_task": "Diagnose ten wrong answers from the handbook assistant, label each as a loading, chunking, retrieval or prompt problem, fix them and add each case to the test set.",
+          "deliverable": "Debugging log with cause, fix and new test case for each answer",
+          "checks": [["Label the ten wrong answers", "Each has a cause backed by the retrieval log", "Debugging log"], ["Rerun the ten questions after the fixes", "At least eight are now correct", "Test results"], ["Run the full test set", "No earlier question got worse", "Test results"]],
+          "objectives": ["Debug RAG answers step by step", "Tell retrieval and generation problems apart", "Turn fixes into tests"]
+        },
+        {
+          "topic": "Deploying a RAG Service as an API",
+          "subtopics": ["API design for question answering", "FastAPI endpoints for ask and ingest", "Streaming answers", "Authentication", "Configuration and secrets", "Containers", "Health checks", "Basic load testing"],
+          "tools": ["FastAPI", "Docker", "Locust"],
+          "lab_task": "Package the handbook assistant as a FastAPI service with ask and ingest endpoints, streaming, API keys and health checks in Docker, then load-test it with 20 users.",
+          "deliverable": "Service code, Docker image and load test report",
+          "checks": [["Call the ask endpoint with curl", "Streams an answer with sources", "curl output"], ["Call without an API key", "401 Unauthorized", "API response"], ["Load-test with 20 users", "Error rate and p95 latency recorded", "Locust report"]],
+          "objectives": ["Serve RAG as an API", "Secure the service", "Load-test it"]
+        },
+        {
+          "topic": "Beginner Capstone: Company Knowledge Assistant",
+          "subtopics": ["Requirements and document sources", "Ingestion, chunking and indexing", "Hybrid retrieval with reranking", "Citations and permissions", "Evaluation and deployment", "Demo"],
+          "tools": ["Python 3.12", "LlamaIndex", "Qdrant", "Ragas", "FastAPI", "Streamlit"],
+          "lab_task": "Build a knowledge assistant over a mixed document collection with hybrid retrieval, reranking, citations, permission filtering, scheduled re-indexing and a Ragas evaluation, deployed as an API with a chat UI, then demo it.",
+          "deliverable": "Repository, evaluation report, API and a 10-minute demo",
+          "checks": [["Run the 40-question evaluation", "Meets the agreed accuracy and faithfulness targets", "Ragas report"], ["Ask as a user without access to a document", "It is not used", "Trace"], ["Change a source document", "Answer reflects the change after the next ingestion run", "Demo"]],
+          "objectives": ["Combine the beginner topics in one assistant", "Prove quality with evaluation", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic RAG pipeline. Covers advanced ingestion, chunking and indexing, retrieval tuning, multi-index and multimodal RAG, graph and agentic retrieval, evaluation pipelines, observability, cost and scaling RAG in production.",
+      "prerequisites": ["Has built a RAG pipeline with a vector store", "Writes Python confidently and uses Docker", "Knows the basics of retrieval evaluation"],
+      "outcomes": ["Design production RAG systems for large, changing document collections", "Tune retrieval with hybrid search, reranking and query planning", "Build multimodal, graph and agentic RAG", "Evaluate, monitor and scale RAG services"],
+      "days": [
+        {
+          "topic": "RAG Architecture for Production Systems",
+          "subtopics": ["Reference architecture for enterprise RAG", "Ingestion and query paths", "Synchronous and asynchronous ingestion", "Choosing frameworks or plain code", "Configuration and versioning of pipelines", "Failure modes and fallbacks", "Latency budgets per stage", "Architecture decision records"],
+          "tools": ["Python 3.12", "FastAPI", "Qdrant", "Redis"],
+          "lab_task": "Design the architecture for a 500,000-document RAG system with separate ingestion and query services, write two architecture decision records and build the skeleton services.",
+          "deliverable": "Architecture diagram, two decision records and service skeletons",
+          "checks": [["Review the diagram", "Ingestion and query paths are separate with every store labelled", "Diagram"], ["Read the decision records", "Options, trade-offs and decisions are written", "Decision records"], ["Run the skeleton services", "Both start and pass health checks", "Terminal output"]],
+          "objectives": ["Design production RAG architecture", "Set latency budgets", "Record design decisions"],
+          "shared_key": "rag-production"
+        },
+        {
+          "topic": "Advanced Document Parsing and Layout-Aware Ingestion",
+          "subtopics": ["Layout models for PDFs", "Tables, headers and footers", "Multi-column documents", "Images and captions", "Unstructured, Docling and cloud document AI", "Converting documents to Markdown", "Parsing quality metrics", "Choosing a parser per document type"],
+          "tools": ["Unstructured", "Docling", "Azure AI Document Intelligence", "Python 3.12"],
+          "lab_task": "Parse a set of complex financial reports with three parsers, measure table and text accuracy against a hand-made reference and choose a parser per document type.",
+          "deliverable": "Parsing outputs, accuracy comparison and parser choice",
+          "checks": [["Compare table extraction with the reference", "Cell accuracy recorded per parser", "Comparison table"], ["Parse a two-column page", "Reading order is correct with the chosen parser", "Parsed output"], ["Choose parsers", "Choice per document type backed by the numbers", "Decision note"]],
+          "objectives": ["Parse complex documents", "Measure parsing quality", "Choose parsers by document type"]
+        },
+        {
+          "topic": "Semantic and Hierarchical Chunking",
+          "subtopics": ["Semantic chunking by meaning", "Hierarchical chunks and summaries", "Small-to-big retrieval", "Sentence-window retrieval", "Contextual chunk headers", "Late chunking", "Chunk metadata enrichment", "Measuring chunking effects"],
+          "tools": ["LlamaIndex", "LangChain", "Python 3.12"],
+          "lab_task": "Compare fixed, semantic, hierarchical small-to-big and contextual-header chunking on the financial reports with a 50-question test set and choose a strategy.",
+          "deliverable": "Chunking implementations and an evaluation table",
+          "checks": [["Run the 50 questions for each strategy", "Hit rate and answer accuracy recorded", "Evaluation table"], ["Inspect a small-to-big retrieval", "Small chunk matched and its parent section returned", "Trace"], ["Check contextual headers", "Each chunk carries its document and section title", "Chunk output"]],
+          "objectives": ["Use advanced chunking methods", "Retrieve small and return big", "Choose chunking by evidence"]
+        },
+        {
+          "topic": "Embedding Model Selection and Fine-Tuning",
+          "subtopics": ["Comparing embedding models on your data", "Domain vocabulary problems", "Generating training pairs", "Fine-tuning a sentence-transformer", "Matryoshka embeddings and smaller vectors", "Binary and scalar quantisation of vectors", "Cost and storage trade-offs", "Re-indexing plans"],
+          "tools": ["sentence-transformers", "Hugging Face", "Qdrant"],
+          "lab_task": "Fine-tune an open embedding model on generated question-chunk pairs from the financial reports, compare it with two stock models, and test smaller and quantised vectors for storage savings.",
+          "deliverable": "Fine-tuned model, comparison and storage results",
+          "checks": [["Compare recall@10 for all models", "Fine-tuned model is best or the reason is explained", "Comparison table"], ["Halve the vector size with Matryoshka", "Recall drop recorded", "Results table"], ["Quantise vectors to binary", "Storage saving and recall recorded", "Results table"]],
+          "objectives": ["Select embedding models on evidence", "Fine-tune embeddings", "Reduce vector storage"]
+        },
+        {
+          "topic": "Vector Database Operations at Scale",
+          "subtopics": ["HNSW parameters", "Sharding and replication", "Payload indexes for filters", "Multi-tenancy in vector stores", "Backups and snapshots", "Upserts at high volume", "Monitoring vector databases", "Managed versus self-hosted options"],
+          "tools": ["Qdrant", "pgvector", "Milvus", "Prometheus"],
+          "lab_task": "Load 5 million vectors into Qdrant with sharding and payload indexes, tune HNSW for a recall and latency target, and restore a collection from a snapshot.",
+          "deliverable": "Cluster configuration, tuning results and restore record",
+          "checks": [["Measure recall and p95 latency for three HNSW settings", "Setting that meets both targets chosen", "Results table"], ["Filter on a tenant ID", "Filtered search stays fast with the payload index", "Latency results"], ["Restore from a snapshot", "Collection searchable with the same results", "Search output"]],
+          "objectives": ["Run vector databases at scale", "Tune indexes", "Back up and restore"]
+        },
+        {
+          "topic": "Advanced Hybrid Retrieval and Learned Sparse Models",
+          "subtopics": ["BM25 tuning", "SPLADE and learned sparse vectors", "Hybrid search in one engine", "Score normalisation", "Field boosting", "Retrieval for code, IDs and numbers", "Domain-specific retrieval tuning", "Retrieval ablation studies"],
+          "tools": ["Qdrant", "Elasticsearch or OpenSearch", "SPLADE", "Python 3.12"],
+          "lab_task": "Add learned sparse vectors to hybrid retrieval, tune field boosts and run an ablation study to show the contribution of each component on the 50-question test set.",
+          "deliverable": "Retriever configuration and ablation results",
+          "checks": [["Run the ablation", "Contribution of dense, sparse and keyword parts recorded", "Ablation table"], ["Search for an exact account code", "Found at rank 1", "Search output"], ["Compare with the beginner hybrid setup", "Recall improves", "Results table"]],
+          "objectives": ["Use learned sparse retrieval", "Tune hybrid search", "Measure each component"]
+        },
+        {
+          "topic": "Reranking, Filtering and Context Compression",
+          "subtopics": ["Multi-stage retrieval", "Cross-encoder and LLM reranking", "Removing redundant chunks", "Context compression", "Lost-in-the-middle effects", "Ordering context for the model", "Token savings", "Quality versus cost"],
+          "tools": ["Cohere Rerank", "sentence-transformers", "LLMLingua", "Python 3.12"],
+          "lab_task": "Build a multi-stage retriever that retrieves 100, reranks to 10, removes duplicates and compresses context, and show token savings and accuracy against the earlier pipeline.",
+          "deliverable": "Multi-stage retriever and comparison results",
+          "checks": [["Measure tokens per answer", "At least 40 percent fewer", "Token report"], ["Measure answer accuracy", "Same or better", "Evaluation output"], ["Place the key chunk in the middle and at the start", "Effect on accuracy recorded", "Results table"]],
+          "objectives": ["Build multi-stage retrieval", "Compress context", "Balance quality and cost"]
+        },
+        {
+          "topic": "Query Planning, Routing and Multi-Index RAG",
+          "subtopics": ["Several indexes for several sources", "Routing queries to indexes", "Query planning for complex questions", "Sub-question engines", "Metadata extraction from queries", "Self-querying retrievers", "Fallbacks when a route fails", "Evaluating routing accuracy"],
+          "tools": ["LlamaIndex", "LangGraph", "Python 3.12"],
+          "lab_task": "Build a router across HR, finance and IT indexes that extracts filters such as year and region from the question, plans sub-questions for comparisons and measures routing accuracy.",
+          "deliverable": "Router and planner code with routing accuracy results",
+          "checks": [["Ask \"compare 2024 and 2025 travel policy for India\"", "Two sub-questions with year and region filters", "Trace"], ["Measure routing accuracy on 40 questions", "At least 90 percent routed correctly", "Results"], ["Make one index unavailable", "Router falls back and says the source is unavailable", "Trace"]],
+          "objectives": ["Route queries across indexes", "Plan complex questions", "Measure routing accuracy"]
+        },
+        {
+          "topic": "Multimodal RAG: Images, Tables, Charts and Slides",
+          "subtopics": ["Retrieving images and diagrams", "Multimodal embeddings", "Describing images for indexing", "Tables as structured objects", "Charts and their data", "Slide decks", "Vision models for answering", "Evaluating multimodal answers"],
+          "tools": ["CLIP or multimodal embeddings", "Vision-capable model API", "LlamaIndex"],
+          "lab_task": "Index product manuals with diagrams and slide decks, retrieve the right diagram for 15 questions and answer questions about charts using a vision model.",
+          "deliverable": "Multimodal index and evaluation on 15 questions",
+          "checks": [["Ask about a part shown only in a diagram", "Correct diagram retrieved and used", "Trace"], ["Ask for a value from a chart", "Correct value or a stated uncertainty", "Model output"], ["Run the 15 questions", "Accuracy recorded", "Evaluation output"]],
+          "objectives": ["Build multimodal RAG", "Index images and tables", "Evaluate visual answers"]
+        },
+        {
+          "topic": "GraphRAG and Knowledge Graph Retrieval",
+          "subtopics": ["Limits of chunk-only retrieval", "Extracting entities and relations", "Building a graph in Neo4j", "Community summaries", "Local and global graph search", "Combining graph and vector retrieval", "Keeping the graph current", "When GraphRAG is worth the cost"],
+          "tools": ["Neo4j", "Microsoft GraphRAG", "LlamaIndex"],
+          "lab_task": "Build a knowledge graph from supplier contracts, answer 20 multi-hop and summary questions with GraphRAG and with vector RAG, and compare accuracy and cost.",
+          "deliverable": "Graph, two pipelines and a comparison report",
+          "checks": [["Answer the 20 questions with both", "Accuracy recorded for each", "Comparison report"], ["Ask a global question about all suppliers", "GraphRAG answers using community summaries", "Trace"], ["Compare indexing cost", "Cost of each approach recorded", "Cost sheet"]],
+          "objectives": ["Build graph-based retrieval", "Combine graph and vector search", "Decide when GraphRAG pays off"]
+        },
+        {
+          "topic": "Agentic RAG and Corrective Retrieval",
+          "subtopics": ["Agents that decide when and where to search", "Self-RAG and reflection", "Corrective RAG when evidence is weak", "Web search as a fallback", "Multi-step research", "Stopping rules", "Cost of agentic retrieval", "Evaluating agentic RAG"],
+          "tools": ["LangGraph", "LlamaIndex", "Search API"],
+          "lab_task": "Build a LangGraph research agent that grades retrieved evidence, searches again or falls back to approved web sources when evidence is weak and stops within a step budget.",
+          "deliverable": "Agent code and comparison with the plain pipeline",
+          "checks": [["Ask a question with weak first results", "Agent grades the evidence as weak and searches again", "Trace"], ["Compare accuracy and cost with the plain pipeline on 30 questions", "Both recorded", "Comparison table"], ["Give an unanswerable question", "Agent stops within the step budget and says it cannot answer", "Trace"]],
+          "objectives": ["Build agentic RAG", "Correct weak retrieval", "Control cost and steps"]
+        },
+        {
+          "topic": "Long-Context Models versus Retrieval",
+          "subtopics": ["Context window sizes today", "Needle-in-a-haystack tests", "Cost of long prompts", "Prompt caching for long documents", "Combining retrieval and long context", "When to skip retrieval", "Latency effects", "Choosing per use case"],
+          "tools": ["Long-context model APIs", "Python 3.12"],
+          "lab_task": "Answer the same 30 questions by sending whole documents to a long-context model, by RAG and by a combined approach with prompt caching, and compare accuracy, cost and latency.",
+          "deliverable": "Three implementations and a comparison report",
+          "checks": [["Measure accuracy of all three", "Recorded per approach", "Comparison report"], ["Measure cost per question with and without caching", "Caching saving recorded", "Cost report"], ["Run a needle-in-a-haystack test", "Recall by position recorded", "Test results"]],
+          "objectives": ["Compare long context and retrieval", "Use prompt caching", "Choose an approach per use case"]
+        },
+        {
+          "topic": "Evaluation Pipelines and Test Set Management",
+          "subtopics": ["Golden test sets", "Synthetic test generation", "Ragas, DeepEval and TruLens", "Component and end-to-end metrics", "Evaluation in CI", "Regression thresholds", "Human review sampling", "Versioning test sets"],
+          "tools": ["Ragas", "DeepEval", "GitHub Actions", "pandas"],
+          "lab_task": "Generate a synthetic test set, review and fix it by hand, add component and end-to-end metrics to CI and block pull requests that lower faithfulness or recall.",
+          "deliverable": "Test set, CI workflow and evaluation reports",
+          "checks": [["Open a pull request with a worse chunk size", "CI fails on recall", "CI log"], ["Review 20 synthetic questions", "Bad questions removed and counted", "Review sheet"], ["Compare judge scores with human marks", "Agreement measured", "Comparison sheet"]],
+          "objectives": ["Manage RAG test sets", "Automate evaluation in CI", "Validate automatic metrics"]
+        },
+        {
+          "topic": "Observability and Feedback for RAG Systems",
+          "subtopics": ["Tracing ingestion and queries", "Logging retrieved chunks and scores", "User feedback capture", "Finding retrieval failures from traces", "Dashboards for quality, latency and cost", "Drift in questions and documents", "Alerting", "Privacy in logs"],
+          "tools": ["Langfuse", "OpenTelemetry", "Grafana"],
+          "lab_task": "Trace every query with retrieved chunks and scores, capture user feedback, build dashboards and use the worst-rated answers to find and fix two retrieval problems.",
+          "deliverable": "Tracing setup, dashboards and two fixes with evidence",
+          "checks": [["Open a query trace", "Shows rewritten query, chunks, scores, prompt and answer", "Trace screenshot"], ["Filter thumbs-down answers", "List with traces to review", "Dashboard"], ["Rerun failed questions after the fixes", "They are answered correctly", "Evaluation output"]],
+          "objectives": ["Observe RAG systems", "Use feedback to improve", "Monitor drift"]
+        },
+        {
+          "topic": "Cost, Latency and Caching in RAG",
+          "subtopics": ["Cost per query by stage", "Embedding cost at ingestion", "Semantic caching", "Caching retrieval results", "Smaller models for simple questions", "Streaming", "Batch embedding", "Budgets and alerts"],
+          "tools": ["Redis", "LiteLLM", "Python 3.12"],
+          "lab_task": "Reduce cost per query by at least 40 percent and p95 latency by 30 percent with semantic caching, model routing and batch embedding while keeping evaluation scores within two points.",
+          "deliverable": "Optimisation report with cost, latency and quality",
+          "checks": [["Measure cost per query", "At least 40 percent lower", "Cost report"], ["Measure p95 latency", "At least 30 percent lower", "Latency report"], ["Run the evaluation", "Scores within two points", "Evaluation output"]],
+          "objectives": ["Reduce RAG cost", "Lower latency", "Keep quality"]
+        },
+        {
+          "topic": "Multilingual and Domain-Specific RAG",
+          "subtopics": ["Multilingual embeddings", "Cross-language retrieval", "Translating queries or documents", "Indian languages and mixed-language queries", "Domain terms and glossaries", "Acronym expansion", "Evaluation per language", "Answering in the user's language"],
+          "tools": ["Multilingual embedding models", "Python 3.12", "Ragas"],
+          "lab_task": "Make the assistant answer questions in Hindi, Tamil and English over English documents, add a glossary for domain acronyms and measure accuracy per language.",
+          "deliverable": "Multilingual pipeline and per-language results",
+          "checks": [["Ask a question in Hindi", "Answer in Hindi with English sources cited", "Model output"], ["Ask using an internal acronym", "Glossary expands it and retrieval succeeds", "Trace"], ["Compare accuracy per language", "Recorded for all three", "Results table"]],
+          "objectives": ["Build multilingual RAG", "Handle domain vocabulary", "Evaluate per language"]
+        },
+        {
+          "topic": "Security, Permissions and Compliance in Enterprise RAG",
+          "subtopics": ["Permission-aware retrieval at scale", "Syncing permissions from SharePoint or Google Drive", "Data classification labels", "Prompt injection in documents", "Leakage through summaries", "Audit logs", "Retention and deletion", "Compliance evidence"],
+          "tools": ["Microsoft Graph API", "Qdrant", "Presidio", "OWASP LLM Top 10"],
+          "lab_task": "Sync document permissions from a SharePoint test site into the index, block retrieval of documents above the user's classification and run a leakage test suite.",
+          "deliverable": "Permission sync, classification filter and leakage test report",
+          "checks": [["Remove a user's SharePoint access", "Next sync removes their retrieval access", "Trace"], ["Ask for a summary that would include a restricted document", "Restricted content is excluded", "Model output"], ["Run the leakage test suite", "No restricted content appears", "Test report"]],
+          "objectives": ["Enforce enterprise permissions in RAG", "Prevent leakage", "Keep compliance evidence"]
+        },
+        {
+          "topic": "Scaling RAG Services",
+          "subtopics": ["Horizontal scaling of query services", "Ingestion workers and queues", "Rate limits to model providers", "Async processing", "Multi-tenant RAG", "Load testing", "Capacity planning", "Disaster recovery"],
+          "tools": ["Kubernetes", "Redis or RabbitMQ", "Locust", "Qdrant"],
+          "lab_task": "Scale the query service to 200 concurrent users and ingestion to 50,000 documents per hour on Kubernetes with queues, provider rate limits and a recovery test.",
+          "deliverable": "Deployment files, load test results and recovery record",
+          "checks": [["Load-test 200 users", "p95 latency meets the target with no errors", "Locust report"], ["Ingest 50,000 documents", "Completed within one hour", "Worker metrics"], ["Delete the vector database pod", "Service recovers with no data loss", "Logs and search output"]],
+          "objectives": ["Scale RAG systems", "Use queues for ingestion", "Plan for recovery"]
+        },
+        {
+          "topic": "Managed RAG Services on the Cloud",
+          "subtopics": ["Azure AI Search with integrated vectorisation", "Amazon Bedrock Knowledge Bases", "Vertex AI Search", "Ingestion connectors", "Security and networking", "Pricing", "Quality compared with a custom pipeline", "When to build or buy"],
+          "tools": ["Azure AI Search", "Amazon Bedrock Knowledge Bases", "Vertex AI Search"],
+          "lab_task": "Build the handbook assistant on one managed RAG service, compare its quality, effort and cost with the custom pipeline on the same test set and write a build-or-buy recommendation.",
+          "deliverable": "Managed implementation, comparison and recommendation",
+          "checks": [["Run the test set on the managed service", "Accuracy recorded", "Evaluation output"], ["Estimate monthly cost at the expected load", "Cost compared with the custom pipeline", "Cost sheet"], ["Write the recommendation", "Supported by quality, effort and cost", "Recommendation"]],
+          "objectives": ["Use managed RAG services", "Compare with custom pipelines", "Make build-or-buy decisions"]
+        },
+        {
+          "topic": "Intermediate Capstone: Enterprise Document Intelligence Platform",
+          "subtopics": ["Requirements and architecture", "Layout-aware ingestion and chunking", "Hybrid, reranked and routed retrieval", "Permissions and security", "Evaluation, observability and scaling", "Demo and design defence"],
+          "tools": ["Docling", "Qdrant", "LlamaIndex", "Ragas", "Langfuse", "Kubernetes"],
+          "lab_task": "Deliver a document intelligence platform over a large mixed collection with layout-aware ingestion, hybrid and routed retrieval with reranking, permission sync, CI evaluation, tracing and a scaled deployment, then present it.",
+          "deliverable": "Repository, evaluation reports, dashboards, deployment and a 15-minute demo",
+          "checks": [["Run the CI evaluation", "Meets the agreed recall and faithfulness targets", "CI log"], ["Ask as a user without access", "Restricted documents never appear", "Trace"], ["Load-test the query service", "Meets the latency target", "Load test report"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Prove quality, security and scale", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers and architects running RAG in production. Covers retrieval research methods, training retrievers and rerankers, advanced graph and agentic retrieval, evaluation science, RAG security, platform design for many teams, governance and the economics of retrieval systems.",
+      "prerequisites": ["Has run a RAG system in production", "Uses evaluation pipelines and tracing", "Comfortable with Python, cloud platforms and basic machine learning"],
+      "outcomes": ["Train and tune retrievers and rerankers for a domain", "Build advanced graph, agentic and structured retrieval", "Evaluate RAG with research-grade methods", "Architect, secure and govern RAG platforms for many teams"],
+      "days": [
+        {
+          "topic": "Retrieval Theory and Failure Analysis",
+          "subtopics": ["Why retrieval fails: vocabulary, granularity, ambiguity", "Error taxonomies for RAG", "Analysing failures by category", "Dense versus sparse retrieval theory", "Bi-encoders and cross-encoders", "Late interaction models", "Retrieval upper bounds", "Turning failure analysis into a roadmap"],
+          "tools": ["Python 3.12", "pandas", "Langfuse"],
+          "lab_task": "Classify 100 failed production questions into an error taxonomy, compute the upper bound for answer accuracy given perfect retrieval and write a prioritised improvement roadmap.",
+          "deliverable": "Failure analysis, upper bound result and roadmap",
+          "checks": [["Classify the 100 failures", "Every failure has a category and an example", "Analysis sheet"], ["Test answers with the correct chunks supplied", "Upper bound recorded", "Results"], ["Review the roadmap", "Items ordered by failures fixed per effort", "Roadmap"]],
+          "objectives": ["Analyse RAG failures systematically", "Find retrieval limits", "Plan improvements by impact"],
+          "shared_key": "rag-advanced"
+        },
+        {
+          "topic": "Training Retrievers: Contrastive Learning and Hard Negatives",
+          "subtopics": ["Contrastive training", "Mining hard negatives", "Training data from logs and feedback", "Multi-task retrieval training", "Evaluation on held-out data", "Avoiding overfitting to the test set", "Serving custom retrievers", "Re-indexing strategy"],
+          "tools": ["sentence-transformers", "Hugging Face", "Weights & Biases"],
+          "lab_task": "Train a domain retriever with hard negatives mined from production logs, compare it with the best stock model on a held-out set and plan the re-index of 5 million chunks.",
+          "deliverable": "Training runs, evaluation and re-index plan",
+          "checks": [["Compare recall@10 on the held-out set", "Trained retriever beats the stock model", "Evaluation output"], ["Check for overlap between training and test questions", "None found", "Overlap check"], ["Review the re-index plan", "Time, cost and switch-over steps stated", "Plan"]],
+          "objectives": ["Train domain retrievers", "Mine hard negatives", "Re-index safely"]
+        },
+        {
+          "topic": "Training and Distilling Rerankers",
+          "subtopics": ["Cross-encoder training", "Listwise and pairwise losses", "Distilling LLM judgements into small rerankers", "Latency budgets for reranking", "Quantising rerankers", "Serving rerankers on CPU and GPU", "Evaluation of ranking quality", "Updating rerankers safely"],
+          "tools": ["sentence-transformers", "Hugging Face", "ONNX Runtime"],
+          "lab_task": "Distil an LLM reranker into a small cross-encoder, quantise it with ONNX and show it keeps most of the accuracy at a fraction of the latency.",
+          "deliverable": "Distilled reranker, benchmark and evaluation",
+          "checks": [["Compare NDCG@10 with the LLM reranker", "Within the agreed gap", "Evaluation output"], ["Measure latency on CPU", "Under the latency budget", "Benchmark output"], ["Compare model size before and after quantisation", "Size reduction recorded", "Size report"]],
+          "objectives": ["Train and distil rerankers", "Meet latency budgets", "Evaluate ranking quality"]
+        },
+        {
+          "topic": "Late-Interaction and Multi-Vector Retrieval",
+          "subtopics": ["ColBERT and token-level matching", "Multi-vector indexes", "ColPali for document images", "Storage and compute costs", "PLAID and compression", "When late interaction wins", "Combining with first-stage retrieval", "Benchmarking on your data"],
+          "tools": ["ColBERT", "ColPali", "RAGatouille", "Qdrant"],
+          "lab_task": "Index scanned manuals with ColPali and text with ColBERT, compare retrieval quality and storage with the dense baseline and decide where to use them.",
+          "deliverable": "Two indexes, benchmark results and a recommendation",
+          "checks": [["Compare recall on scanned manuals", "ColPali result recorded against the baseline", "Benchmark table"], ["Measure storage per document", "Recorded for each method", "Benchmark table"], ["Write the recommendation", "Use cases chosen with the numbers", "Recommendation"]],
+          "objectives": ["Use late-interaction retrieval", "Retrieve from document images", "Weigh quality against cost"]
+        },
+        {
+          "topic": "Advanced GraphRAG and Knowledge Engineering",
+          "subtopics": ["Ontology design", "Entity resolution", "Relation extraction quality", "Temporal graphs", "Graph and vector hybrids", "Graph queries generated by LLMs", "Incremental graph updates", "Graph quality metrics"],
+          "tools": ["Neo4j", "Microsoft GraphRAG", "LlamaIndex property graph", "Python 3.12"],
+          "lab_task": "Design an ontology for supplier risk, resolve duplicate entities, build a temporal graph from contracts and news, and answer time-based multi-hop questions with Cypher generated by an LLM.",
+          "deliverable": "Ontology, graph, query pipeline and quality report",
+          "checks": [["Run entity resolution", "Duplicate suppliers are merged with precision recorded", "Quality report"], ["Ask \"which suppliers had a sanctions issue after their 2024 renewal?\"", "Correct suppliers returned with graph paths", "Query output"], ["Validate generated Cypher on 20 questions", "Valid and correct rates recorded", "Results"]],
+          "objectives": ["Engineer knowledge graphs for RAG", "Handle time in graphs", "Generate graph queries safely"]
+        },
+        {
+          "topic": "Structured Retrieval: Text-to-SQL at Enterprise Scale",
+          "subtopics": ["Schema linking for large databases", "Semantic layers and metrics definitions", "Few-shot examples from query logs", "Validating and repairing SQL", "Read-only execution and limits", "Combining SQL and document answers", "Evaluating text-to-SQL", "Governance of data access"],
+          "tools": ["dbt semantic layer or Cube", "PostgreSQL", "LangGraph", "sqlglot"],
+          "lab_task": "Build a text-to-SQL system over a 200-table warehouse using a semantic layer and schema linking, validate SQL before running it and reach the agreed accuracy on 50 business questions.",
+          "deliverable": "Text-to-SQL pipeline and evaluation results",
+          "checks": [["Run the 50 questions", "Execution accuracy recorded", "Evaluation output"], ["Generate SQL that would scan a huge table without a filter", "Blocked by the validator", "Logs"], ["Ask about a metric defined in the semantic layer", "Uses the official definition", "Generated SQL"]],
+          "objectives": ["Retrieve from large databases", "Use semantic layers", "Validate generated SQL"]
+        },
+        {
+          "topic": "Agentic and Deep Research Retrieval",
+          "subtopics": ["Multi-step research agents", "Planning research questions", "Source quality scoring", "Iterative retrieval and reading", "Report generation with citations", "Stopping and budget rules", "Evaluating research reports", "Human review of reports"],
+          "tools": ["LangGraph", "Search API", "LlamaIndex", "Langfuse"],
+          "lab_task": "Build a research agent that plans sub-questions, searches internal and approved external sources, scores sources and writes a cited five-page report within a cost budget.",
+          "deliverable": "Research agent, three reports and evaluation",
+          "checks": [["Check every citation in a report", "Each supports its claim", "Citation check report"], ["Stop at the budget", "Agent finishes with what it has and says what is missing", "Trace"], ["Have reviewers score three reports", "Scores recorded against a rubric", "Review sheet"]],
+          "objectives": ["Build research agents", "Score and cite sources", "Control research cost"]
+        },
+        {
+          "topic": "Evaluation Science for Retrieval Systems",
+          "subtopics": ["Building representative test sets", "Annotation guidelines and agreement", "Statistical significance", "Judge bias and calibration", "Online metrics and A/B tests", "Click and feedback signals", "Long-term quality tracking", "Honest reporting of results"],
+          "tools": ["Ragas", "SciPy", "Label Studio"],
+          "lab_task": "Annotate 200 question-answer pairs with two reviewers, measure agreement, compare two pipelines with confidence intervals and report whether the improvement is real.",
+          "deliverable": "Annotations, agreement score, statistical comparison and report",
+          "checks": [["Compute reviewer agreement", "Agreement score reported", "Statistics output"], ["Compare pipelines with confidence intervals", "Report says whether the difference is significant", "Statistics output"], ["Measure judge position bias", "Bias recorded", "Evaluation output"]],
+          "objectives": ["Evaluate retrieval rigorously", "Measure annotation agreement", "Report results honestly"]
+        },
+        {
+          "topic": "Adversarial Attacks and Security Testing of RAG",
+          "subtopics": ["Corpus poisoning", "Indirect prompt injection", "Membership and data extraction attacks", "Attacks on embeddings", "Defences: provenance, filters and isolation", "Detection and monitoring", "Red-team exercises", "Security reviews for releases"],
+          "tools": ["garak", "PyRIT", "Python 3.12"],
+          "lab_task": "Poison the index with planted documents, run injection and extraction attacks, add provenance checks and filters, and show the attacks failing on retest.",
+          "deliverable": "Attack report, defences and retest results",
+          "checks": [["Add a poisoned document that targets a common question", "Attack succeeds before and fails after the defences", "Retest log"], ["Try to extract a restricted document", "Blocked", "Test log"], ["Check monitoring during the attacks", "Alerts are raised", "Alert log"]],
+          "objectives": ["Attack RAG systems realistically", "Defend the corpus", "Detect attacks"]
+        },
+        {
+          "topic": "RAG Platform Design for Many Teams",
+          "subtopics": ["Shared ingestion and indexing services", "Self-service collections", "Per-team configuration", "Tenant isolation", "Shared evaluation and tracing", "Quotas and chargeback", "Connector catalogue", "Platform roadmap"],
+          "tools": ["Kubernetes", "Qdrant", "LiteLLM proxy", "Langfuse"],
+          "lab_task": "Build a minimal RAG platform where two teams create their own collections through an API with isolated data, shared evaluation and cost reporting per team.",
+          "deliverable": "Platform services, onboarding record and cost report",
+          "checks": [["Search one team's collection as the other team", "Denied", "Logs"], ["Create a collection through the API", "Ready for ingestion with no manual steps", "API response"], ["Generate the cost report", "Costs split by team", "Cost report"]],
+          "objectives": ["Design RAG platforms", "Isolate teams", "Charge back costs"]
+        },
+        {
+          "topic": "Governance, Provenance and Regulatory Compliance",
+          "subtopics": ["Data lineage from source to answer", "Provenance records", "Explaining answers to auditors", "Retention and erasure across indexes", "Copyright and licensing of sources", "Sector regulations for advice", "EU AI Act transparency duties", "Audit packs"],
+          "tools": ["OpenLineage", "Langfuse", "Presidio"],
+          "lab_task": "Record lineage from every source document to every answer, prepare an audit pack for one month of answers and carry out an erasure request across all indexes and caches.",
+          "deliverable": "Lineage records, audit pack and erasure record",
+          "checks": [["Pick a random answer", "Its source documents and versions are traceable", "Lineage record"], ["Run an erasure request", "Data removed from indexes, caches and logs", "Search outputs"], ["Review the audit pack", "Covers sources, evaluations and incidents", "Audit pack"]],
+          "objectives": ["Govern RAG systems", "Keep provenance", "Meet audit and erasure duties"]
+        },
+        {
+          "topic": "Real-Time and Streaming RAG",
+          "subtopics": ["Indexing streaming data", "Change data capture from databases", "Freshness targets", "Time-aware retrieval", "Event-driven re-indexing", "Consistency between sources and index", "Monitoring lag", "Use cases: news, tickets, prices"],
+          "tools": ["Kafka", "Debezium", "Qdrant", "Python 3.12"],
+          "lab_task": "Stream support tickets from a database through Kafka into the index with change data capture, keep freshness under one minute and answer time-aware questions.",
+          "deliverable": "Streaming pipeline, freshness metrics and test answers",
+          "checks": [["Create a ticket", "Searchable within one minute", "Freshness metrics"], ["Ask \"what was raised in the last hour?\"", "Only recent tickets are used", "Model output"], ["Stop the consumer for five minutes then restart", "Lag recovers without loss", "Metrics"]],
+          "objectives": ["Build streaming RAG", "Meet freshness targets", "Retrieve by time"]
+        },
+        {
+          "topic": "Edge, On-Premises and Air-Gapped RAG",
+          "subtopics": ["Running every component offline", "Local embedding and generation models", "Hardware sizing", "Updates without internet", "Security hardening", "Data residency", "Quality compared with cloud models", "Operations without managed services"],
+          "tools": ["Ollama or vLLM", "Qdrant", "Docker", "Kubernetes"],
+          "lab_task": "Build an air-gapped RAG system with local models and storage, show it works with all outbound traffic blocked, and compare quality and cost with the cloud version.",
+          "deliverable": "Offline deployment, network test and comparison report",
+          "checks": [["Block all outbound traffic", "System still answers", "Network test and demo"], ["Compare accuracy with the cloud version", "Gap recorded", "Evaluation output"], ["Apply an offline update package", "Update installs and tests pass", "Update log"]],
+          "objectives": ["Run RAG without cloud access", "Size hardware", "Operate offline systems"]
+        },
+        {
+          "topic": "Personalisation and Recommendation with Retrieval",
+          "subtopics": ["User profiles in retrieval", "Personalised ranking", "Session context", "Privacy limits on personalisation", "Recommendations from retrieval", "Cold start", "Measuring personalisation gains", "Filter bubbles"],
+          "tools": ["Qdrant", "Python 3.12", "pandas"],
+          "lab_task": "Personalise the knowledge assistant by role and past questions, measure the gain on role-specific test sets and confirm users can turn personalisation off.",
+          "deliverable": "Personalisation code and evaluation results",
+          "checks": [["Compare accuracy for three roles with and without personalisation", "Gain recorded per role", "Evaluation output"], ["Turn personalisation off", "Results match the default ranking", "Comparison output"], ["Check stored profile data", "Only allowed fields are kept", "Database output"]],
+          "objectives": ["Personalise retrieval", "Measure gains", "Respect privacy"]
+        },
+        {
+          "topic": "Fine-Tuning Generators for Grounded Answers",
+          "subtopics": ["When prompting is not enough for faithfulness", "Training data from good grounded answers", "Teaching the model to refuse without evidence", "Citation formats learned in training", "Retrieval-aware fine-tuning such as RAFT", "Distractor chunks in training data", "Measuring faithfulness gains", "Cost of training and serving"],
+          "tools": ["Hugging Face PEFT", "TRL", "Ragas"],
+          "lab_task": "Fine-tune a small open model on grounded answers with distractor chunks, compare faithfulness, refusals and citation accuracy with the prompted base model and work out the serving cost.",
+          "deliverable": "Training data, fine-tuned model, evaluation and cost note",
+          "checks": [["Compare faithfulness on the test set", "Fine-tuned model scores higher", "Ragas output"], ["Ask questions with only distractor chunks", "Fine-tuned model refuses more often than the base model", "Evaluation output"], ["Calculate serving cost", "Compared with the hosted model", "Cost note"]],
+          "objectives": ["Fine-tune models for grounded answers", "Train with distractors", "Weigh gains against cost"]
+        },
+        {
+          "topic": "Economics and Capacity Planning for RAG",
+          "subtopics": ["Cost per question across stages", "Ingestion and re-indexing costs", "Storage costs at scale", "Build versus buy", "Capacity planning for growth", "GPU versus API economics", "Forecasting", "Reporting value"],
+          "tools": ["Spreadsheet", "Cloud pricing calculators"],
+          "lab_task": "Build a three-year cost and capacity model for the document platform at three growth rates, compare custom and managed options and present a recommendation.",
+          "deliverable": "Cost and capacity model and a five-slide recommendation",
+          "checks": [["Change the growth rate", "Model updates storage, compute and cost", "Model"], ["Compare custom and managed options", "Break-even point found", "Model"], ["Present the recommendation", "Supported by the model", "Slides"]],
+          "objectives": ["Model RAG costs", "Plan capacity", "Recommend options with numbers"]
+        },
+        {
+          "topic": "Production Incident Response for RAG Systems",
+          "subtopics": ["Quality drops after re-indexing", "Stale or missing documents", "Vector database outages", "Permission sync failures", "Cost spikes", "Rolling back indexes", "Communicating with users", "Post-incident reviews"],
+          "tools": ["Langfuse", "Grafana", "Qdrant snapshots", "PagerDuty"],
+          "lab_task": "Handle three injected incidents (a bad re-index, a permission sync failure and a vector database outage), restore service, find root causes and write runbooks.",
+          "deliverable": "Incident timelines, fixes and runbooks",
+          "checks": [["Roll back the bad index", "Evaluation score returns to baseline", "Evaluation output"], ["Fix the permission sync failure", "No user sees documents they should not", "Leakage test"], ["Write a runbook for a vector database outage", "Another participant can follow it", "Runbook"]],
+          "objectives": ["Respond to RAG incidents", "Roll back safely", "Write runbooks"]
+        },
+        {
+          "topic": "Emerging Retrieval Methods and Research Review",
+          "subtopics": ["Reading retrieval research papers", "Reproducing a published result", "Retrieval with reasoning models", "Memory-augmented models", "Retrieval for agents and tools", "Benchmarks and their gaps", "Evaluating claims on your data", "Deciding what to adopt"],
+          "tools": ["Python 3.12", "arXiv", "Hugging Face"],
+          "lab_task": "Pick a recent retrieval paper, reproduce its main result on your test set, compare it with your production pipeline and write an adopt or reject note.",
+          "deliverable": "Reproduction code, results and adoption note",
+          "checks": [["Reproduce the method", "Runs on your data with results recorded", "Results"], ["Compare with production", "Difference measured on the same test set", "Comparison table"], ["Write the note", "Decision follows from the results", "Adoption note"]],
+          "objectives": ["Read and test retrieval research", "Compare claims with your data", "Decide what to adopt"]
+        },
+        {
+          "topic": "Retrieval Architecture Reviews and Strategy",
+          "subtopics": ["Reviewing RAG designs", "Common design mistakes", "Choosing frameworks and stores", "Team structure for retrieval platforms", "Roadmaps", "Vendor evaluation", "Architecture decision records", "Presenting to an architecture board"],
+          "tools": ["Architecture decision record template", "Diagramming tool"],
+          "lab_task": "Review two proposed RAG designs from a case study, find their main risks, write decision records and defend a recommendation to a mock architecture board.",
+          "deliverable": "Review notes, decision records and presentation",
+          "checks": [["List the risks in each design", "Main risks found with evidence", "Review notes"], ["Write the decision records", "Options, trade-offs and decisions recorded", "Decision records"], ["Answer board questions", "Recommendation defended with evidence", "Presentation"]],
+          "objectives": ["Review RAG architectures", "Record decisions", "Communicate strategy"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Retrieval Platform for the Enterprise",
+          "subtopics": ["Platform architecture and governance", "Trained retrievers and rerankers", "Graph, structured and agentic retrieval", "Evaluation science and red teaming", "Streaming freshness, scale and cost model", "Board presentation and design defence"],
+          "tools": ["Qdrant", "Neo4j", "LangGraph", "sentence-transformers", "Langfuse", "Kubernetes"],
+          "lab_task": "Deliver a multi-team retrieval platform with trained retrievers and rerankers, graph and SQL retrieval, a research agent, streaming freshness, lineage, red-team results and a cost model, then present it to a mock board.",
+          "deliverable": "Platform repository, evaluation and security reports, cost model and a 20-minute presentation",
+          "checks": [["Compare the platform with the intermediate capstone on the same test set", "Improvement is significant", "Statistics output"], ["Run the red-team suite", "No critical findings open", "Red-team report"], ["Trace a random answer to its sources", "Full lineage shown", "Lineage record"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove quality, security and cost", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}
