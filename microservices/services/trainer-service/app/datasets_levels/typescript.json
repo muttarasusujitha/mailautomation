@@ -1,0 +1,573 @@
+{
+  "domain": "TypeScript",
+  "name": "TypeScript",
+  "category": "Programming Languages",
+  "icon": "file-code",
+  "aliases": ["TypeScript Programming", "TypeScript Development", "TypeScript Developer", "Advanced TypeScript", "TypeScript for JavaScript Developers"],
+  "certifications": ["No vendor certification; assessed by capstone project", "Microsoft Learn TypeScript learning path (badge)", "OpenJS Node.js Application Developer (JSNAD) for Node.js work"],
+  "tools": ["TypeScript 5", "Node.js 22 LTS", "VS Code", "npm", "Vitest", "ESLint"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "Assumes basic JavaScript (variables, functions, arrays). Participants learn the TypeScript type system, compiler setup, typing functions, objects and classes, modules and async code, and type a small Node.js application from scratch.",
+      "prerequisites": ["Writes simple JavaScript: variables, functions, arrays and objects", "Can use a terminal and install Node.js", "Has used a code editor such as VS Code"],
+      "outcomes": ["Set up and configure TypeScript projects", "Type functions, objects, classes and async code correctly", "Use unions, narrowing and generics in everyday code", "Build and test a small typed Node.js application"],
+      "days": [
+        {
+          "topic": "TypeScript Setup, the Compiler and First Program",
+          "subtopics": ["What TypeScript adds to JavaScript", "Installing Node.js and TypeScript", "Running tsc on a file", "Creating tsconfig.json with tsc --init", "target, module and outDir settings", "Compiling a project and watch mode", "Running TypeScript directly with tsx", "Reading type errors in VS Code", "Type errors do not stop JavaScript output by default", "noEmitOnError"],
+          "tools": ["TypeScript 5", "Node.js 22 LTS", "VS Code"],
+          "lab_task": "Create a TypeScript project with tsconfig.json, write a program that prints a formatted invoice, compile it to a dist folder, run it with Node and then run the source directly with tsx.",
+          "deliverable": "Project folder with tsconfig.json, source, compiled output and terminal logs",
+          "checks": [["Run npx tsc", "dist/invoice.js is produced", "Folder listing"], ["Pass a string where a number is expected", "tsc reports the error with file and line", "Compiler output"], ["Enable noEmitOnError and compile with an error", "No JavaScript file is written", "Folder listing"]],
+          "objectives": ["Explain what the compiler checks", "Configure a TypeScript project", "Compile and run TypeScript code"]
+        },
+        {
+          "topic": "Basic Types and Type Annotations",
+          "subtopics": ["string, number, boolean, bigint and symbol", "Type annotations on variables", "Type inference", "Arrays and readonly arrays", "Tuples", "any and why to avoid it", "unknown as the safe alternative", "null and undefined", "strict and strictNullChecks", "Literal types"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Convert a provided 150-line JavaScript file into TypeScript with strict mode on, adding annotations only where inference is not enough and fixing every error the compiler finds.",
+          "deliverable": "Converted file, list of real bugs found by the compiler and the clean compile output",
+          "checks": [["Compile with strict on", "Zero errors", "Compiler output"], ["Search the file for any", "No uses of any remain", "Search output"], ["Report the bugs the compiler found", "At least two real bugs explained", "Bug list"]],
+          "objectives": ["Annotate values with types", "Rely on inference where it is clear", "Use strict mode"]
+        },
+        {
+          "topic": "Typing Functions",
+          "subtopics": ["Parameter and return types", "Optional and default parameters", "Rest parameters", "Function type expressions", "Arrow functions and callbacks", "void and never return types", "Function overloads", "this parameters"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write a typed utility module with functions for formatting money, parsing dates, debouncing a callback and an overloaded find function that returns one item or a list depending on the argument.",
+          "deliverable": "Utility module with type-checked usage examples",
+          "checks": [["Call formatMoney with a string", "Compile error: string is not assignable to number", "Compiler output"], ["Call the overloaded find with an id and with a filter", "Return types are an item and an array", "VS Code hover screenshots"], ["Pass a callback with the wrong parameters to debounce", "Compile error on the callback parameter types", "Compiler output"]],
+          "objectives": ["Type function inputs and outputs", "Type callbacks", "Write overloads"]
+        },
+        {
+          "topic": "Object Types, Interfaces and Type Aliases",
+          "subtopics": ["Object type literals", "Interfaces", "Type aliases", "Optional and readonly properties", "Index signatures", "Extending interfaces", "Intersection types", "Interface versus type alias"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Model a shop's products, customers and orders with interfaces and type aliases, including optional fields, readonly IDs and an order that extends a base entity.",
+          "deliverable": "Model types and a sample data file that type-checks",
+          "checks": [["Assign to a readonly id", "Compile error", "Compiler output"], ["Create an order missing a required field", "Compile error naming the field", "Compiler output"], ["Explain one choice of interface over type alias", "Reason given", "Written note"]],
+          "objectives": ["Describe object shapes", "Choose interfaces or type aliases", "Use optional and readonly properties"]
+        },
+        {
+          "topic": "Union Types and Type Narrowing",
+          "subtopics": ["Union types", "Narrowing with typeof", "Narrowing with in and instanceof", "Truthiness narrowing", "Equality narrowing", "Discriminated unions", "Exhaustiveness checks with never", "Type predicates"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Model payment results as a discriminated union of success, declined and error, handle each in a switch with an exhaustiveness check, and write a type predicate for validating API data.",
+          "deliverable": "Payment handling module and tests",
+          "checks": [["Add a new payment result kind", "Compiler reports the unhandled case", "Compiler output"], ["Access a success-only field without narrowing", "Compile error", "Compiler output"], ["Validate a malformed object with the predicate", "Returns false", "Test output"]],
+          "objectives": ["Model alternatives with unions", "Narrow types safely", "Make switches exhaustive"]
+        },
+        {
+          "topic": "Enums, Literal Types and Constants",
+          "subtopics": ["Numeric and string enums", "const enums", "Union of string literals as an alternative", "as const", "Template literal types", "Deriving a union from an object with keyof typeof", "Choosing between enums and unions", "Constants files"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Define order statuses three ways (enum, literal union and as const object), compare the compiled JavaScript, and build typed event names with template literal types.",
+          "deliverable": "Three implementations, compiled output comparison and recommendation",
+          "checks": [["Compare compiled output", "Participant shows which forms produce runtime code", "Compiled files"], ["Use an invalid event name", "Compile error", "Compiler output"], ["Derive the status union from the const object", "Hover shows the literal union", "VS Code screenshot"]],
+          "objectives": ["Use enums and literal types", "Derive types from values", "Choose a constants approach"]
+        },
+        {
+          "topic": "Classes in TypeScript",
+          "subtopics": ["Class properties and constructors", "Parameter properties", "public, private, protected and #private", "readonly members", "Getters and setters", "Implementing interfaces", "Abstract classes", "Static members"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Build a bank account class hierarchy with an abstract base class, private balance, a savings account that adds interest and a class that implements a Statement interface.",
+          "deliverable": "Class code and usage examples",
+          "checks": [["Read the private balance from outside", "Compile error: balance is private", "Compiler output"], ["Call the abstract method on the base class", "Compile error: cannot create an instance of an abstract class", "Compiler output"], ["Pass a savings account where a Statement is expected", "Compiles and runs", "Program output"]],
+          "objectives": ["Write typed classes", "Control member access", "Combine classes and interfaces"]
+        },
+        {
+          "topic": "Generics Essentials",
+          "subtopics": ["Why generics exist", "Generic functions", "Generic interfaces and type aliases", "Generic classes", "Constraints with extends", "Default type parameters", "keyof in a constraint", "Inference of generic arguments"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write a generic typed cache, a generic paginate function and a getProperty function that only accepts keys of the object passed in.",
+          "deliverable": "Generic utilities with type-checked examples",
+          "checks": [["Store a number in a Cache<string>", "Compile error: number is not assignable to string", "Compiler output"], ["Call getProperty with a key that does not exist", "Compile error: key is not in keyof the object", "Compiler output"], ["Paginate an array of products", "Result type is Page<Product>", "VS Code hover"]],
+          "objectives": ["Write generic functions and classes", "Constrain type parameters", "Rely on generic inference"]
+        },
+        {
+          "topic": "Arrays, Objects and Built-in Utility Types",
+          "subtopics": ["Typed array methods: map, filter, reduce", "Partial and Required", "Pick and Omit", "Readonly", "Record", "ReturnType and Parameters", "NonNullable", "Using utility types for update payloads"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write create, update and summary functions for products where the create input omits the id, the update input is partial and the summary is a Pick, all derived from one Product type.",
+          "deliverable": "Typed functions and examples",
+          "checks": [["Pass an id to create", "Compile error", "Compiler output"], ["Update with only a price", "Compiles", "Compiler output"], ["Change the Product type", "Derived types update automatically", "Code and compiler output"]],
+          "objectives": ["Use utility types", "Derive types from one source", "Type array transformations"]
+        },
+        {
+          "topic": "Maps, Sets and Iterating Typed Collections",
+          "subtopics": ["Map<K, V> and Set<T>", "Choosing Map over plain objects", "Object.keys, entries and their types", "for...of versus for...in", "Iterating Maps and Sets", "Grouping with Object.groupBy and Map.groupBy", "Typed lookups that may be undefined", "WeakMap for private data"],
+          "tools": ["TypeScript 5", "Node.js 22 LTS"],
+          "lab_task": "Build a typed inventory report that groups products by category in a Map, finds duplicate SKUs with a Set, and prints totals per category without any type assertions.",
+          "deliverable": "Report source and output for the sample data",
+          "checks": [["Run the report on the sample data", "Category totals match the answer file", "Program output"], ["Look up a missing category", "Code handles undefined before use", "Source and compiler output"], ["Load data with duplicate SKUs", "Duplicates are listed", "Program output"]],
+          "objectives": ["Use Map and Set with types", "Iterate objects and collections safely", "Handle missing keys"]
+        },
+        {
+          "topic": "Modules and Project Structure",
+          "subtopics": ["ES modules: import and export", "Default versus named exports", "Type-only imports and exports", "Module resolution settings", "Path aliases", "Barrel files and their costs", "CommonJS interoperability", "Folder structure for a project"],
+          "tools": ["TypeScript 5", "Node.js 22 LTS", "VS Code"],
+          "lab_task": "Split the shop code into models, services and utils modules with path aliases, use type-only imports for types, and make it run under Node with ES modules.",
+          "deliverable": "Restructured project and run output",
+          "checks": [["Run the compiled project with Node", "Starts without module errors", "Terminal output"], ["Inspect compiled output for a type-only import", "No import statement remains", "Compiled file"], ["Use the @/models alias", "Resolves in tsc and at runtime", "Compiler and run output"]],
+          "objectives": ["Organise code into modules", "Configure module resolution", "Use type-only imports"]
+        },
+        {
+          "topic": "Asynchronous TypeScript: Promises and async/await",
+          "subtopics": ["The event loop in brief", "Promise<T> types", "async functions and their return types", "await and error handling with try/catch", "Promise.all and Promise.allSettled", "Typing fetch responses", "Timeouts with AbortController", "Unhandled rejections"],
+          "tools": ["TypeScript 5", "Node.js 22 LTS"],
+          "lab_task": "Write a typed client that fetches users and their posts from a public test API in parallel, times out after three seconds and returns partial results when one request fails.",
+          "deliverable": "Client source and output for success, timeout and partial failure",
+          "checks": [["Simulate one failed request", "Other results are still returned", "Program output"], ["Simulate a slow response", "Aborted after three seconds", "Program output"], ["Hover the client function", "Return type is Promise<UserWithPosts[]>", "VS Code screenshot"]],
+          "objectives": ["Type asynchronous code", "Handle async errors", "Run requests in parallel"]
+        },
+        {
+          "topic": "Working with JSON and Validating External Data",
+          "subtopics": ["Why type assertions do not validate data", "JSON.parse returns any", "Writing manual validators", "Runtime validation with Zod", "Inferring types from Zod schemas", "Parsing versus validating", "Error messages for users", "Validating environment variables"],
+          "tools": ["TypeScript 5", "Zod", "Node.js 22 LTS"],
+          "lab_task": "Validate API responses and a config file with Zod schemas, infer TypeScript types from the schemas, and show that an invalid response produces a readable error instead of a crash later.",
+          "deliverable": "Schemas, inferred types and error output",
+          "checks": [["Load a response with a missing field", "Readable Zod error naming the field", "Program output"], ["Load a config with a string port", "Rejected or coerced as designed", "Program output"], ["Change a schema", "Inferred type changes with it", "Compiler output"]],
+          "objectives": ["Validate data at runtime", "Derive types from schemas", "Avoid unsafe assertions"]
+        },
+        {
+          "topic": "Error Handling Patterns",
+          "subtopics": ["Throwing and catching errors", "Typing caught errors as unknown", "Custom error classes", "Narrowing errors with instanceof", "Result types instead of exceptions", "Errors in async code", "Error cause chains", "Logging errors usefully"],
+          "tools": ["TypeScript 5", "Node.js 22 LTS"],
+          "lab_task": "Refactor the API client so network, validation and not-found failures are distinct error classes, return a Result type from the public function and log errors with their cause.",
+          "deliverable": "Refactored client and output for each failure type",
+          "checks": [["Trigger a validation failure", "Returns a Result with a ValidationError", "Program output"], ["Access error.message in a catch without narrowing", "Compile error under strict settings", "Compiler output"], ["Log a wrapped error", "Shows the original cause", "Log output"]],
+          "objectives": ["Handle errors with types", "Choose between exceptions and Result types", "Keep error causes"]
+        },
+        {
+          "topic": "Typing the DOM and Browser APIs",
+          "subtopics": ["lib.dom types", "querySelector and type assertions", "Event types", "Form handling", "localStorage with typed helpers", "Typed fetch in the browser", "Bundling with Vite", "Debugging in browser dev tools"],
+          "tools": ["TypeScript 5", "Vite", "Browser dev tools"],
+          "lab_task": "Build a typed to-do web page with Vite that adds, completes and filters tasks, saves them in localStorage and handles form events without any use of any.",
+          "deliverable": "Vite project and a recorded demo",
+          "checks": [["Add, complete and reload", "Tasks persist after reload", "Browser demo"], ["Use a wrong event type in a handler", "Compile error", "Compiler output"], ["Run npm run build", "Production bundle builds with no type errors", "Build output"]],
+          "objectives": ["Type DOM code", "Handle events and forms safely", "Build a browser app with Vite"]
+        },
+        {
+          "topic": "Linting and Formatting with ESLint and Prettier",
+          "subtopics": ["typescript-eslint setup", "Recommended and type-checked rule sets", "no-floating-promises and no-explicit-any", "Prettier for formatting", "Editor integration", "npm scripts for lint and format", "Fixing issues automatically", "Pre-commit checks with lint-staged"],
+          "tools": ["ESLint", "typescript-eslint", "Prettier", "Husky"],
+          "lab_task": "Add typescript-eslint with type-checked rules and Prettier to the shop project, fix every finding, and add a pre-commit hook that blocks unformatted or failing code.",
+          "deliverable": "Lint configuration, clean lint output and the hook configuration",
+          "checks": [["Leave a promise without await", "Lint reports no-floating-promises", "Lint output"], ["Commit an unformatted file", "Hook reformats or blocks the commit", "Git output"], ["Run npm run lint", "No errors", "Lint output"]],
+          "objectives": ["Configure linting for TypeScript", "Format code consistently", "Automate checks before commit"]
+        },
+        {
+          "topic": "Testing TypeScript with Vitest",
+          "subtopics": ["Installing and configuring Vitest", "Writing tests with describe, it and expect", "Testing async functions", "Mocks and spies with vi", "Mocking modules", "Test coverage", "Type tests with expectTypeOf", "Watch mode and filtering"],
+          "tools": ["Vitest", "TypeScript 5"],
+          "lab_task": "Write Vitest tests for the utilities and API client, mocking fetch, covering every error path and adding type tests that check the inferred return types.",
+          "deliverable": "Test suite and coverage report",
+          "checks": [["Run npx vitest run", "All tests pass", "Test output"], ["Mock fetch to return a 500", "Test confirms a NetworkError result", "Test code and output"], ["Change a return type", "Type test fails", "Test output"]],
+          "objectives": ["Test TypeScript code", "Mock dependencies", "Test types as well as values"]
+        },
+        {
+          "topic": "Node.js Scripts and CLI Tools in TypeScript",
+          "subtopics": ["Node.js types with @types/node", "Reading command-line arguments", "File system with fs/promises", "Path handling", "Environment variables", "Exit codes", "Running with tsx and building with tsc", "Publishing a bin script"],
+          "tools": ["Node.js 22 LTS", "TypeScript 5", "tsx"],
+          "lab_task": "Build a typed CLI that scans a folder of CSV files, validates rows with Zod, writes a summary JSON report and exits with a non-zero code when any file is invalid.",
+          "deliverable": "CLI source, sample report and exit code demo",
+          "checks": [["Run against the valid sample folder", "Report written and exit code 0", "Terminal output"], ["Add a file with a bad row", "Exit code 1 and the row is named", "Terminal output"], ["Run with no arguments", "Prints usage help", "Terminal output"]],
+          "objectives": ["Write Node.js tools in TypeScript", "Handle files and arguments", "Report results with exit codes"]
+        },
+        {
+          "topic": "Building a Simple REST API with Express and TypeScript",
+          "subtopics": ["Express types", "Typing request params, query and body", "Validating request bodies with Zod", "Error-handling middleware", "Service and route separation", "Environment configuration", "Testing routes with Supertest", "Running in development with tsx watch"],
+          "tools": ["Express", "TypeScript 5", "Zod", "Supertest"],
+          "lab_task": "Build a typed products API with list, get, create and delete routes, Zod validation, a central error handler and Supertest tests for each route.",
+          "deliverable": "API source and route tests",
+          "checks": [["POST a product with a missing name", "400 with a field error", "Supertest output"], ["GET an unknown id", "404 JSON error", "Supertest output"], ["Run the tests", "All pass", "Test output"]],
+          "objectives": ["Type an Express API", "Validate requests", "Test routes"]
+        },
+        {
+          "topic": "Beginner Capstone: Typed Expense Tracker Application",
+          "subtopics": ["Requirements and type design", "Domain types and validation schemas", "Storage and services", "API or CLI interface", "Tests and linting", "Demo"],
+          "tools": ["TypeScript 5", "Node.js 22 LTS", "Zod", "Vitest", "ESLint"],
+          "lab_task": "Build an expense tracker with typed domain models, Zod validation, JSON file storage, monthly summaries by category, a CLI or REST interface, full tests and a clean lint run, then demo it.",
+          "deliverable": "Project repository, test report, lint output and a 10-minute demo",
+          "checks": [["Add an expense with a negative amount", "Rejected with a clear message", "Demo output"], ["Run the monthly summary", "Totals per category match the test data", "Demo output and test"], ["Run tsc, lint and tests", "All clean", "Terminal output"]],
+          "objectives": ["Combine the beginner topics in one application", "Use types to prevent bugs", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who write TypeScript but mostly with simple types. Covers advanced type features, type-safe API design, strict configuration, typed React and Node.js back ends, monorepos, testing and publishing libraries.",
+      "prerequisites": ["Writes TypeScript daily with interfaces, unions and generics", "Has built a small Node.js or browser application", "Uses npm and Git"],
+      "outcomes": ["Use conditional, mapped and template literal types", "Design type-safe APIs shared between front end and back end", "Build typed React and Node.js applications", "Structure, test and publish TypeScript packages"],
+      "days": [
+        {
+          "topic": "Strict Compiler Options and Safer Configuration",
+          "subtopics": ["strict family of flags", "noUncheckedIndexedAccess", "exactOptionalPropertyTypes", "noImplicitOverride and noFallthroughCasesInSwitch", "useUnknownInCatchVariables", "verbatimModuleSyntax", "Shared base tsconfig files", "Migrating a codebase to stricter flags gradually"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Turn on noUncheckedIndexedAccess and exactOptionalPropertyTypes in a provided project, fix the errors in batches, and record the real bugs each flag uncovered.",
+          "deliverable": "Updated tsconfig, fixed code and a bug log",
+          "checks": [["Compile with the new flags", "Zero errors", "Compiler output"], ["Read an array element without checking it", "Compile error", "Compiler output"], ["Show the bug log", "At least three real bugs found", "Bug log"]],
+          "objectives": ["Configure strict compiler options", "Migrate safely", "Explain what each flag catches"]
+        },
+        {
+          "topic": "Advanced Generics and Inference",
+          "subtopics": ["Generic constraints with multiple parameters", "Inferring from function arguments", "const type parameters", "Generic defaults", "Higher-order generic functions", "Generic React-style component props", "Avoiding over-generic code", "NoInfer"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write a typed event emitter where on and emit only accept registered event names and payloads, and a pipe function that infers types through five transformations.",
+          "deliverable": "Event emitter and pipe utilities with type tests",
+          "checks": [["Emit an event with the wrong payload", "Compile error on the payload argument", "Compiler output"], ["Pipe five functions", "Final type is inferred correctly", "Type test"], ["Subscribe to an unregistered event", "Compile error on the event name", "Compiler output"]],
+          "objectives": ["Write expressive generic APIs", "Control inference", "Keep generics readable"]
+        },
+        {
+          "topic": "Conditional Types and infer",
+          "subtopics": ["Conditional type syntax", "Distributive conditional types", "Preventing distribution", "infer in conditional types", "Extract and Exclude", "Unwrapping promises with Awaited", "Recursive conditional types", "Debugging complex types"],
+          "tools": ["TypeScript 5", "VS Code", "TypeScript Playground"],
+          "lab_task": "Write types that unwrap nested promises, extract the element type of arrays, get the return type of async functions and pick only the function properties of an object.",
+          "deliverable": "Type library with expectTypeOf tests",
+          "checks": [["Unwrap Promise<Promise<number>>", "Result is number", "Type test"], ["Pick function properties of a class type", "Only methods remain", "Type test"], ["Apply a distributive type to a union", "Applied to each member", "Type test"]],
+          "objectives": ["Write conditional types", "Extract types with infer", "Test types"]
+        },
+        {
+          "topic": "Mapped Types and Key Remapping",
+          "subtopics": ["Mapped type syntax", "Modifiers: readonly and optional, adding and removing", "Key remapping with as", "Filtering keys", "Building getters and setters types", "Deep partial and deep readonly", "Homomorphic mapped types", "Performance of complex types"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Build types that generate getter names for an object, make a configuration deeply readonly, and create a form-state type with a value, error and touched flag for every field.",
+          "deliverable": "Type library and examples",
+          "checks": [["Generate getters for {name, age}", "getName and getAge exist with correct types", "Type test"], ["Assign into a deep readonly config", "Compile error at every level", "Compiler output"], ["Add a field to the form model", "Form state type updates automatically", "Code and type test"]],
+          "objectives": ["Transform types with mapped types", "Remap keys", "Build reusable type utilities"]
+        },
+        {
+          "topic": "Template Literal Types and String Manipulation Types",
+          "subtopics": ["Template literal type syntax", "Uppercase, Lowercase, Capitalize", "Combining with unions", "Parsing strings with infer", "Typed route parameters", "Typed CSS or event names", "Limits of string types", "Readable error messages"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write a type that extracts parameter names from a route string such as \"/users/:id/posts/:postId\" and use it to type a router function's params object.",
+          "deliverable": "Router types and examples",
+          "checks": [["Use params.id for \"/users/:id\"", "Compiles", "Compiler output"], ["Use params.name for that route", "Compile error", "Compiler output"], ["Add a new route", "Params are inferred with no extra code", "Type test"]],
+          "objectives": ["Build types from strings", "Type string-based APIs", "Recognise limits of string types"]
+        },
+        {
+          "topic": "Type Guards, Assertion Functions and the satisfies Operator",
+          "subtopics": ["User-defined type guards", "Assertion functions with asserts", "asserts value is T", "The satisfies operator", "satisfies versus type annotations", "Narrowing with control-flow analysis", "Narrowing in callbacks and closures", "Guards for arrays and unknown JSON"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write guards and assertion functions for incoming webhook payloads, and use satisfies on a route configuration so it is checked against a type while keeping its literal key types.",
+          "deliverable": "Guard library, configuration file and type tests",
+          "checks": [["Call assertIsOrder on a bad payload", "Throws with a message naming the field", "Test output"], ["Use a value after assertIsOrder", "Narrowed to Order with no cast", "VS Code hover"], ["Add an unknown key to the satisfies config", "Compile error on the extra key", "Compiler output"]],
+          "objectives": ["Write custom type guards", "Use assertion functions", "Check values with satisfies without widening"]
+        },
+        {
+          "topic": "Type-Safe API Design Between Front End and Back End",
+          "subtopics": ["Sharing types in a common package", "Contract-first with OpenAPI and generated types", "tRPC end-to-end types", "Validating at the boundary", "Versioning shared types", "Dates and serialisation across the wire", "Avoiding leaking database types", "Error types in APIs"],
+          "tools": ["tRPC", "openapi-typescript", "Zod"],
+          "lab_task": "Build the same small API twice, once with OpenAPI-generated client types and once with tRPC, then change a field and show where each approach reports the break.",
+          "deliverable": "Two implementations and a comparison note",
+          "checks": [["Rename a field on the server", "Client compile fails in both versions", "Compiler output"], ["Send a date", "Client receives the agreed type, not a raw string", "Test output"], ["Compare the approaches", "Trade-offs listed", "Comparison note"]],
+          "objectives": ["Share types across the network", "Choose contract-first or code-first", "Keep boundaries safe"]
+        },
+        {
+          "topic": "Typed Node.js Back Ends with Fastify or NestJS",
+          "subtopics": ["Project structure for a typed service", "Fastify type providers with JSON Schema or Zod", "NestJS modules, controllers and providers", "Dependency injection in NestJS", "Configuration with validation", "Request validation and DTOs", "Error filters", "Graceful shutdown"],
+          "tools": ["Fastify", "NestJS", "Zod", "Node.js 22 LTS"],
+          "lab_task": "Build a products service in Fastify or NestJS with validated configuration, typed request schemas, a central error handler and graceful shutdown.",
+          "deliverable": "Service source and test results",
+          "checks": [["Start with a missing DATABASE_URL", "Fails at startup with a clear message", "Terminal output"], ["Send an invalid body", "400 with field errors", "API response"], ["Send SIGTERM during a request", "Request completes before exit", "Logs"]],
+          "objectives": ["Build typed Node.js services", "Validate configuration and requests", "Shut down cleanly"]
+        },
+        {
+          "topic": "Databases with Prisma or Drizzle ORM",
+          "subtopics": ["Schema definition", "Migrations", "Generated, typed queries", "Relations and includes", "Transactions", "Raw SQL safely", "Seeding test data", "Testing against a real database"],
+          "tools": ["Prisma", "Drizzle ORM", "PostgreSQL", "Docker"],
+          "lab_task": "Add PostgreSQL storage to the products service with Prisma or Drizzle, including migrations, a relation to categories, a transaction for stock changes and tests against a database in Docker.",
+          "deliverable": "Schema, migrations, data access code and tests",
+          "checks": [["Query a product with its category", "Result type includes the category", "Type test"], ["Fail a stock change halfway", "Transaction rolls back", "Database rows"], ["Run the database tests", "Pass against the Docker database", "Test output"]],
+          "objectives": ["Use a typed ORM", "Run migrations", "Use transactions safely"]
+        },
+        {
+          "topic": "Authentication and Authorisation in Typed APIs",
+          "subtopics": ["Session cookies versus bearer tokens", "Password hashing with argon2 or bcrypt", "Issuing and verifying JWTs", "Typing the authenticated user on requests", "Role and permission checks as typed helpers", "Refresh tokens", "Rate limiting login attempts", "Testing protected routes"],
+          "tools": ["Fastify or NestJS", "jose", "argon2", "Vitest"],
+          "lab_task": "Add sign-up, login and refresh to the products service, type the current user on every request, restrict delete to admins with a typed permission helper and test every rule.",
+          "deliverable": "Auth code and security tests",
+          "checks": [["Delete a product as a normal user", "403 Forbidden", "Test output"], ["Call a protected route without a token", "401 Unauthorized", "Test output"], ["Try eleven wrong passwords in a minute", "Login is rate-limited", "Test output"]],
+          "objectives": ["Authenticate users in a typed API", "Authorise with typed permissions", "Test security rules"]
+        },
+        {
+          "topic": "Typed React with TypeScript",
+          "subtopics": ["Typing component props", "children and ReactNode", "useState and useReducer types", "Typing events", "Typing refs", "Context with types", "Generic components", "Component library props with ComponentProps"],
+          "tools": ["React", "TypeScript 5", "Vite"],
+          "lab_task": "Build a typed product admin screen with a generic table component, a reducer for filters, a typed context for the current user and form events with no use of any.",
+          "deliverable": "React project and screenshots",
+          "checks": [["Pass a column key that the row type lacks", "Compile error on the column key", "Compiler output"], ["Dispatch an unknown action", "Compile error on the action type", "Compiler output"], ["Run npm run build", "Builds with no type errors", "Build output"]],
+          "objectives": ["Type React components and hooks", "Write generic components", "Type context and events"]
+        },
+        {
+          "topic": "Data Fetching and State Management with Types",
+          "subtopics": ["TanStack Query with typed queries", "Query keys as typed constants", "Mutations and optimistic updates", "Zustand or Redux Toolkit types", "Selectors", "Loading and error states as unions", "Caching and invalidation", "Testing data hooks"],
+          "tools": ["TanStack Query", "Zustand", "Redux Toolkit", "React"],
+          "lab_task": "Connect the admin screen to the products API with TanStack Query, add an optimistic update with rollback, and keep UI state in a typed store.",
+          "deliverable": "Updated React project and hook tests",
+          "checks": [["Make the update fail on the server", "UI rolls back to the old value", "Browser demo"], ["Use a query result before checking loading state", "Type forces the check", "Compiler output"], ["Run the hook tests", "All pass", "Test output"]],
+          "objectives": ["Fetch data with typed hooks", "Manage state with types", "Handle loading and errors"]
+        },
+        {
+          "topic": "Monorepos with npm Workspaces and Project References",
+          "subtopics": ["Workspaces with npm or pnpm", "Shared tsconfig packages", "Project references and composite builds", "tsc --build", "Internal packages", "Turborepo task caching", "Sharing types and utilities", "Dependency boundaries"],
+          "tools": ["pnpm", "Turborepo", "TypeScript 5"],
+          "lab_task": "Put the API, React app and shared types in a pnpm monorepo with project references and Turborepo, so changing shared types rebuilds only what depends on them.",
+          "deliverable": "Monorepo structure and build logs",
+          "checks": [["Change only the web app", "Only the web app rebuilds", "Turborepo output"], ["Change a shared type", "API and web both rebuild and type-check", "Turborepo output"], ["Import web code from the API", "Blocked by the boundary rule", "Lint output"]],
+          "objectives": ["Structure TypeScript monorepos", "Use project references", "Speed up builds with caching"]
+        },
+        {
+          "topic": "Declaration Files and Typing Third-Party JavaScript",
+          "subtopics": ["What .d.ts files are", "DefinitelyTyped and @types packages", "Writing a declaration file", "declare module", "Global declarations", "Module augmentation", "Generating declarations from source", "Checking types with skipLibCheck off"],
+          "tools": ["TypeScript 5", "VS Code"],
+          "lab_task": "Write a declaration file for a small untyped JavaScript library, augment Express's Request type with a user property, and generate declarations for your own package.",
+          "deliverable": "Declaration files and type tests",
+          "checks": [["Call the untyped library with wrong arguments", "Compile error", "Compiler output"], ["Use req.user in a route", "Typed correctly", "Compiler output"], ["Build the package", ".d.ts files are generated", "Folder listing"]],
+          "objectives": ["Write and use declaration files", "Augment existing types", "Ship types with a package"]
+        },
+        {
+          "topic": "Decorators and Metadata",
+          "subtopics": ["ECMAScript decorators in TypeScript 5", "Class and method decorators", "Field and accessor decorators", "Decorator factories", "Legacy experimentalDecorators", "Decorators in NestJS and TypeORM", "Logging and timing decorators", "When not to use decorators"],
+          "tools": ["TypeScript 5", "NestJS"],
+          "lab_task": "Write a method decorator that logs timing, a validation decorator for class fields and a caching decorator, then compare them with plain higher-order functions.",
+          "deliverable": "Decorators and comparison note",
+          "checks": [["Call a decorated method", "Timing is logged", "Program output"], ["Set an invalid field", "Validation decorator rejects it", "Program output"], ["Call a cached method twice", "Second call returns from cache", "Program output"]],
+          "objectives": ["Write modern decorators", "Know the legacy differences", "Decide when decorators help"]
+        },
+        {
+          "topic": "Integration and End-to-End Testing",
+          "subtopics": ["Testing APIs with Supertest", "Testcontainers for Node.js", "Contract tests between API and client", "Playwright for end-to-end tests", "Test fixtures and factories", "Running tests in CI", "Flaky test handling", "Coverage thresholds"],
+          "tools": ["Vitest", "Supertest", "Testcontainers", "Playwright"],
+          "lab_task": "Add integration tests for the API with a real PostgreSQL container and Playwright end-to-end tests for the admin screen, and fail the run below 80 percent coverage.",
+          "deliverable": "Test suites and CI-ready scripts",
+          "checks": [["Run the integration tests", "Pass against a real database", "Test output"], ["Run Playwright", "Admin flow passes in a headless browser", "Playwright report"], ["Remove tests to drop coverage", "Run fails on the threshold", "Test output"]],
+          "objectives": ["Test across layers", "Use real dependencies in tests", "Enforce coverage"]
+        },
+        {
+          "topic": "Building and Bundling TypeScript Projects",
+          "subtopics": ["tsc versus bundlers", "esbuild and tsup for libraries", "Vite for apps", "Source maps", "Isolated modules and transpile-only builds", "Type-checking in a separate step", "Output formats: ESM and CommonJS", "Tree shaking"],
+          "tools": ["tsup", "esbuild", "Vite", "TypeScript 5"],
+          "lab_task": "Build a small library with tsup to ESM and CommonJS with declarations and source maps, and set up the app build so bundling and type-checking run separately and in parallel.",
+          "deliverable": "Build configuration and output folders",
+          "checks": [["Import the library from an ESM and a CommonJS project", "Both work", "Test output"], ["Introduce a type error", "Type-check step fails though bundling succeeds", "Build output"], ["Debug the bundled app", "Breakpoints map to the TypeScript source", "Debugger screenshot"]],
+          "objectives": ["Choose build tools", "Produce dual-format libraries", "Separate type-checking from bundling"]
+        },
+        {
+          "topic": "Publishing and Versioning TypeScript Packages",
+          "subtopics": ["package.json exports and types fields", "Peer dependencies", "Semantic versioning", "Changesets", "Checking exports with publint and arethetypeswrong", "Private registries", "README and API documentation with TypeDoc", "Deprecating APIs"],
+          "tools": ["npm", "Changesets", "publint", "TypeDoc"],
+          "lab_task": "Prepare the library for publishing with a correct exports map, changesets for versioning, export checks and TypeDoc documentation, then publish to a local Verdaccio registry.",
+          "deliverable": "Package configuration, generated docs and registry listing",
+          "checks": [["Run arethetypeswrong", "No problems reported", "Tool output"], ["Add a changeset and version", "Version and changelog update", "Git diff"], ["Install from the local registry", "Types work in a consuming project", "Compiler output"]],
+          "objectives": ["Publish correct packages", "Version with changesets", "Document an API"]
+        },
+        {
+          "topic": "Performance and Type-Checking Speed",
+          "subtopics": ["How the checker spends time", "tsc --extendedDiagnostics", "Generating traces with --generateTrace", "Expensive types to avoid", "Interfaces versus intersections for speed", "Incremental builds", "Editor performance", "skipLibCheck trade-offs"],
+          "tools": ["TypeScript 5", "@typescript/analyze-trace"],
+          "lab_task": "Measure type-checking of a slow provided project, find the two most expensive types with a trace, simplify them and show the time saved.",
+          "deliverable": "Diagnostics before and after and the trace analysis",
+          "checks": [["Run --extendedDiagnostics", "Check time is recorded", "Compiler output"], ["Analyse the trace", "Hot types identified", "analyze-trace output"], ["Rerun after the fix", "Check time at least 30 percent lower", "Compiler output"]],
+          "objectives": ["Measure type-checking cost", "Find expensive types", "Speed up builds"]
+        },
+        {
+          "topic": "Intermediate Capstone: Full-Stack Typed Product Catalogue",
+          "subtopics": ["Requirements and architecture", "Shared types and API contract", "Typed back end with database", "Typed React front end", "Testing and monorepo build", "Demo and design defence"],
+          "tools": ["TypeScript 5", "React", "Fastify or NestJS", "Prisma", "Vitest", "Playwright", "Turborepo"],
+          "lab_task": "Build a product catalogue in a monorepo with a typed API, PostgreSQL storage, a React admin, shared contracts, unit, integration and end-to-end tests and a cached CI build, then present it.",
+          "deliverable": "Monorepo, test reports and a 15-minute demo",
+          "checks": [["Rename a field in the shared contract", "Back end and front end fail to compile until updated", "Compiler output"], ["Run all tests", "Unit, integration and end-to-end pass", "Test reports"], ["Rebuild after a front-end change", "Back end is not rebuilt", "Build output"]],
+          "objectives": ["Combine the intermediate topics in one product", "Keep types end to end", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior TypeScript developers. Covers type-level programming, compiler internals and the compiler API, large-codebase architecture, migrations, performance, security, observability and running TypeScript services and libraries in production.",
+      "prerequisites": ["Writes advanced generics, conditional and mapped types", "Has built and shipped full-stack TypeScript applications", "Maintains a medium or large TypeScript codebase"],
+      "outcomes": ["Write and test type-level code for libraries", "Use the compiler API for custom tooling", "Architect and migrate large TypeScript codebases", "Run fast, secure and observable TypeScript services in production"],
+      "days": [
+        {
+          "topic": "Type-Level Programming Techniques",
+          "subtopics": ["Recursive types and tail recursion limits", "Tuple manipulation", "Type-level arithmetic with tuples", "Variadic tuple types", "Branded and nominal types", "Opaque types for IDs and money", "Phantom types for state machines", "Readable type errors"],
+          "tools": ["TypeScript 5", "TypeScript Playground"],
+          "lab_task": "Build branded types for UserId, OrderId and Money that cannot be mixed, and a phantom-typed builder that only allows build() after all required fields are set.",
+          "deliverable": "Type library with type tests",
+          "checks": [["Pass an OrderId where a UserId is expected", "Compile error: OrderId is not assignable to UserId", "Compiler output"], ["Call build() before setting the required fields", "Compile error: build does not exist on the incomplete builder", "Compiler output"], ["Check the compiled JavaScript", "Branded types add no runtime code", "Compiled file"]],
+          "objectives": ["Program at the type level", "Prevent mix-ups with branded types", "Model states in types"]
+        },
+        {
+          "topic": "Type-Safe Domain Modelling and State Machines",
+          "subtopics": ["Making illegal states unrepresentable", "Discriminated unions for workflows", "State transitions as functions", "XState with typed events", "Exhaustive handling across modules", "Parsing into domain types", "Errors as values", "Domain-driven design with TypeScript"],
+          "tools": ["TypeScript 5", "XState", "Zod"],
+          "lab_task": "Model an order workflow from draft to paid, shipped, delivered or cancelled so that invalid transitions do not compile, and implement it with XState and typed events.",
+          "deliverable": "Domain model, state machine and tests",
+          "checks": [["Ship a draft order", "Compile error", "Compiler output"], ["Send an event the machine does not accept in its state", "Ignored or rejected as designed", "Test output"], ["Add a new state", "Every unhandled place is reported by the compiler", "Compiler output"]],
+          "objectives": ["Model domains with types", "Build typed state machines", "Prevent invalid transitions"]
+        },
+        {
+          "topic": "Effect Systems and Functional TypeScript",
+          "subtopics": ["Typed errors with Result and Either", "The Effect library basics of use", "Dependency injection through context", "Retries and timeouts as values", "Resource safety", "Schema in Effect", "When the functional approach is worth it", "Interoperating with promise code"],
+          "tools": ["Effect", "TypeScript 5"],
+          "lab_task": "Rewrite one service call chain with Effect so every possible error is in the type, dependencies are injected through context and retries and timeouts are declarative.",
+          "deliverable": "Rewritten module, tests and a trade-off note",
+          "checks": [["Hover the program type", "Shows all possible error types", "VS Code screenshot"], ["Swap the database for a test layer", "Tests run without a database", "Test output"], ["Make the dependency fail twice", "Retry policy recovers", "Test output"]],
+          "objectives": ["Track errors in types", "Inject dependencies functionally", "Judge when to adopt effect systems"]
+        },
+        {
+          "topic": "The TypeScript Compiler API",
+          "subtopics": ["Compiler architecture: scanner, parser, binder, checker, emitter", "ASTs and ts-morph", "Walking and querying a source file", "Using the type checker programmatically", "Transforming code", "Writing codemods", "Language service plugins", "Generating code from types"],
+          "tools": ["TypeScript compiler API", "ts-morph", "AST Explorer"],
+          "lab_task": "Write a ts-morph codemod that renames a deprecated function across a project and updates its arguments, and a script that lists every exported function with its resolved return type.",
+          "deliverable": "Codemod, report script and before and after diffs",
+          "checks": [["Run the codemod on the sample project", "All call sites updated and the project compiles", "Git diff and compiler output"], ["Run the report script", "Lists exports with resolved types", "Script output"], ["Run the codemod twice", "Second run changes nothing", "Git diff"]],
+          "objectives": ["Read and change code with the compiler API", "Write safe codemods", "Use the type checker programmatically"]
+        },
+        {
+          "topic": "Custom ESLint Rules with Type Information",
+          "subtopics": ["ESLint rule structure", "typescript-eslint RuleTester", "Using type information in rules", "Auto-fixes", "Banning unsafe patterns", "Enforcing architecture rules", "Sharing rules as a plugin", "Rule performance"],
+          "tools": ["typescript-eslint", "ESLint", "Vitest"],
+          "lab_task": "Write two custom rules: one that bans awaiting inside loops where Promise.all would do, and one that uses type information to forbid passing raw strings where a branded ID is expected, with fixes and tests.",
+          "deliverable": "ESLint plugin with tests",
+          "checks": [["Lint the sample with an await in a loop", "Rule reports it", "Lint output"], ["Run the auto-fix", "Code is rewritten correctly", "Git diff"], ["Run RuleTester", "All valid and invalid cases pass", "Test output"]],
+          "objectives": ["Write custom lint rules", "Use type information in tooling", "Enforce team conventions automatically"]
+        },
+        {
+          "topic": "Large Codebase Architecture",
+          "subtopics": ["Layered and hexagonal structure", "Module boundaries and dependency rules", "dependency-cruiser and Nx boundaries", "Public APIs for internal packages", "Dependency injection without frameworks", "Shared kernel versus duplication", "Feature folders", "Architecture decision records"],
+          "tools": ["Nx", "dependency-cruiser", "TypeScript 5"],
+          "lab_task": "Restructure a provided tangled codebase into feature modules with public entry points, enforce the boundaries automatically and record the main decisions in ADRs.",
+          "deliverable": "Restructured code, boundary rules and ADRs",
+          "checks": [["Import a module's internal file from another feature", "Boundary check fails", "Tool output"], ["Generate the dependency graph", "No cycles", "Graph image"], ["Run the existing tests", "All still pass", "Test output"]],
+          "objectives": ["Structure large TypeScript codebases", "Enforce module boundaries", "Document decisions"]
+        },
+        {
+          "topic": "Migrating JavaScript Codebases to TypeScript",
+          "subtopics": ["Planning an incremental migration", "allowJs and checkJs", "JSDoc types as a first step", "Converting file by file", "Handling any during migration", "Tracking progress with type coverage", "Strictness ratchets", "Communicating the migration to a team"],
+          "tools": ["TypeScript 5", "type-coverage", "ts-migrate"],
+          "lab_task": "Migrate a provided 40-file JavaScript service in stages: checkJs with JSDoc, conversion of core modules, then strict mode, measuring type coverage at each stage.",
+          "deliverable": "Migration plan, staged commits and type coverage report",
+          "checks": [["Run the service after each stage", "Behaviour unchanged and tests pass", "Test output"], ["Measure type coverage at the end", "Above 95 percent", "type-coverage output"], ["Add new any to a converted file", "Ratchet check fails", "CI output"]],
+          "objectives": ["Plan and run a migration", "Measure progress", "Prevent regressions"]
+        },
+        {
+          "topic": "Advanced Node.js Runtime and Performance",
+          "subtopics": ["Event loop phases and blocking", "Worker threads", "Streams and back-pressure", "Memory leaks and heap snapshots", "Profiling with --cpu-prof and clinic.js", "Caching strategies", "Connection pooling", "Benchmarking with autocannon"],
+          "tools": ["Node.js 22 LTS", "clinic.js", "autocannon", "Chrome DevTools"],
+          "lab_task": "Load-test the products service, find an event-loop block and a memory leak with clinic.js and heap snapshots, move CPU work to worker threads and show the throughput gain.",
+          "deliverable": "Profiles before and after and load test results",
+          "checks": [["Run autocannon before and after", "Requests per second at least doubled", "autocannon output"], ["Compare heap snapshots", "Leaking objects identified", "DevTools screenshot"], ["Measure event loop delay", "p99 delay below 50 ms after the fix", "Metrics output"]],
+          "objectives": ["Profile Node.js services", "Remove event-loop blocking", "Fix memory leaks"]
+        },
+        {
+          "topic": "Advanced React Patterns with TypeScript",
+          "subtopics": ["Polymorphic components with as props", "Compound components", "Typed render props and hooks", "Discriminated union props", "forwardRef and generic components", "Server Components types in Next.js", "Typed forms with React Hook Form and Zod", "Design system typing"],
+          "tools": ["React", "Next.js", "React Hook Form", "Zod"],
+          "lab_task": "Build a typed design-system Button that is polymorphic, a compound Tabs component and a form whose fields, validation and submit types all come from one Zod schema.",
+          "deliverable": "Component library and examples",
+          "checks": [["Render Button as a link without href", "Compile error", "Compiler output"], ["Submit the form with invalid data", "Field errors shown and no submit", "Browser demo"], ["Change the schema", "Form types update and misuse fails to compile", "Compiler output"]],
+          "objectives": ["Type advanced component patterns", "Build type-safe forms", "Design typed component libraries"]
+        },
+        {
+          "topic": "Full-Stack Type Safety with Next.js",
+          "subtopics": ["App Router and Server Components", "Server Actions with validation", "Typed route handlers", "Data fetching and caching", "Environment variable safety", "Authentication with Auth.js", "Edge and Node runtimes", "Deployment builds"],
+          "tools": ["Next.js", "Auth.js", "Zod", "Prisma"],
+          "lab_task": "Build a Next.js app with server components reading from Prisma, validated server actions, typed environment variables and authentication, then create a production build.",
+          "deliverable": "Next.js project and production build output",
+          "checks": [["Submit a server action with invalid data", "Returns typed field errors", "Browser demo"], ["Remove a required environment variable", "Build fails with a clear message", "Build output"], ["Access a protected page signed out", "Redirected to sign in", "Browser demo"]],
+          "objectives": ["Build type-safe full-stack apps", "Validate server actions", "Secure pages and actions"]
+        },
+        {
+          "topic": "GraphQL with TypeScript: Generated and Code-First Types",
+          "subtopics": ["Schema-first with GraphQL Code Generator", "Code-first with Pothos", "Typed resolvers", "DataLoader and the N+1 problem", "Typed client queries", "Errors and partial results", "Query depth and cost limits", "Schema changes and breaking-change checks"],
+          "tools": ["GraphQL", "GraphQL Code Generator", "Pothos", "DataLoader"],
+          "lab_task": "Build a GraphQL API for products and categories with typed resolvers, fix an N+1 problem with DataLoader, generate typed client hooks and block an over-deep query.",
+          "deliverable": "GraphQL server, generated types and client example",
+          "checks": [["Query 50 products with categories", "One category query after DataLoader", "SQL log"], ["Rename a schema field", "Generated client code fails to compile", "Compiler output"], ["Send a query nested ten levels deep", "Rejected by the depth limit", "API response"]],
+          "objectives": ["Build typed GraphQL APIs", "Solve N+1 queries", "Detect breaking schema changes"]
+        },
+        {
+          "topic": "Event-Driven and Real-Time TypeScript Services",
+          "subtopics": ["Typed message contracts", "Queues with BullMQ and Redis", "Kafka with KafkaJS", "Idempotent consumers", "Retries and dead-letter queues", "WebSockets with typed events", "Server-sent events", "Schema evolution"],
+          "tools": ["BullMQ", "Redis", "KafkaJS", "Socket.IO"],
+          "lab_task": "Add a typed job queue for order emails with retries and a dead-letter queue, publish order events to Kafka with versioned schemas, and push live order updates to the browser over WebSockets.",
+          "deliverable": "Queue, event and WebSocket code with tests",
+          "checks": [["Make the email job fail three times", "Job moves to the dead-letter queue", "Queue dashboard"], ["Deliver the same event twice", "Handled once", "Database rows"], ["Update an order", "Browser receives the typed event", "Browser demo"]],
+          "objectives": ["Build typed messaging", "Handle retries and duplicates", "Push real-time updates"]
+        },
+        {
+          "topic": "Secure TypeScript Applications",
+          "subtopics": ["OWASP Top 10 for Node.js and web apps", "Input validation at every boundary", "Injection in SQL and NoSQL", "Prototype pollution", "XSS and Content Security Policy", "Authentication tokens and cookies", "Dependency auditing and lockfiles", "Secrets handling"],
+          "tools": ["npm audit", "Snyk", "Helmet", "Zod"],
+          "lab_task": "Find and fix six planted vulnerabilities in a TypeScript app, including prototype pollution and XSS, add a Content Security Policy and make the CI fail on high-severity dependency issues.",
+          "deliverable": "Fixed code, security tests and CI configuration",
+          "checks": [["Send a __proto__ payload", "Rejected and no global change", "Test output"], ["Inject a script into a product name", "Rendered as text and blocked by CSP", "Browser demo"], ["Add a dependency with a known high vulnerability", "CI fails", "CI output"]],
+          "objectives": ["Find and fix common vulnerabilities", "Secure inputs and output", "Audit dependencies"]
+        },
+        {
+          "topic": "Observability for TypeScript Services",
+          "subtopics": ["Structured logging with pino", "Request context with AsyncLocalStorage", "OpenTelemetry for Node.js", "Traces across services and queues", "Metrics with Prometheus", "Error tracking with Sentry", "Source maps in production", "Alerting on service level objectives"],
+          "tools": ["pino", "OpenTelemetry", "Prometheus", "Grafana", "Sentry"],
+          "lab_task": "Instrument the API and the queue worker with OpenTelemetry and pino, follow one order through both in the tracing tool, and send errors with source-mapped stack traces to Sentry.",
+          "deliverable": "Instrumentation code, trace screenshot and dashboard",
+          "checks": [["Place an order", "One trace covers the API and the worker", "Trace screenshot"], ["Throw an error in production mode", "Sentry shows the TypeScript source line", "Sentry screenshot"], ["Search logs by trace ID", "All lines for the request are found", "Log search"]],
+          "objectives": ["Instrument TypeScript services", "Correlate logs, traces and errors", "Monitor service objectives"]
+        },
+        {
+          "topic": "Containerising and Deploying TypeScript Services",
+          "subtopics": ["Multi-stage Docker builds", "Pruning dev dependencies", "Distroless or slim base images", "Handling signals in containers", "Health checks", "Serverless deployment to AWS Lambda", "Edge deployment trade-offs", "Environment-specific configuration"],
+          "tools": ["Docker", "AWS Lambda", "Node.js 22 LTS"],
+          "lab_task": "Build a small production image for the API with a multi-stage build, handle SIGTERM correctly, then deploy the same handler to AWS Lambda and compare cold starts.",
+          "deliverable": "Dockerfile, deployment configuration and comparison table",
+          "checks": [["Inspect the image size", "Under 150 MB", "docker images output"], ["Stop the container during a request", "Request completes before exit", "Logs"], ["Invoke the Lambda version cold", "Cold start time recorded", "CloudWatch log"]],
+          "objectives": ["Containerise Node.js services", "Shut down gracefully", "Deploy serverless"]
+        },
+        {
+          "topic": "CI/CD for TypeScript Monorepos",
+          "subtopics": ["Pipeline stages: install, type-check, lint, test, build", "Caching dependencies and build outputs", "Affected-only builds", "Remote caching with Turborepo or Nx", "Preview deployments", "Release automation with changesets", "Code owners and required checks", "Keeping pipelines under ten minutes"],
+          "tools": ["GitHub Actions", "Turborepo", "Nx", "Changesets"],
+          "lab_task": "Build a GitHub Actions pipeline for the monorepo that type-checks, lints, tests and builds only affected packages with remote caching, deploys previews and publishes releases.",
+          "deliverable": "Workflow files and pipeline timing results",
+          "checks": [["Change one package", "Only affected packages run", "Workflow log"], ["Run the pipeline a second time", "Most tasks restored from cache", "Workflow log"], ["Merge a changeset", "Package is versioned and published", "Release log"]],
+          "objectives": ["Build fast pipelines for monorepos", "Cache builds", "Automate releases"]
+        },
+        {
+          "topic": "Library Authoring and API Design",
+          "subtopics": ["Designing small public APIs", "Overloads versus generics for public functions", "Type inference for library users", "Backward compatibility of types", "API Extractor reports", "Deprecation strategy", "Testing types across TypeScript versions", "Documentation from types"],
+          "tools": ["API Extractor", "TypeScript 5", "Vitest"],
+          "lab_task": "Design a small validation library API, track its public surface with API Extractor, test types on two TypeScript versions and make a breaking change visible in the report.",
+          "deliverable": "Library, API report and type tests",
+          "checks": [["Change a public type", "API Extractor report shows the change", "Report diff"], ["Run type tests on two TypeScript versions", "Pass on both", "Test output"], ["Use the library in a sample app", "Types are inferred without annotations", "Compiler output"]],
+          "objectives": ["Design public TypeScript APIs", "Detect breaking changes", "Support several compiler versions"]
+        },
+        {
+          "topic": "Testing Strategy at Scale",
+          "subtopics": ["Test pyramid for full-stack TypeScript", "Mock Service Worker for network mocking", "Property-based testing with fast-check", "Mutation testing with Stryker", "Visual regression testing", "Test sharding and parallelism", "Flaky test management", "Test data management"],
+          "tools": ["Vitest", "MSW", "fast-check", "Stryker", "Playwright"],
+          "lab_task": "Add property-based tests to the pricing logic, mutation-test it with Stryker to above 80 percent, mock the network with MSW for front-end tests and shard Playwright runs.",
+          "deliverable": "Test suites, Stryker report and timing results",
+          "checks": [["Run fast-check on pricing", "Finds or rules out edge-case failures", "Test output"], ["Run Stryker", "Mutation score above 80 percent", "Stryker report"], ["Shard Playwright across four workers", "Total time reduced", "Test timing"]],
+          "objectives": ["Strengthen tests beyond examples", "Measure test quality", "Keep large suites fast"]
+        },
+        {
+          "topic": "Production Troubleshooting for Node.js and TypeScript",
+          "subtopics": ["Reading production stack traces with source maps", "Diagnosing high CPU", "Diagnosing memory growth", "Unhandled rejections and crashes", "Slow database queries", "Dependency incidents", "Runbooks", "Post-incident reviews"],
+          "tools": ["Node.js 22 LTS", "Chrome DevTools", "OpenTelemetry", "Grafana"],
+          "lab_task": "Work through three injected production incidents (a crash loop from an unhandled rejection, a memory leak and a slow query), restore service, find root causes and write runbooks.",
+          "deliverable": "Incident timelines, fixes and runbooks",
+          "checks": [["Restore the crashing service", "Service is stable", "Health and logs"], ["Find the memory leak cause", "Correct object and code path named", "Heap snapshot analysis"], ["Write a runbook for the slow query", "Another participant can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot Node.js in production", "Find root causes", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Production TypeScript Platform",
+          "subtopics": ["Architecture and type design", "Type-safe contracts and domain model", "Services, messaging and front end", "Tooling, testing and CI/CD", "Security, observability and deployment", "Load test, demo and design defence"],
+          "tools": ["TypeScript 5", "Next.js", "Fastify or NestJS", "Kafka or BullMQ", "OpenTelemetry", "Docker", "GitHub Actions"],
+          "lab_task": "Deliver a multi-service TypeScript platform with branded domain types, typed contracts, messaging, a Next.js front end, custom lint rules, full testing, CI/CD, security checks and tracing, then load-test and present it.",
+          "deliverable": "Monorepo, pipeline, dashboards, load test report and a 20-minute demo",
+          "checks": [["Rename a contract field", "Every affected package fails to compile until fixed", "Compiler output"], ["Kill the worker during a load test", "Jobs are retried and none are lost", "Load test report and queue state"], ["Follow one request in the tracing tool", "Complete trace across services", "Trace screenshot"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove reliability and safety", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

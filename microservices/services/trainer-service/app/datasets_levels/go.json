@@ -1,0 +1,573 @@
+{
+  "domain": "Go",
+  "name": "Go",
+  "category": "Programming Languages",
+  "icon": "terminal",
+  "aliases": ["Golang", "Go Programming", "Go Language", "Go Lang", "Go Developer", "Advanced Go", "Go for Cloud Native"],
+  "certifications": ["No vendor certification; assessed by capstone project", "Certified Kubernetes Application Developer (CKAD) for Go services on Kubernetes", "Linux Foundation LFD259 Kubernetes for Developers (related)"],
+  "tools": ["Go 1.23", "VS Code with the Go extension", "GoLand", "Delve", "golangci-lint", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No Go experience assumed; some programming background helps. Participants learn the language, types, slices and maps, structs and interfaces, errors, packages, testing and a first look at goroutines, and finish with a working command-line tool.",
+      "prerequisites": ["Has written simple programs in any language", "Can use a terminal", "Can install software on their machine"],
+      "outcomes": ["Write, build and run Go programs and modules", "Use slices, maps, structs and interfaces idiomatically", "Handle errors the Go way and write table-driven tests", "Build a command-line tool that reads files and calls an HTTP API"],
+      "days": [
+        {
+          "topic": "Go Setup, Modules and First Program",
+          "subtopics": ["What Go is used for and its design goals", "Installing Go and checking go version", "GOPATH versus modules", "go mod init and go.mod", "package main and func main", "go run and go build", "Cross-compiling with GOOS and GOARCH", "go fmt and go vet", "Editor setup with gopls", "Reading compiler errors"],
+          "tools": ["Go 1.23", "VS Code with the Go extension"],
+          "lab_task": "Install Go, create a module, write a program that prints a formatted receipt, build binaries for Linux and Windows from one machine and run go fmt and go vet on the code.",
+          "deliverable": "Module folder, two binaries and terminal output",
+          "checks": [["Run go run .", "Prints three item lines and a total", "Terminal output"], ["Build with GOOS=windows", "receipt.exe is produced", "Folder listing"], ["Declare a variable and never use it", "Compiler reports it as declared and not used", "Compiler output"]],
+          "objectives": ["Set up a Go environment", "Create and build a module", "Use the standard Go tools"]
+        },
+        {
+          "topic": "Variables, Basic Types and Constants",
+          "subtopics": ["var declarations and short declarations with :=", "Zero values", "int, int64, uint and overflow", "float64 and rounding", "string, byte and rune", "bool", "Type conversion", "Constants and iota", "Untyped constants", "Printing with fmt.Printf verbs"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write a unit converter for temperatures, distances and weights, define units with iota constants and show one integer overflow and one rounding example with explanations.",
+          "deliverable": "Converter source and notes on overflow and rounding",
+          "checks": [["Convert 100 degrees Celsius", "Prints 212 Fahrenheit", "Program output"], ["Add 1 to the largest int8", "Wraps to -128", "Program output"], ["Print an uninitialised int, string and bool", "Prints 0, empty string and false", "Program output"]],
+          "objectives": ["Declare variables and constants", "Use Go's basic types", "Explain zero values and conversions"]
+        },
+        {
+          "topic": "Control Flow: if, for and switch",
+          "subtopics": ["if with an initialiser", "The single for loop in three forms", "Ranging over slices, maps and integers", "break, continue and labels", "switch with and without a condition", "fallthrough", "defer basics", "Reading input with bufio.Scanner"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Build a number guessing game that reads guesses from standard input, gives higher or lower hints, rejects non-numeric input and limits the player to seven attempts.",
+          "deliverable": "Game source and a recorded session",
+          "checks": [["Type \"abc\"", "Game asks again without crashing", "Session output"], ["Guess correctly on the fourth try", "Reports four attempts", "Session output"], ["Use all seven attempts", "Game ends and reveals the number", "Session output"]],
+          "objectives": ["Write loops and conditions in Go", "Use switch", "Read and validate input"]
+        },
+        {
+          "topic": "Functions, Multiple Returns and Closures",
+          "subtopics": ["Function declarations", "Multiple return values", "Named return values", "Variadic functions", "Functions as values", "Anonymous functions and closures", "defer order and use", "Recursion"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write a calculator package with functions that return a result and an error, a variadic sum, a closure that counts calls and a deferred function that logs how long each operation took.",
+          "deliverable": "Package source and example program",
+          "checks": [["Divide by zero", "Returns an error, not a panic", "Program output"], ["Call the counter closure three times", "Returns 1, 2 and 3", "Program output"], ["Run three deferred prints", "Printed in reverse order", "Program output"]],
+          "objectives": ["Write functions with multiple returns", "Use closures", "Use defer"]
+        },
+        {
+          "topic": "Arrays, Slices and Their Internals",
+          "subtopics": ["Arrays as fixed-size values", "Slices as views over arrays", "len and cap", "append and growth", "Slicing and shared backing arrays", "copy", "make with length and capacity", "The slices package: Sort, Contains, Index"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Build a grade book that stores marks in slices, shows a bug caused by two slices sharing one backing array, fixes it with copy and sorts students by average with the slices package.",
+          "deliverable": "Grade book source and a note explaining the shared-array bug",
+          "checks": [["Append to a sub-slice", "Original slice changes, shown in output", "Program output"], ["Use copy and append again", "Original slice is unchanged", "Program output"], ["Sort students by average", "Order matches the answer sheet", "Program output"]],
+          "objectives": ["Use slices correctly", "Explain len, cap and backing arrays", "Avoid shared-slice bugs"]
+        },
+        {
+          "topic": "Maps and Strings",
+          "subtopics": ["Creating and using maps", "Checking for keys with comma ok", "Deleting keys", "Iteration order is random", "The maps package", "Strings as bytes", "Runes and ranging over strings", "strings and strconv packages"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write a word frequency counter for a text file using a map, print the top ten words in a stable order, and count characters correctly for text containing non-English letters.",
+          "deliverable": "Counter source and output for the sample text",
+          "checks": [["Run on the sample file", "Top ten words match the answer file", "Program output"], ["Count characters in \"héllo\"", "Reports 5 runes and 6 bytes", "Program output"], ["Look up a missing word", "Comma ok reports it is missing", "Program output"]],
+          "objectives": ["Use maps idiomatically", "Handle Unicode strings", "Convert between strings and numbers"]
+        },
+        {
+          "topic": "Structs, Methods and Embedding",
+          "subtopics": ["Defining structs", "Struct literals and zero values", "Methods", "Value versus pointer receivers", "Constructors as New functions", "Embedding for composition", "Struct tags", "Comparing structs"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Model a library with Book and Member structs, methods to lend and return books, a constructor that validates input and an embedded Audit struct that records changes.",
+          "deliverable": "Library package and example program",
+          "checks": [["Lend a book with a value receiver method", "Change is lost, explained in a note", "Program output and note"], ["Switch to a pointer receiver", "Change is kept", "Program output"], ["Create a Book with an empty title", "Constructor returns an error", "Program output"]],
+          "objectives": ["Model data with structs", "Choose value or pointer receivers", "Compose types with embedding"]
+        },
+        {
+          "topic": "Pointers and Memory",
+          "subtopics": ["What a pointer is", "& and *", "nil pointers", "Passing pointers to functions", "new versus composite literals", "Escape to the heap in brief", "When to use pointers", "Nil pointer dereference panics"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write functions that update a bank account by value and by pointer, show the difference, trigger and fix a nil pointer panic, and check escape analysis output with -gcflags=-m.",
+          "deliverable": "Source code, panic output and escape analysis output",
+          "checks": [["Update the balance through a value parameter", "Balance unchanged", "Program output"], ["Call a method on a nil pointer", "Panic shown, then guarded with a nil check", "Program output"], ["Build with -gcflags=-m", "Shows which variable escapes to the heap", "Build output"]],
+          "objectives": ["Use pointers correctly", "Avoid nil pointer panics", "Explain stack and heap at a basic level"]
+        },
+        {
+          "topic": "Interfaces and Polymorphism",
+          "subtopics": ["Interfaces as method sets", "Implicit implementation", "Small interfaces: io.Reader, io.Writer, fmt.Stringer", "The empty interface and any", "Type assertions", "Type switches", "Interface values holding nil", "Accept interfaces, return structs"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Define a Notifier interface implemented by email, SMS and log notifiers, process them from one slice, add a Stringer to each and use a type switch to handle one special case.",
+          "deliverable": "Notifier package and example program",
+          "checks": [["Send through all three notifiers", "Each prints its message", "Program output"], ["Add a new notifier type", "No change to the sending loop", "Source diff"], ["Assert a Notifier to the wrong type with comma ok", "ok is false, no panic", "Program output"]],
+          "objectives": ["Design with small interfaces", "Use type assertions and switches", "Explain implicit implementation"]
+        },
+        {
+          "topic": "Error Handling the Go Way",
+          "subtopics": ["error as a value", "errors.New and fmt.Errorf", "Wrapping errors with %w", "errors.Is and errors.As", "Sentinel errors", "Custom error types", "panic and recover", "When to panic"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Add a transfer function that returns wrapped errors for insufficient funds and unknown accounts, check them with errors.Is and errors.As in the caller and recover from a deliberate panic in a worker.",
+          "deliverable": "Source code and output for each error case",
+          "checks": [["Transfer more than the balance", "errors.Is matches ErrInsufficientFunds", "Program output"], ["Transfer from an unknown account", "errors.As extracts the account ID", "Program output"], ["Panic inside a recovered function", "Program continues and logs the panic", "Program output"]],
+          "objectives": ["Return and wrap errors", "Inspect errors with Is and As", "Use panic only for real bugs"]
+        },
+        {
+          "topic": "Packages, Visibility and Project Layout",
+          "subtopics": ["Packages and folders", "Exported and unexported names", "Package initialisation and init", "Internal packages", "Importing third-party modules", "go get and go mod tidy", "Versioning and go.sum", "A common project layout"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Split the library code into model, store and cmd packages with an internal package, add a third-party module for colour output and show that internal code cannot be imported from outside.",
+          "deliverable": "Restructured module and go.mod",
+          "checks": [["Import the internal package from another module", "Build fails", "Compiler output"], ["Run go mod tidy", "go.mod and go.sum list only used modules", "Files"], ["Use an unexported function from another package", "Compile error", "Compiler output"]],
+          "objectives": ["Organise code into packages", "Manage dependencies with modules", "Control visibility"]
+        },
+        {
+          "topic": "Reading and Writing Files",
+          "subtopics": ["os.Open and os.Create", "bufio for line reading", "io.Copy and io.Reader composition", "os.ReadFile and os.WriteFile", "Working with paths with path/filepath", "Walking directories", "encoding/csv", "Closing files with defer"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write a tool that reads every CSV file in a folder, validates rows, writes valid rows to one combined file and invalid rows with the reason to an errors file.",
+          "deliverable": "Tool source, combined file and errors file",
+          "checks": [["Run on the sample folder", "Combined file has the 47 valid rows", "Output file"], ["Include a row with a missing price", "Appears in the errors file with the reason", "Errors file"], ["Point it at a missing folder", "Clear error and exit code 1", "Terminal output"]],
+          "objectives": ["Read and write files", "Process folders", "Handle file errors"]
+        },
+        {
+          "topic": "JSON Encoding and Decoding",
+          "subtopics": ["encoding/json Marshal and Unmarshal", "Struct tags for JSON", "omitempty", "Decoding into maps versus structs", "Unknown fields with DisallowUnknownFields", "Streaming with json.Decoder", "Custom MarshalJSON", "time.Time in JSON"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Load an orders JSON file into structs, reject unknown fields, stream a large file with json.Decoder and write a summary with a custom money format.",
+          "deliverable": "Program source and summary JSON",
+          "checks": [["Decode a file with an unknown field", "Returns a clear error", "Program output"], ["Marshal an order with an empty note", "Note field is omitted", "Output JSON"], ["Stream the 200 MB file", "Memory stays under 50 MB", "Memory measurement"]],
+          "objectives": ["Encode and decode JSON", "Control JSON field names and output", "Process large JSON files"]
+        },
+        {
+          "topic": "Unit Testing and Table-Driven Tests",
+          "subtopics": ["The testing package", "go test and test file names", "Table-driven tests", "Subtests with t.Run", "t.Helper and t.Cleanup", "Test coverage with -cover", "Example tests", "Testing errors"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write table-driven tests for the calculator and transfer functions covering normal and error cases, reach 90 percent coverage and add an example test that appears in the documentation.",
+          "deliverable": "Test files and coverage report",
+          "checks": [["Run go test ./...", "All tests pass", "Test output"], ["Break the transfer rule", "A named subtest fails", "Test output"], ["Run go test -cover", "At least 90 percent", "Coverage output"]],
+          "objectives": ["Write table-driven tests", "Test error paths", "Measure coverage"]
+        },
+        {
+          "topic": "Concurrency with Goroutines and Channels",
+          "subtopics": ["Goroutines", "sync.WaitGroup", "Unbuffered channels", "Buffered channels", "Closing and ranging over channels", "select", "Timeouts with time.After", "Detecting races with -race"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Check the status of 30 websites concurrently with goroutines and a WaitGroup, collect results through a channel, time out slow sites after two seconds and find a race with -race.",
+          "deliverable": "Checker source, race detector output and timing comparison",
+          "checks": [["Run sequentially and concurrently", "Concurrent run is much faster", "Timing output"], ["Add a slow test site", "Reported as timed out after two seconds", "Program output"], ["Run with -race on the unsafe counter", "Race detector reports the data race", "Race output"]],
+          "objectives": ["Start goroutines safely", "Communicate through channels", "Detect data races"]
+        },
+        {
+          "topic": "Calling HTTP APIs with net/http",
+          "subtopics": ["http.Get and http.Client", "Setting timeouts on the client", "Building requests with headers", "Reading and closing response bodies", "Status code handling", "Decoding JSON responses", "Query parameters with net/url", "Testing with httptest.Server"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write a client for a weather API with a timeout, an API key header, JSON decoding and clear errors for non-200 responses, tested against an httptest.Server.",
+          "deliverable": "Client package and tests",
+          "checks": [["Return a 500 from the test server", "Client returns an error with the status", "Test output"], ["Delay the test server five seconds", "Client times out after three seconds", "Test output"], ["Return valid JSON", "Client returns the parsed forecast", "Test output"]],
+          "objectives": ["Call HTTP APIs", "Set timeouts and handle errors", "Test clients with httptest"]
+        },
+        {
+          "topic": "Building a Simple HTTP Server",
+          "subtopics": ["http.HandleFunc and handlers", "ServeMux routing with methods and path values", "Reading request bodies", "Writing JSON responses", "Status codes", "Middleware as handler wrappers", "Logging with log/slog", "Graceful shutdown"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Build a notes HTTP API with list, get, create and delete routes using the standard ServeMux, JSON responses, a logging middleware and graceful shutdown on Ctrl+C.",
+          "deliverable": "Server source and curl session",
+          "checks": [["POST a note with no title", "400 with a JSON error", "curl output"], ["GET a missing note", "404", "curl output"], ["Press Ctrl+C during a request", "Request completes before exit", "Logs"]],
+          "objectives": ["Build HTTP servers with the standard library", "Write middleware", "Shut down gracefully"]
+        },
+        {
+          "topic": "Command-Line Tools with flag and cobra",
+          "subtopics": ["os.Args", "The flag package", "Subcommands", "cobra for larger tools", "Reading environment variables", "Exit codes", "Writing to stdout and stderr", "Building release binaries"],
+          "tools": ["Go 1.23", "cobra"],
+          "lab_task": "Build a todo CLI with add, list, done and remove subcommands using cobra, storing tasks in a JSON file and returning proper exit codes.",
+          "deliverable": "CLI source, release binaries and a usage session",
+          "checks": [["Run todo add \"Buy milk\" then todo list", "Task is listed", "Terminal output"], ["Run todo done 99", "Error on stderr and exit code 1", "Terminal output"], ["Run todo --help", "Lists every subcommand", "Terminal output"]],
+          "objectives": ["Build command-line tools", "Use flags and subcommands", "Return useful exit codes"]
+        },
+        {
+          "topic": "Debugging Go and Code Quality Tools",
+          "subtopics": ["Debugging with Delve", "Breakpoints and stepping in VS Code", "Inspecting goroutines in the debugger", "go vet checks", "staticcheck", "golangci-lint configuration", "Reading panic stack traces", "Code review checklist for Go"],
+          "tools": ["Delve", "golangci-lint", "staticcheck", "VS Code with the Go extension"],
+          "lab_task": "Find and fix five planted bugs in a provided program using Delve, write a test that reproduces each bug first and get a clean golangci-lint run.",
+          "deliverable": "Fixed code, new tests and lint output",
+          "checks": [["Run the new tests on the original code", "All five fail", "Test output"], ["Run them on the fixed code", "All five pass", "Test output"], ["Run golangci-lint", "No findings", "Lint output"]],
+          "objectives": ["Debug with Delve", "Reproduce bugs with tests", "Keep code clean with linters"]
+        },
+        {
+          "topic": "Beginner Capstone: Website Monitor Command-Line Tool",
+          "subtopics": ["Requirements and package design", "Configuration from a file", "Concurrent checks", "Reports and alerts", "Tests and linting", "Demo"],
+          "tools": ["Go 1.23", "cobra", "golangci-lint"],
+          "lab_task": "Build a CLI that reads a list of URLs from a JSON file, checks them concurrently with timeouts, records response times, writes a CSV report, exits non-zero when any site is down and has table-driven tests.",
+          "deliverable": "Module, binaries, test report and a 10-minute demo",
+          "checks": [["Include a site that returns 500", "Reported as down and exit code 1", "Demo output"], ["Check 50 sites", "Finishes in a few seconds", "Timing output"], ["Run go test -race ./...", "All tests pass with no races", "Test output"]],
+          "objectives": ["Combine the beginner topics in one tool", "Use concurrency safely", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who write basic Go. Covers concurrency patterns, context, generics, idiomatic design, web services, databases, testing, profiling and packaging services in containers.",
+      "prerequisites": ["Writes Go structs, interfaces and error handling confidently", "Has written table-driven tests", "Has used goroutines and channels in a small program"],
+      "outcomes": ["Apply Go concurrency patterns with context and cancellation", "Build production-style HTTP and gRPC services", "Use databases, configuration and logging correctly", "Test, benchmark and profile Go services"],
+      "days": [
+        {
+          "topic": "Idiomatic Go and Effective Design",
+          "subtopics": ["Effective Go guidelines", "Naming in Go", "Small interfaces defined by the consumer", "Making the zero value useful", "Functional options pattern", "Avoiding stutter in package names", "Errors as part of the API", "Documentation comments"],
+          "tools": ["Go 1.23", "golangci-lint"],
+          "lab_task": "Refactor a provided Java-style Go package with large interfaces, getters and setters into idiomatic Go with consumer-side interfaces, functional options and package documentation.",
+          "deliverable": "Before and after code and a review note",
+          "checks": [["Run the existing tests", "All pass after the refactor", "Test output"], ["Create a client with no options", "Works with sensible defaults", "Test output"], ["Run go doc on the package", "Shows clear documentation for exported names", "go doc output"]],
+          "objectives": ["Write idiomatic Go", "Design small interfaces", "Use functional options"]
+        },
+        {
+          "topic": "Generics in Go",
+          "subtopics": ["Type parameters", "Constraints and the constraints package", "any and comparable", "Generic functions", "Generic types", "Type inference", "When generics help and when interfaces are better", "The slices and maps packages"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Write generic Map, Filter and Reduce functions, a generic Set type and a generic cache with expiry, and replace three duplicated functions in a provided codebase.",
+          "deliverable": "Generic package with tests and the refactored code",
+          "checks": [["Use the Set with strings and ints", "Both work with one implementation", "Test output"], ["Use a type that does not satisfy the constraint", "Compile error", "Compiler output"], ["Count lines before and after the refactor", "Duplicate code removed", "Line count"]],
+          "objectives": ["Write generic functions and types", "Choose constraints", "Decide between generics and interfaces"]
+        },
+        {
+          "topic": "Concurrency Patterns: Pipelines, Fan-Out and Fan-In",
+          "subtopics": ["Pipeline stages with channels", "Fan-out to workers", "Fan-in of results", "Worker pools", "Bounded parallelism", "Closing channels correctly", "Preventing goroutine leaks", "errgroup"],
+          "tools": ["Go 1.23", "errgroup"],
+          "lab_task": "Build a pipeline that reads 10,000 image paths, resizes them in a pool of eight workers, collects results and stops all workers when one fails, with no leaked goroutines.",
+          "deliverable": "Pipeline source, timing results and leak test",
+          "checks": [["Run with one and eight workers", "Eight workers are clearly faster", "Timing output"], ["Make one image fail", "All workers stop and the error is returned", "Program output"], ["Check goroutines after completion with goleak", "No leaks reported", "Test output"]],
+          "objectives": ["Build concurrent pipelines", "Control parallelism", "Avoid goroutine leaks"]
+        },
+        {
+          "topic": "Context for Cancellation, Deadlines and Request Values",
+          "subtopics": ["context.Background and context.TODO", "WithCancel, WithTimeout and WithDeadline", "Passing context as the first parameter", "Checking ctx.Done", "Cancellation in HTTP handlers", "Context in database calls", "Request-scoped values and their limits", "context.AfterFunc and WithoutCancel"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Add context to the HTTP server and the weather client so a client disconnect or a two-second deadline cancels downstream calls, and show that work stops when the request is cancelled.",
+          "deliverable": "Updated code and logs showing cancellation",
+          "checks": [["Cancel the request with curl Ctrl+C", "Downstream call is cancelled within 100 ms", "Logs"], ["Set a 2-second deadline with a slow upstream", "Returns 504 after two seconds", "curl output"], ["Store a value in context", "Only request-scoped data is stored", "Code review note"]],
+          "objectives": ["Cancel work with context", "Set deadlines", "Use context values carefully"]
+        },
+        {
+          "topic": "Synchronisation with the sync Package",
+          "subtopics": ["Mutex and RWMutex", "sync.Once", "sync.Map", "sync.Pool", "Atomic operations with sync/atomic", "Condition variables", "Choosing channels or mutexes", "Deadlocks and how to spot them"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Build a thread-safe in-memory cache with RWMutex and expiry, initialise a config once with sync.Once, reuse buffers with sync.Pool and benchmark mutex and atomic counters.",
+          "deliverable": "Cache source, benchmarks and race test output",
+          "checks": [["Run the cache tests with -race and 100 goroutines", "No races", "Test output"], ["Benchmark mutex and atomic counters", "Atomic is faster", "Benchmark output"], ["Create a deliberate deadlock", "Runtime reports all goroutines are asleep", "Program output"]],
+          "objectives": ["Protect shared state", "Choose between channels and locks", "Find deadlocks"]
+        },
+        {
+          "topic": "Time, Timers and Scheduled Work",
+          "subtopics": ["time.Time, Duration and time zones", "Monotonic clock readings", "time.Timer and time.Ticker", "Stopping timers and tickers to avoid leaks", "Scheduling recurring jobs", "Jitter for scheduled work", "Injecting a clock for tests", "Parsing and formatting with layouts"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Build a background scheduler that runs report jobs every minute with jitter, stops cleanly on cancellation, converts run times between zones and is tested with an injected fake clock.",
+          "deliverable": "Scheduler package and tests",
+          "checks": [["Run the scheduler for five minutes", "Five runs, each within the jitter window", "Logs"], ["Cancel the context", "Ticker stops and no more runs happen", "Logs and goroutine count"], ["Advance the fake clock by one hour in a test", "Sixty runs recorded without waiting", "Test output"]],
+          "objectives": ["Work with time correctly", "Schedule work with timers and tickers", "Test time-based code"]
+        },
+        {
+          "topic": "Building REST APIs with chi or Gin",
+          "subtopics": ["Routers and route groups", "Middleware chains", "Request validation", "Consistent JSON errors", "Pagination and filtering", "CORS", "OpenAPI documentation", "Testing handlers with httptest"],
+          "tools": ["chi", "Gin", "Go 1.23", "Postman"],
+          "lab_task": "Build a products REST API with chi or Gin including validation, consistent errors, pagination, CORS and OpenAPI docs, with handler tests for every route.",
+          "deliverable": "API source, OpenAPI file and test report",
+          "checks": [["Create a product with a negative price", "400 with a field error", "Test output"], ["Request page 2 with 10 items", "Correct items and total count", "Test output"], ["Open the API documentation", "Every route is documented", "Screenshot"]],
+          "objectives": ["Build REST APIs in Go", "Validate and paginate", "Test handlers"]
+        },
+        {
+          "topic": "Databases with database/sql, pgx and sqlc",
+          "subtopics": ["database/sql connections and pooling", "pgx for PostgreSQL", "Prepared statements and SQL injection", "Transactions", "Generating type-safe code with sqlc", "Migrations with golang-migrate or goose", "NULL handling", "Testing with a real database"],
+          "tools": ["PostgreSQL", "pgx", "sqlc", "goose", "Docker"],
+          "lab_task": "Store products in PostgreSQL with sqlc-generated queries, goose migrations, a stock transfer in a transaction and repository tests against a Docker database.",
+          "deliverable": "Schema, migrations, generated code and tests",
+          "checks": [["Pass a name with SQL injection text", "Stored as text", "Database row"], ["Fail halfway through a stock transfer", "Transaction rolls back", "Database rows"], ["Run the repository tests", "Pass against the Docker database", "Test output"]],
+          "objectives": ["Access databases safely", "Generate type-safe queries", "Use transactions and migrations"]
+        },
+        {
+          "topic": "Configuration, Logging and Graceful Shutdown",
+          "subtopics": ["Configuration from environment variables", "Config structs and validation", "Structured logging with log/slog", "Log levels and request IDs", "Signal handling with signal.NotifyContext", "Shutting down servers and workers", "Health and readiness endpoints", "Not logging secrets"],
+          "tools": ["Go 1.23", "log/slog"],
+          "lab_task": "Add validated configuration, JSON logs with request IDs, health and readiness endpoints and a shutdown that drains requests and stops background workers.",
+          "deliverable": "Updated service and logs",
+          "checks": [["Start without DATABASE_URL", "Exits with a clear error", "Terminal output"], ["Make one request", "All log lines carry its request ID", "Log output"], ["Send SIGTERM during a request", "Request completes and workers stop", "Logs"]],
+          "objectives": ["Configure services safely", "Log in a structured way", "Shut down cleanly"]
+        },
+        {
+          "topic": "Testing with Mocks, Fakes and Integration Tests",
+          "subtopics": ["Interfaces for testability", "Hand-written fakes", "gomock or mockery", "testify assertions", "Golden files", "Integration tests with Testcontainers", "Build tags for slow tests", "Parallel tests with t.Parallel"],
+          "tools": ["testify", "mockery", "Testcontainers for Go"],
+          "lab_task": "Test the order service with a fake repository and a mocked payment client, add golden-file tests for a report and integration tests that run only with an integration build tag.",
+          "deliverable": "Test suite and test output for unit and integration runs",
+          "checks": [["Make the payment mock fail", "Test confirms the order is not saved", "Test output"], ["Change the report format", "Golden test fails until updated", "Test output"], ["Run go test without the tag", "Integration tests are skipped", "Test output"]],
+          "objectives": ["Test code in isolation", "Write integration tests", "Organise fast and slow tests"]
+        },
+        {
+          "topic": "Benchmarks and Fuzzing",
+          "subtopics": ["Writing benchmarks", "b.ResetTimer and b.ReportAllocs", "Comparing results with benchstat", "Reducing allocations", "Native fuzzing with go test -fuzz", "Seed corpus", "Fixing bugs found by fuzzing", "Benchmarks in code review"],
+          "tools": ["Go 1.23", "benchstat"],
+          "lab_task": "Benchmark two implementations of a CSV parser, cut allocations by half, then fuzz the parser until it finds a crash, fix it and keep the failing input as a regression test.",
+          "deliverable": "Benchmarks, benchstat comparison and fuzz corpus",
+          "checks": [["Compare with benchstat", "Allocations at least 50 percent lower", "benchstat output"], ["Run the fuzzer", "Finds the planted crash", "Fuzz output"], ["Rerun tests after the fix", "Saved fuzz input passes", "Test output"]],
+          "objectives": ["Benchmark Go code", "Reduce allocations", "Find bugs with fuzzing"]
+        },
+        {
+          "topic": "Profiling with pprof and Tracing",
+          "subtopics": ["net/http/pprof", "CPU profiles", "Heap and allocation profiles", "Goroutine profiles", "Reading flame graphs", "go tool trace", "Block and mutex profiles", "Profile-guided optimisation"],
+          "tools": ["pprof", "go tool trace", "Go 1.23"],
+          "lab_task": "Load-test the products API, capture CPU and heap profiles, find the hot path and a goroutine leak, fix both and apply profile-guided optimisation.",
+          "deliverable": "Profiles before and after and throughput results",
+          "checks": [["Open the CPU flame graph", "Hot function is identified", "pprof screenshot"], ["Check the goroutine profile after load", "Goroutine count returns to baseline after the fix", "pprof output"], ["Build with PGO", "Throughput improves", "Load test output"]],
+          "objectives": ["Profile CPU, memory and goroutines", "Find bottlenecks", "Use profile-guided optimisation"]
+        },
+        {
+          "topic": "gRPC Services with Protocol Buffers",
+          "subtopics": ["Protocol Buffers syntax", "Generating code with protoc or buf", "Unary RPCs", "Streaming RPCs", "Errors with status codes", "Interceptors", "Deadlines in gRPC", "Testing with bufconn"],
+          "tools": ["gRPC", "buf", "Protocol Buffers"],
+          "lab_task": "Build an inventory gRPC service with unary and server-streaming methods, a logging interceptor and deadlines, tested in memory with bufconn.",
+          "deliverable": "Proto files, service code and tests",
+          "checks": [["Call GetStock for an unknown item", "NotFound status code", "Test output"], ["Stream stock updates", "Client receives each update", "Test output"], ["Call with a 100 ms deadline on a slow method", "DeadlineExceeded", "Test output"]],
+          "objectives": ["Define services with Protocol Buffers", "Build gRPC services", "Handle errors and deadlines"]
+        },
+        {
+          "topic": "Authentication and Security for Go Services",
+          "subtopics": ["Password hashing with bcrypt", "JWT issuing and validation", "Middleware for authentication", "Role-based authorisation", "TLS configuration", "Rate limiting", "Input validation and output encoding", "govulncheck for vulnerable dependencies"],
+          "tools": ["Go 1.23", "golang-jwt", "govulncheck"],
+          "lab_task": "Add JWT login, role checks and rate limiting to the products API, serve it over TLS and scan dependencies with govulncheck.",
+          "deliverable": "Security code, tests and scan output",
+          "checks": [["Delete a product as a normal user", "403 Forbidden", "Test output"], ["Exceed the rate limit", "429 Too Many Requests", "Test output"], ["Run govulncheck", "No reachable vulnerabilities", "Scan output"]],
+          "objectives": ["Secure Go APIs", "Authorise by role", "Scan dependencies"]
+        },
+        {
+          "topic": "Working with Files, Streams and the io Interfaces",
+          "subtopics": ["io.Reader and io.Writer composition", "io.Pipe", "Compressing with gzip", "Hashing while copying with io.TeeReader", "Multipart uploads", "Large file uploads without loading into memory", "Embedding files with embed", "Temporary files"],
+          "tools": ["Go 1.23"],
+          "lab_task": "Add a file upload endpoint that streams uploads to disk while computing a SHA-256 hash and compressing them, without holding the file in memory, and serve static files with embed.",
+          "deliverable": "Upload handler and memory measurement",
+          "checks": [["Upload a 1 GB file", "Memory stays under 50 MB", "Memory measurement"], ["Compare the returned hash", "Matches sha256sum", "Terminal output"], ["Build the binary and delete the static folder", "Embedded files are still served", "curl output"]],
+          "objectives": ["Compose io interfaces", "Stream large data", "Embed files in binaries"]
+        },
+        {
+          "topic": "Messaging with Kafka or NATS",
+          "subtopics": ["Producers and consumers in Go", "Consumer groups", "Acknowledgements and retries", "Idempotent handling", "Dead-letter topics", "JSON or protobuf messages", "Graceful consumer shutdown", "Testing message handlers"],
+          "tools": ["NATS", "Apache Kafka", "franz-go"],
+          "lab_task": "Publish order events from the API and consume them in a stock service with acknowledgements, retries, a dead-letter topic and idempotent handling.",
+          "deliverable": "Producer and consumer code and tests",
+          "checks": [["Deliver the same event twice", "Stock reduced once", "Database rows"], ["Send a malformed event", "Ends up in the dead-letter topic", "Topic contents"], ["Restart the consumer", "Continues without losing events", "Logs and counts"]],
+          "objectives": ["Build event-driven Go services", "Handle retries and duplicates", "Shut consumers down cleanly"]
+        },
+        {
+          "topic": "Server-Rendered Web Pages with html/template and htmx",
+          "subtopics": ["html/template and automatic escaping", "Layouts, partials and template functions", "Parsing templates once at startup", "Forms and server-side validation", "CSRF protection", "Sessions and flash messages", "Partial updates with htmx", "Serving static assets with embed"],
+          "tools": ["Go 1.23", "htmx", "gorilla/csrf"],
+          "lab_task": "Build an admin web page for products with html/template layouts, validated forms with CSRF protection, flash messages and htmx partial updates for search, all in one binary.",
+          "deliverable": "Web application source and a recorded demo",
+          "checks": [["Enter a script tag in a product name", "Shown as text, not executed", "Browser demo"], ["Submit the form without a CSRF token", "403 Forbidden", "curl output"], ["Type in the search box", "Results update without a full page reload", "Browser demo"]],
+          "objectives": ["Render HTML safely in Go", "Handle forms securely", "Add interactivity without a front-end framework"]
+        },
+        {
+          "topic": "Containerising Go Services",
+          "subtopics": ["Multi-stage Docker builds", "Static binaries with CGO_ENABLED=0", "Scratch and distroless images", "Build flags and version information", "Health checks", "Non-root users", "Image scanning", "Docker Compose for local development"],
+          "tools": ["Docker", "Docker Compose", "Trivy"],
+          "lab_task": "Build a distroless image under 20 MB for the products API with version information in the binary, run it with PostgreSQL in Docker Compose and scan it with Trivy.",
+          "deliverable": "Dockerfile, Compose file, image size and scan report",
+          "checks": [["Inspect the image size", "Under 20 MB", "docker images output"], ["Call /version", "Returns the commit and build time", "curl output"], ["Scan with Trivy", "No critical vulnerabilities", "Trivy report"]],
+          "objectives": ["Build small, secure images", "Embed build information", "Run services locally with Compose"]
+        },
+        {
+          "topic": "Continuous Integration for Go Projects",
+          "subtopics": ["go test with race and coverage in CI", "golangci-lint in CI", "govulncheck in CI", "Caching modules and the build cache", "Matrix builds for Go versions and platforms", "Releasing binaries with GoReleaser", "Version tags and changelogs", "Required checks on pull requests"],
+          "tools": ["GitHub Actions", "GoReleaser", "golangci-lint"],
+          "lab_task": "Add a GitHub Actions pipeline that tests with race and coverage, lints, scans and builds on two Go versions, then releases binaries and images with GoReleaser on a tag.",
+          "deliverable": "Workflow files and a release page",
+          "checks": [["Push code with a lint error", "Pipeline fails at lint", "Workflow log"], ["Push a version tag", "Binaries for three platforms are published", "Release page"], ["Rerun the pipeline", "Module cache is restored", "Workflow log"]],
+          "objectives": ["Automate Go testing and checks", "Release binaries", "Speed up pipelines with caches"]
+        },
+        {
+          "topic": "Intermediate Capstone: Order Processing Microservice",
+          "subtopics": ["Requirements and API design", "HTTP and gRPC interfaces", "Database and messaging", "Security and configuration", "Testing, profiling and CI", "Demo and design defence"],
+          "tools": ["Go 1.23", "chi", "gRPC", "PostgreSQL", "sqlc", "NATS or Kafka", "Docker", "GitHub Actions"],
+          "lab_task": "Build an order service with a REST API, a gRPC stock client, PostgreSQL storage, events to a stock service, JWT security, full tests, profiling results and a CI pipeline, then present it.",
+          "deliverable": "Repository, pipeline, test and profile reports and a 15-minute demo",
+          "checks": [["Order more than the stock", "Rejected and stock unchanged", "API response and database"], ["Run go test -race ./... in CI", "All tests pass", "Workflow log"], ["Cancel a request mid-way", "Downstream calls stop", "Logs"]],
+          "objectives": ["Combine the intermediate topics in one service", "Prove correctness with tests", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For working Go developers. Covers the runtime and scheduler, memory and GC tuning, high-performance code, advanced concurrency, distributed systems patterns, Kubernetes operators, observability and running Go services at scale.",
+      "prerequisites": ["Builds Go services professionally", "Uses context, concurrency patterns and profiling", "Has deployed Go services in containers"],
+      "outcomes": ["Explain and tune the Go runtime, scheduler and garbage collector", "Write high-performance, allocation-aware Go", "Build reliable distributed services and Kubernetes controllers", "Observe, secure and troubleshoot Go services in production"],
+      "days": [
+        {
+          "topic": "Go Runtime and Scheduler Internals",
+          "subtopics": ["The G, M and P model", "Work stealing", "Preemption", "Blocking system calls and network poller", "GOMAXPROCS and container CPU limits", "Goroutine stack growth", "Scheduler traces with GODEBUG", "Runtime metrics"],
+          "tools": ["Go 1.23", "go tool trace"],
+          "lab_task": "Run a CPU-heavy and an IO-heavy workload with different GOMAXPROCS settings inside a CPU-limited container, read scheduler traces and choose the right setting.",
+          "deliverable": "Trace output, comparison table and recommendation",
+          "checks": [["Run with GODEBUG=schedtrace=1000", "Scheduler state is logged each second", "Terminal output"], ["Run in a 2-CPU container without setting GOMAXPROCS on an older Go", "Participant explains the throttling seen", "Written analysis"], ["Open the execution trace", "Shows goroutines across Ps", "Trace screenshot"]],
+          "objectives": ["Explain the Go scheduler", "Tune GOMAXPROCS", "Read scheduler traces"]
+        },
+        {
+          "topic": "Memory Management and Garbage Collector Tuning",
+          "subtopics": ["Stack versus heap allocation", "Escape analysis in depth", "The concurrent mark-and-sweep collector", "GOGC", "GOMEMLIMIT", "GC traces", "Reducing pointer-heavy data", "Memory limits in containers"],
+          "tools": ["Go 1.23", "pprof"],
+          "lab_task": "Run an allocation-heavy service under load with different GOGC and GOMEMLIMIT values, read GC traces and show the settings that keep it within a 512 MB container without being killed.",
+          "deliverable": "GC traces, settings comparison and recommendation",
+          "checks": [["Run with GODEBUG=gctrace=1", "GC cycles are logged", "Terminal output"], ["Set GOMEMLIMIT to 450MiB in a 512 MB container under load", "Not OOM-killed", "Container status"], ["Compare p99 latency across GOGC values", "Trade-off explained", "Comparison table"]],
+          "objectives": ["Explain Go's garbage collector", "Tune GOGC and GOMEMLIMIT", "Fit services in memory limits"]
+        },
+        {
+          "topic": "High-Performance Go: Allocation-Free Code",
+          "subtopics": ["Reading allocation profiles", "Preallocating slices and maps", "strings.Builder and byte buffers", "Avoiding interface conversions in hot paths", "sync.Pool in hot paths", "Struct layout and padding", "Bounds check elimination", "Reading compiler output with -gcflags"],
+          "tools": ["Go 1.23", "pprof", "benchstat"],
+          "lab_task": "Optimise a JSON log parser so the hot path makes zero allocations per line, prove it with benchmarks and benchstat and check bounds-check elimination in the compiler output.",
+          "deliverable": "Optimised parser, benchmarks and compiler output",
+          "checks": [["Run the benchmark with -benchmem", "0 allocations per operation", "Benchmark output"], ["Compare with benchstat", "At least 3x faster", "benchstat output"], ["Build with -gcflags=-d=ssa/check_bce", "Hot loop has no bounds checks", "Build output"]],
+          "objectives": ["Write allocation-free hot paths", "Measure with benchmarks", "Use compiler diagnostics"]
+        },
+        {
+          "topic": "Advanced Concurrency and the Go Memory Model",
+          "subtopics": ["The Go memory model", "Happens-before with channels and locks", "Atomic types", "Lock-free structures and their risks", "Semaphores with golang.org/x/sync", "singleflight", "Rate limiting with x/time/rate", "Backpressure design"],
+          "tools": ["Go 1.23", "golang.org/x/sync", "golang.org/x/time/rate"],
+          "lab_task": "Protect an expensive upstream with singleflight so 1,000 concurrent identical requests make one call, limit total concurrency with a weighted semaphore and add rate limiting.",
+          "deliverable": "Implementation, load test results and race test output",
+          "checks": [["Send 1,000 identical requests", "Upstream receives one call", "Upstream counter"], ["Exceed the concurrency limit", "Extra work waits and none is dropped", "Metrics"], ["Run with -race under load", "No races", "Test output"]],
+          "objectives": ["Apply the Go memory model", "Use advanced sync tools", "Design backpressure"]
+        },
+        {
+          "topic": "Distributed Systems Patterns in Go",
+          "subtopics": ["Timeouts, retries and back-off with jitter", "Circuit breakers", "Idempotency keys", "Outbox pattern", "Sagas", "Leader election", "Consistent hashing", "Exactly-once versus at-least-once"],
+          "tools": ["Go 1.23", "PostgreSQL", "NATS or Kafka"],
+          "lab_task": "Add an outbox table to the order service so events are never lost, idempotency keys to the API, retries with jitter and a circuit breaker around the payment call.",
+          "deliverable": "Pattern implementations and failure tests",
+          "checks": [["Kill the service between database commit and publish", "Event is still published after restart", "Logs and topic"], ["Send the same POST twice with one idempotency key", "One order created", "Database rows"], ["Make payment fail continuously", "Circuit opens and fails fast", "Metrics"]],
+          "objectives": ["Apply distributed systems patterns", "Avoid lost and duplicate work", "Fail fast under dependency failure"]
+        },
+        {
+          "topic": "Event Sourcing and CQRS in Go",
+          "subtopics": ["Events as the source of truth", "Aggregates rebuilt from events", "Event store design in PostgreSQL", "Optimistic concurrency on streams", "Projections and read models", "Rebuilding projections", "Snapshots", "Event versioning and upcasting"],
+          "tools": ["Go 1.23", "PostgreSQL", "NATS"],
+          "lab_task": "Rebuild the account service with event sourcing: store events in PostgreSQL with version checks, project balances into a read model, rebuild it from scratch and upgrade an old event version.",
+          "deliverable": "Event store, projections and tests",
+          "checks": [["Write to one stream from two writers at once", "One fails with a version conflict", "Test output"], ["Drop and rebuild the read model", "Balances match the original", "Database comparison"], ["Load an aggregate with version 1 events", "Upcast and loaded correctly", "Test output"]],
+          "objectives": ["Implement event sourcing", "Build and rebuild projections", "Evolve event schemas"]
+        },
+        {
+          "topic": "Network Programming: TCP Servers and Custom Protocols",
+          "subtopics": ["net.Listener and net.Conn", "Framing messages over TCP", "Read and write deadlines", "Handling many connections with goroutines", "Connection limits and backpressure", "UDP with net.PacketConn", "TLS with crypto/tls", "Testing network code with net.Pipe"],
+          "tools": ["Go 1.23", "netcat", "Wireshark"],
+          "lab_task": "Build a TCP key-value server with a length-prefixed protocol, deadlines, a limit of 1,000 connections and TLS, then load it with 10,000 clients and capture the traffic in Wireshark.",
+          "deliverable": "Server and client source, load test output and packet capture",
+          "checks": [["Send a partial message and stop", "Connection closed after the read deadline", "Server logs"], ["Open 1,500 connections", "Connections over the limit are refused cleanly", "Load test output"], ["Capture traffic with TLS on", "Payload is not readable", "Wireshark capture"]],
+          "objectives": ["Write TCP and UDP servers", "Design framing and deadlines", "Secure and load-test network services"]
+        },
+        {
+          "topic": "Building Reliable gRPC Platforms",
+          "subtopics": ["Service configuration and retries in gRPC", "Load balancing in gRPC clients", "Health checking protocol", "Bidirectional streaming", "Authentication with mTLS and tokens", "gRPC-Gateway for REST", "Reflection and grpcurl", "Versioning protobuf schemas with buf breaking"],
+          "tools": ["gRPC", "buf", "gRPC-Gateway", "grpcurl"],
+          "lab_task": "Expose the inventory service through gRPC-Gateway as REST, secure it with mTLS, add client-side load balancing across three instances and block a breaking schema change with buf.",
+          "deliverable": "Service configuration, certificates setup and CI check",
+          "checks": [["Kill one of three instances", "Clients keep working", "Client logs"], ["Remove a field from the proto", "buf breaking fails the build", "CI output"], ["Call without a client certificate", "Connection refused", "grpcurl output"]],
+          "objectives": ["Run gRPC in production", "Secure services with mTLS", "Evolve schemas safely"]
+        },
+        {
+          "topic": "Observability: OpenTelemetry, Metrics and Structured Logs",
+          "subtopics": ["OpenTelemetry Go SDK", "Trace context across HTTP, gRPC and messaging", "Prometheus metrics with client_golang", "RED and USE metrics", "slog with trace IDs", "Exemplars", "Continuous profiling with Pyroscope", "Service level objectives"],
+          "tools": ["OpenTelemetry", "Prometheus", "Grafana", "Pyroscope", "Jaeger"],
+          "lab_task": "Instrument the order and inventory services with OpenTelemetry, follow one order through HTTP, gRPC and NATS in Jaeger, add RED metrics and continuous profiling, and build a dashboard.",
+          "deliverable": "Instrumentation code, traces and dashboards",
+          "checks": [["Place an order", "One trace spans every hop", "Jaeger screenshot"], ["Search logs by trace ID", "All log lines for the request are found", "Log search"], ["Open the dashboard under load", "Rate, errors and duration per route", "Grafana screenshot"]],
+          "objectives": ["Instrument Go services", "Correlate traces, metrics and logs", "Monitor objectives"]
+        },
+        {
+          "topic": "Kubernetes Client Programming with client-go",
+          "subtopics": ["Kubernetes API concepts for programmers", "client-go clientsets", "Dynamic clients", "Informers and listers", "Work queues", "Patching resources", "RBAC for programs", "Testing with envtest or a fake client"],
+          "tools": ["client-go", "kind", "Kubernetes"],
+          "lab_task": "Write a Go program that watches Deployments with an informer and posts a message when a rollout fails, using a work queue, least-privilege RBAC and tests with a fake client.",
+          "deliverable": "Program source, RBAC manifests and tests",
+          "checks": [["Roll out a broken image", "Failure is detected and reported", "Program logs"], ["Remove the watch permission", "Program logs a clear forbidden error", "Program logs"], ["Run the tests", "Pass with the fake client", "Test output"]],
+          "objectives": ["Use the Kubernetes API from Go", "Watch resources efficiently", "Grant least privilege"]
+        },
+        {
+          "topic": "Writing Kubernetes Operators with Kubebuilder",
+          "subtopics": ["Custom resource definitions", "Kubebuilder project layout", "The reconcile loop", "Owner references and garbage collection", "Status and conditions", "Finalizers", "Idempotent reconciliation", "Testing controllers with envtest"],
+          "tools": ["Kubebuilder", "controller-runtime", "kind"],
+          "lab_task": "Build an operator for a Website custom resource that creates a Deployment, Service and Ingress, reports status conditions, cleans up with a finalizer and is tested with envtest.",
+          "deliverable": "Operator repository, CRD and tests",
+          "checks": [["Create a Website resource", "Deployment, Service and Ingress are created", "kubectl output"], ["Delete the Deployment by hand", "Operator recreates it", "kubectl output"], ["Delete the Website", "Finalizer runs cleanup and the resource is removed", "kubectl output"]],
+          "objectives": ["Build Kubernetes operators", "Write idempotent reconcilers", "Test controllers"]
+        },
+        {
+          "topic": "Plugin and Extensibility Patterns",
+          "subtopics": ["Interfaces as plugin contracts", "Registries with init", "Go plugins and their limits", "HashiCorp go-plugin over RPC", "WebAssembly plugins with wazero", "Versioning plugin contracts", "Sandboxing untrusted code", "Configuration-driven loading"],
+          "tools": ["go-plugin", "wazero", "Go 1.23"],
+          "lab_task": "Add a plugin system to the website monitor so new check types can be added as separate binaries over go-plugin and as WebAssembly modules, and compare the two approaches.",
+          "deliverable": "Plugin host, two example plugins and a comparison note",
+          "checks": [["Add a new check plugin without rebuilding the host", "Host loads and runs it", "Program output"], ["Make a plugin crash", "Host keeps running and reports the failure", "Program output"], ["Limit a WebAssembly plugin's memory", "Plugin is stopped at the limit", "Program output"]],
+          "objectives": ["Design extensible Go programs", "Isolate plugins", "Choose a plugin mechanism"]
+        },
+        {
+          "topic": "Secure Go Development",
+          "subtopics": ["OWASP risks in Go services", "SQL injection and templating risks", "Server-side request forgery", "Path traversal", "Cryptography with crypto packages", "Secrets handling", "gosec and govulncheck", "Supply chain: module checksums, SBOMs and signing"],
+          "tools": ["gosec", "govulncheck", "Syft", "cosign"],
+          "lab_task": "Find and fix six planted vulnerabilities including SSRF and path traversal, add gosec and govulncheck to CI, generate an SBOM and sign the release image with cosign.",
+          "deliverable": "Fixed code, scan reports, SBOM and signed image",
+          "checks": [["Request a file with ../../etc/passwd", "Rejected", "Test output"], ["Make the service fetch an internal metadata URL", "Blocked by the SSRF check", "Test output"], ["Verify the image signature with cosign", "Signature is valid", "cosign output"]],
+          "objectives": ["Write secure Go code", "Scan code and dependencies", "Secure the supply chain"]
+        },
+        {
+          "topic": "Advanced Testing: Property-Based, Contract and Chaos Tests",
+          "subtopics": ["Property-based testing with rapid", "Contract tests for HTTP and gRPC", "Deterministic tests for concurrent code", "Testing time with fake clocks", "Testing with synctest", "Fault injection with Toxiproxy", "Load testing with k6 or vegeta", "Test suites that stay fast"],
+          "tools": ["rapid", "Toxiproxy", "vegeta", "Testcontainers for Go"],
+          "lab_task": "Add property-based tests for the pricing logic, a contract test between order and inventory, fake-clock tests for expiry, and a chaos test that adds latency between services.",
+          "deliverable": "Test suites and chaos test report",
+          "checks": [["Run property tests", "Find or rule out edge cases with shrunk examples", "Test output"], ["Change the inventory response", "Contract test fails", "Test output"], ["Add 2 seconds of latency", "Order service stays within its timeout budget", "Load test report"]],
+          "objectives": ["Test beyond examples", "Test concurrency and time deterministically", "Verify behaviour under faults"]
+        },
+        {
+          "topic": "Performance at Scale: Load Testing and Capacity Planning",
+          "subtopics": ["Defining performance targets", "Load profiles and realistic traffic", "Finding the saturation point", "Connection pools and limits", "Database bottlenecks", "Horizontal scaling", "Caching layers with Redis", "Capacity planning reports"],
+          "tools": ["k6", "vegeta", "Redis", "pprof"],
+          "lab_task": "Find the saturation point of the order service, remove the top two bottlenecks with profiling and caching, and write a capacity plan for ten times the traffic.",
+          "deliverable": "Load test reports, profiles and capacity plan",
+          "checks": [["Load-test before changes", "Saturation point recorded", "Load test report"], ["Load-test after changes", "Throughput at saturation at least doubled", "Load test report"], ["Review the capacity plan", "Instance counts and limits are justified", "Capacity plan"]],
+          "objectives": ["Load-test services", "Remove bottlenecks", "Plan capacity"]
+        },
+        {
+          "topic": "Running Go Services on Kubernetes",
+          "subtopics": ["Deployments, probes and graceful shutdown", "Resource requests and GOMAXPROCS and GOMEMLIMIT", "Autoscaling on custom metrics", "Pod disruption budgets", "Rolling updates without dropped requests", "Config and secrets", "Helm charts", "Troubleshooting crash loops"],
+          "tools": ["Kubernetes", "Helm", "kind", "k6"],
+          "lab_task": "Deploy the services with Helm with probes, graceful shutdown, memory limits matched to GOMEMLIMIT and autoscaling, then run a rolling update under load with zero failed requests.",
+          "deliverable": "Helm chart, load test result and scaling graph",
+          "checks": [["Roll out a new version under load", "Zero failed requests", "k6 output"], ["Increase load", "Autoscaler adds pods", "kubectl get hpa output"], ["Set GOMEMLIMIT above the pod limit and load it", "Participant diagnoses OOMKilled and fixes it", "Pod events and fix"]],
+          "objectives": ["Deploy Go services on Kubernetes", "Size the runtime for pods", "Update without downtime"]
+        },
+        {
+          "topic": "Building CLIs and Developer Tools at Scale",
+          "subtopics": ["cobra and viper in large CLIs", "Configuration precedence", "Interactive prompts and TUIs with Bubble Tea", "Shell completion", "Self-update", "Plugin subcommands", "Distributing through Homebrew and package managers", "Telemetry with consent"],
+          "tools": ["cobra", "viper", "Bubble Tea", "GoReleaser"],
+          "lab_task": "Turn the todo CLI into a team tool with config precedence, shell completion, an interactive TUI mode and Homebrew distribution with GoReleaser.",
+          "deliverable": "CLI repository, release and install instructions",
+          "checks": [["Set an option in a flag, env var and config file", "Flag wins, then env, then file", "Test output"], ["Press Tab after the command name", "Shell completion lists subcommands", "Terminal recording"], ["Install with brew from the tap", "CLI installs and runs", "Terminal output"]],
+          "objectives": ["Build professional CLIs", "Distribute binaries", "Design configuration precedence"]
+        },
+        {
+          "topic": "Generating Code and Static Analysis Tools",
+          "subtopics": ["go generate", "text/template for code generation", "Parsing Go code with go/ast", "Type information with go/types", "Writing analyzers with go/analysis", "Running custom analyzers in golangci-lint", "Code generation versus generics", "Keeping generated code reviewed"],
+          "tools": ["go/analysis", "go/ast", "golangci-lint"],
+          "lab_task": "Write an analyzer that reports context.Context parameters that are not first, run it with golangci-lint, and generate typed enum String methods with go generate.",
+          "deliverable": "Analyzer, generator and test output",
+          "checks": [["Run the analyzer on the sample code", "Reports each misplaced context", "Analyzer output"], ["Run go generate after adding an enum value", "String method updates", "Git diff"], ["Run analysistest", "All test cases pass", "Test output"]],
+          "objectives": ["Generate code", "Analyse Go code programmatically", "Enforce team rules with tools"]
+        },
+        {
+          "topic": "Production Troubleshooting for Go Services",
+          "subtopics": ["Reading goroutine dumps", "Diagnosing goroutine leaks", "Diagnosing high latency", "Diagnosing memory growth", "Deadlocks and lock contention", "Debugging in containers with Delve and ephemeral containers", "Core dumps", "Runbooks and post-incident reviews"],
+          "tools": ["pprof", "Delve", "Kubernetes", "Grafana"],
+          "lab_task": "Work through three injected incidents (a goroutine leak, lock contention and memory growth), restore service, find the root causes with profiles and write runbooks.",
+          "deliverable": "Incident timelines, fixes and runbooks",
+          "checks": [["Find the goroutine leak", "Leaking goroutine and code line identified", "Goroutine profile"], ["Remove the lock contention", "p99 latency returns to normal", "Metrics"], ["Write a runbook for memory growth", "Another participant can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot Go in production", "Find root causes with profiles", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Cloud-Native Go Platform",
+          "subtopics": ["Architecture and service boundaries", "Services, messaging and reliability patterns", "Kubernetes operator", "Observability and performance", "Security and supply chain", "Load test, demo and design defence"],
+          "tools": ["Go 1.23", "gRPC", "NATS or Kafka", "Kubebuilder", "OpenTelemetry", "Kubernetes", "GitHub Actions"],
+          "lab_task": "Deliver a multi-service Go platform with gRPC and events, an outbox, an operator that manages tenant environments, tracing, profiling, signed images and a capacity-tested Kubernetes deployment, then present it.",
+          "deliverable": "Repositories, operator, dashboards, load test report and a 20-minute demo",
+          "checks": [["Kill a service during a load test", "No orders are lost and the system recovers", "Load test report and database"], ["Create a tenant resource", "Operator provisions the environment", "kubectl output"], ["Follow one request in the tracing tool", "Complete trace across services", "Trace screenshot"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove reliability under failure", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

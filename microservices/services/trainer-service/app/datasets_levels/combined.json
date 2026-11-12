@@ -822,6 +822,400 @@
           "Automate releases from commits"
         ]
       }
+    },
+    {
+      "between": [
+        "Python",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Python with SQL Databases: Parameterised Queries, pandas and SQLAlchemy Core",
+        "subtopics": [
+          "Connecting with psycopg and connection strings from the environment",
+          "Parameterised queries and SQL injection",
+          "Fetching rows as dictionaries",
+          "Transactions and context managers",
+          "Bulk loading with COPY from Python",
+          "Reading query results into pandas with read_sql",
+          "SQLAlchemy Core for composable queries",
+          "Testing database code against a container"
+        ],
+        "tools": [
+          "Python",
+          "psycopg",
+          "pandas",
+          "SQLAlchemy",
+          "PostgreSQL"
+        ],
+        "lab_task": "Write a Python script that loads a CSV of orders into PostgreSQL with COPY, runs parameterised report queries, loads the results into pandas for a chart and is tested against a database container.",
+        "deliverable": "Script, report chart and passing tests",
+        "checks": [
+          [
+            "Pass a customer name containing a quote and OR 1=1",
+            "Treated as text and returns no extra rows",
+            "Test output"
+          ],
+          [
+            "Load 100,000 rows with COPY and with single inserts",
+            "COPY is at least ten times faster",
+            "Timing output"
+          ],
+          [
+            "Fail halfway through the load",
+            "Transaction rolls back and the table is unchanged",
+            "Row counts"
+          ]
+        ],
+        "objectives": [
+          "Use SQL databases safely from Python",
+          "Move data efficiently between Python and SQL",
+          "Test database code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Java",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Java with SQL: JDBC Transactions, Batching and Reading Plans from the Application",
+        "subtopics": [
+          "PreparedStatement and parameter binding",
+          "Mapping rows to records",
+          "Transactions with commit and rollback",
+          "Batch inserts and rewriteBatchedStatements",
+          "Connection pool sizing with HikariCP",
+          "Logging SQL with timings",
+          "Running EXPLAIN for queries the application sends",
+          "Fixing a slow query found in the application log"
+        ],
+        "tools": [
+          "Java",
+          "JDBC",
+          "HikariCP",
+          "PostgreSQL"
+        ],
+        "lab_task": "Add an order import to a Java service with batched JDBC inserts in one transaction, log every SQL statement with its time, find the slowest report query and fix it with an index chosen from its plan.",
+        "deliverable": "Import code, SQL log, plans before and after and timings",
+        "checks": [
+          [
+            "Import 50,000 orders with batching",
+            "Finishes at least five times faster than row by row",
+            "Timing output"
+          ],
+          [
+            "Throw an exception after half the rows",
+            "No rows remain after rollback",
+            "Row counts"
+          ],
+          [
+            "Add the chosen index",
+            "Slow report query plan changes to an index scan",
+            "EXPLAIN output"
+          ]
+        ],
+        "objectives": [
+          "Use JDBC transactions and batching",
+          "Find slow SQL from the application",
+          "Tune queries the application sends"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Go",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Go with SQL: pgx, sqlc and Connection Pool Tuning",
+        "subtopics": [
+          "pgxpool configuration",
+          "Context timeouts on queries",
+          "sqlc-generated type-safe queries",
+          "Transactions with BeginTx",
+          "Batch queries and COPY with pgx",
+          "Handling NULL with pgtype",
+          "Pool metrics and saturation",
+          "Finding slow queries with pg_stat_statements"
+        ],
+        "tools": [
+          "Go",
+          "pgx",
+          "sqlc",
+          "PostgreSQL"
+        ],
+        "lab_task": "Build a Go report service that runs sqlc-generated queries through a tuned pgx pool with per-query timeouts, bulk-loads data with COPY and exposes pool metrics, then fix the slowest query.",
+        "deliverable": "Service code, pool metrics and query timings",
+        "checks": [
+          [
+            "Run 500 concurrent requests with a pool of 20",
+            "No connection errors and pool wait time reported",
+            "Metrics output"
+          ],
+          [
+            "Run a query longer than its context timeout",
+            "Cancelled on the server as well as the client",
+            "pg_stat_activity and logs"
+          ],
+          [
+            "Bulk-load 100,000 rows with CopyFrom",
+            "Completes in a few seconds",
+            "Timing output"
+          ]
+        ],
+        "objectives": [
+          "Use pgx and sqlc in Go services",
+          "Tune connection pools",
+          "Cancel queries with context"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TypeScript",
+        "SQL"
+      ],
+      "day": {
+        "topic": "TypeScript with SQL: Type-Safe Queries with Kysely and Migrations",
+        "subtopics": [
+          "Kysely query builder and generated database types",
+          "Raw SQL with the sql template tag",
+          "Parameter binding and injection safety",
+          "Transactions in Kysely",
+          "Migrations with Kysely or node-pg-migrate",
+          "Typing JSON columns",
+          "Mapping NULL to undefined carefully",
+          "Testing queries against a container"
+        ],
+        "tools": [
+          "TypeScript",
+          "Kysely",
+          "node-postgres",
+          "PostgreSQL"
+        ],
+        "lab_task": "Generate database types from the sales schema, write the main report queries in Kysely, add a migration that adds a column and show that queries using a renamed column fail to compile.",
+        "deliverable": "Typed query module, migration and tests",
+        "checks": [
+          [
+            "Rename a column and regenerate types",
+            "Queries using the old name fail to compile",
+            "Compiler output"
+          ],
+          [
+            "Pass an injection string as a parameter",
+            "Stored and compared as text",
+            "Test output"
+          ],
+          [
+            "Roll back a failed transaction",
+            "No partial rows remain",
+            "Row counts"
+          ]
+        ],
+        "objectives": [
+          "Write type-safe SQL in TypeScript",
+          "Manage schema changes with migrations",
+          "Keep queries in step with the schema"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Java",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Java on AWS: SDK for Java 2.x, Lambda and SnapStart",
+        "subtopics": [
+          "AWS SDK for Java 2.x clients and credentials",
+          "Async clients and the CRT HTTP client",
+          "Paginators and waiters",
+          "Writing Lambda handlers in Java",
+          "Cold starts and SnapStart",
+          "Packaging with Maven",
+          "Testing with LocalStack",
+          "IAM roles for Java services"
+        ],
+        "tools": [
+          "Java",
+          "AWS SDK for Java 2.x",
+          "AWS Lambda",
+          "LocalStack"
+        ],
+        "lab_task": "Write a Java Lambda that processes S3 uploads and writes to DynamoDB with the SDK 2.x, test it against LocalStack, then measure cold starts with and without SnapStart.",
+        "deliverable": "Function code, tests and cold start comparison",
+        "checks": [
+          [
+            "Upload a file to the input bucket",
+            "A DynamoDB item is written",
+            "DynamoDB item"
+          ],
+          [
+            "Compare cold starts with SnapStart on and off",
+            "SnapStart cold start is clearly shorter",
+            "CloudWatch durations"
+          ],
+          [
+            "Run the tests with no internet",
+            "Pass against LocalStack",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Use AWS from Java with SDK 2.x",
+          "Build and tune Java Lambda functions",
+          "Test AWS code locally"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TypeScript",
+        "AWS"
+      ],
+      "day": {
+        "topic": "TypeScript on AWS: Lambda Functions and Infrastructure with AWS CDK",
+        "subtopics": [
+          "AWS SDK for JavaScript v3 with types",
+          "Typed Lambda handlers with aws-lambda types",
+          "Bundling functions with esbuild",
+          "AWS CDK in TypeScript",
+          "Constructs, stacks and props",
+          "Least-privilege grants in CDK",
+          "Testing CDK stacks with assertions",
+          "Deploying and destroying stacks"
+        ],
+        "tools": [
+          "TypeScript",
+          "AWS CDK",
+          "AWS Lambda",
+          "API Gateway",
+          "DynamoDB"
+        ],
+        "lab_task": "Build a typed API with API Gateway, Lambda and DynamoDB entirely in TypeScript with AWS CDK, add CDK assertion tests for the IAM grants and deploy and destroy it.",
+        "deliverable": "CDK app, Lambda code, tests and deployed endpoint output",
+        "checks": [
+          [
+            "Run cdk synth with the assertion tests",
+            "Tests confirm the function can only read and write its own table",
+            "Test output"
+          ],
+          [
+            "Call the deployed endpoint",
+            "Returns the stored item",
+            "curl output"
+          ],
+          [
+            "Run cdk destroy",
+            "Every resource is removed",
+            "CloudFormation console"
+          ]
+        ],
+        "objectives": [
+          "Write typed Lambda functions",
+          "Define AWS infrastructure in TypeScript with CDK",
+          "Test infrastructure code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SQL",
+        "AWS"
+      ],
+      "day": {
+        "topic": "SQL on AWS: RDS, Aurora and Athena",
+        "subtopics": [
+          "Choosing RDS, Aurora or a self-managed database",
+          "Parameter groups and instance sizing",
+          "Read replicas and Aurora endpoints",
+          "Automated backups and point-in-time restore",
+          "Performance Insights",
+          "Querying S3 data with Athena",
+          "Partitioned tables in Athena",
+          "Cost of scanned data"
+        ],
+        "tools": [
+          "Amazon RDS",
+          "Amazon Aurora",
+          "Amazon Athena",
+          "Performance Insights"
+        ],
+        "lab_task": "Create an Aurora PostgreSQL cluster with a reader, restore it to a point in time, find the top query in Performance Insights, and query partitioned order files in S3 with Athena.",
+        "deliverable": "Cluster configuration, restore record, Performance Insights screenshot and Athena queries",
+        "checks": [
+          [
+            "Send a read query to the reader endpoint",
+            "Served by the replica",
+            "Query output with instance name"
+          ],
+          [
+            "Restore to five minutes before a deleted row",
+            "Row is present in the restored cluster",
+            "Query result"
+          ],
+          [
+            "Query one partition in Athena",
+            "Scanned bytes are a small fraction of the full table",
+            "Athena query statistics"
+          ]
+        ],
+        "objectives": [
+          "Run SQL databases on AWS",
+          "Recover and tune managed databases",
+          "Query data in S3 with SQL"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SQL",
+        "Azure"
+      ],
+      "day": {
+        "topic": "SQL on Azure: Azure SQL Database and Azure Database for PostgreSQL",
+        "subtopics": [
+          "Azure SQL Database purchasing models",
+          "Azure Database for PostgreSQL flexible server",
+          "Entra ID authentication for databases",
+          "Firewall rules and private endpoints",
+          "Geo-replication and failover groups",
+          "Automatic tuning and Query Store",
+          "Point-in-time restore",
+          "T-SQL differences from PostgreSQL"
+        ],
+        "tools": [
+          "Azure SQL Database",
+          "Azure Database for PostgreSQL",
+          "Query Store",
+          "Azure CLI"
+        ],
+        "lab_task": "Create an Azure SQL Database with Entra ID sign-in and a private endpoint, set up a failover group, find a regressed query in Query Store and force the good plan.",
+        "deliverable": "Configuration, failover test record and Query Store screenshots",
+        "checks": [
+          [
+            "Connect from the public internet",
+            "Connection is refused",
+            "Client error"
+          ],
+          [
+            "Fail over the group",
+            "Application reconnects through the listener",
+            "Application logs"
+          ],
+          [
+            "Force the earlier plan in Query Store",
+            "Query time returns to normal",
+            "Query Store report"
+          ]
+        ],
+        "objectives": [
+          "Run SQL databases on Azure",
+          "Secure and fail over managed databases",
+          "Fix plan regressions with Query Store"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -1321,6 +1715,149 @@
           "Deliver software through a complete DevOps toolchain",
           "Combine source control, CI, infrastructure and deployment",
           "Demonstrate safe releases and recovery"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Python",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python Data Service on a SQL Database",
+        "subtopics": [
+          "Requirements and schema design",
+          "Python loading and cleaning pipeline",
+          "Reporting queries and views",
+          "API or report output",
+          "Tests and performance checks",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Python",
+          "PostgreSQL",
+          "pandas",
+          "SQLAlchemy",
+          "pytest"
+        ],
+        "lab_task": "Build a Python service that loads daily sales files into a normalised PostgreSQL schema, cleans and validates them, serves report queries through an API and has tests against a database container, then present it.",
+        "deliverable": "Repository, schema scripts, test report and a 15-minute demo",
+        "checks": [
+          [
+            "Load a file with bad rows",
+            "Bad rows are rejected with reasons and good rows load",
+            "Rejected rows table and row counts"
+          ],
+          [
+            "Call the monthly report endpoint",
+            "Totals match the SQL answer sheet",
+            "API response"
+          ],
+          [
+            "Run the tests",
+            "All pass against the database container",
+            "pytest output"
+          ]
+        ],
+        "objectives": [
+          "Combine Python and SQL in one service",
+          "Validate and report on data",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Java",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Java Service with a Tuned SQL Database",
+        "subtopics": [
+          "Requirements and schema design",
+          "Java data access and transactions",
+          "Migrations and constraints",
+          "Query tuning and indexes",
+          "Tests with a real database",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "Flyway",
+          "Testcontainers"
+        ],
+        "lab_task": "Build a Java order service on a PostgreSQL schema managed by Flyway, with transactional order placement, report queries tuned with plans and indexes and Testcontainers tests, then present it.",
+        "deliverable": "Repository, migration scripts, query plans, test report and a 15-minute demo",
+        "checks": [
+          [
+            "Place two orders for the last item at the same time",
+            "Only one succeeds",
+            "Test output and database rows"
+          ],
+          [
+            "Run the report workload",
+            "Every report under 200 ms",
+            "Timing output"
+          ],
+          [
+            "Run flyway migrate on an empty database",
+            "Schema is created in order",
+            "Flyway output"
+          ]
+        ],
+        "objectives": [
+          "Combine Java and SQL in one service",
+          "Prove correctness under concurrency",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "TypeScript",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Typed Full-Stack Application on SQL",
+        "subtopics": [
+          "Requirements and schema design",
+          "Generated database types",
+          "Typed API and queries",
+          "Migrations and constraints",
+          "Tests and performance checks",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "TypeScript",
+          "Kysely or Prisma",
+          "PostgreSQL",
+          "Vitest"
+        ],
+        "lab_task": "Build a TypeScript application whose queries are typed from a PostgreSQL schema, with migrations, constraints, an API, report queries and tests against a container, then present it.",
+        "deliverable": "Repository, migrations, test report and a 15-minute demo",
+        "checks": [
+          [
+            "Change a column type in a migration",
+            "Code that uses the column fails to compile until updated",
+            "Compiler output"
+          ],
+          [
+            "Insert data that breaks a constraint through the API",
+            "API returns a clear 400 error",
+            "API response"
+          ],
+          [
+            "Run the tests",
+            "All pass against the database container",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Combine TypeScript and SQL with end-to-end types",
+          "Protect data with constraints",
+          "Defend design decisions"
         ]
       }
     }

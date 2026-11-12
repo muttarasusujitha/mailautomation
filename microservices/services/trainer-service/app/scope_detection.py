@@ -27,6 +27,13 @@ _EXTRA_ALIASES = {
 }
 # Aliases that are ordinary words or too short to be reliable on their own.
 _IGNORED_ALIASES = {"r", "rn", "cv", "dl", "mean", "snow", "mas", "ado", "edw", "bi", "ml", "dsa", "ai", "api", "apis", "llm", "llms"}
+# Technology names that are also everyday words ("go live", "go to market"). They
+# count only when the words on both sides look like a technology list: the start or
+# end of the text, a connector, a number of days, a level word or another technology.
+_LIST_ONLY_ALIASES = {"go"}
+_LIST_WORDS = {"and", "with", "or", "plus", "using", "in", "of", "on", "for", "vs", "versus", "&", "/", "+",
+               "beginner", "basic", "intermediate", "advanced", "level", "days", "day", "training",
+               "programming", "developer", "development", "microservices", "services", "backend", "concurrency"}
 # The technologies recognised before the catalog: they are never folded into another
 # requested technology, and they are the only ones read from free-text notes.
 LEGACY_TECHNOLOGIES = ("DevOps", "AWS", "Azure", "Kubernetes", "Python", "Agentic AI")
@@ -97,6 +104,22 @@ def _catalog():
     return catalog
 
 
+@lru_cache(maxsize=1)
+def _alias_first_words():
+    return {alias.split()[0] for alias in _catalog() if alias not in _LIST_ONLY_ALIASES}
+
+
+def _listed(norm, start, end):
+    """True when a list-only alias sits in a technology list rather than a sentence."""
+    before = norm[:start].split()
+    after = norm[end:].split()
+
+    def fits(word):
+        return word is None or word in _LIST_WORDS or word.isdigit() or word in _alias_first_words()
+
+    return fits(before[-1] if before else None) and fits(after[0] if after else None)
+
+
 def _mentions(text, include_weak):
     """[(start, end, domain, alias)] for non-overlapping catalog phrases, longest first."""
     norm = _norm(text)
@@ -108,6 +131,8 @@ def _mentions(text, include_weak):
         pattern = r"(?<![a-z0-9])" + re.escape(alias) + r"(?![a-z0-9])"
         for match in re.finditer(pattern, norm):
             if any(taken[match.start():match.end()]):
+                continue
+            if alias in _LIST_ONLY_ALIASES and not _listed(norm, match.start(), match.end()):
                 continue
             for index in range(match.start(), match.end()):
                 taken[index] = True
