@@ -89,7 +89,12 @@ function RouteBoundary({ children }) {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
-  const [authReady, setAuthReady] = useState(false)
+  const [authReady, setAuthReady] = useState(() => {
+    // Keep the sign-in UI available while session restoration is checked.
+    // A slow or unreachable auth service should not leave login as a grey loader.
+    return !['/login', '/admin-login', '/trainer-login', '/client-login', '/reset-password']
+      .includes(window.location.pathname)
+  })
   useEffect(() => {
     let active = true
     const expired = () => { setIsLoggedIn(false); setUser(null) }
