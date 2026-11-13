@@ -9637,6 +9637,540 @@
           "Govern releases together"
         ]
       }
+    },
+    {
+      "between": [
+        "Playwright",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "One Test Strategy for Selenium and Playwright: Splitting Coverage Between the Tools",
+        "subtopics": [
+          "Why organisations end up with both tools",
+          "Mapping existing Selenium coverage by risk and value",
+          "Deciding which journeys stay in Selenium and which move",
+          "Shared test data and environments for both suites",
+          "One reporting view across both tools",
+          "Avoiding duplicated coverage",
+          "Skills and ownership for two tools",
+          "Reviewing the split every quarter"
+        ],
+        "tools": [
+          "Selenium WebDriver",
+          "Playwright Test",
+          "Test inventory",
+          "Allure"
+        ],
+        "lab_task": "Inventory a Selenium suite by journey and risk, decide which journeys stay and which move to Playwright, remove five duplicated checks and publish one combined Allure report for both suites.",
+        "deliverable": "Coverage split, removed duplicates and a combined report",
+        "checks": [
+          [
+            "Split coverage",
+            "Every journey is owned by exactly one tool",
+            "Coverage map"
+          ],
+          [
+            "Remove duplicates",
+            "Five duplicated checks are removed with reasons",
+            "Commit diff"
+          ],
+          [
+            "Report together",
+            "One report shows results from both suites",
+            "Allure report"
+          ]
+        ],
+        "objectives": [
+          "Plan coverage across two tools",
+          "Avoid duplicated tests",
+          "Report both suites together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Playwright",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "From Postman Collections to Playwright API Tests: Shared Requests, Data and Environments",
+        "subtopics": [
+          "What stays in Postman and what moves into the Playwright suite",
+          "Reusing collection requests as Playwright request fixtures",
+          "Shared environments and secrets for both tools",
+          "Creating UI test data through API calls",
+          "Checking UI results against API responses",
+          "Keeping OpenAPI-based contracts in one place",
+          "Running Newman and Playwright in the same pipeline",
+          "Reporting API and UI results together"
+        ],
+        "tools": [
+          "Postman",
+          "Newman",
+          "Playwright Test",
+          "GitHub Actions"
+        ],
+        "lab_task": "Turn three Postman setup requests into Playwright request fixtures, use them to prepare data for UI tests, and run Newman and Playwright in one pipeline with a combined summary.",
+        "deliverable": "Shared setup fixtures and a combined pipeline",
+        "checks": [
+          [
+            "Reuse setup",
+            "UI tests prepare data with the converted requests",
+            "Test code"
+          ],
+          [
+            "Share environments",
+            "Both tools read the same environment values from CI secrets",
+            "Pipeline config"
+          ],
+          [
+            "Report together",
+            "The pipeline summary shows Newman and Playwright results",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Combine API and UI testing tools",
+          "Share setup and environments",
+          "Run both in one pipeline"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Playwright",
+        "TypeScript"
+      ],
+      "day": {
+        "topic": "TypeScript Patterns for Playwright Frameworks: Generics, Typed Fixtures and Strict Mode",
+        "subtopics": [
+          "Strict compiler settings for test code",
+          "Typing fixtures and their options",
+          "Generics for page components and API clients",
+          "Types generated from OpenAPI for API helpers",
+          "Discriminated unions for test data builders",
+          "Avoiding any in page objects",
+          "Type checks and lint in CI",
+          "Refactoring safely with types"
+        ],
+        "tools": [
+          "TypeScript",
+          "Playwright Test",
+          "openapi-typescript",
+          "ESLint"
+        ],
+        "lab_task": "Turn on strict mode for a Playwright framework, fix the type errors, add typed fixtures and API clients generated from OpenAPI, and refactor a page component with generics.",
+        "deliverable": "Strictly typed Playwright framework",
+        "checks": [
+          [
+            "Compile strictly",
+            "The framework compiles with strict mode and no any types",
+            "tsc output"
+          ],
+          [
+            "Type the API",
+            "API helpers use generated types",
+            "Code review"
+          ],
+          [
+            "Refactor safely",
+            "A renamed field is caught by the compiler across tests",
+            "Compiler output"
+          ]
+        ],
+        "objectives": [
+          "Apply TypeScript to test frameworks",
+          "Type fixtures and APIs",
+          "Refactor tests safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Playwright",
+        "Manual Testing and ISTQB"
+      ],
+      "day": {
+        "topic": "From Manual Test Cases to Playwright Scripts: Choosing and Converting Tests",
+        "subtopics": [
+          "Which manual tests are worth automating",
+          "Rewriting steps as user-facing locators and assertions",
+          "Keeping the test design technique visible in the script",
+          "Expected results as web-first assertions",
+          "Test data from the manual case into fixtures",
+          "Traceability from test case to script",
+          "What should stay manual and exploratory",
+          "Updating the manual suite after automation"
+        ],
+        "tools": [
+          "Test management tool",
+          "Playwright Test",
+          "Traceability matrix"
+        ],
+        "lab_task": "Choose ten manual regression cases for automation by frequency and stability, convert them to Playwright tests with traceable IDs and mark the manual cases as automated.",
+        "deliverable": "Ten converted tests and an updated manual suite",
+        "checks": [
+          [
+            "Choose well",
+            "Each chosen case has a recorded reason",
+            "Selection list"
+          ],
+          [
+            "Convert",
+            "Ten Playwright tests pass and carry test case IDs",
+            "Test output"
+          ],
+          [
+            "Trace",
+            "Manual cases link to their scripts",
+            "Traceability matrix"
+          ]
+        ],
+        "objectives": [
+          "Select tests for automation",
+          "Convert manual cases to Playwright",
+          "Keep traceability"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cypress",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Postman Collections and Cypress Together: Seeded Data, Shared Environments and Contract Fixtures",
+        "subtopics": [
+          "Splitting checks between API and front-end suites",
+          "Seeding data for Cypress with Newman runs",
+          "cy.request compared with Postman for setup",
+          "Sharing environment values safely",
+          "Using Postman examples as Cypress fixtures",
+          "Keeping fixtures in step with the API contract",
+          "One pipeline for both tools",
+          "Reading failures across both suites"
+        ],
+        "tools": [
+          "Postman",
+          "Newman",
+          "Cypress",
+          "GitHub Actions"
+        ],
+        "lab_task": "Seed test data with a Newman run before Cypress specs, reuse Postman example responses as Cypress fixtures with schema checks, and run both in one pipeline.",
+        "deliverable": "Seeding step, shared fixtures and a combined pipeline",
+        "checks": [
+          [
+            "Seed data",
+            "Cypress specs start from data created by Newman",
+            "Pipeline log"
+          ],
+          [
+            "Share fixtures",
+            "Fixtures pass schema validation against the API definition",
+            "CI check"
+          ],
+          [
+            "Run together",
+            "Both suites run in one pipeline with clear results",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Combine Postman and Cypress",
+          "Share data and fixtures",
+          "Run API and UI checks together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cypress",
+        "React"
+      ],
+      "day": {
+        "topic": "Testing React Applications with Cypress: Components, Hooks and Routing",
+        "subtopics": [
+          "Mounting React components with providers",
+          "Testing hooks through components",
+          "Context, Redux or Zustand stores in tests",
+          "React Router in component and end-to-end tests",
+          "Stubbing data fetching",
+          "Testing forms built with React Hook Form",
+          "Component and end-to-end split for React apps",
+          "data-cy attributes in React components"
+        ],
+        "tools": [
+          "Cypress component testing",
+          "React",
+          "React Router",
+          "Vite"
+        ],
+        "lab_task": "Write component tests for a React form, a list fed by a store and a routed page, then add two end-to-end specs for the same features and compare what each level catches.",
+        "deliverable": "React component and end-to-end specs with a comparison",
+        "checks": [
+          [
+            "Mount with providers",
+            "Components mount with store and router providers",
+            "Test output"
+          ],
+          [
+            "Test forms",
+            "Validation and submission are checked",
+            "Spec code"
+          ],
+          [
+            "Compare levels",
+            "The comparison lists defects each level would catch",
+            "Comparison note"
+          ]
+        ],
+        "objectives": [
+          "Test React apps with Cypress",
+          "Use providers in component tests",
+          "Balance component and end-to-end tests"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cypress",
+        "Playwright"
+      ],
+      "day": {
+        "topic": "Cypress and Playwright in One Organisation: Choosing per Product and Sharing Practices",
+        "subtopics": [
+          "Strengths of each tool",
+          "Product traits that favour each tool",
+          "Shared standards for selectors, data and naming",
+          "Shared CI templates",
+          "Shared reporting and dashboards",
+          "Moving people between teams that use different tools",
+          "Avoiding tool wars",
+          "Reviewing tool choices"
+        ],
+        "tools": [
+          "Cypress",
+          "Playwright Test",
+          "CI templates",
+          "Dashboard tool"
+        ],
+        "lab_task": "Write a tool choice guide for three products, agree shared selector and data standards for both tools, and build a CI template that runs either tool with the same reporting.",
+        "deliverable": "Tool choice guide, shared standards and CI template",
+        "checks": [
+          [
+            "Choose per product",
+            "Each product has a recommended tool with reasons",
+            "Tool guide"
+          ],
+          [
+            "Share standards",
+            "Standards apply to both tools",
+            "Standards document"
+          ],
+          [
+            "Share CI",
+            "The template runs either tool and produces the same report format",
+            "Pipeline runs"
+          ]
+        ],
+        "objectives": [
+          "Run two automation tools well",
+          "Share standards",
+          "Choose tools per product"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cypress",
+        "Manual Testing and ISTQB"
+      ],
+      "day": {
+        "topic": "Exploratory Testing Alongside Cypress Regression in a Sprint",
+        "subtopics": [
+          "Splitting effort between scripted automation and exploration",
+          "Using Cypress results to guide exploratory charters",
+          "Turning exploratory findings into new specs",
+          "Risk-based choice of what to automate next",
+          "Sprint test reporting with both sources",
+          "Avoiding automation that only repeats exploration",
+          "Recording session notes next to spec results",
+          "Definition of done for tested stories"
+        ],
+        "tools": [
+          "Cypress",
+          "Exploratory charter template",
+          "Jira"
+        ],
+        "lab_task": "In a simulated sprint, run the Cypress regression suite, plan two exploratory charters from its gaps, turn one exploratory finding into a new spec and report both in the sprint review.",
+        "deliverable": "Charters, session notes, new spec and sprint test report",
+        "checks": [
+          [
+            "Guide exploration",
+            "Charters target gaps in automated coverage",
+            "Charters"
+          ],
+          [
+            "Close the loop",
+            "One finding becomes a passing spec",
+            "Spec code"
+          ],
+          [
+            "Report",
+            "The sprint report combines automated and exploratory results",
+            "Sprint report"
+          ]
+        ],
+        "objectives": [
+          "Combine exploration with automation",
+          "Feed findings into specs",
+          "Report sprint testing"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Postman API Testing",
+        "Manual Testing and ISTQB"
+      ],
+      "day": {
+        "topic": "Applying ISTQB Test Design Techniques to Postman API Tests",
+        "subtopics": [
+          "Partitions and boundaries for request parameters",
+          "Decision tables for API business rules",
+          "State transitions for resource lifecycles",
+          "Error guessing for API inputs",
+          "Coverage measures for API tests",
+          "Data files generated from test designs",
+          "Traceability from conditions to requests",
+          "Reviewing API tests as test cases"
+        ],
+        "tools": [
+          "Postman",
+          "Test design worksheet",
+          "CSV data files"
+        ],
+        "lab_task": "Design tests for an order API with partitions, boundaries, a decision table and a state model, generate a data file from the designs and run it in the Collection Runner.",
+        "deliverable": "Test designs, generated data file and run results",
+        "checks": [
+          [
+            "Design",
+            "Each technique produces documented cases",
+            "Design worksheet"
+          ],
+          [
+            "Generate data",
+            "The data file contains every designed case",
+            "Data file"
+          ],
+          [
+            "Run",
+            "All designed cases run with expected results checked",
+            "Runner results"
+          ]
+        ],
+        "objectives": [
+          "Apply test design to API tests",
+          "Generate data from designs",
+          "Measure API test coverage"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Postman API Testing",
+        "REST API Design"
+      ],
+      "day": {
+        "topic": "Testing an API Against Its Design: OpenAPI-Driven Postman Suites",
+        "subtopics": [
+          "The OpenAPI description as the test basis",
+          "Generating a collection from the description",
+          "Checking status codes and error formats against the design",
+          "Pagination, filtering and versioning rules",
+          "Testing idempotency and safe methods",
+          "Finding design gaps while testing",
+          "Feeding defects back to API designers",
+          "Keeping suite and design in step"
+        ],
+        "tools": [
+          "Postman",
+          "OpenAPI description",
+          "Spectral"
+        ],
+        "lab_task": "Generate a collection from an API's OpenAPI description, add tests for the design rules on errors, pagination and idempotency, and report every place the implementation or design is unclear.",
+        "deliverable": "Design-driven collection and a design gap report",
+        "checks": [
+          [
+            "Generate",
+            "The collection covers every operation in the description",
+            "Collection review"
+          ],
+          [
+            "Test design rules",
+            "Errors, pagination and idempotency rules have tests",
+            "Test results"
+          ],
+          [
+            "Report gaps",
+            "Design gaps and mismatches are reported to the designers",
+            "Gap report"
+          ]
+        ],
+        "objectives": [
+          "Test APIs against their design",
+          "Use OpenAPI as the test basis",
+          "Improve API designs through testing"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Manual Testing and ISTQB",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Turning ISTQB Test Designs into Selenium Data-Driven Tests",
+        "subtopics": [
+          "Test conditions and cases as the input to automation",
+          "Equivalence partitions as data rows",
+          "Boundary values in data providers",
+          "Decision table rules as parameterised tests",
+          "Expected results as assertions",
+          "Naming tests after the design technique",
+          "Coverage reporting from automated designs",
+          "Maintaining designs and scripts together"
+        ],
+        "tools": [
+          "Selenium WebDriver",
+          "TestNG DataProvider",
+          "Test design worksheet"
+        ],
+        "lab_task": "Take partition, boundary and decision table designs for a pricing form and implement them as Selenium data-driven tests with TestNG, reporting coverage by technique.",
+        "deliverable": "Data-driven Selenium tests with coverage by technique",
+        "checks": [
+          [
+            "Use designs",
+            "Every designed case is a data row",
+            "DataProvider code"
+          ],
+          [
+            "Assert results",
+            "Each row checks its designed expected result",
+            "Test output"
+          ],
+          [
+            "Report coverage",
+            "Coverage is reported by technique",
+            "Coverage report"
+          ]
+        ],
+        "objectives": [
+          "Automate designed tests",
+          "Use data providers for techniques",
+          "Report coverage from automation"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -14224,6 +14758,234 @@
           "Combine product management and Scrum",
           "Deliver from discovery to increment",
           "Update plans from feedback"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Playwright",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: API and UI Regression Suite with Postman and Playwright",
+        "subtopics": [
+          "API regression collection",
+          "Playwright UI suite",
+          "Shared setup and environments",
+          "One pipeline",
+          "Combined reporting"
+        ],
+        "tools": [
+          "Postman",
+          "Newman",
+          "Playwright Test",
+          "GitHub Actions"
+        ],
+        "lab_task": "Build an API regression collection and a Playwright UI suite for one application with shared environments and API-based setup, run both in one pipeline and publish one combined report.",
+        "deliverable": "Collection, UI suite, pipeline and combined report",
+        "checks": [
+          [
+            "Cover both layers",
+            "API and UI suites cover the agreed journeys",
+            "Coverage map"
+          ],
+          [
+            "Share setup",
+            "UI tests use API-created data",
+            "Test code"
+          ],
+          [
+            "Run together",
+            "One pipeline runs and reports both suites",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Combine API and UI automation",
+          "Share setup across tools",
+          "Report one quality picture"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Cypress",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: API and Front-End Test Suite with Postman and Cypress",
+        "subtopics": [
+          "API tests in Postman",
+          "Cypress component and end-to-end specs",
+          "Seeded data",
+          "Contract-checked fixtures",
+          "One pipeline with reports"
+        ],
+        "tools": [
+          "Postman",
+          "Newman",
+          "Cypress",
+          "GitHub Actions"
+        ],
+        "lab_task": "Build Postman API tests and a Cypress suite for one product, seed data with Newman, check fixtures against the API contract and run everything in one pipeline.",
+        "deliverable": "API tests, Cypress suite and pipeline",
+        "checks": [
+          [
+            "Test the API",
+            "API tests pass with contract checks",
+            "Newman report"
+          ],
+          [
+            "Test the front end",
+            "Component and end-to-end specs pass",
+            "Cypress results"
+          ],
+          [
+            "Run together",
+            "The pipeline runs both with clear results",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Combine Postman and Cypress",
+          "Keep fixtures aligned with contracts",
+          "Automate the full stack"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Manual Testing and ISTQB",
+        "Playwright"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Manual and Automated Test Cycle with Playwright",
+        "subtopics": [
+          "Risk-based test plan",
+          "Manual and exploratory testing",
+          "Playwright regression",
+          "Defect reports",
+          "Completion report"
+        ],
+        "tools": [
+          "Test management tool",
+          "Playwright Test",
+          "Jira"
+        ],
+        "lab_task": "Run a full test cycle for a release with a risk-based plan, manual and exploratory testing of new features, a Playwright regression run and a completion report that combines both.",
+        "deliverable": "Test plan, results, defects and completion report",
+        "checks": [
+          [
+            "Plan by risk",
+            "Manual and automated effort follow the risk analysis",
+            "Test plan"
+          ],
+          [
+            "Execute both",
+            "Manual results and Playwright results are recorded",
+            "Execution reports"
+          ],
+          [
+            "Report",
+            "The completion report states residual risk",
+            "Completion report"
+          ]
+        ],
+        "objectives": [
+          "Combine manual testing and Playwright",
+          "Run a full test cycle",
+          "Report residual risk"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Manual Testing and ISTQB",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Release Test Campaign with Manual and API Testing",
+        "subtopics": [
+          "Test basis analysis",
+          "Manual UI testing",
+          "Postman API testing",
+          "Defect triage",
+          "Release recommendation"
+        ],
+        "tools": [
+          "Test management tool",
+          "Postman",
+          "Jira"
+        ],
+        "lab_task": "Test a release by analysing its requirements, testing the UI by hand and the APIs with Postman using designed test data, triaging the defects and presenting a release recommendation.",
+        "deliverable": "Test designs, results, triage log and recommendation",
+        "checks": [
+          [
+            "Design",
+            "UI and API tests trace to requirements",
+            "Traceability matrix"
+          ],
+          [
+            "Triage",
+            "Defects have severity, priority and owners",
+            "Triage log"
+          ],
+          [
+            "Recommend",
+            "The recommendation is supported by results",
+            "Recommendation"
+          ]
+        ],
+        "objectives": [
+          "Combine manual and API testing",
+          "Triage defects",
+          "Recommend release decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Manual Testing and ISTQB",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Designed Test Suite with Selenium Data-Driven Automation",
+        "subtopics": [
+          "Requirements analysis",
+          "Test design with techniques",
+          "Selenium data-driven implementation",
+          "Manual testing of the rest",
+          "Coverage and completion reports"
+        ],
+        "tools": [
+          "Test design worksheet",
+          "Selenium WebDriver",
+          "TestNG",
+          "Test management tool"
+        ],
+        "lab_task": "Analyse a feature's requirements, design tests with three techniques, automate the stable designs with Selenium data providers, test the rest by hand and report coverage and results.",
+        "deliverable": "Designs, Selenium tests, manual results and reports",
+        "checks": [
+          [
+            "Design",
+            "Three techniques are used with documented cases",
+            "Design worksheet"
+          ],
+          [
+            "Automate",
+            "Stable designs run as data-driven Selenium tests",
+            "Test output"
+          ],
+          [
+            "Report",
+            "Coverage and results combine manual and automated work",
+            "Completion report"
+          ]
+        ],
+        "objectives": [
+          "Combine test design and Selenium",
+          "Automate designed tests",
+          "Report combined coverage"
         ]
       }
     }
