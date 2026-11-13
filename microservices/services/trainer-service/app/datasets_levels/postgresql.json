@@ -1,0 +1,573 @@
+{
+  "domain": "PostgreSQL",
+  "name": "PostgreSQL",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Postgres", "PostgreSQL Database", "PostgreSQL DBA", "PostgreSQL Administration", "PostgreSQL Developer", "PostgreSQL Training", "Postgres DBA", "PostgreSQL Performance Tuning", "PL/pgSQL"],
+  "certifications": ["EDB PostgreSQL Associate", "EDB PostgreSQL Professional", "AWS Certified Database - Specialty (retired; content still useful for RDS and Aurora)"],
+  "tools": ["PostgreSQL 17", "psql", "pgAdmin", "DBeaver", "pgBackRest", "PgBouncer", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and junior DBAs new to PostgreSQL. Covers installing and connecting, databases and schemas, data types, constraints, writing and querying data, joins, aggregation, CTEs, views, indexes, transactions, roles and privileges, functions in SQL and PL/pgSQL, JSONB, dates and time zones, loading data with COPY, backups with pg_dump and connecting from application code.",
+      "prerequisites": ["Comfortable using a terminal", "Knows what tables, rows and columns are", "No previous PostgreSQL experience needed"],
+      "outcomes": ["Install PostgreSQL and work confidently in psql and pgAdmin", "Design tables with correct types and constraints", "Write queries with joins, aggregates, CTEs and JSONB", "Secure access with roles, take backups and connect from an application"],
+      "days": [
+        {
+          "topic": "PostgreSQL Overview, Installation and Setup",
+          "subtopics": ["What PostgreSQL is and where it is used", "Open source licence and release cycle", "Client-server architecture: postmaster and backend processes", "Clusters, databases and schemas", "Installing on Linux, Windows and with Docker", "The data directory and main configuration files", "Starting, stopping and checking the server", "Connecting with psql", "Connecting with pgAdmin and DBeaver", "The course sample database"],
+          "tools": ["PostgreSQL 17", "Docker", "psql", "pgAdmin"],
+          "lab_task": "Install PostgreSQL with Docker and natively, connect with psql and pgAdmin, load the course sample database and find the data directory, version and running processes.",
+          "deliverable": "Install notes, connection screenshots and a short description of the processes found",
+          "checks": [["Run SELECT version()", "PostgreSQL 17 reported", "psql output"], ["Run \\l in psql", "Sample database listed", "psql output"], ["List server processes", "Postmaster and background workers identified", "ps output and note"]],
+          "objectives": ["Install PostgreSQL", "Connect with common clients", "Describe the server architecture"]
+        },
+        {
+          "topic": "Databases, Schemas and Tables",
+          "subtopics": ["Creating and dropping databases", "Templates and encodings", "Schemas and the search_path", "CREATE TABLE and naming conventions", "Identity columns versus serial", "ALTER TABLE: add, rename and drop columns", "Temporary and unlogged tables", "Comments on objects"],
+          "tools": ["psql", "pgAdmin"],
+          "lab_task": "Create a library database with app and reporting schemas, create books, members and loans tables with identity keys, then alter them as requirements change and add comments.",
+          "deliverable": "DDL script and schema description",
+          "checks": [["Run \\dn", "Both schemas listed", "psql output"], ["Insert without an ID", "Identity value generated", "Query result"], ["Show the search_path effect", "Unqualified name resolves to the expected schema", "psql output"]],
+          "objectives": ["Create databases and schemas", "Create and change tables", "Use the search path"]
+        },
+        {
+          "topic": "PostgreSQL Data Types",
+          "subtopics": ["Integer, numeric and floating point types", "text, varchar and char", "boolean", "date, time, timestamp and timestamptz", "UUID", "Arrays", "Enumerated types", "Choosing types for storage and correctness"],
+          "tools": ["psql"],
+          "lab_task": "Store prices as numeric and float, compare rounding results, store events as timestamp and timestamptz across time zones, and add a UUID column and an array of tags to books.",
+          "deliverable": "Script with results and a type choice note",
+          "checks": [["Sum 0.1 ten times in float and numeric", "Float shows rounding error and numeric does not", "Query result"], ["Read a timestamptz in two time zones", "Same instant shown in local times", "Query result"], ["Query books by tag", "Array containment returns the right books", "Query result"]],
+          "objectives": ["Choose data types", "Avoid rounding and time zone errors", "Use arrays and UUIDs"]
+        },
+        {
+          "topic": "Constraints and Keys",
+          "subtopics": ["Primary keys", "Foreign keys and ON DELETE actions", "UNIQUE constraints", "NOT NULL and DEFAULT", "CHECK constraints", "Exclusion constraints in brief", "Deferrable constraints", "Naming constraints"],
+          "tools": ["psql"],
+          "lab_task": "Add primary keys, foreign keys with sensible delete rules, a unique email, a check that loan return dates follow loan dates and an exclusion constraint that stops a room being double-booked.",
+          "deliverable": "Constraint script and test results",
+          "checks": [["Insert a duplicate email", "Rejected by the unique constraint", "Error output"], ["Return a book before it was borrowed", "Rejected by the check constraint", "Error output"], ["Book an overlapping room slot", "Rejected by the exclusion constraint", "Error output"]],
+          "objectives": ["Protect data with constraints", "Choose delete rules", "Name constraints clearly"]
+        },
+        {
+          "topic": "Inserting, Updating and Deleting Data",
+          "subtopics": ["INSERT with several rows", "INSERT ... SELECT", "RETURNING clauses", "UPDATE with joins using FROM", "DELETE with USING", "Upserts with ON CONFLICT", "TRUNCATE", "Safe changes with transactions"],
+          "tools": ["psql"],
+          "lab_task": "Load members, update overdue loans with a join, upsert a book feed with ON CONFLICT, delete expired members with USING and return changed rows each time.",
+          "deliverable": "DML script and output",
+          "checks": [["Run the upsert twice", "No duplicates and values updated", "Query result"], ["Use RETURNING", "Changed rows shown", "psql output"], ["Run an UPDATE inside BEGIN and ROLLBACK", "Data unchanged afterwards", "Query result"]],
+          "objectives": ["Change data safely", "Use upserts", "Return changed rows"]
+        },
+        {
+          "topic": "Querying: Filtering, Sorting and Pattern Matching",
+          "subtopics": ["SELECT and expressions", "WHERE and operator precedence", "NULL handling and COALESCE", "LIKE, ILIKE and regular expressions", "ORDER BY with NULLS FIRST and LAST", "LIMIT, OFFSET and FETCH", "DISTINCT and DISTINCT ON", "CASE expressions"],
+          "tools": ["psql"],
+          "lab_task": "Answer ten questions about the library, including case-insensitive title search, latest loan per member with DISTINCT ON and labelling members by activity with CASE.",
+          "deliverable": "Query file and results",
+          "checks": [["Search for \"harry\" with ILIKE", "Titles matched regardless of case", "Query result"], ["Use DISTINCT ON", "One latest loan per member", "Query result"], ["Sort with NULLS LAST", "Rows without dates at the end", "Query result"]],
+          "objectives": ["Filter and sort rows", "Handle NULLs", "Use PostgreSQL-specific query features"]
+        },
+        {
+          "topic": "Joins in PostgreSQL",
+          "subtopics": ["Inner joins", "Left, right and full joins", "Self joins", "Cross joins and generate_series", "LATERAL joins", "Anti-joins with NOT EXISTS", "Join order and readability", "Checking row counts after joins"],
+          "tools": ["psql"],
+          "lab_task": "Report loans with member and book details, list books never borrowed with NOT EXISTS, fill in missing dates with generate_series and get the top three loans per member with LATERAL.",
+          "deliverable": "Query file and results",
+          "checks": [["List never-borrowed books", "Correct books returned", "Query result"], ["Use generate_series for a calendar", "Every day present, including days with no loans", "Query result"], ["Use LATERAL", "Up to three loans per member", "Query result"]],
+          "objectives": ["Join tables", "Use LATERAL and anti-joins", "Generate series"]
+        },
+        {
+          "topic": "Aggregation, Grouping and Window Functions",
+          "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "GROUP BY and HAVING", "FILTER clauses on aggregates", "GROUPING SETS, ROLLUP and CUBE", "string_agg and array_agg", "Window functions: ROW_NUMBER, RANK and running totals", "LAG and LEAD", "Percentiles with percentile_cont"],
+          "tools": ["psql"],
+          "lab_task": "Build monthly loan statistics with FILTER for overdue loans, subtotals with ROLLUP, running totals and month-over-month change with windows, and median loan length.",
+          "deliverable": "Query file and results",
+          "checks": [["Use FILTER", "Overdue and total counts in one query", "Query result"], ["Use ROLLUP", "Subtotals and grand total rows present", "Query result"], ["Calculate the median", "Value from percentile_cont matches a manual check", "Query result"]],
+          "objectives": ["Aggregate data", "Use windows", "Produce subtotals"]
+        },
+        {
+          "topic": "Subqueries and Common Table Expressions",
+          "subtopics": ["Scalar, row and table subqueries", "IN, ANY and EXISTS", "WITH queries", "Several CTEs in one query", "Recursive CTEs for hierarchies", "Data-modifying CTEs", "MATERIALIZED and NOT MATERIALIZED", "Readable query structure"],
+          "tools": ["psql"],
+          "lab_task": "Write a report as a chain of CTEs, walk a category hierarchy with a recursive CTE and archive old loans in one statement with a data-modifying CTE.",
+          "deliverable": "Query file and results",
+          "checks": [["Walk the category tree", "All levels returned with depth", "Query result"], ["Archive with a data-modifying CTE", "Rows moved in one statement", "Row counts"], ["Review the CTE chain", "Each CTE does one named step", "Query file"]],
+          "objectives": ["Use subqueries", "Write recursive CTEs", "Change data with CTEs"]
+        },
+        {
+          "topic": "Views and Materialised Views",
+          "subtopics": ["Creating views", "Updatable views", "WITH CHECK OPTION", "Security barrier views", "Materialised views", "Refreshing concurrently", "Indexes on materialised views", "When to use each"],
+          "tools": ["psql"],
+          "lab_task": "Create a view of active loans, make an updatable view with CHECK OPTION, build a materialised view of monthly statistics and refresh it concurrently while it is being queried.",
+          "deliverable": "View definitions and test results",
+          "checks": [["Insert through the view outside its condition", "Rejected by CHECK OPTION", "Error output"], ["Refresh concurrently during queries", "Queries keep working", "psql sessions"], ["Query the materialised view", "Faster than the base query", "Timing output"]],
+          "objectives": ["Create views", "Use materialised views", "Choose between them"]
+        },
+        {
+          "topic": "Indexes and Query Speed",
+          "subtopics": ["How a B-tree index works", "Creating and dropping indexes", "Multi-column indexes and column order", "Unique indexes", "Indexes for foreign keys", "Reading EXPLAIN output", "Sequential and index scans", "Costs of too many indexes"],
+          "tools": ["psql", "EXPLAIN"],
+          "lab_task": "Load a million loans, time three slow queries, read their plans, add the right indexes and show the plans and times afterwards.",
+          "deliverable": "Before and after plans and timings",
+          "checks": [["Run EXPLAIN before the index", "Sequential scan shown", "EXPLAIN output"], ["Run EXPLAIN after the index", "Index scan used", "EXPLAIN output"], ["Compare times", "Query time lower after indexing", "Timing table"]],
+          "objectives": ["Create indexes", "Read query plans", "Balance index cost"]
+        },
+        {
+          "topic": "Transactions and Concurrency",
+          "subtopics": ["ACID in PostgreSQL", "BEGIN, COMMIT and ROLLBACK", "Savepoints", "MVCC in simple terms", "Row locks and SELECT FOR UPDATE", "Default isolation level", "Deadlocks", "Keeping transactions short"],
+          "tools": ["psql"],
+          "lab_task": "Run two psql sessions to see uncommitted changes stay invisible, use a savepoint to recover from an error, reserve a book with SELECT FOR UPDATE and create and read a deadlock error.",
+          "deliverable": "Session transcripts and notes",
+          "checks": [["Read from session two before commit", "Change not visible", "Session transcript"], ["Roll back to a savepoint", "Earlier work kept", "Query result"], ["Cause a deadlock", "One transaction aborted with a deadlock error", "Error output"]],
+          "objectives": ["Use transactions", "Control concurrent access", "Recognise deadlocks"]
+        },
+        {
+          "topic": "Roles, Users and Privileges",
+          "subtopics": ["Roles, users and groups", "Login and superuser attributes", "GRANT and REVOKE", "Schema and default privileges", "Predefined roles such as pg_read_all_data", "Ownership of objects", "pg_hba.conf authentication rules", "SCRAM password authentication"],
+          "tools": ["psql", "pg_hba.conf"],
+          "lab_task": "Create an application role with read-write access to the app schema, a read-only reporting role, default privileges for new tables and a pg_hba.conf rule allowing only SCRAM logins from the app subnet.",
+          "deliverable": "Role script, pg_hba.conf extract and access tests",
+          "checks": [["Insert as the reporting role", "Permission denied", "Error output"], ["Create a new table and read it as reporting", "Default privileges allow the read", "Query result"], ["Log in with the wrong method", "Connection refused by pg_hba.conf", "Connection error"]],
+          "objectives": ["Create roles", "Grant least privilege", "Configure authentication"]
+        },
+        {
+          "topic": "Functions and Procedures in SQL and PL/pgSQL",
+          "subtopics": ["SQL functions", "PL/pgSQL blocks, declarations and control flow", "Parameters and return types", "Returning sets and tables", "Procedures and CALL", "Error handling with EXCEPTION", "Volatility: IMMUTABLE, STABLE and VOLATILE", "Security definer functions and their risks"],
+          "tools": ["psql", "PL/pgSQL"],
+          "lab_task": "Write a function that calculates fines, a set-returning function for a member's history and a procedure that closes a month's loans with error handling.",
+          "deliverable": "Function and procedure code and tests",
+          "checks": [["Call the fine function for three cases", "Correct fines returned", "Query result"], ["Call the procedure with bad data", "Error caught and a clear message raised", "psql output"], ["Review volatility", "Each function marked correctly", "Code review"]],
+          "objectives": ["Write SQL and PL/pgSQL functions", "Write procedures", "Handle errors"]
+        },
+        {
+          "topic": "Triggers and Audit Tables",
+          "subtopics": ["Row and statement triggers", "BEFORE and AFTER triggers", "NEW and OLD records", "Trigger functions", "Keeping updated_at columns current", "Writing audit rows", "Trigger order", "Problems caused by too many triggers"],
+          "tools": ["psql", "PL/pgSQL"],
+          "lab_task": "Add a trigger that sets updated_at, an audit trigger that stores old and new rows as JSONB for loans and a check that blocks deleting members with open loans.",
+          "deliverable": "Trigger code and audit table output",
+          "checks": [["Update a loan", "updated_at changes and an audit row is written", "Query result"], ["Delete a member with open loans", "Blocked with a clear error", "Error output"], ["Review the audit row", "Old and new values both stored", "Query result"]],
+          "objectives": ["Write triggers", "Audit changes", "Avoid trigger pitfalls"]
+        },
+        {
+          "topic": "JSON and JSONB in PostgreSQL",
+          "subtopics": ["json versus jsonb", "Operators: ->, ->> and #>", "Containment and existence", "jsonb_build_object and jsonb_agg", "Updating JSONB with jsonb_set", "SQL/JSON path queries", "GIN indexes for JSONB", "When to use columns instead of JSON"],
+          "tools": ["psql"],
+          "lab_task": "Store book metadata from an API as JSONB, query nested fields, update a value, build JSON responses with jsonb_agg and index containment queries with GIN.",
+          "deliverable": "Queries, index and timing results",
+          "checks": [["Query a nested field", "Correct values returned", "Query result"], ["Add a GIN index", "Containment query uses the index", "EXPLAIN output"], ["Build a JSON response", "Valid nested JSON produced", "Query result"]],
+          "objectives": ["Store and query JSONB", "Index JSON", "Decide when to use JSON"]
+        },
+        {
+          "topic": "Loading and Exporting Data with COPY",
+          "subtopics": ["COPY and \\copy", "CSV options: headers, delimiters and quotes", "Loading into staging tables", "Handling bad rows", "Exporting query results", "Loading from programs with COPY FROM PROGRAM", "Speed compared with INSERT", "file_fdw in brief"],
+          "tools": ["psql", "COPY"],
+          "lab_task": "Load a 500,000-row CSV with \\copy into a staging table, clean and move it into the main table, export a report to CSV and compare load time with row-by-row inserts.",
+          "deliverable": "Load script, export file and timing comparison",
+          "checks": [["Load the CSV", "Row count matches the file", "Query result"], ["Compare with inserts", "COPY much faster", "Timing table"], ["Load a file with a bad row", "Bad row found and handled in staging", "Load notes"]],
+          "objectives": ["Load data fast", "Export results", "Clean data in staging tables"]
+        },
+        {
+          "topic": "Backup and Restore with pg_dump",
+          "subtopics": ["Logical backups", "pg_dump formats: plain, custom and directory", "Dumping one schema or table", "pg_restore options", "pg_dumpall for roles", "Parallel dump and restore", "Testing restores", "Logical versus physical backups"],
+          "tools": ["pg_dump", "pg_restore", "pg_dumpall"],
+          "lab_task": "Back up the library database in custom format, restore it into a new database, restore a single table after an accidental delete and back up roles with pg_dumpall.",
+          "deliverable": "Backup files, restore commands and verification queries",
+          "checks": [["Restore into a new database", "Row counts match the original", "Query result"], ["Restore one table", "Deleted rows back", "Query result"], ["Restore roles on a fresh server", "Roles present", "psql output"]],
+          "objectives": ["Take logical backups", "Restore databases and tables", "Test restores"]
+        },
+        {
+          "topic": "Connecting Applications to PostgreSQL",
+          "subtopics": ["Connection strings and URIs", "Drivers: psycopg, JDBC and node-postgres", "Parameterised queries and SQL injection", "Connection pools in the application", "Transactions from code", "Handling errors and retries", "Environment variables for credentials", "ORMs and their generated SQL"],
+          "tools": ["Python", "psycopg", "SQLAlchemy", "Docker"],
+          "lab_task": "Write a small Python service that lists and borrows books with parameterised queries, a connection pool and a transaction, then show why string-built SQL is unsafe.",
+          "deliverable": "Application code and a SQL injection demonstration",
+          "checks": [["Try an injection string", "Parameterised query treats it as data", "Application output"], ["Fail half-way through a borrow", "Transaction rolled back", "Query result"], ["Search the code for passwords", "Credentials read from the environment", "Code search output"]],
+          "objectives": ["Connect from code", "Prevent SQL injection", "Use pools and transactions"]
+        },
+        {
+          "topic": "Beginner Capstone: Library Management Database",
+          "subtopics": ["Schema and constraints", "Queries and reports", "Security and backups", "Application access"],
+          "tools": ["PostgreSQL", "psql", "PL/pgSQL", "pg_dump", "Python"],
+          "lab_task": "Design and build a library database with constraints, indexes, views, functions, audit triggers and roles, write ten reports, connect a small application, back it up and restore it on a new server.",
+          "deliverable": "DDL and DML scripts, reports, application code and restore evidence",
+          "checks": [["Run the ten reports", "Correct results within one second each", "Query results and timings"], ["Restore on a new server", "Database works with the application", "Demo recording"], ["Test the roles", "Reporting role cannot change data", "Test results"]],
+          "objectives": ["Combine the beginner topics in one database", "Build a secure, tested schema", "Back up and restore it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and DBAs who use PostgreSQL daily. Covers configuration, EXPLAIN ANALYZE, index types, query tuning, statistics, MVCC and vacuum, locking, isolation levels, partitioning, full-text search, extensions, physical and logical replication, point-in-time recovery with pgBackRest, monitoring, PgBouncer, security, safe schema migrations, foreign data wrappers and managed cloud PostgreSQL.",
+      "prerequisites": ["Writes SQL with joins, CTEs and window functions", "Has created tables, indexes and roles in PostgreSQL", "Comfortable on the Linux command line"],
+      "outcomes": ["Tune queries and configuration using plans and statistics", "Keep databases healthy with vacuum, monitoring and pooling", "Set up replication and point-in-time recovery", "Change schemas safely and run PostgreSQL on cloud services"],
+      "days": [
+        {
+          "topic": "Server Configuration and Memory Settings",
+          "subtopics": ["postgresql.conf structure", "Reloadable and restart-only settings", "ALTER SYSTEM and postgresql.auto.conf", "shared_buffers and effective_cache_size", "work_mem and maintenance_work_mem", "max_connections and its cost", "Logging settings", "pg_settings and SHOW"],
+          "tools": ["psql", "postgresql.conf", "pgtune"],
+          "lab_task": "Size memory settings for a 16 GB server, change a reloadable and a restart-only setting, turn on slow-query and lock-wait logging and confirm the values in pg_settings.",
+          "deliverable": "Configuration changes, reasons and pg_settings output",
+          "checks": [["Change work_mem with ALTER SYSTEM and reload", "New value active without restart", "SHOW output"], ["Query pending_restart", "Restart-only change flagged", "pg_settings output"], ["Run a slow query", "Logged with its duration", "Server log"]],
+          "objectives": ["Configure PostgreSQL", "Size memory", "Turn on useful logging"]
+        },
+        {
+          "topic": "Reading EXPLAIN ANALYZE Plans",
+          "subtopics": ["EXPLAIN versus EXPLAIN ANALYZE", "BUFFERS and timing options", "Plan nodes: scans, joins and sorts", "Estimated versus actual rows", "Loops and per-loop times", "Sorts and hashes spilling to disk", "Plan visualisers", "Finding the expensive node"],
+          "tools": ["EXPLAIN", "explain.dalibo.com"],
+          "lab_task": "Read the plans of five slow queries, find the most expensive node in each, spot a bad row estimate and a sort that spills to disk and explain what each plan is doing.",
+          "deliverable": "Annotated plans",
+          "checks": [["Find the bad estimate", "Estimated and actual rows compared", "Annotated plan"], ["Find the disk sort", "External merge shown in the plan", "Annotated plan"], ["Increase work_mem for the session", "Sort runs in memory", "EXPLAIN output"]],
+          "objectives": ["Read execution plans", "Find expensive steps", "Spot estimate problems"]
+        },
+        {
+          "topic": "Index Types: B-tree, GIN, GiST, BRIN and Hash",
+          "subtopics": ["When each index type fits", "Partial indexes", "Expression indexes", "Covering indexes with INCLUDE", "Index-only scans and the visibility map", "BRIN for large append-only tables", "GiST for ranges and geometry", "Creating indexes CONCURRENTLY"],
+          "tools": ["psql", "EXPLAIN"],
+          "lab_task": "Add a partial index for open orders, an expression index for lower(email), a covering index for an index-only scan, a BRIN index on a 50-million-row log table and compare sizes and speeds.",
+          "deliverable": "Index scripts, plans and a size and speed table",
+          "checks": [["Query open orders", "Partial index used", "EXPLAIN output"], ["Compare BRIN and B-tree size", "BRIN far smaller", "Size query result"], ["Create an index CONCURRENTLY under load", "Writes continue during the build", "Session transcript"]],
+          "objectives": ["Choose index types", "Use partial and expression indexes", "Build indexes without blocking"]
+        },
+        {
+          "topic": "Query Tuning Techniques",
+          "subtopics": ["Rewriting queries for the planner", "OR conditions and UNION", "Correlated subqueries", "Pagination with keyset instead of OFFSET", "Avoiding functions on indexed columns", "Join order and join methods", "Prepared statements and generic plans", "Measuring improvement properly"],
+          "tools": ["EXPLAIN", "pg_stat_statements"],
+          "lab_task": "Take the top five queries from pg_stat_statements, tune each by rewriting or indexing, replace OFFSET pagination with keyset pagination and record before and after times.",
+          "deliverable": "Tuning log with plans and timings",
+          "checks": [["Compare page 1000 times", "Keyset page fast and OFFSET page slow", "Timing table"], ["Rewrite a correlated subquery", "Lower execution time", "EXPLAIN output"], ["Review pg_stat_statements after tuning", "Total time for the queries reduced", "Query result"]],
+          "objectives": ["Tune slow queries", "Use keyset pagination", "Measure results"]
+        },
+        {
+          "topic": "Statistics and the Query Planner",
+          "subtopics": ["How the planner estimates rows", "ANALYZE and autoanalyze", "pg_stats and histograms", "Statistics targets", "Extended statistics for correlated columns", "Planner cost settings", "Plan changes over time", "Diagnosing bad plans from statistics"],
+          "tools": ["psql", "pg_stats"],
+          "lab_task": "Create a table with two correlated columns, show a bad estimate, fix it with extended statistics, raise a column's statistics target and compare plans.",
+          "deliverable": "Plans before and after and pg_stats output",
+          "checks": [["Query on both correlated columns", "Estimate far below actual before the fix", "EXPLAIN output"], ["Add extended statistics and ANALYZE", "Estimate close to actual", "EXPLAIN output"], ["Inspect pg_stats", "Most common values shown for the column", "Query result"]],
+          "objectives": ["Understand planner estimates", "Maintain statistics", "Fix estimate problems"]
+        },
+        {
+          "topic": "MVCC, VACUUM and Autovacuum",
+          "subtopics": ["Row versions and xmin and xmax", "Dead tuples and bloat", "VACUUM and VACUUM FULL", "Autovacuum settings", "Per-table autovacuum tuning", "Transaction ID wraparound", "Long-running transactions blocking cleanup", "Monitoring vacuum progress"],
+          "tools": ["psql", "pg_stat_user_tables", "pgstattuple"],
+          "lab_task": "Generate dead tuples with heavy updates, watch autovacuum clean them, block cleanup with a long open transaction, tune autovacuum for a hot table and check wraparound age.",
+          "deliverable": "Monitoring queries, settings and observations",
+          "checks": [["Hold a transaction open during updates", "Dead tuples not removed until it ends", "pg_stat_user_tables output"], ["Tune the hot table", "Autovacuum runs more often", "Log output"], ["Check transaction ID age", "Age of each database reported", "Query result"]],
+          "objectives": ["Explain MVCC", "Tune autovacuum", "Prevent wraparound"]
+        },
+        {
+          "topic": "Locking and Concurrency Control",
+          "subtopics": ["Table lock modes", "Row lock modes", "Lock conflicts", "Viewing locks in pg_locks", "Finding blockers with pg_blocking_pids", "lock_timeout and statement_timeout", "Advisory locks", "SKIP LOCKED for job queues"],
+          "tools": ["psql", "pg_locks"],
+          "lab_task": "Create a lock queue with an ALTER TABLE behind a long query, find the blocker, use lock_timeout to protect the migration and build a job queue with SKIP LOCKED.",
+          "deliverable": "Lock queries, session transcripts and the job queue code",
+          "checks": [["Find the blocker", "Blocking process identified", "pg_blocking_pids output"], ["Run the migration with lock_timeout", "Fails fast instead of blocking others", "Error output"], ["Run four queue workers", "Each job processed once", "Query result"]],
+          "objectives": ["Understand locks", "Find blockers", "Build safe job queues"]
+        },
+        {
+          "topic": "Transaction Isolation Levels",
+          "subtopics": ["Read committed", "Repeatable read", "Serializable and serialisation failures", "Anomalies: lost updates, write skew and phantoms", "Retrying failed transactions", "Choosing a level per transaction", "Optimistic locking with version columns", "Testing concurrent behaviour"],
+          "tools": ["psql", "pgbench"],
+          "lab_task": "Show a lost update in read committed, fix it with SELECT FOR UPDATE and with repeatable read, show write skew and fix it with serializable plus a retry loop.",
+          "deliverable": "Session transcripts and retry code",
+          "checks": [["Reproduce the lost update", "Second update overwrites the first", "Session transcript"], ["Run under serializable", "One transaction fails with a serialisation error", "Error output"], ["Add a retry loop", "Both changes applied correctly", "Query result"]],
+          "objectives": ["Choose isolation levels", "Prevent anomalies", "Retry failed transactions"]
+        },
+        {
+          "topic": "Table Partitioning",
+          "subtopics": ["Range, list and hash partitioning", "Creating partitioned tables", "Partition pruning", "Indexes and keys on partitioned tables", "Attaching and detaching partitions", "Default partitions", "Automating partitions with pg_partman", "When partitioning helps and when it does not"],
+          "tools": ["psql", "pg_partman"],
+          "lab_task": "Partition an events table by month, show pruning in plans, automate future partitions with pg_partman and archive an old month by detaching it.",
+          "deliverable": "Partition scripts, plans and archive steps",
+          "checks": [["Query one month", "Only one partition scanned", "EXPLAIN output"], ["Insert next month's data", "Partition already created", "Query result"], ["Detach an old partition concurrently", "Detached without blocking writes", "Session transcript"]],
+          "objectives": ["Partition large tables", "Use pruning", "Automate partition management"]
+        },
+        {
+          "topic": "Full-Text Search in PostgreSQL",
+          "subtopics": ["tsvector and tsquery", "Text search configurations and languages", "Ranking results", "Highlighting matches", "Generated columns for search vectors", "GIN indexes for search", "Trigram similarity with pg_trgm", "When to use a separate search engine"],
+          "tools": ["psql", "pg_trgm"],
+          "lab_task": "Add search to a product catalogue with a weighted generated tsvector, rank and highlight results, support typos with pg_trgm and index both.",
+          "deliverable": "Search queries, indexes and sample results",
+          "checks": [["Search for a phrase", "Ranked results with highlighted matches", "Query result"], ["Search with a typo", "Trigram match found", "Query result"], ["Check the plan", "GIN index used", "EXPLAIN output"]],
+          "objectives": ["Build full-text search", "Rank and highlight", "Handle typos"]
+        },
+        {
+          "topic": "Extensions: pg_stat_statements, PostGIS and Others",
+          "subtopics": ["How extensions work", "pg_stat_statements", "PostGIS for location data", "pg_trgm and fuzzystrmatch", "uuid-ossp and pgcrypto", "hstore and citext", "Extension versions and upgrades", "Extensions on managed services"],
+          "tools": ["pg_stat_statements", "PostGIS", "pgcrypto"],
+          "lab_task": "Enable pg_stat_statements and report the top queries by total time, store store locations with PostGIS and find the nearest five stores, and use citext for case-insensitive emails.",
+          "deliverable": "Extension list, queries and results",
+          "checks": [["Report top queries", "Ranked by total time", "Query result"], ["Find nearest stores", "Five closest stores in distance order", "Query result"], ["Insert an email differing only in case", "Rejected as a duplicate", "Error output"]],
+          "objectives": ["Use extensions", "Analyse queries with pg_stat_statements", "Use PostGIS"]
+        },
+        {
+          "topic": "Streaming Replication and Read Replicas",
+          "subtopics": ["Write-ahead log in brief", "Primary and standby servers", "pg_basebackup", "Replication slots", "Synchronous and asynchronous replication", "Hot standby queries", "Monitoring replication lag", "Promoting a standby"],
+          "tools": ["pg_basebackup", "pg_stat_replication", "Docker"],
+          "lab_task": "Build a primary and a standby with pg_basebackup and a replication slot, run read queries on the standby, measure lag under load and promote the standby after stopping the primary.",
+          "deliverable": "Configuration, lag measurements and failover steps",
+          "checks": [["Write on the primary", "Row visible on the standby", "Query result"], ["Measure lag under load", "Lag reported in bytes and seconds", "pg_stat_replication output"], ["Promote the standby", "Accepts writes", "Query result"]],
+          "objectives": ["Set up streaming replication", "Monitor lag", "Promote a standby"]
+        },
+        {
+          "topic": "Point-in-Time Recovery with pgBackRest",
+          "subtopics": ["Physical backups", "WAL archiving", "pgBackRest repositories", "Full, differential and incremental backups", "Restoring to a point in time", "Backup retention", "Verifying backups", "Recovery time and recovery point"],
+          "tools": ["pgBackRest", "PostgreSQL"],
+          "lab_task": "Configure pgBackRest with WAL archiving, take full and incremental backups, drop a table by mistake and restore the database to one minute before the drop.",
+          "deliverable": "pgBackRest configuration, backup list and recovery evidence",
+          "checks": [["Run pgbackrest info", "Full and incremental backups listed", "Command output"], ["Restore to before the drop", "Table and its rows back", "Query result"], ["Time the restore", "Restore time recorded against the target", "Recovery notes"]],
+          "objectives": ["Take physical backups", "Archive WAL", "Recover to a point in time"]
+        },
+        {
+          "topic": "Monitoring PostgreSQL",
+          "subtopics": ["Statistics views: pg_stat_activity, pg_stat_database and others", "Cache hit ratio", "Connections and states", "Long-running queries", "Table and index usage", "Unused indexes", "Prometheus postgres_exporter and Grafana", "Alerts worth having"],
+          "tools": ["postgres_exporter", "Prometheus", "Grafana", "pg_stat_activity"],
+          "lab_task": "Set up postgres_exporter with Prometheus and a Grafana dashboard, find idle-in-transaction sessions and unused indexes, and add alerts for replication lag and connection use.",
+          "deliverable": "Dashboard, monitoring queries and alert rules",
+          "checks": [["Leave a session idle in transaction", "Shown on the dashboard", "Dashboard screenshot"], ["List unused indexes", "Indexes with zero scans listed", "Query result"], ["Trigger the connection alert", "Alert fires", "Alertmanager screenshot"]],
+          "objectives": ["Monitor databases", "Find problem sessions", "Alert on key metrics"]
+        },
+        {
+          "topic": "Connection Pooling with PgBouncer",
+          "subtopics": ["Why connections are expensive", "PgBouncer modes: session, transaction and statement", "Pool sizes", "Prepared statements in transaction mode", "Authentication through PgBouncer", "Monitoring PgBouncer", "Pooling in the application versus a proxy", "Running PgBouncer next to the database or the app"],
+          "tools": ["PgBouncer", "pgbench"],
+          "lab_task": "Put PgBouncer in transaction mode in front of the database, run pgbench with 500 clients with and without it, and fix an application that breaks because it relies on session state.",
+          "deliverable": "PgBouncer configuration and benchmark results",
+          "checks": [["Run 500 clients without PgBouncer", "Connection limit errors", "pgbench output"], ["Run through PgBouncer", "All clients served", "pgbench output"], ["Fix the session-state problem", "Application works in transaction mode", "Application log"]],
+          "objectives": ["Pool connections", "Choose a pooling mode", "Size pools"]
+        },
+        {
+          "topic": "Securing PostgreSQL",
+          "subtopics": ["Encrypting connections with TLS", "Certificate authentication", "Row-level security policies", "Column privileges", "Auditing with pgAudit", "Encrypting values with pgcrypto", "Secrets for applications", "Security checks with a hardening checklist"],
+          "tools": ["OpenSSL", "pgAudit", "pgcrypto"],
+          "lab_task": "Require TLS for all remote connections, add row-level security so each tenant sees only their rows, log access to a sensitive table with pgAudit and review the server against a hardening checklist.",
+          "deliverable": "TLS configuration, policies, audit log and checklist",
+          "checks": [["Connect without TLS", "Connection refused", "Connection error"], ["Query as tenant A", "Only tenant A rows returned", "Query result"], ["Read the sensitive table", "Access logged by pgAudit", "Server log"]],
+          "objectives": ["Encrypt connections", "Apply row-level security", "Audit access"]
+        },
+        {
+          "topic": "Safe Schema Migrations",
+          "subtopics": ["Migration tools: Flyway, Liquibase and Sqitch", "Which DDL takes heavy locks", "Adding columns with defaults", "Adding NOT NULL and foreign keys without long locks", "Creating indexes concurrently in migrations", "Expand and contract changes", "Backfilling data in batches", "Rollback plans"],
+          "tools": ["Flyway", "psql", "pgbench"],
+          "lab_task": "Run a migration that adds a non-null foreign key to a 20-million-row table under load using NOT VALID constraints, a concurrent index and a batched backfill, with no blocked writes.",
+          "deliverable": "Migration scripts and load test results",
+          "checks": [["Run the migration under load", "No write errors or long waits", "pgbench output"], ["Validate the constraint", "Validated without blocking writes", "Session transcript"], ["Review the rollback plan", "Each step can be reversed", "Rollback plan"]],
+          "objectives": ["Change schemas without downtime", "Avoid heavy locks", "Backfill safely"]
+        },
+        {
+          "topic": "Logical Replication and Change Data Capture",
+          "subtopics": ["Logical decoding", "Publications and subscriptions", "Replicating selected tables", "Row filters and column lists", "Conflicts and how to fix them", "Using logical replication for upgrades", "CDC with Debezium", "Monitoring logical slots"],
+          "tools": ["PostgreSQL", "Debezium", "Apache Kafka"],
+          "lab_task": "Replicate two tables to a reporting database with a row filter, cause and fix a conflict and stream changes to Kafka with Debezium.",
+          "deliverable": "Publication and subscription setup, conflict notes and Kafka output",
+          "checks": [["Insert on the source", "Row arrives on the subscriber", "Query result"], ["Cause a conflict", "Conflict found in the logs and fixed", "Server log"], ["Update a row", "Change event in Kafka", "Kafka topic output"]],
+          "objectives": ["Set up logical replication", "Fix conflicts", "Stream changes"]
+        },
+        {
+          "topic": "Managed PostgreSQL: RDS, Aurora, Azure and Cloud SQL",
+          "subtopics": ["What managed services handle for you", "Amazon RDS and Aurora PostgreSQL", "Azure Database for PostgreSQL Flexible Server", "Google Cloud SQL and AlloyDB", "Parameter groups and server parameters", "Backups, replicas and high availability options", "Limits: superuser and extensions", "Cost comparison"],
+          "tools": ["AWS RDS", "Azure Database for PostgreSQL", "Google Cloud SQL"],
+          "lab_task": "Create a PostgreSQL instance on two cloud providers, change a parameter, create a read replica, restore to a point in time and compare features, limits and monthly cost.",
+          "deliverable": "Instance settings, test results and comparison table",
+          "checks": [["Restore to a point in time", "New instance with data from that time", "Query result"], ["Try to create a superuser", "Blocked and the managed alternative used", "Error output"], ["Compare costs", "Monthly cost for the same size on both", "Comparison table"]],
+          "objectives": ["Use managed PostgreSQL", "Know their limits", "Compare providers"]
+        },
+        {
+          "topic": "Intermediate Capstone: Tuning and Protecting a Production-Like Database",
+          "subtopics": ["Performance review", "Reliability set-up", "Security and migrations", "Report to stakeholders"],
+          "tools": ["PostgreSQL", "pgBackRest", "PgBouncer", "Prometheus", "Grafana"],
+          "lab_task": "Take over a slow, unprotected order database: tune its top queries and configuration, add pooling, a standby, point-in-time recovery, monitoring and row-level security, run a safe migration under load and present the results.",
+          "deliverable": "Tuning log, configuration, recovery test, dashboard and presentation",
+          "checks": [["Compare top query times", "Each top query faster after tuning", "Tuning log"], ["Run a recovery test", "Point-in-time recovery succeeds within the target", "Recovery notes"], ["Present the results", "Improvements and remaining risks clear", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one database", "Improve speed and reliability", "Report results"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DBAs, platform engineers and architects. Covers storage and WAL internals, high availability with Patroni, tuning heavy workloads, checkpoints and WAL, bloat management, major upgrades without downtime, sharding with Citus, PostgreSQL on Kubernetes, disaster recovery, compliance, multi-tenant design, time series, pgvector, Oracle migration, observability at scale, capacity planning, automation, production troubleshooting and running a database platform.",
+      "prerequisites": ["Administers PostgreSQL in production", "Has set up replication and backups", "Tunes queries with EXPLAIN and pg_stat_statements"],
+      "outcomes": ["Run highly available PostgreSQL with automatic failover", "Tune and scale heavy workloads and upgrade without downtime", "Design multi-tenant, sharded and AI workloads", "Diagnose production incidents and run PostgreSQL as a platform"],
+      "days": [
+        {
+          "topic": "PostgreSQL Internals: Storage, Pages and WAL",
+          "subtopics": ["Heap files and pages", "Tuple layout and TOAST", "The buffer manager", "Write-ahead logging internals", "Checkpoints and the background writer", "The visibility map and free space map", "HOT updates and fillfactor", "Inspecting internals with pageinspect"],
+          "tools": ["pageinspect", "pg_waldump", "pg_buffercache"],
+          "lab_task": "Inspect a table page with pageinspect, read WAL records for an update with pg_waldump, show a HOT update after lowering fillfactor and see which tables fill shared buffers.",
+          "deliverable": "Annotated internals notes",
+          "checks": [["Inspect a page", "Live and dead tuples identified", "pageinspect output"], ["Read the WAL record for an update", "Record type and relation identified", "pg_waldump output"], ["Lower fillfactor and update", "HOT updates counted", "pg_stat_user_tables output"]],
+          "objectives": ["Understand storage", "Read WAL", "Use HOT updates"]
+        },
+        {
+          "topic": "High Availability with Patroni",
+          "subtopics": ["High availability goals", "Patroni with etcd", "Leader election and failover", "Switchover for maintenance", "Synchronous mode", "HAProxy or virtual IPs for routing", "Split-brain protection", "Testing failover"],
+          "tools": ["Patroni", "etcd", "HAProxy"],
+          "lab_task": "Build a three-node Patroni cluster with etcd and HAProxy, kill the leader under load, measure failover time and run a planned switchover.",
+          "deliverable": "Cluster configuration, failover timings and runbook",
+          "checks": [["Kill the leader under load", "New leader elected and writes resume", "Patroni and client logs"], ["Measure failover", "Time to resume writes recorded", "Timing notes"], ["Run a switchover", "Completed with no lost transactions", "Query result"]],
+          "objectives": ["Build HA clusters", "Test failover", "Plan switchovers"]
+        },
+        {
+          "topic": "Tuning Write-Heavy and Mixed Workloads",
+          "subtopics": ["Workload profiling", "Checkpoint and max_wal_size tuning", "WAL compression and full page writes", "Synchronous commit trade-offs", "Parallel query settings", "Huge pages", "Operating system and file system settings", "Benchmarking with pgbench and HammerDB"],
+          "tools": ["pgbench", "HammerDB", "pg_stat_bgwriter", "Grafana"],
+          "lab_task": "Benchmark a write-heavy workload, tune checkpoints, WAL and memory, test synchronous_commit off for one table's workload, and report throughput and latency for each change.",
+          "deliverable": "Benchmark report with each change and its effect",
+          "checks": [["Tune checkpoints", "Checkpoint spikes in latency reduced", "Grafana screenshot"], ["Compare synchronous_commit", "Throughput gain and data loss risk stated", "Benchmark report"], ["Review the final settings", "Each change justified by a measurement", "Report"]],
+          "objectives": ["Tune for heavy writes", "Benchmark properly", "Balance speed and safety"]
+        },
+        {
+          "topic": "Bloat Management and Online Reorganisation",
+          "subtopics": ["Measuring table and index bloat", "Causes of bloat", "REINDEX CONCURRENTLY", "pg_repack", "VACUUM FULL and its locks", "Fillfactor strategies", "Preventing bloat with autovacuum and design", "Scheduling maintenance"],
+          "tools": ["pgstattuple", "pg_repack", "REINDEX"],
+          "lab_task": "Measure bloat on a busy table and its indexes, rebuild indexes concurrently, repack the table online with pg_repack under load and change settings to stop bloat returning.",
+          "deliverable": "Bloat measurements before and after and the maintenance plan",
+          "checks": [["Measure bloat", "Percentage reported for the table and indexes", "pgstattuple output"], ["Run pg_repack under load", "No blocked writes", "pgbench output"], ["Check size afterwards", "Table and index sizes reduced", "Size query result"]],
+          "objectives": ["Measure bloat", "Reorganise online", "Prevent bloat"]
+        },
+        {
+          "topic": "Major Version Upgrades Without Downtime",
+          "subtopics": ["Release support periods", "pg_upgrade with link mode", "Logical replication upgrades", "Testing an upgrade", "Extension and driver compatibility", "Statistics after upgrade", "Rollback plans", "Upgrading managed services"],
+          "tools": ["pg_upgrade", "Logical replication", "pgbench"],
+          "lab_task": "Upgrade a database from PostgreSQL 13 to 17 twice: with pg_upgrade in link mode and with logical replication, measure downtime for each and write a rollback plan.",
+          "deliverable": "Upgrade runbooks, downtime measurements and rollback plan",
+          "checks": [["Run pg_upgrade --check", "No blocking issues", "Command output"], ["Cut over with logical replication", "Write downtime under one minute", "Client log"], ["Check plans after upgrade", "Statistics rebuilt and plans normal", "EXPLAIN output"]],
+          "objectives": ["Plan major upgrades", "Upgrade with little downtime", "Prepare rollbacks"]
+        },
+        {
+          "topic": "Scaling Out with Citus and Sharding",
+          "subtopics": ["When one server is not enough", "Sharding strategies", "Citus distributed and reference tables", "Choosing distribution columns", "Co-location for joins", "Rebalancing shards", "Distributed query limits", "Alternatives: read replicas, partitioning and application sharding"],
+          "tools": ["Citus", "PostgreSQL"],
+          "lab_task": "Shard a multi-tenant SaaS schema with Citus by tenant, co-locate related tables, rebalance after adding a worker and compare query times with a single node.",
+          "deliverable": "Distribution design, rebalancing evidence and benchmark",
+          "checks": [["Query one tenant's data", "Routed to a single shard", "EXPLAIN output"], ["Add a worker and rebalance", "Shards moved and queries keep working", "Citus output"], ["Compare with a single node", "Throughput difference measured", "Benchmark results"]],
+          "objectives": ["Shard PostgreSQL", "Choose distribution keys", "Rebalance clusters"]
+        },
+        {
+          "topic": "PostgreSQL on Kubernetes with CloudNativePG",
+          "subtopics": ["Running databases on Kubernetes", "Operators", "CloudNativePG clusters", "Storage classes and volumes", "Backups to object storage", "Failover in Kubernetes", "Rolling updates and minor upgrades", "Monitoring with the operator"],
+          "tools": ["Kubernetes", "CloudNativePG", "MinIO or S3"],
+          "lab_task": "Deploy a three-instance CloudNativePG cluster with backups to object storage, delete the primary pod under load, restore a cluster from backup and run a rolling minor upgrade.",
+          "deliverable": "Cluster manifests, failover and restore evidence",
+          "checks": [["Delete the primary pod", "Replica promoted and writes resume", "Kubernetes events"], ["Restore from object storage", "New cluster with the data", "Query result"], ["Run a rolling update", "Completed without client errors", "Client log"]],
+          "objectives": ["Run PostgreSQL on Kubernetes", "Use operators", "Back up and restore on Kubernetes"]
+        },
+        {
+          "topic": "Disaster Recovery Across Regions",
+          "subtopics": ["Recovery objectives", "Cross-region standbys", "Backup copies in another region", "Delayed replicas for human errors", "DR runbooks", "Failover and failback", "DR drills", "Testing backups automatically"],
+          "tools": ["pgBackRest", "Patroni", "Cloud storage"],
+          "lab_task": "Add a cross-region standby and a one-hour delayed replica, copy backups to a second region, run a DR drill that fails over to the other region and recover an accidental delete from the delayed replica.",
+          "deliverable": "DR plan, drill report and runbook",
+          "checks": [["Run the DR drill", "Service restored in the other region within the target", "Drill report"], ["Recover the accidental delete", "Rows recovered from the delayed replica", "Query result"], ["Run an automatic restore test", "Backup restored and verified", "Test log"]],
+          "objectives": ["Plan disaster recovery", "Run DR drills", "Recover from human error"]
+        },
+        {
+          "topic": "Security Hardening and Compliance",
+          "subtopics": ["Threats to databases", "Least privilege at scale", "Separation of duties for DBAs", "Encryption at rest options", "Audit requirements for PCI DSS and SOC 2", "Masking and anonymising data for test environments", "Vulnerability management and patching", "Evidence for auditors"],
+          "tools": ["pgAudit", "PostgreSQL Anonymizer", "CIS PostgreSQL Benchmark"],
+          "lab_task": "Review a server against the CIS PostgreSQL Benchmark, fix the failures, build a masked copy of production for testing and prepare audit evidence for access to card data.",
+          "deliverable": "Benchmark results, fixes, masked database and audit evidence pack",
+          "checks": [["Re-run the benchmark", "Failed checks fixed or justified", "Benchmark report"], ["Query the masked copy", "No real personal data visible", "Query result"], ["Review the evidence pack", "Access to card data traceable to people", "Evidence pack"]],
+          "objectives": ["Harden PostgreSQL", "Meet compliance needs", "Mask data for testing"]
+        },
+        {
+          "topic": "Multi-Tenant Database Design",
+          "subtopics": ["Shared tables, schema per tenant and database per tenant", "Tenant isolation with row-level security", "Noisy neighbour problems", "Per-tenant limits and quotas", "Migrations across many schemas", "Moving tenants between servers", "Backups and restores per tenant", "Choosing a model"],
+          "tools": ["PostgreSQL", "Row-level security", "pgbench"],
+          "lab_task": "Build the same SaaS app with shared tables and RLS and with schema per tenant, migrate 500 tenant schemas, restore a single tenant and compare operational effort.",
+          "deliverable": "Two designs, migration timings and comparison",
+          "checks": [["Query as a tenant", "Only that tenant's data returned under RLS", "Query result"], ["Migrate 500 schemas", "All migrated with the time recorded", "Migration log"], ["Restore one tenant", "Tenant restored without affecting others", "Query result"]],
+          "objectives": ["Design multi-tenant databases", "Isolate tenants", "Choose a tenancy model"]
+        },
+        {
+          "topic": "Time Series Workloads with TimescaleDB",
+          "subtopics": ["Time series data patterns", "Hypertables and chunks", "Compression", "Continuous aggregates", "Retention policies", "Native partitioning compared", "Query patterns for time series", "Sizing time series databases"],
+          "tools": ["TimescaleDB", "Grafana"],
+          "lab_task": "Store a month of sensor data in a hypertable, compress older chunks, build continuous aggregates for dashboards, add a retention policy and compare with a plain partitioned table.",
+          "deliverable": "Schema, compression results and dashboard",
+          "checks": [["Compress old chunks", "Storage reduced by at least 80 percent", "Size query result"], ["Query the continuous aggregate", "Faster than the raw query", "Timing output"], ["Wait for retention", "Old chunks dropped", "Chunk list"]],
+          "objectives": ["Handle time series", "Compress and aggregate", "Manage retention"]
+        },
+        {
+          "topic": "Vector Search and AI Workloads with pgvector",
+          "subtopics": ["Embeddings in brief", "The vector type", "Distance operators", "HNSW and IVFFlat indexes", "Filtering with vector search", "Hybrid search with full-text and vectors", "Index tuning and recall", "Sizing memory for vectors"],
+          "tools": ["pgvector", "Python", "OpenAI or a local embedding model"],
+          "lab_task": "Store embeddings for 100,000 documents, compare exact search with HNSW and IVFFlat indexes for recall and speed, add metadata filters and combine with full-text ranking.",
+          "deliverable": "Schema, benchmark of recall and latency and hybrid query",
+          "checks": [["Compare recall", "Recall measured against exact search", "Benchmark table"], ["Search with a filter", "Only matching documents returned", "Query result"], ["Run the hybrid query", "Results combine text and vector scores", "Query result"]],
+          "objectives": ["Store and search vectors", "Tune vector indexes", "Build hybrid search"]
+        },
+        {
+          "topic": "Foreign Data Wrappers and Cross-Database Queries",
+          "subtopics": ["What foreign data wrappers do", "postgres_fdw", "Importing foreign schemas", "Push-down of filters and joins", "mysql_fdw and oracle_fdw", "file_fdw for CSV files", "dblink compared with FDW", "Performance limits"],
+          "tools": ["postgres_fdw", "file_fdw"],
+          "lab_task": "Query a second PostgreSQL database through postgres_fdw, check that filters are pushed down, join with local tables and read a CSV file as a table.",
+          "deliverable": "FDW setup, queries and plans",
+          "checks": [["Query the foreign table", "Rows returned from the remote database", "Query result"], ["Check push-down", "Remote SQL includes the WHERE clause", "EXPLAIN VERBOSE output"], ["Query the CSV through file_fdw", "File rows returned", "Query result"]],
+          "objectives": ["Query other databases", "Check push-down", "Read files as tables"]
+        },
+        {
+          "topic": "Migrating from Oracle to PostgreSQL",
+          "subtopics": ["Migration assessment", "ora2pg", "Data type mapping", "PL/SQL to PL/pgSQL conversion", "Packages, sequences and synonyms", "Data migration and validation", "Application changes", "Cutover with change data capture"],
+          "tools": ["ora2pg", "oracle_fdw", "PostgreSQL"],
+          "lab_task": "Assess a sample Oracle schema with ora2pg, convert tables, a package and a trigger, migrate data, validate row counts and checksums and write the cutover plan.",
+          "deliverable": "Assessment report, converted code, validation and cutover plan",
+          "checks": [["Run the ora2pg assessment", "Effort estimate and problem objects listed", "Assessment report"], ["Run the converted package", "Same results as Oracle", "Test comparison"], ["Validate data", "Row counts and checksums match", "Validation report"]],
+          "objectives": ["Assess migrations", "Convert Oracle code", "Validate migrated data"]
+        },
+        {
+          "topic": "Observability at Fleet Scale",
+          "subtopics": ["Monitoring many databases", "Query performance insights", "auto_explain for slow plans", "Wait event analysis", "Log analysis with pgBadger", "Fleet dashboards", "SLOs for databases", "Alert fatigue"],
+          "tools": ["pgBadger", "auto_explain", "pg_stat_statements", "Grafana"],
+          "lab_task": "Build fleet dashboards for ten databases, enable auto_explain for slow queries, analyse a day of logs with pgBadger and define SLOs and alerts for the database service.",
+          "deliverable": "Dashboards, pgBadger report and SLO definitions",
+          "checks": [["Run pgBadger", "Top slow queries and lock waits reported", "pgBadger report"], ["Trigger a slow plan", "Plan logged by auto_explain", "Server log"], ["Review alerts", "Each alert has an action", "Alert rules"]],
+          "objectives": ["Monitor many databases", "Analyse waits and logs", "Define database SLOs"]
+        },
+        {
+          "topic": "Capacity Planning and Cost",
+          "subtopics": ["Growth forecasting", "Storage, CPU and memory trends", "Connection growth", "Read scaling options", "Cost of instance sizes and storage", "Reserved capacity and savings", "Archiving and tiering data", "Capacity reviews"],
+          "tools": ["Prometheus", "Grafana", "Spreadsheet"],
+          "lab_task": "Forecast storage and CPU for the next 18 months from metrics, decide when to scale, plan archiving of old data and estimate cost savings.",
+          "deliverable": "Capacity forecast, scaling plan and cost estimate",
+          "checks": [["Review the forecast", "Based on at least three months of data", "Forecast chart"], ["Set the scaling trigger", "Threshold and lead time stated", "Scaling plan"], ["Estimate savings", "Archiving saving calculated", "Cost estimate"]],
+          "objectives": ["Forecast capacity", "Plan scaling", "Control cost"]
+        },
+        {
+          "topic": "Automating PostgreSQL Operations",
+          "subtopics": ["Infrastructure as code for databases", "Ansible roles for PostgreSQL", "Terraform for managed services", "Automated patching", "Automated backup checks", "Self-service database provisioning", "Change management for databases", "Runbook automation"],
+          "tools": ["Ansible", "Terraform", "GitHub Actions"],
+          "lab_task": "Write an Ansible role that installs and configures PostgreSQL with pgBackRest and monitoring, provision a managed instance with Terraform and run an automated weekly restore test.",
+          "deliverable": "Ansible role, Terraform code and restore test pipeline",
+          "checks": [["Run the role on a fresh server", "Server configured with no manual steps", "Ansible output"], ["Re-run the role", "No changes reported", "Ansible output"], ["Run the restore test pipeline", "Restore verified and reported", "Pipeline log"]],
+          "objectives": ["Automate database operations", "Provision as code", "Test backups automatically"]
+        },
+        {
+          "topic": "Troubleshooting Production PostgreSQL Incidents",
+          "subtopics": ["An incident method for databases", "Sudden slow queries after plan changes", "Connection storms", "Lock pile-ups", "Replication lag spikes", "Disk full and WAL growth", "Wraparound emergencies", "Post-incident reviews"],
+          "tools": ["pg_stat_activity", "pg_locks", "pgBadger", "Grafana"],
+          "lab_task": "Diagnose and fix five injected incidents (a plan regression, a lock pile-up, a full disk from a stuck replication slot, a connection storm and lag from a long query on a standby) and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the stuck slot", "WAL space freed and the cause removed", "Disk usage output"], ["Clear the lock pile-up", "Blocker found and the queue cleared", "pg_locks output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose database incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Running PostgreSQL as a Database Platform",
+          "subtopics": ["Database platform responsibilities", "Standard builds and versions", "Service levels for teams", "Onboarding application teams", "Guardrails and reviews for schema changes", "Training developers on PostgreSQL", "Measuring platform health", "Platform roadmap"],
+          "tools": ["Internal developer portal", "Terraform", "Documentation templates"],
+          "lab_task": "Design a PostgreSQL platform service for 30 application teams: standard builds, service levels, an onboarding guide, schema review rules and a 12-month roadmap.",
+          "deliverable": "Platform design, onboarding guide and roadmap",
+          "checks": [["Review the service levels", "Availability, recovery and support times defined", "Platform design"], ["Review the onboarding guide", "A team can get a database without asking the DBA team", "Onboarding guide"], ["Present the roadmap", "Priorities linked to platform health measures", "Presentation"]],
+          "objectives": ["Run a database platform", "Support many teams", "Plan the platform"]
+        },
+        {
+          "topic": "Advanced Capstone: Highly Available PostgreSQL Platform",
+          "subtopics": ["Architecture", "Availability and recovery", "Performance and scale", "Operations"],
+          "tools": ["Patroni", "pgBackRest", "PgBouncer", "Citus or partitioning", "Prometheus", "Ansible"],
+          "lab_task": "Design and build a production PostgreSQL platform for a payments service: Patroni HA, cross-region DR, PgBouncer, tuned configuration, partitioning or sharding, security hardening, automation and a game day with failover, restore and an upgrade.",
+          "deliverable": "Architecture records, automation code, game day report and review presentation",
+          "checks": [["Run the failover in the game day", "Writes resume within the target", "Game day report"], ["Run the zero-downtime upgrade", "Upgrade completed within the downtime budget", "Upgrade log"], ["Present to the review board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run PostgreSQL at production standard", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

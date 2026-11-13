@@ -1,0 +1,573 @@
+{
+  "domain": "Data Science",
+  "name": "Data Science",
+  "category": "Data Science and Machine Learning",
+  "icon": "flask",
+  "aliases": ["Data Science Training", "Data Scientist", "Data Scientist Training", "Data Science Bootcamp", "Data Science Course", "Applied Statistics for Data Science"],
+  "certifications": ["IBM Data Science Professional Certificate", "Microsoft Certified: Azure Data Scientist Associate (DP-100)", "Google Advanced Data Analytics Certificate", "Databricks Certified Machine Learning Associate"],
+  "tools": ["Python", "Jupyter", "NumPy", "pandas", "scikit-learn", "statsmodels", "Matplotlib and seaborn", "SQL (PostgreSQL)"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For graduates, analysts and developers starting in data science. Covers the data science process, Python, NumPy and pandas, cleaning and exploring data, visualisation, probability, distributions, sampling, confidence intervals, hypothesis tests, regression, SQL, feature preparation, predictive models with scikit-learn, evaluation, clustering and PCA, and presenting results.",
+      "prerequisites": ["Basic programming in any language", "School-level algebra", "Comfortable with spreadsheets"],
+      "outcomes": ["Clean, explore and visualise data in Python", "Apply probability and statistical inference correctly", "Build and evaluate simple predictive and clustering models", "Present results and their uncertainty clearly"],
+      "days": [
+        {
+          "topic": "Data Science Overview and Environment Setup",
+          "subtopics": ["What data scientists do", "The data science lifecycle: question, data, model, communicate, act", "Data science, analytics, machine learning and data engineering compared", "Types of problems: description, inference, prediction and decision", "Installing Python with Anaconda or uv", "Jupyter notebooks and JupyterLab", "VS Code for notebooks", "Virtual environments and package versions", "Course datasets and project folders", "Version control with Git for notebooks"],
+          "tools": ["Anaconda or uv", "JupyterLab", "VS Code", "Git"],
+          "lab_task": "Set up a Python environment with pinned packages, create a project repository with a standard folder layout, open a course dataset in a notebook and write the question each course project will answer.",
+          "deliverable": "Repository with environment file, a first notebook and written project questions",
+          "checks": [["Recreate the environment from the file", "Same package versions installed", "Environment output"], ["Run the notebook from a clean kernel", "Runs top to bottom without errors", "Notebook"], ["Classify five example problems", "Each labelled description, inference, prediction or decision", "Written answers"]],
+          "objectives": ["Describe the data science process", "Set up a reproducible environment", "Frame questions"]
+        },
+        {
+          "topic": "Python Essentials for Data Science",
+          "subtopics": ["Values, types and operators", "Lists, tuples, dictionaries and sets", "Loops and comprehensions", "Functions and arguments", "Modules and imports", "Reading and writing files", "Errors and exceptions", "Writing clean, readable code"],
+          "tools": ["Python", "JupyterLab"],
+          "lab_task": "Write functions that read a CSV of transactions without pandas, compute totals per customer with dictionaries, handle bad rows with exceptions and move the functions into a module.",
+          "deliverable": "Notebook and module with functions",
+          "checks": [["Run on the sample file", "Totals match the expected values", "Notebook output"], ["Include a bad row", "Row skipped and reported", "Notebook output"], ["Import the module in a new notebook", "Functions work", "Notebook"]],
+          "objectives": ["Write Python for data work", "Use core data structures", "Handle errors"]
+        },
+        {
+          "topic": "Numerical Computing with NumPy",
+          "subtopics": ["Arrays and data types", "Shapes, reshaping and indexing", "Vectorised operations", "Broadcasting", "Aggregations along axes", "Boolean masks", "Random numbers and seeds", "Speed compared with Python loops"],
+          "tools": ["NumPy", "JupyterLab"],
+          "lab_task": "Simulate 100,000 dice rolls and daily returns with NumPy, compute statistics with vectorised operations and masks, and compare speed with a loop version.",
+          "deliverable": "Notebook with simulations and timings",
+          "checks": [["Compare loop and vectorised code", "Same results, vectorised much faster", "Timing output"], ["Set a seed and re-run", "Identical random results", "Notebook output"], ["Use broadcasting to standardise columns", "Column means near zero", "Notebook output"]],
+          "objectives": ["Use NumPy arrays", "Vectorise calculations", "Simulate with random numbers"]
+        },
+        {
+          "topic": "Data Wrangling with pandas",
+          "subtopics": ["Series and DataFrames", "Reading CSV, Excel and Parquet", "Selecting with loc and iloc", "Filtering and sorting", "groupby and aggregation", "Merging and joining", "Reshaping with pivot and melt", "Method chaining"],
+          "tools": ["pandas", "JupyterLab"],
+          "lab_task": "Combine orders, customers and products into one table, compute revenue per segment and month, reshape it to wide form and write the steps as one method chain.",
+          "deliverable": "Notebook with the wrangling pipeline",
+          "checks": [["Check the merge", "Row count explained after each join", "Notebook output"], ["Compare a total with a manual calculation", "Same value", "Notebook output"], ["Review the chain", "Each step readable and named", "Notebook"]],
+          "objectives": ["Load and shape data", "Group and merge", "Write readable pandas code"]
+        },
+        {
+          "topic": "Cleaning Data and Handling Missing Values",
+          "subtopics": ["Data types and conversions", "Missing value patterns", "Missing completely at random, at random and not at random", "Dropping, filling and flagging", "Duplicates", "Inconsistent categories and text", "Outliers: errors or real values", "Keeping a cleaning log"],
+          "tools": ["pandas", "missingno"],
+          "lab_task": "Clean a messy patient visits dataset: fix types and dates, study missingness patterns, choose a strategy per column with reasons, remove duplicates and log every change.",
+          "deliverable": "Cleaning notebook and cleaning log",
+          "checks": [["Plot missingness", "Patterns described", "missingno chart"], ["Justify each strategy", "Reason given per column", "Cleaning log"], ["Compare row counts", "Changes explained", "Cleaning log"]],
+          "objectives": ["Clean data", "Reason about missing data", "Document cleaning"]
+        },
+        {
+          "topic": "Exploratory Data Analysis",
+          "subtopics": ["Purpose of EDA", "Univariate summaries", "Bivariate relationships", "Group comparisons", "Spotting data problems", "Forming hypotheses", "EDA checklists", "Avoiding false patterns"],
+          "tools": ["pandas", "seaborn", "ydata-profiling"],
+          "lab_task": "Explore a housing dataset with summaries, plots and group comparisons, list five data problems and five hypotheses, and mark which findings need testing before they are trusted.",
+          "deliverable": "EDA notebook and findings list",
+          "checks": [["List data problems", "Five problems with evidence", "Findings list"], ["List hypotheses", "Each testable with the data", "Findings list"], ["Compare with an automated profile", "Problems missed by the profile noted", "Notebook"]],
+          "objectives": ["Explore data systematically", "Form hypotheses", "Avoid reading too much into patterns"]
+        },
+        {
+          "topic": "Data Visualisation for Exploration and Explanation",
+          "subtopics": ["Grammar of graphics ideas", "Matplotlib figures and axes", "seaborn for statistical plots", "Distributions, relationships and comparisons", "Small multiples", "Interactive plots with Plotly", "Explanatory charts for stakeholders", "Honest axes and scales"],
+          "tools": ["Matplotlib", "seaborn", "Plotly"],
+          "lab_task": "Make six exploratory plots of the housing data, then turn the two most important into explanatory charts with finding titles and annotations.",
+          "deliverable": "Notebook with exploratory and explanatory charts",
+          "checks": [["Review chart choice", "Each chart matches its question", "Chart review"], ["Read the titles", "Titles state findings", "Explanatory charts"], ["Check axes", "No misleading scales", "Chart review"]],
+          "objectives": ["Visualise data", "Choose charts", "Explain with charts"]
+        },
+        {
+          "topic": "Probability for Data Science",
+          "subtopics": ["Events and probability rules", "Conditional probability", "Independence", "Bayes' theorem", "Random variables", "Expected value and variance", "Simulation to check reasoning", "Common probability mistakes"],
+          "tools": ["Python", "NumPy"],
+          "lab_task": "Solve five probability problems including a medical test with Bayes' theorem, check each answer by simulation and explain the base rate fallacy in plain words.",
+          "deliverable": "Notebook with calculations, simulations and explanation",
+          "checks": [["Compare calculation and simulation", "Results agree within simulation error", "Notebook output"], ["Apply Bayes' theorem", "Correct probability of disease given a positive test", "Notebook"], ["Explain the base rate fallacy", "Clear explanation with the example", "Written explanation"]],
+          "objectives": ["Apply probability rules", "Use Bayes' theorem", "Check reasoning by simulation"]
+        },
+        {
+          "topic": "Probability Distributions",
+          "subtopics": ["Discrete distributions: Bernoulli, binomial and Poisson", "Continuous distributions: uniform, normal and exponential", "Probability density and cumulative distribution", "Skewed and heavy-tailed data", "Fitting distributions to data", "Q-Q plots", "Log transforms", "Choosing a distribution for a problem"],
+          "tools": ["SciPy", "NumPy", "Matplotlib"],
+          "lab_task": "Model call arrivals with Poisson, waiting times with exponential and heights with normal distributions, fit them to data, check fit with Q-Q plots and answer three business questions.",
+          "deliverable": "Notebook with fits, plots and answers",
+          "checks": [["Fit the Poisson rate", "Rate estimated from data", "Notebook output"], ["Draw a Q-Q plot", "Fit judged from the plot", "Q-Q plot"], ["Answer \"probability of more than 10 calls in an hour\"", "Correct value from the fitted model", "Notebook output"]],
+          "objectives": ["Use common distributions", "Fit distributions", "Check fit"]
+        },
+        {
+          "topic": "Sampling and the Central Limit Theorem",
+          "subtopics": ["Populations and samples", "Sampling methods", "Sampling bias", "Sampling distributions", "The central limit theorem", "Standard error", "Bootstrapping", "Sample size and precision"],
+          "tools": ["NumPy", "pandas"],
+          "lab_task": "Simulate sampling from a skewed population, show the sampling distribution of the mean becoming normal, estimate standard errors by formula and by bootstrap, and show how sample size changes precision.",
+          "deliverable": "Simulation notebook",
+          "checks": [["Plot sampling distributions", "Approximately normal for larger samples", "Charts"], ["Compare standard errors", "Formula and bootstrap agree", "Notebook output"], ["Double the sample size four times", "Standard error halves", "Notebook output"]],
+          "objectives": ["Understand sampling", "Apply the central limit theorem", "Bootstrap estimates"]
+        },
+        {
+          "topic": "Confidence Intervals and Estimation",
+          "subtopics": ["Point estimates and intervals", "Intervals for means and proportions", "Interpreting confidence intervals correctly", "Bootstrap confidence intervals", "Intervals for differences", "Margin of error", "Reporting uncertainty", "Common misinterpretations"],
+          "tools": ["SciPy", "statsmodels"],
+          "lab_task": "Estimate average order value and conversion rate with intervals by formula and bootstrap, compute the interval for the difference between two channels and report results with correct wording.",
+          "deliverable": "Notebook and a short written report",
+          "checks": [["Compare interval methods", "Formula and bootstrap intervals close", "Notebook output"], ["Interpret the interval", "Correct wording without probability errors", "Written report"], ["Compute the difference interval", "Interval for the channel difference reported", "Notebook output"]],
+          "objectives": ["Estimate with intervals", "Interpret intervals", "Report uncertainty"]
+        },
+        {
+          "topic": "Hypothesis Testing",
+          "subtopics": ["Null and alternative hypotheses", "Test statistics and p-values", "t-tests", "Chi-square tests", "Type I and type II errors", "Power", "Multiple testing", "Effect sizes"],
+          "tools": ["SciPy", "statsmodels"],
+          "lab_task": "Test whether a new website layout changed conversion and time on page, choose suitable tests, report p-values with effect sizes and calculate the power the study had.",
+          "deliverable": "Testing notebook and plain-language summary",
+          "checks": [["Choose tests", "Correct test for each metric", "Notebook"], ["Report effect sizes", "Effect size with interval for each test", "Notebook output"], ["Calculate power", "Power of the study stated", "Notebook output"]],
+          "objectives": ["Run hypothesis tests", "Report effect sizes", "Understand power"]
+        },
+        {
+          "topic": "Correlation and Linear Regression",
+          "subtopics": ["Covariance and correlation", "Correlation and causation", "Simple linear regression", "Least squares", "Interpreting slope and intercept", "R-squared", "Residual analysis", "Regression with statsmodels"],
+          "tools": ["statsmodels", "seaborn"],
+          "lab_task": "Model house price from size with linear regression, interpret the coefficients, check residuals and explain why the slope does not prove that size causes price.",
+          "deliverable": "Regression notebook and interpretation",
+          "checks": [["Interpret the slope", "Units and meaning stated correctly", "Interpretation"], ["Check residuals", "Pattern described and a fix suggested", "Residual plot"], ["Explain causation limits", "Confounders named", "Interpretation"]],
+          "objectives": ["Measure association", "Fit regression", "Interpret and check models"]
+        },
+        {
+          "topic": "SQL for Data Scientists",
+          "subtopics": ["Querying databases from Python", "SELECT, filters and joins", "Aggregation and GROUP BY", "Window functions for features", "Sampling data in SQL", "Pushing work to the database", "Reading results into pandas", "Parameterised queries"],
+          "tools": ["PostgreSQL", "SQLAlchemy", "pandas"],
+          "lab_task": "Build a customer feature table in SQL with joins and window functions, read it into pandas with a parameterised query and compare speed with doing the same work in pandas.",
+          "deliverable": "SQL queries, notebook and timing comparison",
+          "checks": [["Compare features", "SQL and pandas results match", "Notebook output"], ["Compare speed", "Faster in the database for the large table", "Timing table"], ["Use a parameterised query", "No string-built SQL", "Code review"]],
+          "objectives": ["Query data with SQL", "Build features in SQL", "Combine SQL and pandas"]
+        },
+        {
+          "topic": "Preparing Features for Modelling",
+          "subtopics": ["Numeric scaling", "Encoding categories", "Dates and times as features", "Text length and simple text features", "Binning", "Interaction features", "Train-test split before preparation", "Data leakage"],
+          "tools": ["pandas", "scikit-learn"],
+          "lab_task": "Prepare features for predicting late deliveries: encode categories, extract date parts, scale numbers and show how fitting the scaler on all data leaks information.",
+          "deliverable": "Feature notebook and leakage demonstration",
+          "checks": [["Fit preparation on training data only", "Test data transformed with training parameters", "Notebook"], ["Show the leakage effect", "Leaky score higher than the honest score", "Notebook output"], ["Review features", "Each feature available at prediction time", "Feature list"]],
+          "objectives": ["Prepare features", "Encode and scale", "Avoid leakage"]
+        },
+        {
+          "topic": "Building Predictive Models with scikit-learn",
+          "subtopics": ["The scikit-learn estimator interface", "Regression and classification tasks", "Linear and logistic regression models", "k-nearest neighbours", "Decision trees", "Pipelines", "Baselines", "Comparing models fairly"],
+          "tools": ["scikit-learn", "pandas"],
+          "lab_task": "Predict late deliveries with a baseline, logistic regression, k-nearest neighbours and a decision tree inside pipelines, and compare them on the same split.",
+          "deliverable": "Modelling notebook and comparison table",
+          "checks": [["Report the baseline", "Baseline score recorded", "Comparison table"], ["Compare models", "All scored on the same test set", "Comparison table"], ["Review the pipeline", "Preparation and model in one pipeline", "Notebook"]],
+          "objectives": ["Build predictive models", "Use pipelines", "Compare against baselines"]
+        },
+        {
+          "topic": "Evaluating and Validating Models",
+          "subtopics": ["Regression metrics: MAE, RMSE and R-squared", "Classification metrics: accuracy, precision, recall and F1", "Confusion matrices", "ROC and precision-recall curves", "Cross-validation", "Overfitting and underfitting", "Learning curves", "Choosing a metric for the business problem"],
+          "tools": ["scikit-learn", "Matplotlib"],
+          "lab_task": "Evaluate the delivery models with cross-validation, plot confusion matrices and curves, diagnose overfitting with learning curves and choose a metric that fits the cost of missed late deliveries.",
+          "deliverable": "Evaluation notebook and metric choice note",
+          "checks": [["Run cross-validation", "Mean and spread of scores reported", "Notebook output"], ["Diagnose the tree", "Overfitting shown by the learning curve", "Learning curve"], ["Choose the metric", "Choice linked to business costs", "Metric note"]],
+          "objectives": ["Evaluate models", "Use cross-validation", "Choose suitable metrics"]
+        },
+        {
+          "topic": "Clustering and Dimensionality Reduction",
+          "subtopics": ["Unsupervised learning", "k-means", "Choosing the number of clusters", "Hierarchical clustering", "Scaling before clustering", "Principal component analysis", "Explained variance", "Interpreting clusters and components"],
+          "tools": ["scikit-learn", "seaborn"],
+          "lab_task": "Reduce a customer behaviour dataset with PCA, cluster customers with k-means and hierarchical clustering, compare results and describe each cluster in business terms.",
+          "deliverable": "Clustering notebook and cluster descriptions",
+          "checks": [["Report explained variance", "Variance per component shown", "Scree plot"], ["Justify cluster count", "Silhouette or elbow evidence shown", "Notebook"], ["Describe clusters", "Each described with its key numbers", "Cluster descriptions"]],
+          "objectives": ["Cluster data", "Reduce dimensions", "Interpret unsupervised results"]
+        },
+        {
+          "topic": "Communicating Data Science Results",
+          "subtopics": ["Knowing the audience", "Answer first, then evidence", "Explaining models without jargon", "Showing uncertainty", "Notebooks to reports", "Limitations and next steps", "Reproducible reports with Quarto", "Taking questions"],
+          "tools": ["Quarto", "JupyterLab", "PowerPoint"],
+          "lab_task": "Turn the delivery model notebook into a Quarto report and a five-minute presentation for operations managers, including uncertainty, limits and a recommendation.",
+          "deliverable": "Quarto report and presentation recording",
+          "checks": [["Render the report from the notebook", "Report builds without manual edits", "Rendered report"], ["Present to managers", "Recommendation clear without jargon", "Feedback form"], ["Review limitations", "At least three stated", "Report"]],
+          "objectives": ["Communicate results", "Explain uncertainty", "Produce reproducible reports"]
+        },
+        {
+          "topic": "Beginner Capstone: End-to-End Data Science Project",
+          "subtopics": ["Question and data", "Cleaning, exploration and inference", "Modelling and evaluation", "Presentation"],
+          "tools": ["Python", "pandas", "statsmodels", "scikit-learn", "Quarto"],
+          "lab_task": "Answer a question from a public dataset end to end: frame it, clean and explore the data, test one hypothesis, build and evaluate a model against a baseline and present a reproducible report.",
+          "deliverable": "Repository, Quarto report and presentation",
+          "checks": [["Reproduce from a clean clone", "Results match the report", "Reproduction notes"], ["Review the hypothesis test", "Correct test with effect size", "Report"], ["Present the project", "Answer, evidence and limits clear", "Rubric scores"]],
+          "objectives": ["Combine the beginner topics in one project", "Answer a real question with data", "Present reproducible work"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For working data scientists and analysts moving into modelling. Covers multiple regression and GLMs, regularisation, tree-based models, model selection, experiment design, Bayesian analysis, forecasting, survival analysis, text data, recommendations, anomaly detection, imbalanced data, interpretation, reproducible workflows, PySpark, neural networks, serving models, problem framing and responsible data science.",
+      "prerequisites": ["Uses pandas and scikit-learn for modelling", "Understands hypothesis tests, confidence intervals and regression", "Has completed at least one modelling project"],
+      "outcomes": ["Choose and fit suitable statistical and machine learning models", "Design experiments and use Bayesian methods", "Model time, survival, text and behaviour data", "Deliver reproducible, explainable and responsible data science work"],
+      "days": [
+        {
+          "topic": "Multiple Regression and Generalised Linear Models",
+          "subtopics": ["Multiple regression", "Categorical predictors and interactions", "Multicollinearity", "Model diagnostics", "Logistic regression as a GLM", "Poisson and negative binomial regression", "Interpreting odds ratios and rate ratios", "Model comparison with AIC"],
+          "tools": ["statsmodels", "pandas"],
+          "lab_task": "Model insurance claim counts with Poisson and negative binomial regression, check for overdispersion, interpret rate ratios for key factors and compare models with AIC.",
+          "deliverable": "GLM notebook and interpretation",
+          "checks": [["Test for overdispersion", "Overdispersion found and handled", "Notebook output"], ["Interpret rate ratios", "Correct interpretation for three factors", "Interpretation"], ["Compare models", "Better model chosen by AIC", "Notebook output"]],
+          "objectives": ["Fit GLMs", "Interpret coefficients", "Compare models"]
+        },
+        {
+          "topic": "Regularisation: Ridge, Lasso and Elastic Net",
+          "subtopics": ["Bias and variance", "Ridge regression", "Lasso and feature selection", "Elastic net", "Choosing penalty strength with cross-validation", "Scaling and regularisation", "Regularised logistic regression", "Stability of selected features"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Predict house prices with 200 features using ridge, lasso and elastic net, tune penalties with cross-validation and check how stable lasso's selected features are across bootstrap samples.",
+          "deliverable": "Notebook, tuning results and stability chart",
+          "checks": [["Tune the penalty", "Best value chosen by cross-validation", "Validation curve"], ["Compare models", "Test error reported for each", "Comparison table"], ["Check stability", "Selection frequency per feature shown", "Stability chart"]],
+          "objectives": ["Use regularisation", "Tune penalties", "Judge feature selection"]
+        },
+        {
+          "topic": "Tree-Based Models for Tabular Data",
+          "subtopics": ["Trees and their weaknesses", "Bagging and random forests", "Gradient boosting ideas", "XGBoost and LightGBM in practice", "Categorical features in boosting", "Early stopping", "Feature importance and its traps", "When linear models are better"],
+          "tools": ["scikit-learn", "LightGBM", "XGBoost"],
+          "lab_task": "Predict loan default with a random forest and LightGBM, use early stopping, compare with regularised logistic regression and compare split importance with permutation importance.",
+          "deliverable": "Notebook and comparison table",
+          "checks": [["Use early stopping", "Best iteration chosen on validation data", "Training log"], ["Compare with logistic regression", "Scores compared on the same test set", "Comparison table"], ["Compare importance types", "Differences explained", "Notebook"]],
+          "objectives": ["Use tree ensembles", "Tune boosting", "Read importance carefully"]
+        },
+        {
+          "topic": "Model Selection, Tuning and Validation Strategy",
+          "subtopics": ["Validation schemes for different data", "Grouped and stratified cross-validation", "Time-based validation", "Nested cross-validation", "Grid, random and Bayesian search", "Overfitting the validation set", "Final test set discipline", "Recording experiments"],
+          "tools": ["scikit-learn", "Optuna", "MLflow"],
+          "lab_task": "Tune a model on patient data with repeated visits using grouped cross-validation, compare with naive cross-validation, tune with Optuna and record all runs in MLflow.",
+          "deliverable": "Tuning notebook and MLflow experiment",
+          "checks": [["Compare grouped and naive validation", "Naive score is too optimistic", "Comparison table"], ["Run Optuna", "Best parameters found and logged", "MLflow runs"], ["Score on the held-out test once", "Single final score reported", "Notebook output"]],
+          "objectives": ["Choose validation schemes", "Tune models", "Avoid overfitting validation"]
+        },
+        {
+          "topic": "Designing Experiments and Power Analysis",
+          "subtopics": ["Randomised controlled experiments", "Units of randomisation", "Power and sample size", "Stratified and blocked designs", "Factorial designs", "Cluster randomisation", "Pre-registration of analysis", "Analysing experiments with regression"],
+          "tools": ["statsmodels", "Python"],
+          "lab_task": "Design an experiment testing two factors in a pricing page with a factorial design, calculate the sample size, pre-register the analysis and analyse simulated results with regression.",
+          "deliverable": "Experiment design, power calculation and analysis",
+          "checks": [["Calculate sample size", "Size for the target effect and power", "Power calculation"], ["Write the pre-registration", "Metrics and tests fixed before data", "Pre-registration"], ["Analyse the factorial results", "Main effects and interaction estimated", "Notebook output"]],
+          "objectives": ["Design experiments", "Calculate power", "Analyse experiments"]
+        },
+        {
+          "topic": "Bayesian Data Analysis",
+          "subtopics": ["Bayesian and frequentist thinking", "Priors, likelihood and posteriors", "Conjugate models", "Markov chain Monte Carlo", "PyMC models", "Posterior predictive checks", "Credible intervals", "Bayesian A/B testing"],
+          "tools": ["PyMC", "ArviZ"],
+          "lab_task": "Analyse an A/B test with a Bayesian model in PyMC, check convergence and the posterior predictive, report the probability that B beats A and test sensitivity to the prior.",
+          "deliverable": "Bayesian notebook and report",
+          "checks": [["Check convergence", "R-hat near 1 and enough effective samples", "ArviZ summary"], ["Run posterior predictive checks", "Simulated data resembles observed data", "PPC plot"], ["Change the prior", "Effect on the result reported", "Sensitivity table"]],
+          "objectives": ["Build Bayesian models", "Check models", "Report posterior results"]
+        },
+        {
+          "topic": "Forecasting with ARIMA, ETS and Gradient Boosting",
+          "subtopics": ["Time series structure", "Stationarity and differencing", "ARIMA and seasonal ARIMA", "Exponential smoothing", "Lag features for machine learning forecasts", "Backtesting", "Forecast intervals", "Choosing a forecasting method"],
+          "tools": ["statsmodels", "statsforecast", "LightGBM"],
+          "lab_task": "Forecast hourly electricity demand with seasonal ARIMA, ETS and a LightGBM model with lag features, backtest each with rolling origins and compare accuracy and intervals.",
+          "deliverable": "Forecasting notebook and backtest table",
+          "checks": [["Run the backtest", "Error per method for each origin", "Backtest table"], ["Check intervals", "Coverage of 80 percent intervals reported", "Notebook output"], ["Avoid leakage in lag features", "Features use only past data", "Code review"]],
+          "objectives": ["Forecast time series", "Backtest correctly", "Compare methods"]
+        },
+        {
+          "topic": "Survival Analysis and Time-to-Event Models",
+          "subtopics": ["Censoring", "Survival and hazard functions", "Kaplan-Meier curves", "Log-rank tests", "Cox proportional hazards", "Checking proportional hazards", "Customer churn as a survival problem", "Predicting time to event"],
+          "tools": ["lifelines", "pandas"],
+          "lab_task": "Model time to churn for subscribers, plot Kaplan-Meier curves by plan, compare plans with a log-rank test, fit a Cox model and check its assumptions.",
+          "deliverable": "Survival notebook and interpretation",
+          "checks": [["Plot Kaplan-Meier curves", "Curves by plan with censoring marks", "Chart"], ["Fit the Cox model", "Hazard ratios interpreted", "Interpretation"], ["Check proportional hazards", "Assumption test reported", "Notebook output"]],
+          "objectives": ["Handle censored data", "Estimate survival", "Model hazards"]
+        },
+        {
+          "topic": "Working with Text Data",
+          "subtopics": ["Text cleaning and tokenisation", "Bag of words and TF-IDF", "Text classification", "Sentence embeddings", "Topic modelling", "Using LLMs to label text", "Evaluating text models", "Multilingual text"],
+          "tools": ["scikit-learn", "sentence-transformers", "BERTopic"],
+          "lab_task": "Classify customer reviews with TF-IDF and logistic regression and with sentence embeddings, find topics with BERTopic and compare LLM labels with 200 human labels.",
+          "deliverable": "Text notebook and comparison table",
+          "checks": [["Compare TF-IDF and embeddings", "Scores on the same test set", "Comparison table"], ["Review topics", "Topics labelled and checked against examples", "Topic list"], ["Compare LLM and human labels", "Agreement reported", "Comparison table"]],
+          "objectives": ["Prepare text", "Classify text", "Evaluate text models"]
+        },
+        {
+          "topic": "Recommendation Systems",
+          "subtopics": ["Recommendation problems", "Popularity baselines", "Content-based filtering", "Collaborative filtering", "Matrix factorisation", "Implicit feedback", "Offline evaluation: precision at k and recall at k", "Cold start"],
+          "tools": ["implicit", "scikit-learn", "pandas"],
+          "lab_task": "Build product recommendations from purchase history with a popularity baseline, item similarity and matrix factorisation, evaluate with precision at 10 and handle new users.",
+          "deliverable": "Recommendation notebook and evaluation table",
+          "checks": [["Compare with the baseline", "Precision at 10 for each method", "Evaluation table"], ["Recommend for a new user", "Fallback recommendations returned", "Notebook output"], ["Split by time", "Training data before test data", "Code review"]],
+          "objectives": ["Build recommenders", "Evaluate recommendations", "Handle cold start"]
+        },
+        {
+          "topic": "Anomaly and Outlier Detection",
+          "subtopics": ["Types of anomalies", "Statistical rules", "Isolation forest", "Local outlier factor", "Autoencoders in brief", "Anomalies in time series", "Evaluating without labels", "Reviewing alerts with domain experts"],
+          "tools": ["scikit-learn", "PyOD", "pandas"],
+          "lab_task": "Detect unusual transactions with a z-score rule, isolation forest and local outlier factor, compare the top 50 alerts from each and review them against a small set of known fraud cases.",
+          "deliverable": "Anomaly notebook and alert review",
+          "checks": [["Compare methods", "Overlap of top alerts reported", "Comparison table"], ["Check against known fraud", "Recall on known cases reported", "Notebook output"], ["Review alerts", "Each top alert explained or dismissed", "Alert review"]],
+          "objectives": ["Detect anomalies", "Compare methods", "Evaluate without many labels"]
+        },
+        {
+          "topic": "Imbalanced Data and Cost-Sensitive Decisions",
+          "subtopics": ["Why accuracy misleads", "Resampling: under and over sampling and SMOTE", "Class weights", "Threshold choice", "Probability calibration", "Cost matrices", "Expected value of decisions", "Precision-recall trade-offs"],
+          "tools": ["scikit-learn", "imbalanced-learn"],
+          "lab_task": "Predict rare equipment failures, compare class weights and SMOTE, calibrate probabilities and choose a threshold that maximises expected savings from a cost matrix.",
+          "deliverable": "Notebook, calibration plot and threshold analysis",
+          "checks": [["Compare approaches", "Precision-recall results for each", "Comparison table"], ["Calibrate", "Calibration curve closer to the diagonal", "Calibration plot"], ["Choose the threshold", "Threshold with highest expected savings", "Threshold analysis"]],
+          "objectives": ["Handle imbalanced data", "Calibrate models", "Decide with costs"]
+        },
+        {
+          "topic": "Interpreting and Explaining Models",
+          "subtopics": ["Global and local explanations", "Partial dependence and ICE plots", "Permutation importance", "SHAP values", "Explaining to non-technical people", "Explanations for regulators", "Limits of explanations", "Checking explanations for sense"],
+          "tools": ["SHAP", "scikit-learn"],
+          "lab_task": "Explain the loan default model globally and for three individual decisions with SHAP and partial dependence, check the explanations against domain knowledge and write a customer-facing explanation.",
+          "deliverable": "Explanation notebook and written explanation",
+          "checks": [["Explain three decisions", "Top drivers listed for each", "SHAP plots"], ["Check against domain knowledge", "Odd effects investigated", "Notebook notes"], ["Review the customer explanation", "Clear and accurate without jargon", "Written explanation"]],
+          "objectives": ["Explain models", "Use SHAP and partial dependence", "Communicate explanations"]
+        },
+        {
+          "topic": "Reproducible Data Science Workflows",
+          "subtopics": ["Project structure", "Environments and lock files", "Data versioning with DVC", "Pipelines with DVC or Kedro", "Configuration files", "Testing data science code", "Code review for notebooks", "Continuous integration for analysis"],
+          "tools": ["DVC", "Kedro", "pytest", "GitHub Actions"],
+          "lab_task": "Turn the churn project into a pipeline with versioned data, configuration files and tests, run it in CI and have a partner reproduce the model and metrics.",
+          "deliverable": "Pipeline repository and CI run",
+          "checks": [["Partner reproduces the pipeline", "Same metrics produced", "Reproduction notes"], ["Change the raw data", "Only affected stages re-run", "DVC output"], ["Break a function", "Test fails in CI", "CI log"]],
+          "objectives": ["Make work reproducible", "Version data", "Test analysis code"]
+        },
+        {
+          "topic": "Large-Scale Data Science with PySpark",
+          "subtopics": ["When data does not fit in memory", "Spark DataFrames", "Feature engineering in PySpark", "Sampling for exploration", "Spark MLlib pipelines", "pandas API on Spark", "Performance basics", "Moving results back to pandas"],
+          "tools": ["PySpark", "Databricks or local Spark"],
+          "lab_task": "Build customer features from 500 million events with PySpark, train an MLlib model, compare with a sampled pandas workflow and explain when each approach is right.",
+          "deliverable": "PySpark notebook and comparison",
+          "checks": [["Build features", "Feature table created for all customers", "Notebook output"], ["Compare with the sampled model", "Scores and run times compared", "Comparison table"], ["Review the plan", "Expensive shuffles identified", "explain() output"]],
+          "objectives": ["Use Spark for data science", "Engineer features at scale", "Choose tools by data size"]
+        },
+        {
+          "topic": "Neural Networks with PyTorch for Tabular, Text and Images",
+          "subtopics": ["Neurons, layers and activation functions", "Training with gradient descent", "PyTorch tensors and autograd", "Training loops", "Embeddings for categorical data", "Transfer learning for images", "Regularisation: dropout and early stopping", "When neural networks beat tree models"],
+          "tools": ["PyTorch", "torchvision"],
+          "lab_task": "Train a small network on tabular data with embeddings and compare it with LightGBM, then fine-tune a pretrained image model to classify product photos.",
+          "deliverable": "Training notebooks and comparison table",
+          "checks": [["Compare with LightGBM", "Scores on the same test set", "Comparison table"], ["Fine-tune the image model", "Accuracy above the baseline", "Training log"], ["Use early stopping", "Training stops when validation loss rises", "Training curve"]],
+          "objectives": ["Build neural networks", "Train with PyTorch", "Use transfer learning"]
+        },
+        {
+          "topic": "Packaging and Serving Models as APIs",
+          "subtopics": ["Saving models and pipelines", "Model inputs and schemas", "Serving with FastAPI", "Batch scoring", "Containers with Docker", "Validating inputs", "Logging predictions", "Handing models to engineering teams"],
+          "tools": ["FastAPI", "Docker", "joblib", "pydantic"],
+          "lab_task": "Package the churn pipeline, serve it with FastAPI with input validation, run it in Docker, add a batch scoring script and log predictions for monitoring.",
+          "deliverable": "API code, Dockerfile, batch script and prediction log",
+          "checks": [["Send a valid request", "Prediction returned", "API response"], ["Send invalid input", "422 error with details", "API response"], ["Run batch scoring", "Scores written for all customers", "Output file"]],
+          "objectives": ["Package models", "Serve predictions", "Support batch and real-time use"]
+        },
+        {
+          "topic": "Framing Problems with Stakeholders",
+          "subtopics": ["From business problem to data science problem", "Decisions the model will support", "Success metrics and baselines", "Data availability and timing", "Feasibility checks", "Scoping and milestones", "Managing expectations", "Saying no to poor projects"],
+          "tools": ["Problem framing template", "Role play scripts"],
+          "lab_task": "Interview a role-play operations director, turn a vague request into a framed problem with the decision, metric, baseline and data, run a feasibility check and agree a scoped plan.",
+          "deliverable": "Problem framing document and scoped plan",
+          "checks": [["Review the framing", "Decision, metric and baseline stated", "Framing document"], ["Run the feasibility check", "Data and timing risks identified", "Feasibility notes"], ["Agree the plan", "Milestones agreed with the stakeholder", "Interview notes"]],
+          "objectives": ["Frame data science problems", "Check feasibility", "Manage expectations"]
+        },
+        {
+          "topic": "Responsible and Ethical Data Science",
+          "subtopics": ["Harms from data science", "Bias in data and models", "Fairness metrics", "Privacy and consent", "Transparency and documentation: model cards and datasheets", "Regulation: GDPR, DPDP and the EU AI Act", "Reviewing projects for risk", "Escalating concerns"],
+          "tools": ["Fairlearn", "Model card template"],
+          "lab_task": "Audit the loan model for fairness across groups, try one mitigation and its trade-off, write a model card and datasheet and complete a risk review.",
+          "deliverable": "Fairness audit, model card, datasheet and risk review",
+          "checks": [["Measure fairness", "Metrics compared across groups", "Fairness report"], ["Try a mitigation", "Trade-off between fairness and accuracy reported", "Notebook output"], ["Review the model card", "Use, limits and risks documented", "Model card"]],
+          "objectives": ["Audit models for bias", "Document models", "Review risks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Customer Lifetime and Retention Modelling",
+          "subtopics": ["Framing and data", "Survival, forecasting and prediction models", "Explanation and fairness", "Delivery"],
+          "tools": ["lifelines", "LightGBM", "SHAP", "DVC", "FastAPI"],
+          "lab_task": "For a subscription business, frame the retention problem, model time to churn with survival analysis, predict churn risk with a tuned model, explain and audit it, serve it as an API in a reproducible pipeline and present a retention plan.",
+          "deliverable": "Pipeline repository, API, model card and presentation",
+          "checks": [["Reproduce the pipeline", "Same metrics from a clean run", "Reproduction notes"], ["Call the API", "Risk score and top drivers returned", "API response"], ["Present the plan", "Actions linked to model evidence and costs", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one project", "Deliver a deployable, explainable model", "Support a business plan"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior and lead data scientists. Covers causal machine learning, hierarchical Bayesian models, adaptive experiments and bandits, optimisation, simulation, LLMs in data science, graph and spatial data, observational data correction, MLOps for data scientists, scaling with Spark and Ray, system design, model risk, privacy-preserving analysis, global forecasting models, research methods, business value, failing models and leading data science teams.",
+      "prerequisites": ["Several years of modelling experience in production or research", "Confident with statistics, Bayesian methods and machine learning", "Has delivered models used for real decisions"],
+      "outcomes": ["Estimate causal effects and run adaptive experiments", "Build decision models with optimisation, simulation and Bayesian methods", "Run data science reliably at scale under model risk rules", "Lead data science work that creates measured business value"],
+      "days": [
+        {
+          "topic": "Causal Machine Learning: Double ML and Heterogeneous Effects",
+          "subtopics": ["Potential outcomes", "Confounding and causal graphs", "Double machine learning", "Meta-learners: S, T and X learners", "Causal forests", "Heterogeneous treatment effects", "Validating causal models", "Using effects to target treatments"],
+          "tools": ["DoWhy", "EconML", "scikit-learn"],
+          "lab_task": "Estimate the effect of a discount on purchases from observational data with double machine learning, estimate effects per customer with a causal forest, run refutation tests and design a targeting policy.",
+          "deliverable": "Causal notebook, refutation results and targeting policy",
+          "checks": [["Run refutation tests", "Estimate stable under placebo and subset tests", "DoWhy output"], ["Estimate heterogeneous effects", "Effect distribution across customers shown", "Chart"], ["Evaluate the targeting policy", "Expected gain compared with treating everyone", "Policy evaluation"]],
+          "objectives": ["Estimate causal effects with ML", "Find who benefits", "Test causal claims"]
+        },
+        {
+          "topic": "Hierarchical Bayesian Models",
+          "subtopics": ["Pooling: none, complete and partial", "Hierarchical model structure", "Priors for hierarchical models", "Non-centred parameterisation", "Diagnosing divergences", "Hierarchical regression", "Model comparison with LOO", "Communicating hierarchical results"],
+          "tools": ["PyMC", "ArviZ", "Bambi"],
+          "lab_task": "Model conversion rates for 300 stores with a hierarchical model, fix divergences with a non-centred version, compare pooling choices with LOO and explain shrinkage for small stores.",
+          "deliverable": "Model notebook and explanation of shrinkage",
+          "checks": [["Fix divergences", "Zero divergences after reparameterisation", "Sampler output"], ["Compare pooling with LOO", "Partial pooling preferred with reasons", "LOO comparison"], ["Explain shrinkage", "Small-store estimates move toward the mean and the reason is given", "Explanation"]],
+          "objectives": ["Build hierarchical models", "Diagnose samplers", "Compare models"]
+        },
+        {
+          "topic": "Adaptive Experiments and Multi-Armed Bandits",
+          "subtopics": ["Limits of fixed experiments", "Epsilon-greedy, UCB and Thompson sampling", "Contextual bandits", "Regret", "Off-policy evaluation", "Sequential testing alternatives", "Interleaving for ranking tests", "When to use bandits"],
+          "tools": ["Python", "Vowpal Wabbit or custom code"],
+          "lab_task": "Simulate headline testing with fixed A/B allocation, Thompson sampling and a contextual bandit, compare regret and evaluate a new policy offline from logged data.",
+          "deliverable": "Simulation notebook and off-policy evaluation",
+          "checks": [["Compare regret", "Regret curves for each method", "Chart"], ["Run off-policy evaluation", "Estimated value of the new policy with an interval", "Notebook output"], ["Write the guidance", "Cases for bandits and for fixed tests", "Written note"]],
+          "objectives": ["Run adaptive experiments", "Measure regret", "Evaluate policies offline"]
+        },
+        {
+          "topic": "Optimisation and Operations Research for Data Scientists",
+          "subtopics": ["Decisions as optimisation problems", "Linear programming", "Integer programming", "Constraints from the business", "Solvers: OR-Tools and PuLP", "Combining predictions with optimisation", "Sensitivity analysis", "Explaining optimised decisions"],
+          "tools": ["OR-Tools", "PuLP", "pandas"],
+          "lab_task": "Allocate a marketing budget and a delivery fleet using demand forecasts with linear and integer programming, add business constraints and test how the solution changes when inputs shift.",
+          "deliverable": "Optimisation models, solutions and sensitivity analysis",
+          "checks": [["Solve the allocation", "Optimal solution satisfying all constraints", "Solver output"], ["Change a forecast by 10 percent", "Change in the solution reported", "Sensitivity table"], ["Explain the solution", "Main drivers of the decision explained", "Explanation"]],
+          "objectives": ["Model decisions as optimisation", "Use solvers", "Combine prediction and optimisation"]
+        },
+        {
+          "topic": "Simulation and Monte Carlo Methods for Decisions",
+          "subtopics": ["Why simulate", "Monte Carlo simulation", "Discrete-event simulation", "Input distributions from data", "Variance reduction", "Validating simulations", "Scenario comparison", "Presenting simulated risk"],
+          "tools": ["NumPy", "SimPy"],
+          "lab_task": "Simulate a call centre with SimPy to choose staffing levels, validate against historical wait times, compare three staffing plans and report the probability of breaching the service level.",
+          "deliverable": "Simulation code, validation and staffing recommendation",
+          "checks": [["Validate the simulation", "Simulated waits match history within tolerance", "Validation chart"], ["Compare plans", "Breach probability for each plan", "Comparison table"], ["Present the recommendation", "Cost and risk shown together", "Recommendation"]],
+          "objectives": ["Build simulations", "Validate them", "Support decisions under uncertainty"]
+        },
+        {
+          "topic": "Large Language Models in Data Science Work",
+          "subtopics": ["Where LLMs help data scientists", "Embeddings as features", "LLMs for labelling and extraction", "Prompting for structured output", "Evaluating LLM outputs against labels", "Cost and latency", "Data privacy with LLM APIs", "Combining LLMs with classical models"],
+          "tools": ["OpenAI or Azure OpenAI", "sentence-transformers", "pydantic"],
+          "lab_task": "Extract structured fields from 2,000 support emails with an LLM, evaluate against human labels, use embeddings as features in a classifier and compare cost and accuracy with a fine-tuned small model.",
+          "deliverable": "Extraction pipeline, evaluation and cost comparison",
+          "checks": [["Evaluate extraction", "Field-level accuracy reported", "Evaluation table"], ["Add embedding features", "Classifier score changes measured", "Comparison table"], ["Check privacy", "Personal data removed before API calls", "Code review"]],
+          "objectives": ["Use LLMs in data science", "Evaluate LLM outputs", "Balance cost and accuracy"]
+        },
+        {
+          "topic": "Graph Data and Network Analysis",
+          "subtopics": ["Graphs, nodes and edges", "Centrality measures", "Community detection", "Link prediction", "Graph features for models", "Node embeddings", "Fraud rings and influence networks", "Scaling graph analysis"],
+          "tools": ["NetworkX", "igraph", "PyTorch Geometric"],
+          "lab_task": "Build a graph of accounts sharing devices and addresses, find communities and central accounts, add graph features to a fraud model and measure the improvement.",
+          "deliverable": "Graph notebook and model comparison",
+          "checks": [["Detect communities", "Suspicious rings identified", "Community output"], ["Add graph features", "Fraud model score improves", "Comparison table"], ["Rank central accounts", "Top accounts reviewed", "Centrality table"]],
+          "objectives": ["Analyse networks", "Create graph features", "Detect connected fraud"]
+        },
+        {
+          "topic": "Spatial Statistics and Location Modelling",
+          "subtopics": ["Spatial data types", "Spatial autocorrelation", "Moran's I", "Kriging", "Spatial regression", "Location features for models", "Spatial cross-validation", "Mapping results"],
+          "tools": ["GeoPandas", "PySAL", "scikit-learn"],
+          "lab_task": "Model house prices with location, test for spatial autocorrelation in residuals, add spatial features, validate with spatial cross-validation and map the errors.",
+          "deliverable": "Spatial notebook and error map",
+          "checks": [["Test residual autocorrelation", "Moran's I reported", "Notebook output"], ["Compare random and spatial cross-validation", "Spatial result less optimistic", "Comparison table"], ["Map errors", "Error clusters shown", "Map"]],
+          "objectives": ["Model spatial data", "Test spatial dependence", "Validate spatially"]
+        },
+        {
+          "topic": "Observational and Survey Data: Weighting and Bias Correction",
+          "subtopics": ["Selection bias", "Survey weights", "Raking and post-stratification", "Multilevel regression and post-stratification", "Inverse probability weighting", "Missing data with multiple imputation", "Sensitivity analysis for unmeasured bias", "Reporting adjusted estimates"],
+          "tools": ["statsmodels", "PyMC", "pandas"],
+          "lab_task": "Correct a biased online survey to match census totals with raking and MRP, handle missing answers with multiple imputation and compare adjusted and raw estimates.",
+          "deliverable": "Adjustment notebook and comparison",
+          "checks": [["Rake to census totals", "Weighted margins match the targets", "Notebook output"], ["Compare MRP with raking", "Estimates and intervals compared", "Comparison table"], ["Run multiple imputation", "Pooled estimates reported", "Notebook output"]],
+          "objectives": ["Correct sampling bias", "Weight surveys", "Handle missing data properly"]
+        },
+        {
+          "topic": "MLOps for Data Scientists: From Notebook to Production",
+          "subtopics": ["Who does what in MLOps", "Experiment tracking and model registry", "Training pipelines", "Model validation gates", "Deployment patterns", "Monitoring data drift and performance", "Retraining policies", "Working with ML engineers"],
+          "tools": ["MLflow", "Evidently", "GitHub Actions"],
+          "lab_task": "Move the churn model into a training pipeline with tracking, a registry, a validation gate and drift monitoring, then define a retraining policy with the engineering team.",
+          "deliverable": "Pipeline, registry entries, monitoring report and retraining policy",
+          "checks": [["Train a worse model", "Gate blocks promotion", "Pipeline log"], ["Inject drift", "Drift report flags the features", "Evidently report"], ["Agree the retraining policy", "Triggers and owners defined", "Policy document"]],
+          "objectives": ["Take models to production", "Gate and monitor models", "Work with engineers"]
+        },
+        {
+          "topic": "Scaling Data Science with Spark and Ray",
+          "subtopics": ["Distributed computing choices", "Spark for data preparation", "Ray for parallel training and tuning", "Distributed hyperparameter search", "Training many models at once", "GPU use", "Cost control", "Debugging distributed jobs"],
+          "tools": ["PySpark", "Ray", "Ray Tune"],
+          "lab_task": "Train 1,000 store-level forecast models in parallel with Ray, tune hyperparameters with Ray Tune, compare run time and cost with a single machine and debug a failing task.",
+          "deliverable": "Distributed code, timings and cost comparison",
+          "checks": [["Train all store models", "1,000 models trained and saved", "Run log"], ["Compare run time and cost", "Both recorded for each approach", "Comparison table"], ["Debug the failing task", "Cause found in Ray logs", "Debug notes"]],
+          "objectives": ["Scale training", "Tune in parallel", "Control compute cost"]
+        },
+        {
+          "topic": "Data Science System Design",
+          "subtopics": ["Requirements and constraints", "Batch, near-real-time and real-time designs", "Data and feature flows", "Training and serving consistency", "Feedback loops", "Fallbacks and safe defaults", "Design reviews", "Writing design documents"],
+          "tools": ["Design document template", "Architecture diagrams"],
+          "lab_task": "Write a design document for a real-time pricing system: requirements, data flows, model choices, serving, feedback, fallbacks and monitoring, and defend it in a design review.",
+          "deliverable": "Design document and review notes",
+          "checks": [["Review the design", "Requirements traced to design choices", "Design review notes"], ["Check feedback loops", "Risk of self-reinforcing bias addressed", "Design document"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design data science systems", "Plan for failure", "Write design documents"]
+        },
+        {
+          "topic": "Model Risk Management and Validation",
+          "subtopics": ["Model risk", "Model inventories", "Independent validation", "Conceptual soundness", "Outcome analysis and back-testing", "Benchmark models", "SR 11-7 and RBI model risk guidance", "Ongoing monitoring and review"],
+          "tools": ["Validation report template", "Python"],
+          "lab_task": "Independently validate a credit scoring model: review its design, re-run its results, build a benchmark model, back-test it and write a validation report with findings and ratings.",
+          "deliverable": "Validation report and supporting notebook",
+          "checks": [["Re-run the results", "Reported metrics reproduced", "Notebook output"], ["Compare with the benchmark", "Differences explained", "Comparison table"], ["Rate findings", "Each finding rated with an action", "Validation report"]],
+          "objectives": ["Validate models", "Assess model risk", "Report findings"]
+        },
+        {
+          "topic": "Privacy-Preserving Analysis and Synthetic Data",
+          "subtopics": ["Re-identification risk", "Differential privacy", "Privacy budgets", "Synthetic data generation", "Utility and privacy trade-offs", "Federated analysis in brief", "Privacy reviews", "Sharing data safely"],
+          "tools": ["OpenDP", "SDV", "pandas"],
+          "lab_task": "Publish statistics from a patient dataset with differential privacy at three budgets, generate synthetic data, measure its usefulness for a model and its re-identification risk.",
+          "deliverable": "Private statistics, synthetic data and evaluation",
+          "checks": [["Compare budgets", "Error rises as the budget falls", "Comparison table"], ["Train on synthetic data", "Score compared with real data", "Comparison table"], ["Test re-identification", "Risk measured and reported", "Risk report"]],
+          "objectives": ["Apply differential privacy", "Generate synthetic data", "Measure privacy and utility"]
+        },
+        {
+          "topic": "Demand Forecasting at Scale with Global Models",
+          "subtopics": ["Local and global forecasting models", "Feature design across many series", "Hierarchies and reconciliation", "Intermittent demand", "Probabilistic forecasts and quantiles", "Forecast evaluation with scaled errors", "Forecasts as inputs to decisions", "Monitoring forecast quality"],
+          "tools": ["LightGBM", "statsforecast", "Nixtla neuralforecast"],
+          "lab_task": "Forecast demand for 5,000 products with a global LightGBM model and per-series baselines, produce quantile forecasts, reconcile to category totals and feed the quantiles into a stock policy.",
+          "deliverable": "Forecasting pipeline, evaluation and stock policy results",
+          "checks": [["Compare global and local models", "Scaled error for both", "Evaluation table"], ["Check quantile coverage", "Coverage near the target levels", "Coverage table"], ["Simulate the stock policy", "Service level and stock cost reported", "Simulation results"]],
+          "objectives": ["Forecast many series", "Produce probabilistic forecasts", "Link forecasts to decisions"]
+        },
+        {
+          "topic": "Research Methods and Reading the Literature",
+          "subtopics": ["Finding relevant papers", "Reading papers efficiently", "Judging evidence quality", "Reproducing published results", "Benchmarks and their limits", "Writing technical reports", "Internal research reviews", "Moving from research to product"],
+          "tools": ["arXiv", "Papers with Code", "Zotero"],
+          "lab_task": "Pick a recent method relevant to the team, reproduce its main result on a public dataset, test it on company-like data and write a technical report recommending whether to adopt it.",
+          "deliverable": "Reproduction notebook and technical report",
+          "checks": [["Reproduce the result", "Close to the published number or gaps explained", "Notebook output"], ["Test on new data", "Performance compared with the current method", "Comparison table"], ["Write the recommendation", "Adopt or not, with evidence", "Technical report"]],
+          "objectives": ["Read research critically", "Reproduce results", "Recommend methods"]
+        },
+        {
+          "topic": "Translating Models into Business Value",
+          "subtopics": ["From model metrics to business metrics", "Value of a prediction", "Decision policies built on models", "Measuring impact with holdouts", "Attribution of model value", "Cost of building and running models", "Portfolio of data science projects", "Stopping projects that do not pay"],
+          "tools": ["Spreadsheet", "Python", "Experiment tracking"],
+          "lab_task": "Estimate the business value of three existing models using holdout results and costs, rank them and recommend which to expand, keep or retire.",
+          "deliverable": "Value analysis and recommendation",
+          "checks": [["Convert metrics to value", "Value per model in money terms", "Value analysis"], ["Include costs", "Build and running costs included", "Value analysis"], ["Recommend actions", "Expand, keep or retire for each with reasons", "Recommendation"]],
+          "objectives": ["Measure model value", "Prioritise projects", "Retire weak models"]
+        },
+        {
+          "topic": "Diagnosing Failing Models and Data Problems",
+          "subtopics": ["How models fail after launch", "Data pipeline changes", "Label delay and label problems", "Concept drift", "Feedback loops", "Segment-level failures", "Root cause analysis for models", "Post-incident reviews for models"],
+          "tools": ["Evidently", "pandas", "MLflow"],
+          "lab_task": "Investigate four failing models (a changed upstream field, delayed labels, concept drift and a segment failure), find each root cause, fix it and write a post-incident review.",
+          "deliverable": "Investigation notes, fixes and a post-incident review",
+          "checks": [["Find the upstream change", "Changed field and its effect identified", "Investigation notes"], ["Find the segment failure", "Segment and cause identified", "Segment analysis"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose model failures", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Leading Data Science Teams and Strategy",
+          "subtopics": ["Data science team models", "Hiring and levelling", "Project selection and roadmaps", "Working with product and engineering", "Standards and peer review", "Growing people", "Communicating with executives", "Data science strategy"],
+          "tools": ["Roadmap template", "Prioritisation matrix"],
+          "lab_task": "Write a 12-month data science strategy for a company: team model, hiring plan, prioritised roadmap, standards and how value will be measured, and present it to a role-play executive team.",
+          "deliverable": "Strategy document and presentation",
+          "checks": [["Prioritise the roadmap", "Projects ranked with value and feasibility", "Roadmap"], ["Review the hiring plan", "Roles and levels justified by the roadmap", "Hiring plan"], ["Present to executives", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Lead data science teams", "Set strategy", "Communicate with executives"]
+        },
+        {
+          "topic": "Advanced Capstone: Decision Science Programme",
+          "subtopics": ["Framing and design", "Causal, predictive and optimisation models", "Validation and production", "Value and presentation"],
+          "tools": ["EconML", "PyMC", "OR-Tools", "MLflow", "Ray"],
+          "lab_task": "For a case retailer, design and deliver a promotion decision system: estimate promotion effects causally, forecast demand probabilistically, optimise promotion choices under budget, validate the models independently, put them into a monitored pipeline and present measured value to a leadership panel.",
+          "deliverable": "Design document, models, validation report, pipeline and leadership presentation",
+          "checks": [["Run the holdout test", "Value of the system measured against the current process", "Holdout results"], ["Review the validation", "Findings addressed before launch", "Validation report"], ["Present to the panel", "Recommendation defended with evidence", "Panel feedback"]],
+          "objectives": ["Combine the advanced topics in one programme", "Deliver measured decision value", "Lead with evidence"]
+        }
+      ]
+    }
+  }
+}

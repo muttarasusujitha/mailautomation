@@ -1,0 +1,573 @@
+{
+  "domain": "ServiceNow",
+  "name": "ServiceNow Platform",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "settings",
+  "aliases": ["ServiceNow Administration", "ServiceNow Administrator", "ServiceNow Development", "ServiceNow Training", "ServiceNow Platform", "ServiceNow ITSM Implementation", "ServiceNow Architect"],
+  "certifications": ["ServiceNow Certified System Administrator (CSA)", "ServiceNow Certified Application Developer (CAD)", "ServiceNow Certified Implementation Specialist - IT Service Management (CIS-ITSM)", "ServiceNow Certified Implementation Specialist - Discovery (CIS-Discovery)", "ServiceNow Certified Technical Architect (CTA)"],
+  "tools": ["ServiceNow Personal Developer Instance", "Flow Designer", "App Engine Studio", "IntegrationHub", "Service Portal", "Performance Analytics", "MID Server"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new administrators, process owners and support staff. Covers the Now Platform and the Next Experience interface, users, groups and roles, tables and the dictionary, forms and lists, incident, problem and change, the service catalog, knowledge, Flow Designer, notifications, reports, data imports, the CMDB, access controls, SLAs, UI and data policies, update sets, the Employee Center and CSA exam preparation.",
+      "prerequisites": ["Basic understanding of IT support or business service processes", "Comfortable using web applications", "No coding experience required"],
+      "outcomes": ["Administer a ServiceNow instance: users, roles, tables, forms and lists", "Configure ITSM processes, the catalog, knowledge and SLAs", "Automate work with Flow Designer and notifications and build reports", "Move configuration safely with update sets and prepare for the CSA exam"],
+      "days": [
+        {
+          "topic": "ServiceNow Platform Overview and Instance Setup",
+          "subtopics": ["What ServiceNow is and where it is used", "The Now Platform: one data model, many applications", "Products: ITSM, ITOM, HRSD, CSM, SecOps and IRM", "Instances, releases and the twice-yearly upgrade cycle", "Requesting a Personal Developer Instance", "The Next Experience interface: menus, favourites and history", "The application navigator and filter navigator", "Lists, forms and the global search", "Impersonating users for testing", "System properties and instance branding"],
+          "tools": ["ServiceNow Personal Developer Instance"],
+          "lab_task": "Request a Personal Developer Instance, brand it with a logo and colours, add favourites for common modules, find records with global search and impersonate a user to see their view.",
+          "deliverable": "Branded instance screenshots and a navigation cheat sheet",
+          "checks": [["Open the instance", "Branding and favourites shown", "Screenshot"], ["Impersonate an ITIL user", "Menus differ from the admin view", "Screenshots"], ["Explain the product families", "Each family matched to a business need", "Written note"]],
+          "objectives": ["Describe the Now Platform", "Set up a practice instance", "Navigate the interface"]
+        },
+        {
+          "topic": "Users, Groups and Roles",
+          "subtopics": ["User records", "Groups and group membership", "Roles and role inheritance", "The admin, itil and catalog_admin roles", "Assignment groups", "Delegation", "User administration with LDAP and SSO in brief", "Testing access by impersonation"],
+          "tools": ["ServiceNow", "User Administration"],
+          "lab_task": "Create three support groups with managers, assign roles through groups instead of to users, give one group an extra role through inheritance and check access by impersonating members.",
+          "deliverable": "Groups, roles and access test notes",
+          "checks": [["Impersonate a group member", "Role granted through the group", "Screenshot"], ["Remove the user from the group", "Role removed", "User record"], ["Review role assignments", "No roles assigned directly to users", "Report"]],
+          "objectives": ["Manage users and groups", "Grant roles through groups", "Test access"]
+        },
+        {
+          "topic": "Tables, Fields and the Data Dictionary",
+          "subtopics": ["Tables and records", "Extended tables and the Task table", "Field types", "Reference fields", "Choice lists", "Dictionary entries and overrides", "Creating custom tables", "The schema map"],
+          "tools": ["ServiceNow", "Tables module", "Schema map"],
+          "lab_task": "Create a custom equipment loan table that extends Task, add reference, choice and date fields, override a dictionary attribute for incident and view the schema map.",
+          "deliverable": "Table definition and schema map screenshot",
+          "checks": [["Open the new table", "Inherits Task fields such as number and assignment group", "Form screenshot"], ["Pick a reference field value", "Values come from the referenced table", "Form screenshot"], ["Check the dictionary override", "Applies only to the incident table", "Dictionary record"]],
+          "objectives": ["Understand tables", "Create custom tables and fields", "Use dictionary overrides"]
+        },
+        {
+          "topic": "Configuring Forms and Lists",
+          "subtopics": ["Form layout and form design", "Form sections and views", "Related lists", "List layout and list control", "Personalising versus configuring", "Filters and breadcrumbs", "Saved filters and favourites", "Editing records from lists"],
+          "tools": ["ServiceNow", "Form Builder", "List control"],
+          "lab_task": "Redesign the incident form for service desk agents with sections and a view, configure the list layout, add a related list and save filters for \"my open incidents\".",
+          "deliverable": "Form and list configuration screenshots",
+          "checks": [["Switch to the agent view", "New layout shown", "Form screenshot"], ["Apply the saved filter", "Only the user's open incidents shown", "List screenshot"], ["Personalise a list as a user", "Change affects only that user", "Screenshots"]],
+          "objectives": ["Configure forms", "Configure lists", "Tell personalisation from configuration"]
+        },
+        {
+          "topic": "Incident Management",
+          "subtopics": ["Incident process in ServiceNow", "Incident states and fields", "Priority from impact and urgency", "Assignment rules", "Work notes and additional comments", "Major incidents", "Resolution and closure", "Incident reports"],
+          "tools": ["ServiceNow ITSM", "Incident module"],
+          "lab_task": "Log, assign, work and resolve five incidents including a major incident, set up an assignment rule by category and show how priority follows impact and urgency.",
+          "deliverable": "Incident records and assignment rule",
+          "checks": [["Set impact and urgency", "Priority calculated correctly", "Incident record"], ["Create a network incident", "Assigned to the network group by the rule", "Incident record"], ["Add a customer comment", "Caller notified and the comment visible to them", "Email log"]],
+          "objectives": ["Run incident management", "Configure assignment", "Handle major incidents"]
+        },
+        {
+          "topic": "Problem and Change Management",
+          "subtopics": ["Problem records and known errors", "Root cause analysis fields", "Linking incidents to problems", "Change types: standard, normal and emergency", "Change approvals and CAB", "Change risk assessment", "Change schedules and blackout windows", "Conflict detection"],
+          "tools": ["ServiceNow ITSM", "Change module", "Change schedule"],
+          "lab_task": "Create a problem from repeated incidents, publish a known error, raise a normal change with risk assessment and approvals, and a standard change from a template.",
+          "deliverable": "Problem, known error and change records",
+          "checks": [["Link incidents to the problem", "Related incidents listed", "Problem record"], ["Submit the normal change", "Approvals generated for the CAB", "Change record"], ["Schedule in a blackout window", "Conflict reported", "Change record"]],
+          "objectives": ["Manage problems", "Run change management", "Use standard changes"]
+        },
+        {
+          "topic": "Service Catalog and Request Fulfilment",
+          "subtopics": ["Catalogs and categories", "Catalog items and record producers", "Variables and variable sets", "Requests, requested items and catalog tasks", "Approvals", "Order guides", "Catalog client scripts in brief", "Fulfilment with flows"],
+          "tools": ["ServiceNow", "Service Catalog", "Catalog Builder"],
+          "lab_task": "Build a \"new laptop\" catalog item with variables and a variable set, a manager approval and fulfilment tasks, and a record producer that creates an incident from a simple form.",
+          "deliverable": "Catalog item, record producer and a test request",
+          "checks": [["Order the laptop", "REQ, RITM and tasks created", "Request records"], ["Reject as the manager", "Request closed as rejected", "Request record"], ["Submit the record producer", "Incident created with mapped fields", "Incident record"]],
+          "objectives": ["Build catalog items", "Add approvals", "Fulfil requests"]
+        },
+        {
+          "topic": "Knowledge Management",
+          "subtopics": ["Knowledge bases", "Articles and templates", "Article lifecycle and approval", "User criteria for access", "Feedback and ratings", "Knowledge in the portal and in incidents", "Retiring articles", "Knowledge reports"],
+          "tools": ["ServiceNow", "Knowledge Management"],
+          "lab_task": "Create a knowledge base for IT with user criteria, write three articles from templates, publish them through approval and attach an article to an incident to resolve it.",
+          "deliverable": "Knowledge base, articles and resolved incident",
+          "checks": [["Publish an article", "Approval completed before it is visible", "Article history"], ["Search as a non-IT user", "Restricted article not shown", "Screenshot"], ["Attach an article to an incident", "Article linked and resolution recorded", "Incident record"]],
+          "objectives": ["Manage knowledge", "Control article access", "Use knowledge in support"]
+        },
+        {
+          "topic": "Automating Work with Flow Designer",
+          "subtopics": ["Flows, subflows and actions", "Triggers: record, schedule and application", "Data pills", "Conditions and loops", "Approvals in flows", "Testing flows", "Flow execution details", "When to use flows instead of scripts"],
+          "tools": ["Flow Designer"],
+          "lab_task": "Build a flow that sends high-priority incidents to the on-call group, waits for acknowledgement and escalates after 15 minutes, and test it with the flow tester.",
+          "deliverable": "Flow and execution details",
+          "checks": [["Create a P1 incident", "Flow triggers and assigns on-call", "Execution details"], ["Leave it unacknowledged", "Escalation after 15 minutes", "Execution details"], ["Create a P3 incident", "Flow does not run", "Execution history"]],
+          "objectives": ["Build flows", "Use triggers and conditions", "Test flows"]
+        },
+        {
+          "topic": "Email Notifications and Templates",
+          "subtopics": ["Notification records", "When to send: events and conditions", "Who receives notifications", "Email templates and layouts", "Inbound email actions", "Notification preferences", "Testing with the email log", "Avoiding notification overload"],
+          "tools": ["ServiceNow", "Notifications", "Email logs"],
+          "lab_task": "Create notifications for incident assignment and resolution with a template, an inbound email action that adds replies as comments and check delivery in the email log.",
+          "deliverable": "Notifications, inbound action and email log screenshots",
+          "checks": [["Assign an incident", "Assignee receives the template email", "Email log"], ["Reply to the email", "Reply added as a comment on the incident", "Incident record"], ["Turn off a notification in preferences", "User stops receiving it", "Email log"]],
+          "objectives": ["Configure notifications", "Process inbound email", "Control email volume"]
+        },
+        {
+          "topic": "Reports and Dashboards",
+          "subtopics": ["Report types", "Data sources and conditions", "Grouping and stacking", "Scheduled reports", "Dashboards and Platform Analytics workspaces", "Sharing reports", "Report security", "Choosing the right visual"],
+          "tools": ["ServiceNow Reports", "Dashboards"],
+          "lab_task": "Build reports for open incidents by priority, mean time to resolve by group and changes by risk, combine them in a dashboard for the service desk manager and schedule a weekly email.",
+          "deliverable": "Reports, dashboard and schedule",
+          "checks": [["Filter the dashboard by group", "Reports update", "Dashboard screenshot"], ["Receive the scheduled email", "Report attached", "Email"], ["Open as a user without access", "Restricted report hidden", "Screenshot"]],
+          "objectives": ["Build reports", "Build dashboards", "Share reports safely"]
+        },
+        {
+          "topic": "Importing Data with Import Sets and Transform Maps",
+          "subtopics": ["Data sources: files, JDBC and REST", "Import set tables", "Transform maps and field maps", "Coalesce fields", "Transform scripts in brief", "Scheduled imports", "Import logs and errors", "Cleaning data before import"],
+          "tools": ["ServiceNow", "Import Sets", "Transform Maps"],
+          "lab_task": "Import 500 users and their departments from a spreadsheet with coalescing on employee number, re-import updated data without duplicates and fix rows that failed.",
+          "deliverable": "Data source, transform map and import logs",
+          "checks": [["Run the import twice", "No duplicate users", "User list count"], ["Change a department in the file and re-import", "Users updated", "User record"], ["Review the import log", "Errors explained and fixed", "Import log"]],
+          "objectives": ["Import data", "Use coalesce", "Fix import errors"]
+        },
+        {
+          "topic": "CMDB and Configuration Items",
+          "subtopics": ["What the CMDB is", "CI classes and the CI class manager", "Relationships between CIs", "Business services and application services", "Populating the CMDB", "CI identification", "CMDB health dashboard", "Linking CIs to incidents and changes"],
+          "tools": ["ServiceNow CMDB", "CI Class Manager"],
+          "lab_task": "Create servers, an application and a business service with relationships, link them to incidents and changes and view the dependency map and CMDB health.",
+          "deliverable": "CIs, dependency map and health dashboard screenshot",
+          "checks": [["Open the dependency map", "Service, application and servers linked", "Map screenshot"], ["Raise an incident on a server", "Affected service shown", "Incident record"], ["View CMDB health", "Completeness and correctness scores shown", "Dashboard screenshot"]],
+          "objectives": ["Understand the CMDB", "Create CIs and relationships", "Use the CMDB in processes"]
+        },
+        {
+          "topic": "Access Control Rules and Platform Security",
+          "subtopics": ["How access control lists work", "Table and field ACLs", "Operations: read, write, create and delete", "Roles, conditions and scripts in ACLs", "Evaluation order", "Security debugging", "High security settings", "Common access mistakes"],
+          "tools": ["ServiceNow", "Access Control", "Security debugger"],
+          "lab_task": "Create ACLs so only HR can read a salary field and only managers can delete equipment loans, then test with impersonation and the security debugger.",
+          "deliverable": "ACLs and debugging output",
+          "checks": [["Read the salary field as a non-HR user", "Field hidden", "Screenshot"], ["Delete as a non-manager", "Delete not allowed", "Screenshot"], ["Run the security debugger", "Rule that allowed or denied access shown", "Debug output"]],
+          "objectives": ["Write ACLs", "Debug access", "Protect sensitive fields"]
+        },
+        {
+          "topic": "Service Level Agreements",
+          "subtopics": ["SLA, OLA and underpinning contracts", "SLA definitions", "Start, pause and stop conditions", "Schedules and time zones", "Breach and warning notifications", "Task SLA records", "SLA reports", "Retroactive start"],
+          "tools": ["ServiceNow", "SLA definitions"],
+          "lab_task": "Define response and resolution SLAs for P1 and P2 incidents with business hours, pause them while waiting for the caller and alert at 75 percent of the time.",
+          "deliverable": "SLA definitions and test results",
+          "checks": [["Put an incident on hold awaiting caller", "SLA paused", "Task SLA record"], ["Let it reach 75 percent", "Warning notification sent", "Email log"], ["Create a P1 outside business hours", "Timer follows the schedule", "Task SLA record"]],
+          "objectives": ["Define SLAs", "Pause and resume timers", "Report on SLAs"]
+        },
+        {
+          "topic": "UI Policies and Data Policies",
+          "subtopics": ["UI policies: mandatory, visible and read-only", "UI policy conditions", "Reverse if false", "Data policies", "Converting UI policies to data policies", "Order of execution", "UI policies compared with client scripts", "Testing policies"],
+          "tools": ["ServiceNow", "UI Policies", "Data Policies"],
+          "lab_task": "Make resolution notes mandatory when resolving, hide hardware fields for software categories and enforce a data policy that also applies to imports and the API.",
+          "deliverable": "Policies and test results",
+          "checks": [["Resolve without notes on the form", "Save blocked", "Screenshot"], ["Update through the REST API without notes", "Rejected by the data policy", "API response"], ["Change the category", "Fields shown and hidden correctly", "Screenshots"]],
+          "objectives": ["Use UI policies", "Use data policies", "Choose between them"]
+        },
+        {
+          "topic": "Update Sets and Moving Configuration",
+          "subtopics": ["What update sets capture", "Creating and completing update sets", "Retrieving and previewing on the target", "Resolving preview errors", "Batching update sets", "What update sets do not capture", "Instance clones", "Release planning between instances"],
+          "tools": ["ServiceNow", "Update Sets"],
+          "lab_task": "Capture the catalog item work in an update set, move it to a second instance, resolve a preview error and list which records had to be moved separately.",
+          "deliverable": "Update set, preview report and a note on uncaptured items",
+          "checks": [["Commit on the target", "Catalog item works on the second instance", "Screenshot"], ["Resolve the preview error", "Error fixed before commit", "Preview report"], ["List uncaptured data", "Data records such as groups identified", "Written note"]],
+          "objectives": ["Move configuration", "Fix preview errors", "Know what update sets miss"]
+        },
+        {
+          "topic": "Service Portal and Employee Center",
+          "subtopics": ["Portals for end users", "Employee Center", "Pages, widgets and themes", "Catalog and knowledge in the portal", "Portal search", "Announcements", "Mobile access", "Measuring portal use"],
+          "tools": ["Service Portal", "Employee Center", "ServiceNow mobile app"],
+          "lab_task": "Configure the Employee Center with the laptop item and IT knowledge, add an announcement, test search and order an item from the mobile app.",
+          "deliverable": "Portal configuration and test screenshots",
+          "checks": [["Search for \"laptop\"", "Catalog item and article both found", "Screenshot"], ["Order from the mobile app", "Request created", "Request record"], ["Post an announcement", "Shown to the right audience", "Screenshot"]],
+          "objectives": ["Configure portals", "Expose catalog and knowledge", "Support mobile users"]
+        },
+        {
+          "topic": "CSA Certification Preparation",
+          "subtopics": ["Exam structure and topics", "User interface and navigation questions", "Collaboration and self-service questions", "Database management and security questions", "Data migration and integration questions", "Common traps", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "ServiceNow documentation", "Now Learning"],
+          "lab_task": "Take a timed CSA practice exam, review each wrong answer in the documentation, repeat the related lab task and take a second practice exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Review wrong answers", "Each linked to a documentation page", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the CSA exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Beginner Capstone: IT Service Desk on ServiceNow",
+          "subtopics": ["Requirements", "ITSM configuration", "Automation and reports", "Release to a second instance"],
+          "tools": ["ServiceNow ITSM", "Flow Designer", "Service Catalog", "Update Sets"],
+          "lab_task": "Configure a service desk for a 1,000-person company: groups and roles, incident and change, two catalog items, knowledge, SLAs, notifications, a dashboard and access rules, then move it with update sets and demo it.",
+          "deliverable": "Configured instance, update sets, dashboard and demo recording",
+          "checks": [["Run an incident end to end", "Assigned, worked and resolved within its SLA", "Demo recording"], ["Commit the update sets on the second instance", "Configuration works there", "Screenshot"], ["Test access as three roles", "Each sees only what they should", "Test results"]],
+          "objectives": ["Combine the beginner topics in one service desk", "Configure ITSM end to end", "Release it safely"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For administrators moving into development and new ServiceNow developers. Covers GlideRecord and server-side scripting, business rules, client scripts and GlideAjax, script includes, UI actions, scoped applications in App Engine Studio, custom Flow Designer actions and IntegrationHub, scripted REST APIs, outbound integrations, the MID Server, events and scheduled jobs, the Automated Test Framework, portal widgets, UI Builder, Performance Analytics, Discovery, CMDB identification, debugging and the CAD exam.",
+      "prerequisites": ["Administers a ServiceNow instance at CSA level", "Writes basic JavaScript", "Understands ITSM processes in ServiceNow"],
+      "outcomes": ["Write server and client scripts that follow platform good practice", "Build scoped applications, custom actions and integrations", "Test with ATF and build portal and workspace experiences", "Use Discovery, CMDB identification and Performance Analytics"],
+      "days": [
+        {
+          "topic": "Server-Side Scripting with GlideRecord",
+          "subtopics": ["Where server scripts run", "GlideRecord queries", "addQuery, addEncodedQuery and orderBy", "Inserting, updating and deleting records", "GlideAggregate for counts and sums", "GlideSystem helpers", "Background scripts and when to avoid them", "Scripting good practice and performance"],
+          "tools": ["Scripts - Background", "Script Editor"],
+          "lab_task": "Write background scripts that list open P1 incidents per group, count incidents by category with GlideAggregate and bulk-update a field safely in a test instance with a dry-run mode.",
+          "deliverable": "Scripts and output",
+          "checks": [["Run the GlideAggregate count", "Matches the list report", "Script output"], ["Run the bulk update in dry-run mode", "Records listed without changes", "Script output"], ["Review the queries", "No unbounded queries or queries in loops", "Code review"]],
+          "objectives": ["Query with GlideRecord", "Aggregate data", "Script safely"]
+        },
+        {
+          "topic": "Business Rules",
+          "subtopics": ["Before, after, async and display rules", "When rules run: insert, update, delete and query", "current and previous objects", "Conditions and filter conditions", "Aborting actions", "Display rules and g_scratchpad", "Order and recursion", "Choosing business rules or flows"],
+          "tools": ["Business Rules", "Script Editor"],
+          "lab_task": "Write a before rule that sets priority for VIP callers, an after rule that creates a follow-up task, an async rule that calls a slow service and a display rule that passes data to the form.",
+          "deliverable": "Business rules and test records",
+          "checks": [["Create a VIP incident", "Priority set before saving", "Incident record"], ["Resolve an incident", "Follow-up task created", "Task record"], ["Open the form", "Display rule data shown through g_scratchpad", "Form screenshot"]],
+          "objectives": ["Write business rules", "Choose the right timing", "Avoid recursion"]
+        },
+        {
+          "topic": "Client Scripts and GlideAjax",
+          "subtopics": ["onLoad, onChange, onSubmit and onCellEdit scripts", "g_form and g_user", "Client script performance", "GlideAjax to call the server", "Asynchronous calls", "Catalog client scripts", "Mobile and workspace compatibility", "Client scripts compared with UI policies"],
+          "tools": ["Client Scripts", "Script Includes", "Browser developer tools"],
+          "lab_task": "Write an onChange script that fills caller details through an asynchronous GlideAjax call, an onSubmit validation and a catalog client script that shows a warning for expensive items.",
+          "deliverable": "Client scripts, script include and test screenshots",
+          "checks": [["Change the caller", "Details filled without page reload", "Form screenshot"], ["Submit invalid data", "Submission blocked with a message", "Form screenshot"], ["Check the network calls", "One asynchronous call per change", "Browser network log"]],
+          "objectives": ["Write client scripts", "Call the server with GlideAjax", "Keep forms fast"]
+        },
+        {
+          "topic": "Script Includes and Reusable Code",
+          "subtopics": ["Classless and class-based script includes", "Client-callable script includes", "Extending base classes", "Organising utility code", "Access from other scopes", "Unit testing script includes", "Documentation in code", "Replacing duplicated scripts"],
+          "tools": ["Script Includes", "Script Editor"],
+          "lab_task": "Move duplicated date and approval logic from several business rules into a script include class, call it from rules and flows, and extend a base script include for a custom rule.",
+          "deliverable": "Script include and refactored rules",
+          "checks": [["Search for the duplicated logic", "Only in the script include now", "Code search output"], ["Call it from a flow", "Flow uses the script result", "Execution details"], ["Review the extension", "Base method overridden without copying it", "Code review"]],
+          "objectives": ["Write script includes", "Reuse code", "Extend platform classes"]
+        },
+        {
+          "topic": "UI Actions and UI Scripts",
+          "subtopics": ["Form buttons, links and context menus", "List actions", "Client and server UI actions", "Conditions for showing actions", "Confirm dialogs", "GlideModal in brief", "UI scripts", "Actions in workspaces"],
+          "tools": ["UI Actions", "UI Scripts"],
+          "lab_task": "Add a \"Create problem\" button to incidents that copies details and links records, a list action to bulk-assign incidents and a confirmation before closing.",
+          "deliverable": "UI actions and test screenshots",
+          "checks": [["Click \"Create problem\"", "Problem created and linked", "Problem record"], ["Bulk-assign from the list", "All selected incidents assigned", "List screenshot"], ["Open as a user without the role", "Button hidden", "Screenshot"]],
+          "objectives": ["Build UI actions", "Mix client and server code", "Control who sees actions"]
+        },
+        {
+          "topic": "Scoped Applications with App Engine Studio",
+          "subtopics": ["Global and scoped applications", "Creating apps in App Engine Studio", "Application scope protection", "Cross-scope access", "Application files", "Roles and menus for apps", "Publishing to the application repository", "Low-code and pro-code together"],
+          "tools": ["App Engine Studio", "ServiceNow Studio"],
+          "lab_task": "Build a scoped equipment-booking app with tables, roles, a form, a flow and a script include, set cross-scope access rules and publish it to the application repository.",
+          "deliverable": "Scoped application and repository version",
+          "checks": [["Call a protected script from another scope", "Access denied", "Error message"], ["Install the app on a second instance", "App installed from the repository", "Application record"], ["Review application files", "All components inside the scope", "Application file list"]],
+          "objectives": ["Build scoped apps", "Control cross-scope access", "Publish applications"]
+        },
+        {
+          "topic": "Custom Flow Designer Actions and IntegrationHub Spokes",
+          "subtopics": ["Custom actions", "Inputs and outputs", "Script steps", "REST steps", "Error handling in flows", "IntegrationHub spokes", "Connections and credential aliases", "Reusing subflows"],
+          "tools": ["Flow Designer", "IntegrationHub", "Connection & Credential aliases"],
+          "lab_task": "Build a custom action that creates a Jira issue through a REST step with a credential alias, handle errors, and use the Microsoft Teams spoke to post major incidents to a channel.",
+          "deliverable": "Custom action, flow and execution details",
+          "checks": [["Raise a major incident", "Message posted in Teams", "Teams screenshot"], ["Break the Jira credentials", "Error handled and logged in the flow", "Execution details"], ["Review credentials", "Stored in a credential alias, not in the action", "Configuration review"]],
+          "objectives": ["Build custom actions", "Use spokes", "Store credentials safely"]
+        },
+        {
+          "topic": "Scripted REST APIs and Inbound Integrations",
+          "subtopics": ["The REST API Explorer", "Table API", "Scripted REST APIs", "Resources, parameters and versions", "Authentication: basic, OAuth and mutual TLS", "Request validation", "Rate limits", "Documenting APIs"],
+          "tools": ["REST API Explorer", "Scripted REST APIs", "Postman"],
+          "lab_task": "Build a versioned scripted REST API for creating equipment bookings with OAuth, input validation and clear errors, and call it from Postman.",
+          "deliverable": "API definition, Postman collection and responses",
+          "checks": [["Call without a token", "401 Unauthorized", "Postman result"], ["Send invalid data", "400 with a clear message", "Postman result"], ["Exceed the rate limit", "Requests rejected", "Postman result"]],
+          "objectives": ["Build inbound APIs", "Secure them", "Version APIs"]
+        },
+        {
+          "topic": "Outbound REST and SOAP Integrations",
+          "subtopics": ["REST messages", "HTTP methods and headers", "Authentication profiles", "Parsing JSON responses", "SOAP messages in brief", "Asynchronous outbound calls", "Retries and error handling", "Logging outbound calls"],
+          "tools": ["REST Messages", "Outbound HTTP logs"],
+          "lab_task": "Call an external asset service when a CI is created, parse the JSON response to fill fields, run the call asynchronously and retry when it fails.",
+          "deliverable": "REST message, scripts and outbound log",
+          "checks": [["Create a CI", "Fields filled from the external service", "CI record"], ["Make the service fail", "Call retried and the error logged", "Outbound HTTP log"], ["Review timing", "Form save not delayed by the call", "Transaction log"]],
+          "objectives": ["Call external services", "Handle failures", "Log integrations"]
+        },
+        {
+          "topic": "MID Server Installation and Use",
+          "subtopics": ["Why a MID Server", "Installing and validating the MID Server", "MID Server clusters", "Running commands through the MID Server", "Integrations behind a firewall", "Security and credentials", "Monitoring MID Servers", "Upgrades"],
+          "tools": ["MID Server", "Windows or Linux server"],
+          "lab_task": "Install and validate a MID Server, call an internal REST service through it, configure a cluster for failover and check its status dashboard.",
+          "deliverable": "MID Server configuration and test results",
+          "checks": [["Validate the MID Server", "Status up and validated", "MID Server record"], ["Call the internal service", "Response returned through the MID Server", "ECC queue"], ["Stop one MID Server", "Work moves to the other cluster member", "ECC queue"]],
+          "objectives": ["Install MID Servers", "Reach internal systems", "Configure failover"]
+        },
+        {
+          "topic": "Events, Scheduled Jobs and Background Processing",
+          "subtopics": ["The event queue", "Registering and firing events", "Script actions", "Notifications from events", "Scheduled script executions", "Long-running jobs and performance", "The scheduler and worker nodes", "Monitoring jobs"],
+          "tools": ["Event Registry", "Scheduled Jobs", "System Logs"],
+          "lab_task": "Fire an event when equipment is overdue, send a notification and run a script action from it, and schedule a nightly job that processes overdue bookings in batches.",
+          "deliverable": "Event, script action, scheduled job and logs",
+          "checks": [["Make a booking overdue", "Event fired and notification sent", "Event log"], ["Run the nightly job", "Bookings processed in batches", "System log"], ["Review the job", "No single long transaction", "Transaction log"]],
+          "objectives": ["Use events", "Schedule jobs", "Process work in the background"]
+        },
+        {
+          "topic": "Automated Test Framework",
+          "subtopics": ["Why automated tests on the platform", "Tests, steps and test suites", "Form, server and REST test steps", "Testing catalog items", "Custom test steps", "Running tests after upgrades", "Scheduled test suites", "Test data and cleanup"],
+          "tools": ["Automated Test Framework"],
+          "lab_task": "Write ATF tests for the incident priority rule, the laptop catalog item and the scripted REST API, combine them in a suite and schedule it to run nightly.",
+          "deliverable": "Tests, suite and results",
+          "checks": [["Run the suite", "All tests pass", "ATF results"], ["Break the priority rule", "Test fails with a clear step", "ATF results"], ["Review test data", "Data rolled back after tests", "Test records"]],
+          "objectives": ["Write automated tests", "Build test suites", "Use tests for upgrades"]
+        },
+        {
+          "topic": "Service Portal Widget Development",
+          "subtopics": ["Widget structure: HTML, CSS, client and server scripts", "AngularJS in widgets", "Server data and input", "Widget options", "Cloning and extending widgets", "Embedding widgets", "Performance of widgets", "Accessibility"],
+          "tools": ["Service Portal", "Widget Editor"],
+          "lab_task": "Build a \"my equipment\" widget that lists a user's bookings with options for page size, allows returning an item from the widget and passes an accessibility check.",
+          "deliverable": "Widget code and portal page",
+          "checks": [["Open the portal page", "User's bookings listed", "Screenshot"], ["Return an item", "Booking updated from the widget", "Booking record"], ["Run an accessibility check", "No serious issues", "Accessibility report"]],
+          "objectives": ["Build portal widgets", "Use server and client scripts", "Keep widgets accessible"]
+        },
+        {
+          "topic": "Workspaces with UI Builder",
+          "subtopics": ["Next Experience workspaces", "UI Builder pages and variants", "Components", "Data resources", "Client state and events", "Agent workspace configuration", "Declarative actions", "Upgrading safely with workspace changes"],
+          "tools": ["UI Builder", "Workspace Experience"],
+          "lab_task": "Build a workspace page for the equipment team with a list, a record view, a data resource for overdue items and a declarative action to extend a booking.",
+          "deliverable": "Workspace page and action",
+          "checks": [["Open the workspace", "Overdue items shown", "Screenshot"], ["Run the declarative action", "Booking extended", "Booking record"], ["Review the page", "Built from components without custom HTML", "Page configuration"]],
+          "objectives": ["Build workspace pages", "Use data resources", "Add declarative actions"]
+        },
+        {
+          "topic": "Performance Analytics",
+          "subtopics": ["Indicators and indicator sources", "Breakdowns", "Data collection jobs", "Scorecards and targets", "Formula indicators", "Dashboards with Performance Analytics widgets", "Thresholds and alerts", "Licensing for Performance Analytics"],
+          "tools": ["Performance Analytics", "Platform Analytics"],
+          "lab_task": "Create indicators for incident backlog and mean time to resolve with group breakdowns, collect historical data, set targets and thresholds and build a trend dashboard.",
+          "deliverable": "Indicators, collection job and dashboard",
+          "checks": [["Run historical collection", "Trends shown for past months", "Dashboard screenshot"], ["Cross a threshold", "Alert sent", "Email log"], ["Break down by group", "Values per group shown", "Scorecard"]],
+          "objectives": ["Build indicators", "Collect trends", "Track targets"]
+        },
+        {
+          "topic": "Discovery and IT Operations Management",
+          "subtopics": ["ITOM overview", "Discovery phases", "Credentials and discovery schedules", "Discovery patterns", "Discovering Windows, Linux and network devices", "Cloud discovery", "Discovery errors and troubleshooting", "Licensing ITOM"],
+          "tools": ["Discovery", "MID Server", "Pattern Designer"],
+          "lab_task": "Discover Windows and Linux servers through the MID Server, fix a credential error, view discovered CIs and relationships and schedule recurring discovery.",
+          "deliverable": "Schedules, discovery logs and CI results",
+          "checks": [["Run discovery", "Servers created as CIs with software and relationships", "CMDB records"], ["Fix the credential error", "Next run completes", "Discovery log"], ["Review the schedule", "Runs outside business hours", "Schedule record"]],
+          "objectives": ["Run Discovery", "Fix discovery errors", "Populate the CMDB automatically"]
+        },
+        {
+          "topic": "CMDB Identification, Reconciliation and Data Quality",
+          "subtopics": ["The Identification and Reconciliation Engine", "Identification rules", "Reconciliation rules and data source precedence", "Duplicate CIs", "CMDB Data Manager", "Health: completeness, correctness and compliance", "The Common Service Data Model in brief", "CMDB governance"],
+          "tools": ["IRE", "CMDB Data Manager", "CMDB Health"],
+          "lab_task": "Load the same servers from Discovery and an import, configure identification and reconciliation rules so Discovery wins for hardware fields, fix duplicates and raise the health score.",
+          "deliverable": "Rules, duplicate fixes and health scores before and after",
+          "checks": [["Load the same server from two sources", "One CI kept", "CMDB record"], ["Update a hardware field from the import", "Discovery value kept", "CI history"], ["Compare health scores", "Score higher after the fixes", "Health dashboard"]],
+          "objectives": ["Use IRE", "Prevent duplicates", "Improve CMDB quality"]
+        },
+        {
+          "topic": "Debugging and Script Performance",
+          "subtopics": ["Script debugger", "Logging with gs.info and session debug", "Debugging business rules and ACLs", "Slow transactions and transaction logs", "Slow queries and indexes", "Script tracer", "Common performance mistakes", "Instance performance pages"],
+          "tools": ["Script Debugger", "Script Tracer", "Slow Queries log"],
+          "lab_task": "Debug a business rule with breakpoints, trace what changes a field with the script tracer, find a slow query in the logs and fix the script causing it.",
+          "deliverable": "Debug notes and before and after timings",
+          "checks": [["Set a breakpoint", "Execution paused with variable values", "Debugger screenshot"], ["Trace the field change", "Script responsible found", "Script tracer output"], ["Fix the slow query", "Transaction time reduced", "Transaction log"]],
+          "objectives": ["Debug scripts", "Find slow transactions", "Fix performance problems"]
+        },
+        {
+          "topic": "CAD Certification Preparation",
+          "subtopics": ["Exam structure and topics", "Designing and creating applications", "Application user interface questions", "Security and restricting access questions", "Application automation and integration questions", "Working with external data", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "ServiceNow documentation", "Now Learning"],
+          "lab_task": "Take a timed CAD practice exam, review wrong answers in the documentation, rebuild one weak-area feature in the lab and take a second practice exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Rebuild a weak-area feature", "Feature works in the lab", "Lab screenshot"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the CAD exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Scoped Asset Booking Application",
+          "subtopics": ["Design", "Build and integrate", "Test", "Release"],
+          "tools": ["App Engine Studio", "Flow Designer", "IntegrationHub", "Scripted REST", "ATF", "UI Builder"],
+          "lab_task": "Build a scoped asset booking application with tables, roles, ACLs, script includes, a workspace, a portal widget, a scripted REST API, an outbound integration through the MID Server, ATF tests and Performance Analytics, then publish and demo it.",
+          "deliverable": "Application, ATF results, API collection and demo recording",
+          "checks": [["Run the ATF suite", "All tests pass", "ATF results"], ["Book an asset through the API", "Booking created and the external system updated", "Demo recording"], ["Install on a second instance", "Application works after installation", "Screenshot"]],
+          "objectives": ["Combine the intermediate topics in one application", "Build and integrate a scoped app", "Test and release it"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers, platform owners and architects. Covers instance strategy and architecture, governance, upgrades and clones, CI/CD, the Common Service Data Model, Service Mapping and event management, Predictive Intelligence, Now Assist, Virtual Agent, integration architecture, performance at scale, security hardening, data lifecycle, workflow products (HRSD, CSM, SPM and IRM), technical debt, implementation leadership and production troubleshooting.",
+      "prerequisites": ["Develops scoped applications and integrations at CAD level", "Has delivered ServiceNow work into production", "Understands ITSM, CMDB and Discovery"],
+      "outcomes": ["Design ServiceNow instance landscapes and govern the platform", "Run upgrades, CI/CD and integrations at scale", "Apply AI features, CSDM and ITOM to real services", "Lead implementations and keep the platform healthy"],
+      "days": [
+        {
+          "topic": "ServiceNow Platform Architecture and Instance Strategy",
+          "subtopics": ["Single versus multiple production instances", "Development, test and production landscape", "Sub-production instance use and clone targets", "Domain separation", "Data residency and regional data centres", "Instance sizing and node behaviour", "High availability and the ServiceNow cloud", "Architecture decision records"],
+          "tools": ["Architecture diagrams", "ServiceNow documentation"],
+          "lab_task": "Design the instance landscape for a global company with strict data residency and three business units, decide on domain separation and record each decision with options.",
+          "deliverable": "Landscape diagram and decision records",
+          "checks": [["Review data residency", "Each region's data stays in an allowed data centre", "Architecture diagram"], ["Decide on domain separation", "Choice justified with the trade-offs", "Decision record"], ["Review the clone plan", "Clone sources and targets defined", "Landscape diagram"]],
+          "objectives": ["Design instance landscapes", "Decide on domain separation", "Record architecture decisions"]
+        },
+        {
+          "topic": "Platform Governance and the Centre of Excellence",
+          "subtopics": ["Platform ownership", "Demand management and intake", "Design authority", "Configure-first principles", "Coding standards and review", "Release cadence", "Measuring platform value", "Roles in a ServiceNow CoE"],
+          "tools": ["ServiceNow SPM", "Governance templates"],
+          "lab_task": "Set up governance for a growing platform: an intake process, design authority criteria, coding standards, a review checklist and a value dashboard, and run three demands through it.",
+          "deliverable": "Governance pack and three reviewed demands",
+          "checks": [["Review a demand needing custom code", "Configure-first alternative considered", "Review record"], ["Review the standards", "Clear rules with examples", "Coding standards"], ["Show the value dashboard", "Adoption and outcome measures shown", "Dashboard screenshot"]],
+          "objectives": ["Govern the platform", "Run a design authority", "Measure value"]
+        },
+        {
+          "topic": "Upgrades, Clones and Release Planning",
+          "subtopics": ["Family release cycle", "Upgrade planning", "Skipped records and the upgrade monitor", "Reviewing customisations during upgrades", "ATF as an upgrade gate", "Clone profiles and exclusions", "Preserving data on clone", "Communicating upgrades"],
+          "tools": ["Upgrade Center", "Upgrade Monitor", "Clone profiles", "ATF"],
+          "lab_task": "Upgrade a lab instance to the next family release, review and resolve skipped records, run the ATF suite as a gate and clone production to test with exclusions and preserved data.",
+          "deliverable": "Upgrade plan, skipped record decisions, ATF results and clone profile",
+          "checks": [["Review skipped records", "Each one merged, kept or reverted with a reason", "Skipped records list"], ["Run ATF after the upgrade", "Suite passes", "ATF results"], ["Clone with exclusions", "Excluded tables keep target data", "Clone log"]],
+          "objectives": ["Plan upgrades", "Resolve skipped records", "Manage clones"]
+        },
+        {
+          "topic": "Source Control, CI/CD and DevOps for ServiceNow",
+          "subtopics": ["Source control integration with Git", "Branching for scoped apps", "Application repository and the app store", "CI/CD API", "Pipelines with GitHub Actions or Azure DevOps", "ATF in pipelines", "DevOps Change Velocity", "Instance scan in pipelines"],
+          "tools": ["Git", "ServiceNow CI/CD spoke", "GitHub Actions", "Instance Scan"],
+          "lab_task": "Link the scoped app to Git, build a pipeline that runs Instance Scan and ATF, publishes the app and installs it on test, and create a change record automatically for production.",
+          "deliverable": "Repository, pipeline and change record",
+          "checks": [["Push a commit", "Pipeline runs scan and tests", "Pipeline log"], ["Fail an ATF test", "Install to test blocked", "Pipeline log"], ["Promote to production", "Change record created automatically", "Change record"]],
+          "objectives": ["Use source control", "Automate releases", "Connect DevOps and change"]
+        },
+        {
+          "topic": "Common Service Data Model in Practice",
+          "subtopics": ["CSDM purpose", "Business, application, technical and service domains", "Business services and service offerings", "Technical services", "Application services", "CSDM stages: foundation to fully crawl, walk, run and fly", "Linking CSDM to processes", "Governance of service data"],
+          "tools": ["CSDM", "CMDB", "Service Portfolio"],
+          "lab_task": "Model three business services with offerings, application services and technical services following CSDM, link them to support groups and use them in incidents, changes and reports.",
+          "deliverable": "CSDM model, records and process examples",
+          "checks": [["Raise an incident on a service offering", "Assignment and SLA follow the offering", "Incident record"], ["Review the model", "Each layer populated correctly", "Data model diagram"], ["Report incidents by business service", "Report shows service impact", "Report"]],
+          "objectives": ["Apply CSDM", "Model services", "Use services in processes"]
+        },
+        {
+          "topic": "Service Mapping and Event Management",
+          "subtopics": ["Top-down discovery", "Service Mapping entry points", "Pattern customisation", "Tag-based service mapping", "Event Management and connectors", "Alert rules and correlation", "Impact on services", "AIOps and Health Log Analytics in brief"],
+          "tools": ["Service Mapping", "Event Management", "MID Server"],
+          "lab_task": "Map an application service from its URL entry point, ingest monitoring events from a connector, correlate alerts to the service and show service health changing during an outage.",
+          "deliverable": "Service map, alert rules and outage screenshots",
+          "checks": [["Map the service", "Map shows the application tiers", "Service map"], ["Send related events", "Alerts correlated into one group", "Alert console"], ["Cause an outage", "Service health shows the impact", "Service health screenshot"]],
+          "objectives": ["Map services", "Correlate events", "Show service impact"]
+        },
+        {
+          "topic": "Predictive Intelligence and Process Automation",
+          "subtopics": ["Machine learning on the platform", "Classification for categorisation and assignment", "Similarity for related records", "Clustering to find patterns", "Training data quality", "Solution accuracy and precision", "Using predictions in flows", "Monitoring predictions"],
+          "tools": ["Predictive Intelligence"],
+          "lab_task": "Train a classification solution to predict incident assignment group, check precision and coverage, use it in a flow and find clusters of similar incidents for problem management.",
+          "deliverable": "Solution definitions, accuracy reports and flow",
+          "checks": [["Review solution statistics", "Precision and coverage recorded", "Solution statistics"], ["Create a test incident", "Predicted group assigned by the flow", "Incident record"], ["Run clustering", "Top clusters reviewed for problems", "Cluster report"]],
+          "objectives": ["Use Predictive Intelligence", "Measure accuracy", "Automate assignment"]
+        },
+        {
+          "topic": "Now Assist and Generative AI on ServiceNow",
+          "subtopics": ["Now Assist for ITSM, HR and CSM", "Summarisation and resolution notes", "Generative AI in search and Virtual Agent", "Now Assist Skill Kit", "AI agents and agentic workflows on the platform", "Data privacy and guardrails", "Measuring time saved", "Licensing and rollout"],
+          "tools": ["Now Assist", "Now Assist Skill Kit", "AI Agent Studio"],
+          "lab_task": "Enable incident summarisation and resolution notes for a pilot group, build a custom skill with the Skill Kit, configure guardrails for personal data and measure time saved over 20 incidents.",
+          "deliverable": "Configuration, custom skill, guardrail tests and measurement",
+          "checks": [["Summarise an incident", "Summary accurate against the record", "Comparison"], ["Include personal data in a prompt", "Data masked by the guardrail", "Test result"], ["Measure time saved", "Average handling time compared", "Measurement table"]],
+          "objectives": ["Use generative AI on the platform", "Build custom skills", "Control AI risks"]
+        },
+        {
+          "topic": "Virtual Agent and Conversational Experiences",
+          "subtopics": ["Virtual Agent topics", "Natural language understanding", "Topic Designer", "Handing over to live agents", "Integrating catalog and knowledge", "Channels: portal, Teams and Slack", "Measuring deflection", "Improving topics from conversation logs"],
+          "tools": ["Virtual Agent", "NLU Workbench", "Microsoft Teams"],
+          "lab_task": "Build Virtual Agent topics for password reset and laptop requests, publish them in Teams, hand over to a live agent when needed and measure deflection from test conversations.",
+          "deliverable": "Topics, NLU model, Teams channel and deflection report",
+          "checks": [["Ask for a password reset in Teams", "Topic completes without an agent", "Conversation log"], ["Ask an unknown question", "Handed to a live agent with context", "Conversation log"], ["Report deflection", "Deflection rate calculated", "Report"]],
+          "objectives": ["Build conversational topics", "Train NLU", "Measure deflection"]
+        },
+        {
+          "topic": "Integration Architecture at Scale",
+          "subtopics": ["Integration patterns on ServiceNow", "IntegrationHub, REST, SOAP and import sets compared", "Event-driven integration with Stream Connect for Kafka", "Data volumes and throttling", "Error handling and replay", "Integration monitoring", "Identity and secrets for integrations", "Integration catalogues"],
+          "tools": ["IntegrationHub", "Stream Connect", "Integration monitoring"],
+          "lab_task": "Design integrations with an ERP, a monitoring tool and an HR system, choosing a pattern for each, implement the Kafka stream for monitoring events and add replay for failures.",
+          "deliverable": "Integration design, Kafka stream and replay test",
+          "checks": [["Send 10,000 events", "Processed within throttling limits", "Integration logs"], ["Fail and replay", "Failed messages processed after replay", "Integration logs"], ["Review the design", "Pattern chosen for each system with reasons", "Integration design"]],
+          "objectives": ["Design integrations", "Stream events", "Handle failures and replay"]
+        },
+        {
+          "topic": "Performance and Scalability of Large Instances",
+          "subtopics": ["Large tables and their effects", "Indexes and slow queries", "Transaction quotas", "Semaphores and node behaviour", "Business rule and ACL performance", "Report and list performance", "Performance testing", "Working with ServiceNow support on performance"],
+          "tools": ["Slow Queries log", "Transaction logs", "Instance Observer"],
+          "lab_task": "Find the five slowest transactions on a busy instance, fix scripts and request indexes, tune a slow list and report, and show before and after times.",
+          "deliverable": "Performance report with fixes and timings",
+          "checks": [["Fix a slow business rule", "Transaction time reduced", "Transaction log"], ["Add an index", "Slow query time reduced", "Slow query log"], ["Review quotas", "Long transactions stopped by quotas", "Quota log"]],
+          "objectives": ["Diagnose instance performance", "Fix scripts and queries", "Scale large instances"]
+        },
+        {
+          "topic": "Platform Security Hardening",
+          "subtopics": ["Instance Security Center", "Authentication with SSO and MFA", "Access to admin roles", "Elevated roles", "IP access control", "Encryption: Edge Encryption, column encryption and KMF", "Security of scripts and APIs", "Security reviews before releases"],
+          "tools": ["Instance Security Center", "Multi-Provider SSO", "Key Management Framework"],
+          "lab_task": "Raise the instance security score in Instance Security Center, enforce SSO with MFA, restrict admin access, encrypt a sensitive field and review a scoped app for script and API risks.",
+          "deliverable": "Security score before and after, configuration and review report",
+          "checks": [["Compare security scores", "Score improved with each fix recorded", "Instance Security Center"], ["Log in as admin without MFA", "Blocked", "Login screenshot"], ["Read the encrypted field without the role", "Value not readable", "Screenshot"]],
+          "objectives": ["Harden the instance", "Control privileged access", "Encrypt sensitive data"]
+        },
+        {
+          "topic": "Data Lifecycle: Archiving, Retention and Table Cleanup",
+          "subtopics": ["Data growth on the platform", "Archive rules", "Table rotation and table extension", "Data retention policies", "Deleting data in bulk safely", "Attachments and storage", "Privacy requests and data subject rights", "Monitoring table sizes"],
+          "tools": ["Archive rules", "Table Cleanup", "Data Privacy"],
+          "lab_task": "Write archive rules for old incidents, set retention for audit and log tables, remove orphaned attachments safely and handle a data subject deletion request.",
+          "deliverable": "Rules, retention settings and size reports",
+          "checks": [["Run the archive rule", "Old incidents archived and still searchable", "Archive table"], ["Compare table sizes", "Size reduced after cleanup", "Table size report"], ["Process the deletion request", "Personal data removed or anonymised", "Request record"]],
+          "objectives": ["Manage data growth", "Apply retention", "Handle privacy requests"]
+        },
+        {
+          "topic": "HR Service Delivery and Customer Service Management",
+          "subtopics": ["HRSD and CSM purposes", "HR cases, HR services and lifecycle events", "Employee Center for HR", "Data security in HR", "CSM accounts, contacts and cases", "Customer portal", "Omnichannel and Engagement Messenger", "Reusing platform patterns across products"],
+          "tools": ["HR Service Delivery", "Customer Service Management"],
+          "lab_task": "Configure an onboarding lifecycle event in HRSD with tasks across HR, IT and facilities, and a CSM case flow with a customer portal, then compare how both reuse platform features.",
+          "deliverable": "Lifecycle event, case flow and comparison note",
+          "checks": [["Start onboarding", "Tasks created for HR, IT and facilities", "Lifecycle event record"], ["Open an HR case as IT staff", "HR data hidden", "Screenshot"], ["Raise a customer case in the portal", "Case routed to the right team", "Case record"]],
+          "objectives": ["Configure HRSD", "Configure CSM", "Reuse platform patterns"]
+        },
+        {
+          "topic": "Strategic Portfolio Management",
+          "subtopics": ["SPM purpose", "Demands, projects and portfolios", "Resource management", "Agile development on ServiceNow", "Financial planning", "Roadmaps", "Alignment planning", "Reporting to leaders"],
+          "tools": ["Strategic Portfolio Management", "Agile Development"],
+          "lab_task": "Run three demands through assessment into projects, plan resources, track an agile team's sprint and build a portfolio roadmap for leadership.",
+          "deliverable": "Demand records, project plans, sprint board and roadmap",
+          "checks": [["Assess demands", "Scored and prioritised", "Demand records"], ["Allocate resources", "Over-allocation shown and fixed", "Resource plan"], ["Show the roadmap", "Projects aligned to goals", "Roadmap screenshot"]],
+          "objectives": ["Use SPM", "Manage portfolios", "Report to leaders"]
+        },
+        {
+          "topic": "Integrated Risk Management and GRC",
+          "subtopics": ["IRM purpose", "Policies, controls and control objectives", "Risk registers and assessments", "Control testing and indicators", "Issues and remediation", "Regulatory change", "Third-party risk", "Audit management"],
+          "tools": ["Integrated Risk Management", "Policy and Compliance", "Risk Management"],
+          "lab_task": "Load an ISO 27001 control set, link controls to CIs and owners, run an assessment, create automated indicators from CMDB data and track an issue to closure.",
+          "deliverable": "Control set, assessments, indicators and issue",
+          "checks": [["Run the assessment", "Results recorded per control", "Assessment results"], ["Fail an indicator", "Issue created automatically", "Issue record"], ["Report compliance", "Compliance by policy shown", "Dashboard screenshot"]],
+          "objectives": ["Configure IRM", "Automate control testing", "Track compliance"]
+        },
+        {
+          "topic": "Technical Debt and Reducing Customisation",
+          "subtopics": ["Signs of technical debt on ServiceNow", "Instance Scan checks", "Finding modified out-of-box records", "Unused customisations", "Returning to baseline", "Refactoring scripts into configuration", "Prioritising debt work", "Preventing new debt"],
+          "tools": ["Instance Scan", "Upgrade history", "HealthScan"],
+          "lab_task": "Run Instance Scan and a customisation review on a heavily customised instance, rank the debt by upgrade risk, revert three modified out-of-box records and replace a script with configuration.",
+          "deliverable": "Debt register, fixes and scan results before and after",
+          "checks": [["Run Instance Scan", "Findings grouped by severity", "Scan results"], ["Revert modified records", "Back to baseline with behaviour retested", "ATF results"], ["Compare scans", "Fewer high findings", "Scan comparison"]],
+          "objectives": ["Find technical debt", "Return to baseline", "Prevent new debt"]
+        },
+        {
+          "topic": "Leading ServiceNow Implementations",
+          "subtopics": ["Implementation methods", "Discovery workshops with process owners", "Story writing for ServiceNow", "Fit-to-standard sessions", "Data migration planning", "Testing phases and UAT", "Cutover and hypercare", "Organisational change and training"],
+          "tools": ["Workshop templates", "Story templates", "Cutover plan template"],
+          "lab_task": "Run a fit-to-standard workshop for change management with role-play process owners, write ten stories, plan data migration and testing and write the cutover and hypercare plan.",
+          "deliverable": "Workshop notes, stories, test plan and cutover plan",
+          "checks": [["Run the workshop", "Gaps recorded with configure-first options", "Workshop notes"], ["Review the stories", "Each has acceptance criteria", "Story list"], ["Review the cutover plan", "Steps, owners and rollback defined", "Cutover plan"]],
+          "objectives": ["Lead implementations", "Run fit-to-standard workshops", "Plan cutover"]
+        },
+        {
+          "topic": "Troubleshooting Production ServiceNow Issues",
+          "subtopics": ["An incident method for the platform", "Reading system logs and node logs", "Transaction and session problems", "Integration failures", "Flow and scheduled job failures", "Upgrade side effects", "Working with ServiceNow support", "Post-incident reviews"],
+          "tools": ["System Logs", "Transaction logs", "Flow execution details", "Integration logs"],
+          "lab_task": "Diagnose five injected problems (a looping business rule, a stuck flow, an expired integration credential, an ACL blocking agents and a slow report after an upgrade), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the looping rule", "Recursion stopped and the cause removed", "System log"], ["Fix the ACL problem", "Agents regain access with the right scope", "Test results"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose platform issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Service Management Platform",
+          "subtopics": ["Architecture and governance", "Service data and operations", "AI and automation", "Release and operations"],
+          "tools": ["ServiceNow ITSM", "ITOM", "CSDM", "Now Assist", "CI/CD", "Instance Security Center"],
+          "lab_task": "Design and deliver an enterprise service platform for a case company: instance strategy, governance, CSDM services fed by Discovery and Service Mapping, event correlation, predictive assignment and Now Assist, a CI/CD pipeline with ATF, hardening and an upgrade rehearsal, then present it to an architecture board.",
+          "deliverable": "Architecture records, configured instance, pipeline, test results and board presentation",
+          "checks": [["Run an outage scenario", "Event correlated to the service and an incident assigned automatically", "Demo recording"], ["Run the upgrade rehearsal", "ATF passes after the upgrade", "ATF results"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run ServiceNow at enterprise scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

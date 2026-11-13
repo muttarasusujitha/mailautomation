@@ -2681,6 +2681,393 @@
           "Manage stakeholders"
         ]
       }
+    },
+    {
+      "between": [
+        "SQL",
+        "PostgreSQL"
+      ],
+      "day": {
+        "topic": "From Standard SQL to PostgreSQL: Dialect Features and Query Plans",
+        "subtopics": [
+          "Where PostgreSQL follows the SQL standard and where it extends it",
+          "DISTINCT ON, FILTER and LATERAL",
+          "RETURNING and ON CONFLICT",
+          "Arrays, JSONB and range types in queries",
+          "Case sensitivity, quoting and identifiers",
+          "Reading EXPLAIN ANALYZE for the queries written earlier",
+          "Indexes that match common query shapes",
+          "Moving portable SQL to PostgreSQL-specific SQL deliberately"
+        ],
+        "tools": [
+          "PostgreSQL 17",
+          "psql",
+          "EXPLAIN"
+        ],
+        "lab_task": "Rewrite five portable SQL reports from the SQL days using PostgreSQL features such as DISTINCT ON, FILTER and LATERAL, compare plans and times for both versions and record which version to keep and why.",
+        "deliverable": "Both versions of each report, plans and a decision note",
+        "checks": [
+          [
+            "Compare results",
+            "Portable and PostgreSQL versions return the same rows",
+            "Query results"
+          ],
+          [
+            "Compare plans",
+            "Plan and time recorded for both versions",
+            "EXPLAIN output"
+          ],
+          [
+            "Write the decision note",
+            "Portability or speed choice justified for each report",
+            "Decision note"
+          ]
+        ],
+        "objectives": [
+          "Use PostgreSQL extensions to SQL",
+          "Compare plans",
+          "Choose portability deliberately"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SQL",
+        "Oracle Database"
+      ],
+      "day": {
+        "topic": "Oracle SQL Dialect and Execution Plans for SQL Developers",
+        "subtopics": [
+          "Oracle-specific syntax: DUAL, ROWNUM and FETCH FIRST",
+          "Analytic functions in Oracle",
+          "Hierarchical queries with CONNECT BY",
+          "MERGE in Oracle",
+          "Dates, NULL and empty strings in Oracle",
+          "Bind variables and the shared pool",
+          "Reading plans with DBMS_XPLAN",
+          "Indexes that suit the reports"
+        ],
+        "tools": [
+          "Oracle Database",
+          "SQL Developer",
+          "DBMS_XPLAN"
+        ],
+        "lab_task": "Port five SQL reports to Oracle, use CONNECT BY for a hierarchy, fix a report that breaks because Oracle treats empty strings as NULL and compare plans with and without bind variables.",
+        "deliverable": "Ported reports, plans and a dialect differences note",
+        "checks": [
+          [
+            "Run the hierarchy query",
+            "Same tree as the recursive CTE version",
+            "Query results"
+          ],
+          [
+            "Fix the empty string report",
+            "Correct counts after the fix",
+            "Query result"
+          ],
+          [
+            "Compare bind and literal versions",
+            "Fewer hard parses with binds",
+            "v$sql output"
+          ]
+        ],
+        "objectives": [
+          "Write Oracle SQL",
+          "Know dialect traps",
+          "Read Oracle plans"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Database",
+        "PostgreSQL"
+      ],
+      "day": {
+        "topic": "Oracle and PostgreSQL Side by Side: Concepts, Tools and Migration Fit",
+        "subtopics": [
+          "Architecture compared: instances, clusters, CDBs and databases",
+          "Undo and MVCC compared",
+          "Users, roles and schemas compared",
+          "Backup tools: RMAN and pgBackRest",
+          "High availability: Data Guard and Patroni",
+          "PL/SQL and PL/pgSQL differences",
+          "Licensing and cost differences",
+          "Which workloads move easily and which do not"
+        ],
+        "tools": [
+          "Oracle Database",
+          "PostgreSQL",
+          "ora2pg"
+        ],
+        "lab_task": "Run the same order workload on both databases, map each Oracle administration task to its PostgreSQL equivalent, run an ora2pg assessment on the Oracle schema and write a migration fit report.",
+        "deliverable": "Task mapping table, assessment report and migration fit report",
+        "checks": [
+          [
+            "Map administration tasks",
+            "Equivalent named for each task",
+            "Mapping table"
+          ],
+          [
+            "Run the assessment",
+            "Problem objects and effort listed",
+            "ora2pg report"
+          ],
+          [
+            "Write the fit report",
+            "Recommendation with risks and cost",
+            "Fit report"
+          ]
+        ],
+        "objectives": [
+          "Compare Oracle and PostgreSQL",
+          "Map DBA tasks",
+          "Judge migration fit"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PostgreSQL",
+        "AWS"
+      ],
+      "day": {
+        "topic": "PostgreSQL on AWS: RDS, Aurora and Operations",
+        "subtopics": [
+          "RDS for PostgreSQL and Aurora PostgreSQL compared",
+          "Parameter groups",
+          "IAM database authentication",
+          "Secrets Manager rotation",
+          "Multi-AZ, read replicas and Aurora global databases",
+          "Performance Insights and Enhanced Monitoring",
+          "Snapshots and point-in-time restore",
+          "Cost: instance, storage and I/O"
+        ],
+        "tools": [
+          "Amazon RDS",
+          "Amazon Aurora",
+          "AWS Secrets Manager",
+          "Performance Insights"
+        ],
+        "lab_task": "Create an Aurora PostgreSQL cluster with IAM authentication and Secrets Manager rotation, add a reader, find a slow query with Performance Insights and restore to a point in time.",
+        "deliverable": "Cluster configuration, Performance Insights findings and restore evidence",
+        "checks": [
+          [
+            "Connect with IAM authentication",
+            "Login works without a stored password",
+            "Client output"
+          ],
+          [
+            "Find the slow query",
+            "Query and its waits identified",
+            "Performance Insights screenshot"
+          ],
+          [
+            "Restore to a point in time",
+            "New cluster with data from that time",
+            "Query result"
+          ]
+        ],
+        "objectives": [
+          "Run PostgreSQL on AWS",
+          "Use AWS identity and secrets",
+          "Monitor and restore on AWS"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PostgreSQL",
+        "Azure"
+      ],
+      "day": {
+        "topic": "PostgreSQL on Azure: Flexible Server and Operations",
+        "subtopics": [
+          "Azure Database for PostgreSQL Flexible Server",
+          "Compute tiers and storage",
+          "Microsoft Entra ID authentication",
+          "Private access with VNet integration",
+          "Zone-redundant high availability",
+          "Read replicas",
+          "Query Store and Query Performance Insight",
+          "Backups and restore"
+        ],
+        "tools": [
+          "Azure Database for PostgreSQL",
+          "Microsoft Entra ID",
+          "Azure Monitor"
+        ],
+        "lab_task": "Deploy a Flexible Server with private access, zone-redundant HA and Entra ID login, force a failover and measure it, and use Query Store to find the top query.",
+        "deliverable": "Deployment configuration, failover timing and Query Store findings",
+        "checks": [
+          [
+            "Connect with Entra ID",
+            "Login without a database password",
+            "Client output"
+          ],
+          [
+            "Force a failover",
+            "Writes resume and the time is recorded",
+            "Client log"
+          ],
+          [
+            "Use Query Store",
+            "Top query identified",
+            "Query Store screenshot"
+          ]
+        ],
+        "objectives": [
+          "Run PostgreSQL on Azure",
+          "Use Entra ID",
+          "Test high availability"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Data Science",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering Habits for Data Scientists",
+        "subtopics": [
+          "Moving notebook code into packages",
+          "Type hints for data functions",
+          "Testing data transformations with pytest",
+          "Logging instead of print",
+          "Configuration files instead of edited cells",
+          "Performance: vectorising and profiling pandas code",
+          "Packaging with pyproject.toml",
+          "Code review for data science code"
+        ],
+        "tools": [
+          "Python",
+          "pytest",
+          "ruff",
+          "line_profiler"
+        ],
+        "lab_task": "Refactor a 300-line exploratory notebook into a tested package with type hints, configuration and logging, profile and speed up the slowest function, and open a pull request for review.",
+        "deliverable": "Package, tests, profiling results and pull request",
+        "checks": [
+          [
+            "Run the tests",
+            "All pass",
+            "pytest output"
+          ],
+          [
+            "Profile the slow function",
+            "Run time reduced after the change",
+            "Profiler output"
+          ],
+          [
+            "Run ruff",
+            "No lint errors",
+            "ruff output"
+          ]
+        ],
+        "objectives": [
+          "Apply Python engineering to data science",
+          "Test data code",
+          "Speed up slow code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Data Science",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "From Statistical Questions to Machine Learning Systems",
+        "subtopics": [
+          "When inference and when prediction is the goal",
+          "Statistical models compared with ML models on the same problem",
+          "Uncertainty in predictions",
+          "Calibration and decision thresholds",
+          "Validation that matches deployment",
+          "Handing a model to ML engineering",
+          "Monitoring what the analysis assumed",
+          "Writing a model brief"
+        ],
+        "tools": [
+          "statsmodels",
+          "scikit-learn",
+          "LightGBM",
+          "MLflow"
+        ],
+        "lab_task": "Answer the same churn question twice, with a regression for inference and a gradient boosting model for prediction, compare what each tells the business and write a model brief for the ML engineering team.",
+        "deliverable": "Two models, comparison and model brief",
+        "checks": [
+          [
+            "Compare the two models",
+            "Inference and prediction results explained side by side",
+            "Comparison note"
+          ],
+          [
+            "Calibrate the predictive model",
+            "Calibration curve close to the diagonal",
+            "Calibration plot"
+          ],
+          [
+            "Review the model brief",
+            "Inputs, outputs, validation and monitoring stated",
+            "Model brief"
+          ]
+        ],
+        "objectives": [
+          "Choose inference or prediction",
+          "Connect statistics and ML",
+          "Hand models over cleanly"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ServiceNow",
+        "ITIL"
+      ],
+      "day": {
+        "topic": "Implementing ITIL 4 Practices in ServiceNow",
+        "subtopics": [
+          "Mapping ITIL 4 practices to ServiceNow applications",
+          "Incident, problem and change in ITIL terms and in ServiceNow terms",
+          "Service request management and the catalog",
+          "Change enablement: standard, normal and emergency models",
+          "Service level management and SLAs",
+          "Service configuration management and the CMDB",
+          "Continual improvement with Performance Analytics",
+          "Avoiding over-customising processes"
+        ],
+        "tools": [
+          "ServiceNow ITSM",
+          "Performance Analytics",
+          "ITIL 4 practice guides"
+        ],
+        "lab_task": "Run an ITIL 4 practice review for incident, change and request on a ServiceNow instance, map each practice activity to configuration, fix three gaps and set up improvement indicators.",
+        "deliverable": "Practice mapping, gap fixes and improvement dashboard",
+        "checks": [
+          [
+            "Map practice activities",
+            "Each activity linked to a ServiceNow feature",
+            "Mapping table"
+          ],
+          [
+            "Fix the gaps",
+            "Three gaps closed with configuration only",
+            "Change log"
+          ],
+          [
+            "Show improvement indicators",
+            "Indicators tracking practice goals",
+            "Dashboard screenshot"
+          ]
+        ],
+        "objectives": [
+          "Apply ITIL 4 in ServiceNow",
+          "Find process gaps",
+          "Track continual improvement"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -4423,6 +4810,187 @@
           "Combine Databricks and Power BI",
           "Deliver governed reporting",
           "Balance speed and cost"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SQL",
+        "PostgreSQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Reporting Database on PostgreSQL",
+        "subtopics": [
+          "Schema and loading",
+          "Reports and tuning",
+          "Security and backups",
+          "Demo"
+        ],
+        "tools": [
+          "PostgreSQL 17",
+          "psql",
+          "pgBackRest",
+          "Power BI or Metabase"
+        ],
+        "lab_task": "Build a reporting database on PostgreSQL with a star schema, loads with COPY, twenty SQL reports using PostgreSQL features, tuned indexes, reporting roles and tested backups, then demo it.",
+        "deliverable": "Schema, load scripts, reports, tuning log and demo recording",
+        "checks": [
+          [
+            "Run all reports",
+            "Each under the agreed time",
+            "Timing table"
+          ],
+          [
+            "Restore the backup",
+            "Reports work on the restored database",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Schema and index choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine SQL and PostgreSQL",
+          "Deliver a tuned reporting database",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Oracle Database",
+        "PostgreSQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Oracle to PostgreSQL Migration",
+        "subtopics": [
+          "Assessment",
+          "Conversion and data migration",
+          "Validation and tuning",
+          "Cutover"
+        ],
+        "tools": [
+          "Oracle Database",
+          "PostgreSQL",
+          "ora2pg",
+          "Debezium or GoldenGate"
+        ],
+        "lab_task": "Migrate an Oracle order application to PostgreSQL: assess it, convert schema and PL/SQL, migrate data with change capture for a short cutover, validate results and performance and run the cutover rehearsal.",
+        "deliverable": "Assessment, converted code, validation report and cutover rehearsal recording",
+        "checks": [
+          [
+            "Validate data",
+            "Row counts and checksums match",
+            "Validation report"
+          ],
+          [
+            "Compare performance",
+            "Key queries within agreed limits on PostgreSQL",
+            "Timing table"
+          ],
+          [
+            "Rehearse the cutover",
+            "Downtime within the target",
+            "Rehearsal log"
+          ]
+        ],
+        "objectives": [
+          "Combine Oracle and PostgreSQL",
+          "Migrate safely",
+          "Prove the migration works"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Data Science",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Reproducible Data Science Package",
+        "subtopics": [
+          "Question and analysis",
+          "Packaged pipeline",
+          "Tests and CI",
+          "Presentation"
+        ],
+        "tools": [
+          "Python",
+          "pandas",
+          "scikit-learn",
+          "pytest",
+          "GitHub Actions",
+          "Quarto"
+        ],
+        "lab_task": "Answer a business question with a statistically sound analysis and model, deliver it as a tested Python package with CI and a rendered Quarto report, and present it.",
+        "deliverable": "Package repository, CI run, report and presentation",
+        "checks": [
+          [
+            "Run CI on a clean clone",
+            "Tests pass and the report renders",
+            "CI log"
+          ],
+          [
+            "Review the statistics",
+            "Methods suit the data and the question",
+            "Review notes"
+          ],
+          [
+            "Present the result",
+            "Answer, evidence and limits clear",
+            "Rubric scores"
+          ]
+        ],
+        "objectives": [
+          "Combine data science and Python engineering",
+          "Deliver reproducible work",
+          "Present results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "ServiceNow",
+        "ITIL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: ITIL-Aligned Service Management on ServiceNow",
+        "subtopics": [
+          "Practice design",
+          "Configuration",
+          "Measurement",
+          "Review"
+        ],
+        "tools": [
+          "ServiceNow ITSM",
+          "Performance Analytics",
+          "ITIL 4"
+        ],
+        "lab_task": "Design incident, problem, change and request practices to ITIL 4 for a case company, configure them in ServiceNow with SLAs and CMDB links, build improvement indicators and present a practice review.",
+        "deliverable": "Practice designs, configured instance, dashboard and review presentation",
+        "checks": [
+          [
+            "Run a major incident through to a problem and change",
+            "Records linked across practices",
+            "Demo recording"
+          ],
+          [
+            "Show indicators",
+            "Practice goals measured",
+            "Dashboard screenshot"
+          ],
+          [
+            "Present the review",
+            "Improvements prioritised with evidence",
+            "Panel feedback"
+          ]
+        ],
+        "objectives": [
+          "Combine ITIL and ServiceNow",
+          "Deliver aligned practices",
+          "Measure improvement"
         ]
       }
     }
