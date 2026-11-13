@@ -1,0 +1,573 @@
+{
+  "domain": "CCNA Networking",
+  "name": "CCNA and Enterprise Networking",
+  "category": "Networking",
+  "icon": "network",
+  "aliases": ["CCNA", "CCNA Training", "CCNA 200-301", "Cisco CCNA", "Cisco Networking", "Cisco Routing and Switching", "Routing and Switching", "Network Engineering", "Network Engineer Training", "Computer Networking", "Enterprise Networking", "CCNP", "CCNP Enterprise"],
+  "certifications": ["Cisco CCNA (200-301)", "Cisco CCNP Enterprise (350-401 ENCOR and a concentration exam)", "Cisco DevNet Associate", "CompTIA Network+"],
+  "tools": ["Cisco Packet Tracer", "Cisco Modeling Labs (CML) or GNS3", "Cisco IOS XE", "Wireshark", "PuTTY or SecureCRT", "Python with Netmiko"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new network engineers, support staff and students. Covers network models, Ethernet and switching, IPv4 addressing and subnetting, the Cisco IOS command line, VLANs, trunking and inter-VLAN routing, spanning tree, EtherChannel, static routes, OSPF, IPv6, DHCP and DNS, NAT, access lists, wireless LANs, device security and network services, all practised in Packet Tracer and CML labs.",
+      "prerequisites": ["Comfortable using computers and a command prompt", "Basic arithmetic for binary and subnetting", "No previous networking experience needed"],
+      "outcomes": ["Explain how data moves through networks using the OSI and TCP/IP models", "Address and subnet IPv4 and IPv6 networks", "Configure Cisco switches and routers for VLANs, routing, NAT and ACLs", "Secure devices and troubleshoot connectivity"],
+      "days": [
+        {
+          "topic": "Networking Overview and Lab Setup",
+          "subtopics": ["What a network is: LAN, WAN and the internet", "Network devices: switches, routers, firewalls and access points", "Topologies: star, mesh and hybrid", "Network types: campus, data centre, branch and cloud", "Cisco certifications and the CCNA exam", "Installing Cisco Packet Tracer", "Introducing Cisco Modeling Labs and GNS3", "Console, SSH and terminal software", "Wireshark for looking at traffic", "The course lab topology"],
+          "tools": ["Cisco Packet Tracer", "Cisco Modeling Labs", "Wireshark", "PuTTY"],
+          "lab_task": "Install Packet Tracer and Wireshark, build a small network with two PCs, a switch and a router, ping between the PCs and capture the ping in simulation mode and Wireshark.",
+          "deliverable": "Lab file, screenshots and a capture with notes",
+          "checks": [["Ping between PCs", "Replies received", "Command output"], ["View the ping in simulation mode", "Frame and packet path shown", "Screenshot"], ["Name each device role", "Switch, router and end device roles correct", "Written note"]],
+          "objectives": ["Describe networks and devices", "Set up the labs", "Capture traffic"]
+        },
+        {
+          "topic": "OSI and TCP/IP Models and Encapsulation",
+          "subtopics": ["The seven OSI layers", "The TCP/IP model", "Encapsulation and de-encapsulation", "Protocol data units: frames, packets and segments", "TCP and UDP", "Ports and sockets", "The three-way handshake", "Mapping problems to layers"],
+          "tools": ["Wireshark", "Packet Tracer"],
+          "lab_task": "Capture a web page download in Wireshark, label the Ethernet, IP and TCP headers, find the three-way handshake and match five fault examples to OSI layers.",
+          "deliverable": "Annotated capture and fault mapping",
+          "checks": [["Find the handshake", "SYN, SYN-ACK and ACK identified", "Wireshark screenshot"], ["Label headers", "Source and destination at layers 2, 3 and 4 correct", "Annotated capture"], ["Map faults to layers", "Each fault matched correctly", "Fault mapping"]],
+          "objectives": ["Explain network models", "Read packet headers", "Map faults to layers"]
+        },
+        {
+          "topic": "Ethernet, Cabling and How Switches Forward Frames",
+          "subtopics": ["Ethernet frames and MAC addresses", "Copper and fibre cabling", "Speed and duplex", "How switches learn MAC addresses", "Flooding, forwarding and filtering", "Collision and broadcast domains", "ARP", "Interface errors and their causes"],
+          "tools": ["Packet Tracer", "Cisco IOS"],
+          "lab_task": "Watch a switch build its MAC address table, clear it and watch it relearn, cause a duplex mismatch and find it from interface counters, and trace ARP requests and replies.",
+          "deliverable": "MAC table output, interface counters and notes",
+          "checks": [["Show the MAC table", "Each PC's MAC on the right port", "show mac address-table output"], ["Find the duplex mismatch", "Errors seen in counters and fixed", "show interfaces output"], ["Trace ARP", "Request broadcast and reply unicast", "Simulation screenshot"]],
+          "objectives": ["Explain Ethernet switching", "Read interface counters", "Understand ARP"]
+        },
+        {
+          "topic": "IPv4 Addressing",
+          "subtopics": ["IPv4 address structure", "Network and host portions", "Public and private addresses", "Classful history and CIDR", "Default gateways", "Special addresses: loopback, APIPA and broadcast", "Binary and decimal conversion", "Configuring addresses on hosts and routers"],
+          "tools": ["Packet Tracer", "Calculator for binary practice"],
+          "lab_task": "Address a three-network lab by hand, configure hosts and router interfaces, convert ten addresses between binary and decimal and fix a host with the wrong gateway.",
+          "deliverable": "Addressing table, configuration and conversions",
+          "checks": [["Ping across networks", "Replies from every network", "Command output"], ["Convert addresses", "All ten correct", "Worksheet"], ["Fix the gateway", "Host reaches other networks after the fix", "Command output"]],
+          "objectives": ["Understand IPv4 addresses", "Configure addresses", "Fix addressing faults"]
+        },
+        {
+          "topic": "Subnetting IPv4 Networks",
+          "subtopics": ["Subnet masks and prefix lengths", "Calculating subnets and hosts", "Network, broadcast and usable ranges", "Variable-length subnet masking", "Summarising routes", "Subnetting shortcuts", "Planning addresses for a site", "Subnetting practice under time"],
+          "tools": ["Packet Tracer", "Subnetting worksheets"],
+          "lab_task": "Design a VLSM plan for a site with five departments of different sizes from one /24, apply it in the lab and complete 20 timed subnetting questions.",
+          "deliverable": "VLSM plan, lab configuration and timed results",
+          "checks": [["Review the VLSM plan", "No overlaps and every department fits", "Addressing plan"], ["Ping between departments", "All subnets reachable", "Command output"], ["Complete timed questions", "At least 18 of 20 correct", "Worksheet score"]],
+          "objectives": ["Subnet networks", "Use VLSM", "Plan addressing"]
+        },
+        {
+          "topic": "Cisco IOS Command Line and Device Configuration",
+          "subtopics": ["Console and SSH access", "User, privileged and configuration modes", "Help, abbreviations and history", "Hostnames, banners and passwords", "Interface configuration", "show commands", "Running and startup configurations", "Backing up and restoring configurations"],
+          "tools": ["Cisco IOS", "Packet Tracer", "TFTP server"],
+          "lab_task": "Configure a switch and router from factory settings with hostnames, passwords, banners and interfaces, save the configuration, back it up to TFTP and restore it after an erase.",
+          "deliverable": "Configuration files and restore evidence",
+          "checks": [["Reload the device", "Configuration kept after saving", "show running-config output"], ["Restore from TFTP", "Device returns to the saved configuration", "Command output"], ["Use show commands", "Interface status and IP summary displayed", "show ip interface brief output"]],
+          "objectives": ["Use the IOS CLI", "Configure devices", "Back up configurations"]
+        },
+        {
+          "topic": "VLANs and Access Ports",
+          "subtopics": ["Why VLANs", "Creating and naming VLANs", "Access ports", "Voice VLANs", "The native VLAN", "VLAN database and show commands", "Moving users between VLANs", "VLAN design for a small site"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Create VLANs for staff, guests and voice, assign ports, put a phone and PC on one port with a voice VLAN and confirm guests cannot reach staff hosts.",
+          "deliverable": "VLAN configuration and test results",
+          "checks": [["Ping from guest to staff", "No reply", "Command output"], ["Show VLAN assignments", "Ports in the right VLANs", "show vlan brief output"], ["Check the phone port", "Data and voice VLANs on one port", "show interfaces switchport output"]],
+          "objectives": ["Create VLANs", "Configure access ports", "Separate traffic"]
+        },
+        {
+          "topic": "Trunking and Inter-VLAN Routing",
+          "subtopics": ["802.1Q trunks", "Allowed VLAN lists", "DTP and why to turn it off", "Router on a stick", "Layer 3 switches and SVIs", "Routed ports", "Troubleshooting trunks", "Native VLAN mismatches"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Trunk two switches, route between VLANs with router on a stick, then move routing to a layer 3 switch with SVIs, and fix a native VLAN mismatch.",
+          "deliverable": "Configurations and test results for both designs",
+          "checks": [["Ping between VLANs through the router", "Replies received", "Command output"], ["Ping through the layer 3 switch", "Replies received with the router removed", "Command output"], ["Fix the native VLAN mismatch", "CDP warning gone", "Log output"]],
+          "objectives": ["Configure trunks", "Route between VLANs", "Fix trunk problems"]
+        },
+        {
+          "topic": "Spanning Tree Protocol",
+          "subtopics": ["Why loops are dangerous", "STP root bridge election", "Port roles and states", "Rapid PVST+", "Setting the root bridge", "PortFast and BPDU Guard", "Root Guard", "Reading spanning tree output"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Build a looped three-switch topology, predict and confirm the root bridge and blocked ports, move the root, enable PortFast with BPDU Guard and catch a rogue switch.",
+          "deliverable": "Predictions, show output and configuration",
+          "checks": [["Predict the root bridge", "Prediction matches the show output", "show spanning-tree output"], ["Plug in a rogue switch", "Port shut by BPDU Guard", "Log output"], ["Fail a link", "Blocked port starts forwarding", "show spanning-tree output"]],
+          "objectives": ["Explain STP", "Control the root bridge", "Protect edge ports"]
+        },
+        {
+          "topic": "EtherChannel Link Aggregation",
+          "subtopics": ["Why bundle links", "LACP and PAgP", "Static EtherChannel", "Load balancing methods", "Layer 2 and layer 3 EtherChannels", "Configuration consistency rules", "Troubleshooting bundles", "EtherChannel and STP"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Bundle two links between switches with LACP, check load balancing, cause a mismatch that keeps a link out of the bundle and fix it.",
+          "deliverable": "Configuration and show output",
+          "checks": [["Show the bundle", "Both links bundled", "show etherchannel summary output"], ["Fail one link", "Traffic continues", "Ping output"], ["Fix the mismatch", "Link joins the bundle", "show etherchannel summary output"]],
+          "objectives": ["Configure EtherChannel", "Check load balancing", "Fix bundle problems"]
+        },
+        {
+          "topic": "Static Routing",
+          "subtopics": ["How routers make decisions", "The routing table", "Static routes and next hops", "Default routes", "Floating static routes", "Administrative distance", "Longest prefix match", "Troubleshooting with traceroute"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Connect three routers with static routes, add a default route to the internet, add a floating static backup route and fail the main link to watch it take over.",
+          "deliverable": "Routing tables and failover output",
+          "checks": [["Show the routing table", "Static and default routes present", "show ip route output"], ["Fail the main link", "Floating route installed", "show ip route output"], ["Explain a routing choice", "Longest prefix match explained", "Written note"]],
+          "objectives": ["Read routing tables", "Configure static routes", "Provide backup routes"]
+        },
+        {
+          "topic": "OSPF Single-Area Routing",
+          "subtopics": ["Link-state routing", "OSPF neighbours and adjacencies", "Router ID", "Network statements and interface configuration", "DR and BDR elections", "OSPF costs", "Passive interfaces", "Troubleshooting adjacencies"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Replace static routes with single-area OSPF, set router IDs, influence path choice with cost, make LAN interfaces passive and fix an adjacency stuck because of a timer mismatch.",
+          "deliverable": "OSPF configuration and show output",
+          "checks": [["Show neighbours", "Adjacencies in FULL state", "show ip ospf neighbor output"], ["Change cost", "Traffic takes the preferred path", "traceroute output"], ["Fix the timer mismatch", "Adjacency forms", "show ip ospf neighbor output"]],
+          "objectives": ["Configure OSPF", "Control path choice", "Fix adjacency problems"]
+        },
+        {
+          "topic": "IPv6 Addressing and Routing",
+          "subtopics": ["Why IPv6", "IPv6 address format and shortening", "Address types: global, link-local and unique local", "SLAAC and DHCPv6", "EUI-64", "Neighbour discovery", "Static IPv6 routes", "OSPFv3 in brief"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Add IPv6 to the lab with global and link-local addresses, let hosts autoconfigure with SLAAC, route with static IPv6 routes and OSPFv3 and ping end to end.",
+          "deliverable": "IPv6 configuration and test results",
+          "checks": [["Shorten ten addresses", "All correct", "Worksheet"], ["Check SLAAC", "Hosts receive global addresses", "Host ipconfig output"], ["Ping across the network", "IPv6 replies end to end", "Command output"]],
+          "objectives": ["Address IPv6 networks", "Use SLAAC", "Route IPv6"]
+        },
+        {
+          "topic": "DHCP and DNS Services",
+          "subtopics": ["How DHCP works: DORA", "Router as a DHCP server", "Exclusions and pools", "DHCP relay", "DNS resolution", "Configuring DNS on devices", "Troubleshooting address problems", "DHCP and DNS in the CCNA exam"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Configure DHCP pools on a router for two VLANs, relay requests from a remote VLAN, set DNS and fix a client getting an APIPA address.",
+          "deliverable": "DHCP configuration and test results",
+          "checks": [["Renew a client lease", "Address from the right pool", "Host output"], ["Request from the remote VLAN", "Lease received through the relay", "show ip dhcp binding output"], ["Fix the APIPA client", "Client receives a lease", "Host output"]],
+          "objectives": ["Configure DHCP", "Use DHCP relay", "Fix address problems"]
+        },
+        {
+          "topic": "Network Address Translation",
+          "subtopics": ["Why NAT", "Static NAT", "Dynamic NAT", "PAT", "Inside and outside interfaces", "Translation tables", "Port forwarding", "Troubleshooting NAT"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Give internal users internet access with PAT, publish a web server with static NAT, check translations and fix a NAT failure caused by a wrong inside interface.",
+          "deliverable": "NAT configuration and translation output",
+          "checks": [["Browse from an inside host", "Translation created", "show ip nat translations output"], ["Reach the web server from outside", "Static translation works", "Browser screenshot"], ["Fix the interface error", "Translations created after the fix", "show ip nat statistics output"]],
+          "objectives": ["Configure NAT", "Publish servers", "Fix NAT problems"]
+        },
+        {
+          "topic": "Access Control Lists",
+          "subtopics": ["What ACLs do", "Standard and extended ACLs", "Wildcard masks", "Named ACLs", "Placement rules", "Implicit deny", "Securing VTY access", "Testing ACLs"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Write ACLs that allow staff to reach the web server only on HTTPS, block guests from internal networks and limit SSH to the admin subnet, and test every rule.",
+          "deliverable": "ACL configuration and test results",
+          "checks": [["Reach the server on HTTP", "Blocked", "Browser screenshot"], ["SSH from a non-admin host", "Refused", "Command output"], ["Review hit counts", "Each rule matched as expected", "show access-lists output"]],
+          "objectives": ["Write ACLs", "Place ACLs correctly", "Test ACLs"]
+        },
+        {
+          "topic": "Wireless LAN Concepts and Configuration",
+          "subtopics": ["Wireless standards: 802.11ac, ax and be", "Frequencies, channels and interference", "Autonomous and controller-based access points", "SSIDs and VLANs", "WPA2 and WPA3", "Wireless LAN controllers", "Guest wireless", "Troubleshooting wireless clients"],
+          "tools": ["Packet Tracer", "Wireless LAN controller simulator"],
+          "lab_task": "Configure a wireless controller with staff and guest SSIDs mapped to VLANs, WPA3 for staff and an open guest network with isolation, and connect clients to each.",
+          "deliverable": "Controller configuration and client tests",
+          "checks": [["Connect a staff client", "Gets a staff VLAN address", "Client output"], ["Connect a guest client", "Cannot reach staff networks", "Ping output"], ["Explain channel choice", "Non-overlapping channels chosen", "Written note"]],
+          "objectives": ["Explain wireless", "Configure controllers", "Secure wireless networks"]
+        },
+        {
+          "topic": "Device Security and Secure Management",
+          "subtopics": ["Securing console and VTY lines", "SSH configuration", "Local users and privilege levels", "Password encryption", "Port security", "Disabling unused ports and services", "AAA concepts", "Security best practices for small networks"],
+          "tools": ["Cisco IOS", "Packet Tracer"],
+          "lab_task": "Replace Telnet with SSH, create local users with privilege levels, enable port security to allow two MAC addresses per port and shut unused ports.",
+          "deliverable": "Security configuration and tests",
+          "checks": [["Connect with Telnet", "Refused", "Command output"], ["Plug in a third device", "Port blocks it", "show port-security output"], ["Show the configuration", "Passwords stored encrypted", "show running-config output"]],
+          "objectives": ["Secure device access", "Use port security", "Harden switches"]
+        },
+        {
+          "topic": "Network Services: NTP, Syslog, SNMP and CDP/LLDP",
+          "subtopics": ["Why time matters", "NTP configuration", "Syslog levels and servers", "SNMP versions", "SNMPv3 security", "CDP and LLDP discovery", "Using show and debug safely", "Building a simple network map"],
+          "tools": ["Cisco IOS", "Syslog server", "SNMP manager"],
+          "lab_task": "Sync all devices with NTP, send logs to a syslog server, poll interfaces with SNMPv3 and draw the network from CDP and LLDP neighbours.",
+          "deliverable": "Service configuration, logs and network map",
+          "checks": [["Show NTP status", "Devices synchronised", "show ntp status output"], ["Shut an interface", "Event logged on the syslog server", "Syslog entry"], ["Draw the map", "Map matches CDP and LLDP output", "Network map"]],
+          "objectives": ["Configure network services", "Monitor devices", "Discover neighbours"]
+        },
+        {
+          "topic": "Beginner Capstone: Small Office Network",
+          "subtopics": ["Design and addressing", "Switching and routing", "Services and security", "Documentation"],
+          "tools": ["Cisco Packet Tracer", "Cisco IOS"],
+          "lab_task": "Design and build a network for a 60-person office: VLANs, trunking, inter-VLAN routing, OSPF to a branch, DHCP, NAT, ACLs, wireless, SSH and NTP, then hand it over with documentation and fix a fault planted by the trainer.",
+          "deliverable": "Lab file, addressing plan, configurations and network documentation",
+          "checks": [["Test every requirement", "All requirements pass the test list", "Test checklist"], ["Fix the planted fault", "Fault found and fixed with notes", "Troubleshooting notes"], ["Hand over the documentation", "A classmate can find any device and address", "Peer feedback"]],
+          "objectives": ["Combine the beginner topics in one network", "Build a working office network", "Document and troubleshoot it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For network engineers with CCNA-level knowledge. Covers multi-area OSPF, EIGRP, BGP for the enterprise edge, HSRP, QoS, VPNs, wireless controllers, Layer 2 security, AAA, monitoring with SNMP and NetFlow, troubleshooting method, Python with Netmiko, NETCONF and RESTCONF, Ansible for networks, Catalyst Center, SD-WAN, cloud networking, IPv6 transition, CCNA exam preparation and a campus capstone.",
+      "prerequisites": ["Configures VLANs, trunks, OSPF, NAT and ACLs on Cisco devices", "Subnets IPv4 and IPv6 confidently", "Has worked on or studied for CCNA"],
+      "outcomes": ["Design and run enterprise routing with OSPF, EIGRP and BGP", "Add redundancy, QoS, VPNs and security to campus and branch networks", "Automate configuration with Python, APIs and Ansible", "Pass the CCNA and work toward CCNP Enterprise"],
+      "days": [
+        {
+          "topic": "Multi-Area OSPF",
+          "subtopics": ["Why areas", "Backbone and normal areas", "ABRs and ASBRs", "LSA types", "Route summarisation", "Stub and NSSA areas", "Virtual links", "Troubleshooting multi-area OSPF"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Split the network into three OSPF areas, summarise at the ABRs, make a branch area totally stubby and confirm smaller routing tables and correct reachability.",
+          "deliverable": "OSPF design, configuration and table sizes before and after",
+          "checks": [["Compare routing tables", "Branch table much smaller", "show ip route output"], ["Show LSAs", "Expected LSA types in each area", "show ip ospf database output"], ["Break the area design", "Fault found and fixed", "Troubleshooting notes"]],
+          "objectives": ["Design OSPF areas", "Summarise routes", "Use stub areas"]
+        },
+        {
+          "topic": "EIGRP Routing",
+          "subtopics": ["EIGRP concepts", "Neighbours and the topology table", "Successors and feasible successors", "Metrics", "Named mode configuration", "Unequal-cost load balancing", "Summarisation and stub routers", "EIGRP and OSPF compared"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Run EIGRP in a branch network, find feasible successors, fail the main path to watch instant failover and balance traffic across unequal links with variance.",
+          "deliverable": "EIGRP configuration and failover results",
+          "checks": [["Show the topology table", "Feasible successor present", "show ip eigrp topology output"], ["Fail the main path", "Failover with almost no lost pings", "Ping output"], ["Use variance", "Traffic over both paths", "show ip route output"]],
+          "objectives": ["Configure EIGRP", "Use feasible successors", "Balance traffic"]
+        },
+        {
+          "topic": "BGP for Enterprise Edge Routing",
+          "subtopics": ["Why BGP", "Autonomous systems", "eBGP and iBGP", "Neighbour configuration", "Advertising networks", "Path attributes", "Influencing inbound and outbound traffic", "Dual-homing to two providers"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Connect a company to two internet providers with eBGP, advertise its prefix, prefer one provider outbound with local preference and inbound with AS path prepending, and test failover.",
+          "deliverable": "BGP configuration and test results",
+          "checks": [["Show neighbours", "Both sessions established", "show ip bgp summary output"], ["Check outbound preference", "Traffic leaves through the preferred provider", "traceroute output"], ["Fail the main provider", "Traffic moves to the backup", "Ping output"]],
+          "objectives": ["Configure BGP", "Influence paths", "Dual-home to providers"]
+        },
+        {
+          "topic": "First Hop Redundancy with HSRP and VRRP",
+          "subtopics": ["Why gateway redundancy", "HSRP groups and virtual addresses", "Priority and preemption", "Interface tracking", "HSRP for several VLANs", "VRRP", "GLBP in brief", "Testing gateway failover"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Give each VLAN a redundant gateway with HSRP, split active roles between two switches, track the uplink and fail it to confirm hosts keep working.",
+          "deliverable": "HSRP configuration and failover results",
+          "checks": [["Show HSRP state", "Active and standby per VLAN as planned", "show standby brief output"], ["Fail the uplink", "Standby takes over", "show standby output"], ["Measure lost pings", "Fewer than five pings lost", "Ping output"]],
+          "objectives": ["Configure HSRP", "Track interfaces", "Test gateway failover"]
+        },
+        {
+          "topic": "Quality of Service",
+          "subtopics": ["Why QoS", "Classification and marking", "DSCP values", "Queuing: LLQ and CBWFQ", "Policing and shaping", "Trust boundaries", "QoS for voice and video", "Measuring QoS results"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE", "Traffic generator"],
+          "lab_task": "Mark voice, video and bulk traffic at the access layer, give voice priority on a congested WAN link, shape the WAN to the provider rate and measure voice latency before and after.",
+          "deliverable": "QoS policy and measurements",
+          "checks": [["Congest the WAN link", "Voice latency stays low", "Measurement output"], ["Show policy counters", "Traffic in the right classes", "show policy-map interface output"], ["Check markings", "DSCP values correct", "Wireshark capture"]],
+          "objectives": ["Classify and mark traffic", "Queue and shape traffic", "Protect voice"]
+        },
+        {
+          "topic": "Site-to-Site VPNs with IPsec and GRE",
+          "subtopics": ["VPN types", "IPsec phases", "IKEv2", "Crypto maps and virtual tunnel interfaces", "GRE over IPsec", "Routing over tunnels", "DMVPN concepts", "Troubleshooting VPNs"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Build an IKEv2 IPsec tunnel with virtual tunnel interfaces between head office and a branch, run OSPF over it and fix a tunnel failing because of mismatched proposals.",
+          "deliverable": "VPN configuration and test results",
+          "checks": [["Show the tunnel", "Security associations up", "show crypto ipsec sa output"], ["Capture traffic", "Encrypted on the internet link", "Wireshark capture"], ["Fix the mismatch", "Tunnel comes up", "show crypto ikev2 sa output"]],
+          "objectives": ["Build site-to-site VPNs", "Route over tunnels", "Fix VPN problems"]
+        },
+        {
+          "topic": "Wireless LAN Controllers and Enterprise Wireless",
+          "subtopics": ["Catalyst 9800 wireless controllers", "AP join process", "WLANs, policy profiles and tags", "802.1X for wireless", "Roaming", "RF management", "Guest portals", "Wireless troubleshooting tools"],
+          "tools": ["Catalyst 9800 controller (virtual)", "RADIUS server"],
+          "lab_task": "Join access points to a virtual 9800 controller, create an 802.1X staff WLAN and a guest portal, test roaming between APs and troubleshoot a client that cannot authenticate.",
+          "deliverable": "Controller configuration and test results",
+          "checks": [["Join APs", "APs registered with the controller", "Controller AP list"], ["Authenticate a staff client", "Login through 802.1X succeeds", "RADIUS log"], ["Fix the failing client", "Cause found and fixed", "Troubleshooting notes"]],
+          "objectives": ["Run enterprise wireless", "Use 802.1X", "Troubleshoot wireless clients"]
+        },
+        {
+          "topic": "Layer 2 Security: DHCP Snooping, ARP Inspection and 802.1X",
+          "subtopics": ["Layer 2 attacks", "DHCP snooping", "Dynamic ARP inspection", "IP source guard", "802.1X port authentication", "MAC authentication bypass", "Storm control", "Private VLANs in brief"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE", "RADIUS server"],
+          "lab_task": "Stop a rogue DHCP server and an ARP spoofing attack with snooping and inspection, require 802.1X on access ports with MAB for printers and limit broadcast storms.",
+          "deliverable": "Security configuration and attack test results",
+          "checks": [["Start a rogue DHCP server", "Offers blocked", "show ip dhcp snooping statistics output"], ["Spoof ARP", "Packets dropped by inspection", "Log output"], ["Connect an unauthenticated laptop", "Port stays unauthorised", "show access-session output"]],
+          "objectives": ["Stop Layer 2 attacks", "Use 802.1X", "Protect access ports"]
+        },
+        {
+          "topic": "AAA with RADIUS and TACACS+",
+          "subtopics": ["AAA concepts", "RADIUS and TACACS+ compared", "Cisco ISE in outline", "Device administration with TACACS+", "Command authorisation", "Accounting logs", "Fallback to local accounts", "Role-based access for network teams"],
+          "tools": ["Cisco ISE or FreeRADIUS and tac_plus", "Cisco IOS XE"],
+          "lab_task": "Move device logins to TACACS+ with command authorisation for two roles, keep a local fallback account and review accounting logs for changes.",
+          "deliverable": "AAA configuration, role definitions and logs",
+          "checks": [["Run a restricted command as a junior", "Command refused", "Device output"], ["Stop the TACACS+ server", "Local fallback login works", "Device output"], ["Review accounting", "Each command logged with the user", "Accounting log"]],
+          "objectives": ["Centralise device access", "Authorise commands", "Audit changes"]
+        },
+        {
+          "topic": "Network Monitoring with SNMP, Syslog and NetFlow",
+          "subtopics": ["What to monitor", "SNMPv3 polling and traps", "Central syslog", "NetFlow and IPFIX", "Top talkers", "Monitoring tools: LibreNMS, PRTG and others", "Baselines and thresholds", "Alerting"],
+          "tools": ["LibreNMS", "NetFlow collector", "Syslog server"],
+          "lab_task": "Monitor all devices with LibreNMS over SNMPv3, export NetFlow to a collector to find top talkers, and alert on interface errors and high link use.",
+          "deliverable": "Monitoring setup, NetFlow report and alerts",
+          "checks": [["Find top talkers", "Hosts and applications listed", "NetFlow report"], ["Raise link use above the threshold", "Alert sent", "Alert notification"], ["Review device health", "All devices polled", "LibreNMS screenshot"]],
+          "objectives": ["Monitor networks", "Analyse traffic flows", "Alert on problems"]
+        },
+        {
+          "topic": "Structured Network Troubleshooting",
+          "subtopics": ["Troubleshooting methods: top-down, bottom-up and divide and conquer", "Gathering symptoms", "Using show commands effectively", "debug and its risks", "Packet capture with SPAN and EPC", "Documenting findings", "Fixing without causing new faults", "Common enterprise faults"],
+          "tools": ["Cisco IOS XE", "Wireshark", "Embedded Packet Capture"],
+          "lab_task": "Find and fix eight planted faults across switching, routing, NAT, ACLs and services in timed rounds, recording the method used and evidence for each.",
+          "deliverable": "Troubleshooting log for every fault",
+          "checks": [["Fix all faults", "Every fault fixed within the time limit", "Troubleshooting log"], ["Capture with EPC", "Capture used to prove one fault", "Capture file"], ["Review the method", "Method and evidence recorded for each fault", "Troubleshooting log"]],
+          "objectives": ["Troubleshoot methodically", "Use captures", "Document findings"]
+        },
+        {
+          "topic": "Network Automation with Python and Netmiko",
+          "subtopics": ["Why automate networks", "Python for network engineers", "Netmiko connections", "Sending show and configuration commands", "Parsing output with TextFSM and Genie", "Working with inventories", "Error handling", "Running scripts safely"],
+          "tools": ["Python", "Netmiko", "TextFSM", "Genie"],
+          "lab_task": "Write a script that collects interface status from every device, parses it into a table, pushes a standard NTP and syslog configuration and reports devices that failed.",
+          "deliverable": "Scripts, inventory and output reports",
+          "checks": [["Collect interface status", "Table for all devices", "Script output"], ["Push configuration", "Change applied on every reachable device", "Device configurations"], ["Make one device unreachable", "Failure reported and others continue", "Script output"]],
+          "objectives": ["Automate with Python", "Parse device output", "Push configuration safely"]
+        },
+        {
+          "topic": "Model-Driven Programmability: NETCONF, RESTCONF and YANG",
+          "subtopics": ["Why APIs instead of the CLI", "YANG data models", "NETCONF operations", "RESTCONF with HTTP", "JSON and XML payloads", "Python with ncclient and requests", "Model-driven telemetry in brief", "Postman for network APIs"],
+          "tools": ["Cisco IOS XE", "ncclient", "Postman", "YANG Suite"],
+          "lab_task": "Read and change interface configuration through NETCONF and RESTCONF, explore the YANG model in YANG Suite and compare the effort with CLI scripting.",
+          "deliverable": "Scripts, Postman collection and comparison note",
+          "checks": [["Read an interface with RESTCONF", "JSON data returned", "Postman result"], ["Change a description with NETCONF", "Change visible on the device", "Device output"], ["Compare with CLI scripting", "Trade-offs written", "Comparison note"]],
+          "objectives": ["Use network APIs", "Read YANG models", "Change configuration through APIs"]
+        },
+        {
+          "topic": "Ansible for Network Configuration",
+          "subtopics": ["Ansible for networks", "Network modules and collections", "Inventories and group variables", "Configuration templates with Jinja2", "Backups with Ansible", "Check mode and diff", "Idempotent network changes", "Roles for standard configurations"],
+          "tools": ["Ansible", "cisco.ios collection", "Jinja2"],
+          "lab_task": "Back up all configurations with Ansible, generate VLAN and interface configuration from a template and data file, run in check mode with diff, then apply and re-run with no changes.",
+          "deliverable": "Playbooks, templates, backups and run output",
+          "checks": [["Run in check mode", "Diff shows planned changes", "Ansible output"], ["Re-run after applying", "No changes reported", "Ansible output"], ["Restore a backup", "Device returns to the saved state", "Device configuration"]],
+          "objectives": ["Automate networks with Ansible", "Template configurations", "Keep changes idempotent"]
+        },
+        {
+          "topic": "Controller-Based Networking with Catalyst Center",
+          "subtopics": ["Controllers and SDN concepts", "Underlay and overlay", "Catalyst Center (formerly DNA Center) features", "Templates and provisioning", "Assurance", "Intent-based networking", "Catalyst Center APIs", "Traditional and controller networks compared"],
+          "tools": ["Catalyst Center sandbox", "Postman", "Python"],
+          "lab_task": "Use the Catalyst Center sandbox to view inventory and health, provision a template, read assurance issues and pull device data through its API.",
+          "deliverable": "Screenshots, template and API script",
+          "checks": [["Read device health", "Health scores shown", "Screenshot"], ["Pull inventory through the API", "Device list returned", "Script output"], ["Explain the controller model", "Underlay, overlay and intent explained", "Written note"]],
+          "objectives": ["Understand controller networking", "Use Catalyst Center", "Use its APIs"]
+        },
+        {
+          "topic": "SD-WAN Concepts and Operation",
+          "subtopics": ["WAN problems SD-WAN solves", "Cisco Catalyst SD-WAN components", "Overlay tunnels", "Application-aware routing", "Policies", "Direct internet access", "Zero-touch provisioning", "SD-WAN and security"],
+          "tools": ["Cisco SD-WAN sandbox", "Manager dashboard"],
+          "lab_task": "Use the SD-WAN sandbox to view the overlay, create an application-aware policy that sends video over the best link and check path changes when a link degrades.",
+          "deliverable": "Policy, screenshots and notes",
+          "checks": [["View the overlay", "Tunnels between sites shown", "Screenshot"], ["Degrade a link", "Video moves to the better path", "Monitoring screenshot"], ["Explain zero-touch provisioning", "Steps described correctly", "Written note"]],
+          "objectives": ["Explain SD-WAN", "Apply application policies", "Watch path selection"]
+        },
+        {
+          "topic": "Cloud Networking for Network Engineers",
+          "subtopics": ["Cloud network building blocks: VPCs and VNets", "Subnets, route tables and gateways", "Security groups and network ACLs", "Connecting on-premises with VPN", "Direct Connect and ExpressRoute", "Cloud DNS", "Transit Gateway and Virtual WAN", "Differences from on-premises networks"],
+          "tools": ["AWS VPC", "Azure Virtual Network", "Cisco IOS XE"],
+          "lab_task": "Build a VPC with public and private subnets, connect it to the lab with a site-to-site VPN from a Cisco router, run BGP over the tunnel and control traffic with security groups.",
+          "deliverable": "Cloud network configuration, router configuration and test results",
+          "checks": [["Ping a private cloud host from the lab", "Reached through the VPN", "Ping output"], ["Show BGP routes", "Cloud prefixes learned on the router", "show ip bgp output"], ["Block a port with a security group", "Traffic refused", "Test output"]],
+          "objectives": ["Build cloud networks", "Connect sites to the cloud", "Compare cloud and on-premises"]
+        },
+        {
+          "topic": "IPv6 Transition and Dual-Stack Networks",
+          "subtopics": ["Dual stack", "Tunnelling methods", "NAT64 and DNS64", "IPv6 addressing plans for enterprises", "IPv6 first-hop security", "DHCPv6 options", "Testing dual-stack applications", "Planning an IPv6 rollout"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Turn the campus into dual stack with an IPv6 addressing plan, add RA guard, provide NAT64 for an IPv6-only segment and write a rollout plan.",
+          "deliverable": "Addressing plan, configuration and rollout plan",
+          "checks": [["Reach an IPv4 server from an IPv6-only host", "NAT64 translation works", "Ping output"], ["Send rogue router advertisements", "Blocked by RA guard", "Log output"], ["Review the rollout plan", "Phases and tests defined", "Rollout plan"]],
+          "objectives": ["Run dual-stack networks", "Use transition methods", "Plan IPv6 adoption"]
+        },
+        {
+          "topic": "CCNA Certification Preparation",
+          "subtopics": ["Exam topics and weighting", "Network fundamentals questions", "Network access questions", "IP connectivity questions", "IP services and security questions", "Automation questions", "Simulation and timed practice", "Weak-area review"],
+          "tools": ["Practice exams", "Packet Tracer", "Cisco documentation"],
+          "lab_task": "Take a timed practice exam, review wrong answers, rebuild the weak topics in Packet Tracer and take a second practice exam with simulations.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Rebuild weak topics", "Each weak topic practised in a lab", "Lab files"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the CCNA exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Redundant Campus and Branch Network",
+          "subtopics": ["Design", "Build", "Automate and secure", "Test and present"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE", "Ansible", "Python"],
+          "lab_task": "Design and build a campus with redundant core, HSRP, multi-area OSPF, dual-homed BGP internet, IPsec branches, QoS, Layer 2 security and AAA, deployed with Ansible, then run failure tests and present.",
+          "deliverable": "Design document, Ansible repository, test results and presentation",
+          "checks": [["Fail a core switch and an internet link", "Users keep connectivity", "Test results"], ["Rebuild a device from Ansible", "Device back to the standard configuration", "Ansible output"], ["Present the design", "Choices explained and questions answered", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one network", "Build redundant networks", "Automate deployment"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior network engineers and architects. Covers enterprise network design, advanced BGP, route policy and redistribution, MPLS L3VPN, SD-Access, SD-WAN deployment, VXLAN EVPN data centre fabrics, segmentation and zero trust, advanced QoS, multicast, wireless design, hybrid cloud networking, NetDevOps pipelines, streaming telemetry, source of truth, convergence tuning, complex troubleshooting, ENCOR preparation and a network design capstone.",
+      "prerequisites": ["Runs enterprise networks with OSPF, BGP and VPNs", "Automates with Python or Ansible", "Holds CCNA or has equivalent experience"],
+      "outcomes": ["Design scalable, secure enterprise and data centre networks", "Deploy fabrics, SD-WAN and hybrid cloud connectivity", "Run networks as code with pipelines, telemetry and a source of truth", "Solve complex faults and prepare for CCNP Enterprise"],
+      "days": [
+        {
+          "topic": "Enterprise Network Design Principles",
+          "subtopics": ["Hierarchical design: access, distribution and core", "Collapsed core and spine-leaf", "Redundancy and failure domains", "Scalability and summarisation boundaries", "Addressing plans for large organisations", "Design for operations", "High-level and low-level design documents", "Reviewing designs against requirements"],
+          "tools": ["Design document templates", "Network diagram tools"],
+          "lab_task": "Design the network for a company with a headquarters, a data centre and 40 branches, write high-level and low-level design documents and defend them in a review.",
+          "deliverable": "High-level design, low-level design and review notes",
+          "checks": [["Trace requirements", "Each requirement met by a design choice", "Requirements matrix"], ["Review failure domains", "Single failures do not take down more than one site", "Design review"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design enterprise networks", "Write design documents", "Defend design choices"]
+        },
+        {
+          "topic": "Advanced BGP: Route Reflectors, Communities and Policy",
+          "subtopics": ["iBGP scaling with route reflectors", "Confederations in brief", "BGP communities", "Route maps and prefix lists", "Best path selection in detail", "Route dampening", "BGP security: RPKI and prefix filtering", "Traffic engineering at scale"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE", "RPKI validator"],
+          "lab_task": "Scale iBGP with route reflectors, tag routes with communities to control export, filter bogons and validate origins with RPKI, and steer traffic across three providers.",
+          "deliverable": "BGP design, policies and validation results",
+          "checks": [["Show reflected routes", "Clients learn routes through the reflector", "show ip bgp output"], ["Receive an invalid origin", "Route rejected by RPKI policy", "show ip bgp output"], ["Steer traffic", "Traffic follows the community-based policy", "traceroute output"]],
+          "objectives": ["Scale BGP", "Apply routing policy", "Secure BGP"]
+        },
+        {
+          "topic": "Route Redistribution and Policy Control",
+          "subtopics": ["Why redistribute", "Redistribution between OSPF, EIGRP and BGP", "Metrics and seed metrics", "Routing loops from redistribution", "Route tags", "Administrative distance tuning", "Policy-based routing", "Migrating between routing protocols"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Redistribute between EIGRP and OSPF at two points, reproduce a routing loop, stop it with route tags, then migrate a site from EIGRP to OSPF without an outage.",
+          "deliverable": "Configuration, loop evidence and migration plan",
+          "checks": [["Reproduce the loop", "Loop shown with traceroute", "traceroute output"], ["Apply route tags", "Loop removed", "show ip route output"], ["Migrate the site", "No loss of connectivity during migration", "Ping output"]],
+          "objectives": ["Redistribute safely", "Prevent loops", "Migrate protocols"]
+        },
+        {
+          "topic": "MPLS and Layer 3 VPNs",
+          "subtopics": ["MPLS forwarding", "LDP", "Provider and customer edge roles", "VRFs", "MP-BGP and VPNv4", "Route distinguishers and route targets", "Customer routing with the provider", "Troubleshooting L3VPNs"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Build a provider core with MPLS and LDP, connect two customers with overlapping addresses through L3VPNs and share one service between customers with route targets.",
+          "deliverable": "Provider configuration and customer tests",
+          "checks": [["Ping within each customer", "Customer sites reach each other", "Ping output"], ["Use overlapping addresses", "Customers kept separate", "Routing tables"], ["Share a service", "Both customers reach the shared service only", "Ping output"]],
+          "objectives": ["Explain MPLS", "Build L3VPNs", "Use VRFs and route targets"]
+        },
+        {
+          "topic": "SD-Access Fabric Design",
+          "subtopics": ["SD-Access concepts", "Underlay with IS-IS", "LISP control plane", "VXLAN data plane", "Virtual networks and scalable group tags", "Fabric roles: border, control and edge", "Policy with Cisco ISE", "Migrating campuses to SD-Access"],
+          "tools": ["Catalyst Center", "Cisco ISE", "SD-Access lab or sandbox"],
+          "lab_task": "Design an SD-Access fabric for a campus, define virtual networks and group-based policy, and explain packet flow between two users in different groups.",
+          "deliverable": "Fabric design, policy matrix and packet flow explanation",
+          "checks": [["Review the fabric design", "Roles placed and justified", "Design document"], ["Build the policy matrix", "Allowed and denied group pairs defined", "Policy matrix"], ["Explain packet flow", "LISP lookup and VXLAN encapsulation described", "Written explanation"]],
+          "objectives": ["Design SD-Access", "Use group-based policy", "Plan campus migration"]
+        },
+        {
+          "topic": "SD-WAN Design and Deployment",
+          "subtopics": ["SD-WAN architecture choices", "Controller placement", "Transport design: MPLS, internet and 5G", "Segmentation across the WAN", "Centralised and localised policy", "Cloud on-ramps", "Security integration", "Migrating branches from traditional WAN"],
+          "tools": ["Cisco Catalyst SD-WAN", "SD-WAN lab"],
+          "lab_task": "Deploy SD-WAN to three lab branches with two transports, segment guest and corporate traffic, add a cloud on-ramp and migrate a branch with no outage.",
+          "deliverable": "SD-WAN design, policies and migration log",
+          "checks": [["Fail a transport", "Traffic continues on the other", "Monitoring output"], ["Test segmentation", "Guest traffic cannot reach corporate", "Test results"], ["Migrate a branch", "No outage during cutover", "Ping output"]],
+          "objectives": ["Design SD-WAN", "Segment the WAN", "Migrate branches"]
+        },
+        {
+          "topic": "Data Centre Fabrics with VXLAN EVPN",
+          "subtopics": ["Spine-leaf design", "VXLAN encapsulation", "BGP EVPN control plane", "Layer 2 and layer 3 VNIs", "Anycast gateways", "Multi-homing", "Border leaves", "Fabric automation"],
+          "tools": ["Cisco Nexus 9000v", "Cisco Modeling Labs"],
+          "lab_task": "Build a spine-leaf fabric with BGP EVPN and VXLAN, stretch a layer 2 segment, route between tenants with anycast gateways and dual-home a server.",
+          "deliverable": "Fabric configuration and test results",
+          "checks": [["Show EVPN routes", "Host routes advertised", "show bgp l2vpn evpn output"], ["Move a VM between leaves", "Reachability kept", "Ping output"], ["Fail a server link", "Traffic continues on the other leaf", "Ping output"]],
+          "objectives": ["Build VXLAN EVPN fabrics", "Use anycast gateways", "Multi-home servers"]
+        },
+        {
+          "topic": "Network Segmentation and Zero Trust Architecture",
+          "subtopics": ["Why flat networks fail", "Segmentation levels: VRFs, VLANs and groups", "Firewalls in the network design", "Micro-segmentation", "Zero trust principles", "Identity-based access", "ZTNA and SASE", "Measuring segmentation"],
+          "tools": ["Cisco ISE", "Next-generation firewall", "Design tools"],
+          "lab_task": "Redesign a flat network into segments for users, servers, OT and guests with firewalls and identity-based policy, and test that lateral movement is blocked.",
+          "deliverable": "Segmentation design, policies and test results",
+          "checks": [["Move laterally from a user to OT", "Blocked", "Test results"], ["Review policy", "Least-privilege rules for each segment", "Policy table"], ["Explain zero trust", "Principles mapped to design choices", "Design document"]],
+          "objectives": ["Segment networks", "Apply zero trust", "Test segmentation"]
+        },
+        {
+          "topic": "Advanced QoS Design",
+          "subtopics": ["End-to-end QoS models", "Campus QoS", "WAN and SD-WAN QoS", "Hierarchical QoS", "QoS for collaboration and real-time apps", "Queue tuning", "QoS in the cloud", "Validating QoS"],
+          "tools": ["Cisco IOS XE", "Traffic generators", "Monitoring tools"],
+          "lab_task": "Design end-to-end QoS for voice, video and critical apps across campus, WAN and SD-WAN, apply hierarchical QoS on the WAN edge and validate under congestion.",
+          "deliverable": "QoS design, configuration and validation results",
+          "checks": [["Congest the WAN", "Critical apps meet their targets", "Validation results"], ["Check markings end to end", "Markings kept or remarked as designed", "Captures"], ["Show hierarchical QoS counters", "Parent shaper and child queues working", "show policy-map output"]],
+          "objectives": ["Design QoS end to end", "Use hierarchical QoS", "Validate QoS"]
+        },
+        {
+          "topic": "IP Multicast",
+          "subtopics": ["Multicast addressing", "IGMP and IGMP snooping", "PIM sparse mode", "Rendezvous points", "Source-specific multicast", "Multicast troubleshooting", "Multicast in fabrics", "Use cases: video, trading and updates"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE", "VLC"],
+          "lab_task": "Stream video over multicast across three routers with PIM sparse mode, configure a rendezvous point, switch to SSM and troubleshoot a receiver that gets no stream.",
+          "deliverable": "Multicast configuration and troubleshooting notes",
+          "checks": [["Join from a receiver", "Stream received", "VLC screenshot"], ["Show the multicast routing table", "Correct entries", "show ip mroute output"], ["Fix the failing receiver", "Cause found and fixed", "Troubleshooting notes"]],
+          "objectives": ["Run multicast", "Use PIM", "Troubleshoot multicast"]
+        },
+        {
+          "topic": "Enterprise Wireless Design",
+          "subtopics": ["Coverage and capacity planning", "Site surveys", "High-density design", "Roaming design", "Wi-Fi 6E and Wi-Fi 7", "Wireless security design", "Location services", "Validating wireless designs"],
+          "tools": ["Ekahau or Hamina", "Catalyst 9800"],
+          "lab_task": "Plan wireless for a three-floor office with a high-density auditorium using a survey tool, choose channels and power, design roaming and security and validate the plan.",
+          "deliverable": "Wireless design, heat maps and validation report",
+          "checks": [["Review coverage", "Signal meets the target across the floors", "Heat maps"], ["Review capacity", "Auditorium supports the expected clients", "Capacity plan"], ["Review security", "802.1X and WPA3 design defined", "Design document"]],
+          "objectives": ["Design enterprise wireless", "Plan coverage and capacity", "Secure wireless"]
+        },
+        {
+          "topic": "Hybrid Cloud Networking at Scale",
+          "subtopics": ["Multi-cloud connectivity models", "AWS Transit Gateway", "Azure Virtual WAN", "Direct Connect and ExpressRoute design", "Cloud routing with BGP", "Centralised inspection", "DNS across hybrid networks", "Cost of cloud networking"],
+          "tools": ["AWS Transit Gateway", "Azure Virtual WAN", "Terraform"],
+          "lab_task": "Connect on-premises to AWS and Azure through a hub design with BGP, centralise inspection for traffic between clouds, resolve DNS across environments and estimate monthly network cost.",
+          "deliverable": "Hybrid design, Terraform code, test results and cost estimate",
+          "checks": [["Route between clouds", "Traffic passes the inspection point", "Flow logs"], ["Resolve names across environments", "Names resolve in every direction", "dig output"], ["Estimate cost", "Data transfer and gateway costs calculated", "Cost estimate"]],
+          "objectives": ["Design hybrid cloud networks", "Route with BGP across clouds", "Control cost"]
+        },
+        {
+          "topic": "NetDevOps: Pipelines for Network Changes",
+          "subtopics": ["Network as code", "Git workflows for network changes", "Testing configurations with Batfish", "Lab validation with CML or containerlab", "Pipelines with GitLab CI or GitHub Actions", "Change approval in pipelines", "Rollback", "Measuring change success"],
+          "tools": ["Git", "Batfish", "containerlab", "GitLab CI"],
+          "lab_task": "Build a pipeline where a network change is proposed in Git, checked with Batfish, tested in containerlab, approved and deployed with Ansible, with automatic rollback on failed checks.",
+          "deliverable": "Pipeline, tests and change records",
+          "checks": [["Propose a change that breaks reachability", "Batfish check fails the pipeline", "Pipeline log"], ["Deploy a good change", "Change applied after approval", "Pipeline log"], ["Fail post-checks", "Change rolled back automatically", "Pipeline log"]],
+          "objectives": ["Run network changes as code", "Test before deploying", "Roll back automatically"]
+        },
+        {
+          "topic": "Streaming Telemetry and Network Observability",
+          "subtopics": ["SNMP limits", "Model-driven telemetry", "gNMI", "Telegraf, InfluxDB and Grafana", "Prometheus for network metrics", "Flow and packet data", "Synthetic monitoring", "Network observability dashboards"],
+          "tools": ["gNMI", "Telegraf", "InfluxDB", "Grafana"],
+          "lab_task": "Stream interface and CPU telemetry from devices with gNMI into InfluxDB, build Grafana dashboards, add synthetic tests for key paths and alert on packet loss.",
+          "deliverable": "Telemetry configuration, dashboards and alerts",
+          "checks": [["Stream telemetry", "Data arrives every few seconds", "Grafana dashboard"], ["Add packet loss", "Alert fires", "Alert notification"], ["Compare with SNMP", "Faster detection measured", "Comparison note"]],
+          "objectives": ["Stream telemetry", "Build network dashboards", "Detect problems faster"]
+        },
+        {
+          "topic": "Source of Truth and Intent with NetBox",
+          "subtopics": ["Why a source of truth", "NetBox data model", "Importing existing networks", "Generating configurations from NetBox", "Drift detection", "Integrating NetBox with Ansible", "Data quality and ownership", "Intent-based workflows"],
+          "tools": ["NetBox", "Ansible", "Python"],
+          "lab_task": "Load the lab network into NetBox, generate device configurations from NetBox data with Ansible, detect a manual change as drift and fix it from the source of truth.",
+          "deliverable": "NetBox data, generated configurations and drift report",
+          "checks": [["Generate configurations", "Generated configs match the running configs", "Diff output"], ["Make a manual change", "Drift detected", "Drift report"], ["Fix from NetBox", "Device back in line with the source of truth", "Ansible output"]],
+          "objectives": ["Use a source of truth", "Generate configurations", "Detect drift"]
+        },
+        {
+          "topic": "Convergence and High Availability Tuning",
+          "subtopics": ["Measuring convergence", "BFD", "Fast hello and SPF tuning", "Graceful restart and NSF", "Stateful switchover", "BGP PIC", "Design for sub-second failover", "Testing failover"],
+          "tools": ["Cisco Modeling Labs", "Cisco IOS XE"],
+          "lab_task": "Measure baseline failover times, add BFD and tune OSPF and BGP timers, enable fast reroute features and show sub-second convergence for core failures.",
+          "deliverable": "Baseline and tuned timings and configuration",
+          "checks": [["Measure baseline failover", "Time recorded for each failure", "Timing table"], ["Add BFD", "Failure detected in milliseconds", "show bfd neighbors output"], ["Compare tuned failover", "Sub-second convergence achieved", "Timing table"]],
+          "objectives": ["Measure convergence", "Tune for fast failover", "Test high availability"]
+        },
+        {
+          "topic": "Network Capacity Planning and Lifecycle Management",
+          "subtopics": ["Measuring link and device use over time", "Forecasting growth", "Oversubscription ratios", "Hardware and software end-of-life", "Software upgrade strategy and golden images", "Refresh planning and budgets", "Vendor and licence management", "Reporting network health to leadership"],
+          "tools": ["Telemetry data", "NetBox", "Spreadsheet"],
+          "lab_task": "Forecast link and device use for 18 months from telemetry, list devices reaching end of life, plan software upgrades with golden images and build a three-year refresh budget.",
+          "deliverable": "Capacity forecast, lifecycle report, upgrade plan and budget",
+          "checks": [["Forecast link use", "Links needing upgrade named with dates", "Forecast chart"], ["List end-of-life devices", "Devices and support end dates listed", "Lifecycle report"], ["Present the budget", "Refresh costs by year with priorities", "Budget"]],
+          "objectives": ["Plan network capacity", "Manage device lifecycles", "Budget for refresh"]
+        },
+        {
+          "topic": "Troubleshooting Complex Network Problems",
+          "subtopics": ["Intermittent faults", "MTU and fragmentation problems", "Asymmetric routing", "Policy and firewall interactions", "Control plane problems", "Hardware and software defects", "Working with vendor support", "Post-incident reviews"],
+          "tools": ["Wireshark", "Embedded Packet Capture", "Telemetry dashboards"],
+          "lab_task": "Diagnose five hard faults (intermittent MTU drops, asymmetric routing through a firewall, a BGP flap, high control plane CPU and a QoS misclassification), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Find the MTU problem", "Path MTU issue proven with a capture", "Capture and notes"], ["Fix the asymmetric routing", "Return path corrected", "traceroute output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose complex faults", "Use evidence", "Learn from incidents"]
+        },
+        {
+          "topic": "CCNP Enterprise ENCOR Preparation",
+          "subtopics": ["ENCOR exam domains", "Architecture questions", "Virtualisation questions", "Infrastructure questions", "Network assurance questions", "Security questions", "Automation questions", "Timed practice and review"],
+          "tools": ["Practice exams", "Cisco Modeling Labs", "Cisco documentation"],
+          "lab_task": "Take a timed ENCOR practice exam, review wrong answers by domain, lab the weak topics and take a second practice exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice exam", "Score recorded by domain", "Score sheet"], ["Lab the weak topics", "Each weak topic practised", "Lab files"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the ENCOR exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Network Design and Delivery",
+          "subtopics": ["Design", "Build and automate", "Operate and observe", "Design review"],
+          "tools": ["Cisco Modeling Labs", "Nexus 9000v", "NetBox", "Batfish", "Ansible", "Grafana"],
+          "lab_task": "Design and deliver a network for a case enterprise: segmented campus, SD-WAN branches, a VXLAN EVPN data centre, hybrid cloud links, NetBox source of truth, a NetDevOps pipeline and telemetry, then run a failure game day and defend the design to a review board.",
+          "deliverable": "Design documents, automation repository, game day report and review presentation",
+          "checks": [["Run the game day", "Failures handled within the convergence targets", "Game day report"], ["Change through the pipeline", "Tested and deployed without manual steps", "Pipeline log"], ["Defend the design", "Board questions answered with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one network", "Deliver networks as code", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

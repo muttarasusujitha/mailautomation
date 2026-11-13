@@ -3068,6 +3068,450 @@
           "Track continual improvement"
         ]
       }
+    },
+    {
+      "between": [
+        "Linux Administration",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python for Linux Administration: Replacing Fragile Shell Scripts",
+        "subtopics": [
+          "When a Bash script should become Python",
+          "subprocess safely: argument lists and return codes",
+          "Files, paths and permissions with pathlib and os",
+          "Parsing logs and command output",
+          "Calling systemd and package managers from Python",
+          "argparse command-line tools",
+          "Logging to the journal",
+          "Packaging admin tools for servers"
+        ],
+        "tools": [
+          "Python 3",
+          "systemd",
+          "journald",
+          "pytest"
+        ],
+        "lab_task": "Rewrite the Bash user-creation and health-check scripts as Python command-line tools with argparse, safe subprocess calls, journal logging and tests, and install them as a package on both servers.",
+        "deliverable": "Python tools, tests and install notes",
+        "checks": [
+          [
+            "Pass a user name with a space or semicolon",
+            "Treated as data, no shell injection",
+            "Tool output"
+          ],
+          [
+            "Run the tests",
+            "All pass",
+            "pytest output"
+          ],
+          [
+            "Read the journal",
+            "Tool messages logged with priority",
+            "journalctl output"
+          ]
+        ],
+        "objectives": [
+          "Automate Linux with Python",
+          "Call system tools safely",
+          "Package admin tools"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Linux Administration",
+        "Docker"
+      ],
+      "day": {
+        "topic": "What Docker Uses Inside Linux: Namespaces, cgroups, Storage and Networking",
+        "subtopics": [
+          "Containers as Linux processes",
+          "Namespaces seen from the host",
+          "cgroups limits behind docker run flags",
+          "Overlay file systems and image layers",
+          "Docker networking with bridges and iptables or nftables",
+          "Users, UIDs and rootless Docker",
+          "SELinux and AppArmor with containers",
+          "Debugging containers with Linux tools"
+        ],
+        "tools": [
+          "Docker",
+          "nsenter",
+          "systemd-cgls",
+          "nftables",
+          "ps"
+        ],
+        "lab_task": "Run containers with CPU and memory limits and find those limits in cgroups, enter a container's namespaces with nsenter, trace container traffic through bridge and firewall rules and run Docker rootless.",
+        "deliverable": "Command log mapping Docker features to Linux features",
+        "checks": [
+          [
+            "Set a memory limit with docker run",
+            "Same limit found in the cgroup files",
+            "Terminal output"
+          ],
+          [
+            "Trace a published port",
+            "Matching NAT rule found",
+            "nft or iptables output"
+          ],
+          [
+            "Run rootless Docker",
+            "Container processes owned by a normal user",
+            "ps output"
+          ]
+        ],
+        "objectives": [
+          "Explain containers through Linux",
+          "Debug containers from the host",
+          "Run Docker rootless"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Linux Administration",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Linux on Kubernetes Nodes: Kubelet, Runtimes and Node Troubleshooting",
+        "subtopics": [
+          "What runs on a node: kubelet, containerd and kube-proxy",
+          "systemd and journal logs for node services",
+          "cgroups v2 and pod resource limits",
+          "Node networking: CNI, routes and iptables or eBPF",
+          "Disk pressure, image garbage collection and logs",
+          "Kernel settings Kubernetes needs",
+          "Node problem detector",
+          "Debugging nodes with kubectl debug"
+        ],
+        "tools": [
+          "Kubernetes",
+          "containerd",
+          "crictl",
+          "journalctl",
+          "kubectl debug"
+        ],
+        "lab_task": "Diagnose three broken nodes (kubelet failing to start, disk pressure evicting pods and a missing kernel setting for networking) using Linux tools and kubectl debug.",
+        "deliverable": "Diagnosis notes for each node",
+        "checks": [
+          [
+            "Fix the kubelet",
+            "Node Ready after the fix",
+            "kubectl get nodes output"
+          ],
+          [
+            "Clear disk pressure",
+            "Evictions stop",
+            "kubectl describe node output"
+          ],
+          [
+            "List containers on the node",
+            "Pods' containers shown with crictl",
+            "crictl output"
+          ]
+        ],
+        "objectives": [
+          "Administer Kubernetes nodes",
+          "Use Linux tools on nodes",
+          "Fix node problems"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Linux Administration",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Running Linux on AWS: EC2, Systems Manager and EBS",
+        "subtopics": [
+          "Choosing AMIs: Amazon Linux, RHEL and Ubuntu",
+          "cloud-init and user data",
+          "IMDSv2",
+          "Systems Manager Session Manager instead of SSH",
+          "Patch Manager",
+          "EBS volumes, LVM and resizing online",
+          "CloudWatch agent for logs and metrics",
+          "Recovering instances that will not boot"
+        ],
+        "tools": [
+          "AWS EC2",
+          "AWS Systems Manager",
+          "Amazon EBS",
+          "CloudWatch agent"
+        ],
+        "lab_task": "Launch a hardened Linux instance with user data, require IMDSv2, manage it only through Session Manager, patch it with Patch Manager, grow an EBS-backed LVM volume online and ship logs to CloudWatch.",
+        "deliverable": "Launch template, patch report and CloudWatch screenshots",
+        "checks": [
+          [
+            "Close port 22 and connect",
+            "Session Manager works without SSH",
+            "Session log"
+          ],
+          [
+            "Grow the volume",
+            "File system larger without a reboot",
+            "df output"
+          ],
+          [
+            "Run Patch Manager",
+            "Instance reported compliant",
+            "Patch compliance report"
+          ]
+        ],
+        "objectives": [
+          "Run Linux well on AWS",
+          "Manage without SSH",
+          "Use cloud storage with LVM"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Prometheus and Grafana",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Monitoring Kubernetes Clusters and Workloads with Prometheus and Grafana",
+        "subtopics": [
+          "Cluster, node, pod and container metrics",
+          "kube-state-metrics and cAdvisor together",
+          "ServiceMonitors for applications",
+          "Resource requests compared with real use",
+          "Alerts for pods, nodes and the control plane",
+          "Dashboards per namespace and workload",
+          "Scaling with custom metrics through the Prometheus Adapter",
+          "Cost of monitoring large clusters"
+        ],
+        "tools": [
+          "Kubernetes",
+          "kube-prometheus-stack",
+          "Prometheus Adapter",
+          "Grafana"
+        ],
+        "lab_task": "Monitor a cluster with kube-prometheus-stack, add a ServiceMonitor for an app, find over-requested workloads, alert on crash loops and scale the app with a custom request-rate metric.",
+        "deliverable": "Monitoring configuration, dashboards, alerts and autoscaling evidence",
+        "checks": [
+          [
+            "Compare requests with use",
+            "Over-requested workloads listed",
+            "Query result"
+          ],
+          [
+            "Raise request rate",
+            "Pods scale on the custom metric",
+            "kubectl get hpa output"
+          ],
+          [
+            "Crash a pod repeatedly",
+            "Alert fires for the workload",
+            "Alertmanager notification"
+          ]
+        ],
+        "objectives": [
+          "Monitor Kubernetes",
+          "Right-size workloads",
+          "Autoscale on custom metrics"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Prometheus and Grafana",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Monitoring Docker Hosts and Compose Applications",
+        "subtopics": [
+          "Monitoring stack in Docker Compose",
+          "cAdvisor and node_exporter together",
+          "Docker engine metrics",
+          "Labels from Compose services",
+          "Health checks and restarts",
+          "Container logs to Loki with the Docker driver",
+          "Dashboards per Compose project",
+          "Alerts for unhealthy containers"
+        ],
+        "tools": [
+          "Docker Compose",
+          "cAdvisor",
+          "node_exporter",
+          "Loki",
+          "Grafana"
+        ],
+        "lab_task": "Add monitoring to an existing Compose application with cAdvisor, node_exporter and Loki, label metrics by Compose service, alert on unhealthy containers and build a project dashboard.",
+        "deliverable": "Compose files, dashboard and alert rules",
+        "checks": [
+          [
+            "Make a container unhealthy",
+            "Alert fires with the service name",
+            "Alertmanager notification"
+          ],
+          [
+            "View logs by service",
+            "Logs filtered by Compose service",
+            "Grafana screenshot"
+          ],
+          [
+            "View the project dashboard",
+            "CPU, memory and restarts per service",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Monitor Docker applications",
+          "Label by service",
+          "Collect container logs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "COBOL and Mainframe",
+        "Java"
+      ],
+      "day": {
+        "topic": "Java on z/OS and Calling Between COBOL and Java",
+        "subtopics": [
+          "Java on z/OS and zIIP offload",
+          "JZOS for batch Java",
+          "Calling Java from COBOL",
+          "Calling COBOL from Java",
+          "Data conversion between copybooks and Java classes",
+          "Java in CICS with Liberty",
+          "Testing mixed-language programs",
+          "When to write new services in Java on the mainframe"
+        ],
+        "tools": [
+          "IBM Semeru Runtime for z/OS",
+          "JZOS",
+          "Enterprise COBOL",
+          "CICS Liberty"
+        ],
+        "lab_task": "Run a Java batch step with JZOS that reads a COBOL-created data set using generated record classes, call a Java routine from COBOL and expose a CICS Liberty Java service that calls a COBOL program.",
+        "deliverable": "Programs, JCL, generated classes and test results",
+        "checks": [
+          [
+            "Read the COBOL data set from Java",
+            "Packed fields converted correctly",
+            "Job output"
+          ],
+          [
+            "Call Java from COBOL",
+            "Result returned to the COBOL program",
+            "Job output"
+          ],
+          [
+            "Call the Liberty service",
+            "COBOL program result returned as JSON",
+            "API response"
+          ]
+        ],
+        "objectives": [
+          "Run Java on z/OS",
+          "Mix COBOL and Java",
+          "Plan new services"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CCNA Networking",
+        "AWS"
+      ],
+      "day": {
+        "topic": "AWS Networking for Network Engineers: VPCs, Routing and Hybrid Links",
+        "subtopics": [
+          "VPC design compared with on-premises design",
+          "Route tables and gateways",
+          "Security groups and network ACLs compared with ACLs on routers",
+          "Site-to-site VPN to a Cisco router with BGP",
+          "Transit Gateway",
+          "Direct Connect",
+          "Route 53 Resolver for hybrid DNS",
+          "VPC Flow Logs for troubleshooting"
+        ],
+        "tools": [
+          "AWS VPC",
+          "AWS Site-to-Site VPN",
+          "Transit Gateway",
+          "Cisco IOS XE"
+        ],
+        "lab_task": "Connect a Cisco lab router to two VPCs through Transit Gateway with BGP over IPsec, resolve on-premises names from the VPC and troubleshoot a blocked flow with Flow Logs.",
+        "deliverable": "AWS and router configuration, test results and Flow Log analysis",
+        "checks": [
+          [
+            "Ping both VPCs from the lab",
+            "Replies through the VPN",
+            "Ping output"
+          ],
+          [
+            "Show learned routes on the router",
+            "VPC prefixes received over BGP",
+            "show ip bgp output"
+          ],
+          [
+            "Find the blocked flow",
+            "Rejected flow found in Flow Logs and fixed",
+            "Flow Log query"
+          ]
+        ],
+        "objectives": [
+          "Apply networking skills to AWS",
+          "Build hybrid links",
+          "Troubleshoot cloud networks"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CCNA Networking",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Network Automation for CCNA Engineers",
+        "subtopics": [
+          "Python basics for network tasks",
+          "Connecting with Netmiko",
+          "Parsing show output with TextFSM",
+          "Templates with Jinja2",
+          "Reading device lists from YAML or CSV",
+          "Backups and change scripts",
+          "Pre-checks and post-checks",
+          "Running scripts safely across many devices"
+        ],
+        "tools": [
+          "Python",
+          "Netmiko",
+          "TextFSM",
+          "Jinja2"
+        ],
+        "lab_task": "Write a script that backs up all lab devices, generates VLAN configuration from a YAML file with Jinja2, pushes it with pre-checks and post-checks and reports any device where checks fail.",
+        "deliverable": "Scripts, templates, data files and run reports",
+        "checks": [
+          [
+            "Run the backup",
+            "Configuration saved for every device",
+            "Backup files"
+          ],
+          [
+            "Push VLANs",
+            "VLANs present after the post-check",
+            "Script report"
+          ],
+          [
+            "Fail a post-check on purpose",
+            "Device reported and change rolled back",
+            "Script report"
+          ]
+        ],
+        "objectives": [
+          "Automate CCNA tasks with Python",
+          "Template configurations",
+          "Check changes automatically"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -4991,6 +5435,189 @@
           "Combine ITIL and ServiceNow",
           "Deliver aligned practices",
           "Measure improvement"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Linux Administration",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hardened Container Host",
+        "subtopics": [
+          "Host build",
+          "Container platform",
+          "Security",
+          "Operations"
+        ],
+        "tools": [
+          "Rocky Linux 9",
+          "Docker or Podman",
+          "SELinux",
+          "firewalld",
+          "systemd"
+        ],
+        "lab_task": "Build a hardened Linux host that runs a multi-container application rootless with SELinux enforcing, resource limits, firewall rules, central logging and backups, then prove recovery and present it.",
+        "deliverable": "Build scripts, container definitions, hardening report and demo recording",
+        "checks": [
+          [
+            "Run the hardening scan",
+            "Host passes the agreed profile",
+            "OpenSCAP report"
+          ],
+          [
+            "Restore after deleting the app data",
+            "Application back from backup",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Host and container choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Linux and containers",
+          "Deliver a hardened host",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Prometheus and Grafana",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Observable Kubernetes Platform",
+        "subtopics": [
+          "Monitoring design",
+          "SLOs and alerts",
+          "Dashboards and logs",
+          "Incident demo"
+        ],
+        "tools": [
+          "Kubernetes",
+          "kube-prometheus-stack",
+          "Loki",
+          "Grafana",
+          "Alertmanager"
+        ],
+        "lab_task": "Build monitoring for a Kubernetes platform with ServiceMonitors, SLO burn-rate alerts, namespace dashboards, Loki logs and custom-metric autoscaling, then handle an injected incident live.",
+        "deliverable": "Manifests, dashboards, alert rules and incident demo recording",
+        "checks": [
+          [
+            "Inject the incident",
+            "Alert fires and the cause is shown on dashboards",
+            "Demo recording"
+          ],
+          [
+            "Raise load",
+            "Autoscaling follows the custom metric",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Monitoring choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Prometheus, Grafana and Kubernetes",
+          "Monitor by SLO",
+          "Handle incidents with data"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "COBOL and Mainframe",
+        "Java"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hybrid COBOL and Java Service",
+        "subtopics": [
+          "Design",
+          "COBOL and Java build",
+          "API exposure",
+          "Test and demo"
+        ],
+        "tools": [
+          "Enterprise COBOL",
+          "IBM Semeru Runtime for z/OS",
+          "CICS Liberty",
+          "Db2 for z/OS"
+        ],
+        "lab_task": "Extend a COBOL account system with a Java service in CICS Liberty that reuses the COBOL business logic, expose it as a REST API, test both languages together and present the design.",
+        "deliverable": "Programs, API definition, tests and a 15-minute demo",
+        "checks": [
+          [
+            "Call the API",
+            "Account data from the COBOL logic returned",
+            "Demo recording"
+          ],
+          [
+            "Run the combined tests",
+            "COBOL and Java tests pass",
+            "Test report"
+          ],
+          [
+            "Answer design questions",
+            "Language split defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine COBOL and Java",
+          "Reuse mainframe logic",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "CCNA Networking",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Automated Branch Network Rollout",
+        "subtopics": [
+          "Design",
+          "Templates and data",
+          "Automated deployment",
+          "Validation"
+        ],
+        "tools": [
+          "Python",
+          "Netmiko",
+          "Jinja2",
+          "Cisco IOS XE",
+          "Cisco Modeling Labs"
+        ],
+        "lab_task": "Design a standard branch network, build templates and data for five branches, deploy them with Python including pre-checks, post-checks and rollback, and present a validation report.",
+        "deliverable": "Templates, data files, scripts, validation report and demo recording",
+        "checks": [
+          [
+            "Deploy five branches",
+            "All branches pass post-checks",
+            "Validation report"
+          ],
+          [
+            "Break one branch on purpose",
+            "Rolled back and reported",
+            "Script report"
+          ],
+          [
+            "Answer design questions",
+            "Template and data design defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine networking and Python",
+          "Roll out networks automatically",
+          "Validate changes"
         ]
       }
     }
