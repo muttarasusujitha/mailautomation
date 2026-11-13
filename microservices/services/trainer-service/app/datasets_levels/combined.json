@@ -1,1865 +1,1722 @@
 {
-  "description": "Days used only in combined programmes. An integration day is added when both technologies are requested; a capstone is used when every requested technology is in its applies_to list.",
-  "integrations": [
-    {
-      "between": [
-        "Python",
-        "AWS"
-      ],
-      "day": {
-        "topic": "Python on AWS: Automation with boto3 and Lambda",
-        "subtopics": [
-          "boto3 sessions, clients and resources",
-          "Credentials from roles instead of keys",
-          "Paginators and waiters",
-          "Handling ClientError and retries",
-          "Writing a Lambda handler in Python",
-          "Packaging dependencies with Lambda layers",
-          "Testing AWS code with moto",
-          "Least-privilege roles for Python code"
-        ],
-        "tools": [
-          "Python",
-          "boto3",
-          "AWS Lambda",
-          "S3",
-          "moto"
-        ],
-        "lab_task": "Write a Python Lambda function with boto3 that resizes images uploaded to S3 and records metadata in DynamoDB, with unit tests that mock AWS using moto.",
-        "deliverable": "Function code, Lambda layer, IAM policy and passing tests",
-        "checks": [
-          [
-            "Upload a test image to the input bucket",
-            "Resized image and a metadata item are created",
-            "S3 listing and DynamoDB item"
-          ],
-          [
-            "Run the unit tests with the network off",
-            "Tests pass using moto",
-            "pytest output"
-          ],
-          [
-            "Remove the role's DynamoDB permission and upload again",
-            "Function logs a ClientError with AccessDenied and does not crash",
-            "CloudWatch log line"
-          ]
-        ],
-        "objectives": [
-          "Automate AWS from Python with boto3",
-          "Build and test Python Lambda functions",
-          "Handle AWS errors and permissions in code"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Python",
-        "Azure"
-      ],
-      "day": {
-        "topic": "Python on Azure: Azure SDK and Azure Functions",
-        "subtopics": [
-          "Azure SDK for Python client libraries",
-          "DefaultAzureCredential and managed identity",
-          "Blob Storage client operations",
-          "Handling HttpResponseError and retries",
-          "Writing an Azure Function in Python",
-          "Bindings in the Python v2 programming model",
-          "Testing Azure code with mocks",
-          "Least-privilege role assignments for Python code"
-        ],
-        "tools": [
-          "Python",
-          "Azure SDK for Python",
-          "Azure Functions",
-          "Azure Blob Storage"
-        ],
-        "lab_task": "Write a Python Azure Function that resizes images uploaded to Blob Storage and writes metadata to Table Storage, authenticating with managed identity, with unit tests that mock the SDK.",
-        "deliverable": "Function code, role assignments and passing tests",
-        "checks": [
-          [
-            "Upload a test image to the input container",
-            "Resized image and a metadata row are created",
-            "Container listing and table row"
-          ],
-          [
-            "Search the code and settings for storage keys",
-            "None found; DefaultAzureCredential is used",
-            "grep output and settings"
-          ],
-          [
-            "Remove the identity's role and upload again",
-            "Function logs an authorisation error and does not crash",
-            "Application Insights log"
-          ]
-        ],
-        "objectives": [
-          "Automate Azure from Python with the Azure SDK",
-          "Build and test Python Azure Functions",
-          "Authenticate Python code with managed identity"
-        ]
-      }
-    },
-    {
-      "between": [
-        "AWS",
-        "Azure"
-      ],
-      "day": {
-        "topic": "AWS and Azure Compared: Service Mapping and Multi-Cloud Decisions",
-        "subtopics": [
-          "Mapping core services between AWS and Azure",
-          "Identity: IAM compared with Entra ID and Azure RBAC",
-          "Networking: VPC compared with VNet",
-          "Compute and serverless equivalents",
-          "Storage and database equivalents",
-          "Pricing models and cost comparison",
-          "When multi-cloud helps and when it adds risk",
-          "Portable tooling: Terraform and containers"
-        ],
-        "tools": [
-          "AWS Pricing Calculator",
-          "Azure pricing calculator",
-          "Terraform"
-        ],
-        "lab_task": "Deploy the same small container web service on AWS (ECS Fargate) and Azure (Container Apps) with Terraform, then compare setup effort, monthly cost and operational differences.",
-        "deliverable": "Terraform code for both clouds, a service mapping table and a one-page comparison with a recommendation",
-        "checks": [
-          [
-            "Open both deployed endpoints",
-            "Same service responds on AWS and Azure",
-            "Responses from both URLs"
-          ],
-          [
-            "Read the cost comparison",
-            "Monthly cost for both uses the official calculators with the same assumptions",
-            "Calculator exports"
-          ],
-          [
-            "Read the recommendation",
-            "Choice is justified with at least three criteria",
-            "Comparison document"
-          ]
-        ],
-        "objectives": [
-          "Map AWS and Azure services to each other",
-          "Compare clouds on cost and operations with evidence",
-          "Decide when multi-cloud is justified"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Docker",
-        "Kubernetes"
-      ],
-      "day": {
-        "topic": "Docker to Kubernetes: From Compose Stack to Cluster Deployment",
-        "subtopics": [
-          "Mapping Compose services to Deployments and Services",
-          "Image tags and pull policies",
-          "Configuration and secrets in Kubernetes",
-          "Volumes to PersistentVolumeClaims",
-          "Health checks to probes",
-          "Resource limits to requests and limits",
-          "Local images with kind load",
-          "Packaging the result as a Helm chart"
-        ],
-        "tools": [
-          "Docker",
-          "Docker Compose",
-          "kind",
-          "kubectl",
-          "Helm"
-        ],
-        "lab_task": "Move the three-tier Compose application to a local Kubernetes cluster as a Helm chart, keeping its health checks, limits, secrets and persistent data.",
-        "deliverable": "Helm chart, mapping table from Compose to Kubernetes and a running deployment",
-        "checks": [
-          [
-            "Open the app through the cluster ingress",
-            "App works with existing features",
-            "Browser screenshot"
-          ],
-          [
-            "Delete the database pod",
-            "Data survives through the PersistentVolumeClaim",
-            "Before and after record count"
-          ],
-          [
-            "Read the mapping table",
-            "Every Compose setting has its Kubernetes equivalent or a reason",
-            "Table"
-          ]
-        ],
-        "objectives": [
-          "Translate Compose applications to Kubernetes",
-          "Keep health, limits, secrets and data during the move",
-          "Package the result with Helm"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Terraform",
-        "AWS"
-      ],
-      "day": {
-        "topic": "Terraform on AWS: Modules for VPC, ECS and RDS",
-        "subtopics": [
-          "AWS provider configuration and assume role",
-          "Remote state in S3 with locking",
-          "VPC module with public and private subnets",
-          "ECS Fargate service module",
-          "RDS module with Secrets Manager",
-          "Tags and default_tags",
-          "IAM policies as code",
-          "Plan review for AWS changes"
-        ],
-        "tools": [
-          "Terraform",
-          "AWS",
-          "S3"
-        ],
-        "lab_task": "Build an AWS environment with Terraform modules for a VPC, an ECS Fargate service and a private RDS database, using remote state and an assumed role.",
-        "deliverable": "Terraform repository, plan and apply outputs and the running service URL",
-        "checks": [
-          [
-            "Open the service URL",
-            "App responds and reads from RDS",
-            "Browser screenshot"
-          ],
-          [
-            "Run terraform plan again",
-            "No changes",
-            "Plan output"
-          ],
-          [
-            "Search the code for AWS keys or the database password",
-            "None found",
-            "grep output"
-          ]
-        ],
-        "objectives": [
-          "Provision AWS infrastructure with Terraform modules",
-          "Use roles and secrets safely",
-          "Keep AWS environments reproducible"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Terraform",
-        "Azure"
-      ],
-      "day": {
-        "topic": "Terraform on Azure: Modules for VNet, Container Apps and Azure SQL",
-        "subtopics": [
-          "AzureRM provider and authentication with managed identity or OIDC",
-          "Remote state in Azure Storage",
-          "VNet module with subnets and NSGs",
-          "Container Apps environment module",
-          "Azure SQL with private endpoint",
-          "Key Vault references",
-          "Tags and naming",
-          "Plan review for Azure changes"
-        ],
-        "tools": [
-          "Terraform",
-          "Azure",
-          "Azure Storage"
-        ],
-        "lab_task": "Build an Azure environment with Terraform modules for a VNet, a Container Apps service and a private Azure SQL database, using remote state and OIDC authentication.",
-        "deliverable": "Terraform repository, plan and apply outputs and the running service URL",
-        "checks": [
-          [
-            "Open the service URL",
-            "App responds and reads from Azure SQL",
-            "Browser screenshot"
-          ],
-          [
-            "Run terraform plan again",
-            "No changes",
-            "Plan output"
-          ],
-          [
-            "Search the code for client secrets or the database password",
-            "None found",
-            "grep output"
-          ]
-        ],
-        "objectives": [
-          "Provision Azure infrastructure with Terraform modules",
-          "Authenticate without stored secrets",
-          "Keep Azure environments reproducible"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Terraform",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Terraform on Google Cloud: Modules for VPC, Cloud Run and Cloud SQL",
-        "subtopics": [
-          "Google provider with service account impersonation",
-          "Remote state in Cloud Storage",
-          "VPC module with Cloud NAT",
-          "Cloud Run service module",
-          "Cloud SQL with private IP",
-          "Secret Manager integration",
-          "Labels and naming",
-          "Plan review for Google Cloud changes"
-        ],
-        "tools": [
-          "Terraform",
-          "Google Cloud",
-          "Cloud Storage"
-        ],
-        "lab_task": "Build a Google Cloud environment with Terraform modules for a VPC, a Cloud Run service and a private Cloud SQL database, using remote state and impersonation.",
-        "deliverable": "Terraform repository, plan and apply outputs and the running service URL",
-        "checks": [
-          [
-            "Open the service URL",
-            "App responds and reads from Cloud SQL",
-            "Browser screenshot"
-          ],
-          [
-            "Run terraform plan again",
-            "No changes",
-            "Plan output"
-          ],
-          [
-            "Search the repository for key files",
-            "None found; impersonation is used",
-            "grep output"
-          ]
-        ],
-        "objectives": [
-          "Provision Google Cloud infrastructure with Terraform modules",
-          "Authenticate with impersonation",
-          "Keep Google Cloud environments reproducible"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Python",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Python on Google Cloud: Client Libraries and Cloud Run",
-        "subtopics": [
-          "Google Cloud client libraries for Python",
-          "Application Default Credentials",
-          "Cloud Storage and Firestore clients",
-          "Handling API errors and retries",
-          "Building a Python service for Cloud Run",
-          "Pub/Sub publisher and subscriber in Python",
-          "Testing with emulators",
-          "Least-privilege service accounts for Python code"
-        ],
-        "tools": [
-          "Python",
-          "Google Cloud client libraries",
-          "Cloud Run",
-          "Pub/Sub"
-        ],
-        "lab_task": "Write a Python service on Cloud Run that stores uploads in Cloud Storage, records metadata in Firestore and publishes an event to Pub/Sub, with tests against local emulators.",
-        "deliverable": "Service code, deployment configuration and passing tests",
-        "checks": [
-          [
-            "Upload a file through the service",
-            "File, Firestore document and Pub/Sub message are created",
-            "Storage listing, document and message"
-          ],
-          [
-            "Run the tests with the network off",
-            "Tests pass against the emulators",
-            "pytest output"
-          ],
-          [
-            "Remove the service account's Firestore role",
-            "Service logs a permission error and does not crash",
-            "Log entry"
-          ]
-        ],
-        "objectives": [
-          "Use Google Cloud from Python",
-          "Build and test Python services for Cloud Run",
-          "Authenticate Python code without keys"
-        ]
-      }
-    },
-    {
-      "between": [
-        "AWS",
-        "GCP"
-      ],
-      "day": {
-        "topic": "AWS and Google Cloud Compared: Mapping Services, Costs and Operations",
-        "subtopics": [
-          "Mapping core services between AWS and Google Cloud",
-          "IAM compared with Google Cloud IAM and the resource hierarchy",
-          "Regional VPC compared with global VPC",
-          "Compute, serverless and container equivalents",
-          "Storage, database and analytics equivalents",
-          "Pricing models and discounts",
-          "When multi-cloud helps and when it adds risk",
-          "Portable tooling with Terraform and containers"
-        ],
-        "tools": [
-          "AWS Pricing Calculator",
-          "Google Cloud pricing calculator",
-          "Terraform"
-        ],
-        "lab_task": "Deploy the same container service on AWS (ECS Fargate) and Google Cloud (Cloud Run) with Terraform, then compare setup effort, monthly cost and operations.",
-        "deliverable": "Terraform code for both clouds, a service mapping table and a one-page comparison",
-        "checks": [
-          [
-            "Open both endpoints",
-            "Same service responds on both clouds",
-            "Responses"
-          ],
-          [
-            "Read the cost comparison",
-            "Uses the official calculators with the same assumptions",
-            "Calculator exports"
-          ],
-          [
-            "Read the recommendation",
-            "Justified with at least three criteria",
-            "Comparison document"
-          ]
-        ],
-        "objectives": [
-          "Map AWS and Google Cloud services",
-          "Compare clouds on cost and operations",
-          "Decide when multi-cloud is justified"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Azure",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Azure and Google Cloud Compared: Identity, Networking and Cost Differences",
-        "subtopics": [
-          "Mapping core services between Azure and Google Cloud",
-          "Entra ID and Azure RBAC compared with Google Cloud IAM",
-          "VNet compared with global VPC",
-          "Compute, serverless and container equivalents",
-          "Storage, database and analytics equivalents",
-          "Pricing models and discounts",
-          "When multi-cloud helps and when it adds risk",
-          "Portable tooling with Terraform and containers"
-        ],
-        "tools": [
-          "Azure pricing calculator",
-          "Google Cloud pricing calculator",
-          "Terraform"
-        ],
-        "lab_task": "Deploy the same container service on Azure (Container Apps) and Google Cloud (Cloud Run) with Terraform, then compare setup effort, monthly cost and operations.",
-        "deliverable": "Terraform code for both clouds, a service mapping table and a one-page comparison",
-        "checks": [
-          [
-            "Open both endpoints",
-            "Same service responds on both clouds",
-            "Responses"
-          ],
-          [
-            "Read the cost comparison",
-            "Uses the official calculators with the same assumptions",
-            "Calculator exports"
-          ],
-          [
-            "Read the recommendation",
-            "Justified with at least three criteria",
-            "Comparison document"
-          ]
-        ],
-        "objectives": [
-          "Map Azure and Google Cloud services",
-          "Compare clouds on cost and operations",
-          "Decide when multi-cloud is justified"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Terraform",
-        "Ansible"
-      ],
-      "day": {
-        "topic": "Terraform and Ansible Together: Provision Then Configure",
-        "subtopics": [
-          "Dividing work between provisioning and configuration",
-          "Passing Terraform outputs to an Ansible inventory",
-          "Dynamic inventory from cloud tags",
-          "Running Ansible after terraform apply",
-          "Golden images with Packer and Ansible",
-          "Avoiding settings managed by both tools",
-          "One pipeline for both",
-          "Destroying and rebuilding"
-        ],
-        "tools": [
-          "Terraform",
-          "Ansible",
-          "Packer"
-        ],
-        "lab_task": "Provision servers with Terraform, configure them with Ansible using a dynamic inventory built from Terraform tags, and rebuild the whole environment from one pipeline.",
-        "deliverable": "Terraform and Ansible code, pipeline and the rebuilt environment",
-        "checks": [
-          [
-            "Run the pipeline from empty",
-            "Servers are created and configured and the app responds",
-            "Pipeline log and URL"
-          ],
-          [
-            "Run the pipeline again",
-            "Neither tool reports changes",
-            "Plan and play recap"
-          ],
-          [
-            "Read the responsibility table",
-            "No setting is owned by both tools",
-            "Table"
-          ]
-        ],
-        "objectives": [
-          "Combine Terraform and Ansible",
-          "Pass data between provisioning and configuration",
-          "Rebuild environments reliably"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Jenkins",
-        "Docker"
-      ],
-      "day": {
-        "topic": "Jenkins with Docker: Container Builds and Docker Agents",
-        "subtopics": [
-          "Docker agents for consistent build tools",
-          "Building images in a Jenkinsfile",
-          "Tagging images with build numbers and commits",
-          "Scanning images in the pipeline",
-          "Pushing to a registry with stored credentials",
-          "Cleaning images on agents",
-          "Docker-in-Docker and socket risks",
-          "Caching image layers"
-        ],
-        "tools": [
-          "Jenkins",
-          "Docker",
-          "Trivy"
-        ],
-        "lab_task": "Run every pipeline stage inside Docker agents, build and scan the application image, and push it with traceable tags only from main.",
-        "deliverable": "Jenkinsfile, scan report and registry listing",
-        "checks": [
-          [
-            "Run from main",
-            "Image is pushed with build and commit tags",
-            "Registry listing"
-          ],
-          [
-            "Add a critical vulnerability",
-            "Pipeline fails at the scan",
-            "Console output"
-          ],
-          [
-            "Check agent disk after builds",
-            "Old images are cleaned",
-            "Disk report"
-          ]
-        ],
-        "objectives": [
-          "Build images from Jenkins",
-          "Use Docker agents for consistency",
-          "Avoid common Docker-in-CI risks"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Jenkins",
-        "Kubernetes"
-      ],
-      "day": {
-        "topic": "Jenkins on Kubernetes: Pod Agents and Deployments",
-        "subtopics": [
-          "Running Jenkins with the Helm chart",
-          "Kubernetes plugin pod templates",
-          "Separate containers per tool",
-          "Deploying to Kubernetes from a pipeline",
-          "Service accounts and RBAC for deployments",
-          "Rollout status checks",
-          "Rollback on failure",
-          "Cleaning up agent pods"
-        ],
-        "tools": [
-          "Jenkins",
-          "Kubernetes",
-          "Helm"
-        ],
-        "lab_task": "Run Jenkins on Kubernetes with on-demand pod agents and deploy the application to the cluster with a rollout check and automatic rollback.",
-        "deliverable": "Helm values, pod templates, Jenkinsfile and deployment evidence",
-        "checks": [
-          [
-            "Start three builds at once",
-            "Three agent pods run and are removed afterwards",
-            "kubectl output"
-          ],
-          [
-            "Deploy a broken image",
-            "Rollout check fails and the deployment rolls back",
-            "Console output"
-          ],
-          [
-            "Check the deploy service account",
-            "Has only the permissions it needs",
-            "RBAC review"
-          ]
-        ],
-        "objectives": [
-          "Run Jenkins on Kubernetes",
-          "Deploy to Kubernetes from pipelines",
-          "Roll back failed deployments"
-        ]
-      }
-    },
-    {
-      "between": [
-        "GitHub Actions",
-        "Docker"
-      ],
-      "day": {
-        "topic": "GitHub Actions with Docker: Build, Scan and Publish Images",
-        "subtopics": [
-          "docker/build-push-action",
-          "Image metadata and tags",
-          "Layer caching in Actions",
-          "Multi-platform builds",
-          "Scanning with Trivy and SARIF",
-          "Pushing to GitHub Container Registry",
-          "Build provenance attestations",
-          "Publishing only from main"
-        ],
-        "tools": [
-          "GitHub Actions",
-          "Docker",
-          "Trivy"
-        ],
-        "lab_task": "Build, scan and publish multi-platform images from GitHub Actions with layer caching, SARIF results and provenance attestations, pushing only from main.",
-        "deliverable": "Workflow, scan results and the published image with its attestation",
-        "checks": [
-          [
-            "Merge to main",
-            "Image is published with tags and an attestation",
-            "Package page"
-          ],
-          [
-            "Open a pull request",
-            "Image is built and scanned but not pushed",
-            "Run logs"
-          ],
-          [
-            "Compare cached and uncached build times",
-            "Cached build is faster",
-            "Timing table"
-          ]
-        ],
-        "objectives": [
-          "Build images in GitHub Actions",
-          "Scan and attest images",
-          "Publish images safely"
-        ]
-      }
-    },
-    {
-      "between": [
-        "GitHub Actions",
-        "Terraform"
-      ],
-      "day": {
-        "topic": "GitHub Actions for Terraform: Plan on Pull Request, Apply on Merge",
-        "subtopics": [
-          "OIDC authentication to the cloud",
-          "Plan on pull requests",
-          "Posting plans as comments",
-          "Saved plan files",
-          "Approval for production apply",
-          "Concurrency and state locking",
-          "Nightly drift checks",
-          "Cost estimates in pull requests"
-        ],
-        "tools": [
-          "GitHub Actions",
-          "Terraform",
-          "Infracost"
-        ],
-        "lab_task": "Run Terraform from GitHub Actions with OIDC: post plans and cost estimates on pull requests, apply the saved plan on merge after approval, and run nightly drift checks.",
-        "deliverable": "Workflows, a pull request with plan and cost comments, and an apply run",
-        "checks": [
-          [
-            "Open a pull request",
-            "Plan and cost comments appear",
-            "Pull request page"
-          ],
-          [
-            "Merge and approve",
-            "The saved plan is applied",
-            "Run logs"
-          ],
-          [
-            "Change infrastructure manually",
-            "Nightly drift check reports it",
-            "Run logs"
-          ]
-        ],
-        "objectives": [
-          "Automate Terraform with GitHub Actions",
-          "Review plans and costs",
-          "Detect drift"
-        ]
-      }
-    },
-    {
-      "between": [
-        "GitHub Actions",
-        "Kubernetes"
-      ],
-      "day": {
-        "topic": "GitHub Actions to Kubernetes: Deploy with Rollout Checks",
-        "subtopics": [
-          "OIDC to the cloud for cluster access",
-          "Deploying with kubectl or Helm from Actions",
-          "Environments and approvals",
-          "Rollout status checks",
-          "Canary with traffic splitting",
-          "Automatic rollback",
-          "Handing off to GitOps by pull request",
-          "Deployment history"
-        ],
-        "tools": [
-          "GitHub Actions",
-          "Kubernetes",
-          "Helm"
-        ],
-        "lab_task": "Deploy the application from GitHub Actions to a Kubernetes cluster with environments, approval for prod, rollout checks and automatic rollback.",
-        "deliverable": "Workflows, environment settings and deployment evidence for success and rollback",
-        "checks": [
-          [
-            "Deploy to prod",
-            "Waits for approval then rolls out",
-            "Run page"
-          ],
-          [
-            "Deploy a broken image",
-            "Rollback restores the previous version",
-            "Run logs"
-          ],
-          [
-            "Check stored secrets",
-            "No cluster credentials stored; OIDC is used",
-            "Secrets page"
-          ]
-        ],
-        "objectives": [
-          "Deploy to Kubernetes from Actions",
-          "Use approvals and rollout checks",
-          "Authenticate without stored credentials"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Git",
-        "GitHub Actions"
-      ],
-      "day": {
-        "topic": "Git Workflow Meets CI: Branch Protection, Checks and Merge Queues",
-        "subtopics": [
-          "Branch protection with required checks",
-          "Rulesets for many repositories",
-          "CODEOWNERS and required reviews",
-          "Status checks from workflows",
-          "Merge queues",
-          "Conventional Commits and automated releases",
-          "Signed commits in CI",
-          "Keeping main always green"
-        ],
-        "tools": [
-          "Git",
-          "GitHub",
-          "GitHub Actions"
-        ],
-        "lab_task": "Protect main with required workflow checks and code owner reviews, add a merge queue, and automate versioned releases from Conventional Commits.",
-        "deliverable": "Ruleset configuration, merge queue run and an automated release",
-        "checks": [
-          [
-            "Merge a pull request with failing checks",
-            "Blocked",
-            "Pull request page"
-          ],
-          [
-            "Add two pull requests to the merge queue",
-            "Both are tested together and merged in order",
-            "Merge queue history"
-          ],
-          [
-            "Merge a feat commit",
-            "Minor release is created automatically",
-            "Release page"
-          ]
-        ],
-        "objectives": [
-          "Connect Git workflows to CI checks",
-          "Keep main green with merge queues",
-          "Automate releases from commits"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Python",
-        "SQL"
-      ],
-      "day": {
-        "topic": "Python with SQL Databases: Parameterised Queries, pandas and SQLAlchemy Core",
-        "subtopics": [
-          "Connecting with psycopg and connection strings from the environment",
-          "Parameterised queries and SQL injection",
-          "Fetching rows as dictionaries",
-          "Transactions and context managers",
-          "Bulk loading with COPY from Python",
-          "Reading query results into pandas with read_sql",
-          "SQLAlchemy Core for composable queries",
-          "Testing database code against a container"
-        ],
-        "tools": [
-          "Python",
-          "psycopg",
-          "pandas",
-          "SQLAlchemy",
-          "PostgreSQL"
-        ],
-        "lab_task": "Write a Python script that loads a CSV of orders into PostgreSQL with COPY, runs parameterised report queries, loads the results into pandas for a chart and is tested against a database container.",
-        "deliverable": "Script, report chart and passing tests",
-        "checks": [
-          [
-            "Pass a customer name containing a quote and OR 1=1",
-            "Treated as text and returns no extra rows",
-            "Test output"
-          ],
-          [
-            "Load 100,000 rows with COPY and with single inserts",
-            "COPY is at least ten times faster",
-            "Timing output"
-          ],
-          [
-            "Fail halfway through the load",
-            "Transaction rolls back and the table is unchanged",
-            "Row counts"
-          ]
-        ],
-        "objectives": [
-          "Use SQL databases safely from Python",
-          "Move data efficiently between Python and SQL",
-          "Test database code"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Java",
-        "SQL"
-      ],
-      "day": {
-        "topic": "Java with SQL: JDBC Transactions, Batching and Reading Plans from the Application",
-        "subtopics": [
-          "PreparedStatement and parameter binding",
-          "Mapping rows to records",
-          "Transactions with commit and rollback",
-          "Batch inserts and rewriteBatchedStatements",
-          "Connection pool sizing with HikariCP",
-          "Logging SQL with timings",
-          "Running EXPLAIN for queries the application sends",
-          "Fixing a slow query found in the application log"
-        ],
-        "tools": [
-          "Java",
-          "JDBC",
-          "HikariCP",
-          "PostgreSQL"
-        ],
-        "lab_task": "Add an order import to a Java service with batched JDBC inserts in one transaction, log every SQL statement with its time, find the slowest report query and fix it with an index chosen from its plan.",
-        "deliverable": "Import code, SQL log, plans before and after and timings",
-        "checks": [
-          [
-            "Import 50,000 orders with batching",
-            "Finishes at least five times faster than row by row",
-            "Timing output"
-          ],
-          [
-            "Throw an exception after half the rows",
-            "No rows remain after rollback",
-            "Row counts"
-          ],
-          [
-            "Add the chosen index",
-            "Slow report query plan changes to an index scan",
-            "EXPLAIN output"
-          ]
-        ],
-        "objectives": [
-          "Use JDBC transactions and batching",
-          "Find slow SQL from the application",
-          "Tune queries the application sends"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Go",
-        "SQL"
-      ],
-      "day": {
-        "topic": "Go with SQL: pgx, sqlc and Connection Pool Tuning",
-        "subtopics": [
-          "pgxpool configuration",
-          "Context timeouts on queries",
-          "sqlc-generated type-safe queries",
-          "Transactions with BeginTx",
-          "Batch queries and COPY with pgx",
-          "Handling NULL with pgtype",
-          "Pool metrics and saturation",
-          "Finding slow queries with pg_stat_statements"
-        ],
-        "tools": [
-          "Go",
-          "pgx",
-          "sqlc",
-          "PostgreSQL"
-        ],
-        "lab_task": "Build a Go report service that runs sqlc-generated queries through a tuned pgx pool with per-query timeouts, bulk-loads data with COPY and exposes pool metrics, then fix the slowest query.",
-        "deliverable": "Service code, pool metrics and query timings",
-        "checks": [
-          [
-            "Run 500 concurrent requests with a pool of 20",
-            "No connection errors and pool wait time reported",
-            "Metrics output"
-          ],
-          [
-            "Run a query longer than its context timeout",
-            "Cancelled on the server as well as the client",
-            "pg_stat_activity and logs"
-          ],
-          [
-            "Bulk-load 100,000 rows with CopyFrom",
-            "Completes in a few seconds",
-            "Timing output"
-          ]
-        ],
-        "objectives": [
-          "Use pgx and sqlc in Go services",
-          "Tune connection pools",
-          "Cancel queries with context"
-        ]
-      }
-    },
-    {
-      "between": [
-        "TypeScript",
-        "SQL"
-      ],
-      "day": {
-        "topic": "TypeScript with SQL: Type-Safe Queries with Kysely and Migrations",
-        "subtopics": [
-          "Kysely query builder and generated database types",
-          "Raw SQL with the sql template tag",
-          "Parameter binding and injection safety",
-          "Transactions in Kysely",
-          "Migrations with Kysely or node-pg-migrate",
-          "Typing JSON columns",
-          "Mapping NULL to undefined carefully",
-          "Testing queries against a container"
-        ],
-        "tools": [
-          "TypeScript",
-          "Kysely",
-          "node-postgres",
-          "PostgreSQL"
-        ],
-        "lab_task": "Generate database types from the sales schema, write the main report queries in Kysely, add a migration that adds a column and show that queries using a renamed column fail to compile.",
-        "deliverable": "Typed query module, migration and tests",
-        "checks": [
-          [
-            "Rename a column and regenerate types",
-            "Queries using the old name fail to compile",
-            "Compiler output"
-          ],
-          [
-            "Pass an injection string as a parameter",
-            "Stored and compared as text",
-            "Test output"
-          ],
-          [
-            "Roll back a failed transaction",
-            "No partial rows remain",
-            "Row counts"
-          ]
-        ],
-        "objectives": [
-          "Write type-safe SQL in TypeScript",
-          "Manage schema changes with migrations",
-          "Keep queries in step with the schema"
-        ]
-      }
-    },
-    {
-      "between": [
-        "Java",
-        "AWS"
-      ],
-      "day": {
-        "topic": "Java on AWS: SDK for Java 2.x, Lambda and SnapStart",
-        "subtopics": [
-          "AWS SDK for Java 2.x clients and credentials",
-          "Async clients and the CRT HTTP client",
-          "Paginators and waiters",
-          "Writing Lambda handlers in Java",
-          "Cold starts and SnapStart",
-          "Packaging with Maven",
-          "Testing with LocalStack",
-          "IAM roles for Java services"
-        ],
-        "tools": [
-          "Java",
-          "AWS SDK for Java 2.x",
-          "AWS Lambda",
-          "LocalStack"
-        ],
-        "lab_task": "Write a Java Lambda that processes S3 uploads and writes to DynamoDB with the SDK 2.x, test it against LocalStack, then measure cold starts with and without SnapStart.",
-        "deliverable": "Function code, tests and cold start comparison",
-        "checks": [
-          [
-            "Upload a file to the input bucket",
-            "A DynamoDB item is written",
-            "DynamoDB item"
-          ],
-          [
-            "Compare cold starts with SnapStart on and off",
-            "SnapStart cold start is clearly shorter",
-            "CloudWatch durations"
-          ],
-          [
-            "Run the tests with no internet",
-            "Pass against LocalStack",
-            "Test output"
-          ]
-        ],
-        "objectives": [
-          "Use AWS from Java with SDK 2.x",
-          "Build and tune Java Lambda functions",
-          "Test AWS code locally"
-        ]
-      }
-    },
-    {
-      "between": [
-        "TypeScript",
-        "AWS"
-      ],
-      "day": {
-        "topic": "TypeScript on AWS: Lambda Functions and Infrastructure with AWS CDK",
-        "subtopics": [
-          "AWS SDK for JavaScript v3 with types",
-          "Typed Lambda handlers with aws-lambda types",
-          "Bundling functions with esbuild",
-          "AWS CDK in TypeScript",
-          "Constructs, stacks and props",
-          "Least-privilege grants in CDK",
-          "Testing CDK stacks with assertions",
-          "Deploying and destroying stacks"
-        ],
-        "tools": [
-          "TypeScript",
-          "AWS CDK",
-          "AWS Lambda",
-          "API Gateway",
-          "DynamoDB"
-        ],
-        "lab_task": "Build a typed API with API Gateway, Lambda and DynamoDB entirely in TypeScript with AWS CDK, add CDK assertion tests for the IAM grants and deploy and destroy it.",
-        "deliverable": "CDK app, Lambda code, tests and deployed endpoint output",
-        "checks": [
-          [
-            "Run cdk synth with the assertion tests",
-            "Tests confirm the function can only read and write its own table",
-            "Test output"
-          ],
-          [
-            "Call the deployed endpoint",
-            "Returns the stored item",
-            "curl output"
-          ],
-          [
-            "Run cdk destroy",
-            "Every resource is removed",
-            "CloudFormation console"
-          ]
-        ],
-        "objectives": [
-          "Write typed Lambda functions",
-          "Define AWS infrastructure in TypeScript with CDK",
-          "Test infrastructure code"
-        ]
-      }
-    },
-    {
-      "between": [
-        "SQL",
-        "AWS"
-      ],
-      "day": {
-        "topic": "SQL on AWS: RDS, Aurora and Athena",
-        "subtopics": [
-          "Choosing RDS, Aurora or a self-managed database",
-          "Parameter groups and instance sizing",
-          "Read replicas and Aurora endpoints",
-          "Automated backups and point-in-time restore",
-          "Performance Insights",
-          "Querying S3 data with Athena",
-          "Partitioned tables in Athena",
-          "Cost of scanned data"
-        ],
-        "tools": [
-          "Amazon RDS",
-          "Amazon Aurora",
-          "Amazon Athena",
-          "Performance Insights"
-        ],
-        "lab_task": "Create an Aurora PostgreSQL cluster with a reader, restore it to a point in time, find the top query in Performance Insights, and query partitioned order files in S3 with Athena.",
-        "deliverable": "Cluster configuration, restore record, Performance Insights screenshot and Athena queries",
-        "checks": [
-          [
-            "Send a read query to the reader endpoint",
-            "Served by the replica",
-            "Query output with instance name"
-          ],
-          [
-            "Restore to five minutes before a deleted row",
-            "Row is present in the restored cluster",
-            "Query result"
-          ],
-          [
-            "Query one partition in Athena",
-            "Scanned bytes are a small fraction of the full table",
-            "Athena query statistics"
-          ]
-        ],
-        "objectives": [
-          "Run SQL databases on AWS",
-          "Recover and tune managed databases",
-          "Query data in S3 with SQL"
-        ]
-      }
-    },
-    {
-      "between": [
-        "SQL",
-        "Azure"
-      ],
-      "day": {
-        "topic": "SQL on Azure: Azure SQL Database and Azure Database for PostgreSQL",
-        "subtopics": [
-          "Azure SQL Database purchasing models",
-          "Azure Database for PostgreSQL flexible server",
-          "Entra ID authentication for databases",
-          "Firewall rules and private endpoints",
-          "Geo-replication and failover groups",
-          "Automatic tuning and Query Store",
-          "Point-in-time restore",
-          "T-SQL differences from PostgreSQL"
-        ],
-        "tools": [
-          "Azure SQL Database",
-          "Azure Database for PostgreSQL",
-          "Query Store",
-          "Azure CLI"
-        ],
-        "lab_task": "Create an Azure SQL Database with Entra ID sign-in and a private endpoint, set up a failover group, find a regressed query in Query Store and force the good plan.",
-        "deliverable": "Configuration, failover test record and Query Store screenshots",
-        "checks": [
-          [
-            "Connect from the public internet",
-            "Connection is refused",
-            "Client error"
-          ],
-          [
-            "Fail over the group",
-            "Application reconnects through the listener",
-            "Application logs"
-          ],
-          [
-            "Force the earlier plan in Query Store",
-            "Query time returns to normal",
-            "Query Store report"
-          ]
-        ],
-        "objectives": [
-          "Run SQL databases on Azure",
-          "Secure and fail over managed databases",
-          "Fix plan regressions with Query Store"
-        ]
-      }
-    }
-  ],
-  "capstones": [
-    {
-      "applies_to": [
-        "Python",
-        "AWS",
-        "Azure"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Multi-Cloud Python Service on AWS and Azure",
-        "subtopics": [
-          "Requirements and architecture for both clouds",
-          "Python API with tests and a container image",
-          "Deployment to AWS and Azure with Terraform",
-          "Secrets with Secrets Manager and Key Vault",
-          "Monitoring and alerts on both clouds",
-          "Verify acceptance criteria, cost comparison and demo"
-        ],
-        "tools": [
-          "Python",
-          "FastAPI",
-          "Docker",
-          "Terraform",
-          "AWS",
-          "Azure"
-        ],
-        "lab_task": "Build a tested Python API, containerise it, deploy it to AWS and Azure with Terraform using each cloud's secret store and monitoring, then demonstrate failover between them and present a cost comparison.",
-        "deliverable": "Repository with application, tests and Terraform for both clouds, monitoring screenshots, cost comparison and a 15-minute demo",
-        "checks": [
-          [
-            "Run the test suite and both deployments from the pipeline",
-            "Tests pass and the API responds on both clouds",
-            "Pipeline log and responses"
-          ],
-          [
-            "Stop the AWS deployment during the demo",
-            "Traffic is served from Azure as designed",
-            "Demo recording or DNS results"
-          ],
-          [
-            "Search the repository for secrets",
-            "None found; both clouds read secrets from their secret stores",
-            "Scan output"
-          ]
-        ],
-        "objectives": [
-          "Deliver one Python service on two clouds end to end",
-          "Apply security and monitoring on AWS and Azure",
-          "Compare and justify multi-cloud design choices"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Python",
-        "AWS"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Python Service on AWS",
-        "subtopics": [
-          "Requirements and architecture",
-          "Python API with tests",
-          "Deployment to Lambda or ECS with infrastructure as code",
-          "Secrets and least-privilege roles",
-          "Monitoring and alarms",
-          "Verify acceptance criteria and demo"
-        ],
-        "tools": [
-          "Python",
-          "FastAPI",
-          "AWS Lambda",
-          "Terraform",
-          "CloudWatch"
-        ],
-        "lab_task": "Build a tested Python API and deploy it to AWS with infrastructure as code, secrets in Secrets Manager, least-privilege roles and CloudWatch alarms, then present it.",
-        "deliverable": "Repository with application, tests and infrastructure code, dashboard and a 15-minute demo",
-        "checks": [
-          [
-            "Run tests and the deployment",
-            "Tests pass and the API responds",
-            "Pipeline log and response"
-          ],
-          [
-            "Trigger the error alarm",
-            "Alarm fires and notifies",
-            "Alarm history"
-          ],
-          [
-            "Search the repository for secrets",
-            "None found",
-            "Scan output"
-          ]
-        ],
-        "objectives": [
-          "Deliver a Python service on AWS end to end",
-          "Apply security and monitoring",
-          "Explain design decisions"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Python",
-        "Azure"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Python Service on Azure",
-        "subtopics": [
-          "Requirements and architecture",
-          "Python API with tests",
-          "Deployment to Container Apps or Functions with infrastructure as code",
-          "Key Vault and managed identity",
-          "Application Insights and alerts",
-          "Verify acceptance criteria and demo"
-        ],
-        "tools": [
-          "Python",
-          "FastAPI",
-          "Azure Container Apps",
-          "Bicep",
-          "Application Insights"
-        ],
-        "lab_task": "Build a tested Python API and deploy it to Azure with infrastructure as code, secrets in Key Vault, managed identity and Application Insights alerts, then present it.",
-        "deliverable": "Repository with application, tests and infrastructure code, workbook and a 15-minute demo",
-        "checks": [
-          [
-            "Run tests and the deployment",
-            "Tests pass and the API responds",
-            "Pipeline log and response"
-          ],
-          [
-            "Trigger the error alert",
-            "Alert fires and notifies",
-            "Alert history"
-          ],
-          [
-            "Search the repository for secrets",
-            "None found",
-            "Scan output"
-          ]
-        ],
-        "objectives": [
-          "Deliver a Python service on Azure end to end",
-          "Apply security and monitoring",
-          "Explain design decisions"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "AWS",
-        "Azure"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Multi-Cloud Web Application on AWS and Azure",
-        "subtopics": [
-          "Requirements and architecture for both clouds",
-          "Networking and identity on each cloud",
-          "Deployment with Terraform",
-          "Secrets and monitoring on each cloud",
-          "DNS failover between clouds",
-          "Verify acceptance criteria, cost comparison and demo"
-        ],
-        "tools": [
-          "Terraform",
-          "AWS",
-          "Azure",
-          "Docker"
-        ],
-        "lab_task": "Deploy one containerised web application to AWS and Azure with Terraform, secure and monitor it on both, set up DNS failover, and present a cost and operations comparison.",
-        "deliverable": "Terraform code for both clouds, monitoring screenshots, failover test and a 15-minute demo",
-        "checks": [
-          [
-            "Open the application through the shared DNS name",
-            "Application responds",
-            "Browser screenshot"
-          ],
-          [
-            "Stop the primary cloud deployment",
-            "DNS fails over to the other cloud",
-            "dig output and browser test"
-          ],
-          [
-            "Read the cost comparison",
-            "Both clouds are costed with the same assumptions",
-            "Calculator exports"
-          ]
-        ],
-        "objectives": [
-          "Deploy one application on two clouds",
-          "Apply security and monitoring on AWS and Azure",
-          "Compare clouds with evidence"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Docker",
-        "Kubernetes"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Containerised Application from Docker to Kubernetes",
-        "subtopics": [
-          "Requirements and image design",
-          "Secure multi-stage images and scanning",
-          "Helm chart with probes, limits and storage",
-          "Ingress with TLS and autoscaling",
-          "Monitoring and alerts",
-          "Verify acceptance criteria and demo"
-        ],
-        "tools": [
-          "Docker",
-          "Trivy",
-          "Kubernetes",
-          "Helm",
-          "Prometheus"
-        ],
-        "lab_task": "Build secure images for a three-tier application, deploy them to Kubernetes with a Helm chart, TLS, autoscaling and monitoring, then demonstrate a failure and recovery.",
-        "deliverable": "Repository with Dockerfiles, Helm chart, pipeline and dashboards, plus a 15-minute demo",
-        "checks": [
-          [
-            "Run the pipeline",
-            "Images build, pass scans and deploy to the cluster",
-            "Pipeline log"
-          ],
-          [
-            "Kill a node during the demo",
-            "App stays available",
-            "Demo recording or pod events"
-          ],
-          [
-            "Run the load test",
-            "Autoscaler adds pods and latency stays acceptable",
-            "HPA output and dashboard"
-          ]
-        ],
-        "objectives": [
-          "Deliver a containerised application from image to cluster",
-          "Combine image security with Kubernetes operations",
-          "Demonstrate recovery"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Docker",
-        "Kubernetes",
-        "Terraform",
-        "AWS",
-        "Azure",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Cloud-Native Delivery with Containers, Kubernetes and Terraform",
-        "subtopics": [
-          "Requirements and architecture",
-          "Infrastructure and managed cluster with Terraform",
-          "Container images and supply chain checks",
-          "Kubernetes deployment with Helm or GitOps",
-          "Monitoring, scaling and recovery",
-          "Verify acceptance criteria, cost and demo"
-        ],
-        "tools": [
-          "Terraform",
-          "Docker",
-          "Kubernetes",
-          "Helm",
-          "GitHub Actions"
-        ],
-        "lab_task": "Provision a managed Kubernetes cluster and its network with Terraform, deliver a containerised application to it through a pipeline, and demonstrate scaling, recovery and a cost estimate.",
-        "deliverable": "Repository with Terraform, Dockerfiles, Helm chart and pipeline, plus dashboards and a 15-minute demo",
-        "checks": [
-          [
-            "Destroy and recreate the environment from code",
-            "Cluster and app return with no manual steps",
-            "Pipeline log and URL"
-          ],
-          [
-            "Release a new version",
-            "Rolls out without failed requests",
-            "Load test log"
-          ],
-          [
-            "Show the cost estimate",
-            "Monthly cost of the environment is calculated",
-            "Cost estimate"
-          ]
-        ],
-        "objectives": [
-          "Deliver cloud-native infrastructure and applications end to end",
-          "Combine Terraform, containers and Kubernetes",
-          "Explain cost and design choices"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Python",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Python Service on Google Cloud",
-        "subtopics": [
-          "Requirements and architecture",
-          "Python API with tests",
-          "Deployment to Cloud Run with infrastructure as code",
-          "Secret Manager and service accounts",
-          "Monitoring and alerts",
-          "Verify acceptance criteria and demo"
-        ],
-        "tools": [
-          "Python",
-          "FastAPI",
-          "Cloud Run",
-          "Terraform",
-          "Cloud Monitoring"
-        ],
-        "lab_task": "Build a tested Python API and deploy it to Google Cloud with infrastructure as code, secrets in Secret Manager, a least-privilege service account and alerts, then present it.",
-        "deliverable": "Repository with application, tests and infrastructure code, dashboard and a 15-minute demo",
-        "checks": [
-          [
-            "Run tests and the deployment",
-            "Tests pass and the API responds",
-            "Pipeline log and response"
-          ],
-          [
-            "Trigger the error alert",
-            "Alert fires and notifies",
-            "Alert history"
-          ],
-          [
-            "Search the repository for secrets",
-            "None found",
-            "Scan output"
-          ]
-        ],
-        "objectives": [
-          "Deliver a Python service on Google Cloud end to end",
-          "Apply security and monitoring",
-          "Explain design decisions"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "AWS",
-        "Azure",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Multi-Cloud Web Application on AWS, Azure and Google Cloud",
-        "subtopics": [
-          "Requirements and architecture for each cloud",
-          "Networking and identity on each cloud",
-          "Deployment with Terraform",
-          "Secrets and monitoring on each cloud",
-          "DNS failover between clouds",
-          "Verify acceptance criteria, cost comparison and demo"
-        ],
-        "tools": [
-          "Terraform",
-          "AWS",
-          "Azure",
-          "Google Cloud",
-          "Docker"
-        ],
-        "lab_task": "Deploy one containerised web application to the requested clouds with Terraform, secure and monitor it on each, set up DNS failover, and present a cost and operations comparison.",
-        "deliverable": "Terraform code for each cloud, monitoring screenshots, failover test and a 15-minute demo",
-        "checks": [
-          [
-            "Open the app through the shared DNS name",
-            "Application responds",
-            "Browser screenshot"
-          ],
-          [
-            "Stop the primary cloud deployment",
-            "DNS fails over to another cloud",
-            "dig output and browser test"
-          ],
-          [
-            "Read the cost comparison",
-            "Each cloud is costed with the same assumptions",
-            "Calculator exports"
-          ]
-        ],
-        "objectives": [
-          "Deploy one application on several clouds",
-          "Apply security and monitoring on each cloud",
-          "Compare clouds with evidence"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Python",
-        "AWS",
-        "Azure",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Multi-Cloud Python Service on AWS, Azure and Google Cloud",
-        "subtopics": [
-          "Requirements and architecture for three clouds",
-          "Python API with tests and a container image",
-          "Deployment to each cloud with Terraform",
-          "Secrets with each cloud's secret store",
-          "Monitoring and DNS failover across clouds",
-          "Verify acceptance criteria, cost comparison and demo"
-        ],
-        "tools": [
-          "Python",
-          "FastAPI",
-          "Docker",
-          "Terraform",
-          "AWS",
-          "Azure",
-          "Google Cloud"
-        ],
-        "lab_task": "Build a tested Python API, containerise it, deploy it to AWS, Azure and Google Cloud with Terraform using each cloud's secret store and monitoring, demonstrate DNS failover between clouds and present a cost comparison.",
-        "deliverable": "Repository with application, tests and Terraform for three clouds, monitoring screenshots, cost comparison and a 15-minute demo",
-        "checks": [
-          [
-            "Run the tests and all three deployments from the pipeline",
-            "Tests pass and the API responds on every cloud",
-            "Pipeline log and responses"
-          ],
-          [
-            "Stop the primary cloud during the demo",
-            "Traffic is served from another cloud",
-            "DNS results and browser test"
-          ],
-          [
-            "Search the repository for secrets",
-            "None found; each cloud reads secrets from its secret store",
-            "Scan output"
-          ]
-        ],
-        "objectives": [
-          "Deliver one Python service on three clouds end to end",
-          "Apply security and monitoring on each cloud",
-          "Compare and justify multi-cloud design choices"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Git",
-        "Jenkins",
-        "GitHub Actions",
-        "Docker",
-        "Kubernetes",
-        "Terraform",
-        "Ansible",
-        "AWS",
-        "Azure",
-        "GCP"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: End-to-End DevOps Toolchain",
-        "subtopics": [
-          "Requirements and toolchain design",
-          "Repository rules and review workflow",
-          "CI pipeline with tests, scans and images",
-          "Infrastructure and configuration as code",
-          "Deployment with approvals and rollback",
-          "Verify acceptance criteria, monitoring and demo"
-        ],
-        "tools": [
-          "Git",
-          "CI system",
-          "Docker",
-          "Terraform",
-          "Ansible",
-          "Kubernetes"
-        ],
-        "lab_task": "Deliver an application through the requested toolchain: protected repository, CI with tests and scans, infrastructure and configuration as code, and a deployment with approval and rollback, then demonstrate a failed release.",
-        "deliverable": "Repositories, pipeline runs, infrastructure code, dashboards and a 15-minute demo",
-        "checks": [
-          [
-            "Merge a change during the demo",
-            "It reaches production through every gate",
-            "Pipeline history"
-          ],
-          [
-            "Release a broken version",
-            "Rollback restores service",
-            "Pipeline log and app check"
-          ],
-          [
-            "Rebuild the environment from code",
-            "Returns with no manual steps",
-            "Pipeline log"
-          ]
-        ],
-        "objectives": [
-          "Deliver software through a complete DevOps toolchain",
-          "Combine source control, CI, infrastructure and deployment",
-          "Demonstrate safe releases and recovery"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Python",
-        "SQL"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Python Data Service on a SQL Database",
-        "subtopics": [
-          "Requirements and schema design",
-          "Python loading and cleaning pipeline",
-          "Reporting queries and views",
-          "API or report output",
-          "Tests and performance checks",
-          "Demo and design defence"
-        ],
-        "tools": [
-          "Python",
-          "PostgreSQL",
-          "pandas",
-          "SQLAlchemy",
-          "pytest"
-        ],
-        "lab_task": "Build a Python service that loads daily sales files into a normalised PostgreSQL schema, cleans and validates them, serves report queries through an API and has tests against a database container, then present it.",
-        "deliverable": "Repository, schema scripts, test report and a 15-minute demo",
-        "checks": [
-          [
-            "Load a file with bad rows",
-            "Bad rows are rejected with reasons and good rows load",
-            "Rejected rows table and row counts"
-          ],
-          [
-            "Call the monthly report endpoint",
-            "Totals match the SQL answer sheet",
-            "API response"
-          ],
-          [
-            "Run the tests",
-            "All pass against the database container",
-            "pytest output"
-          ]
-        ],
-        "objectives": [
-          "Combine Python and SQL in one service",
-          "Validate and report on data",
-          "Defend design decisions"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "Java",
-        "SQL"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Java Service with a Tuned SQL Database",
-        "subtopics": [
-          "Requirements and schema design",
-          "Java data access and transactions",
-          "Migrations and constraints",
-          "Query tuning and indexes",
-          "Tests with a real database",
-          "Demo and design defence"
-        ],
-        "tools": [
-          "Java",
-          "Spring Boot",
-          "PostgreSQL",
-          "Flyway",
-          "Testcontainers"
-        ],
-        "lab_task": "Build a Java order service on a PostgreSQL schema managed by Flyway, with transactional order placement, report queries tuned with plans and indexes and Testcontainers tests, then present it.",
-        "deliverable": "Repository, migration scripts, query plans, test report and a 15-minute demo",
-        "checks": [
-          [
-            "Place two orders for the last item at the same time",
-            "Only one succeeds",
-            "Test output and database rows"
-          ],
-          [
-            "Run the report workload",
-            "Every report under 200 ms",
-            "Timing output"
-          ],
-          [
-            "Run flyway migrate on an empty database",
-            "Schema is created in order",
-            "Flyway output"
-          ]
-        ],
-        "objectives": [
-          "Combine Java and SQL in one service",
-          "Prove correctness under concurrency",
-          "Defend design decisions"
-        ]
-      }
-    },
-    {
-      "applies_to": [
-        "TypeScript",
-        "SQL"
-      ],
-      "day": {
-        "topic": "Integrated Capstone: Typed Full-Stack Application on SQL",
-        "subtopics": [
-          "Requirements and schema design",
-          "Generated database types",
-          "Typed API and queries",
-          "Migrations and constraints",
-          "Tests and performance checks",
-          "Demo and design defence"
-        ],
-        "tools": [
-          "TypeScript",
-          "Kysely or Prisma",
-          "PostgreSQL",
-          "Vitest"
-        ],
-        "lab_task": "Build a TypeScript application whose queries are typed from a PostgreSQL schema, with migrations, constraints, an API, report queries and tests against a container, then present it.",
-        "deliverable": "Repository, migrations, test report and a 15-minute demo",
-        "checks": [
-          [
-            "Change a column type in a migration",
-            "Code that uses the column fails to compile until updated",
-            "Compiler output"
-          ],
-          [
-            "Insert data that breaks a constraint through the API",
-            "API returns a clear 400 error",
-            "API response"
-          ],
-          [
-            "Run the tests",
-            "All pass against the database container",
-            "Test output"
-          ]
-        ],
-        "objectives": [
-          "Combine TypeScript and SQL with end-to-end types",
-          "Protect data with constraints",
-          "Defend design decisions"
-        ]
-      }
-    }
-  ]
+    "description":  "Days used only in combined programmes. An integration day is added when both technologies are requested; a capstone is used when every requested technology is in its applies_to list.",
+    "integrations":  [
+                         {
+                             "between":  [
+                                             "Python",
+                                             "AWS"
+                                         ],
+                             "day":  {
+                                         "topic":  "Python on AWS: Automation with boto3 and Lambda",
+                                         "subtopics":  [
+                                                           "boto3 sessions, clients and resources",
+                                                           "Credentials from roles instead of keys",
+                                                           "Paginators and waiters",
+                                                           "Handling ClientError and retries",
+                                                           "Writing a Lambda handler in Python",
+                                                           "Packaging dependencies with Lambda layers",
+                                                           "Testing AWS code with moto",
+                                                           "Least-privilege roles for Python code"
+                                                       ],
+                                         "tools":  [
+                                                       "Python",
+                                                       "boto3",
+                                                       "AWS Lambda",
+                                                       "S3",
+                                                       "moto"
+                                                   ],
+                                         "lab_task":  "Write a Python Lambda function with boto3 that resizes images uploaded to S3 and records metadata in DynamoDB, with unit tests that mock AWS using moto.",
+                                         "deliverable":  "Function code, Lambda layer, IAM policy and passing tests",
+                                         "checks":  [
+                                                        [
+                                                            "Upload a test image to the input bucket",
+                                                            "Resized image and a metadata item are created",
+                                                            "S3 listing and DynamoDB item"
+                                                        ],
+                                                        [
+                                                            "Run the unit tests with the network off",
+                                                            "Tests pass using moto",
+                                                            "pytest output"
+                                                        ],
+                                                        [
+                                                            "Remove the role\u0027s DynamoDB permission and upload again",
+                                                            "Function logs a ClientError with AccessDenied and does not crash",
+                                                            "CloudWatch log line"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Automate AWS from Python with boto3",
+                                                            "Build and test Python Lambda functions",
+                                                            "Handle AWS errors and permissions in code"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Python",
+                                             "Azure"
+                                         ],
+                             "day":  {
+                                         "topic":  "Python on Azure: Azure SDK and Azure Functions",
+                                         "subtopics":  [
+                                                           "Azure SDK for Python client libraries",
+                                                           "DefaultAzureCredential and managed identity",
+                                                           "Blob Storage client operations",
+                                                           "Handling HttpResponseError and retries",
+                                                           "Writing an Azure Function in Python",
+                                                           "Bindings in the Python v2 programming model",
+                                                           "Testing Azure code with mocks",
+                                                           "Least-privilege role assignments for Python code"
+                                                       ],
+                                         "tools":  [
+                                                       "Python",
+                                                       "Azure SDK for Python",
+                                                       "Azure Functions",
+                                                       "Azure Blob Storage"
+                                                   ],
+                                         "lab_task":  "Write a Python Azure Function that resizes images uploaded to Blob Storage and writes metadata to Table Storage, authenticating with managed identity, with unit tests that mock the SDK.",
+                                         "deliverable":  "Function code, role assignments and passing tests",
+                                         "checks":  [
+                                                        [
+                                                            "Upload a test image to the input container",
+                                                            "Resized image and a metadata row are created",
+                                                            "Container listing and table row"
+                                                        ],
+                                                        [
+                                                            "Search the code and settings for storage keys",
+                                                            "None found; DefaultAzureCredential is used",
+                                                            "grep output and settings"
+                                                        ],
+                                                        [
+                                                            "Remove the identity\u0027s role and upload again",
+                                                            "Function logs an authorisation error and does not crash",
+                                                            "Application Insights log"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Automate Azure from Python with the Azure SDK",
+                                                            "Build and test Python Azure Functions",
+                                                            "Authenticate Python code with managed identity"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "AWS",
+                                             "Azure"
+                                         ],
+                             "day":  {
+                                         "topic":  "AWS and Azure Compared: Service Mapping and Multi-Cloud Decisions",
+                                         "subtopics":  [
+                                                           "Mapping core services between AWS and Azure",
+                                                           "Identity: IAM compared with Entra ID and Azure RBAC",
+                                                           "Networking: VPC compared with VNet",
+                                                           "Compute and serverless equivalents",
+                                                           "Storage and database equivalents",
+                                                           "Pricing models and cost comparison",
+                                                           "When multi-cloud helps and when it adds risk",
+                                                           "Portable tooling: Terraform and containers"
+                                                       ],
+                                         "tools":  [
+                                                       "AWS Pricing Calculator",
+                                                       "Azure pricing calculator",
+                                                       "Terraform"
+                                                   ],
+                                         "lab_task":  "Deploy the same small container web service on AWS (ECS Fargate) and Azure (Container Apps) with Terraform, then compare setup effort, monthly cost and operational differences.",
+                                         "deliverable":  "Terraform code for both clouds, a service mapping table and a one-page comparison with a recommendation",
+                                         "checks":  [
+                                                        [
+                                                            "Open both deployed endpoints",
+                                                            "Same service responds on AWS and Azure",
+                                                            "Responses from both URLs"
+                                                        ],
+                                                        [
+                                                            "Read the cost comparison",
+                                                            "Monthly cost for both uses the official calculators with the same assumptions",
+                                                            "Calculator exports"
+                                                        ],
+                                                        [
+                                                            "Read the recommendation",
+                                                            "Choice is justified with at least three criteria",
+                                                            "Comparison document"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Map AWS and Azure services to each other",
+                                                            "Compare clouds on cost and operations with evidence",
+                                                            "Decide when multi-cloud is justified"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Docker",
+                                             "Kubernetes"
+                                         ],
+                             "day":  {
+                                         "topic":  "Docker to Kubernetes: From Compose Stack to Cluster Deployment",
+                                         "subtopics":  [
+                                                           "Mapping Compose services to Deployments and Services",
+                                                           "Image tags and pull policies",
+                                                           "Configuration and secrets in Kubernetes",
+                                                           "Volumes to PersistentVolumeClaims",
+                                                           "Health checks to probes",
+                                                           "Resource limits to requests and limits",
+                                                           "Local images with kind load",
+                                                           "Packaging the result as a Helm chart"
+                                                       ],
+                                         "tools":  [
+                                                       "Docker",
+                                                       "Docker Compose",
+                                                       "kind",
+                                                       "kubectl",
+                                                       "Helm"
+                                                   ],
+                                         "lab_task":  "Move the three-tier Compose application to a local Kubernetes cluster as a Helm chart, keeping its health checks, limits, secrets and persistent data.",
+                                         "deliverable":  "Helm chart, mapping table from Compose to Kubernetes and a running deployment",
+                                         "checks":  [
+                                                        [
+                                                            "Open the app through the cluster ingress",
+                                                            "App works with existing features",
+                                                            "Browser screenshot"
+                                                        ],
+                                                        [
+                                                            "Delete the database pod",
+                                                            "Data survives through the PersistentVolumeClaim",
+                                                            "Before and after record count"
+                                                        ],
+                                                        [
+                                                            "Read the mapping table",
+                                                            "Every Compose setting has its Kubernetes equivalent or a reason",
+                                                            "Table"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Translate Compose applications to Kubernetes",
+                                                            "Keep health, limits, secrets and data during the move",
+                                                            "Package the result with Helm"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Terraform",
+                                             "AWS"
+                                         ],
+                             "day":  {
+                                         "topic":  "Terraform on AWS: Modules for VPC, ECS and RDS",
+                                         "subtopics":  [
+                                                           "AWS provider configuration and assume role",
+                                                           "Remote state in S3 with locking",
+                                                           "VPC module with public and private subnets",
+                                                           "ECS Fargate service module",
+                                                           "RDS module with Secrets Manager",
+                                                           "Tags and default_tags",
+                                                           "IAM policies as code",
+                                                           "Plan review for AWS changes"
+                                                       ],
+                                         "tools":  [
+                                                       "Terraform",
+                                                       "AWS",
+                                                       "S3"
+                                                   ],
+                                         "lab_task":  "Build an AWS environment with Terraform modules for a VPC, an ECS Fargate service and a private RDS database, using remote state and an assumed role.",
+                                         "deliverable":  "Terraform repository, plan and apply outputs and the running service URL",
+                                         "checks":  [
+                                                        [
+                                                            "Open the service URL",
+                                                            "App responds and reads from RDS",
+                                                            "Browser screenshot"
+                                                        ],
+                                                        [
+                                                            "Run terraform plan again",
+                                                            "No changes",
+                                                            "Plan output"
+                                                        ],
+                                                        [
+                                                            "Search the code for AWS keys or the database password",
+                                                            "None found",
+                                                            "grep output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Provision AWS infrastructure with Terraform modules",
+                                                            "Use roles and secrets safely",
+                                                            "Keep AWS environments reproducible"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Terraform",
+                                             "Azure"
+                                         ],
+                             "day":  {
+                                         "topic":  "Terraform on Azure: Modules for VNet, Container Apps and Azure SQL",
+                                         "subtopics":  [
+                                                           "AzureRM provider and authentication with managed identity or OIDC",
+                                                           "Remote state in Azure Storage",
+                                                           "VNet module with subnets and NSGs",
+                                                           "Container Apps environment module",
+                                                           "Azure SQL with private endpoint",
+                                                           "Key Vault references",
+                                                           "Tags and naming",
+                                                           "Plan review for Azure changes"
+                                                       ],
+                                         "tools":  [
+                                                       "Terraform",
+                                                       "Azure",
+                                                       "Azure Storage"
+                                                   ],
+                                         "lab_task":  "Build an Azure environment with Terraform modules for a VNet, a Container Apps service and a private Azure SQL database, using remote state and OIDC authentication.",
+                                         "deliverable":  "Terraform repository, plan and apply outputs and the running service URL",
+                                         "checks":  [
+                                                        [
+                                                            "Open the service URL",
+                                                            "App responds and reads from Azure SQL",
+                                                            "Browser screenshot"
+                                                        ],
+                                                        [
+                                                            "Run terraform plan again",
+                                                            "No changes",
+                                                            "Plan output"
+                                                        ],
+                                                        [
+                                                            "Search the code for client secrets or the database password",
+                                                            "None found",
+                                                            "grep output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Provision Azure infrastructure with Terraform modules",
+                                                            "Authenticate without stored secrets",
+                                                            "Keep Azure environments reproducible"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Terraform",
+                                             "GCP"
+                                         ],
+                             "day":  {
+                                         "topic":  "Terraform on Google Cloud: Modules for VPC, Cloud Run and Cloud SQL",
+                                         "subtopics":  [
+                                                           "Google provider with service account impersonation",
+                                                           "Remote state in Cloud Storage",
+                                                           "VPC module with Cloud NAT",
+                                                           "Cloud Run service module",
+                                                           "Cloud SQL with private IP",
+                                                           "Secret Manager integration",
+                                                           "Labels and naming",
+                                                           "Plan review for Google Cloud changes"
+                                                       ],
+                                         "tools":  [
+                                                       "Terraform",
+                                                       "Google Cloud",
+                                                       "Cloud Storage"
+                                                   ],
+                                         "lab_task":  "Build a Google Cloud environment with Terraform modules for a VPC, a Cloud Run service and a private Cloud SQL database, using remote state and impersonation.",
+                                         "deliverable":  "Terraform repository, plan and apply outputs and the running service URL",
+                                         "checks":  [
+                                                        [
+                                                            "Open the service URL",
+                                                            "App responds and reads from Cloud SQL",
+                                                            "Browser screenshot"
+                                                        ],
+                                                        [
+                                                            "Run terraform plan again",
+                                                            "No changes",
+                                                            "Plan output"
+                                                        ],
+                                                        [
+                                                            "Search the repository for key files",
+                                                            "None found; impersonation is used",
+                                                            "grep output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Provision Google Cloud infrastructure with Terraform modules",
+                                                            "Authenticate with impersonation",
+                                                            "Keep Google Cloud environments reproducible"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Python",
+                                             "GCP"
+                                         ],
+                             "day":  {
+                                         "topic":  "Python on Google Cloud: Client Libraries and Cloud Run",
+                                         "subtopics":  [
+                                                           "Google Cloud client libraries for Python",
+                                                           "Application Default Credentials",
+                                                           "Cloud Storage and Firestore clients",
+                                                           "Handling API errors and retries",
+                                                           "Building a Python service for Cloud Run",
+                                                           "Pub/Sub publisher and subscriber in Python",
+                                                           "Testing with emulators",
+                                                           "Least-privilege service accounts for Python code"
+                                                       ],
+                                         "tools":  [
+                                                       "Python",
+                                                       "Google Cloud client libraries",
+                                                       "Cloud Run",
+                                                       "Pub/Sub"
+                                                   ],
+                                         "lab_task":  "Write a Python service on Cloud Run that stores uploads in Cloud Storage, records metadata in Firestore and publishes an event to Pub/Sub, with tests against local emulators.",
+                                         "deliverable":  "Service code, deployment configuration and passing tests",
+                                         "checks":  [
+                                                        [
+                                                            "Upload a file through the service",
+                                                            "File, Firestore document and Pub/Sub message are created",
+                                                            "Storage listing, document and message"
+                                                        ],
+                                                        [
+                                                            "Run the tests with the network off",
+                                                            "Tests pass against the emulators",
+                                                            "pytest output"
+                                                        ],
+                                                        [
+                                                            "Remove the service account\u0027s Firestore role",
+                                                            "Service logs a permission error and does not crash",
+                                                            "Log entry"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Use Google Cloud from Python",
+                                                            "Build and test Python services for Cloud Run",
+                                                            "Authenticate Python code without keys"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "AWS",
+                                             "GCP"
+                                         ],
+                             "day":  {
+                                         "topic":  "AWS and Google Cloud Compared: Mapping Services, Costs and Operations",
+                                         "subtopics":  [
+                                                           "Mapping core services between AWS and Google Cloud",
+                                                           "IAM compared with Google Cloud IAM and the resource hierarchy",
+                                                           "Regional VPC compared with global VPC",
+                                                           "Compute, serverless and container equivalents",
+                                                           "Storage, database and analytics equivalents",
+                                                           "Pricing models and discounts",
+                                                           "When multi-cloud helps and when it adds risk",
+                                                           "Portable tooling with Terraform and containers"
+                                                       ],
+                                         "tools":  [
+                                                       "AWS Pricing Calculator",
+                                                       "Google Cloud pricing calculator",
+                                                       "Terraform"
+                                                   ],
+                                         "lab_task":  "Deploy the same container service on AWS (ECS Fargate) and Google Cloud (Cloud Run) with Terraform, then compare setup effort, monthly cost and operations.",
+                                         "deliverable":  "Terraform code for both clouds, a service mapping table and a one-page comparison",
+                                         "checks":  [
+                                                        [
+                                                            "Open both endpoints",
+                                                            "Same service responds on both clouds",
+                                                            "Responses"
+                                                        ],
+                                                        [
+                                                            "Read the cost comparison",
+                                                            "Uses the official calculators with the same assumptions",
+                                                            "Calculator exports"
+                                                        ],
+                                                        [
+                                                            "Read the recommendation",
+                                                            "Justified with at least three criteria",
+                                                            "Comparison document"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Map AWS and Google Cloud services",
+                                                            "Compare clouds on cost and operations",
+                                                            "Decide when multi-cloud is justified"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Azure",
+                                             "GCP"
+                                         ],
+                             "day":  {
+                                         "topic":  "Azure and Google Cloud Compared: Identity, Networking and Cost Differences",
+                                         "subtopics":  [
+                                                           "Mapping core services between Azure and Google Cloud",
+                                                           "Entra ID and Azure RBAC compared with Google Cloud IAM",
+                                                           "VNet compared with global VPC",
+                                                           "Compute, serverless and container equivalents",
+                                                           "Storage, database and analytics equivalents",
+                                                           "Pricing models and discounts",
+                                                           "When multi-cloud helps and when it adds risk",
+                                                           "Portable tooling with Terraform and containers"
+                                                       ],
+                                         "tools":  [
+                                                       "Azure pricing calculator",
+                                                       "Google Cloud pricing calculator",
+                                                       "Terraform"
+                                                   ],
+                                         "lab_task":  "Deploy the same container service on Azure (Container Apps) and Google Cloud (Cloud Run) with Terraform, then compare setup effort, monthly cost and operations.",
+                                         "deliverable":  "Terraform code for both clouds, a service mapping table and a one-page comparison",
+                                         "checks":  [
+                                                        [
+                                                            "Open both endpoints",
+                                                            "Same service responds on both clouds",
+                                                            "Responses"
+                                                        ],
+                                                        [
+                                                            "Read the cost comparison",
+                                                            "Uses the official calculators with the same assumptions",
+                                                            "Calculator exports"
+                                                        ],
+                                                        [
+                                                            "Read the recommendation",
+                                                            "Justified with at least three criteria",
+                                                            "Comparison document"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Map Azure and Google Cloud services",
+                                                            "Compare clouds on cost and operations",
+                                                            "Decide when multi-cloud is justified"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Terraform",
+                                             "Ansible"
+                                         ],
+                             "day":  {
+                                         "topic":  "Terraform and Ansible Together: Provision Then Configure",
+                                         "subtopics":  [
+                                                           "Dividing work between provisioning and configuration",
+                                                           "Passing Terraform outputs to an Ansible inventory",
+                                                           "Dynamic inventory from cloud tags",
+                                                           "Running Ansible after terraform apply",
+                                                           "Golden images with Packer and Ansible",
+                                                           "Avoiding settings managed by both tools",
+                                                           "One pipeline for both",
+                                                           "Destroying and rebuilding"
+                                                       ],
+                                         "tools":  [
+                                                       "Terraform",
+                                                       "Ansible",
+                                                       "Packer"
+                                                   ],
+                                         "lab_task":  "Provision servers with Terraform, configure them with Ansible using a dynamic inventory built from Terraform tags, and rebuild the whole environment from one pipeline.",
+                                         "deliverable":  "Terraform and Ansible code, pipeline and the rebuilt environment",
+                                         "checks":  [
+                                                        [
+                                                            "Run the pipeline from empty",
+                                                            "Servers are created and configured and the app responds",
+                                                            "Pipeline log and URL"
+                                                        ],
+                                                        [
+                                                            "Run the pipeline again",
+                                                            "Neither tool reports changes",
+                                                            "Plan and play recap"
+                                                        ],
+                                                        [
+                                                            "Read the responsibility table",
+                                                            "No setting is owned by both tools",
+                                                            "Table"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Combine Terraform and Ansible",
+                                                            "Pass data between provisioning and configuration",
+                                                            "Rebuild environments reliably"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Jenkins",
+                                             "Docker"
+                                         ],
+                             "day":  {
+                                         "topic":  "Jenkins with Docker: Container Builds and Docker Agents",
+                                         "subtopics":  [
+                                                           "Docker agents for consistent build tools",
+                                                           "Building images in a Jenkinsfile",
+                                                           "Tagging images with build numbers and commits",
+                                                           "Scanning images in the pipeline",
+                                                           "Pushing to a registry with stored credentials",
+                                                           "Cleaning images on agents",
+                                                           "Docker-in-Docker and socket risks",
+                                                           "Caching image layers"
+                                                       ],
+                                         "tools":  [
+                                                       "Jenkins",
+                                                       "Docker",
+                                                       "Trivy"
+                                                   ],
+                                         "lab_task":  "Run every pipeline stage inside Docker agents, build and scan the application image, and push it with traceable tags only from main.",
+                                         "deliverable":  "Jenkinsfile, scan report and registry listing",
+                                         "checks":  [
+                                                        [
+                                                            "Run from main",
+                                                            "Image is pushed with build and commit tags",
+                                                            "Registry listing"
+                                                        ],
+                                                        [
+                                                            "Add a critical vulnerability",
+                                                            "Pipeline fails at the scan",
+                                                            "Console output"
+                                                        ],
+                                                        [
+                                                            "Check agent disk after builds",
+                                                            "Old images are cleaned",
+                                                            "Disk report"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Build images from Jenkins",
+                                                            "Use Docker agents for consistency",
+                                                            "Avoid common Docker-in-CI risks"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Jenkins",
+                                             "Kubernetes"
+                                         ],
+                             "day":  {
+                                         "topic":  "Jenkins on Kubernetes: Pod Agents and Deployments",
+                                         "subtopics":  [
+                                                           "Running Jenkins with the Helm chart",
+                                                           "Kubernetes plugin pod templates",
+                                                           "Separate containers per tool",
+                                                           "Deploying to Kubernetes from a pipeline",
+                                                           "Service accounts and RBAC for deployments",
+                                                           "Rollout status checks",
+                                                           "Rollback on failure",
+                                                           "Cleaning up agent pods"
+                                                       ],
+                                         "tools":  [
+                                                       "Jenkins",
+                                                       "Kubernetes",
+                                                       "Helm"
+                                                   ],
+                                         "lab_task":  "Run Jenkins on Kubernetes with on-demand pod agents and deploy the application to the cluster with a rollout check and automatic rollback.",
+                                         "deliverable":  "Helm values, pod templates, Jenkinsfile and deployment evidence",
+                                         "checks":  [
+                                                        [
+                                                            "Start three builds at once",
+                                                            "Three agent pods run and are removed afterwards",
+                                                            "kubectl output"
+                                                        ],
+                                                        [
+                                                            "Deploy a broken image",
+                                                            "Rollout check fails and the deployment rolls back",
+                                                            "Console output"
+                                                        ],
+                                                        [
+                                                            "Check the deploy service account",
+                                                            "Has only the permissions it needs",
+                                                            "RBAC review"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Run Jenkins on Kubernetes",
+                                                            "Deploy to Kubernetes from pipelines",
+                                                            "Roll back failed deployments"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "GitHub Actions",
+                                             "Docker"
+                                         ],
+                             "day":  {
+                                         "topic":  "GitHub Actions with Docker: Build, Scan and Publish Images",
+                                         "subtopics":  [
+                                                           "docker/build-push-action",
+                                                           "Image metadata and tags",
+                                                           "Layer caching in Actions",
+                                                           "Multi-platform builds",
+                                                           "Scanning with Trivy and SARIF",
+                                                           "Pushing to GitHub Container Registry",
+                                                           "Build provenance attestations",
+                                                           "Publishing only from main"
+                                                       ],
+                                         "tools":  [
+                                                       "GitHub Actions",
+                                                       "Docker",
+                                                       "Trivy"
+                                                   ],
+                                         "lab_task":  "Build, scan and publish multi-platform images from GitHub Actions with layer caching, SARIF results and provenance attestations, pushing only from main.",
+                                         "deliverable":  "Workflow, scan results and the published image with its attestation",
+                                         "checks":  [
+                                                        [
+                                                            "Merge to main",
+                                                            "Image is published with tags and an attestation",
+                                                            "Package page"
+                                                        ],
+                                                        [
+                                                            "Open a pull request",
+                                                            "Image is built and scanned but not pushed",
+                                                            "Run logs"
+                                                        ],
+                                                        [
+                                                            "Compare cached and uncached build times",
+                                                            "Cached build is faster",
+                                                            "Timing table"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Build images in GitHub Actions",
+                                                            "Scan and attest images",
+                                                            "Publish images safely"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "GitHub Actions",
+                                             "Terraform"
+                                         ],
+                             "day":  {
+                                         "topic":  "GitHub Actions for Terraform: Plan on Pull Request, Apply on Merge",
+                                         "subtopics":  [
+                                                           "OIDC authentication to the cloud",
+                                                           "Plan on pull requests",
+                                                           "Posting plans as comments",
+                                                           "Saved plan files",
+                                                           "Approval for production apply",
+                                                           "Concurrency and state locking",
+                                                           "Nightly drift checks",
+                                                           "Cost estimates in pull requests"
+                                                       ],
+                                         "tools":  [
+                                                       "GitHub Actions",
+                                                       "Terraform",
+                                                       "Infracost"
+                                                   ],
+                                         "lab_task":  "Run Terraform from GitHub Actions with OIDC: post plans and cost estimates on pull requests, apply the saved plan on merge after approval, and run nightly drift checks.",
+                                         "deliverable":  "Workflows, a pull request with plan and cost comments, and an apply run",
+                                         "checks":  [
+                                                        [
+                                                            "Open a pull request",
+                                                            "Plan and cost comments appear",
+                                                            "Pull request page"
+                                                        ],
+                                                        [
+                                                            "Merge and approve",
+                                                            "The saved plan is applied",
+                                                            "Run logs"
+                                                        ],
+                                                        [
+                                                            "Change infrastructure manually",
+                                                            "Nightly drift check reports it",
+                                                            "Run logs"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Automate Terraform with GitHub Actions",
+                                                            "Review plans and costs",
+                                                            "Detect drift"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "GitHub Actions",
+                                             "Kubernetes"
+                                         ],
+                             "day":  {
+                                         "topic":  "GitHub Actions to Kubernetes: Deploy with Rollout Checks",
+                                         "subtopics":  [
+                                                           "OIDC to the cloud for cluster access",
+                                                           "Deploying with kubectl or Helm from Actions",
+                                                           "Environments and approvals",
+                                                           "Rollout status checks",
+                                                           "Canary with traffic splitting",
+                                                           "Automatic rollback",
+                                                           "Handing off to GitOps by pull request",
+                                                           "Deployment history"
+                                                       ],
+                                         "tools":  [
+                                                       "GitHub Actions",
+                                                       "Kubernetes",
+                                                       "Helm"
+                                                   ],
+                                         "lab_task":  "Deploy the application from GitHub Actions to a Kubernetes cluster with environments, approval for prod, rollout checks and automatic rollback.",
+                                         "deliverable":  "Workflows, environment settings and deployment evidence for success and rollback",
+                                         "checks":  [
+                                                        [
+                                                            "Deploy to prod",
+                                                            "Waits for approval then rolls out",
+                                                            "Run page"
+                                                        ],
+                                                        [
+                                                            "Deploy a broken image",
+                                                            "Rollback restores the previous version",
+                                                            "Run logs"
+                                                        ],
+                                                        [
+                                                            "Check stored secrets",
+                                                            "No cluster credentials stored; OIDC is used",
+                                                            "Secrets page"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Deploy to Kubernetes from Actions",
+                                                            "Use approvals and rollout checks",
+                                                            "Authenticate without stored credentials"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Git",
+                                             "GitHub Actions"
+                                         ],
+                             "day":  {
+                                         "topic":  "Git Workflow Meets CI: Branch Protection, Checks and Merge Queues",
+                                         "subtopics":  [
+                                                           "Branch protection with required checks",
+                                                           "Rulesets for many repositories",
+                                                           "CODEOWNERS and required reviews",
+                                                           "Status checks from workflows",
+                                                           "Merge queues",
+                                                           "Conventional Commits and automated releases",
+                                                           "Signed commits in CI",
+                                                           "Keeping main always green"
+                                                       ],
+                                         "tools":  [
+                                                       "Git",
+                                                       "GitHub",
+                                                       "GitHub Actions"
+                                                   ],
+                                         "lab_task":  "Protect main with required workflow checks and code owner reviews, add a merge queue, and automate versioned releases from Conventional Commits.",
+                                         "deliverable":  "Ruleset configuration, merge queue run and an automated release",
+                                         "checks":  [
+                                                        [
+                                                            "Merge a pull request with failing checks",
+                                                            "Blocked",
+                                                            "Pull request page"
+                                                        ],
+                                                        [
+                                                            "Add two pull requests to the merge queue",
+                                                            "Both are tested together and merged in order",
+                                                            "Merge queue history"
+                                                        ],
+                                                        [
+                                                            "Merge a feat commit",
+                                                            "Minor release is created automatically",
+                                                            "Release page"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Connect Git workflows to CI checks",
+                                                            "Keep main green with merge queues",
+                                                            "Automate releases from commits"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Python",
+                                             "SQL"
+                                         ],
+                             "day":  {
+                                         "topic":  "Python with SQL Databases: Parameterised Queries, pandas and SQLAlchemy Core",
+                                         "subtopics":  [
+                                                           "Connecting with psycopg and connection strings from the environment",
+                                                           "Parameterised queries and SQL injection",
+                                                           "Fetching rows as dictionaries",
+                                                           "Transactions and context managers",
+                                                           "Bulk loading with COPY from Python",
+                                                           "Reading query results into pandas with read_sql",
+                                                           "SQLAlchemy Core for composable queries",
+                                                           "Testing database code against a container"
+                                                       ],
+                                         "tools":  [
+                                                       "Python",
+                                                       "psycopg",
+                                                       "pandas",
+                                                       "SQLAlchemy",
+                                                       "PostgreSQL"
+                                                   ],
+                                         "lab_task":  "Write a Python script that loads a CSV of orders into PostgreSQL with COPY, runs parameterised report queries, loads the results into pandas for a chart and is tested against a database container.",
+                                         "deliverable":  "Script, report chart and passing tests",
+                                         "checks":  [
+                                                        [
+                                                            "Pass a customer name containing a quote and OR 1=1",
+                                                            "Treated as text and returns no extra rows",
+                                                            "Test output"
+                                                        ],
+                                                        [
+                                                            "Load 100,000 rows with COPY and with single inserts",
+                                                            "COPY is at least ten times faster",
+                                                            "Timing output"
+                                                        ],
+                                                        [
+                                                            "Fail halfway through the load",
+                                                            "Transaction rolls back and the table is unchanged",
+                                                            "Row counts"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Use SQL databases safely from Python",
+                                                            "Move data efficiently between Python and SQL",
+                                                            "Test database code"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Java",
+                                             "SQL"
+                                         ],
+                             "day":  {
+                                         "topic":  "Java with SQL: JDBC Transactions, Batching and Reading Plans from the Application",
+                                         "subtopics":  [
+                                                           "PreparedStatement and parameter binding",
+                                                           "Mapping rows to records",
+                                                           "Transactions with commit and rollback",
+                                                           "Batch inserts and rewriteBatchedStatements",
+                                                           "Connection pool sizing with HikariCP",
+                                                           "Logging SQL with timings",
+                                                           "Running EXPLAIN for queries the application sends",
+                                                           "Fixing a slow query found in the application log"
+                                                       ],
+                                         "tools":  [
+                                                       "Java",
+                                                       "JDBC",
+                                                       "HikariCP",
+                                                       "PostgreSQL"
+                                                   ],
+                                         "lab_task":  "Add an order import to a Java service with batched JDBC inserts in one transaction, log every SQL statement with its time, find the slowest report query and fix it with an index chosen from its plan.",
+                                         "deliverable":  "Import code, SQL log, plans before and after and timings",
+                                         "checks":  [
+                                                        [
+                                                            "Import 50,000 orders with batching",
+                                                            "Finishes at least five times faster than row by row",
+                                                            "Timing output"
+                                                        ],
+                                                        [
+                                                            "Throw an exception after half the rows",
+                                                            "No rows remain after rollback",
+                                                            "Row counts"
+                                                        ],
+                                                        [
+                                                            "Add the chosen index",
+                                                            "Slow report query plan changes to an index scan",
+                                                            "EXPLAIN output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Use JDBC transactions and batching",
+                                                            "Find slow SQL from the application",
+                                                            "Tune queries the application sends"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Go",
+                                             "SQL"
+                                         ],
+                             "day":  {
+                                         "topic":  "Go with SQL: pgx, sqlc and Connection Pool Tuning",
+                                         "subtopics":  [
+                                                           "pgxpool configuration",
+                                                           "Context timeouts on queries",
+                                                           "sqlc-generated type-safe queries",
+                                                           "Transactions with BeginTx",
+                                                           "Batch queries and COPY with pgx",
+                                                           "Handling NULL with pgtype",
+                                                           "Pool metrics and saturation",
+                                                           "Finding slow queries with pg_stat_statements"
+                                                       ],
+                                         "tools":  [
+                                                       "Go",
+                                                       "pgx",
+                                                       "sqlc",
+                                                       "PostgreSQL"
+                                                   ],
+                                         "lab_task":  "Build a Go report service that runs sqlc-generated queries through a tuned pgx pool with per-query timeouts, bulk-loads data with COPY and exposes pool metrics, then fix the slowest query.",
+                                         "deliverable":  "Service code, pool metrics and query timings",
+                                         "checks":  [
+                                                        [
+                                                            "Run 500 concurrent requests with a pool of 20",
+                                                            "No connection errors and pool wait time reported",
+                                                            "Metrics output"
+                                                        ],
+                                                        [
+                                                            "Run a query longer than its context timeout",
+                                                            "Cancelled on the server as well as the client",
+                                                            "pg_stat_activity and logs"
+                                                        ],
+                                                        [
+                                                            "Bulk-load 100,000 rows with CopyFrom",
+                                                            "Completes in a few seconds",
+                                                            "Timing output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Use pgx and sqlc in Go services",
+                                                            "Tune connection pools",
+                                                            "Cancel queries with context"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "TypeScript",
+                                             "SQL"
+                                         ],
+                             "day":  {
+                                         "topic":  "TypeScript with SQL: Type-Safe Queries with Kysely and Migrations",
+                                         "subtopics":  [
+                                                           "Kysely query builder and generated database types",
+                                                           "Raw SQL with the sql template tag",
+                                                           "Parameter binding and injection safety",
+                                                           "Transactions in Kysely",
+                                                           "Migrations with Kysely or node-pg-migrate",
+                                                           "Typing JSON columns",
+                                                           "Mapping NULL to undefined carefully",
+                                                           "Testing queries against a container"
+                                                       ],
+                                         "tools":  [
+                                                       "TypeScript",
+                                                       "Kysely",
+                                                       "node-postgres",
+                                                       "PostgreSQL"
+                                                   ],
+                                         "lab_task":  "Generate database types from the sales schema, write the main report queries in Kysely, add a migration that adds a column and show that queries using a renamed column fail to compile.",
+                                         "deliverable":  "Typed query module, migration and tests",
+                                         "checks":  [
+                                                        [
+                                                            "Rename a column and regenerate types",
+                                                            "Queries using the old name fail to compile",
+                                                            "Compiler output"
+                                                        ],
+                                                        [
+                                                            "Pass an injection string as a parameter",
+                                                            "Stored and compared as text",
+                                                            "Test output"
+                                                        ],
+                                                        [
+                                                            "Roll back a failed transaction",
+                                                            "No partial rows remain",
+                                                            "Row counts"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Write type-safe SQL in TypeScript",
+                                                            "Manage schema changes with migrations",
+                                                            "Keep queries in step with the schema"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Java",
+                                             "AWS"
+                                         ],
+                             "day":  {
+                                         "topic":  "Java on AWS: SDK for Java 2.x, Lambda and SnapStart",
+                                         "subtopics":  [
+                                                           "AWS SDK for Java 2.x clients and credentials",
+                                                           "Async clients and the CRT HTTP client",
+                                                           "Paginators and waiters",
+                                                           "Writing Lambda handlers in Java",
+                                                           "Cold starts and SnapStart",
+                                                           "Packaging with Maven",
+                                                           "Testing with LocalStack",
+                                                           "IAM roles for Java services"
+                                                       ],
+                                         "tools":  [
+                                                       "Java",
+                                                       "AWS SDK for Java 2.x",
+                                                       "AWS Lambda",
+                                                       "LocalStack"
+                                                   ],
+                                         "lab_task":  "Write a Java Lambda that processes S3 uploads and writes to DynamoDB with the SDK 2.x, test it against LocalStack, then measure cold starts with and without SnapStart.",
+                                         "deliverable":  "Function code, tests and cold start comparison",
+                                         "checks":  [
+                                                        [
+                                                            "Upload a file to the input bucket",
+                                                            "A DynamoDB item is written",
+                                                            "DynamoDB item"
+                                                        ],
+                                                        [
+                                                            "Compare cold starts with SnapStart on and off",
+                                                            "SnapStart cold start is clearly shorter",
+                                                            "CloudWatch durations"
+                                                        ],
+                                                        [
+                                                            "Run the tests with no internet",
+                                                            "Pass against LocalStack",
+                                                            "Test output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Use AWS from Java with SDK 2.x",
+                                                            "Build and tune Java Lambda functions",
+                                                            "Test AWS code locally"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "TypeScript",
+                                             "AWS"
+                                         ],
+                             "day":  {
+                                         "topic":  "TypeScript on AWS: Lambda Functions and Infrastructure with AWS CDK",
+                                         "subtopics":  [
+                                                           "AWS SDK for JavaScript v3 with types",
+                                                           "Typed Lambda handlers with aws-lambda types",
+                                                           "Bundling functions with esbuild",
+                                                           "AWS CDK in TypeScript",
+                                                           "Constructs, stacks and props",
+                                                           "Least-privilege grants in CDK",
+                                                           "Testing CDK stacks with assertions",
+                                                           "Deploying and destroying stacks"
+                                                       ],
+                                         "tools":  [
+                                                       "TypeScript",
+                                                       "AWS CDK",
+                                                       "AWS Lambda",
+                                                       "API Gateway",
+                                                       "DynamoDB"
+                                                   ],
+                                         "lab_task":  "Build a typed API with API Gateway, Lambda and DynamoDB entirely in TypeScript with AWS CDK, add CDK assertion tests for the IAM grants and deploy and destroy it.",
+                                         "deliverable":  "CDK app, Lambda code, tests and deployed endpoint output",
+                                         "checks":  [
+                                                        [
+                                                            "Run cdk synth with the assertion tests",
+                                                            "Tests confirm the function can only read and write its own table",
+                                                            "Test output"
+                                                        ],
+                                                        [
+                                                            "Call the deployed endpoint",
+                                                            "Returns the stored item",
+                                                            "curl output"
+                                                        ],
+                                                        [
+                                                            "Run cdk destroy",
+                                                            "Every resource is removed",
+                                                            "CloudFormation console"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Write typed Lambda functions",
+                                                            "Define AWS infrastructure in TypeScript with CDK",
+                                                            "Test infrastructure code"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "SQL",
+                                             "AWS"
+                                         ],
+                             "day":  {
+                                         "topic":  "SQL on AWS: RDS, Aurora and Athena",
+                                         "subtopics":  [
+                                                           "Choosing RDS, Aurora or a self-managed database",
+                                                           "Parameter groups and instance sizing",
+                                                           "Read replicas and Aurora endpoints",
+                                                           "Automated backups and point-in-time restore",
+                                                           "Performance Insights",
+                                                           "Querying S3 data with Athena",
+                                                           "Partitioned tables in Athena",
+                                                           "Cost of scanned data"
+                                                       ],
+                                         "tools":  [
+                                                       "Amazon RDS",
+                                                       "Amazon Aurora",
+                                                       "Amazon Athena",
+                                                       "Performance Insights"
+                                                   ],
+                                         "lab_task":  "Create an Aurora PostgreSQL cluster with a reader, restore it to a point in time, find the top query in Performance Insights, and query partitioned order files in S3 with Athena.",
+                                         "deliverable":  "Cluster configuration, restore record, Performance Insights screenshot and Athena queries",
+                                         "checks":  [
+                                                        [
+                                                            "Send a read query to the reader endpoint",
+                                                            "Served by the replica",
+                                                            "Query output with instance name"
+                                                        ],
+                                                        [
+                                                            "Restore to five minutes before a deleted row",
+                                                            "Row is present in the restored cluster",
+                                                            "Query result"
+                                                        ],
+                                                        [
+                                                            "Query one partition in Athena",
+                                                            "Scanned bytes are a small fraction of the full table",
+                                                            "Athena query statistics"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Run SQL databases on AWS",
+                                                            "Recover and tune managed databases",
+                                                            "Query data in S3 with SQL"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "SQL",
+                                             "Azure"
+                                         ],
+                             "day":  {
+                                         "topic":  "SQL on Azure: Azure SQL Database and Azure Database for PostgreSQL",
+                                         "subtopics":  [
+                                                           "Azure SQL Database purchasing models",
+                                                           "Azure Database for PostgreSQL flexible server",
+                                                           "Entra ID authentication for databases",
+                                                           "Firewall rules and private endpoints",
+                                                           "Geo-replication and failover groups",
+                                                           "Automatic tuning and Query Store",
+                                                           "Point-in-time restore",
+                                                           "T-SQL differences from PostgreSQL"
+                                                       ],
+                                         "tools":  [
+                                                       "Azure SQL Database",
+                                                       "Azure Database for PostgreSQL",
+                                                       "Query Store",
+                                                       "Azure CLI"
+                                                   ],
+                                         "lab_task":  "Create an Azure SQL Database with Entra ID sign-in and a private endpoint, set up a failover group, find a regressed query in Query Store and force the good plan.",
+                                         "deliverable":  "Configuration, failover test record and Query Store screenshots",
+                                         "checks":  [
+                                                        [
+                                                            "Connect from the public internet",
+                                                            "Connection is refused",
+                                                            "Client error"
+                                                        ],
+                                                        [
+                                                            "Fail over the group",
+                                                            "Application reconnects through the listener",
+                                                            "Application logs"
+                                                        ],
+                                                        [
+                                                            "Force the earlier plan in Query Store",
+                                                            "Query time returns to normal",
+                                                            "Query Store report"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Run SQL databases on Azure",
+                                                            "Secure and fail over managed databases",
+                                                            "Fix plan regressions with Query Store"
+                                                        ]
+                                     }
+                         }
+                     ],
+    "capstones":  [
+                      {
+                          "applies_to":  [
+                                             "Python",
+                                             "AWS",
+                                             "Azure"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Multi-Cloud Python Service on AWS and Azure",
+                                      "subtopics":  [
+                                                        "Requirements and architecture for both clouds",
+                                                        "Python API with tests and a container image",
+                                                        "Deployment to AWS and Azure with Terraform",
+                                                        "Secrets with Secrets Manager and Key Vault",
+                                                        "Monitoring and alerts on both clouds",
+                                                        "Verify acceptance criteria, cost comparison and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Python",
+                                                    "FastAPI",
+                                                    "Docker",
+                                                    "Terraform",
+                                                    "AWS",
+                                                    "Azure"
+                                                ],
+                                      "lab_task":  "Build a tested Python API, containerise it, deploy it to AWS and Azure with Terraform using each cloud\u0027s secret store and monitoring, then demonstrate failover between them and present a cost comparison.",
+                                      "deliverable":  "Repository with application, tests and Terraform for both clouds, monitoring screenshots, cost comparison and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Run the test suite and both deployments from the pipeline",
+                                                         "Tests pass and the API responds on both clouds",
+                                                         "Pipeline log and responses"
+                                                     ],
+                                                     [
+                                                         "Stop the AWS deployment during the demo",
+                                                         "Traffic is served from Azure as designed",
+                                                         "Demo recording or DNS results"
+                                                     ],
+                                                     [
+                                                         "Search the repository for secrets",
+                                                         "None found; both clouds read secrets from their secret stores",
+                                                         "Scan output"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver one Python service on two clouds end to end",
+                                                         "Apply security and monitoring on AWS and Azure",
+                                                         "Compare and justify multi-cloud design choices"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Python",
+                                             "AWS"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Python Service on AWS",
+                                      "subtopics":  [
+                                                        "Requirements and architecture",
+                                                        "Python API with tests",
+                                                        "Deployment to Lambda or ECS with infrastructure as code",
+                                                        "Secrets and least-privilege roles",
+                                                        "Monitoring and alarms",
+                                                        "Verify acceptance criteria and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Python",
+                                                    "FastAPI",
+                                                    "AWS Lambda",
+                                                    "Terraform",
+                                                    "CloudWatch"
+                                                ],
+                                      "lab_task":  "Build a tested Python API and deploy it to AWS with infrastructure as code, secrets in Secrets Manager, least-privilege roles and CloudWatch alarms, then present it.",
+                                      "deliverable":  "Repository with application, tests and infrastructure code, dashboard and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Run tests and the deployment",
+                                                         "Tests pass and the API responds",
+                                                         "Pipeline log and response"
+                                                     ],
+                                                     [
+                                                         "Trigger the error alarm",
+                                                         "Alarm fires and notifies",
+                                                         "Alarm history"
+                                                     ],
+                                                     [
+                                                         "Search the repository for secrets",
+                                                         "None found",
+                                                         "Scan output"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver a Python service on AWS end to end",
+                                                         "Apply security and monitoring",
+                                                         "Explain design decisions"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Python",
+                                             "Azure"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Python Service on Azure",
+                                      "subtopics":  [
+                                                        "Requirements and architecture",
+                                                        "Python API with tests",
+                                                        "Deployment to Container Apps or Functions with infrastructure as code",
+                                                        "Key Vault and managed identity",
+                                                        "Application Insights and alerts",
+                                                        "Verify acceptance criteria and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Python",
+                                                    "FastAPI",
+                                                    "Azure Container Apps",
+                                                    "Bicep",
+                                                    "Application Insights"
+                                                ],
+                                      "lab_task":  "Build a tested Python API and deploy it to Azure with infrastructure as code, secrets in Key Vault, managed identity and Application Insights alerts, then present it.",
+                                      "deliverable":  "Repository with application, tests and infrastructure code, workbook and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Run tests and the deployment",
+                                                         "Tests pass and the API responds",
+                                                         "Pipeline log and response"
+                                                     ],
+                                                     [
+                                                         "Trigger the error alert",
+                                                         "Alert fires and notifies",
+                                                         "Alert history"
+                                                     ],
+                                                     [
+                                                         "Search the repository for secrets",
+                                                         "None found",
+                                                         "Scan output"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver a Python service on Azure end to end",
+                                                         "Apply security and monitoring",
+                                                         "Explain design decisions"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "AWS",
+                                             "Azure"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Multi-Cloud Web Application on AWS and Azure",
+                                      "subtopics":  [
+                                                        "Requirements and architecture for both clouds",
+                                                        "Networking and identity on each cloud",
+                                                        "Deployment with Terraform",
+                                                        "Secrets and monitoring on each cloud",
+                                                        "DNS failover between clouds",
+                                                        "Verify acceptance criteria, cost comparison and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Terraform",
+                                                    "AWS",
+                                                    "Azure",
+                                                    "Docker"
+                                                ],
+                                      "lab_task":  "Deploy one containerised web application to AWS and Azure with Terraform, secure and monitor it on both, set up DNS failover, and present a cost and operations comparison.",
+                                      "deliverable":  "Terraform code for both clouds, monitoring screenshots, failover test and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Open the application through the shared DNS name",
+                                                         "Application responds",
+                                                         "Browser screenshot"
+                                                     ],
+                                                     [
+                                                         "Stop the primary cloud deployment",
+                                                         "DNS fails over to the other cloud",
+                                                         "dig output and browser test"
+                                                     ],
+                                                     [
+                                                         "Read the cost comparison",
+                                                         "Both clouds are costed with the same assumptions",
+                                                         "Calculator exports"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deploy one application on two clouds",
+                                                         "Apply security and monitoring on AWS and Azure",
+                                                         "Compare clouds with evidence"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Docker",
+                                             "Kubernetes"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Containerised Application from Docker to Kubernetes",
+                                      "subtopics":  [
+                                                        "Requirements and image design",
+                                                        "Secure multi-stage images and scanning",
+                                                        "Helm chart with probes, limits and storage",
+                                                        "Ingress with TLS and autoscaling",
+                                                        "Monitoring and alerts",
+                                                        "Verify acceptance criteria and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Docker",
+                                                    "Trivy",
+                                                    "Kubernetes",
+                                                    "Helm",
+                                                    "Prometheus"
+                                                ],
+                                      "lab_task":  "Build secure images for a three-tier application, deploy them to Kubernetes with a Helm chart, TLS, autoscaling and monitoring, then demonstrate a failure and recovery.",
+                                      "deliverable":  "Repository with Dockerfiles, Helm chart, pipeline and dashboards, plus a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Run the pipeline",
+                                                         "Images build, pass scans and deploy to the cluster",
+                                                         "Pipeline log"
+                                                     ],
+                                                     [
+                                                         "Kill a node during the demo",
+                                                         "App stays available",
+                                                         "Demo recording or pod events"
+                                                     ],
+                                                     [
+                                                         "Run the load test",
+                                                         "Autoscaler adds pods and latency stays acceptable",
+                                                         "HPA output and dashboard"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver a containerised application from image to cluster",
+                                                         "Combine image security with Kubernetes operations",
+                                                         "Demonstrate recovery"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Docker",
+                                             "Kubernetes",
+                                             "Terraform",
+                                             "AWS",
+                                             "Azure",
+                                             "GCP"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Cloud-Native Delivery with Containers, Kubernetes and Terraform",
+                                      "subtopics":  [
+                                                        "Requirements and architecture",
+                                                        "Infrastructure and managed cluster with Terraform",
+                                                        "Container images and supply chain checks",
+                                                        "Kubernetes deployment with Helm or GitOps",
+                                                        "Monitoring, scaling and recovery",
+                                                        "Verify acceptance criteria, cost and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Terraform",
+                                                    "Docker",
+                                                    "Kubernetes",
+                                                    "Helm",
+                                                    "GitHub Actions"
+                                                ],
+                                      "lab_task":  "Provision a managed Kubernetes cluster and its network with Terraform, deliver a containerised application to it through a pipeline, and demonstrate scaling, recovery and a cost estimate.",
+                                      "deliverable":  "Repository with Terraform, Dockerfiles, Helm chart and pipeline, plus dashboards and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Destroy and recreate the environment from code",
+                                                         "Cluster and app return with no manual steps",
+                                                         "Pipeline log and URL"
+                                                     ],
+                                                     [
+                                                         "Release a new version",
+                                                         "Rolls out without failed requests",
+                                                         "Load test log"
+                                                     ],
+                                                     [
+                                                         "Show the cost estimate",
+                                                         "Monthly cost of the environment is calculated",
+                                                         "Cost estimate"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver cloud-native infrastructure and applications end to end",
+                                                         "Combine Terraform, containers and Kubernetes",
+                                                         "Explain cost and design choices"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Python",
+                                             "GCP"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Python Service on Google Cloud",
+                                      "subtopics":  [
+                                                        "Requirements and architecture",
+                                                        "Python API with tests",
+                                                        "Deployment to Cloud Run with infrastructure as code",
+                                                        "Secret Manager and service accounts",
+                                                        "Monitoring and alerts",
+                                                        "Verify acceptance criteria and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Python",
+                                                    "FastAPI",
+                                                    "Cloud Run",
+                                                    "Terraform",
+                                                    "Cloud Monitoring"
+                                                ],
+                                      "lab_task":  "Build a tested Python API and deploy it to Google Cloud with infrastructure as code, secrets in Secret Manager, a least-privilege service account and alerts, then present it.",
+                                      "deliverable":  "Repository with application, tests and infrastructure code, dashboard and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Run tests and the deployment",
+                                                         "Tests pass and the API responds",
+                                                         "Pipeline log and response"
+                                                     ],
+                                                     [
+                                                         "Trigger the error alert",
+                                                         "Alert fires and notifies",
+                                                         "Alert history"
+                                                     ],
+                                                     [
+                                                         "Search the repository for secrets",
+                                                         "None found",
+                                                         "Scan output"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver a Python service on Google Cloud end to end",
+                                                         "Apply security and monitoring",
+                                                         "Explain design decisions"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "AWS",
+                                             "Azure",
+                                             "GCP"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Multi-Cloud Web Application on AWS, Azure and Google Cloud",
+                                      "subtopics":  [
+                                                        "Requirements and architecture for each cloud",
+                                                        "Networking and identity on each cloud",
+                                                        "Deployment with Terraform",
+                                                        "Secrets and monitoring on each cloud",
+                                                        "DNS failover between clouds",
+                                                        "Verify acceptance criteria, cost comparison and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Terraform",
+                                                    "AWS",
+                                                    "Azure",
+                                                    "Google Cloud",
+                                                    "Docker"
+                                                ],
+                                      "lab_task":  "Deploy one containerised web application to the requested clouds with Terraform, secure and monitor it on each, set up DNS failover, and present a cost and operations comparison.",
+                                      "deliverable":  "Terraform code for each cloud, monitoring screenshots, failover test and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Open the app through the shared DNS name",
+                                                         "Application responds",
+                                                         "Browser screenshot"
+                                                     ],
+                                                     [
+                                                         "Stop the primary cloud deployment",
+                                                         "DNS fails over to another cloud",
+                                                         "dig output and browser test"
+                                                     ],
+                                                     [
+                                                         "Read the cost comparison",
+                                                         "Each cloud is costed with the same assumptions",
+                                                         "Calculator exports"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deploy one application on several clouds",
+                                                         "Apply security and monitoring on each cloud",
+                                                         "Compare clouds with evidence"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Python",
+                                             "AWS",
+                                             "Azure",
+                                             "GCP"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: Multi-Cloud Python Service on AWS, Azure and Google Cloud",
+                                      "subtopics":  [
+                                                        "Requirements and architecture for three clouds",
+                                                        "Python API with tests and a container image",
+                                                        "Deployment to each cloud with Terraform",
+                                                        "Secrets with each cloud\u0027s secret store",
+                                                        "Monitoring and DNS failover across clouds",
+                                                        "Verify acceptance criteria, cost comparison and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Python",
+                                                    "FastAPI",
+                                                    "Docker",
+                                                    "Terraform",
+                                                    "AWS",
+                                                    "Azure",
+                                                    "Google Cloud"
+                                                ],
+                                      "lab_task":  "Build a tested Python API, containerise it, deploy it to AWS, Azure and Google Cloud with Terraform using each cloud\u0027s secret store and monitoring, demonstrate DNS failover between clouds and present a cost comparison.",
+                                      "deliverable":  "Repository with application, tests and Terraform for three clouds, monitoring screenshots, cost comparison and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Run the tests and all three deployments from the pipeline",
+                                                         "Tests pass and the API responds on every cloud",
+                                                         "Pipeline log and responses"
+                                                     ],
+                                                     [
+                                                         "Stop the primary cloud during the demo",
+                                                         "Traffic is served from another cloud",
+                                                         "DNS results and browser test"
+                                                     ],
+                                                     [
+                                                         "Search the repository for secrets",
+                                                         "None found; each cloud reads secrets from its secret store",
+                                                         "Scan output"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver one Python service on three clouds end to end",
+                                                         "Apply security and monitoring on each cloud",
+                                                         "Compare and justify multi-cloud design choices"
+                                                     ]
+                                  }
+                      },
+                      {
+                          "applies_to":  [
+                                             "Git",
+                                             "Jenkins",
+                                             "GitHub Actions",
+                                             "Docker",
+                                             "Kubernetes",
+                                             "Terraform",
+                                             "Ansible",
+                                             "AWS",
+                                             "Azure",
+                                             "GCP"
+                                         ],
+                          "day":  {
+                                      "topic":  "Integrated Capstone: End-to-End DevOps Toolchain",
+                                      "subtopics":  [
+                                                        "Requirements and toolchain design",
+                                                        "Repository rules and review workflow",
+                                                        "CI pipeline with tests, scans and images",
+                                                        "Infrastructure and configuration as code",
+                                                        "Deployment with approvals and rollback",
+                                                        "Verify acceptance criteria, monitoring and demo"
+                                                    ],
+                                      "tools":  [
+                                                    "Git",
+                                                    "CI system",
+                                                    "Docker",
+                                                    "Terraform",
+                                                    "Ansible",
+                                                    "Kubernetes"
+                                                ],
+                                      "lab_task":  "Deliver an application through the requested toolchain: protected repository, CI with tests and scans, infrastructure and configuration as code, and a deployment with approval and rollback, then demonstrate a failed release.",
+                                      "deliverable":  "Repositories, pipeline runs, infrastructure code, dashboards and a 15-minute demo",
+                                      "checks":  [
+                                                     [
+                                                         "Merge a change during the demo",
+                                                         "It reaches production through every gate",
+                                                         "Pipeline history"
+                                                     ],
+                                                     [
+                                                         "Release a broken version",
+                                                         "Rollback restores service",
+                                                         "Pipeline log and app check"
+                                                     ],
+                                                     [
+                                                         "Rebuild the environment from code",
+                                                         "Returns with no manual steps",
+                                                         "Pipeline log"
+                                                     ]
+                                                 ],
+                                      "objectives":  [
+                                                         "Deliver software through a complete DevOps toolchain",
+                                                         "Combine source control, CI, infrastructure and deployment",
+                                                         "Demonstrate safe releases and recovery"
+                                                     ]
+                                  }
+                      }
+                  ]
 }
