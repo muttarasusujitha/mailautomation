@@ -1,0 +1,573 @@
+{
+  "domain": "Leadership and People Management",
+  "name": "Leadership and People Management",
+  "category": "Professional and Soft Skills",
+  "icon": "users",
+  "aliases": ["Leadership", "Leadership Skills", "Leadership Training", "Leadership Development", "Leadership Development Programme", "People Management", "People Management Skills", "People Manager Training", "Managerial Skills", "Management Skills", "Management Development Programme", "First-Time Managers", "First Time Manager Training", "New Manager Training", "Team Leadership", "Team Lead Training", "Line Manager Training", "Managerial Effectiveness"],
+  "certifications": ["No formal certification; assessed by role plays, a ninety-day plan and a leadership portfolio", "Optional: ILM Level 3 or Level 5 in Leadership and Management", "Optional: CMI Level 5 in Management and Leadership"],
+  "tools": ["One-to-one template", "OKR or goal template", "360-degree feedback tool", "Microsoft Teams or Zoom", "HR system such as Workday or SuccessFactors", "Role play scripts"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new and first-time managers, team leads and senior individual contributors stepping into people leadership. Covers the move from doing the work to leading people, the manager's responsibilities, self-awareness, one-to-ones, goals and expectations, delegation, feedback, recognition, team meetings, time management, trust, early underperformance, managing former peers, team communication, hiring, onboarding, team conflict, wellbeing and the HR rules every manager must know.",
+      "prerequisites": ["Newly promoted or about to lead a team, or leads work informally", "Has at least two years of work experience", "Willing to practise conversations in role plays"],
+      "outcomes": ["Run one-to-ones, set goals and delegate work with clear expectations", "Give feedback and recognition that change behaviour", "Handle early underperformance, conflict and workload problems fairly", "Hire, onboard and lead a team within company policy and employment law"],
+      "days": [
+        {
+          "topic": "Leadership and People Management Overview: From Individual Contributor to Manager",
+          "subtopics": ["What changes when you become a manager", "Results through others instead of your own work", "Leadership compared with management", "The common mistakes of new managers", "What your team needs from you", "What your own manager expects", "Your time: from doing to enabling", "Course structure, role plays and the ninety-day plan", "Leadership self-assessment", "Setting personal leadership goals"],
+          "tools": ["Leadership self-assessment", "Learning journal", "Role play scripts"],
+          "lab_task": "Complete a leadership self-assessment, map how your time will change from individual work to management, interview a manager you respect about their first year and set three goals for this course.",
+          "deliverable": "Self-assessment, time map, interview notes and three goals",
+          "checks": [["Map the change", "The time map shows the shift from doing to enabling", "Time map"], ["Learn from others", "The interview records three lessons from an experienced manager", "Interview notes"], ["Set goals", "Three goals are specific and linked to the self-assessment", "Goals sheet"]],
+          "objectives": ["Explain the shift to management", "Assess your starting point", "Set leadership goals"]
+        },
+        {
+          "topic": "The Manager's Role: Responsibilities, Authority and Expectations",
+          "subtopics": ["Accountabilities for people, results and process", "What you can decide and what needs approval", "Policies managers must apply", "Representing the company to the team", "Representing the team to the company", "Contracting expectations with your own manager", "Working with HR, finance and IT", "Writing your role on one page"],
+          "tools": ["Role description template", "Company policies", "RACI template"],
+          "lab_task": "Write a one-page description of your role with accountabilities and decision rights, check it with a role-played senior manager and build a RACI for five common team decisions.",
+          "deliverable": "One-page role description and decision RACI",
+          "checks": [["Define accountabilities", "People, results and process accountabilities are listed", "Role description"], ["Clarify decision rights", "Each of the five decisions has one accountable person", "RACI"], ["Agree expectations", "The senior manager confirms the role description", "Sign-off notes"]],
+          "objectives": ["Define the manager's role", "Clarify decision rights", "Agree expectations upward"]
+        },
+        {
+          "topic": "Knowing Yourself as a Leader: Strengths, Values and Blind Spots",
+          "subtopics": ["Strengths and how they become weaknesses", "Personal values and leadership choices", "Preferences in communication and decision style", "Blind spots and how to find them", "Triggers under stress", "Asking for feedback on your leadership", "Using profile tools with caution", "A personal leadership statement"],
+          "tools": ["Strengths assessment such as CliftonStrengths", "DiSC or similar profile", "Reflection journal"],
+          "lab_task": "Complete a strengths or style profile, ask three colleagues for feedback on how you work under pressure, compare the results and write a one-paragraph leadership statement.",
+          "deliverable": "Profile summary, feedback themes and leadership statement",
+          "checks": [["Identify strengths", "Three strengths with examples from work are recorded", "Reflection"], ["Find blind spots", "At least one blind spot is confirmed by colleague feedback", "Feedback summary"], ["Write a statement", "The statement links values to how you will lead", "Leadership statement"]],
+          "objectives": ["Understand your leadership style", "Find blind spots", "Define how you want to lead"]
+        },
+        {
+          "topic": "One-to-One Meetings That Matter",
+          "subtopics": ["Why one-to-ones are the manager's most important meeting", "Frequency, length and who owns the agenda", "Questions that open real conversations", "Covering work, growth and wellbeing", "Notes and follow-up actions", "Remote one-to-ones", "Common one-to-one mistakes", "When the person has nothing to say"],
+          "tools": ["One-to-one template", "Question bank", "Microsoft Teams or Zoom"],
+          "lab_task": "Run three role-played one-to-ones with different team members (a high performer, a quiet person and someone frustrated), use the question bank and keep notes with actions.",
+          "deliverable": "One-to-one template, notes and actions for three meetings",
+          "checks": [["Let them lead", "The team member talks for most of the meeting", "Observer tally"], ["Cover growth and wellbeing", "Each meeting includes a question beyond task status", "Notes"], ["Agree actions", "Each meeting ends with at least one agreed action", "Notes"]],
+          "objectives": ["Run effective one-to-ones", "Ask questions that open conversation", "Follow up on actions"]
+        },
+        {
+          "topic": "Setting Clear Goals and Expectations",
+          "subtopics": ["Goals, standards and expectations", "SMART goals and their limits", "OKRs for teams", "Linking team goals to company goals", "Writing expectations for behaviour, not just output", "Agreeing goals rather than imposing them", "Checking progress without micromanaging", "Changing goals when priorities change"],
+          "tools": ["OKR or goal template", "Team goal board", "One-to-one template"],
+          "lab_task": "Write team OKRs linked to a company goal, agree two individual goals with a role-played team member and set a monthly review rhythm.",
+          "deliverable": "Team OKRs, two agreed individual goals and a review plan",
+          "checks": [["Link goals", "Each team objective links to a company goal", "OKR sheet"], ["Make goals measurable", "Every key result has a measure and a target", "OKR sheet"], ["Agree, not impose", "The team member contributes to their goals in the role play", "Observer notes"]],
+          "objectives": ["Set team and individual goals", "Write measurable key results", "Agree expectations"]
+        },
+        {
+          "topic": "Delegating Work: What, to Whom and How Much",
+          "subtopics": ["Why new managers fail to delegate", "What to delegate and what to keep", "Matching tasks to skill and will", "Levels of delegation from tell to empower", "Briefing a delegated task", "Checkpoints without taking it back", "When delegated work goes wrong", "Delegation as development"],
+          "tools": ["Delegation planner", "Task briefing template", "One-to-one template"],
+          "lab_task": "List your current tasks, choose five to delegate, match each to a team member and delegation level, and brief one task in a role play with checkpoints agreed.",
+          "deliverable": "Delegation plan and a recorded task briefing",
+          "checks": [["Choose tasks", "Five tasks are selected with reasons", "Delegation planner"], ["Match level", "Each task has a delegation level suited to the person", "Delegation planner"], ["Brief clearly", "The team member restates goal, limits and checkpoints", "Role play recording"]],
+          "objectives": ["Decide what to delegate", "Match delegation to people", "Brief and follow up delegated work"]
+        },
+        {
+          "topic": "Giving Feedback as a Manager: SBI and Feedforward",
+          "subtopics": ["Feedback as a regular habit", "Situation, behaviour and impact", "Reinforcing feedback for good work", "Redirecting feedback for problems", "Feedforward: focusing on next time", "Timing and privacy", "Handling defensive reactions", "Asking for feedback from your team"],
+          "tools": ["SBI template", "Role play scripts", "Feedback log"],
+          "lab_task": "Prepare and give one reinforcing and two redirecting pieces of feedback in role plays using SBI, handle a defensive reaction and ask the team member for feedback on your management.",
+          "deliverable": "Three SBI scripts, recordings and a feedback log",
+          "checks": [["Use SBI", "Each piece of feedback names situation, behaviour and impact", "Scripts"], ["Handle defensiveness", "The defensive role play ends with an agreed next step", "Recording"], ["Ask for feedback", "The manager asks for and records feedback on themselves", "Feedback log"]],
+          "objectives": ["Give regular feedback", "Use SBI and feedforward", "Invite feedback from the team"]
+        },
+        {
+          "topic": "Recognition and Motivation",
+          "subtopics": ["What motivates people at work", "Specific recognition compared with general praise", "Public and private recognition", "Recognition across cultures", "Linking recognition to values", "Low-cost and no-cost recognition", "Fairness and avoiding favourites", "A team recognition habit"],
+          "tools": ["Recognition planner", "Team channel", "Company values"],
+          "lab_task": "Find out what motivates each of four role-played team members, write specific recognition for recent work linked to company values and design a recognition habit for the team.",
+          "deliverable": "Motivation notes, recognition messages and a team habit",
+          "checks": [["Know your people", "Motivators are recorded for each team member", "Motivation notes"], ["Be specific", "Each recognition names the work and its effect", "Recognition messages"], ["Stay fair", "The plan recognises all team members over a quarter", "Recognition planner"]],
+          "objectives": ["Understand motivation", "Recognise work specifically", "Build fair recognition habits"]
+        },
+        {
+          "topic": "Running Team Meetings and Rituals",
+          "subtopics": ["Team meetings that are worth attending", "Weekly team meeting structure", "Stand-ups, retrospectives and planning", "Decisions and actions from team meetings", "Making space for quiet voices", "Team rituals that build belonging", "Cutting meetings that do not work", "Meeting health checks"],
+          "tools": ["Microsoft Teams or Zoom", "Meeting templates", "Retrospective board in Miro"],
+          "lab_task": "Design a team meeting rhythm, run a role-played weekly meeting and a retrospective, and cut or change one meeting based on a meeting health check.",
+          "deliverable": "Team meeting rhythm, meeting notes and health check",
+          "checks": [["Design the rhythm", "Each meeting has a purpose and length", "Rhythm document"], ["Include everyone", "Every participant speaks in the role-played meeting", "Observer tally"], ["Improve meetings", "One meeting is changed or cut based on the health check", "Health check"]],
+          "objectives": ["Run useful team meetings", "Use team rituals", "Improve meeting health"]
+        },
+        {
+          "topic": "Managing Time and Priorities as a New Manager",
+          "subtopics": ["Where a manager's time goes", "Maker and manager schedules", "Priorities: urgent and important", "Protecting time for people", "Saying no and pushing back upward", "Batching email and messages", "Weekly planning and review", "Energy as well as time"],
+          "tools": ["Calendar", "Priority matrix", "Weekly planning template"],
+          "lab_task": "Audit one week of your calendar, classify your activities, redesign the next week to protect one-to-ones and thinking time, and practise pushing back on one request in a role play.",
+          "deliverable": "Calendar audit, redesigned week and push-back script",
+          "checks": [["Audit", "Activities are classified by type and value", "Calendar audit"], ["Protect people time", "One-to-ones and team time are scheduled first", "Redesigned calendar"], ["Push back", "The push-back keeps the relationship and offers an alternative", "Role play notes"]],
+          "objectives": ["Manage a manager's time", "Prioritise people work", "Push back on low-value demands"]
+        },
+        {
+          "topic": "Building Trust with Your Team",
+          "subtopics": ["What trust is made of", "Keeping commitments", "Being honest when you cannot share", "Admitting mistakes", "Consistency and fairness", "Showing interest in people", "Repairing broken trust", "Trust in remote teams"],
+          "tools": ["Trust assessment", "Team survey", "Reflection journal"],
+          "lab_task": "Assess trust in a case team, identify the manager behaviours that damaged it, write a trust-repair plan and role-play the first conversation that starts the repair.",
+          "deliverable": "Trust assessment, repair plan and conversation notes",
+          "checks": [["Diagnose", "The assessment names behaviours that broke trust", "Assessment"], ["Plan repair", "The plan has specific commitments with dates", "Repair plan"], ["Start the repair", "The role-play conversation admits the problem and states actions", "Recording"]],
+          "objectives": ["Build trust deliberately", "Repair broken trust", "Keep commitments"]
+        },
+        {
+          "topic": "Handling Underperformance Early",
+          "subtopics": ["Spotting the signs early", "Skill, will or circumstance", "The first conversation about a performance gap", "Agreeing clear expectations and support", "Following up and documenting", "When personal problems affect work", "Involving HR at the right time", "Avoiding unfair treatment"],
+          "tools": ["Performance conversation template", "Documentation log", "Company performance policy"],
+          "lab_task": "Prepare and hold a first conversation with a role-played team member who misses deadlines, agree expectations and support, and write a factual note of the meeting.",
+          "deliverable": "Conversation plan, recording and meeting note",
+          "checks": [["Diagnose", "The plan considers skill, will and circumstance", "Conversation plan"], ["Agree expectations", "The conversation ends with clear expectations and support", "Recording"], ["Document facts", "The note records facts without opinions", "Meeting note"]],
+          "objectives": ["Address underperformance early", "Agree expectations and support", "Document fairly"]
+        },
+        {
+          "topic": "Managing Former Peers and Friends",
+          "subtopics": ["Why this transition is hard", "Resetting relationships openly", "Boundaries without coldness", "Fairness when friends are on the team", "Handling the person who wanted your job", "Confidentiality with former peers", "Social events and outside work", "Asking for support from your manager"],
+          "tools": ["Conversation planner", "Role play scripts", "Reflection journal"],
+          "lab_task": "Plan and role-play a reset conversation with a former peer, and another with a colleague who applied for your role, then write the boundaries you will keep.",
+          "deliverable": "Two conversation plans, recordings and personal boundaries",
+          "checks": [["Reset openly", "The conversation names the change in relationship", "Recording"], ["Handle disappointment", "The second conversation acknowledges feelings and agrees a way forward", "Recording"], ["Set boundaries", "Boundaries cover confidentiality, fairness and social contact", "Boundaries list"]],
+          "objectives": ["Lead former peers", "Set fair boundaries", "Handle disappointed colleagues"]
+        },
+        {
+          "topic": "Team Communication: Updates, Decisions and Transparency",
+          "subtopics": ["What the team needs to know and when", "Passing on company news", "Explaining decisions you did not make", "Transparency and confidentiality", "Team updates in writing", "Two-way channels for questions", "Stopping rumours", "Checking the team understood"],
+          "tools": ["Team channel", "Team update template", "Microsoft Teams or Zoom"],
+          "lab_task": "Explain an unpopular company decision to a role-played team, answer their questions honestly, and write the follow-up update with the agreed next steps.",
+          "deliverable": "Team briefing notes, Q&A log and written update",
+          "checks": [["Explain decisions", "The briefing explains the reasons without blaming leadership", "Recording"], ["Answer honestly", "Questions you cannot answer are acknowledged with a follow-up date", "Q&A log"], ["Confirm understanding", "The team can restate what changes for them", "Observer notes"]],
+          "objectives": ["Communicate company decisions", "Be transparent within limits", "Check team understanding"]
+        },
+        {
+          "topic": "Hiring Your First Team Members",
+          "subtopics": ["Defining the role and success profile", "Writing a job description", "Structured interviews", "Behavioural and situational questions", "Scoring candidates consistently", "Reducing bias in hiring", "Working with recruiters and HR", "Making and explaining the decision"],
+          "tools": ["Job description template", "Interview scorecard", "Applicant tracking system"],
+          "lab_task": "Write a success profile and job description for a role, build a structured interview with scored questions, interview two role-played candidates and make a documented decision.",
+          "deliverable": "Job description, interview kit and decision record",
+          "checks": [["Define success", "The success profile lists outcomes for the first year", "Success profile"], ["Score consistently", "Both candidates are scored on the same questions and scale", "Scorecards"], ["Reduce bias", "The decision is based on scored evidence", "Decision record"]],
+          "objectives": ["Define roles clearly", "Run structured interviews", "Make fair hiring decisions"]
+        },
+        {
+          "topic": "Onboarding New Team Members",
+          "subtopics": ["Pre-boarding before day one", "The first day and first week", "Thirty, sixty and ninety-day goals", "Buddy or mentor support", "Access, tools and practical set-up", "Early feedback and check-ins", "Introducing the person to stakeholders", "Measuring onboarding success"],
+          "tools": ["Onboarding checklist", "Thirty-sixty-ninety plan template", "Buddy guide"],
+          "lab_task": "Build an onboarding plan for a new team member with a pre-boarding checklist, first-week schedule and thirty-sixty-ninety goals, and review it with a role-played new joiner.",
+          "deliverable": "Onboarding plan and checklist",
+          "checks": [["Plan the first week", "The first week has a day-by-day schedule", "Onboarding plan"], ["Set early goals", "Thirty, sixty and ninety-day goals are measurable", "Goal plan"], ["Support", "A buddy and check-in rhythm are assigned", "Onboarding plan"]],
+          "objectives": ["Onboard new team members", "Set early goals", "Provide support in the first months"]
+        },
+        {
+          "topic": "Conflict Within the Team: Spotting and Resolving It",
+          "subtopics": ["Healthy and unhealthy conflict", "Early signs of conflict", "Task, relationship and process conflict", "Talking to each person separately", "Facilitating a joint conversation", "Agreements and follow-up", "When to involve HR", "Preventing repeat conflict"],
+          "tools": ["Conflict mapping template", "Mediation guide", "Role play scripts"],
+          "lab_task": "Map a conflict between two role-played team members, meet each separately, facilitate a joint conversation that ends in a written agreement and plan the follow-up.",
+          "deliverable": "Conflict map, conversation notes and written agreement",
+          "checks": [["Map the conflict", "The map identifies the type and causes of conflict", "Conflict map"], ["Facilitate", "Both parties speak and are heard in the joint conversation", "Observer notes"], ["Agree", "The agreement lists specific behaviours and a review date", "Written agreement"]],
+          "objectives": ["Recognise team conflict", "Facilitate resolution", "Prevent repeat conflict"]
+        },
+        {
+          "topic": "Managing Wellbeing, Workload and Burnout Signs",
+          "subtopics": ["The manager's role in wellbeing", "Signs of stress and burnout", "Workload conversations", "Rebalancing work across the team", "Flexible working requests", "Supporting someone in distress", "Employee assistance and referral routes", "Looking after yourself as a manager"],
+          "tools": ["Workload tracker", "Wellbeing conversation guide", "Employee assistance programme information"],
+          "lab_task": "Review a team workload tracker, identify two people at risk of overload, hold a wellbeing conversation in a role play and rebalance the work with a documented plan.",
+          "deliverable": "Workload review, conversation notes and rebalance plan",
+          "checks": [["Spot risk", "Two people at risk are identified from the tracker", "Workload review"], ["Talk with care", "The conversation offers support and referral routes", "Recording"], ["Rebalance", "The plan moves or removes work with agreement", "Rebalance plan"]],
+          "objectives": ["Notice wellbeing problems", "Hold supportive conversations", "Rebalance workload"]
+        },
+        {
+          "topic": "HR Basics for Managers: Policies, Leave and Employment Law Essentials",
+          "subtopics": ["The policies every manager applies", "Working hours, attendance and leave", "Sickness absence and return to work", "Discrimination and equal treatment", "Harassment and how to respond to complaints", "Disciplinary and grievance processes", "Confidentiality and data protection for employee records", "Probation reviews", "Local labour law differences such as India, the UK and the US", "When to call HR before acting"],
+          "tools": ["Company HR policies", "HR system such as Workday or SuccessFactors", "Case scenarios"],
+          "lab_task": "Work through six people-management scenarios (leave, sickness, a harassment complaint, probation, a grievance and a data request), decide what policy applies and what to do first, and check answers with an HR partner.",
+          "deliverable": "Scenario answers with policy references",
+          "checks": [["Apply policy", "Each scenario cites the relevant policy", "Scenario answers"], ["Escalate correctly", "Scenarios needing HR are escalated before action", "Scenario answers"], ["Protect data", "Employee information is handled within data protection rules", "Scenario answers"]],
+          "objectives": ["Apply HR policies", "Respond to complaints correctly", "Know when to involve HR"]
+        },
+        {
+          "topic": "Beginner Capstone: First Ninety Days as a Manager Plan",
+          "subtopics": ["Listening and learning phase", "Team and stakeholder map", "Goals and early wins", "One-to-one and meeting rhythm", "Risks and support needed", "Presentation to your manager"],
+          "tools": ["Ninety-day plan template", "Stakeholder map", "PowerPoint or Google Slides"],
+          "lab_task": "Build a ninety-day plan for a real or realistic new team, with listening activities, goals, rhythms and early wins, and present it to a role-played senior manager who challenges it.",
+          "deliverable": "Ninety-day plan and presentation",
+          "checks": [["Listen first", "The first month includes one-to-ones and stakeholder meetings", "Plan"], ["Set goals", "The plan includes measurable goals and early wins", "Plan"], ["Defend the plan", "Challenges from the senior manager are answered with reasons", "Presentation notes"]],
+          "objectives": ["Combine beginner leadership skills", "Plan the first ninety days", "Present a plan to your manager"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For managers with one or more years of experience leading a team. Covers situational leadership, coaching with GROW, performance reviews and calibration, performance improvement plans, high-performing teams, psychological safety, motivation, leading change at team level, decision making and bias, conflict between teams, influencing peers and senior leaders, hybrid teams, career conversations, inclusion, capacity planning, budgets, retention, matrix teams and difficult behaviours.",
+      "prerequisites": ["Has led a team for at least a year", "Runs one-to-ones and gives feedback regularly", "Has completed beginner people management training or has equivalent experience"],
+      "outcomes": ["Adapt leadership style and coach people to higher performance", "Run fair performance reviews, calibration and improvement plans", "Build safe, inclusive and high-performing teams that adapt to change", "Influence across the organisation and keep strong people"],
+      "days": [
+        {
+          "topic": "Situational Leadership: Adapting Style to the Person and Task",
+          "subtopics": ["Why one leadership style is not enough", "Directing, coaching, supporting and delegating styles", "Diagnosing competence and commitment for a task", "Changing style as people develop", "Over-managing and under-managing", "Agreeing the style openly with the person", "Situational leadership in remote teams", "Common misreadings of readiness"],
+          "tools": ["Style diagnosis grid", "Role play scripts", "One-to-one template"],
+          "lab_task": "Diagnose four role-played team members on two tasks each, choose a style for each combination and hold two conversations that use different styles, then explain the choices.",
+          "deliverable": "Diagnosis grid and two recorded conversations",
+          "checks": [["Diagnose readiness", "Each person and task has a competence and commitment rating", "Diagnosis grid"], ["Match style", "The chosen style fits each diagnosis", "Diagnosis grid"], ["Adapt live", "The two conversations show clearly different styles", "Recordings"]],
+          "objectives": ["Diagnose development levels", "Adapt leadership style", "Agree style with team members"]
+        },
+        {
+          "topic": "Coaching Conversations with the GROW Model",
+          "subtopics": ["Coaching compared with telling and mentoring", "Goal, reality, options and way forward", "Powerful open questions", "Listening and silence in coaching", "Avoiding the urge to give answers", "Short coaching in everyday moments", "Coaching for performance and for growth", "Measuring coaching progress"],
+          "tools": ["GROW question cards", "Coaching log", "Role play scripts"],
+          "lab_task": "Coach a role-played team member through a real work challenge using GROW for twenty minutes, then switch roles, and log the questions that moved the conversation forward.",
+          "deliverable": "Coaching recording and coaching log",
+          "checks": [["Follow GROW", "All four stages appear in order", "Recording review"], ["Ask, not tell", "Most manager contributions are questions", "Observer tally"], ["Commit to action", "The coachee leaves with a specific action and date", "Coaching log"]],
+          "objectives": ["Coach with GROW", "Ask powerful questions", "Help people own their actions"]
+        },
+        {
+          "topic": "Performance Reviews and Calibration",
+          "subtopics": ["The purpose of performance reviews", "Gathering evidence across the year", "Rating against clear criteria", "Writing the review", "Calibration meetings with other managers", "Common rating biases: recency, halo and similarity", "Delivering the review conversation", "Linking reviews to pay and promotion carefully"],
+          "tools": ["Performance review template", "Calibration grid", "HR system such as Workday or SuccessFactors"],
+          "lab_task": "Write reviews for three sample employees from evidence logs, take part in a calibration meeting with other managers, adjust ratings with reasons and deliver one review conversation.",
+          "deliverable": "Three written reviews, calibration notes and a recorded review conversation",
+          "checks": [["Use evidence", "Every rating is supported by examples", "Written reviews"], ["Calibrate", "Rating changes in calibration are explained", "Calibration notes"], ["Deliver", "The conversation covers strengths, gaps and next goals", "Recording"]],
+          "objectives": ["Write fair reviews", "Take part in calibration", "Deliver review conversations"]
+        },
+        {
+          "topic": "Performance Improvement Plans and Fair Process",
+          "subtopics": ["When an improvement plan is appropriate", "Specific, measurable improvement goals", "Support, training and resources", "Review meetings and documentation", "Fair, consistent and lawful process", "Working with HR through the plan", "Possible outcomes and next steps", "Treating the person with dignity throughout"],
+          "tools": ["Improvement plan template", "Documentation log", "Company performance policy"],
+          "lab_task": "Write an improvement plan for a role-played employee with measurable goals, support and review dates, hold the opening meeting and the first review with HR in the room.",
+          "deliverable": "Improvement plan and notes of two meetings",
+          "checks": [["Set measurable goals", "Each goal has a measure and a deadline", "Improvement plan"], ["Provide support", "The plan lists the support the company will give", "Improvement plan"], ["Follow process", "Meetings follow the company policy steps", "Meeting notes"]],
+          "objectives": ["Write improvement plans", "Run a fair process", "Work with HR on performance"]
+        },
+        {
+          "topic": "Building High-Performing Teams: Roles, Norms and Accountability",
+          "subtopics": ["Stages of team development", "Clear purpose and shared goals", "Roles and responsibilities", "Team norms and working agreements", "Mutual accountability", "Team performance measures", "Team health checks", "Fixing a team that is stuck"],
+          "tools": ["Team charter template", "Team health check", "Miro or whiteboard"],
+          "lab_task": "Run a team chartering workshop with a role-played team to agree purpose, roles, norms and measures, then run a health check and agree two actions.",
+          "deliverable": "Team charter, health check results and actions",
+          "checks": [["Agree purpose", "The team purpose is written in one or two sentences", "Team charter"], ["Set norms", "Norms cover meetings, decisions and conflict", "Team charter"], ["Act on health", "Two improvement actions have owners", "Action list"]],
+          "objectives": ["Build team purpose and norms", "Create accountability", "Improve team health"]
+        },
+        {
+          "topic": "Psychological Safety in Practice",
+          "subtopics": ["What psychological safety is and is not", "Signs a team does not feel safe", "How managers make it safe to speak up", "Responding to bad news and mistakes", "Blameless reviews", "Inviting challenge and dissent", "Safety with high standards", "Measuring psychological safety"],
+          "tools": ["Psychological safety survey", "Blameless review template", "Team meeting plan"],
+          "lab_task": "Measure psychological safety in a case team with a short survey, run a blameless review of a recent mistake and practise responses that encourage people to raise problems.",
+          "deliverable": "Survey results, blameless review and response scripts",
+          "checks": [["Measure safety", "Survey results identify the weakest areas", "Survey results"], ["Review without blame", "The review focuses on systems and decisions, not people", "Review document"], ["Respond well", "Response scripts thank people for raising problems", "Scripts"]],
+          "objectives": ["Build psychological safety", "Run blameless reviews", "Keep high standards and safety together"]
+        },
+        {
+          "topic": "Motivation Science: Autonomy, Mastery and Purpose",
+          "subtopics": ["Intrinsic and extrinsic motivation", "Autonomy: choice in how work is done", "Mastery: growth and challenge", "Purpose: connecting work to impact", "Money, rewards and their limits", "Demotivators managers create", "Motivation conversations", "Job crafting"],
+          "tools": ["Motivation conversation guide", "Job crafting worksheet", "Team survey"],
+          "lab_task": "Hold motivation conversations with two role-played team members, identify demotivators in their work and agree job-crafting changes that add autonomy, mastery or purpose.",
+          "deliverable": "Conversation notes and job-crafting agreements",
+          "checks": [["Find demotivators", "Each conversation identifies at least one demotivator", "Notes"], ["Craft jobs", "Each agreement changes something about how the work is done", "Agreements"], ["Link to purpose", "Each person can state how their work affects customers or the business", "Notes"]],
+          "objectives": ["Apply motivation science", "Remove demotivators", "Use job crafting"]
+        },
+        {
+          "topic": "Leading Through Change at Team Level",
+          "subtopics": ["How people experience change", "Explaining the why of a change", "Resistance as information", "Involving the team in how to change", "Quick wins and visible progress", "Supporting people who struggle", "Communicating during uncertainty", "Sustaining the change"],
+          "tools": ["Change curve", "Change impact template", "Team update template"],
+          "lab_task": "Lead a role-played team through a process change, explain the reasons, run a session where the team designs how to implement it and handle two resistant team members.",
+          "deliverable": "Change plan, team session notes and conversation notes",
+          "checks": [["Explain why", "The team can state the reason for the change", "Observer notes"], ["Involve the team", "The implementation plan includes team ideas", "Session notes"], ["Handle resistance", "Resistant team members agree to a next step", "Conversation notes"]],
+          "objectives": ["Lead teams through change", "Involve people in the how", "Respond to resistance"]
+        },
+        {
+          "topic": "Decision Making for Managers: Data, Judgement and Bias",
+          "subtopics": ["Types of decisions and who should make them", "Using data without waiting for perfect data", "Common biases: confirmation, anchoring and sunk cost", "Group decision methods", "Consulting the team", "Reversible and irreversible decisions", "Explaining decisions", "Reviewing decisions afterwards"],
+          "tools": ["Decision log", "Bias checklist", "Decision matrix"],
+          "lab_task": "Make a staffing decision in a case using a decision matrix and bias checklist, consult a role-played team, record the decision and review it against what happened next in the case.",
+          "deliverable": "Decision matrix, decision log entry and review",
+          "checks": [["Use criteria", "Options are scored against agreed criteria", "Decision matrix"], ["Check bias", "At least two biases are checked and addressed", "Bias checklist"], ["Review", "The review compares the decision with the outcome", "Decision review"]],
+          "objectives": ["Make better decisions", "Reduce bias", "Learn from past decisions"]
+        },
+        {
+          "topic": "Managing Conflict Between Teams",
+          "subtopics": ["Why teams conflict: goals, resources and handoffs", "Mapping the conflict between teams", "Meeting the other manager first", "Shared goals and service agreements", "Escalating only when needed", "Joint problem-solving sessions", "Protecting your team without blaming others", "Following up on agreements"],
+          "tools": ["Conflict mapping template", "Service agreement template", "Joint workshop plan"],
+          "lab_task": "Resolve a handoff conflict between two role-played teams by meeting the other manager, running a joint problem-solving session and agreeing a written service agreement.",
+          "deliverable": "Conflict map, workshop notes and service agreement",
+          "checks": [["Map causes", "The map identifies goal, resource or handoff causes", "Conflict map"], ["Solve jointly", "Both teams contribute to the solution", "Workshop notes"], ["Agree in writing", "The service agreement has measures and a review date", "Service agreement"]],
+          "objectives": ["Resolve conflict between teams", "Run joint problem solving", "Agree service levels"]
+        },
+        {
+          "topic": "Influencing Peers and Senior Leaders",
+          "subtopics": ["Sources of influence beyond authority", "Mapping stakeholders and what they care about", "Building credibility and relationships", "Framing proposals in their terms", "Coalitions and allies", "Handling a no from a senior leader", "Influencing in meetings and in writing", "Keeping influence ethical"],
+          "tools": ["Stakeholder map", "Influence planner", "Role play scripts"],
+          "lab_task": "Plan how to win support for a team proposal from two peers and a senior leader, hold the three conversations in role plays and adjust the proposal after their objections.",
+          "deliverable": "Influence plan, conversation notes and revised proposal",
+          "checks": [["Map stakeholders", "Each stakeholder's interests and concerns are listed", "Stakeholder map"], ["Frame for them", "Each conversation frames the proposal in the stakeholder's terms", "Recordings"], ["Adapt", "The revised proposal answers the objections raised", "Revised proposal"]],
+          "objectives": ["Influence without formal authority", "Build support across the organisation", "Respond to objections"]
+        },
+        {
+          "topic": "Leading Hybrid and Remote Teams Day to Day",
+          "subtopics": ["Fair treatment of remote and office staff", "Outcomes over visible activity", "Rhythms for hybrid teams", "Inclusion in hybrid meetings", "Spotting isolation and disengagement remotely", "Building connection without forcing it", "Tools and written practices", "Team agreements on availability"],
+          "tools": ["Microsoft Teams or Zoom", "Team agreement template", "Engagement pulse survey"],
+          "lab_task": "Review a hybrid team case where remote staff feel left out, write a team agreement that fixes the causes and run a hybrid meeting that includes remote people equally.",
+          "deliverable": "Case review, team agreement and meeting observation",
+          "checks": [["Find causes", "The review names practices that exclude remote staff", "Case review"], ["Agree practices", "The agreement covers meetings, availability and decisions", "Team agreement"], ["Include remote staff", "Remote participants contribute equally in the meeting", "Observer tally"]],
+          "objectives": ["Lead hybrid teams fairly", "Manage by outcomes", "Prevent isolation"]
+        },
+        {
+          "topic": "Career Conversations and Development Plans",
+          "subtopics": ["What people want from their careers", "Career conversations separate from reviews", "Strengths, interests and options", "Development plans with experiences, not only courses", "Stretch assignments", "Mentors and sponsors", "Honest conversations about promotion readiness", "Following up on development"],
+          "tools": ["Career conversation guide", "Development plan template", "Skills matrix"],
+          "lab_task": "Hold a career conversation with a role-played team member, build a development plan based mostly on work experiences and give honest feedback on their promotion readiness.",
+          "deliverable": "Career conversation notes and development plan",
+          "checks": [["Explore aspirations", "The notes record the person's goals in their own words", "Notes"], ["Plan experiences", "Most development actions are on-the-job experiences", "Development plan"], ["Be honest", "Promotion readiness feedback is specific with gaps named", "Recording"]],
+          "objectives": ["Hold career conversations", "Build development plans", "Give honest readiness feedback"]
+        },
+        {
+          "topic": "Diversity, Equity and Inclusion for People Managers",
+          "subtopics": ["Why inclusion affects team performance", "Unconscious bias in everyday management", "Fair allocation of work and opportunities", "Inclusive meetings and decisions", "Responding to exclusion and microaggressions", "Accommodations and accessibility", "Inclusive hiring and promotion", "Measuring inclusion in the team"],
+          "tools": ["Inclusion checklist", "Work allocation tracker", "Team survey"],
+          "lab_task": "Audit work allocation and stretch opportunities in a case team for patterns, role-play a response to an exclusionary comment and agree three inclusion actions for the team.",
+          "deliverable": "Allocation audit, response script and inclusion actions",
+          "checks": [["Find patterns", "The audit identifies who gets visible work and who does not", "Allocation audit"], ["Respond", "The response addresses the comment calmly and clearly", "Recording"], ["Act", "Three inclusion actions have owners and measures", "Action list"]],
+          "objectives": ["Lead inclusively", "Allocate opportunities fairly", "Respond to exclusion"]
+        },
+        {
+          "topic": "Workforce Planning and Team Capacity",
+          "subtopics": ["Demand for the team's work", "Capacity and skills supply", "Skills matrices and single points of failure", "Hiring, contracting or developing", "Planning for leave and attrition", "Capacity conversations with stakeholders", "Prioritising when capacity is short", "Quarterly capacity reviews"],
+          "tools": ["Skills matrix", "Capacity planning spreadsheet", "Excel or Google Sheets"],
+          "lab_task": "Build a skills matrix and capacity plan for a case team, find single points of failure and a capacity gap, and present options to a role-played stakeholder.",
+          "deliverable": "Skills matrix, capacity plan and options paper",
+          "checks": [["Map skills", "Single points of failure are identified", "Skills matrix"], ["Quantify the gap", "The capacity gap is stated in people or hours", "Capacity plan"], ["Present options", "Options include cost, time and risk", "Options paper"]],
+          "objectives": ["Plan team capacity", "Reduce single points of failure", "Present resourcing options"]
+        },
+        {
+          "topic": "Budget and Resource Management for Team Leaders",
+          "subtopics": ["Team budgets: people, tools, training and travel", "Forecasting and tracking spend", "Building a budget request", "Making trade-offs within a budget", "Contractor and vendor costs", "Cost conversations with finance", "Explaining budget limits to the team", "Year-end and planning cycles"],
+          "tools": ["Budget template", "Excel or Google Sheets", "Finance reports"],
+          "lab_task": "Build next year's budget request for a case team, track a quarter of sample spend against it, make two trade-offs when costs rise and explain the changes to the team.",
+          "deliverable": "Budget request, spend tracker and trade-off notes",
+          "checks": [["Build the request", "The request separates people, tools, training and travel", "Budget request"], ["Track spend", "Variances are explained for the quarter", "Spend tracker"], ["Make trade-offs", "Trade-offs keep spend within budget with reasons", "Trade-off notes"]],
+          "objectives": ["Plan team budgets", "Track spending", "Make and explain trade-offs"]
+        },
+        {
+          "topic": "Retention: Stay Interviews and Preventing Regretted Attrition",
+          "subtopics": ["Why good people leave", "Early warning signs", "Stay interviews", "Acting on what you hear", "Counter-offers and their risks", "Exit interviews that teach you something", "Regretted and non-regretted attrition", "Retention plans for key people"],
+          "tools": ["Stay interview guide", "Retention risk matrix", "Exit interview template"],
+          "lab_task": "Rate retention risk for a case team, hold a stay interview with a role-played high performer and write a retention plan with actions within your control.",
+          "deliverable": "Retention risk matrix, stay interview notes and retention plan",
+          "checks": [["Rate risk", "Each person has a risk and impact rating", "Risk matrix"], ["Learn", "The stay interview identifies what would make the person leave", "Interview notes"], ["Act", "The plan lists actions the manager controls", "Retention plan"]],
+          "objectives": ["Reduce regretted attrition", "Run stay interviews", "Plan retention for key people"]
+        },
+        {
+          "topic": "Leading Cross-Functional and Matrix Teams",
+          "subtopics": ["Solid and dotted reporting lines", "Leading people who do not report to you", "Agreeing priorities with other managers", "Shared goals across functions", "Decision rights in a matrix", "Feedback for matrix team members", "Escalation in a matrix", "Keeping matrix teams engaged"],
+          "tools": ["RACI template", "Shared goal template", "Stakeholder map"],
+          "lab_task": "Set up a cross-functional project team in a case, agree priorities and decision rights with two functional managers and write the team's RACI and escalation path.",
+          "deliverable": "Priority agreement, RACI and escalation path",
+          "checks": [["Agree priorities", "Both functional managers agree the team's priorities", "Agreement notes"], ["Clarify decisions", "The RACI has one accountable owner per decision", "RACI"], ["Escalate cleanly", "The escalation path has levels and time limits", "Escalation path"]],
+          "objectives": ["Lead in a matrix", "Agree priorities across functions", "Clarify decision rights"]
+        },
+        {
+          "topic": "Managing Difficult Behaviours: Toxic, Disengaged and High-Ego Performers",
+          "subtopics": ["Behaviour compared with personality", "The cost of tolerating poor behaviour", "The disengaged team member", "The brilliant but toxic performer", "Passive resistance", "Conversations about behaviour", "Consequences and documentation", "Protecting the rest of the team"],
+          "tools": ["Behaviour conversation template", "Documentation log", "Role play scripts"],
+          "lab_task": "Hold behaviour conversations with a role-played toxic high performer and a disengaged team member, set clear expectations and consequences, and document both.",
+          "deliverable": "Two conversation plans, recordings and documentation",
+          "checks": [["Focus on behaviour", "The conversations describe behaviours, not personalities", "Recordings"], ["Set consequences", "Each conversation states expectations and consequences", "Recordings"], ["Document", "Documentation is factual and dated", "Documentation log"]],
+          "objectives": ["Address difficult behaviour", "Set expectations and consequences", "Protect team health"]
+        },
+        {
+          "topic": "Intermediate Capstone: Team Health Turnaround Plan",
+          "subtopics": ["Diagnosing a struggling team", "Performance and behaviour issues", "Team charter and norms", "Coaching and development plans", "Retention and capacity actions", "Presentation to senior leadership"],
+          "tools": ["Team health check", "Team charter template", "Development plan template", "PowerPoint or Google Slides"],
+          "lab_task": "Diagnose a struggling team in a detailed case, write a ninety-day turnaround plan covering performance, behaviour, safety, development and retention, and present it to a role-played senior leader.",
+          "deliverable": "Diagnosis and ninety-day turnaround plan",
+          "checks": [["Diagnose", "The diagnosis uses evidence from the case", "Diagnosis"], ["Plan", "The plan has actions, owners and measures for each problem", "Turnaround plan"], ["Present", "The senior leader approves the plan or gives specific conditions", "Presentation notes"]],
+          "objectives": ["Combine intermediate leadership skills", "Turn around a struggling team", "Present a plan to senior leaders"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior managers, heads of function and leaders of leaders. Covers leading managers, organisation design, setting direction for a function, leadership presence, designing culture, large-scale transformation, talent strategy and succession, strategic workforce planning, leadership team effectiveness, accountability and decision rights, people analytics, ethical trade-offs, crisis leadership, personal resilience, board relationships, global leadership, innovation, restructuring and redesigning work for AI.",
+      "prerequisites": ["Leads managers or a function of significant size", "Has several years of people management experience", "Takes part in business planning or leadership team decisions"],
+      "outcomes": ["Lead managers and design organisations that deliver strategy", "Shape culture, talent and workforce plans for the long term", "Lead transformation, crises and restructuring with integrity", "Build effective leadership teams and represent the function to boards"],
+      "days": [
+        {
+          "topic": "Leading Leaders: Moving from Managing Work to Managing Managers",
+          "subtopics": ["What changes when your reports are managers", "Setting context instead of directing work", "Developing managers' management skills", "Skip-level meetings", "Holding managers accountable for their teams", "Spotting struggling managers early", "Consistency across teams", "Your leadership team rhythm"],
+          "tools": ["Skip-level meeting guide", "Manager effectiveness survey", "Leadership team calendar"],
+          "lab_task": "Review manager effectiveness data for a case function, hold a skip-level meeting and a coaching conversation with a struggling manager, and design your leadership team rhythm.",
+          "deliverable": "Manager review, conversation notes and leadership rhythm",
+          "checks": [["Use data", "The review identifies the weakest manager practices from data", "Manager review"], ["Coach a manager", "The conversation ends with development actions", "Notes"], ["Design rhythm", "The rhythm includes one-to-ones, team meetings and skip-levels", "Rhythm document"]],
+          "objectives": ["Lead through managers", "Develop managers", "Hold managers accountable"]
+        },
+        {
+          "topic": "Organisational Design and Spans of Control",
+          "subtopics": ["Design principles: strategy first", "Functional, product, regional and matrix structures", "Spans of control and layers", "Roles, interfaces and handoffs", "Centralised and decentralised choices", "Testing designs against scenarios", "Transition planning", "Communicating a new structure"],
+          "tools": ["Organisation design canvas", "Org chart tool", "Scenario test template"],
+          "lab_task": "Redesign a case function to support a new strategy, compare two structures against scenarios, set spans and layers and write the transition plan.",
+          "deliverable": "Two design options, scenario tests and transition plan",
+          "checks": [["Start from strategy", "Each design states how it supports the strategy", "Design options"], ["Test designs", "Both designs are tested against at least three scenarios", "Scenario tests"], ["Plan transition", "The transition plan covers people, timing and risks", "Transition plan"]],
+          "objectives": ["Design organisations", "Set spans and layers", "Plan structural transitions"]
+        },
+        {
+          "topic": "Setting Direction: Vision, Strategy and Priorities for a Function",
+          "subtopics": ["A vision people can repeat", "Strategy as choices about where and how", "Priorities and what to stop", "Translating strategy into goals", "Involving the leadership team", "Communicating direction repeatedly", "Reviewing strategy as conditions change", "Strategy on one page"],
+          "tools": ["Strategy on a page template", "OKR template", "Workshop plan"],
+          "lab_task": "Run a strategy workshop with a role-played leadership team, produce a strategy on one page with three priorities and a stop list, and cascade it into team goals.",
+          "deliverable": "Strategy on one page, stop list and cascaded goals",
+          "checks": [["Make choices", "The strategy states what the function will not do", "Strategy page"], ["Prioritise", "No more than three priorities are set", "Strategy page"], ["Cascade", "Each team goal links to a priority", "Goal sheet"]],
+          "objectives": ["Set direction for a function", "Make strategic choices", "Cascade priorities into goals"]
+        },
+        {
+          "topic": "Leadership Presence and Communication for Senior Leaders",
+          "subtopics": ["What presence means and how it is perceived", "Calm under pressure", "Speaking with brevity and conviction", "Listening as a senior leader", "Presence in virtual settings", "Visibility across a large organisation", "Storytelling for leaders", "Feedback on presence"],
+          "tools": ["Video recording", "360-degree feedback tool", "Storytelling template"],
+          "lab_task": "Deliver a recorded five-minute leadership message under pressure from a challenging audience, review it with 360-style feedback and practise a leadership story.",
+          "deliverable": "Recording, feedback summary and a leadership story",
+          "checks": [["Stay composed", "Challenging questions are answered calmly", "Recording review"], ["Be brief", "The core message lands in the first minute", "Recording review"], ["Tell a story", "The story links an experience to a leadership message", "Story script"]],
+          "objectives": ["Build leadership presence", "Communicate with conviction", "Use stories as a leader"]
+        },
+        {
+          "topic": "Culture by Design: Values, Behaviours and Systems",
+          "subtopics": ["Culture as how work really gets done", "Diagnosing current culture", "Defining target behaviours", "Systems that shape culture: hiring, rewards, promotions", "Leaders as role models", "Rituals and symbols", "Measuring culture change", "When culture and strategy clash"],
+          "tools": ["Culture diagnostic survey", "Behaviour definition template", "People process audit"],
+          "lab_task": "Diagnose the culture of a case organisation, define five target behaviours, audit hiring, reward and promotion systems against them and write a culture change plan.",
+          "deliverable": "Culture diagnosis, behaviour definitions and change plan",
+          "checks": [["Diagnose", "The diagnosis uses survey and behavioural evidence", "Diagnosis"], ["Define behaviours", "Each behaviour has observable examples", "Behaviour definitions"], ["Change systems", "The plan changes at least two people systems", "Change plan"]],
+          "objectives": ["Diagnose culture", "Define target behaviours", "Change culture through systems"]
+        },
+        {
+          "topic": "Leading Large-Scale Transformation",
+          "subtopics": ["Why transformations fail", "Case for change and urgency", "Guiding coalition", "Roadmap and phases", "Capability building alongside change", "Measuring transformation progress", "Sustaining energy over years", "Course correction"],
+          "tools": ["Transformation roadmap template", "Stakeholder map", "Progress dashboard"],
+          "lab_task": "Build a transformation roadmap for a case organisation with a case for change, coalition, phases and measures, and present it to a role-played executive committee.",
+          "deliverable": "Transformation roadmap and executive presentation",
+          "checks": [["Make the case", "The case for change uses evidence and urgency", "Roadmap"], ["Phase the work", "Phases have goals, measures and dependencies", "Roadmap"], ["Win support", "The executive committee approves with clear sponsorship", "Presentation notes"]],
+          "objectives": ["Lead large transformations", "Build coalitions", "Measure and sustain change"]
+        },
+        {
+          "topic": "Talent Strategy: Succession, High Potentials and Bench Strength",
+          "subtopics": ["Talent reviews and the nine-box grid", "Defining potential fairly", "Succession plans for critical roles", "Development for high potentials", "Bench strength measures", "Moving talent across the organisation", "Transparency with employees", "Avoiding bias in talent decisions"],
+          "tools": ["Nine-box grid", "Succession planning template", "HR system such as Workday or SuccessFactors"],
+          "lab_task": "Run a talent review for a case function with the nine-box grid, build succession plans for three critical roles and challenge each other's ratings for bias.",
+          "deliverable": "Talent review outcomes and succession plans",
+          "checks": [["Review talent", "Each person has evidence for their placement", "Talent review notes"], ["Plan succession", "Each critical role has ready-now and ready-later successors", "Succession plans"], ["Challenge bias", "Ratings are challenged and adjusted with reasons", "Calibration notes"]],
+          "objectives": ["Run talent reviews", "Plan succession", "Make fair talent decisions"]
+        },
+        {
+          "topic": "Strategic Workforce Planning and Skills for the Future",
+          "subtopics": ["Linking workforce plans to strategy", "Future skills and roles", "Build, buy, borrow and automate options", "Skills inventories", "Reskilling programmes", "Location and cost strategy", "Scenario planning for the workforce", "Workforce plan governance"],
+          "tools": ["Workforce planning model", "Skills inventory", "Excel or Power BI"],
+          "lab_task": "Build a three-year workforce plan for a case function with future skills, a skills gap analysis and build, buy, borrow or automate choices, tested against two scenarios.",
+          "deliverable": "Three-year workforce plan with scenarios",
+          "checks": [["Link to strategy", "The plan states the strategic needs it supports", "Workforce plan"], ["Analyse gaps", "Skills gaps are quantified", "Gap analysis"], ["Test scenarios", "The plan is tested against two scenarios", "Scenario analysis"]],
+          "objectives": ["Plan the workforce strategically", "Close future skills gaps", "Plan for uncertainty"]
+        },
+        {
+          "topic": "Leadership Team Effectiveness: Building the Top Team",
+          "subtopics": ["What makes leadership teams effective", "Team purpose beyond individual functions", "Trust and conflict at the top", "Decision-making in leadership teams", "Collective accountability for results", "Leadership team offsites", "Assessing leadership team health", "The leader's role in the top team"],
+          "tools": ["Leadership team assessment", "Offsite design template", "Decision protocol"],
+          "lab_task": "Assess a case leadership team, design a one-day offsite agenda that addresses its weakest areas and write a decision protocol for the team.",
+          "deliverable": "Team assessment, offsite design and decision protocol",
+          "checks": [["Assess", "The assessment identifies the two weakest areas", "Assessment"], ["Design the offsite", "The agenda addresses both weak areas", "Offsite design"], ["Agree how to decide", "The protocol states decision methods and who decides", "Decision protocol"]],
+          "objectives": ["Build effective leadership teams", "Improve trust and decisions at the top", "Create collective accountability"]
+        },
+        {
+          "topic": "Governance, Accountability and Decision Rights in Organisations",
+          "subtopics": ["Why unclear decision rights slow organisations", "Decision rights frameworks such as RAPID and RACI", "Delegations of authority", "Forums and committees", "Holding people accountable without micromanaging", "Performance management for leaders", "Simplifying governance", "Auditing decision speed"],
+          "tools": ["Decision rights matrix", "Delegation of authority template", "Governance map"],
+          "lab_task": "Map the decision rights and forums of a case function, find the decisions that are slow or unclear, redesign them with a decision rights framework and simplify one forum.",
+          "deliverable": "Governance map and redesigned decision rights",
+          "checks": [["Map decisions", "Slow or unclear decisions are identified", "Governance map"], ["Redesign", "Each redesigned decision has one decider", "Decision rights matrix"], ["Simplify", "At least one forum is merged or removed", "Governance map"]],
+          "objectives": ["Clarify decision rights", "Simplify governance", "Hold leaders accountable"]
+        },
+        {
+          "topic": "Leading with Data: People Analytics and Engagement Surveys",
+          "subtopics": ["People metrics that matter", "Engagement surveys and their limits", "Attrition, hiring and diversity analytics", "Linking people data to business results", "Acting on survey results with teams", "Privacy and ethics in people data", "Dashboards for leaders", "Avoiding vanity metrics"],
+          "tools": ["Engagement survey results", "Excel or Power BI", "People dashboard"],
+          "lab_task": "Analyse sample engagement, attrition and hiring data for a case function, identify the three most important issues and write an action plan with managers.",
+          "deliverable": "People analytics findings and action plan",
+          "checks": [["Analyse", "Findings are supported by the data", "Analysis"], ["Prioritise", "Three issues are chosen with reasons", "Findings"], ["Act with managers", "The plan assigns actions to managers with measures", "Action plan"]],
+          "objectives": ["Use people analytics", "Act on engagement data", "Handle people data ethically"]
+        },
+        {
+          "topic": "Ethical Leadership and Hard Trade-Offs",
+          "subtopics": ["Ethical dilemmas leaders face", "Values in conflict: profit, people and customers", "Frameworks for ethical decisions", "Speaking up and protecting those who do", "Pressure from above to cut corners", "Transparency about trade-offs", "Ethics in AI and data use", "Living with imperfect choices"],
+          "tools": ["Ethical decision framework", "Case studies", "Reflection journal"],
+          "lab_task": "Work through three ethical dilemma cases in groups using a decision framework, defend the decisions to a role-played panel and write how you would explain each to staff.",
+          "deliverable": "Three case decisions with explanations",
+          "checks": [["Use a framework", "Each decision follows the framework steps", "Case decisions"], ["Defend", "Decisions are defended with reasons against challenge", "Panel notes"], ["Explain", "Staff explanations are honest about the trade-offs", "Explanations"]],
+          "objectives": ["Make ethical decisions", "Explain trade-offs honestly", "Protect people who speak up"]
+        },
+        {
+          "topic": "Leading Through Crisis and Uncertainty",
+          "subtopics": ["What changes in a crisis", "Crisis team structure", "Decisions with incomplete information", "Communicating often and honestly", "Looking after people under strain", "Keeping the business running", "Learning during the crisis", "Recovery and what comes after"],
+          "tools": ["Crisis team charter", "Decision log", "Communication rhythm template"],
+          "lab_task": "Lead a timed crisis simulation for a major outage, set up the crisis team, make three decisions with incomplete information and communicate to staff, customers and leadership.",
+          "deliverable": "Crisis team charter, decision log and communications",
+          "checks": [["Organise", "The crisis team has roles within the first fifteen minutes", "Simulation log"], ["Decide", "Decisions are logged with information and reasoning", "Decision log"], ["Communicate", "Updates go to all groups on the agreed rhythm", "Communication log"]],
+          "objectives": ["Lead in a crisis", "Decide with incomplete information", "Communicate under pressure"]
+        },
+        {
+          "topic": "Resilience and Renewal for Senior Leaders",
+          "subtopics": ["The demands of senior roles", "Signs of leader burnout", "Energy management: physical, mental and emotional", "Boundaries and recovery time", "Support networks and coaching", "Reflection habits", "Modelling sustainable work", "A personal renewal plan"],
+          "tools": ["Energy audit", "Reflection journal", "Personal plan template"],
+          "lab_task": "Complete an energy audit for a typical month, identify drains and sources of energy, and write a personal renewal plan with boundaries and support you will put in place.",
+          "deliverable": "Energy audit and personal renewal plan",
+          "checks": [["Audit energy", "The audit lists drains and sources with examples", "Energy audit"], ["Set boundaries", "The plan has specific boundaries", "Renewal plan"], ["Build support", "The plan names people or resources for support", "Renewal plan"]],
+          "objectives": ["Sustain energy as a leader", "Set boundaries", "Model sustainable work"]
+        },
+        {
+          "topic": "Board and Investor Relationships for Senior Leaders",
+          "subtopics": ["What boards do and need", "Preparing for board meetings", "Presenting to the board", "Handling board challenge", "Investor expectations", "Building relationships with non-executive directors", "Governance and fiduciary duties", "Bad news to the board"],
+          "tools": ["Board paper template", "Presentation template", "Q&A preparation sheet"],
+          "lab_task": "Prepare and present a functional update to a mock board, take challenging questions and deliver one piece of bad news with your plan to address it.",
+          "deliverable": "Board update, Q&A preparation and presentation notes",
+          "checks": [["Prepare", "The update states performance, risks and asks", "Board update"], ["Handle challenge", "Questions are answered directly and briefly", "Presentation notes"], ["Deliver bad news", "The bad news is clear and paired with a plan", "Recording"]],
+          "objectives": ["Work with boards", "Present to boards", "Deliver bad news to directors"]
+        },
+        {
+          "topic": "Global Leadership Across Cultures",
+          "subtopics": ["Leading across countries and cultures", "Cultural dimensions and their limits", "Decision making and hierarchy across cultures", "Feedback across cultures", "Building trust in global teams", "Time zones and fairness", "Global and local balance in decisions", "Developing global leaders"],
+          "tools": ["Culture map", "Global team charter", "Case studies"],
+          "lab_task": "Lead a case global team with members in four countries, diagnose a cultural misunderstanding, adapt your feedback approach and write a global team charter.",
+          "deliverable": "Diagnosis, adapted feedback plan and global team charter",
+          "checks": [["Diagnose", "The diagnosis names the cultural differences involved", "Diagnosis"], ["Adapt feedback", "Feedback plans differ by culture with reasons", "Feedback plan"], ["Agree a charter", "The charter addresses time zones and decision making", "Charter"]],
+          "objectives": ["Lead across cultures", "Adapt leadership practices", "Build global teams"]
+        },
+        {
+          "topic": "Leading Innovation and Experimentation",
+          "subtopics": ["Innovation as a leadership responsibility", "Exploration and exploitation", "Experiments and learning budgets", "Protecting new ideas from the core business", "Failing safely", "Measuring innovation", "Scaling what works", "Incentives for innovation"],
+          "tools": ["Experiment canvas", "Innovation portfolio map", "Metrics template"],
+          "lab_task": "Build an innovation portfolio for a case function, design two experiments with success criteria and a budget, and define how successful experiments will scale.",
+          "deliverable": "Innovation portfolio, experiment designs and scaling criteria",
+          "checks": [["Balance the portfolio", "The portfolio mixes core, adjacent and new ideas", "Portfolio map"], ["Design experiments", "Each experiment has a hypothesis and success criteria", "Experiment canvases"], ["Plan scale", "Scaling criteria and owners are defined", "Scaling plan"]],
+          "objectives": ["Lead innovation", "Run safe experiments", "Scale successful ideas"]
+        },
+        {
+          "topic": "Restructuring and Redundancy: Leading People Through It",
+          "subtopics": ["When restructuring is necessary", "Legal consultation requirements", "Selection criteria and fairness", "Conversations with affected people", "Supporting people who leave", "Leading the people who stay", "Protecting the business during change", "Learning from the restructuring"],
+          "tools": ["Restructuring plan template", "Selection criteria matrix", "Conversation guide"],
+          "lab_task": "Plan a restructuring in a case function with fair selection criteria, consultation steps and conversation scripts, and role-play the conversation with an affected employee.",
+          "deliverable": "Restructuring plan and conversation recording",
+          "checks": [["Follow process", "The plan includes required consultation steps", "Restructuring plan"], ["Be fair", "Selection criteria are objective and documented", "Selection matrix"], ["Treat people well", "The conversation is clear, respectful and offers support", "Recording"]],
+          "objectives": ["Lead restructuring fairly", "Follow legal process", "Support people who leave and stay"]
+        },
+        {
+          "topic": "Redesigning Work and Roles for AI",
+          "subtopics": ["Where AI changes work in your function", "Task analysis: automate, augment or keep", "Redesigning roles and career paths", "Reskilling and fair transitions", "Governance for AI use by teams", "Managing fear and resistance", "Productivity measures that make sense", "Leading people alongside AI agents"],
+          "tools": ["Task analysis template", "AI use policy", "Reskilling plan template"],
+          "lab_task": "Analyse the tasks of three roles in a case function, decide which to automate, augment or keep, redesign one role and write the reskilling and communication plan.",
+          "deliverable": "Task analysis, redesigned role and reskilling plan",
+          "checks": [["Analyse tasks", "Each task is classified with reasons", "Task analysis"], ["Redesign", "The redesigned role has clear responsibilities and a career path", "Role design"], ["Transition fairly", "The plan includes reskilling and communication", "Reskilling plan"]],
+          "objectives": ["Redesign work for AI", "Plan fair transitions", "Lead people through AI change"]
+        },
+        {
+          "topic": "Advanced Capstone: Leadership Strategy for a Business Unit",
+          "subtopics": ["Direction and priorities", "Organisation and talent plan", "Culture and change plan", "Leadership team development", "Measures and governance", "Presentation to the executive committee"],
+          "tools": ["Strategy on a page template", "Organisation design canvas", "Talent review template", "PowerPoint or Google Slides"],
+          "lab_task": "Lead a business unit in a detailed case: set direction, redesign the organisation, plan talent and culture change and present the full leadership strategy to a mock executive committee that challenges it.",
+          "deliverable": "Leadership strategy pack and executive presentation",
+          "checks": [["Set direction", "Priorities and stop list link to the business unit goals", "Strategy pack"], ["Plan people", "Organisation, talent and culture plans are consistent", "Strategy pack"], ["Win approval", "The committee approves or sets specific conditions", "Committee notes"]],
+          "objectives": ["Combine advanced leadership skills", "Lead a business unit strategy", "Present to executives"]
+        }
+      ]
+    }
+  }
+}

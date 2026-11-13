@@ -1,0 +1,573 @@
+{
+  "domain": "Prometheus and Grafana",
+  "name": "Monitoring with Prometheus and Grafana",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["Prometheus", "Grafana", "Prometheus Grafana", "Prometheus Monitoring", "Grafana Dashboards", "PromQL", "Alertmanager", "Grafana Stack", "LGTM Stack", "Prometheus and Grafana Training"],
+  "certifications": ["Prometheus Certified Associate (PCA)", "Grafana Certified Associate (Grafana Labs)", "Certified Kubernetes Administrator (useful for Kubernetes monitoring)"],
+  "tools": ["Prometheus", "Grafana", "Alertmanager", "node_exporter", "Loki", "Tempo", "Docker", "Kubernetes"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For engineers, support staff and developers new to monitoring. Covers monitoring concepts, Prometheus architecture and configuration, exporters, metric types, PromQL, instrumenting applications, service discovery, Grafana data sources, dashboards and panels, templating, alerting rules, Alertmanager routing, recording rules, blackbox probes, database and container monitoring, Loki logs and dashboards as code.",
+      "prerequisites": ["Comfortable on the Linux command line", "Knows basic Docker commands", "Understands what a web service and an HTTP status code are"],
+      "outcomes": ["Run Prometheus, exporters and Grafana", "Write PromQL queries and build useful dashboards", "Instrument applications and monitor hosts, databases and containers", "Alert on real problems and route alerts to the right people"],
+      "days": [
+        {
+          "topic": "Monitoring Overview and Prometheus and Grafana Setup",
+          "subtopics": ["Why monitor: availability, performance and capacity", "Metrics, logs and traces", "Black-box and white-box monitoring", "Pull and push models", "The Prometheus ecosystem", "Grafana and its data sources", "Installing Prometheus, Grafana and node_exporter with Docker Compose", "The Prometheus web UI", "First Grafana login and settings", "The course lab environment"],
+          "tools": ["Docker Compose", "Prometheus", "Grafana", "node_exporter"],
+          "lab_task": "Start Prometheus, Grafana and node_exporter with Docker Compose, confirm Prometheus scrapes node_exporter, query CPU use in the Prometheus UI and add Prometheus as a Grafana data source.",
+          "deliverable": "Compose file, screenshots and a short description of each component",
+          "checks": [["Open the targets page", "node_exporter target UP", "Prometheus screenshot"], ["Query node_cpu_seconds_total", "Series returned", "Prometheus screenshot"], ["Test the Grafana data source", "Connection succeeds", "Grafana screenshot"]],
+          "objectives": ["Explain monitoring", "Run Prometheus and Grafana", "Connect them"]
+        },
+        {
+          "topic": "Prometheus Architecture and Configuration",
+          "subtopics": ["The time series database", "Scrape jobs and targets", "scrape_interval and scrape_timeout", "Labels and target relabelling", "prometheus.yml structure", "Reloading configuration", "Storage and retention", "The Prometheus HTTP API"],
+          "tools": ["Prometheus", "promtool"],
+          "lab_task": "Add scrape jobs for three targets, relabel targets with environment and team labels, change retention, check the file with promtool and reload without a restart.",
+          "deliverable": "prometheus.yml and verification output",
+          "checks": [["Run promtool check config", "No errors", "promtool output"], ["Reload configuration", "New targets appear without restart", "Targets page"], ["Query with labels", "Series carry environment and team labels", "Prometheus query result"]],
+          "objectives": ["Configure scrape jobs", "Use labels", "Manage storage and retention"]
+        },
+        {
+          "topic": "Exporters and Host Monitoring with node_exporter",
+          "subtopics": ["What exporters do", "node_exporter collectors", "CPU, memory, disk and network metrics", "The textfile collector", "Windows exporter", "Exporter security", "Choosing exporters", "Writing a simple textfile metric"],
+          "tools": ["node_exporter", "windows_exporter"],
+          "lab_task": "Monitor two Linux hosts and one Windows host, turn on extra collectors, add a textfile metric for the last backup time and find the busiest disk.",
+          "deliverable": "Exporter configuration and queries",
+          "checks": [["Query the backup metric", "Last backup time returned", "Query result"], ["Find the busiest disk", "Disk with highest I/O time named", "Query result"], ["Query the Windows host", "CPU and memory series returned", "Query result"]],
+          "objectives": ["Use exporters", "Monitor hosts", "Add custom host metrics"]
+        },
+        {
+          "topic": "Metric Types: Counters, Gauges, Histograms and Summaries",
+          "subtopics": ["Counters", "Gauges", "Histograms and buckets", "Summaries", "Native histograms in brief", "Metric naming conventions", "Units and suffixes", "Choosing the right type"],
+          "tools": ["Prometheus", "Python client library"],
+          "lab_task": "Expose a counter, a gauge, a histogram and a summary from a small Python service, generate traffic and explain what each one tells you.",
+          "deliverable": "Service code, metrics output and explanation",
+          "checks": [["Restart the service", "Counter resets and rate() handles it", "Query result"], ["Read the histogram buckets", "Request durations spread across buckets", "/metrics output"], ["Name the metrics", "Names follow conventions with units", "Code review"]],
+          "objectives": ["Understand metric types", "Name metrics well", "Choose types"]
+        },
+        {
+          "topic": "Querying with PromQL: Selectors, Rates and Aggregation",
+          "subtopics": ["Instant and range vectors", "Label matchers", "rate and irate", "increase", "sum, avg, max and by", "topk and bottomk", "Arithmetic between series", "Common query mistakes"],
+          "tools": ["Prometheus", "Grafana Explore"],
+          "lab_task": "Write queries for request rate per service, error percentage, CPU use per host, top five memory users and disk space left, and fix three broken queries.",
+          "deliverable": "Query library with results",
+          "checks": [["Calculate the error percentage", "Value matches the generated traffic", "Query result"], ["Find the top five memory users", "Five hosts returned", "Query result"], ["Fix the broken queries", "Each fixed with the reason noted", "Query library"]],
+          "objectives": ["Write PromQL", "Use rates and aggregation", "Avoid common mistakes"]
+        },
+        {
+          "topic": "Instrumenting Applications",
+          "subtopics": ["Client libraries", "RED metrics: rate, errors and duration", "Labels for endpoints and status codes", "Avoiding high-cardinality labels", "Middleware for web frameworks", "Exposing /metrics", "Business metrics", "Testing instrumentation"],
+          "tools": ["Prometheus client libraries", "Python or Java", "Grafana"],
+          "lab_task": "Instrument a web API with request counts, errors and durations per endpoint, add a business metric for orders placed and avoid putting user IDs in labels.",
+          "deliverable": "Instrumented code and example queries",
+          "checks": [["Call each endpoint", "Metrics per endpoint and status", "/metrics output"], ["Review labels", "No user IDs or other unbounded labels", "Code review"], ["Query orders per minute", "Business metric graphed", "Grafana screenshot"]],
+          "objectives": ["Instrument applications", "Use RED metrics", "Control cardinality"]
+        },
+        {
+          "topic": "Service Discovery for Dynamic Targets",
+          "subtopics": ["Why static targets do not scale", "File-based discovery", "DNS discovery", "Cloud discovery: EC2 and Azure", "Kubernetes discovery in outline", "Relabelling discovered targets", "Dropping unwanted targets", "Checking discovery results"],
+          "tools": ["Prometheus", "AWS EC2 or a simulated file source"],
+          "lab_task": "Replace static targets with file-based discovery, add EC2 discovery that keeps only instances tagged for monitoring, and relabel instance names from tags.",
+          "deliverable": "Discovery configuration and targets page screenshots",
+          "checks": [["Add a host to the discovery file", "Target appears without a reload", "Targets page"], ["Untag an instance", "Target dropped", "Targets page"], ["Check instance labels", "Names taken from tags", "Query result"]],
+          "objectives": ["Discover targets", "Relabel discovered targets", "Filter targets"]
+        },
+        {
+          "topic": "Grafana Data Sources and Explore",
+          "subtopics": ["Grafana organisations and users", "Adding data sources", "Prometheus, Loki and other data sources", "Explore for ad hoc queries", "Query inspector", "Mixed data sources", "Data source permissions", "Grafana configuration files"],
+          "tools": ["Grafana", "Prometheus", "Loki"],
+          "lab_task": "Add Prometheus and Loki data sources, investigate a spike in Explore by comparing metrics and logs side by side and use the query inspector to see the query sent.",
+          "deliverable": "Data source settings and an investigation note",
+          "checks": [["Split Explore view", "Metrics and logs shown for the same time", "Screenshot"], ["Use the query inspector", "Request and response shown", "Screenshot"], ["Explain the spike", "Cause found from metrics and logs", "Investigation note"]],
+          "objectives": ["Add data sources", "Investigate in Explore", "Inspect queries"]
+        },
+        {
+          "topic": "Building Grafana Dashboards",
+          "subtopics": ["Dashboard layout and rows", "Choosing what goes on a dashboard", "Time ranges and refresh", "Panel queries and legends", "Units, thresholds and colours", "Links between dashboards", "Annotations", "Sharing and exporting dashboards"],
+          "tools": ["Grafana"],
+          "lab_task": "Build a service dashboard with request rate, errors, latency and saturation at the top, host details below, deployment annotations and links to a host dashboard.",
+          "deliverable": "Dashboard JSON and screenshot",
+          "checks": [["Open the dashboard", "Key signals visible at the top", "Screenshot"], ["Add a deployment annotation", "Marker shown on all panels", "Screenshot"], ["Follow a link", "Opens the host dashboard with the same time range", "Screenshot"]],
+          "objectives": ["Build dashboards", "Lay out key signals", "Link dashboards"]
+        },
+        {
+          "topic": "Panel Types and Visualisation Choices",
+          "subtopics": ["Time series panels", "Stat and gauge panels", "Bar charts and bar gauges", "Tables and transformations", "Heatmaps for histograms", "State timeline", "Choosing the right panel", "Avoiding misleading panels"],
+          "tools": ["Grafana"],
+          "lab_task": "Show the same latency data as a time series, a heatmap and percentile lines, build a table of hosts with transformations and replace two misleading gauges.",
+          "deliverable": "Panels and a note on choices",
+          "checks": [["Build the heatmap", "Latency distribution visible", "Screenshot"], ["Build the host table", "Hosts with key values in columns", "Screenshot"], ["Replace the gauges", "Better panels chosen with reasons", "Note"]],
+          "objectives": ["Choose panel types", "Use transformations", "Visualise distributions"]
+        },
+        {
+          "topic": "Dashboard Templating and Filters",
+          "subtopics": ["Dashboard templates", "Query-based template options", "Chained filters", "Multi-value and All options", "Repeating panels and rows", "Ad hoc filters", "Template options in links", "Performance of templated dashboards"],
+          "tools": ["Grafana"],
+          "lab_task": "Template the service dashboard with environment, service and instance filters that depend on each other, repeat a panel per instance and pass filters in links.",
+          "deliverable": "Templated dashboard and screenshots",
+          "checks": [["Choose an environment", "Service list shows only services in it", "Screenshot"], ["Select several instances", "One panel per instance", "Screenshot"], ["Follow a link", "Filters carried to the next dashboard", "Screenshot"]],
+          "objectives": ["Template dashboards", "Chain filters", "Repeat panels"]
+        },
+        {
+          "topic": "Alerting Rules in Prometheus",
+          "subtopics": ["What makes a good alert", "Alerting rule syntax", "for durations", "Labels and annotations", "Severity levels", "Alerting on symptoms rather than causes", "Testing rules with promtool", "Alert states"],
+          "tools": ["Prometheus", "promtool"],
+          "lab_task": "Write alerts for a down target, high error rate, high latency and disk filling within four hours, test them with promtool unit tests and trigger each one.",
+          "deliverable": "Rule files, tests and alert screenshots",
+          "checks": [["Run promtool test rules", "All tests pass", "promtool output"], ["Stop a target", "Alert fires after the for duration", "Alerts page"], ["Fill a disk quickly", "Predictive disk alert fires", "Alerts page"]],
+          "objectives": ["Write alerting rules", "Test rules", "Alert on symptoms"]
+        },
+        {
+          "topic": "Routing Notifications with Alertmanager",
+          "subtopics": ["Alertmanager role", "Routes and receivers", "Grouping", "Inhibition", "Silences", "Email, Slack and Microsoft Teams receivers", "Repeat intervals", "Notification templates"],
+          "tools": ["Alertmanager", "Slack or Microsoft Teams"],
+          "lab_task": "Route critical alerts to an on-call channel and warnings to a team channel, group alerts by service, stop host alerts when the whole data centre is down and silence alerts during maintenance.",
+          "deliverable": "Alertmanager configuration and notification screenshots",
+          "checks": [["Fire several alerts for one service", "One grouped notification", "Notification screenshot"], ["Fire the data centre alert", "Host alerts inhibited", "Alertmanager UI"], ["Add a silence", "No notifications during the silence", "Alertmanager UI"]],
+          "objectives": ["Route alerts", "Group and inhibit", "Use silences"]
+        },
+        {
+          "topic": "Recording Rules and Query Performance",
+          "subtopics": ["Why recording rules", "Naming recording rules", "Pre-computing expensive queries", "Rule groups and intervals", "Using recorded series in dashboards and alerts", "Query performance in Prometheus", "Query limits", "Checking rule evaluation time"],
+          "tools": ["Prometheus", "Grafana"],
+          "lab_task": "Find the slowest dashboard queries, replace them with recording rules, point the dashboard and alerts at the recorded series and compare load times.",
+          "deliverable": "Recording rules and timing comparison",
+          "checks": [["Compare dashboard load times", "Faster with recorded series", "Timing table"], ["Check rule evaluation", "Evaluation time within the interval", "Rules page"], ["Review names", "Names follow level:metric:operations", "Rule file"]],
+          "objectives": ["Write recording rules", "Speed up dashboards", "Name rules well"]
+        },
+        {
+          "topic": "Black-Box Monitoring with the Blackbox Exporter",
+          "subtopics": ["Probing from the outside", "HTTP, TCP, ICMP and DNS probes", "TLS certificate expiry", "Probe configuration modules", "Multi-target exporter pattern", "Probing from several locations", "Alerting on probes", "Synthetic monitoring compared"],
+          "tools": ["Blackbox exporter", "Prometheus"],
+          "lab_task": "Probe three websites over HTTP, a database port over TCP and DNS resolution, alert on failures and on certificates expiring within 14 days.",
+          "deliverable": "Blackbox configuration, alerts and dashboard",
+          "checks": [["Break a website", "Probe fails and an alert fires", "Alerts page"], ["Probe a short-lived certificate", "Expiry alert fires", "Alerts page"], ["Graph probe latency", "Response time per site shown", "Grafana screenshot"]],
+          "objectives": ["Probe services", "Monitor certificates", "Alert on outside failures"]
+        },
+        {
+          "topic": "Monitoring Databases and Middleware",
+          "subtopics": ["Exporters for PostgreSQL, MySQL and Redis", "Key database metrics", "Connection pools and slow queries", "Message queues: RabbitMQ and Kafka exporters", "Web servers: Nginx exporter", "Community dashboards", "Exporter credentials", "Database alerts"],
+          "tools": ["postgres_exporter", "mysqld_exporter", "redis_exporter", "Grafana"],
+          "lab_task": "Monitor PostgreSQL, Redis and Nginx with exporters, import and adjust community dashboards and add alerts for connection saturation and replication lag.",
+          "deliverable": "Exporter configuration, dashboards and alerts",
+          "checks": [["Saturate database connections", "Connection alert fires", "Alerts page"], ["Review the imported dashboard", "Panels fixed for the local labels", "Screenshot"], ["Store exporter credentials", "Credentials read from files or environment", "Configuration review"]],
+          "objectives": ["Monitor databases", "Monitor middleware", "Use community dashboards"]
+        },
+        {
+          "topic": "Monitoring Docker Containers",
+          "subtopics": ["Container metrics", "cAdvisor", "Docker daemon metrics", "Container labels in Prometheus", "CPU throttling and memory limits", "Restart loops", "Container dashboards", "Moving to Kubernetes monitoring"],
+          "tools": ["cAdvisor", "Docker", "Prometheus", "Grafana"],
+          "lab_task": "Monitor containers with cAdvisor, find a container being CPU-throttled and one hitting its memory limit, and alert on restart loops.",
+          "deliverable": "Configuration, dashboard and alerts",
+          "checks": [["Find the throttled container", "Throttling shown in metrics", "Query result"], ["Find the memory-limited container", "Usage near the limit shown", "Query result"], ["Cause a restart loop", "Alert fires", "Alerts page"]],
+          "objectives": ["Monitor containers", "Find resource limits", "Alert on container problems"]
+        },
+        {
+          "topic": "Logs in Grafana with Loki",
+          "subtopics": ["Why logs alongside metrics", "Loki architecture", "Promtail and Grafana Alloy agents", "Labels in Loki", "LogQL queries", "Metrics from logs", "Linking logs and metrics in dashboards", "Log retention"],
+          "tools": ["Loki", "Grafana Alloy", "Grafana"],
+          "lab_task": "Ship container and system logs to Loki, query errors with LogQL, turn error counts into a graph and link from a metrics panel to the matching logs.",
+          "deliverable": "Agent configuration, LogQL queries and dashboard",
+          "checks": [["Query errors for one service", "Error lines returned", "Explore screenshot"], ["Graph errors from logs", "Error rate panel built from LogQL", "Screenshot"], ["Click from metrics to logs", "Logs for the same service and time shown", "Screenshot"]],
+          "objectives": ["Collect logs with Loki", "Query with LogQL", "Link logs to metrics"]
+        },
+        {
+          "topic": "Provisioning Dashboards and Data Sources as Code",
+          "subtopics": ["Why provision instead of clicking", "Grafana provisioning files", "Dashboard JSON in Git", "Folders and permissions", "Provisioning alert rules", "Environment-specific settings", "Reviewing dashboard changes", "Backups of Grafana"],
+          "tools": ["Grafana provisioning", "Git", "Docker Compose"],
+          "lab_task": "Store data sources and dashboards in Git, provision them on start-up, rebuild Grafana from scratch and get the same dashboards back.",
+          "deliverable": "Provisioning files and repository",
+          "checks": [["Rebuild Grafana", "All dashboards and data sources back", "Screenshot"], ["Change a dashboard in Git", "Change appears after reload", "Screenshot"], ["Review the pull request", "Dashboard change reviewed as code", "Pull request"]],
+          "objectives": ["Provision Grafana", "Keep dashboards in Git", "Rebuild reliably"]
+        },
+        {
+          "topic": "Beginner Capstone: Monitoring a Web Application Stack",
+          "subtopics": ["Plan", "Collect", "Visualise", "Alert"],
+          "tools": ["Prometheus", "Grafana", "Alertmanager", "Loki", "Exporters", "Docker Compose"],
+          "lab_task": "Monitor a web app with a database and cache: exporters, instrumentation, blackbox probes, Loki logs, templated dashboards, alerts routed to chat and provisioning in Git, then handle three injected failures live.",
+          "deliverable": "Repository, dashboards, alert rules and demo recording",
+          "checks": [["Inject a database failure", "Alert received and cause visible on the dashboard", "Demo recording"], ["Rebuild from Git", "Whole stack and dashboards return", "Demo recording"], ["Review alerts", "Each alert has a runbook note", "Rule files"]],
+          "objectives": ["Combine the beginner topics in one stack", "Monitor an application end to end", "Respond to failures"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who run monitoring for teams. Covers advanced PromQL, kube-prometheus-stack, the Prometheus Operator, SLOs and burn-rate alerts, alert design and runbooks, Alertmanager high availability, Grafana alerting, long-term storage with Thanos and Mimir, cardinality, Prometheus performance, Tempo and OpenTelemetry, correlation, dashboards as code, Grafana access control, synthetic monitoring, custom exporters, cloud data sources, business dashboards and securing the stack.",
+      "prerequisites": ["Runs Prometheus and Grafana with exporters and alerts", "Writes PromQL with rates and aggregation", "Knows Kubernetes basics"],
+      "outcomes": ["Monitor Kubernetes and applications with SLO-based alerting", "Scale storage and control cardinality", "Correlate metrics, logs and traces", "Manage dashboards, access and monitoring security as code"],
+      "days": [
+        {
+          "topic": "Advanced PromQL: Histograms, Joins and Prediction",
+          "subtopics": ["histogram_quantile", "Aggregating histograms correctly", "Vector matching: on, ignoring, group_left", "Joining with info metrics", "Subqueries", "predict_linear and deriv", "absent and absent_over_time", "Query debugging"],
+          "tools": ["Prometheus", "Grafana Explore"],
+          "lab_task": "Calculate p95 and p99 latency per service from histograms, join metrics with info metrics to add team names, predict disk exhaustion and detect missing metrics.",
+          "deliverable": "Query library with explanations",
+          "checks": [["Aggregate histograms before the quantile", "Correct p99 across instances", "Query result"], ["Join with group_left", "Team names added to metrics", "Query result"], ["Detect a missing metric", "absent alert fires", "Alerts page"]],
+          "objectives": ["Use histograms correctly", "Join series", "Predict and detect gaps"]
+        },
+        {
+          "topic": "Kubernetes Monitoring with kube-prometheus-stack",
+          "subtopics": ["What the stack installs", "kube-state-metrics", "Kubelet and cAdvisor metrics", "Control plane monitoring", "Default dashboards and alerts", "Helm values", "Resource use of the stack", "Tuning default alerts"],
+          "tools": ["Kubernetes", "Helm", "kube-prometheus-stack"],
+          "lab_task": "Install kube-prometheus-stack with Helm, review default dashboards, find a pod with no resource limits and one in a crash loop, and tune two noisy default alerts.",
+          "deliverable": "Helm values, findings and tuned alerts",
+          "checks": [["Find pods without limits", "Pods listed from kube-state-metrics", "Query result"], ["Find the crash-looping pod", "Alert fires for it", "Alerts page"], ["Tune noisy alerts", "Fewer false alerts over a day", "Alert history"]],
+          "objectives": ["Monitor Kubernetes", "Use kube-state-metrics", "Tune default alerts"]
+        },
+        {
+          "topic": "Prometheus Operator: ServiceMonitors and PrometheusRules",
+          "subtopics": ["Custom resources", "ServiceMonitor and PodMonitor", "PrometheusRule", "AlertmanagerConfig", "Selecting monitors by label", "Team-owned monitoring configuration", "Scrape configuration through the operator", "Troubleshooting missing targets"],
+          "tools": ["Prometheus Operator", "Kubernetes"],
+          "lab_task": "Add a ServiceMonitor and PrometheusRule for an application in its own namespace, route its alerts with AlertmanagerConfig and fix a ServiceMonitor that selects nothing.",
+          "deliverable": "Manifests and target and alert screenshots",
+          "checks": [["Apply the ServiceMonitor", "Application targets UP", "Targets page"], ["Apply the PrometheusRule", "Rules loaded", "Rules page"], ["Fix the empty ServiceMonitor", "Label mismatch found and fixed", "Troubleshooting notes"]],
+          "objectives": ["Use operator resources", "Let teams own monitoring", "Fix discovery problems"]
+        },
+        {
+          "topic": "Service Level Objectives and Burn-Rate Alerts",
+          "subtopics": ["SLIs, SLOs and SLAs", "Choosing good SLIs", "Error budgets", "Multi-window, multi-burn-rate alerts", "SLO recording rules", "Sloth or Pyrra for generating rules", "SLO dashboards", "Using error budgets in decisions"],
+          "tools": ["Prometheus", "Sloth or Pyrra", "Grafana"],
+          "lab_task": "Define availability and latency SLOs for an API, generate burn-rate rules, build an error budget dashboard and inject errors to see fast and slow burn alerts.",
+          "deliverable": "SLO definitions, rules and dashboard",
+          "checks": [["Inject a burst of errors", "Fast-burn alert fires", "Alerts page"], ["Inject a slow trickle of errors", "Slow-burn alert fires later", "Alerts page"], ["Read the budget dashboard", "Remaining error budget shown", "Screenshot"]],
+          "objectives": ["Define SLOs", "Alert on burn rate", "Track error budgets"]
+        },
+        {
+          "topic": "Alert Design, Runbooks and On-Call Hygiene",
+          "subtopics": ["Alert fatigue", "Actionable alerts", "Severity and paging rules", "Runbooks linked from alerts", "Reviewing alert history", "Deleting and merging alerts", "On-call handovers", "Measuring alert quality"],
+          "tools": ["Prometheus", "Alertmanager", "Runbook templates"],
+          "lab_task": "Review a month of alert history, delete or merge alerts that nobody acted on, write runbooks for the remaining pages and measure the drop in pages.",
+          "deliverable": "Alert review, runbooks and before and after counts",
+          "checks": [["Review alert history", "Alerts classified as useful or noise", "Review sheet"], ["Link runbooks", "Every paging alert has a runbook link", "Rule files"], ["Compare page counts", "Fewer pages with no missed incidents", "Comparison table"]],
+          "objectives": ["Design actionable alerts", "Write runbooks", "Reduce alert fatigue"]
+        },
+        {
+          "topic": "Alertmanager High Availability and Advanced Routing",
+          "subtopics": ["Alertmanager clustering", "Deduplication across replicas", "Nested routes", "Matchers and continue", "Time intervals for business hours", "PagerDuty and Opsgenie receivers", "Webhooks for automation", "Testing routing with amtool"],
+          "tools": ["Alertmanager", "amtool", "PagerDuty or Opsgenie"],
+          "lab_task": "Run three clustered Alertmanagers, route by team and severity with business-hours rules, send critical alerts to an on-call tool and test routes with amtool.",
+          "deliverable": "Configuration, amtool tests and notification screenshots",
+          "checks": [["Stop one Alertmanager", "Notifications still sent once", "Notification log"], ["Test routes with amtool", "Each alert reaches the expected receiver", "amtool output"], ["Fire a warning out of hours", "Held until business hours", "Notification log"]],
+          "objectives": ["Run Alertmanager highly available", "Route by team and time", "Test routing"]
+        },
+        {
+          "topic": "Grafana Alerting",
+          "subtopics": ["Grafana-managed and data source-managed alerts", "Alert rules across data sources", "Contact points", "Notification policies", "Silences and mute timings", "Alerting on logs and SQL data", "Alert state history", "Choosing Grafana or Prometheus alerting"],
+          "tools": ["Grafana Alerting", "Loki", "PostgreSQL data source"],
+          "lab_task": "Create Grafana alerts on a Loki error query and a SQL business metric, route them with notification policies and write guidance on when to use Grafana or Prometheus alerting.",
+          "deliverable": "Alert rules, policies and guidance",
+          "checks": [["Trigger the Loki alert", "Error-log alert delivered to the team contact point", "Contact point log"], ["Trigger the SQL alert", "Business metric alert delivered with the query value", "Contact point log"], ["Write the guidance", "Clear rules for each alerting system", "Guidance note"]],
+          "objectives": ["Use Grafana alerting", "Alert on logs and SQL", "Choose an alerting system"]
+        },
+        {
+          "topic": "Long-Term Storage with Thanos and Grafana Mimir",
+          "subtopics": ["Prometheus storage limits", "Remote write", "Thanos sidecar, store and query", "Grafana Mimir architecture", "Object storage for metrics", "Downsampling", "Global queries across clusters", "Choosing Thanos or Mimir"],
+          "tools": ["Thanos", "Grafana Mimir", "MinIO or S3"],
+          "lab_task": "Keep a year of metrics by sending two Prometheus servers to Mimir with remote write, query both clusters from one Grafana data source and compare with a Thanos setup.",
+          "deliverable": "Configuration, global queries and comparison",
+          "checks": [["Query across clusters", "Series from both clusters in one query", "Grafana screenshot"], ["Query old data", "Data beyond local retention returned", "Query result"], ["Write the comparison", "Trade-offs of Thanos and Mimir stated", "Comparison note"]],
+          "objectives": ["Store metrics long term", "Query globally", "Choose a storage system"]
+        },
+        {
+          "topic": "Cardinality Management",
+          "subtopics": ["What cardinality is", "Finding high-cardinality metrics", "TSDB status page", "Dropping and relabelling labels", "metric_relabel_configs", "Limits per scrape", "Working with teams on label design", "Cardinality in long-term storage"],
+          "tools": ["Prometheus", "mimirtool", "Grafana"],
+          "lab_task": "Find the five metrics with most series, drop an unbounded label with metric relabelling, set scrape limits and show memory use falling.",
+          "deliverable": "Cardinality report, relabel rules and memory comparison",
+          "checks": [["Read TSDB status", "Top series by metric listed", "TSDB status page"], ["Drop the unbounded label", "Series count falls", "Query result"], ["Compare memory", "Prometheus memory lower", "Memory graph"]],
+          "objectives": ["Measure cardinality", "Reduce series", "Protect Prometheus"]
+        },
+        {
+          "topic": "Prometheus Performance, Scaling and Retention",
+          "subtopics": ["Sizing Prometheus", "Memory and CPU drivers", "Sharding with hashmod", "Federation", "Agent mode", "Retention by time and size", "WAL and compaction", "Monitoring Prometheus itself"],
+          "tools": ["Prometheus", "Grafana"],
+          "lab_task": "Size Prometheus for 2 million series, shard scraping across two servers, run a remote site in agent mode and build a dashboard of Prometheus health.",
+          "deliverable": "Sizing estimate, sharded configuration and health dashboard",
+          "checks": [["Shard targets", "Each server scrapes half the targets", "Targets pages"], ["Run agent mode", "Remote site metrics arrive centrally", "Query result"], ["Build the health dashboard", "Ingestion, memory and rule timing shown", "Screenshot"]],
+          "objectives": ["Size Prometheus", "Shard and federate", "Monitor Prometheus"]
+        },
+        {
+          "topic": "Distributed Tracing with Tempo and OpenTelemetry",
+          "subtopics": ["Why traces", "Spans and context propagation", "OpenTelemetry SDKs", "The OpenTelemetry Collector", "Grafana Tempo", "TraceQL", "Sampling", "Service graphs from traces"],
+          "tools": ["OpenTelemetry", "Grafana Tempo", "Grafana Alloy"],
+          "lab_task": "Instrument two services with OpenTelemetry, send traces through a collector to Tempo, find a slow request with TraceQL and view the service graph.",
+          "deliverable": "Instrumentation, collector configuration and trace screenshots",
+          "checks": [["Follow a request", "One trace across both services", "Tempo screenshot"], ["Find slow requests with TraceQL", "Requests over 500 ms listed", "Query result"], ["View the service graph", "Services and call rates shown", "Screenshot"]],
+          "objectives": ["Collect traces", "Query traces", "Use service graphs"]
+        },
+        {
+          "topic": "Correlating Metrics, Logs and Traces",
+          "subtopics": ["Exemplars", "Trace IDs in logs", "Derived fields in Loki", "Trace to logs and trace to metrics", "Correlation in dashboards", "Investigations from alerts", "Labels shared across signals", "An investigation workflow"],
+          "tools": ["Prometheus", "Loki", "Tempo", "Grafana"],
+          "lab_task": "Add exemplars to latency histograms, put trace IDs in logs, link all three signals in Grafana and investigate a latency alert from metric to trace to log.",
+          "deliverable": "Configuration and an investigation walkthrough",
+          "checks": [["Click an exemplar", "Opens the matching trace", "Screenshot"], ["Jump from trace to logs", "Logs for that trace shown", "Screenshot"], ["Investigate the alert", "Root cause found using all three signals", "Investigation note"]],
+          "objectives": ["Link signals", "Investigate quickly", "Share labels across signals"]
+        },
+        {
+          "topic": "Dashboards as Code with Grafonnet and Terraform",
+          "subtopics": ["Problems with hand-built dashboards", "Grafonnet and Jsonnet", "Grafana Foundation SDK", "Terraform Grafana provider", "Reusable panel libraries", "Dashboard standards", "CI for dashboards", "Migrating existing dashboards"],
+          "tools": ["Grafonnet", "Terraform", "GitHub Actions"],
+          "lab_task": "Generate service dashboards for five services from one Jsonnet library, manage folders, data sources and permissions with Terraform and deploy them through CI.",
+          "deliverable": "Jsonnet library, Terraform code and CI run",
+          "checks": [["Add a sixth service", "Dashboard generated with no hand edits", "Grafana screenshot"], ["Run terraform plan", "Only intended changes shown", "Plan output"], ["Merge a change", "CI deploys dashboards", "CI log"]],
+          "objectives": ["Generate dashboards", "Manage Grafana with Terraform", "Deploy through CI"]
+        },
+        {
+          "topic": "Grafana Users, Teams and Access Control",
+          "subtopics": ["Organisations, teams and folders", "Roles and permissions", "Single sign-on with OAuth and SAML", "Team sync", "Data source permissions", "Service accounts", "Public and shared dashboards", "Auditing access"],
+          "tools": ["Grafana", "Keycloak or Entra ID"],
+          "lab_task": "Connect Grafana to single sign-on, map groups to teams, give each team its own folder and data source access and create a service account for automation.",
+          "deliverable": "SSO settings, team mappings and access tests",
+          "checks": [["Log in as a team member", "Only their folders visible", "Screenshot"], ["Query a restricted data source", "Access denied", "Screenshot"], ["Use the service account", "Automation works with limited rights", "API output"]],
+          "objectives": ["Control Grafana access", "Use single sign-on", "Use service accounts"]
+        },
+        {
+          "topic": "Synthetic Monitoring and User Journeys",
+          "subtopics": ["Synthetic checks compared with real users", "Grafana Synthetic Monitoring and k6", "Scripted browser checks", "Multi-step API checks", "Probe locations", "SLOs from synthetic data", "Alerting on journeys", "Real user monitoring in brief"],
+          "tools": ["k6", "Grafana Synthetic Monitoring", "Blackbox exporter"],
+          "lab_task": "Script a login-and-checkout journey with k6, run it from two locations, alert when it fails and add its success rate to the SLO dashboard.",
+          "deliverable": "k6 scripts, checks and dashboard",
+          "checks": [["Break checkout", "Journey fails and an alert fires", "Alerts page"], ["Compare locations", "Latency per location shown", "Dashboard"], ["Add to the SLO dashboard", "Journey success rate shown", "Screenshot"]],
+          "objectives": ["Monitor user journeys", "Script checks", "Use synthetic data in SLOs"]
+        },
+        {
+          "topic": "Writing Custom Exporters",
+          "subtopics": ["When to write an exporter", "Exporter design rules", "Collectors in Python or Go", "Handling slow sources", "Naming and labels", "Error metrics for the exporter itself", "Packaging and running the exporter", "Testing exporters"],
+          "tools": ["Python or Go client library", "Docker"],
+          "lab_task": "Write an exporter that reads queue sizes from an internal API, exposes them with good names and labels, reports its own scrape errors and runs as a container.",
+          "deliverable": "Exporter code, image and tests",
+          "checks": [["Scrape the exporter", "Queue metrics returned", "/metrics output"], ["Break the source API", "Exporter error metric increases", "Query result"], ["Run the tests", "All pass", "Test output"]],
+          "objectives": ["Write exporters", "Handle failures", "Package exporters"]
+        },
+        {
+          "topic": "Monitoring Cloud Services in Grafana",
+          "subtopics": ["CloudWatch data source", "Azure Monitor data source", "Google Cloud Monitoring data source", "Cloud exporters such as YACE", "Cost of cloud metric APIs", "Combining cloud and Prometheus metrics", "Cloud dashboards", "Alerting on cloud services"],
+          "tools": ["Grafana", "CloudWatch", "Azure Monitor", "YACE"],
+          "lab_task": "Add CloudWatch and Azure Monitor data sources with least-privilege roles, build a dashboard combining managed database metrics with application metrics and alert on database CPU.",
+          "deliverable": "Data source settings, dashboard and alert",
+          "checks": [["Query CloudWatch", "Database metrics returned", "Explore screenshot"], ["Review the role", "Read-only monitoring permissions only", "Role policy"], ["Combine sources", "Cloud and Prometheus metrics on one dashboard", "Screenshot"]],
+          "objectives": ["Monitor cloud services", "Use least privilege", "Combine data sources"]
+        },
+        {
+          "topic": "Business and Product Dashboards",
+          "subtopics": ["Metrics business teams care about", "SQL data sources", "Combining business and technical metrics", "Dashboards for managers", "Big screen displays", "Reporting and PDF exports", "Annotations for business events", "Avoiding vanity metrics"],
+          "tools": ["Grafana", "PostgreSQL data source", "Prometheus"],
+          "lab_task": "Build a dashboard for an operations manager combining orders from SQL with checkout latency and errors from Prometheus, with business event annotations and a weekly report.",
+          "deliverable": "Dashboard and report",
+          "checks": [["Show orders and latency together", "Effect of slow checkout on orders visible", "Screenshot"], ["Send the weekly report", "Report delivered", "Email or report output"], ["Review with a manager", "Feedback taken and changes made", "Review notes"]],
+          "objectives": ["Build business dashboards", "Combine business and technical data", "Report to managers"]
+        },
+        {
+          "topic": "Securing the Monitoring Stack",
+          "subtopics": ["Threats to monitoring systems", "TLS and authentication for Prometheus and exporters", "Protecting Grafana", "Secrets in configuration", "Network access to exporters", "Sensitive data in metrics and logs", "Updating components", "Monitoring access logs"],
+          "tools": ["Prometheus", "Grafana", "Exporters", "TLS certificates"],
+          "lab_task": "Turn on TLS and basic authentication for Prometheus and exporters, move secrets out of configuration files, restrict exporter ports and remove personal data from logs.",
+          "deliverable": "Secured configuration and test results",
+          "checks": [["Scrape without credentials", "Refused", "Prometheus target error"], ["Search configuration for secrets", "No plain-text secrets", "Configuration review"], ["Search logs for email addresses", "Personal data removed", "Loki query result"]],
+          "objectives": ["Secure monitoring", "Protect secrets", "Remove sensitive data"]
+        },
+        {
+          "topic": "Intermediate Capstone: SLO-Driven Monitoring for a Kubernetes Platform",
+          "subtopics": ["Requirements", "Build", "Correlate", "Review"],
+          "tools": ["kube-prometheus-stack", "Mimir", "Loki", "Tempo", "Grafana", "Terraform"],
+          "lab_task": "Build monitoring for a Kubernetes platform with three services: operator-managed scraping, SLOs with burn-rate alerts, long-term storage, logs and traces linked, dashboards as code and SSO, then investigate an injected incident from alert to root cause.",
+          "deliverable": "Repository, dashboards, SLO definitions and incident walkthrough",
+          "checks": [["Inject the incident", "Burn-rate alert fires and the cause is found through traces", "Demo recording"], ["Rebuild Grafana from code", "Dashboards and access return", "Demo recording"], ["Present the design", "Choices and costs explained", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Monitor by SLO", "Investigate with linked signals"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For SREs, platform engineers and observability leads. Covers observability architecture, multi-tenant Mimir, Loki and Tempo at scale, highly available Prometheus, the OpenTelemetry Collector, continuous profiling, eBPF instrumentation, SLO programmes, capacity planning, anomaly detection, incident response, observability cost, Grafana plugins, observability as a platform, migrations, metric governance, compliance, testing observability and troubleshooting the stack.",
+      "prerequisites": ["Runs Prometheus, Grafana, Loki and Tempo for several teams", "Writes advanced PromQL and SLO rules", "Manages Kubernetes and infrastructure as code"],
+      "outcomes": ["Design and run multi-tenant observability at scale", "Add profiling and eBPF signals and run SLO programmes", "Control observability cost and govern metrics", "Lead incident response and migrations"],
+      "days": [
+        {
+          "topic": "Observability Architecture for Large Organisations",
+          "subtopics": ["Requirements: scale, tenants, retention and cost", "Central, federated and hybrid models", "Self-hosted compared with Grafana Cloud", "Data flows for metrics, logs, traces and profiles", "Multi-region design", "Failure modes of observability systems", "Architecture decision records", "Reviewing the architecture"],
+          "tools": ["Architecture diagrams", "Grafana Cloud or self-hosted LGTM stack"],
+          "lab_task": "Design observability for a company with 200 services in three regions, choose self-hosted or cloud with costs, document data flows and failure modes and defend the design.",
+          "deliverable": "Architecture design, decision records and review notes",
+          "checks": [["Review failure modes", "Monitoring survives a region loss", "Design review"], ["Compare hosting options", "Cost and effort for both", "Decision record"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design observability at scale", "Choose hosting models", "Record decisions"]
+        },
+        {
+          "topic": "Running Multi-Tenant Mimir, Loki and Tempo at Scale",
+          "subtopics": ["Microservices deployment modes", "Tenants and isolation", "Per-tenant limits", "Ingestion and query paths", "Caching", "Object storage design", "Upgrades without downtime", "Capacity for each component"],
+          "tools": ["Grafana Mimir", "Loki", "Tempo", "Helm", "Kubernetes"],
+          "lab_task": "Deploy Mimir, Loki and Tempo in microservices mode with three tenants, set per-tenant limits, load test ingestion and run a rolling upgrade with no data loss.",
+          "deliverable": "Helm values, limits, load test results and upgrade log",
+          "checks": [["Exceed a tenant limit", "That tenant throttled and others unaffected", "Metrics and logs"], ["Load test ingestion", "Target rate reached", "Load test results"], ["Run the rolling upgrade", "No gaps in data", "Query result"]],
+          "objectives": ["Run the LGTM stack at scale", "Isolate tenants", "Upgrade safely"]
+        },
+        {
+          "topic": "Highly Available Prometheus and Remote Write at Scale",
+          "subtopics": ["HA pairs and deduplication", "Remote write tuning", "Queue configuration and back-pressure", "Agent mode fleets", "Grafana Alloy as a collector", "Handling network partitions", "Scrape and write failures", "Testing data completeness"],
+          "tools": ["Prometheus", "Grafana Alloy", "Mimir"],
+          "lab_task": "Run HA Prometheus pairs with deduplication in Mimir, tune remote write for a 500,000 samples per second load, partition the network and confirm data completeness afterwards.",
+          "deliverable": "Configuration, tuning results and completeness test",
+          "checks": [["Kill one replica", "No gaps after deduplication", "Query result"], ["Tune remote write", "Lag stays low at the target load", "Remote write metrics"], ["Restore after a partition", "Buffered data sent and complete", "Completeness test"]],
+          "objectives": ["Run Prometheus highly available", "Tune remote write", "Prove completeness"]
+        },
+        {
+          "topic": "OpenTelemetry Collector Pipelines",
+          "subtopics": ["Receivers, processors and exporters", "Agent and gateway deployments", "Batching and memory limits", "Tail-based sampling", "Attribute processing and redaction", "Routing by tenant", "Collector scaling", "Monitoring the collector"],
+          "tools": ["OpenTelemetry Collector", "Grafana Alloy", "Kubernetes"],
+          "lab_task": "Build an agent and gateway collector pipeline that redacts personal data, tail-samples traces keeping all errors, routes data by tenant and scales under load.",
+          "deliverable": "Collector configuration and test results",
+          "checks": [["Send a trace with an error", "Kept by tail sampling", "Tempo query"], ["Send personal data", "Redacted before storage", "Stored data sample"], ["Raise load", "Collectors scale and drop nothing", "Collector metrics"]],
+          "objectives": ["Build collector pipelines", "Sample and redact", "Scale collectors"]
+        },
+        {
+          "topic": "Continuous Profiling with Pyroscope",
+          "subtopics": ["Why profiling in production", "CPU, memory and lock profiles", "Pyroscope architecture", "Instrumenting with SDKs and eBPF", "Flame graphs and comparisons", "Linking profiles to traces", "Overhead", "Finding savings with profiles"],
+          "tools": ["Grafana Pyroscope", "Grafana"],
+          "lab_task": "Profile three services continuously, compare flame graphs before and after a release, link a slow trace to its profile and fix the hot spot.",
+          "deliverable": "Profiling setup, comparison and fix",
+          "checks": [["Compare releases", "New hot spot found in the diff view", "Flame graph"], ["Link a trace to a profile", "Profile for the slow span shown", "Screenshot"], ["Fix the hot spot", "CPU use lower after the fix", "Metrics comparison"]],
+          "objectives": ["Profile in production", "Compare releases", "Link profiles and traces"]
+        },
+        {
+          "topic": "eBPF-Based Instrumentation with Beyla",
+          "subtopics": ["Instrumentation without code changes", "Grafana Beyla", "HTTP and gRPC metrics from eBPF", "Traces from eBPF", "Network metrics", "Kernel and privilege requirements", "Limits of eBPF instrumentation", "Mixing eBPF and SDK instrumentation"],
+          "tools": ["Grafana Beyla", "Kubernetes", "Prometheus"],
+          "lab_task": "Add RED metrics and traces to an uninstrumented legacy service with Beyla, compare with SDK instrumentation on another service and list what eBPF could not capture.",
+          "deliverable": "Beyla configuration, comparison and limits list",
+          "checks": [["Query the legacy service", "RED metrics present without code changes", "Query result"], ["Compare with SDK data", "Differences recorded", "Comparison table"], ["List limits", "Missing details named", "Limits list"]],
+          "objectives": ["Instrument with eBPF", "Compare approaches", "Know the limits"]
+        },
+        {
+          "topic": "Running an SLO Programme Across Teams",
+          "subtopics": ["SLO ownership", "SLO reviews", "Error budget policies", "Reporting SLOs to leadership", "SLOs for platforms and dependencies", "Tooling for many SLOs", "Changing SLOs over time", "Common programme failures"],
+          "tools": ["Pyrra or Grafana SLO", "Grafana", "Policy templates"],
+          "lab_task": "Set up SLOs for ten services with owners, write an error budget policy, run a role-play SLO review where a team has spent its budget and produce a leadership report.",
+          "deliverable": "SLO catalogue, policy, review notes and report",
+          "checks": [["Review the catalogue", "Every service has an owner and SLO", "SLO catalogue"], ["Run the review", "Agreed action for the spent budget", "Review notes"], ["Produce the report", "SLO status by service and trend", "Leadership report"]],
+          "objectives": ["Run SLO programmes", "Apply error budget policies", "Report reliability"]
+        },
+        {
+          "topic": "Capacity Planning with Metrics",
+          "subtopics": ["Capacity signals", "Forecasting with predict_linear and external tools", "Seasonality", "Headroom targets", "Cost of headroom", "Capacity reviews", "Linking business growth to capacity", "Capacity dashboards"],
+          "tools": ["Prometheus", "Grafana", "Python"],
+          "lab_task": "Forecast CPU, memory and storage for a cluster for six months including seasonal peaks, set headroom targets and present scaling dates and costs.",
+          "deliverable": "Forecasts, capacity dashboard and plan",
+          "checks": [["Forecast with seasonality", "Peak periods included", "Forecast chart"], ["Set headroom", "Target and its cost stated", "Capacity plan"], ["Present scaling dates", "Dates and costs for each resource", "Presentation"]],
+          "objectives": ["Forecast capacity", "Set headroom", "Plan scaling"]
+        },
+        {
+          "topic": "Anomaly Detection and Forecasting in Grafana",
+          "subtopics": ["Static thresholds and their limits", "Statistical baselines in PromQL", "Grafana ML forecasting", "Outlier detection across instances", "Seasonal patterns", "Reducing false positives", "Alerting on anomalies", "When anomaly alerts help"],
+          "tools": ["Grafana ML or Prometheus baselines", "Grafana Alerting"],
+          "lab_task": "Build anomaly alerts for order volume with seasonal baselines, detect an outlier instance in a group, compare with static thresholds over a month of data and count false alerts.",
+          "deliverable": "Baseline rules, outlier detection and comparison",
+          "checks": [["Inject a drop in orders", "Anomaly alert fires", "Alerts page"], ["Detect the outlier", "Bad instance found", "Query result"], ["Compare false alerts", "Counts for both methods over the month", "Comparison table"]],
+          "objectives": ["Detect anomalies", "Use baselines", "Reduce false alerts"]
+        },
+        {
+          "topic": "Incident Response with Grafana IRM",
+          "subtopics": ["Incident roles", "On-call schedules and escalation", "Grafana OnCall and Incident", "Status pages", "Incident timelines from data", "Post-incident reviews", "Action tracking", "Measuring response: MTTA and MTTR"],
+          "tools": ["Grafana IRM", "Grafana", "Slack or Microsoft Teams"],
+          "lab_task": "Set up on-call schedules and escalations, run a simulated incident through declaration, roles, timeline and status updates, and write the post-incident review with actions.",
+          "deliverable": "On-call configuration, incident record and review",
+          "checks": [["Fire a critical alert", "On-call engineer paged and escalated when unacknowledged", "Escalation log"], ["Build the timeline", "Events and data in order", "Incident timeline"], ["Write the review", "Causes and actions with owners", "Post-incident review"]],
+          "objectives": ["Run incident response", "Use on-call tooling", "Learn from incidents"]
+        },
+        {
+          "topic": "Observability Cost Management",
+          "subtopics": ["Where observability cost comes from", "Measuring usage by team", "Adaptive metrics and aggregation", "Log volume reduction", "Trace sampling for cost", "Retention tiers", "Showback and chargeback", "Cost reviews"],
+          "tools": ["Grafana Cloud usage data or Mimir and Loki metrics", "Grafana"],
+          "lab_task": "Measure observability usage by team, cut metric series with aggregation, cut log volume by dropping debug logs at the agent, tune sampling and report monthly savings.",
+          "deliverable": "Usage report, changes and savings report",
+          "checks": [["Report usage by team", "Series, log volume and traces per team", "Usage dashboard"], ["Apply reductions", "Volume lower with dashboards still working", "Comparison"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Measure observability cost", "Reduce volume", "Show cost by team"]
+        },
+        {
+          "topic": "Building Grafana Plugins",
+          "subtopics": ["Plugin types: panels, data sources and apps", "The plugin development toolkit", "React and TypeScript in panel plugins", "Backend data source plugins in Go", "Plugin signing", "Testing plugins", "Publishing internally", "When to build a plugin"],
+          "tools": ["Grafana plugin tools", "TypeScript", "Go"],
+          "lab_task": "Build a data source plugin for an internal API and a simple panel plugin, test them, sign them for private use and install them in Grafana.",
+          "deliverable": "Plugin code, tests and installed plugins",
+          "checks": [["Query the internal API", "Data shown in a panel", "Screenshot"], ["Run the tests", "All pass", "Test output"], ["Install the signed plugin", "Loads without unsigned plugin warnings", "Grafana log"]],
+          "objectives": ["Build Grafana plugins", "Test and sign plugins", "Decide when to build"]
+        },
+        {
+          "topic": "Observability as an Internal Platform",
+          "subtopics": ["Platform team responsibilities", "Self-service onboarding", "Default dashboards and alerts for every service", "Standards for labels and naming", "Documentation and training", "Support model", "Measuring adoption and satisfaction", "Platform roadmap"],
+          "tools": ["Helm", "Terraform", "Internal developer portal"],
+          "lab_task": "Build self-service onboarding that gives a new service scraping, logs, traces, default dashboards and SLO alerts from one manifest, onboard two services and survey their teams.",
+          "deliverable": "Onboarding templates, onboarded services and survey results",
+          "checks": [["Onboard a new service", "Full observability from one manifest", "Demo"], ["Review the defaults", "Dashboards and alerts follow standards", "Review notes"], ["Survey the teams", "Satisfaction and problems recorded", "Survey results"]],
+          "objectives": ["Run observability as a platform", "Offer self-service", "Measure adoption"]
+        },
+        {
+          "topic": "Migrating from Nagios, Zabbix or Datadog",
+          "subtopics": ["Migration reasons", "Mapping checks to metrics and alerts", "Running old and new in parallel", "Converting dashboards", "Agent changes", "Data you cannot move", "Cutover planning", "Training teams"],
+          "tools": ["Prometheus", "Grafana", "Migration scripts"],
+          "lab_task": "Map 50 Nagios checks and five Datadog dashboards to Prometheus alerts and Grafana dashboards, run both systems in parallel for a week and plan the cutover.",
+          "deliverable": "Mapping table, converted alerts and dashboards and cutover plan",
+          "checks": [["Compare alerts in parallel", "Same incidents caught by both", "Comparison"], ["Review converted dashboards", "Teams accept the new dashboards", "Sign-off notes"], ["Review the cutover plan", "Steps, rollback and training included", "Cutover plan"]],
+          "objectives": ["Plan migrations", "Convert checks and dashboards", "Cut over safely"]
+        },
+        {
+          "topic": "Metrics Governance and Label Standards",
+          "subtopics": ["Why governance", "Naming and label standards", "Ownership metadata", "Review of new metrics", "Automated linting", "Retiring unused metrics", "Metric catalogues", "Enforcing limits"],
+          "tools": ["promtool", "Custom linters", "Grafana"],
+          "lab_task": "Write label standards, add a CI linter that rejects bad metric names and unbounded labels, find unused metrics from query logs and retire them.",
+          "deliverable": "Standards, linter and retirement report",
+          "checks": [["Submit a bad metric name", "Linter fails the build", "CI log"], ["Find unused metrics", "Metrics with no queries in 30 days listed", "Usage report"], ["Retire metrics", "Series count reduced", "Query result"]],
+          "objectives": ["Govern metrics", "Automate checks", "Retire unused data"]
+        },
+        {
+          "topic": "Compliance, Retention and Sensitive Data in Observability",
+          "subtopics": ["Regulations that affect telemetry", "Personal data in logs and traces", "Redaction at the source and in pipelines", "Retention rules by data type", "Access audits", "Data residency", "Deletion requests", "Evidence for auditors"],
+          "tools": ["OpenTelemetry Collector", "Loki", "Grafana"],
+          "lab_task": "Find personal data in logs and traces, redact it in the pipeline, set retention by data type, keep EU data in the EU region and prepare audit evidence.",
+          "deliverable": "Findings, redaction rules, retention settings and evidence pack",
+          "checks": [["Search for personal data after redaction", "None found", "Query result"], ["Check retention", "Data deleted after its period", "Storage listing"], ["Review residency", "EU tenant data stored only in the EU", "Storage configuration"]],
+          "objectives": ["Protect sensitive data", "Apply retention", "Meet compliance needs"]
+        },
+        {
+          "topic": "Testing Observability with Chaos Experiments",
+          "subtopics": ["Does monitoring catch real failures", "Failure injection tools", "Expected alerts for each failure", "Measuring detection time", "Testing dashboards and runbooks", "Game days", "Fixing gaps", "Repeating tests"],
+          "tools": ["Chaos Mesh or Litmus", "Prometheus", "Grafana"],
+          "lab_task": "Inject five failures into a Kubernetes app, record whether and how fast each was detected, fix the monitoring gaps found and re-run the experiments.",
+          "deliverable": "Experiment plan, detection results and fixes",
+          "checks": [["Inject failures", "Detection time recorded for each", "Results table"], ["Find a gap", "Undetected failure identified", "Results table"], ["Re-run after fixes", "All failures detected", "Results table"]],
+          "objectives": ["Test monitoring", "Measure detection", "Close gaps"]
+        },
+        {
+          "topic": "Observability for AI and LLM Applications",
+          "subtopics": ["What to measure in LLM applications", "Token use, latency and cost metrics", "Tracing prompts, retrieval and tool calls", "OpenTelemetry semantic conventions for generative AI", "Quality signals: feedback and evaluation scores", "GPU metrics with DCGM exporter", "Protecting prompts and responses in telemetry", "Dashboards and alerts for AI services"],
+          "tools": ["OpenTelemetry", "DCGM exporter", "Tempo", "Grafana"],
+          "lab_task": "Instrument a retrieval-augmented chat service with traces for retrieval and model calls, metrics for tokens, cost and latency, GPU metrics from the DCGM exporter and alerts on cost and error spikes, with prompts redacted.",
+          "deliverable": "Instrumentation, dashboard and alert rules",
+          "checks": [["Follow a chat request", "Retrieval and model spans in one trace", "Tempo screenshot"], ["Spike token use", "Cost alert fires", "Alerts page"], ["Inspect stored spans", "Prompt text redacted", "Span attributes"]],
+          "objectives": ["Monitor AI applications", "Track tokens and cost", "Protect prompt data"]
+        },
+        {
+          "topic": "Troubleshooting the Monitoring Stack",
+          "subtopics": ["Symptoms of a broken monitoring stack", "Scrape failures", "Out-of-order and duplicate samples", "Ingestion limits and throttling", "Slow and failing queries", "Alert delivery failures", "Meta-monitoring and dead man's switch alerts", "Post-incident reviews"],
+          "tools": ["Prometheus", "Mimir", "Loki", "Alertmanager", "Grafana"],
+          "lab_task": "Diagnose five injected stack failures (a scrape timeout, out-of-order samples, a throttled tenant, a slow query and broken alert delivery) and add a dead man's switch alert.",
+          "deliverable": "Diagnosis notes, fixes and meta-monitoring alerts",
+          "checks": [["Fix out-of-order samples", "Cause found and samples accepted", "Ingester logs"], ["Break alert delivery", "Dead man's switch alert reaches the backup channel", "Notification log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose stack problems", "Monitor the monitoring", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Company-Wide Observability Platform",
+          "subtopics": ["Architecture", "Build", "Operate", "Review"],
+          "tools": ["Mimir", "Loki", "Tempo", "Pyroscope", "OpenTelemetry Collector", "Grafana IRM", "Terraform"],
+          "lab_task": "Design and build an observability platform for a case company: multi-tenant LGTM and profiling, collector pipelines with redaction, self-service onboarding, an SLO programme, cost controls and incident response, then run a game day and present to an architecture board.",
+          "deliverable": "Architecture records, platform code, game day report and board presentation",
+          "checks": [["Run the game day", "Injected failures detected and handled through on-call", "Game day report"], ["Report cost", "Cost per team within the budget", "Cost report"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run observability at company scale", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

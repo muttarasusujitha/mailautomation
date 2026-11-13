@@ -1,0 +1,573 @@
+{
+  "domain": "Angular",
+  "name": "Angular",
+  "category": "Web and Full Stack Development",
+  "icon": "code",
+  "aliases": ["Angular Development", "Angular Developer", "Angular Training", "Angular Framework", "Modern Angular", "Angular 19", "Angular 20", "Angular with TypeScript", "Angular Frontend"],
+  "certifications": ["No vendor certification from Google; assessed by projects", "Optional: Certified Angular Developer (third-party)", "Optional: Meta or W3Cx front-end certificates for general web skills"],
+  "tools": ["Angular CLI", "TypeScript", "Node.js", "VS Code", "Angular DevTools", "Vitest or Jasmine", "Playwright", "Angular Material"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know JavaScript and are new to Angular. Covers the CLI and project set-up, components and templates, binding, control flow, signals, inputs and outputs, services and dependency injection, routing, template-driven and reactive forms, the HTTP client, pipes, directives, styling with Angular Material, RxJS, simple state, testing, lazy loading and deployment.",
+      "prerequisites": ["Writes modern JavaScript: modules, arrow functions, classes and promises", "Knows HTML and CSS", "Basic TypeScript types are helpful"],
+      "outcomes": ["Build Angular applications with standalone components, signals and the new control flow", "Fetch data, handle forms and route between pages", "Share state through services", "Test, build and deploy an Angular app"],
+      "days": [
+        {
+          "topic": "Angular Overview, CLI and Project Setup",
+          "subtopics": ["What Angular is and how it compares with React and Vue", "Angular release cycle and versions", "Installing Node.js and the Angular CLI", "Creating a project with ng new", "Project structure and configuration files", "Standalone components as the default", "ng serve, ng build and ng generate", "TypeScript settings and strict mode", "VS Code extensions and Angular DevTools", "The course project: a library app"],
+          "tools": ["Node.js", "Angular CLI", "VS Code", "Angular DevTools"],
+          "lab_task": "Create the library app with the CLI in strict mode, generate a component, run the dev server, inspect the component tree in Angular DevTools and build for production.",
+          "deliverable": "Project in Git and notes on the main files",
+          "checks": [["Run ng serve", "App opens in the browser", "Screenshot"], ["Run ng build", "Production build created in dist", "Build output"], ["Open Angular DevTools", "Component tree shown", "Screenshot"]],
+          "objectives": ["Describe Angular", "Create projects with the CLI", "Use the developer tools"]
+        },
+        {
+          "topic": "Components and Templates",
+          "subtopics": ["Component decorators", "Templates and styles", "Component selectors", "Interpolation", "Component composition", "View encapsulation", "Lifecycle hooks", "Organising components by feature"],
+          "tools": ["Angular CLI", "VS Code"],
+          "lab_task": "Build header, book list and book card components, compose them into the app shell and log lifecycle hooks to see when each runs.",
+          "deliverable": "Components and a lifecycle log",
+          "checks": [["Render the book list", "Cards shown for each book", "Screenshot"], ["Read the lifecycle log", "Order of ngOnInit and ngOnDestroy explained", "Console output"], ["Change a component style", "Style does not leak to other components", "Screenshot"]],
+          "objectives": ["Build components", "Compose views", "Understand lifecycle hooks"]
+        },
+        {
+          "topic": "Data Binding and Event Handling",
+          "subtopics": ["Property binding", "Event binding", "Two-way binding", "Class and style bindings", "Attribute binding", "Template reference variables", "Event objects", "Keeping logic out of templates"],
+          "tools": ["Angular", "VS Code"],
+          "lab_task": "Add a search box with two-way binding, buttons that mark books as favourites, conditional classes for availability and a keyboard shortcut to clear the search.",
+          "deliverable": "Updated components and screenshots",
+          "checks": [["Type in the search box", "Bound value updates as you type", "Screenshot"], ["Click favourite", "Class changes and state updates", "Screenshot"], ["Press Escape", "Search cleared", "Screenshot"]],
+          "objectives": ["Bind data", "Handle events", "Keep templates simple"]
+        },
+        {
+          "topic": "Built-In Control Flow: @if, @for, @switch and @defer",
+          "subtopics": ["@if and @else", "@for with track", "@empty blocks", "@switch", "@defer for lazy content", "Placeholders and loading blocks", "Migrating from *ngIf and *ngFor", "Performance of tracking"],
+          "tools": ["Angular", "Angular DevTools"],
+          "lab_task": "Show books with @for and track, an empty state with @empty, a status badge with @switch and a reviews section loaded with @defer when it scrolls into view.",
+          "deliverable": "Templates and screenshots",
+          "checks": [["Empty the list", "@empty message shown", "Screenshot"], ["Scroll to reviews", "Deferred chunk loads only then", "Network panel"], ["Run the control flow migration", "Old directives replaced", "Diff"]],
+          "objectives": ["Use built-in control flow", "Defer content", "Track lists efficiently"]
+        },
+        {
+          "topic": "Signals for Reactive State",
+          "subtopics": ["What signals are", "signal, computed and effect", "Reading and updating signals", "Signals in templates", "Derived state", "Signal inputs", "Effects and their pitfalls", "Signals compared with plain fields"],
+          "tools": ["Angular", "Angular DevTools"],
+          "lab_task": "Store the book list, search text and favourites in signals, derive the filtered list and favourite count with computed and save favourites to local storage with an effect.",
+          "deliverable": "Signal-based component and screenshots",
+          "checks": [["Change the search", "Filtered list updates from computed", "Screenshot"], ["Reload the page", "Favourites restored from local storage", "Screenshot"], ["Review effects", "No signal writes inside effects without reason", "Code review"]],
+          "objectives": ["Use signals", "Derive state", "Use effects carefully"]
+        },
+        {
+          "topic": "Component Communication: Inputs, Outputs and Models",
+          "subtopics": ["Signal inputs with input()", "Required inputs", "Outputs with output()", "model() for two-way component binding", "Content projection with ng-content", "ViewChild and viewChild()", "Parent and child patterns", "When to use a service instead"],
+          "tools": ["Angular"],
+          "lab_task": "Pass books into card components with required inputs, emit favourite events with outputs, build a reusable rating control with model() and a panel component with projected content.",
+          "deliverable": "Components and screenshots",
+          "checks": [["Omit a required input", "Compile error shown", "Build output"], ["Use the rating control", "Parent value updates through model()", "Screenshot"], ["Project content into the panel", "Header and body placed correctly", "Screenshot"]],
+          "objectives": ["Pass data between components", "Emit events", "Build reusable components"]
+        },
+        {
+          "topic": "Services and Dependency Injection",
+          "subtopics": ["Why services", "@Injectable and providedIn", "inject() function", "Injector hierarchy", "Providers in components and routes", "Injection tokens", "Configuration with tokens", "Testing with replaced providers"],
+          "tools": ["Angular"],
+          "lab_task": "Move book data into a service, inject it with inject(), provide an API URL with an injection token and swap the service for a fake in a test configuration.",
+          "deliverable": "Service, token and test configuration",
+          "checks": [["Use the service in two components", "Both share the same data", "Screenshot"], ["Change the token value", "Service uses the new URL", "Console output"], ["Provide a fake", "Component uses fake data", "Test output"]],
+          "objectives": ["Write services", "Use dependency injection", "Configure with tokens"]
+        },
+        {
+          "topic": "Routing and Navigation",
+          "subtopics": ["Defining routes", "RouterOutlet and RouterLink", "Route parameters and query parameters", "Component input binding for route data", "Nested routes", "Redirects and wildcard routes", "Navigating in code", "Page titles"],
+          "tools": ["Angular Router"],
+          "lab_task": "Add list, detail and about pages, read the book ID from the route, keep filters in query parameters, add a not-found page and set page titles.",
+          "deliverable": "Route configuration and screenshots",
+          "checks": [["Open a book link", "Detail page shows the right book", "Screenshot"], ["Refresh with filters", "Query parameters restore the filters", "Screenshot"], ["Open an unknown URL", "Not-found page shown", "Screenshot"]],
+          "objectives": ["Configure routes", "Use parameters", "Navigate in code"]
+        },
+        {
+          "topic": "Template-Driven Forms",
+          "subtopics": ["FormsModule", "ngModel", "Built-in validators", "Showing validation messages", "Form state: touched, dirty and valid", "Submitting forms", "Resetting forms", "When to choose template-driven forms"],
+          "tools": ["Angular Forms"],
+          "lab_task": "Build a contact form with required, email and length validation, messages shown after the field is touched and a disabled submit button until the form is valid.",
+          "deliverable": "Form component and screenshots",
+          "checks": [["Submit an empty form", "Submit disabled", "Screenshot"], ["Enter a bad email and leave the field", "Message shown", "Screenshot"], ["Submit a valid form", "Data logged and form reset", "Console output"]],
+          "objectives": ["Build template-driven forms", "Validate input", "Handle submission"]
+        },
+        {
+          "topic": "Reactive Forms",
+          "subtopics": ["FormControl, FormGroup and FormArray", "FormBuilder", "Typed forms", "Validators and custom validators", "Cross-field validation", "Async validators", "Dynamic form arrays", "Reacting to value changes"],
+          "tools": ["Angular Reactive Forms"],
+          "lab_task": "Build a book editor with a typed form, a custom ISBN validator, a cross-field date rule, an async check for duplicate titles and a list of authors with FormArray.",
+          "deliverable": "Form component, validators and tests",
+          "checks": [["Enter an invalid ISBN", "Custom error shown", "Screenshot"], ["Enter an existing title", "Async error shown", "Screenshot"], ["Add and remove authors", "Form array updates", "Screenshot"]],
+          "objectives": ["Build reactive forms", "Write validators", "Handle dynamic fields"]
+        },
+        {
+          "topic": "Calling APIs with HttpClient",
+          "subtopics": ["provideHttpClient", "GET, POST, PUT and DELETE", "Typed responses", "Error handling", "Loading states", "Interceptors in brief", "Environment configuration", "httpResource and resource in brief"],
+          "tools": ["Angular HttpClient", "JSON Server or a mock API"],
+          "lab_task": "Load books from a REST API, show loading and error states, create and delete books, and add an interceptor that adds a header to every request.",
+          "deliverable": "Data service, components and screenshots",
+          "checks": [["Stop the API", "Error state shown", "Screenshot"], ["Create a book", "Book appears in the list", "Screenshot"], ["Inspect a request", "Interceptor header present", "Network panel"]],
+          "objectives": ["Call APIs", "Handle errors and loading", "Use interceptors"]
+        },
+        {
+          "topic": "Pipes for Formatting Data",
+          "subtopics": ["Built-in pipes: date, currency, number and percent", "Async pipe", "JSON pipe for debugging", "Locale settings", "Writing custom pipes", "Pure and impure pipes", "Pipe parameters", "Pipes compared with computed signals"],
+          "tools": ["Angular"],
+          "lab_task": "Format dates, prices and percentages, set a locale, write a pipe that shortens long titles and compare it with a computed signal.",
+          "deliverable": "Templates, custom pipe and notes",
+          "checks": [["Change the locale", "Dates and currency formatted for the locale", "Screenshot"], ["Use the custom pipe", "Long titles shortened", "Screenshot"], ["Compare with computed", "Trade-offs written", "Notes"]],
+          "objectives": ["Format with pipes", "Write custom pipes", "Choose pipes or signals"]
+        },
+        {
+          "topic": "Directives",
+          "subtopics": ["Attribute directives", "Writing a custom attribute directive", "Host bindings and listeners", "Structural directive concepts", "Host directives", "Directive inputs", "Accessibility in directives", "Reusing behaviour"],
+          "tools": ["Angular"],
+          "lab_task": "Write a highlight directive, a directive that auto-focuses inputs and a tooltip directive with inputs, and combine two with host directives.",
+          "deliverable": "Directives and screenshots",
+          "checks": [["Hover an item", "Highlight applied", "Screenshot"], ["Open the form", "First field focused", "Screenshot"], ["Use the tooltip with the keyboard", "Tooltip shown on focus", "Screenshot"]],
+          "objectives": ["Write directives", "Use host bindings", "Reuse behaviour"]
+        },
+        {
+          "topic": "Styling and Angular Material",
+          "subtopics": ["Component styles", "Global styles and themes", "Angular Material installation", "Material components: buttons, forms, tables and dialogs", "Theming with Material 3", "Responsive layouts with CSS grid and the CDK", "Icons", "Accessibility of components"],
+          "tools": ["Angular Material", "Angular CDK"],
+          "lab_task": "Rebuild the library UI with Angular Material: a toolbar, a sortable paginated table, form fields and a confirmation dialog, with a custom theme and a mobile layout.",
+          "deliverable": "Styled app and screenshots",
+          "checks": [["Sort and page the table", "Rows sorted and paged", "Screenshot"], ["Delete a book", "Confirmation dialog shown", "Screenshot"], ["Resize to mobile", "Layout adapts", "Screenshot"]],
+          "objectives": ["Style Angular apps", "Use Angular Material", "Build responsive layouts"]
+        },
+        {
+          "topic": "RxJS for Angular Developers",
+          "subtopics": ["Observables and subscriptions", "Common operators: map, filter, switchMap, debounceTime", "Subjects", "Combining streams", "Error handling with catchError", "Unsubscribing and takeUntilDestroyed", "toSignal and toObservable", "When to use RxJS or signals"],
+          "tools": ["RxJS", "Angular"],
+          "lab_task": "Build a search-as-you-type box with debounceTime and switchMap, combine filters with combineLatest, handle errors and convert the result to a signal with toSignal.",
+          "deliverable": "Search component and screenshots",
+          "checks": [["Type quickly", "One request after the pause", "Network panel"], ["Type a new term mid-request", "Old request cancelled", "Network panel"], ["Leave the page", "No subscriptions left running", "DevTools memory check"]],
+          "objectives": ["Use observables", "Apply common operators", "Combine RxJS and signals"]
+        },
+        {
+          "topic": "Sharing State with Services and Signals",
+          "subtopics": ["Local and shared state", "Service-with-a-signal pattern", "Read-only signals for consumers", "Updating state immutably", "Loading data into state", "Optimistic updates", "Persisting state", "When to use a state library"],
+          "tools": ["Angular", "Signals"],
+          "lab_task": "Create a cart service with signals for items and totals, expose read-only state, apply optimistic updates when adding items and roll back if the API fails.",
+          "deliverable": "Cart service, components and screenshots",
+          "checks": [["Add an item", "Cart badge and total update", "Screenshot"], ["Fail the API", "Optimistic change rolled back", "Screenshot"], ["Write to state from a component", "Compile error because state is read-only", "Build output"]],
+          "objectives": ["Share state", "Update immutably", "Handle optimistic updates"]
+        },
+        {
+          "topic": "Testing Angular Components and Services",
+          "subtopics": ["Test runners: Vitest and Jasmine with Karma", "TestBed", "Testing components", "Testing services with HttpTestingController", "Testing signals and forms", "Component harnesses", "Mocks and fakes", "Coverage"],
+          "tools": ["Vitest or Jasmine", "Angular Testing Library", "HttpTestingController"],
+          "lab_task": "Write tests for the book list, the editor form validation and the data service with mocked HTTP, and use a Material harness to test the table.",
+          "deliverable": "Test suite and coverage report",
+          "checks": [["Run the tests", "All pass", "Test output"], ["Break a validator", "A test fails", "Test output"], ["Review coverage", "Above 80 percent for the services", "Coverage report"]],
+          "objectives": ["Test components", "Test services", "Use harnesses"]
+        },
+        {
+          "topic": "Lazy Loading and Application Structure",
+          "subtopics": ["Feature folders", "Lazy loading routes with loadComponent and loadChildren", "Route-level providers", "Preloading strategies", "Shared and core code", "Bundle analysis", "Barrel files and their cost", "Path aliases"],
+          "tools": ["Angular CLI", "source-map-explorer"],
+          "lab_task": "Split the app into lazily loaded feature routes, add route-level providers, turn on preloading and compare initial bundle sizes before and after.",
+          "deliverable": "Restructured app and bundle comparison",
+          "checks": [["Open the home page", "Feature chunks not loaded yet", "Network panel"], ["Compare bundle sizes", "Initial bundle smaller", "Bundle analysis"], ["Review the structure", "Features separated with clear boundaries", "Project tree"]],
+          "objectives": ["Structure applications", "Lazy load features", "Reduce bundle size"]
+        },
+        {
+          "topic": "Building and Deploying Angular Apps",
+          "subtopics": ["Production builds", "Build configurations and environments", "Budgets", "Base href and routing on servers", "Deploying to Firebase, Netlify or Azure Static Web Apps", "Docker with Nginx", "Caching and hashed files", "CI build checks"],
+          "tools": ["Angular CLI", "Docker", "Nginx", "GitHub Actions"],
+          "lab_task": "Build the app with budgets, deploy it to a static host and as an Nginx container with correct deep-link routing, and add a CI workflow that builds and tests.",
+          "deliverable": "Deployed URLs, Dockerfile and workflow",
+          "checks": [["Open a deep link on the server", "Page loads instead of 404", "Browser screenshot"], ["Exceed a budget", "Build fails", "Build output"], ["Push a commit", "CI builds and tests pass", "CI log"]],
+          "objectives": ["Build for production", "Deploy Angular apps", "Automate builds"]
+        },
+        {
+          "topic": "Beginner Capstone: Library Management Application",
+          "subtopics": ["Requirements", "Build", "Test", "Deploy and demo"],
+          "tools": ["Angular", "Angular Material", "HttpClient", "Vitest or Jasmine"],
+          "lab_task": "Build a library app with lazy routes, signal-based state, reactive forms, API calls with loading and error states, Material UI, tests and deployment, then demo it.",
+          "deliverable": "Repository, deployed URL, test report and demo recording",
+          "checks": [["Run the tests", "All pass", "Test report"], ["Use the app on a phone", "Layout and forms usable", "Demo recording"], ["Stop the API during the demo", "Errors handled with clear messages", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one app", "Build a tested Angular application", "Deploy and present it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who build Angular apps. Covers architecture, advanced signals and resources, advanced RxJS, NgRx Store and SignalStore, advanced forms, authentication with guards and interceptors, change detection and zoneless apps, SSR and hydration, internationalisation, accessibility, the CDK, end-to-end testing, HTTP caching and errors, PWAs, real-time data, Nx, CI/CD, security and upgrades.",
+      "prerequisites": ["Builds Angular apps with components, services, routing and forms", "Uses signals and basic RxJS", "Writes unit tests"],
+      "outcomes": ["Design maintainable Angular applications with clear state management", "Build fast apps with SSR, deferred loading and zoneless change detection", "Secure, test and internationalise production apps", "Upgrade and deliver apps through CI/CD"],
+      "days": [
+        {
+          "topic": "Angular Application Architecture",
+          "subtopics": ["Feature, UI, data access and utility layers", "Smart and presentational components", "Dependency rules between layers", "Domain-based folders", "Facades", "Shared libraries", "Enforcing boundaries with lint rules", "Architecture decision records"],
+          "tools": ["Angular", "ESLint", "Sheriff or Nx boundaries"],
+          "lab_task": "Restructure the library app into feature, UI and data access layers, add lint rules that stop UI code from importing data access and record the decisions.",
+          "deliverable": "Restructured code, lint rules and decision records",
+          "checks": [["Import data access from a UI component", "Lint error", "Lint output"], ["Review components", "Presentational components have no injected services", "Code review"], ["Read the decision records", "Each decision has options and reasons", "Decision records"]],
+          "objectives": ["Design app architecture", "Enforce boundaries", "Record decisions"]
+        },
+        {
+          "topic": "Advanced Signals: linkedSignal, resource and Signal Forms",
+          "subtopics": ["Signal equality and untracked", "linkedSignal for dependent state", "resource and rxResource", "httpResource", "Signal queries", "Signal-based forms in preview", "Testing signal code", "Avoiding effect misuse"],
+          "tools": ["Angular", "Signals"],
+          "lab_task": "Load book details with httpResource keyed on the route, reset a selection with linkedSignal when the list changes, and replace two effects with computed and linkedSignal.",
+          "deliverable": "Refactored components and tests",
+          "checks": [["Change the route", "Resource reloads and shows loading", "Screenshot"], ["Change the list", "Selection resets through linkedSignal", "Screenshot"], ["Run the tests", "Signal logic tested", "Test output"]],
+          "objectives": ["Use advanced signals", "Load data with resources", "Avoid effects where possible"]
+        },
+        {
+          "topic": "Advanced RxJS Patterns",
+          "subtopics": ["Higher-order mapping: switchMap, mergeMap, concatMap and exhaustMap", "Retrying with backoff", "Polling", "Sharing with shareReplay", "Custom operators", "Error recovery", "Marble testing", "Memory leaks"],
+          "tools": ["RxJS", "Marble testing"],
+          "lab_task": "Add polling with exponential backoff on errors, prevent double submits with exhaustMap, share a cached stream with shareReplay and test operators with marble tests.",
+          "deliverable": "Stream code and marble tests",
+          "checks": [["Click submit twice", "One request sent", "Network panel"], ["Fail the API", "Retries with growing delays", "Network panel"], ["Run marble tests", "All pass", "Test output"]],
+          "objectives": ["Choose mapping operators", "Handle retries and polling", "Test streams"]
+        },
+        {
+          "topic": "State Management with NgRx Store and SignalStore",
+          "subtopics": ["When a state library helps", "NgRx Store: actions, reducers and selectors", "Effects for side effects", "Entity adapters", "NgRx SignalStore", "withState, withComputed and withMethods", "Redux DevTools", "Choosing an approach"],
+          "tools": ["NgRx Store", "NgRx SignalStore", "Redux DevTools"],
+          "lab_task": "Implement the cart with NgRx Store and with SignalStore, connect both to Redux DevTools and write guidance on when the team should use each.",
+          "deliverable": "Two implementations and guidance",
+          "checks": [["Add items in the Store version", "Actions visible in Redux DevTools", "Screenshot"], ["Run SignalStore tests", "All pass", "Test output"], ["Write the guidance", "Clear rules for choosing", "Guidance note"]],
+          "objectives": ["Use NgRx Store", "Use SignalStore", "Choose state tools"]
+        },
+        {
+          "topic": "Advanced Forms: Custom Controls and Dynamic Forms",
+          "subtopics": ["ControlValueAccessor", "Custom form controls", "Nested form groups as components", "Dynamic forms from configuration", "Conditional validation", "Form-level error summaries", "Large forms and performance", "Accessible form errors"],
+          "tools": ["Angular Reactive Forms", "Angular CDK"],
+          "lab_task": "Build a custom date-range control with ControlValueAccessor, a form generated from JSON configuration with conditional validation and an accessible error summary.",
+          "deliverable": "Control, dynamic form and tests",
+          "checks": [["Use the custom control in a form", "Value and validity tracked by the form", "Screenshot"], ["Change configuration", "Form fields change without code changes", "Screenshot"], ["Submit with errors", "Summary lists errors and links to fields", "Screenshot"]],
+          "objectives": ["Build custom controls", "Generate forms", "Make errors accessible"]
+        },
+        {
+          "topic": "Authentication, Guards and Interceptors",
+          "subtopics": ["Login flows", "OAuth 2 and OpenID Connect with PKCE", "angular-oauth2-oidc or MSAL", "Functional route guards", "Role-based access", "Auth interceptors", "Refreshing tokens", "Logging out everywhere"],
+          "tools": ["Keycloak or Microsoft Entra ID", "angular-oauth2-oidc or MSAL Angular"],
+          "lab_task": "Add OIDC login with PKCE, protect routes with functional guards, show admin features by role, add tokens with an interceptor and refresh them silently.",
+          "deliverable": "Auth configuration, guards and interceptor",
+          "checks": [["Open an admin page as a normal user", "Redirected away", "Screenshot"], ["Inspect API requests", "Bearer token added", "Network panel"], ["Let the token expire", "Refreshed without logging out", "Network panel"]],
+          "objectives": ["Add authentication", "Guard routes", "Manage tokens"]
+        },
+        {
+          "topic": "Change Detection, OnPush and Zoneless Angular",
+          "subtopics": ["How change detection works", "Zone.js", "OnPush components", "Signals and change detection", "Zoneless change detection", "Profiling with Angular DevTools", "Common performance problems", "Migrating to zoneless"],
+          "tools": ["Angular DevTools", "Chrome DevTools"],
+          "lab_task": "Profile a slow list, switch components to OnPush with signals, enable zoneless change detection, fix the parts that break and compare render times.",
+          "deliverable": "Profiles before and after and migration notes",
+          "checks": [["Profile the slow list", "Excess change detection cycles found", "Angular DevTools profile"], ["Enable zoneless", "App works after fixes", "Screenshot"], ["Compare render times", "Faster after the changes", "Profile comparison"]],
+          "objectives": ["Understand change detection", "Use OnPush", "Go zoneless"]
+        },
+        {
+          "topic": "Server-Side Rendering, Hydration and Prerendering",
+          "subtopics": ["Why SSR", "Angular SSR set-up", "Hydration and incremental hydration", "Prerendering static routes", "Hybrid rendering per route", "Transfer state", "Browser-only code", "Deploying SSR apps"],
+          "tools": ["Angular SSR", "Node.js", "Lighthouse"],
+          "lab_task": "Add SSR to the library app, prerender the about page, use incremental hydration for reviews, fix a browser-only API error and compare Lighthouse scores.",
+          "deliverable": "SSR app, configuration and Lighthouse reports",
+          "checks": [["View page source", "Content rendered on the server", "Page source"], ["Use a browser-only API", "Error fixed with platform checks", "Server log"], ["Compare Lighthouse", "LCP improved", "Lighthouse reports"]],
+          "objectives": ["Render on the server", "Hydrate incrementally", "Prerender routes"]
+        },
+        {
+          "topic": "Internationalising Angular Apps with i18n and Locale Data",
+          "subtopics": ["Angular i18n", "Marking text for translation", "Extracting messages", "Plurals and select", "Locale data for dates and numbers", "Building per locale", "Runtime translation libraries", "Right-to-left layouts"],
+          "tools": ["Angular i18n", "Transloco or ngx-translate"],
+          "lab_task": "Translate the app into Hindi and Arabic, handle plurals, format dates and numbers per locale and fix the layout for right-to-left text.",
+          "deliverable": "Translation files and localised builds",
+          "checks": [["Switch to Hindi", "Text and numbers localised", "Screenshot"], ["Show plural forms", "Correct forms for 0, 1 and many", "Screenshot"], ["Switch to Arabic", "Layout mirrored correctly", "Screenshot"]],
+          "objectives": ["Internationalise apps", "Handle plurals and formats", "Support right-to-left"]
+        },
+        {
+          "topic": "Accessibility in Angular Applications",
+          "subtopics": ["WCAG 2.2 basics", "Semantic HTML in components", "Focus management on route changes", "Live announcements with LiveAnnouncer", "Keyboard navigation", "CDK a11y tools", "Testing with axe and screen readers", "Accessible custom components"],
+          "tools": ["Angular CDK a11y", "axe", "NVDA or VoiceOver"],
+          "lab_task": "Audit the app with axe and a screen reader, fix the issues, manage focus after navigation and announce cart changes.",
+          "deliverable": "Audit report before and after and fixes",
+          "checks": [["Run axe", "No serious issues after fixes", "axe report"], ["Navigate with the keyboard only", "Every action reachable", "Screen recording"], ["Add to cart with a screen reader", "Change announced", "Screen reader recording"]],
+          "objectives": ["Build accessible apps", "Manage focus", "Test with assistive tools"]
+        },
+        {
+          "topic": "Building with the Angular CDK",
+          "subtopics": ["What the CDK offers", "Overlay", "Drag and drop", "Virtual scrolling", "Portals", "Layout and breakpoints", "Clipboard and other utilities", "Building your own components on the CDK"],
+          "tools": ["Angular CDK"],
+          "lab_task": "Build a custom dropdown with the overlay, a reorderable reading list with drag and drop and a virtual-scrolled list of 50,000 books.",
+          "deliverable": "Components and screenshots",
+          "checks": [["Scroll 50,000 rows", "Smooth with few DOM nodes", "Performance panel"], ["Reorder with the keyboard", "Drag and drop accessible", "Screen recording"], ["Open the dropdown near the screen edge", "Overlay repositions", "Screenshot"]],
+          "objectives": ["Use the CDK", "Build custom components", "Handle large lists"]
+        },
+        {
+          "topic": "End-to-End Testing with Playwright",
+          "subtopics": ["End-to-end testing goals", "Playwright set-up", "Locators and assertions", "Page objects", "Mocking network calls", "Authentication in tests", "Visual comparisons", "Running in CI"],
+          "tools": ["Playwright", "GitHub Actions"],
+          "lab_task": "Write Playwright tests for login, search, edit and checkout with page objects and mocked APIs, add a visual check and run them in CI.",
+          "deliverable": "Test suite and CI run",
+          "checks": [["Run the suite", "All tests pass", "Playwright report"], ["Change a button label", "Test fails with a clear locator error", "Playwright report"], ["Run in CI", "Tests pass on the CI runner", "CI log"]],
+          "objectives": ["Write end-to-end tests", "Mock networks", "Run tests in CI"]
+        },
+        {
+          "topic": "HTTP Caching, Errors and Resilience",
+          "subtopics": ["Global error handling", "HTTP interceptors for errors", "Retry policies", "Caching responses", "Offline detection", "User-facing error messages", "Logging errors to a backend", "Testing failure cases"],
+          "tools": ["Angular HttpClient", "Interceptors", "Sentry or similar"],
+          "lab_task": "Add a global error handler, an interceptor that retries safe requests and caches book lists, an offline banner and error logging to a service.",
+          "deliverable": "Interceptors, handler and test results",
+          "checks": [["Go offline", "Banner shown and cached data used", "Screenshot"], ["Fail a GET twice then succeed", "Request retried", "Network panel"], ["Throw an unhandled error", "Logged to the service", "Error service screenshot"]],
+          "objectives": ["Handle errors globally", "Cache and retry", "Report errors"]
+        },
+        {
+          "topic": "Progressive Web Apps and Service Workers",
+          "subtopics": ["PWA requirements", "Angular service worker", "Caching strategies", "App manifest and installation", "Update notifications", "Offline pages", "Push notifications in brief", "Testing PWAs"],
+          "tools": ["Angular service worker", "Lighthouse"],
+          "lab_task": "Turn the app into an installable PWA with offline support for the book list, prompt users when a new version is available and pass the Lighthouse PWA checks.",
+          "deliverable": "PWA configuration and Lighthouse report",
+          "checks": [["Go offline", "Book list loads from cache", "Screenshot"], ["Deploy a new version", "Update prompt shown", "Screenshot"], ["Install the app", "App opens in its own window", "Screenshot"]],
+          "objectives": ["Build PWAs", "Cache for offline use", "Handle updates"]
+        },
+        {
+          "topic": "Real-Time Features with WebSockets and SignalR",
+          "subtopics": ["Real-time use cases", "WebSockets in Angular", "RxJS webSocket", "SignalR client", "Reconnection", "Updating state from events", "Presence indicators", "Testing real-time features"],
+          "tools": ["RxJS webSocket", "SignalR", "Node.js or ASP.NET Core"],
+          "lab_task": "Show live book availability from a WebSocket server, reconnect after drops, show who else is viewing a book and update signal state from events.",
+          "deliverable": "Real-time service, components and screenshots",
+          "checks": [["Change availability on the server", "UI updates without refresh", "Screenshot"], ["Drop the connection", "Client reconnects", "Console output"], ["Open the book in two browsers", "Both viewers shown", "Screenshot"]],
+          "objectives": ["Add real-time updates", "Handle reconnection", "Update state from events"]
+        },
+        {
+          "topic": "Monorepos with Nx",
+          "subtopics": ["Why monorepos", "Nx workspaces", "Apps and libraries", "Generators", "Affected commands", "Caching builds and tests", "Module boundaries", "Sharing code between apps"],
+          "tools": ["Nx", "Angular"],
+          "lab_task": "Move the app into an Nx workspace with feature and UI libraries, add a second admin app sharing UI code, enforce boundaries and use affected tests in CI.",
+          "deliverable": "Nx workspace and CI run",
+          "checks": [["Change one library", "Only affected projects tested", "CI log"], ["Re-run tests", "Results from cache", "Nx output"], ["Break a boundary", "Lint error", "Lint output"]],
+          "objectives": ["Use Nx", "Share libraries", "Speed up CI"]
+        },
+        {
+          "topic": "CI/CD for Angular Applications",
+          "subtopics": ["Pipeline stages", "Linting and formatting", "Unit and end-to-end tests", "Build artefacts", "Preview deployments", "Environment configuration at deploy time", "Release versioning", "Rollbacks"],
+          "tools": ["GitHub Actions or Azure DevOps", "Firebase or Azure Static Web Apps"],
+          "lab_task": "Build a pipeline with lint, tests, build, preview deployments for pull requests and production deployment with runtime configuration and a rollback step.",
+          "deliverable": "Pipeline definition and deployment history",
+          "checks": [["Open a pull request", "Preview URL posted", "Pull request"], ["Fail a test", "Deployment blocked", "Pipeline log"], ["Roll back", "Previous version live", "Deployment history"]],
+          "objectives": ["Automate delivery", "Use preview deployments", "Roll back safely"]
+        },
+        {
+          "topic": "Security for Angular Applications",
+          "subtopics": ["Angular's built-in XSS protection", "Sanitisation and bypass dangers", "Content Security Policy", "Trusted Types", "CSRF and XSRF protection", "Storing tokens safely", "Dependency vulnerabilities", "Security reviews"],
+          "tools": ["Angular", "npm audit", "CSP Evaluator"],
+          "lab_task": "Find and fix an unsafe bypassSecurityTrust call, add a strict CSP with Trusted Types, turn on XSRF protection and fix vulnerable dependencies.",
+          "deliverable": "Fixes, CSP header and audit report",
+          "checks": [["Inject a script into a field", "Script not executed", "Screenshot"], ["Check the CSP", "Strict policy with no unsafe-inline", "CSP Evaluator report"], ["Run npm audit", "No high vulnerabilities", "Audit output"]],
+          "objectives": ["Prevent XSS", "Use CSP and Trusted Types", "Manage dependency risk"]
+        },
+        {
+          "topic": "Upgrading Angular Versions",
+          "subtopics": ["Release schedule and support", "ng update", "The Angular update guide", "Automatic migrations", "Third-party library compatibility", "Moving to standalone and new control flow", "Testing upgrades", "Planning upgrades across many apps"],
+          "tools": ["Angular CLI", "ng update"],
+          "lab_task": "Upgrade an Angular 15 app with NgModules to the current version step by step, run migrations to standalone, control flow and signal inputs and fix library issues.",
+          "deliverable": "Upgraded app, change log and test results",
+          "checks": [["Run each ng update step", "App builds after every step", "Build output"], ["Run the standalone migration", "NgModules removed", "Diff"], ["Run the tests", "All pass after upgrade", "Test output"]],
+          "objectives": ["Plan upgrades", "Use automatic migrations", "Fix upgrade problems"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production Angular Portal",
+          "subtopics": ["Architecture", "Build", "Quality", "Delivery"],
+          "tools": ["Angular", "NgRx SignalStore", "Angular SSR", "Playwright", "Nx", "GitHub Actions"],
+          "lab_task": "Build a customer portal with layered architecture, OIDC login, SignalStore state, SSR, i18n, accessible custom controls, real-time updates, unit and Playwright tests and a CI/CD pipeline, then present it.",
+          "deliverable": "Repository, deployed app, test reports and presentation",
+          "checks": [["Run the full pipeline", "Tests pass and the app deploys", "Pipeline log"], ["Run axe and Lighthouse", "No serious accessibility issues and good performance scores", "Reports"], ["Present the design", "Architecture choices defended", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one app", "Deliver a production portal", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior front-end developers and architects. Covers large-scale architecture, micro-frontends with Native Federation, design systems, performance engineering, signal-first architecture, rendering strategies, state at scale, library and schematic authoring, testing strategy, front-end observability, security, AI features, accessibility programmes, migrations from AngularJS, build tooling, offline-first sync, data-heavy interfaces, technical leadership and production troubleshooting.",
+      "prerequisites": ["Builds production Angular apps with SSR, state management and CI/CD", "Writes advanced RxJS and signals code", "Leads or reviews other developers' work"],
+      "outcomes": ["Design Angular platforms for many teams and apps", "Make large apps fast, accessible and secure", "Build shared libraries, design systems and tools", "Lead migrations and technical direction"],
+      "days": [
+        {
+          "topic": "Large-Scale Angular Architecture",
+          "subtopics": ["Domain-driven design for front ends", "Bounded contexts in a monorepo", "Team ownership and boundaries", "Shared kernel and its risks", "Public APIs for libraries", "Dependency graphs", "Architecture fitness functions", "Reviewing architecture"],
+          "tools": ["Nx", "Sheriff", "Dependency graph tools"],
+          "lab_task": "Model a banking front end with five domains owned by different teams, enforce boundaries with fitness functions in CI and present the dependency graph.",
+          "deliverable": "Domain model, boundary rules and CI checks",
+          "checks": [["Add a cross-domain import", "CI fails the fitness function", "CI log"], ["Show the dependency graph", "No cycles between domains", "Graph screenshot"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design large front ends", "Enforce team boundaries", "Measure architecture"]
+        },
+        {
+          "topic": "Micro-Frontends with Native Federation",
+          "subtopics": ["When micro-frontends are worth it", "Module Federation and Native Federation", "Shell and remote apps", "Sharing dependencies", "Version mismatches", "Communication between micro-frontends", "Independent deployments", "Mixing Angular with other frameworks"],
+          "tools": ["Native Federation", "Angular", "Nx"],
+          "lab_task": "Split the portal into a shell and two remotes deployed separately, share Angular without duplicate copies, pass events between remotes and load a React remote.",
+          "deliverable": "Shell, remotes, deployment configuration and notes",
+          "checks": [["Deploy one remote alone", "Shell picks up the new version", "Screenshot"], ["Check shared dependencies", "One Angular copy loaded", "Network panel"], ["Load the React remote", "Renders inside the Angular shell", "Screenshot"]],
+          "objectives": ["Build micro-frontends", "Share dependencies", "Deploy independently"]
+        },
+        {
+          "topic": "Design Systems for Angular at Scale",
+          "subtopics": ["Design tokens", "Component library architecture", "Theming and dark mode", "Storybook for Angular", "Visual regression testing", "Versioning and changelogs", "Adoption across teams", "Governance of the design system"],
+          "tools": ["Storybook", "Chromatic or Playwright snapshots", "Style Dictionary"],
+          "lab_task": "Build a design system library with tokens, five accessible components, Storybook docs, visual regression tests and a versioned release consumed by two apps.",
+          "deliverable": "Library, Storybook, test results and release notes",
+          "checks": [["Change a token", "Visual tests show the expected changes", "Visual diff"], ["Publish a release", "Both apps upgrade and build", "Build logs"], ["Review accessibility", "Components pass axe in Storybook", "axe report"]],
+          "objectives": ["Build design systems", "Test visually", "Govern adoption"]
+        },
+        {
+          "topic": "Performance Engineering for Angular",
+          "subtopics": ["Core Web Vitals", "Measuring in the field and the lab", "Bundle budgets and analysis", "Image optimisation with NgOptimizedImage", "Deferrable views at scale", "Avoiding layout shifts", "Main-thread work and long tasks", "Performance budgets in CI"],
+          "tools": ["Lighthouse CI", "Chrome DevTools", "web-vitals", "NgOptimizedImage"],
+          "lab_task": "Measure Core Web Vitals in the field, cut the initial bundle, optimise images, remove long tasks and enforce budgets with Lighthouse CI.",
+          "deliverable": "Before and after measurements and CI budgets",
+          "checks": [["Compare LCP and INP", "Both within good thresholds after changes", "Field data"], ["Exceed a budget", "Lighthouse CI fails", "CI log"], ["Find long tasks", "Tasks over 50 ms reduced", "Performance profile"]],
+          "objectives": ["Measure performance", "Optimise loading and interaction", "Enforce budgets"]
+        },
+        {
+          "topic": "Signal-First and Zoneless Architecture",
+          "subtopics": ["Designing with signals throughout", "Signals at service boundaries", "RxJS at the edges", "Resource patterns for data loading", "Error and loading state models", "Zoneless apps at scale", "Interop with older code", "Testing signal-first code"],
+          "tools": ["Angular", "Signals", "Vitest"],
+          "lab_task": "Redesign a feature to be signal-first with resources at the edges and RxJS only for events, run it zoneless and write guidelines for the team.",
+          "deliverable": "Redesigned feature, tests and guidelines",
+          "checks": [["Run the feature zoneless", "All interactions update the UI", "Screenshot"], ["Review data flow", "Streams converted at the edges only", "Code review"], ["Publish guidelines", "Clear rules with examples", "Guidelines document"]],
+          "objectives": ["Design signal-first apps", "Combine signals and RxJS", "Set team guidelines"]
+        },
+        {
+          "topic": "Rendering Strategies: SSR, SSG and Edge Rendering",
+          "subtopics": ["Choosing rendering per route", "Incremental hydration at scale", "Event replay", "Caching server-rendered pages", "Edge rendering platforms", "SEO for Angular apps", "Personalised content with SSR", "Measuring rendering cost"],
+          "tools": ["Angular SSR", "Cloudflare Workers or Netlify Edge", "CDN"],
+          "lab_task": "Set a rendering mode per route, cache public pages at the CDN, render one route at the edge, keep personalised pages correct and compare speed and cost.",
+          "deliverable": "Rendering configuration and comparison",
+          "checks": [["Load a cached page", "Served from the CDN", "Response headers"], ["Load a personalised page", "No cached personal data leaks", "Test results"], ["Compare costs", "Server and edge costs estimated", "Comparison table"]],
+          "objectives": ["Choose rendering modes", "Cache safely", "Render at the edge"]
+        },
+        {
+          "topic": "State Architecture at Scale",
+          "subtopics": ["Server state compared with client state", "Normalised entity state", "Cross-feature state", "Caching and invalidation", "Optimistic updates at scale", "Undo and redo", "State in micro-frontends", "Debugging state problems"],
+          "tools": ["NgRx SignalStore", "TanStack Query for Angular"],
+          "lab_task": "Separate server state with TanStack Query from client state in SignalStore, add cache invalidation across features and undo for edits.",
+          "deliverable": "State design, implementation and tests",
+          "checks": [["Edit in one feature", "Other features show the change after invalidation", "Screenshot"], ["Undo an edit", "Previous value restored", "Screenshot"], ["Review the design", "Server and client state separated", "Design document"]],
+          "objectives": ["Design state at scale", "Cache server state", "Support undo"]
+        },
+        {
+          "topic": "Authoring Libraries and Schematics",
+          "subtopics": ["Angular Package Format", "ng-packagr", "Secondary entry points", "Peer dependencies", "Schematics and generators", "ng add and ng update support", "Migrations for library users", "Publishing privately"],
+          "tools": ["ng-packagr", "Angular Schematics", "Verdaccio or GitHub Packages"],
+          "lab_task": "Package the design system with secondary entry points, write an ng add schematic and an ng update migration that renames an input, and publish to a private registry.",
+          "deliverable": "Library, schematics and published package",
+          "checks": [["Run ng add", "Library installed and configured", "Terminal output"], ["Run ng update", "Renamed input fixed in user code", "Diff"], ["Install from the registry", "Package resolves", "Install output"]],
+          "objectives": ["Build libraries", "Write schematics", "Ship migrations"]
+        },
+        {
+          "topic": "Testing Strategy for Large Angular Codebases",
+          "subtopics": ["Test pyramid for front ends", "Component tests with Playwright or Cypress", "Contract tests for APIs", "Test data builders", "Flaky test management", "Test speed and parallelism", "Coverage that matters", "Testing in micro-frontends"],
+          "tools": ["Vitest", "Playwright component testing", "Pact"],
+          "lab_task": "Write a test strategy for the portal, add component tests and a Pact contract test, find and fix three flaky tests and halve suite time.",
+          "deliverable": "Strategy, tests and timing comparison",
+          "checks": [["Break the API contract", "Pact test fails", "Test output"], ["Fix flaky tests", "Tests pass 50 runs in a row", "Test history"], ["Compare suite time", "Time halved", "CI timings"]],
+          "objectives": ["Set testing strategy", "Use contract tests", "Remove flakiness"]
+        },
+        {
+          "topic": "Front-End Observability",
+          "subtopics": ["Real user monitoring", "Error tracking", "Performance metrics from users", "OpenTelemetry in the browser", "Linking front-end and back-end traces", "Session replay and privacy", "Dashboards and alerts", "Using data to set priorities"],
+          "tools": ["OpenTelemetry Web", "Sentry or Grafana Faro", "Grafana"],
+          "lab_task": "Add error tracking, web vitals and browser tracing linked to back-end traces, mask personal data in session replay and alert on error spikes after a release.",
+          "deliverable": "Instrumentation, dashboards and alerts",
+          "checks": [["Follow a click", "One trace from browser to API", "Trace screenshot"], ["Release a broken build", "Error spike alert fires", "Alert notification"], ["Check replay privacy", "Personal data masked", "Replay screenshot"]],
+          "objectives": ["Observe front ends", "Link front-end and back-end traces", "Protect privacy"]
+        },
+        {
+          "topic": "Enterprise Front-End Security",
+          "subtopics": ["Threat modelling for SPAs", "Backend-for-frontend pattern", "Token handling with BFF", "Supply chain security", "Subresource integrity", "Security headers", "Permissions and feature flags", "Security testing in CI"],
+          "tools": ["BFF service", "OWASP ZAP", "npm audit", "Socket or Snyk"],
+          "lab_task": "Move tokens behind a backend-for-frontend, add security headers and SRI, run ZAP in CI and block a malicious dependency with supply chain checks.",
+          "deliverable": "BFF, headers, CI checks and threat model",
+          "checks": [["Inspect browser storage", "No access tokens stored", "DevTools screenshot"], ["Run ZAP", "No high findings", "ZAP report"], ["Add the malicious package", "Supply chain check blocks it", "CI log"]],
+          "objectives": ["Model threats", "Protect tokens", "Secure the supply chain"]
+        },
+        {
+          "topic": "AI Features in Angular Applications",
+          "subtopics": ["AI use cases in front ends", "Streaming responses from LLM APIs", "Chat interfaces", "Calling AI through a backend", "Handling latency and cancellation", "Showing sources and uncertainty", "Accessibility of AI interfaces", "Evaluating AI features with users"],
+          "tools": ["Angular", "Server-sent events", "OpenAI or Azure OpenAI through a backend"],
+          "lab_task": "Build an assistant panel that streams answers about books from a backend, shows sources, supports cancel and is accessible to screen readers.",
+          "deliverable": "Assistant component, backend endpoint and tests",
+          "checks": [["Ask a question", "Answer streams in with sources", "Screenshot"], ["Cancel mid-answer", "Stream stops and the request is aborted", "Network panel"], ["Use a screen reader", "New text announced politely", "Screen reader recording"]],
+          "objectives": ["Add AI features", "Stream responses", "Make AI interfaces accessible"]
+        },
+        {
+          "topic": "Accessibility Programmes for Angular Product Teams",
+          "subtopics": ["Accessibility law: EU Accessibility Act, ADA and India's RPwD Act", "Accessibility standards for teams", "Automated checks in CI", "Manual testing plans", "Testing with disabled users", "Accessibility in design reviews", "Training developers", "Measuring progress"],
+          "tools": ["axe-core", "Playwright", "Screen readers"],
+          "lab_task": "Write an accessibility standard for the team, add axe checks to CI, run a manual audit of three journeys and plan training and fixes.",
+          "deliverable": "Standard, CI checks, audit and plan",
+          "checks": [["Add a missing label", "CI fails", "CI log"], ["Run the manual audit", "Issues per journey with severity", "Audit report"], ["Review the plan", "Fixes and training scheduled", "Plan"]],
+          "objectives": ["Run accessibility programmes", "Automate checks", "Plan improvements"]
+        },
+        {
+          "topic": "Migrating from AngularJS and Legacy Angular",
+          "subtopics": ["Migration options", "ngUpgrade hybrid apps", "Strangler pattern by route", "Migrating NgModule apps to standalone", "Replacing deprecated libraries", "Keeping features shipping during migration", "Measuring migration progress", "Finishing the migration"],
+          "tools": ["ngUpgrade", "Angular CLI", "Native Federation"],
+          "lab_task": "Run an AngularJS app and an Angular app side by side, migrate two routes to Angular with the strangler pattern and track progress on a dashboard.",
+          "deliverable": "Hybrid app, migrated routes and progress dashboard",
+          "checks": [["Navigate between old and new routes", "Users move smoothly", "Screen recording"], ["Share data between frameworks", "Data consistent across both", "Screenshot"], ["Show progress", "Routes migrated per month", "Dashboard"]],
+          "objectives": ["Plan migrations", "Use hybrid approaches", "Track progress"]
+        },
+        {
+          "topic": "Build Tooling: esbuild, Vite and Custom Builders",
+          "subtopics": ["The application builder with esbuild and Vite", "Build performance", "Custom builders", "Environment variables at build time", "Source maps for production", "Build caching in CI", "Bundling third-party code", "Debugging build problems"],
+          "tools": ["Angular CLI application builder", "esbuild", "Nx"],
+          "lab_task": "Move an old webpack build to the esbuild-based builder, write a custom builder that injects build information and cut CI build time with caching.",
+          "deliverable": "Migrated build, custom builder and timings",
+          "checks": [["Compare build times", "Faster with esbuild", "Timing table"], ["Run the custom builder", "Build information in the app", "Screenshot"], ["Re-run CI", "Cached build faster", "CI timings"]],
+          "objectives": ["Use modern build tools", "Write builders", "Speed up builds"]
+        },
+        {
+          "topic": "Offline-First Apps and Data Sync",
+          "subtopics": ["Offline-first design", "IndexedDB with Dexie", "Sync queues", "Conflict resolution", "Background sync", "Optimistic UI offline", "Testing offline behaviour", "Storage limits"],
+          "tools": ["Dexie", "Angular service worker", "Playwright"],
+          "lab_task": "Let field users edit records offline, queue changes in IndexedDB, sync them when online and resolve a conflict between two users.",
+          "deliverable": "Offline features, sync code and tests",
+          "checks": [["Edit offline and reconnect", "Changes synced", "Server data"], ["Edit the same record in two places", "Conflict resolved by the rule", "Test output"], ["Run offline tests", "Pass in Playwright", "Test report"]],
+          "objectives": ["Build offline-first apps", "Sync data", "Resolve conflicts"]
+        },
+        {
+          "topic": "Data-Heavy Interfaces: Grids, Charts and Large Forms",
+          "subtopics": ["Data grids: AG Grid and alternatives", "Virtual scrolling and server-side rows", "Charts with large data", "Large forms", "Filtering and sorting on the server", "Export features", "Keyboard use in grids", "Performance testing"],
+          "tools": ["AG Grid", "Apache ECharts", "Angular CDK"],
+          "lab_task": "Build a grid of one million transactions with server-side rows, filters and export, a chart of daily totals and keyboard-accessible editing.",
+          "deliverable": "Grid, chart and performance measurements",
+          "checks": [["Scroll the grid", "Smooth with server-side loading", "Performance profile"], ["Export filtered data", "File matches the filter", "Exported file"], ["Edit with the keyboard", "Cells editable without a mouse", "Screen recording"]],
+          "objectives": ["Build data-heavy UIs", "Handle large data", "Keep grids accessible"]
+        },
+        {
+          "topic": "Front-End Technical Leadership",
+          "subtopics": ["Setting technical direction", "Writing RFCs", "Code review standards", "Mentoring developers", "Managing technical debt", "Choosing libraries", "Communicating with product and design", "Measuring engineering health"],
+          "tools": ["RFC template", "Engineering metrics"],
+          "lab_task": "Write an RFC to move the team to signal-first state, run a review with peers, set code review standards and plan a technical debt quarter.",
+          "deliverable": "RFC, review notes, standards and plan",
+          "checks": [["Run the RFC review", "Feedback addressed and a decision recorded", "Review notes"], ["Review the standards", "Clear rules with examples", "Code review standards"], ["Present the debt plan", "Debt items prioritised by risk", "Presentation"]],
+          "objectives": ["Lead front-end teams", "Write RFCs", "Manage technical debt"]
+        },
+        {
+          "topic": "Troubleshooting Production Angular Issues",
+          "subtopics": ["An incident method for front ends", "Reproducing user reports", "Source maps in production", "Memory leaks", "Hydration mismatches", "Change detection loops", "Chunk load failures after deploys", "Post-incident reviews"],
+          "tools": ["Chrome DevTools", "Angular DevTools", "Error tracking"],
+          "lab_task": "Diagnose five injected issues (a memory leak, a hydration mismatch, chunk load errors after deploy, an infinite change detection loop and a slow route), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the memory leak", "Heap stable over repeated navigation", "Memory profile"], ["Fix chunk load errors", "Users recover after deploy", "Test results"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose front-end issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Angular Platform",
+          "subtopics": ["Architecture", "Shared foundations", "Quality and operations", "Review"],
+          "tools": ["Nx", "Native Federation", "Storybook", "Angular SSR", "Lighthouse CI", "OpenTelemetry"],
+          "lab_task": "Design and build an Angular platform for three teams: micro-frontends, a design system, signal-first state, SSR, budgets, security, observability and a migration path for a legacy app, then present it to an architecture board.",
+          "deliverable": "Architecture records, repositories, quality reports and board presentation",
+          "checks": [["Deploy one team's remote alone", "Shell updated without other teams", "Demo recording"], ["Run the quality gates", "Performance, accessibility and security checks pass", "CI log"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Angular at enterprise scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

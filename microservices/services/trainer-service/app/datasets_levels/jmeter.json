@@ -1,0 +1,573 @@
+{
+  "domain": "JMeter",
+  "name": "Apache JMeter Performance Testing",
+  "category": "Testing and QA",
+  "icon": "activity",
+  "aliases": ["Apache JMeter", "JMeter Performance Testing", "JMeter Load Testing", "Load Testing with JMeter", "Performance Testing with JMeter", "Performance Testing using JMeter", "JMeter Scripting", "JMeter Automation"],
+  "certifications": ["No official JMeter certification; assessed by capstone projects", "ISTQB Performance Testing (CT-PT)", "BlazeMeter University courses (optional)"],
+  "tools": ["Apache JMeter 5.6", "Java 17", "JMeter Plugins Manager", "Groovy for JSR223", "InfluxDB and Grafana", "Jenkins or GitHub Actions"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For testers and developers starting performance testing with Apache JMeter. Covers performance testing concepts and test types, installing JMeter, test plans and thread groups, HTTP samplers and config elements, recording scripts, listeners, assertions, timers and think time, parameterisation with CSV data, correlation with extractors, logic controllers and transactions, cookies, headers and sessions, testing REST APIs, running in non-GUI mode, the HTML dashboard report, reading results, basic server monitoring and a first load test report.",
+      "prerequisites": ["Understands how web applications and APIs work", "Has tested applications functionally", "Comfortable installing software and using a terminal"],
+      "outcomes": ["Explain performance test types, workload terms and key metrics", "Build realistic JMeter scripts with recording, parameterisation and correlation", "Run tests in non-GUI mode and produce HTML dashboard reports", "Read results with server metrics and write a clear first performance test report"],
+      "days": [
+        {
+          "topic": "JMeter Overview, Performance Testing Concepts and Installation Setup",
+          "subtopics": ["Why performance testing matters", "Load, stress, spike, soak and capacity tests", "Response time, throughput, errors and percentiles", "Users, sessions and concurrency", "How JMeter generates load", "Installing Java and JMeter", "The JMeter GUI and its parts", "JMeter properties files", "Installing the Plugins Manager", "The course application and project overview"],
+          "tools": ["Java 17", "Apache JMeter", "JMeter Plugins Manager"],
+          "lab_task": "Install JMeter and the Plugins Manager, open the GUI, run a sample test plan against the course application and explain each metric in the summary report.",
+          "deliverable": "Working JMeter installation and explained metrics",
+          "checks": [["Install", "JMeter starts and the Plugins Manager is available", "Screenshot"], ["Run", "The sample plan runs and produces results", "Summary report"], ["Explain", "Response time, throughput and error rate are explained correctly", "Notes"]],
+          "objectives": ["Explain performance testing types", "Install JMeter", "Read basic metrics"]
+        },
+        {
+          "topic": "Test Plans and Thread Groups",
+          "subtopics": ["The test plan element", "Thread groups: threads, ramp-up and loops", "Duration and scheduler settings", "setUp and tearDown thread groups", "Thread group actions on errors", "Element scoping and order of execution", "Saving and organising test plans", "Comments and naming conventions"],
+          "tools": ["Apache JMeter", "Course application"],
+          "lab_task": "Build a test plan with a setUp thread group that creates test data, a main thread group with ramp-up and duration, and a tearDown group that cleans up.",
+          "deliverable": "Structured test plan",
+          "checks": [["Configure load", "The main group uses the planned users, ramp-up and duration", "Test plan"], ["Prepare and clean", "setUp and tearDown groups run in the right order", "Results tree"], ["Name elements", "Every element has a meaningful name", "Test plan"]],
+          "objectives": ["Build test plans", "Configure thread groups", "Understand scoping and order"]
+        },
+        {
+          "topic": "HTTP Request Samplers and Config Elements",
+          "subtopics": ["The HTTP Request sampler", "HTTP Request Defaults", "HTTP Header Manager", "HTTP Cookie Manager", "HTTP Cache Manager", "Embedded resources", "Connection and response timeouts", "User Defined Variables"],
+          "tools": ["Apache JMeter", "Course application"],
+          "lab_task": "Script the home, search and product pages with HTTP samplers using request defaults, header, cookie and cache managers, and compare results with and without embedded resources.",
+          "deliverable": "Configured HTTP script",
+          "checks": [["Use defaults", "Host and protocol come from HTTP Request Defaults", "Test plan"], ["Manage state", "Cookies and headers are handled by managers", "Results tree"], ["Compare", "Results with and without embedded resources are compared", "Notes"]],
+          "objectives": ["Script HTTP requests", "Use config elements", "Handle cookies and caching"]
+        },
+        {
+          "topic": "Recording Scripts with the HTTP(S) Test Script Recorder",
+          "subtopics": ["How the recorder works as a proxy", "Installing the recorder certificate", "Recording a browser journey", "Excluding static resources and third parties", "Grouping recorded samplers into transactions", "Recording with the BlazeMeter browser extension", "Cleaning up recorded scripts", "When to write scripts by hand"],
+          "tools": ["JMeter HTTP(S) Test Script Recorder", "Browser", "BlazeMeter Chrome extension"],
+          "lab_task": "Record a login, search and add-to-cart journey through the recorder, exclude static and third-party requests, group steps into transactions and clean up the script.",
+          "deliverable": "Cleaned recorded script",
+          "checks": [["Record", "The journey is captured with all needed requests", "Test plan"], ["Filter", "Static and third-party requests are excluded", "Test plan"], ["Group", "Steps are grouped into named transactions", "Test plan"]],
+          "objectives": ["Record scripts", "Filter recordings", "Organise recorded steps"]
+        },
+        {
+          "topic": "Listeners: Viewing and Saving Results",
+          "subtopics": ["View Results Tree for debugging", "Summary Report and Aggregate Report", "Saving results to JTL files", "Result file configuration", "Listener cost during load tests", "Simple Data Writer", "Loading results after a run", "Choosing listeners for each stage"],
+          "tools": ["Apache JMeter listeners", "JTL files"],
+          "lab_task": "Debug a script with View Results Tree, run a load test with only a Simple Data Writer, then load the JTL into Aggregate Report and compare percentiles.",
+          "deliverable": "Debugged script and analysed results",
+          "checks": [["Debug", "Request and response details are inspected in the tree", "Screenshot"], ["Save efficiently", "The load run writes only to a results file", "Test plan"], ["Analyse", "Percentiles are read from the loaded results", "Aggregate report"]],
+          "objectives": ["Use listeners", "Save results efficiently", "Analyse saved results"]
+        },
+        {
+          "topic": "Assertions: Response, JSON, Duration and Size",
+          "subtopics": ["Why load tests need assertions", "Response Assertion", "JSON Assertion and JSONPath", "Duration Assertion", "Size Assertion", "Assertion results and error rates", "Assertion cost under load", "Keeping assertions focused"],
+          "tools": ["Apache JMeter assertions", "Course API"],
+          "lab_task": "Add response, JSON, duration and size assertions to the script, run it under light load and show how failed assertions appear in error rates.",
+          "deliverable": "Script with assertions and results",
+          "checks": [["Assert content", "Responses are checked for expected content", "Test plan"], ["Assert time", "Duration assertions flag slow responses", "Results"], ["Read errors", "Failed assertions appear in the error rate", "Summary report"]],
+          "objectives": ["Add assertions to load tests", "Check content and time", "Read assertion failures"]
+        },
+        {
+          "topic": "Timers and Think Time",
+          "subtopics": ["Why real users pause", "Constant Timer and Uniform Random Timer", "Gaussian Random Timer", "Constant Throughput Timer", "Precise Throughput Timer", "Timer scoping", "Pacing between iterations", "Effects of timers on load"],
+          "tools": ["Apache JMeter timers", "Course application"],
+          "lab_task": "Add realistic think time to the journey, then use a throughput timer to hold a target request rate and compare results with and without timers.",
+          "deliverable": "Timed script and comparison",
+          "checks": [["Add think time", "Steps have realistic random pauses", "Test plan"], ["Hold a rate", "The throughput timer holds the target rate", "Results"], ["Compare", "Results with and without timers are compared", "Notes"]],
+          "objectives": ["Model think time", "Control throughput", "Understand timer effects"]
+        },
+        {
+          "topic": "Parameterisation with CSV Data Set Config",
+          "subtopics": ["Why test data must vary", "CSV Data Set Config", "Sharing modes and recycling", "Unique data per thread", "Functions such as __Random and __UUID", "Property and variable functions", "Data for logins and searches", "Preparing data files"],
+          "tools": ["CSV Data Set Config", "JMeter functions", "Course application"],
+          "lab_task": "Parameterise logins and searches with a CSV file of users and terms, add unique values with functions and confirm that each thread uses different data.",
+          "deliverable": "Parameterised script and data file",
+          "checks": [["Read data", "Each thread reads a different row", "Results tree"], ["Generate values", "Unique values are produced with functions", "Results tree"], ["Prepare data", "The data file has enough rows for the planned load", "Data file"]],
+          "objectives": ["Parameterise scripts", "Use JMeter functions", "Prepare test data"]
+        },
+        {
+          "topic": "Correlation with Extractors: Regular Expression, JSON and Boundary",
+          "subtopics": ["What correlation is and why scripts fail without it", "Finding dynamic values", "Regular Expression Extractor", "JSON Extractor", "Boundary Extractor", "CSS Selector Extractor", "Default values and checking extraction", "Correlating tokens and session IDs"],
+          "tools": ["JMeter post-processors", "View Results Tree", "Course application"],
+          "lab_task": "Find the dynamic values in the recorded journey, extract the CSRF token, session ID and cart ID with suitable extractors and replay the script for ten users.",
+          "deliverable": "Correlated script that replays for many users",
+          "checks": [["Find values", "All dynamic values are listed", "Notes"], ["Extract", "Extractors capture each value", "Results tree"], ["Replay", "Ten users complete the journey without errors", "Summary report"]],
+          "objectives": ["Correlate dynamic values", "Use extractors", "Make recorded scripts replayable"]
+        },
+        {
+          "topic": "Logic Controllers and Transactions",
+          "subtopics": ["Transaction Controller and its options", "If Controller", "Loop and While Controllers", "Throughput Controller", "Once Only Controller", "Random and interleave controllers", "Modelling user mixes", "Readable test plans with controllers"],
+          "tools": ["JMeter logic controllers", "Course application"],
+          "lab_task": "Model a user mix where 60 percent browse, 30 percent search and 10 percent buy, with transactions for each step, a login done once per user and a conditional checkout.",
+          "deliverable": "User mix test plan",
+          "checks": [["Model the mix", "The measured mix matches the planned percentages", "Results"], ["Measure transactions", "Each step reports as a transaction", "Aggregate report"], ["Use conditions", "Checkout runs only when the cart has items", "Test plan"]],
+          "objectives": ["Use logic controllers", "Model user mixes", "Report transactions"]
+        },
+        {
+          "topic": "Cookies, Headers, Authentication and Sessions",
+          "subtopics": ["Session cookies and their handling", "Token-based authentication", "Bearer tokens in header managers", "Logging in once per thread", "Basic and digest authentication", "OAuth tokens from a setUp step", "Session expiry during long tests", "Security of credentials in scripts"],
+          "tools": ["HTTP Cookie Manager", "HTTP Header Manager", "HTTP Authorization Manager"],
+          "lab_task": "Script a token-based login once per thread, pass the token in headers, refresh it before expiry in a long test and keep credentials in a data file outside the script.",
+          "deliverable": "Authenticated script with token refresh",
+          "checks": [["Log in once", "Each thread logs in only once", "Results tree"], ["Use tokens", "Requests carry the bearer token", "Results tree"], ["Refresh", "Long runs refresh tokens without errors", "Results"]],
+          "objectives": ["Handle authentication in scripts", "Manage sessions and tokens", "Keep credentials safe"]
+        },
+        {
+          "topic": "Testing REST APIs with JMeter",
+          "subtopics": ["API test plans", "JSON request bodies", "Path and query parameters", "Content type and accept headers", "Extracting IDs from responses", "CRUD flows under load", "API error rates and status codes", "API workload models"],
+          "tools": ["Apache JMeter", "Course API", "JSON Extractor"],
+          "lab_task": "Build an API load test for create, read and search operations with JSON bodies and extracted IDs, and run it at three load levels.",
+          "deliverable": "API load test and results at three loads",
+          "checks": [["Script the API", "Each operation runs with valid bodies and headers", "Results tree"], ["Chain", "Created IDs are used in later requests", "Test plan"], ["Compare loads", "Response times are compared at three loads", "Results table"]],
+          "objectives": ["Load test REST APIs", "Chain API requests", "Compare load levels"]
+        },
+        {
+          "topic": "Non-GUI Mode and Command-Line Runs",
+          "subtopics": ["Why load tests run without the GUI", "The jmeter command-line options", "Passing properties with -J", "Writing results and logs", "Generating the report at the end of a run", "Running from scripts", "Memory settings for JMeter", "Checking runs from logs"],
+          "tools": ["JMeter command line", "Shell scripts", "Course application"],
+          "lab_task": "Run the user mix test in non-GUI mode with users and duration passed as properties, write results and logs, and generate the HTML report from the command line.",
+          "deliverable": "Command-line run script and report",
+          "checks": [["Run headless", "The test runs from the command line", "Terminal output"], ["Pass properties", "Users and duration change through -J options", "Run log"], ["Report", "The HTML report is generated at the end", "Report folder"]],
+          "objectives": ["Run JMeter from the command line", "Parameterise runs with properties", "Produce reports automatically"]
+        },
+        {
+          "topic": "The HTML Dashboard Report",
+          "subtopics": ["Dashboard sections and charts", "APDEX settings", "Response time percentiles over time", "Throughput and active threads over time", "Errors by type", "Customising report properties", "Generating reports from existing results", "Sharing reports"],
+          "tools": ["JMeter HTML dashboard", "JTL results"],
+          "lab_task": "Generate the HTML dashboard for a load run, set APDEX thresholds, find when response times started to rise and summarise the top three errors.",
+          "deliverable": "Dashboard report with findings",
+          "checks": [["Configure", "APDEX thresholds match the agreed targets", "Report settings"], ["Find trends", "The point where response times rise is identified", "Findings"], ["Summarise errors", "The top three errors are explained", "Findings"]],
+          "objectives": ["Read the HTML dashboard", "Configure APDEX", "Summarise findings"]
+        },
+        {
+          "topic": "Reading Results: Percentiles, Throughput and Errors",
+          "subtopics": ["Average compared with percentiles", "90th, 95th and 99th percentiles", "Throughput and its relation to users", "Little's law in practice", "Error rate and error types", "Spotting saturation", "Comparing runs", "Common misreadings"],
+          "tools": ["Aggregate Report", "Spreadsheet", "HTML dashboard"],
+          "lab_task": "Compare three runs at different loads, calculate expected throughput with Little's law, find the saturation point and correct three misleading statements in a sample report.",
+          "deliverable": "Run comparison and corrected report",
+          "checks": [["Compare", "Percentiles and throughput are compared across runs", "Comparison table"], ["Find saturation", "The saturation point is identified with evidence", "Findings"], ["Correct", "Three misleading statements are fixed", "Corrected report"]],
+          "objectives": ["Interpret performance results", "Use percentiles and Little's law", "Avoid misleading conclusions"]
+        },
+        {
+          "topic": "Server Monitoring During Tests",
+          "subtopics": ["Why client metrics are not enough", "CPU, memory, disk and network on servers", "Application metrics and logs", "Database metrics", "Monitoring tools: OS tools, APM and dashboards", "Matching server metrics to test time", "Finding the first bottleneck", "Sharing data with developers"],
+          "tools": ["OS monitoring tools", "APM tool or Prometheus", "JMeter results"],
+          "lab_task": "Monitor the application and database servers during a load test, line up server metrics with JMeter results and identify the first resource to saturate.",
+          "deliverable": "Combined client and server analysis",
+          "checks": [["Collect", "Server metrics are captured for the test window", "Monitoring data"], ["Correlate", "Server metrics are aligned with response times", "Analysis chart"], ["Identify", "The first saturated resource is named with evidence", "Findings"]],
+          "objectives": ["Monitor servers during tests", "Correlate client and server data", "Find bottlenecks"]
+        },
+        {
+          "topic": "Database and Other Protocol Samplers",
+          "subtopics": ["JDBC Connection Configuration and JDBC Request", "Testing database queries under load", "FTP, SMTP and TCP samplers in brief", "JMS samplers for messaging", "Choosing protocols for a test", "Drivers and classpath", "Protocol-specific metrics", "When to test below the application"],
+          "tools": ["JDBC Request", "Database driver", "Apache JMeter"],
+          "lab_task": "Load test three slow database queries with JDBC samplers, compare their response times under concurrency and report which query needs tuning first.",
+          "deliverable": "Database load test and recommendation",
+          "checks": [["Connect", "The JDBC connection pool works", "Results tree"], ["Measure", "Each query's response time under load is recorded", "Aggregate report"], ["Recommend", "The query to tune first is justified", "Recommendation"]],
+          "objectives": ["Test databases with JMeter", "Use protocol samplers", "Choose what to test"]
+        },
+        {
+          "topic": "Debugging and Validating Scripts",
+          "subtopics": ["Debug Sampler and Debug PostProcessor", "Logging from JSR223 elements", "Validating scripts with one user", "Checking correlation and data use", "Common errors: 401, 403, 404 and 500", "Proxy and SSL problems", "JMeter log file", "A script validation checklist"],
+          "tools": ["Debug Sampler", "View Results Tree", "jmeter.log"],
+          "lab_task": "Diagnose four broken scripts (a failed correlation, an expired token, a missing header and an SSL error), fix them and write a validation checklist.",
+          "deliverable": "Fixed scripts and validation checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All four scripts run without errors", "Results"], ["Share", "The checklist covers the checks used", "Checklist"]],
+          "objectives": ["Debug JMeter scripts", "Validate before load", "Fix common errors"]
+        },
+        {
+          "topic": "Planning a Performance Test: Goals, Workload and Environment",
+          "subtopics": ["Gathering performance requirements", "Service level objectives", "Workload models from production data", "Test environment compared with production", "Test data needs", "Entry and exit criteria", "Risks and assumptions", "The performance test plan document"],
+          "tools": ["Test plan template", "Production analytics", "Spreadsheet"],
+          "lab_task": "Write a performance test plan for the course application with goals, a workload model from sample analytics, environment notes, data needs and criteria.",
+          "deliverable": "Performance test plan",
+          "checks": [["Set goals", "Goals are measurable service level objectives", "Test plan"], ["Model workload", "The workload is based on analytics data", "Workload model"], ["State risks", "Environment differences and risks are listed", "Test plan"]],
+          "objectives": ["Plan performance tests", "Build workload models", "Define success criteria"]
+        },
+        {
+          "topic": "Beginner Capstone: Load Test and Report for an Online Store",
+          "subtopics": ["Test plan", "Recorded and correlated script", "Parameterised user mix", "Non-GUI runs at several loads", "Server monitoring", "Results report"],
+          "tools": ["Apache JMeter", "CSV data", "HTML dashboard", "Monitoring tools"],
+          "lab_task": "Plan and run a load test of an online store with a correlated, parameterised user mix in non-GUI mode at three loads, monitor the servers and write a report with findings and recommendations.",
+          "deliverable": "Test plan, scripts, results and report",
+          "checks": [["Script", "The script replays the user mix without errors", "Results"], ["Run", "Three load levels are run with server monitoring", "Run logs"], ["Report", "The report states results against goals with recommendations", "Performance report"]],
+          "objectives": ["Combine beginner JMeter skills", "Run a planned load test", "Report results clearly"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For performance testers who build JMeter scripts and now run professional load tests. Covers advanced workload models, JMeter plugins for thread groups and graphs, JSR223 with Groovy, modular test plans, distributed testing, real-time results with InfluxDB and Grafana, CI pipelines, Taurus, Docker, stress, spike and soak tests, capacity testing, bottleneck analysis with APM, database and caching effects, front-end performance, microservices, messaging, cloud load testing, results comparison and baselines, test data at scale and performance reporting to stakeholders.",
+      "prerequisites": ["Builds correlated and parameterised JMeter scripts", "Runs tests in non-GUI mode and reads the HTML dashboard", "Understands basic server metrics"],
+      "outcomes": ["Design realistic workload models and run load, stress, spike, soak and capacity tests", "Scale JMeter with distributed and containerised load generators", "Monitor tests live and find bottlenecks with APM and server data", "Automate performance tests in CI and report results against baselines"],
+      "days": [
+        {
+          "topic": "Advanced Workload Modelling from Production Data",
+          "subtopics": ["Reading production analytics and logs", "Transactions per hour and concurrency", "Peak hour and peak minute", "User journeys and their mix", "Arrival rates compared with user counts", "Open and closed workload models", "Seasonal and event peaks", "Documenting the model"],
+          "tools": ["Access logs", "Analytics data", "Spreadsheet"],
+          "lab_task": "Build a workload model from a week of sample access logs with peak rates, journey mix and arrival rates, and translate it into JMeter thread group settings.",
+          "deliverable": "Workload model and JMeter settings",
+          "checks": [["Find peaks", "Peak hour and minute rates come from the logs", "Analysis"], ["Model journeys", "The journey mix matches the logs", "Workload model"], ["Translate", "Thread groups produce the modelled arrival rate", "Test results"]],
+          "objectives": ["Model workload from data", "Use open and closed models", "Translate models into JMeter"]
+        },
+        {
+          "topic": "JMeter Plugins: Concurrency, Arrivals and Ultimate Thread Groups",
+          "subtopics": ["The Plugins Manager", "Concurrency Thread Group", "Arrivals Thread Group", "Ultimate Thread Group", "Throughput Shaping Timer", "Extra graphs and listeners", "Plugin compatibility and versions", "Keeping plugins in CI environments"],
+          "tools": ["JMeter Plugins Manager", "Custom thread groups", "Throughput Shaping Timer"],
+          "lab_task": "Implement the workload model with an Arrivals Thread Group and a Throughput Shaping Timer, compare it with a standard thread group and make plugins available in CI.",
+          "deliverable": "Plugin-based test plan and comparison",
+          "checks": [["Shape load", "The arrival rate follows the planned profile", "Results chart"], ["Compare", "Differences from a standard thread group are explained", "Notes"], ["Package", "CI installs the same plugin versions", "Pipeline log"]],
+          "objectives": ["Use JMeter plugins", "Shape load precisely", "Keep plugins consistent"]
+        },
+        {
+          "topic": "JSR223 and Groovy Scripting in JMeter",
+          "subtopics": ["JSR223 samplers, pre-processors and post-processors", "Why Groovy and not Beanshell", "vars, props, prev and ctx objects", "Generating data and signatures in Groovy", "Custom logic and validation", "Caching compiled scripts", "Performance cost of scripting", "Logging and debugging scripts"],
+          "tools": ["JSR223 elements", "Groovy", "Apache JMeter"],
+          "lab_task": "Write Groovy scripts that generate signed request headers, validate a complex JSON response and set variables for later steps, and measure their cost under load.",
+          "deliverable": "Groovy scripts and cost measurements",
+          "checks": [["Sign requests", "Signed requests are accepted", "Results tree"], ["Validate", "Complex validation fails bad responses", "Results"], ["Measure cost", "Script overhead is measured under load", "Comparison"]],
+          "objectives": ["Script JMeter with Groovy", "Use JMeter objects", "Keep scripting efficient"]
+        },
+        {
+          "topic": "Modular Test Plans: Test Fragments, Include and Module Controllers",
+          "subtopics": ["Why modular test plans help", "Test Fragments", "Module Controller", "Include Controller", "Shared configuration files", "Reusable journeys across tests", "Version control for test plans", "Reviewing JMX changes"],
+          "tools": ["Test Fragments", "Include Controller", "Git"],
+          "lab_task": "Split the store test into reusable fragments for login, search and checkout, build two test plans from them and review a JMX change in Git.",
+          "deliverable": "Modular test plans in version control",
+          "checks": [["Reuse", "Two test plans share the same fragments", "Test plans"], ["Version", "Test plans are stored and reviewed in Git", "Pull request"], ["Change once", "A login change updates both plans", "Commit diff"]],
+          "objectives": ["Build modular test plans", "Reuse journeys", "Manage JMX in Git"]
+        },
+        {
+          "topic": "Distributed Testing with Remote Load Generators",
+          "subtopics": ["When one machine is not enough", "Controller and remote servers", "RMI configuration and security", "Data files on remote machines", "Synchronised start and results collection", "Network capacity of load generators", "Monitoring load generators", "Common distributed testing problems"],
+          "tools": ["JMeter remote servers", "Several VMs or containers", "Monitoring tools"],
+          "lab_task": "Run a distributed test from one controller and three remote generators with separate data files, monitor the generators and confirm they are not the bottleneck.",
+          "deliverable": "Distributed run with generator monitoring",
+          "checks": [["Distribute", "Three generators produce load together", "Run log"], ["Split data", "Each generator uses its own data file", "Configuration"], ["Check generators", "Generator CPU and network stay within limits", "Monitoring data"]],
+          "objectives": ["Run distributed tests", "Configure remote generators", "Avoid generator bottlenecks"]
+        },
+        {
+          "topic": "Real-Time Results with InfluxDB and Grafana",
+          "subtopics": ["Backend Listener", "InfluxDB as the results store", "Grafana dashboards for JMeter", "Live response times, throughput and errors", "Annotations for test events", "Combining with server dashboards", "Storing results for comparison", "Dashboard design for teams"],
+          "tools": ["Backend Listener", "InfluxDB", "Grafana"],
+          "lab_task": "Send live results to InfluxDB with the Backend Listener, build a Grafana dashboard next to server metrics and annotate a test with ramp-up and peak phases.",
+          "deliverable": "Live dashboard with annotated test",
+          "checks": [["Stream", "Results appear in InfluxDB during the run", "Database query"], ["Visualise", "The dashboard shows live response time, throughput and errors", "Dashboard"], ["Annotate", "Test phases are marked on the dashboard", "Dashboard screenshot"]],
+          "objectives": ["Monitor tests live", "Use InfluxDB and Grafana", "Combine test and server views"]
+        },
+        {
+          "topic": "Performance Tests in CI Pipelines",
+          "subtopics": ["Where performance tests fit in CI", "Short smoke load tests on each build", "Nightly and weekly larger tests", "Pass and fail criteria", "Jenkins and GitHub Actions pipelines", "Publishing reports from CI", "Environments for CI performance tests", "Avoiding noisy results"],
+          "tools": ["Jenkins or GitHub Actions", "JMeter command line", "HTML dashboard"],
+          "lab_task": "Add a five-minute smoke load test to the pipeline with pass and fail criteria, a nightly larger test and published reports, and fail a build with a deliberate slowdown.",
+          "deliverable": "Pipeline with performance stages",
+          "checks": [["Run in CI", "The smoke load test runs on each build", "Pipeline run"], ["Gate", "The deliberate slowdown fails the build", "Pipeline run"], ["Publish", "Reports are linked from each run", "Report link"]],
+          "objectives": ["Automate performance tests", "Set pass and fail criteria", "Publish reports from CI"]
+        },
+        {
+          "topic": "JMeter in Docker and Containerised Load Generators",
+          "subtopics": ["JMeter Docker images", "Building an image with plugins and data", "Running tests in containers", "Containerised remote generators", "Resource limits for containers", "Collecting results from containers", "Kubernetes jobs for load tests", "Cleaning up after runs"],
+          "tools": ["Docker", "JMeter image", "Kubernetes (optional)"],
+          "lab_task": "Build a JMeter image with plugins and the test plan, run it locally, scale to three containerised generators and collect results into one report.",
+          "deliverable": "JMeter image and containerised run",
+          "checks": [["Build", "The image runs the test without extra setup", "Run log"], ["Scale", "Three containers generate load together", "Run log"], ["Collect", "Results from all containers form one report", "Report"]],
+          "objectives": ["Run JMeter in containers", "Scale generators with containers", "Collect results"]
+        },
+        {
+          "topic": "Stress and Spike Testing",
+          "subtopics": ["Purpose of stress tests", "Finding the breaking point", "Step load profiles", "Spike tests for sudden surges", "Recovery after overload", "Error behaviour under stress", "Safety for shared environments", "Reporting breaking points"],
+          "tools": ["Ultimate Thread Group", "Monitoring tools", "Apache JMeter"],
+          "lab_task": "Run a step stress test until errors rise sharply, then a spike test with a sudden tenfold jump, and record the breaking point and recovery time.",
+          "deliverable": "Stress and spike results with breaking point",
+          "checks": [["Find limits", "The breaking point is identified with evidence", "Results"], ["Test spikes", "Spike behaviour and errors are recorded", "Results chart"], ["Measure recovery", "Recovery time after overload is measured", "Findings"]],
+          "objectives": ["Run stress tests", "Run spike tests", "Report breaking points and recovery"]
+        },
+        {
+          "topic": "Soak and Endurance Testing",
+          "subtopics": ["Why some problems appear only over time", "Memory leaks and resource exhaustion", "Planning long tests", "Data volume for long runs", "Monitoring trends over hours", "Results file sizes", "Interrupting and resuming tests", "Reporting soak findings"],
+          "tools": ["Apache JMeter", "Monitoring tools", "Grafana"],
+          "lab_task": "Run a four-hour soak test at expected load, track memory, connections and response times over time and report any upward trends.",
+          "deliverable": "Soak results and trend analysis",
+          "checks": [["Run long", "The test runs for the planned duration", "Run log"], ["Track trends", "Memory and response time trends are charted", "Trend charts"], ["Report", "Any leak or degradation is reported with evidence", "Findings"]],
+          "objectives": ["Run soak tests", "Detect slow degradation", "Report endurance findings"]
+        },
+        {
+          "topic": "Capacity and Scalability Testing",
+          "subtopics": ["Capacity compared with performance", "Scaling up and scaling out", "Testing autoscaling", "Throughput per instance", "Cost per transaction", "Capacity models for planning", "Headroom and growth", "Reporting capacity"],
+          "tools": ["Apache JMeter", "Cloud autoscaling", "Monitoring tools"],
+          "lab_task": "Test how throughput changes from one to four application instances, check autoscaling behaviour under rising load and build a simple capacity model with headroom.",
+          "deliverable": "Scalability results and capacity model",
+          "checks": [["Measure scaling", "Throughput per instance count is recorded", "Results table"], ["Test autoscaling", "Scale-out timing and effect are measured", "Monitoring data"], ["Model capacity", "The model shows headroom for expected growth", "Capacity model"]],
+          "objectives": ["Test scalability", "Check autoscaling", "Build capacity models"]
+        },
+        {
+          "topic": "Bottleneck Analysis with APM and Profiling",
+          "subtopics": ["From slow response to root cause", "APM traces for slow transactions", "Thread dumps and profiling", "Garbage collection effects", "Connection pool limits", "Slow queries", "Working with developers on fixes", "Retesting after fixes"],
+          "tools": ["APM tool", "Thread dump tools", "Database query statistics"],
+          "lab_task": "Use APM traces, thread dumps and query statistics to find the cause of a slow checkout under load, propose a fix with developers and retest to confirm the gain.",
+          "deliverable": "Bottleneck analysis and retest results",
+          "checks": [["Trace", "The slow step is located in APM traces", "Trace screenshots"], ["Find cause", "The root cause is confirmed with evidence", "Analysis"], ["Retest", "Response times improve after the fix", "Comparison"]],
+          "objectives": ["Find bottlenecks", "Use APM and profiling", "Confirm fixes with retests"]
+        },
+        {
+          "topic": "Databases, Caches and Their Effect on Performance Tests",
+          "subtopics": ["Warm and cold caches", "Database size and realistic data volumes", "Connection pools", "Index and query plan effects", "Caching layers such as Redis", "Data growth during tests", "Resetting data between runs", "Reporting data-related effects"],
+          "tools": ["Database monitoring", "Redis monitoring", "Apache JMeter"],
+          "lab_task": "Compare results with cold and warm caches and with small and production-like data volumes, and report how much each factor changes response times.",
+          "deliverable": "Cache and data volume comparison",
+          "checks": [["Compare caches", "Cold and warm cache results are recorded", "Results table"], ["Compare volumes", "Small and large data results are recorded", "Results table"], ["Report", "The effect of each factor is quantified", "Findings"]],
+          "objectives": ["Account for caches and data", "Use realistic data volumes", "Report data effects"]
+        },
+        {
+          "topic": "Front-End Performance Alongside JMeter",
+          "subtopics": ["What JMeter does not measure", "Browser rendering and JavaScript time", "Core Web Vitals", "Lighthouse and WebPageTest", "Combining protocol load with browser measurements", "Real user monitoring data", "Reporting end-user experience", "Choosing tools for front-end checks"],
+          "tools": ["Lighthouse", "WebPageTest", "Apache JMeter"],
+          "lab_task": "Run a JMeter load test while measuring page experience with Lighthouse for three pages, and report how back-end load changes Core Web Vitals.",
+          "deliverable": "Combined back-end and front-end results",
+          "checks": [["Measure pages", "Lighthouse results are recorded under load", "Lighthouse reports"], ["Compare", "Vitals with and without load are compared", "Comparison"], ["Report", "End-user impact is stated clearly", "Findings"]],
+          "objectives": ["Measure front-end performance", "Combine with load tests", "Report user experience"]
+        },
+        {
+          "topic": "Testing Microservices and Messaging Under Load",
+          "subtopics": ["Load across many services", "Service dependencies and bottlenecks", "Testing one service in isolation with stubs", "Message queues and Kafka under load", "JMS and Kafka samplers or plugins", "Back-pressure and queue growth", "Tracing across services", "Reporting per service"],
+          "tools": ["Apache JMeter", "Kafka plugin or client", "Tracing tool", "WireMock"],
+          "lab_task": "Load test an order flow across three services and a Kafka topic, isolate one service with stubs and identify which service or queue limits throughput.",
+          "deliverable": "Microservice load results and limiting component",
+          "checks": [["Load the flow", "End-to-end throughput is measured", "Results"], ["Isolate", "The isolated service's limit is measured", "Results"], ["Identify", "The limiting service or queue is named with evidence", "Findings"]],
+          "objectives": ["Load test microservices", "Test messaging under load", "Find limiting components"]
+        },
+        {
+          "topic": "Cloud Load Testing Services",
+          "subtopics": ["When to use a cloud load testing service", "Running JMX files in the cloud", "Azure Load Testing and similar services", "Geographic load distribution", "Private endpoints and network access", "Costs and quotas", "Results and integrations", "Choosing between self-hosted and cloud"],
+          "tools": ["Azure Load Testing or BlazeMeter", "Apache JMeter", "Cloud networking"],
+          "lab_task": "Run the store test from a cloud load testing service in two regions, reach a private environment through the service's network options and compare cost and effort with self-hosted generators.",
+          "deliverable": "Cloud run results and comparison",
+          "checks": [["Run in the cloud", "The JMX test runs from two regions", "Service report"], ["Reach private systems", "The private environment is tested through the service", "Network configuration"], ["Compare", "Cost and effort are compared with self-hosted runs", "Comparison"]],
+          "objectives": ["Use cloud load testing", "Distribute load geographically", "Choose hosting options"]
+        },
+        {
+          "topic": "Baselines, Comparisons and Regression Detection",
+          "subtopics": ["Why baselines matter", "Creating a performance baseline", "Comparing runs fairly", "Statistical noise and repeat runs", "Thresholds for regressions", "Automating comparisons", "Tracking trends across releases", "Investigating regressions"],
+          "tools": ["JTL results", "Comparison scripts", "Grafana"],
+          "lab_task": "Create a baseline from three repeat runs, compare a new build automatically against it with thresholds and investigate one detected regression.",
+          "deliverable": "Baseline, comparison script and regression note",
+          "checks": [["Baseline", "The baseline uses repeat runs with noise measured", "Baseline data"], ["Compare", "The comparison flags changes beyond thresholds", "Comparison output"], ["Investigate", "The regression's cause is recorded", "Regression note"]],
+          "objectives": ["Create baselines", "Detect regressions", "Account for noise"]
+        },
+        {
+          "topic": "Test Data at Scale for Performance Tests",
+          "subtopics": ["Data needs for large tests", "Generating large data sets", "Unique data across generators", "Data consumption during tests", "Masking production data", "Resetting large data sets", "Data and cache warm-up", "Data problems that distort results"],
+          "tools": ["Data generation scripts", "CSV files", "Database tools"],
+          "lab_task": "Generate data for a one-hour test at peak load, split it across generators without overlap, plan the reset and show how stale data distorted a previous run.",
+          "deliverable": "Data plan, generated data and analysis",
+          "checks": [["Generate", "Data covers the full test without reuse conflicts", "Data files"], ["Split", "Generators use separate data", "Configuration"], ["Explain", "The distorted run is explained", "Analysis"]],
+          "objectives": ["Prepare data at scale", "Avoid data conflicts", "Recognise data-related distortion"]
+        },
+        {
+          "topic": "Reporting Performance Results to Stakeholders",
+          "subtopics": ["Audiences: developers, managers and business owners", "Executive summaries for performance", "Results against service level objectives", "Charts that make the point", "Risks and recommendations", "Go and no-go advice", "Presenting results", "Following up on actions"],
+          "tools": ["Report template", "Grafana", "Presentation template"],
+          "lab_task": "Write a performance report for a release with an executive summary, results against objectives, bottlenecks, risks and a go or no-go recommendation, and present it to role-played stakeholders.",
+          "deliverable": "Performance report and presentation notes",
+          "checks": [["Summarise", "The summary states results against objectives in plain words", "Report"], ["Recommend", "The go or no-go advice is justified", "Report"], ["Present", "Stakeholders agree actions", "Presentation notes"]],
+          "objectives": ["Report performance results", "Advise on release decisions", "Present to stakeholders"]
+        },
+        {
+          "topic": "Intermediate Capstone: Performance Test Campaign for a Release",
+          "subtopics": ["Workload model", "Modular scripts with plugins", "Distributed or cloud runs", "Live monitoring", "Load, stress and soak tests", "Report and recommendation"],
+          "tools": ["Apache JMeter", "JMeter Plugins", "InfluxDB and Grafana", "Cloud or containerised generators"],
+          "lab_task": "Run a performance campaign for a release: build the workload model, modular scripts and live dashboards, run load, stress and soak tests on scaled generators, analyse bottlenecks and present a recommendation.",
+          "deliverable": "Campaign artefacts, results and recommendation",
+          "checks": [["Model", "The workload model is based on data", "Workload model"], ["Run", "Load, stress and soak tests complete with monitoring", "Run records"], ["Recommend", "The recommendation follows from results and bottlenecks", "Report"]],
+          "objectives": ["Combine intermediate JMeter skills", "Run a full performance campaign", "Advise on release readiness"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For performance engineers and leads who own performance across systems and teams. Covers performance engineering strategy, service level objectives and error budgets, performance requirements, architecture risk reviews, JMeter at scale, JMeter DSL and code-based tools, k6 and Gatling alongside JMeter, continuous performance testing, production-like environments, chaos under load, capacity planning, cloud cost and performance, database and JVM tuning partnerships, observability-driven analysis, testing in production, mobile and API back ends, AI-assisted analysis, governance, team enablement and troubleshooting.",
+      "prerequisites": ["Has run full performance campaigns with JMeter", "Understands monitoring, APM and system architecture", "Works with development and operations teams on fixes"],
+      "outcomes": ["Set performance engineering strategy, objectives and governance", "Run performance testing continuously and at scale across tools", "Plan capacity and cost with evidence from tests and production", "Lead performance analysis with developers, operations and leadership"],
+      "days": [
+        {
+          "topic": "Performance Engineering Strategy for an Organisation",
+          "subtopics": ["Performance testing compared with performance engineering", "Shift-left and shift-right for performance", "Risk-based selection of systems", "Ownership between teams", "Tools and platforms", "Roadmap for maturity", "Measuring success", "Communicating with leadership"],
+          "tools": ["Strategy template", "Risk map", "Maturity model"],
+          "lab_task": "Assess performance practices for four systems, write a performance engineering strategy with ownership and a one-year roadmap, and present it to engineering leaders.",
+          "deliverable": "Assessment, strategy and roadmap",
+          "checks": [["Assess", "Each system has a maturity and risk rating", "Assessment"], ["Plan", "The roadmap has phases and measures", "Roadmap"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Set performance strategy", "Assign ownership", "Plan maturity improvements"]
+        },
+        {
+          "topic": "Service Level Objectives, Error Budgets and Performance Requirements",
+          "subtopics": ["Writing measurable performance requirements", "Service level indicators and objectives", "Error budgets", "Percentile-based objectives", "Objectives per journey and service", "Linking tests to objectives", "Reviewing objectives with the business", "Handling objectives that are not met"],
+          "tools": ["SLO template", "Monitoring data", "Spreadsheet"],
+          "lab_task": "Define SLIs and SLOs for three critical journeys from business needs and production data, map tests to them and agree an error budget policy with role-played owners.",
+          "deliverable": "SLO set, test mapping and budget policy",
+          "checks": [["Define", "Each journey has measurable SLIs and SLOs", "SLO set"], ["Map tests", "Tests report against each SLO", "Test mapping"], ["Agree", "Owners accept the error budget policy", "Policy record"]],
+          "objectives": ["Define performance objectives", "Use error budgets", "Link tests to objectives"]
+        },
+        {
+          "topic": "Architecture Performance Risk Reviews",
+          "subtopics": ["Reviewing designs before code", "Common performance anti-patterns", "Chatty services and N plus one calls", "Caching strategy reviews", "Data growth and partitioning", "Synchronous dependencies and timeouts", "Modelling expected load on components", "Turning risks into tests"],
+          "tools": ["Architecture diagrams", "Risk checklist", "Load model"],
+          "lab_task": "Review a proposed architecture for performance risks, estimate component load from the workload model and turn the top risks into targeted tests.",
+          "deliverable": "Risk review and targeted test plan",
+          "checks": [["Find risks", "At least five performance risks are found", "Risk review"], ["Estimate", "Component load estimates are calculated", "Load model"], ["Plan tests", "Top risks have targeted tests", "Test plan"]],
+          "objectives": ["Review architecture for performance", "Estimate component load", "Test the biggest risks"]
+        },
+        {
+          "topic": "JMeter at Scale: Large Distributed Tests and Generator Fleets",
+          "subtopics": ["Planning very large tests", "Generator sizing and tuning", "JVM and OS tuning for JMeter", "Results handling at high volume", "Coordinating many generators", "Network capacity and cloud limits", "Cost control for large tests", "Running large tests safely"],
+          "tools": ["JMeter generator fleet", "Cloud infrastructure", "Monitoring tools"],
+          "lab_task": "Plan and run a test at ten times normal load on a fleet of tuned generators, keep results volume manageable and confirm generators were not the bottleneck.",
+          "deliverable": "Large test plan, run results and generator evidence",
+          "checks": [["Size", "Generator count and size follow the plan", "Test plan"], ["Run", "The large test reaches the target load", "Results"], ["Prove generators", "Generator metrics show spare capacity", "Monitoring data"]],
+          "objectives": ["Run very large tests", "Tune generators", "Control cost and risk"]
+        },
+        {
+          "topic": "JMeter DSL and Performance Tests in Code",
+          "subtopics": ["Why code-based performance tests", "JMeter DSL for Java", "Building test plans in Java", "Reusing API clients and data", "Running DSL tests in JUnit", "Converting JMX to DSL", "Version control and reviews", "When to keep JMX"],
+          "tools": ["JMeter DSL", "Java", "JUnit 5"],
+          "lab_task": "Convert the store test to JMeter DSL in Java, run it from JUnit in CI with assertions on percentiles and compare maintenance with the JMX version.",
+          "deliverable": "DSL test and maintenance comparison",
+          "checks": [["Convert", "The DSL test reproduces the JMX workload", "Results"], ["Assert", "Percentile assertions run in CI", "Pipeline run"], ["Compare", "Maintenance effort is compared", "Comparison"]],
+          "objectives": ["Write performance tests in code", "Use JMeter DSL", "Choose JMX or code"]
+        },
+        {
+          "topic": "k6 and Gatling Alongside JMeter",
+          "subtopics": ["Strengths of k6, Gatling and JMeter", "Scripting models compared", "Developer-friendly performance tests", "Running each tool in CI", "Comparing results across tools", "Choosing tools per team", "Shared reporting", "Avoiding tool sprawl"],
+          "tools": ["k6", "Gatling", "Apache JMeter"],
+          "lab_task": "Implement the same API load test in k6, Gatling and JMeter, compare results, resource use and scripting effort, and write a tool choice guide.",
+          "deliverable": "Three implementations and a tool guide",
+          "checks": [["Implement", "All three tests produce comparable load", "Results"], ["Compare", "Results, resource use and effort are compared", "Comparison"], ["Guide", "The guide recommends tools per team type", "Tool guide"]],
+          "objectives": ["Compare performance tools", "Choose tools per team", "Share reporting across tools"]
+        },
+        {
+          "topic": "Continuous Performance Testing",
+          "subtopics": ["Performance checks on every change", "Component-level performance tests", "Nightly and pre-release tests", "Automated baselines and comparisons", "Noise control in shared environments", "Alerting on regressions", "Feedback to developers", "Measuring the programme"],
+          "tools": ["CI pipelines", "Comparison scripts", "Dashboard tool"],
+          "lab_task": "Design and implement continuous performance testing for a service with per-change checks, nightly comparisons against baselines and alerts to the owning team.",
+          "deliverable": "Continuous performance pipeline and alerts",
+          "checks": [["Check changes", "Each change runs a short performance check", "Pipeline runs"], ["Compare", "Nightly runs compare against baselines", "Comparison output"], ["Alert", "Regressions alert the owning team", "Alert record"]],
+          "objectives": ["Test performance continuously", "Detect regressions early", "Feed results to developers"]
+        },
+        {
+          "topic": "Production-Like Environments and Their Limits",
+          "subtopics": ["Why test environments differ from production", "Scaling down and extrapolating", "Infrastructure as code for test environments", "Data, network and third-party differences", "Mocks and their effect on results", "Reporting confidence and limits", "Testing in production as a complement", "Environment cost control"],
+          "tools": ["Infrastructure as code", "Environment comparison sheet", "Cloud cost tools"],
+          "lab_task": "Compare a test environment with production, decide what can be extrapolated, build a scaled environment with infrastructure as code and state the confidence limits in the report.",
+          "deliverable": "Environment comparison, scaled environment and limits statement",
+          "checks": [["Compare", "Differences are listed with their likely effects", "Comparison sheet"], ["Build", "The scaled environment is created from code", "IaC repository"], ["State limits", "The report states what results can and cannot predict", "Limits statement"]],
+          "objectives": ["Plan test environments", "Extrapolate carefully", "Report confidence limits"]
+        },
+        {
+          "topic": "Chaos and Resilience Under Load",
+          "subtopics": ["Why failures behave differently under load", "Injecting faults during load tests", "Instance loss and failover", "Dependency slowdowns", "Retry storms and back-pressure", "Recovery objectives", "Running experiments safely", "Reporting resilience findings"],
+          "tools": ["Fault injection tool", "Apache JMeter", "Monitoring tools"],
+          "lab_task": "Inject an instance failure and a slow dependency during a load test, measure error rates and recovery and report whether recovery objectives were met.",
+          "deliverable": "Experiment results and resilience report",
+          "checks": [["Inject", "Faults are injected at planned times", "Experiment log"], ["Measure", "Error rates and recovery times are recorded", "Results"], ["Report", "Results are compared with recovery objectives", "Resilience report"]],
+          "objectives": ["Test resilience under load", "Measure recovery", "Report against objectives"]
+        },
+        {
+          "topic": "Capacity Planning from Test and Production Data",
+          "subtopics": ["Capacity planning inputs", "Growth forecasts", "Utilisation and saturation models", "Queueing ideas for planners", "Headroom policies", "Scaling triggers", "Capacity reviews with operations", "Communicating capacity risk"],
+          "tools": ["Capacity model", "Production metrics", "Spreadsheet"],
+          "lab_task": "Build a twelve-month capacity plan for a service from test results, production metrics and growth forecasts, with headroom, scaling triggers and risks.",
+          "deliverable": "Capacity plan with risks",
+          "checks": [["Use data", "The plan combines test and production data", "Capacity plan"], ["Set headroom", "Headroom policies and triggers are defined", "Capacity plan"], ["Communicate", "Risks are stated for operations and leadership", "Risk summary"]],
+          "objectives": ["Plan capacity", "Combine test and production data", "Communicate capacity risk"]
+        },
+        {
+          "topic": "Cloud Cost and Performance Optimisation",
+          "subtopics": ["Cost per transaction", "Instance types and sizing", "Autoscaling policies and cost", "Serverless performance and cold starts", "Reserved and spot capacity effects", "Testing cost and performance together", "FinOps partnerships", "Reporting savings"],
+          "tools": ["Cloud cost tools", "Apache JMeter", "Monitoring tools"],
+          "lab_task": "Test a service on two instance types and two autoscaling policies, calculate cost per transaction for each and recommend the best balance of cost and performance.",
+          "deliverable": "Cost and performance comparison with recommendation",
+          "checks": [["Test options", "Four configurations are tested", "Results"], ["Calculate cost", "Cost per transaction is calculated for each", "Cost table"], ["Recommend", "The recommendation balances cost and objectives", "Recommendation"]],
+          "objectives": ["Optimise cloud cost and performance", "Calculate cost per transaction", "Recommend configurations"]
+        },
+        {
+          "topic": "Database and JVM Performance Partnerships",
+          "subtopics": ["Working with DBAs and developers", "Query plans and indexing evidence", "Connection pool sizing", "JVM heap and garbage collection tuning", "Thread pools and concurrency limits", "Measuring tuning changes", "Avoiding blind tuning", "Recording tuning decisions"],
+          "tools": ["Database tools", "JVM monitoring", "Apache JMeter"],
+          "lab_task": "With role-played developers and a DBA, tune a connection pool, a query index and JVM settings one change at a time, measuring each change with a repeatable test.",
+          "deliverable": "Tuning log with measured effects",
+          "checks": [["Change one thing", "Each change is tested separately", "Tuning log"], ["Measure", "Each change's effect is measured", "Results"], ["Record", "Decisions and reasons are recorded", "Tuning log"]],
+          "objectives": ["Tune systems with evidence", "Partner with developers and DBAs", "Record tuning decisions"]
+        },
+        {
+          "topic": "Observability-Driven Performance Analysis",
+          "subtopics": ["Metrics, logs and traces in analysis", "Distributed tracing for slow requests", "Exemplars and trace links from metrics", "Profiling in production", "Correlating test runs with telemetry", "Building analysis dashboards", "Hypothesis-driven analysis", "Sharing findings"],
+          "tools": ["OpenTelemetry", "Tracing tool", "Grafana"],
+          "lab_task": "Tag load test requests with trace context, follow the slowest traces through services, form and test a hypothesis about the cause and present the findings.",
+          "deliverable": "Trace-based analysis and findings",
+          "checks": [["Trace", "Test requests appear in traces", "Trace screenshots"], ["Test hypotheses", "The hypothesis is confirmed or rejected with data", "Analysis"], ["Share", "Findings are presented with evidence", "Presentation notes"]],
+          "objectives": ["Analyse performance with observability", "Use traces", "Work from hypotheses"]
+        },
+        {
+          "topic": "Performance Testing in Production and Real User Monitoring",
+          "subtopics": ["Why test in production", "Synthetic monitoring", "Controlled load in production", "Real user monitoring data", "Comparing test and real user results", "Safety, approvals and kill switches", "Communicating production tests", "Learning from incidents"],
+          "tools": ["Synthetic monitoring tool", "RUM tool", "Feature flags"],
+          "lab_task": "Design safe synthetic checks and a controlled load test in production with approvals and a kill switch, and compare test results with real user monitoring data.",
+          "deliverable": "Production test plan, results and comparison",
+          "checks": [["Make safe", "Approvals and a kill switch are in place", "Test plan"], ["Run", "Synthetic and controlled tests run as planned", "Results"], ["Compare", "Test and real user results are compared", "Comparison"]],
+          "objectives": ["Test performance in production safely", "Use real user data", "Compare test and production"]
+        },
+        {
+          "topic": "Performance of Mobile and API Back Ends",
+          "subtopics": ["Mobile traffic patterns", "Payload size and chattiness", "Network conditions for mobile users", "API gateways and rate limits", "Caching at the edge", "Backend for frontend patterns", "Testing with realistic mobile mixes", "Reporting mobile user impact"],
+          "tools": ["Apache JMeter", "API gateway metrics", "Network shaping tools"],
+          "lab_task": "Model mobile traffic for an API with realistic payloads and network conditions, test the gateway's rate limits and caching and report the effect on mobile users.",
+          "deliverable": "Mobile back-end test results and report",
+          "checks": [["Model mobile", "The workload reflects mobile traffic patterns", "Workload model"], ["Test the gateway", "Rate limits and caching behaviour are measured", "Results"], ["Report", "Mobile user impact is stated", "Report"]],
+          "objectives": ["Test mobile back ends", "Model mobile traffic", "Test gateways and caching"]
+        },
+        {
+          "topic": "AI-Assisted Performance Analysis",
+          "subtopics": ["AI tools for analysing results", "Anomaly detection in performance data", "Generating scripts from traffic with AI help", "Checking AI conclusions against data", "Data privacy with AI services", "Team rules for AI use", "Measuring time saved", "Keeping engineers responsible for conclusions"],
+          "tools": ["AI assistant", "Results data", "Anomaly detection tool"],
+          "lab_task": "Use an AI assistant to summarise a large results set and suggest causes, verify each suggestion against the data and record which were right, wrong or unproven.",
+          "deliverable": "AI summary, verification record and rules",
+          "checks": [["Summarise", "The AI summary is produced from real results", "Summary"], ["Verify", "Each suggestion is checked against data", "Verification record"], ["Set rules", "Team rules for AI use are written", "Rules document"]],
+          "objectives": ["Use AI in performance analysis", "Verify AI conclusions", "Set rules for AI use"]
+        },
+        {
+          "topic": "Governance for Performance Engineering",
+          "subtopics": ["Standards for scripts, data and reports", "Review checklists", "Test asset management", "Approvals for large and production tests", "Exceptions and waivers", "Performance gates in release processes", "Reporting compliance", "Keeping governance light"],
+          "tools": ["Standards template", "Review checklist", "Release process"],
+          "lab_task": "Write performance standards and approval rules, review three existing test assets against them and define performance gates in the release process.",
+          "deliverable": "Standards, review results and release gates",
+          "checks": [["Set standards", "Standards cover scripts, data, runs and reports", "Standards document"], ["Review", "Three assets are reviewed and fixed", "Review records"], ["Gate", "Release gates have measurable criteria", "Release process"]],
+          "objectives": ["Govern performance work", "Review test assets", "Gate releases on performance"]
+        },
+        {
+          "topic": "Building a Performance Engineering Team and Practice",
+          "subtopics": ["Roles in performance engineering", "Skills and career paths", "Hiring performance engineers", "Training developers in performance testing", "Communities of practice", "Engagement models with product teams", "Measuring the practice", "Funding and priorities"],
+          "tools": ["Skills matrix", "Engagement model template", "Training plan"],
+          "lab_task": "Design a performance engineering practice with roles, an engagement model for product teams, a training plan for developers and measures of success.",
+          "deliverable": "Practice design and training plan",
+          "checks": [["Define roles", "Roles and responsibilities are described", "Practice design"], ["Engage teams", "The engagement model states how teams request help", "Engagement model"], ["Train", "The training plan covers developers and testers", "Training plan"]],
+          "objectives": ["Build a performance practice", "Train teams", "Measure the practice"]
+        },
+        {
+          "topic": "Troubleshooting Performance Test Problems",
+          "subtopics": ["Results that do not make sense", "Generator, network and environment faults", "Data and correlation errors under load", "Monitoring gaps", "Inconsistent results between runs", "Validating the test itself"],
+          "tools": ["JMeter logs", "Monitoring tools", "Comparison scripts"],
+          "lab_task": "Diagnose four problem runs (generator saturation, a correlation failure under load, a network limit and inconsistent repeats), fix the tests and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each problem has a confirmed cause", "Diagnosis notes"], ["Fix", "Rerun results are consistent after fixes", "Results"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot performance tests", "Validate test results", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Performance Engineering Programme for a Platform",
+          "subtopics": ["Strategy and objectives", "Continuous performance testing", "Large-scale and resilience tests", "Capacity and cost plan", "Governance and practice design", "Leadership presentation"],
+          "tools": ["Apache JMeter", "JMeter DSL or k6", "Grafana", "Cloud cost tools"],
+          "lab_task": "Design a performance engineering programme for a platform with SLOs, continuous testing, large-scale and resilience tests, a capacity and cost plan and governance, run the key tests and present the programme to leadership.",
+          "deliverable": "Programme plan, test results and presentation",
+          "checks": [["Set objectives", "SLOs exist for critical journeys", "Programme plan"], ["Prove with tests", "Key tests run with results against objectives", "Results"], ["Win support", "Leadership approves the programme", "Presentation notes"]],
+          "objectives": ["Combine advanced performance skills", "Lead performance engineering", "Present a performance programme"]
+        }
+      ]
+    }
+  }
+}

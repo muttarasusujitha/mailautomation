@@ -1,0 +1,573 @@
+{
+  "domain": "Appium",
+  "name": "Appium Mobile Test Automation",
+  "category": "Testing and QA",
+  "icon": "smartphone",
+  "aliases": ["Appium Mobile Testing", "Mobile Automation", "Mobile Automation Testing", "Mobile Test Automation", "Appium Automation", "Appium Testing", "Appium with Java", "Appium 2", "Mobile App Automation"],
+  "certifications": ["No official Appium certification; assessed by capstone projects", "ISTQB Mobile Application Testing (CT-MAT)", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)"],
+  "tools": ["Appium 2 or later", "UiAutomator2 and XCUITest drivers", "Appium Inspector", "Android Studio and Xcode", "Java with the Appium java-client", "TestNG or JUnit 5", "Maven"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For testers and developers starting mobile automation with Appium. Covers how Appium works, installing the server and drivers, Android emulators and iOS simulators, Appium Inspector, desired capabilities, locator strategies, interacting with native elements, waits, gestures with W3C actions, lists and scrolling, hybrid apps and webviews, mobile web, app lifecycle commands, device settings, screenshots and logs, page objects for screens, test data, TestNG and Maven runs and running a suite on a device cloud.",
+      "prerequisites": ["Has tested mobile apps by hand", "Basic Java or another programming language", "Can install Android Studio; a Mac with Xcode is needed for the iOS days"],
+      "outcomes": ["Install Appium with drivers and run tests on Android emulators and iOS simulators", "Locate and interact with native, hybrid and web elements reliably", "Automate gestures, scrolling and app lifecycle steps", "Organise tests with screen objects and run them with Maven locally and on a device cloud"],
+      "days": [
+        {
+          "topic": "Appium Overview, Architecture and Environment Setup",
+          "subtopics": ["What Appium is and how it uses WebDriver", "The Appium server, drivers and clients", "Drivers for Android and iOS: UiAutomator2, Espresso and XCUITest", "Installing Node.js and the Appium server", "Installing drivers with the appium driver command", "Android SDK, platform tools and an emulator", "Xcode and an iOS simulator on macOS", "Checking the setup with appium driver doctor", "Appium Inspector", "The course apps and project overview"],
+          "tools": ["Node.js", "Appium server", "UiAutomator2 driver", "Android Studio", "Appium Inspector"],
+          "lab_task": "Install the Appium server and the UiAutomator2 driver, start an Android emulator, install the course app and inspect its first screen with Appium Inspector.",
+          "deliverable": "Working Appium environment and an inspected screen",
+          "checks": [["Install", "The Appium server starts with the UiAutomator2 driver listed", "Terminal output"], ["Run an emulator", "The emulator runs the course app", "Screenshot"], ["Inspect", "Element attributes are visible in Appium Inspector", "Screenshot"]],
+          "objectives": ["Explain Appium's architecture", "Install the server and drivers", "Inspect mobile apps"]
+        },
+        {
+          "topic": "Capabilities and Starting Sessions",
+          "subtopics": ["W3C capabilities and the appium: prefix", "platformName, automationName and deviceName", "App path, appPackage and appActivity", "bundleId for iOS", "noReset and fullReset", "New command timeout", "Starting a session from Java", "Common session start errors"],
+          "tools": ["Appium java-client", "Maven", "Android emulator"],
+          "lab_task": "Write a Java test that starts a session on the Android emulator with the course app, tries noReset and fullReset, and fixes two capability errors from their messages.",
+          "deliverable": "Session start code with capability notes",
+          "checks": [["Start sessions", "The test starts and quits a session", "Test output"], ["Compare resets", "Notes describe the effect of noReset and fullReset", "Notes"], ["Fix errors", "Two capability errors are fixed", "Test output"]],
+          "objectives": ["Configure capabilities", "Start Appium sessions", "Fix session errors"]
+        },
+        {
+          "topic": "Locator Strategies for Native Apps",
+          "subtopics": ["Accessibility ID as the first choice", "Resource ID and name", "Class name and when to avoid it", "XPath and its costs", "Android UiAutomator selectors", "iOS predicate strings and class chains", "Working with developers on accessibility IDs", "Choosing stable locators"],
+          "tools": ["Appium Inspector", "Appium java-client", "Course app"],
+          "lab_task": "Find ten elements on Android and iOS screens using the most stable strategy for each, replace three XPath locators with accessibility IDs agreed with developers.",
+          "deliverable": "Locator list with reasons and code",
+          "checks": [["Choose well", "Most locators use accessibility IDs or IDs", "Locator list"], ["Replace XPath", "Three XPath locators are replaced", "Code diff"], ["Work across platforms", "Locators work on both platforms where IDs are shared", "Test output"]],
+          "objectives": ["Choose mobile locators", "Use platform-specific selectors", "Improve testability with developers"]
+        },
+        {
+          "topic": "Interacting with Native Elements",
+          "subtopics": ["Tapping and clicking", "Typing text and clearing fields", "Hiding the keyboard", "Switches, checkboxes and pickers", "Reading text and attributes", "Element states: enabled, selected and displayed", "Alerts and permission dialogs", "Toasts and snackbars on Android"],
+          "tools": ["Appium java-client", "Android emulator", "iOS simulator"],
+          "lab_task": "Automate a registration screen with text fields, a switch, a picker and a permission dialog, submit it and check the confirmation message.",
+          "deliverable": "Automated registration test",
+          "checks": [["Interact", "Every element type is handled", "Test code"], ["Handle dialogs", "The permission dialog is accepted", "Test output"], ["Assert", "The confirmation text is checked", "Test output"]],
+          "objectives": ["Interact with native elements", "Handle dialogs", "Read element states"]
+        },
+        {
+          "topic": "Waits and Synchronisation in Mobile Tests",
+          "subtopics": ["Why mobile tests need waits", "Implicit waits and their side effects", "Explicit waits with WebDriverWait", "Expected conditions for mobile", "Waiting for animations and loading spinners", "Avoiding Thread.sleep", "Timeouts for slow devices", "Stable tests by design"],
+          "tools": ["Appium java-client", "Selenium support library", "Course app"],
+          "lab_task": "Replace fixed sleeps in a flaky test with explicit waits, handle a loading spinner and run the test twenty times on the emulator.",
+          "deliverable": "Stable test with explicit waits",
+          "checks": [["Remove sleeps", "No Thread.sleep remains", "Code review"], ["Stay stable", "The test passes twenty runs", "Terminal output"], ["Handle loading", "The spinner is waited out correctly", "Test code"]],
+          "objectives": ["Synchronise mobile tests", "Use explicit waits", "Remove fixed sleeps"]
+        },
+        {
+          "topic": "Gestures with W3C Actions: Swipe, Scroll, Long Press and Drag",
+          "subtopics": ["The W3C Actions API", "Pointer inputs and sequences", "Swipes and scrolls", "Long press", "Drag and drop", "Pinch and zoom with two pointers", "Driver mobile: gesture commands", "Making gestures work on different screen sizes"],
+          "tools": ["Appium java-client", "W3C Actions", "Course app"],
+          "lab_task": "Automate a swipe through a carousel, a long press menu, a drag-and-drop reorder and a pinch zoom on a map screen, using screen-relative coordinates.",
+          "deliverable": "Gesture helper class and tests",
+          "checks": [["Swipe and scroll", "Carousel and list gestures work", "Test output"], ["Long press and drag", "Menu and reorder gestures work", "Test output"], ["Adapt to screens", "Gestures use relative coordinates", "Helper code"]],
+          "objectives": ["Automate gestures", "Use W3C actions", "Make gestures portable"]
+        },
+        {
+          "topic": "Lists, Scrolling to Elements and Dynamic Content",
+          "subtopics": ["Scrolling until an element appears", "UiScrollable on Android", "Scrolling on iOS", "Recycled views and lists", "Counting and reading list items", "Pull to refresh", "Infinite scroll", "Dynamic content and stale elements"],
+          "tools": ["Appium java-client", "Course app with long lists"],
+          "lab_task": "Scroll to a product far down a list on Android and iOS, read the visible items, test pull to refresh and handle a stale element after the list updates.",
+          "deliverable": "List and scrolling tests",
+          "checks": [["Scroll to items", "The target product is found on both platforms", "Test output"], ["Refresh", "Pull to refresh updates the list", "Test output"], ["Handle staleness", "Stale elements are re-found without failures", "Test code"]],
+          "objectives": ["Test lists and scrolling", "Handle dynamic content", "Avoid stale elements"]
+        },
+        {
+          "topic": "Hybrid Apps and Webviews: Switching Contexts",
+          "subtopics": ["Native, hybrid and web content in apps", "Listing contexts", "Switching to a webview", "Chromedriver for Android webviews", "Webviews on iOS", "Locating web elements inside apps", "Switching back to native", "Debugging webviews"],
+          "tools": ["Appium java-client", "Chromedriver", "Hybrid course app"],
+          "lab_task": "Automate a hybrid checkout that moves from native screens into a webview payment form and back, switching contexts on Android.",
+          "deliverable": "Hybrid flow test",
+          "checks": [["Switch contexts", "The test switches into and out of the webview", "Test output"], ["Use web locators", "Web elements are found inside the webview", "Test code"], ["Complete the flow", "The native confirmation screen is checked", "Test output"]],
+          "objectives": ["Automate hybrid apps", "Switch contexts", "Locate web elements in apps"]
+        },
+        {
+          "topic": "Mobile Web Testing with Appium",
+          "subtopics": ["Testing websites in mobile browsers", "Chrome on Android and Safari on iOS", "Capabilities for browser sessions", "Responsive layouts on devices", "Touch interactions on web pages", "Orientation changes", "Differences from desktop Selenium", "When to use Appium for web"],
+          "tools": ["Appium", "Chrome on Android", "Safari on iOS simulator"],
+          "lab_task": "Run a mobile web test of a responsive site on Chrome for Android and Safari on iOS, test a touch menu and an orientation change.",
+          "deliverable": "Mobile web tests on two browsers",
+          "checks": [["Run browsers", "Tests run in Chrome and Safari", "Test output"], ["Test touch", "The touch menu opens and closes", "Test output"], ["Rotate", "Layout checks pass after rotation", "Test output"]],
+          "objectives": ["Test mobile web", "Use mobile browsers", "Handle orientation changes"]
+        },
+        {
+          "topic": "App Lifecycle: Install, Launch, Background and Deep Links",
+          "subtopics": ["Installing and removing apps", "Activating and terminating apps", "Sending the app to the background", "App state checks", "Deep links into screens", "Push notification checks in brief", "Upgrading from an older version", "Clearing app data"],
+          "tools": ["Appium java-client", "Android emulator", "iOS simulator"],
+          "lab_task": "Test an upgrade from an older app build, background and resume the app, open a screen through a deep link and confirm the app state at each step.",
+          "deliverable": "Lifecycle tests",
+          "checks": [["Upgrade", "The upgraded app keeps the user's data", "Test output"], ["Resume", "The app resumes on the same screen after backgrounding", "Test output"], ["Deep link", "The deep link opens the right screen", "Test output"]],
+          "objectives": ["Test the app lifecycle", "Use deep links", "Test upgrades"]
+        },
+        {
+          "topic": "Device Settings: Network, Location, Orientation and Permissions",
+          "subtopics": ["Network conditions on emulators", "Airplane mode and offline behaviour", "Setting geolocation", "Orientation changes", "Granting and revoking permissions", "Locale and language", "Dark mode", "Font size and display scaling", "Battery and interruptions in brief", "Resetting settings after each test"],
+          "tools": ["Appium java-client", "Android emulator settings", "iOS simulator"],
+          "lab_task": "Test offline behaviour, a location-based screen with set coordinates, a denied permission path and the app in a second language.",
+          "deliverable": "Device setting tests",
+          "checks": [["Test offline", "The app shows the offline state and recovers", "Test output"], ["Set location", "Results match the set coordinates", "Test output"], ["Deny permissions", "The denied path shows the right guidance", "Test output"]],
+          "objectives": ["Control device settings", "Test offline and location behaviour", "Test permissions and locales"]
+        },
+        {
+          "topic": "Screenshots, Video Recording and Logs",
+          "subtopics": ["Screenshots on failure", "Screen recording during tests", "Device logs with logcat and syslog", "Appium server logs", "Attaching evidence to reports", "Reading logs for crashes", "Keeping artefacts small", "Sharing evidence with developers"],
+          "tools": ["Appium java-client", "logcat", "Appium server logs"],
+          "lab_task": "Capture screenshots and video for failed tests, collect device logs, find the cause of a crash from the logs and send the evidence to a role-played developer.",
+          "deliverable": "Evidence capture and a crash report",
+          "checks": [["Capture", "Failed tests have screenshots and video", "Artefacts"], ["Read logs", "The crash cause is found in device logs", "Crash report"], ["Share", "The developer can reproduce the crash", "Developer reply"]],
+          "objectives": ["Capture mobile test evidence", "Read device logs", "Report crashes"]
+        },
+        {
+          "topic": "Screen Objects for Android and iOS",
+          "subtopics": ["Page object pattern for mobile screens", "Platform-specific locators in one class", "Annotations for Android and iOS locators", "Shared actions across platforms", "Base screen classes", "Keeping assertions in tests", "Folder structure", "Refactoring tests to screen objects"],
+          "tools": ["Appium java-client", "PageFactory annotations", "Course app"],
+          "lab_task": "Refactor the login and search tests into screen objects with Android and iOS locators, and run the same test code on both platforms.",
+          "deliverable": "Screen objects and cross-platform tests",
+          "checks": [["Create screens", "Each screen has a class with actions", "Code review"], ["Share code", "The same test runs on Android and iOS", "Test output"], ["Reduce duplication", "Locators are defined once per platform", "Code search"]],
+          "objectives": ["Design screen objects", "Share tests across platforms", "Reduce duplication"]
+        },
+        {
+          "topic": "Test Data and Accounts for Mobile Tests",
+          "subtopics": ["Test users and accounts", "Creating data through APIs before tests", "Resetting app state", "Unique data for parallel runs", "Test data for different locales", "Secrets for test accounts", "Cleaning up after tests", "Data problems as failure causes"],
+          "tools": ["REST Assured or an HTTP client", "Appium java-client", "Environment variables"],
+          "lab_task": "Create test accounts through the API before each mobile test, reset app state between tests, use unique data and clean up afterwards.",
+          "deliverable": "Data setup and cleanup for the suite",
+          "checks": [["Prepare", "Tests start with API-created accounts", "Test code"], ["Reset", "Each test starts from a clean app state", "Test output"], ["Clean up", "Accounts are deleted after tests", "API check"]],
+          "objectives": ["Manage mobile test data", "Reset app state", "Clean up reliably"]
+        },
+        {
+          "topic": "Running Tests with TestNG and Maven",
+          "subtopics": ["TestNG classes and suites for mobile", "Parameters for platform and device", "Groups for smoke and regression", "Starting and stopping the Appium server from code", "Maven profiles for Android and iOS", "Running from the command line", "Reports from TestNG", "Common runner problems"],
+          "tools": ["TestNG", "Maven", "AppiumServiceBuilder"],
+          "lab_task": "Configure TestNG suites with parameters for Android and iOS, start the Appium server from code, run smoke and regression groups from Maven and read the report.",
+          "deliverable": "Suite configuration and run results",
+          "checks": [["Parameterise", "Platform and device come from suite parameters", "testng.xml"], ["Manage the server", "The Appium server starts and stops from code", "Test output"], ["Run groups", "Smoke and regression run separately", "Terminal output"]],
+          "objectives": ["Run mobile suites with TestNG", "Manage the Appium server", "Use Maven profiles"]
+        },
+        {
+          "topic": "iOS Automation Essentials: XCUITest Driver, WebDriverAgent and Signing",
+          "subtopics": ["The XCUITest driver", "WebDriverAgent and how it is built", "Simulators compared with real iPhones", "Code signing for real devices", "iOS-specific locators", "System alerts on iOS", "Common iOS setup failures", "Running iOS tests in CI on macOS"],
+          "tools": ["Xcode", "XCUITest driver", "iOS simulator", "Real iPhone (optional)"],
+          "lab_task": "Run the login test on an iOS simulator with the XCUITest driver, handle a system alert, and document the signing steps needed for a real device.",
+          "deliverable": "Passing iOS test and signing notes",
+          "checks": [["Run on iOS", "The test passes on the simulator", "Test output"], ["Handle alerts", "The system alert is handled", "Test output"], ["Document signing", "Signing steps for real devices are written", "Notes"]],
+          "objectives": ["Automate iOS apps", "Understand WebDriverAgent", "Prepare real-device signing"]
+        },
+        {
+          "topic": "Android Automation Essentials: UiAutomator2, Espresso Driver and ADB",
+          "subtopics": ["The UiAutomator2 driver", "The Espresso driver and when to use it", "ADB commands for testers", "Installing builds and granting permissions with ADB", "Activities and intents", "Android-specific locators", "Emulator snapshots for speed", "Common Android setup failures"],
+          "tools": ["Android SDK", "ADB", "UiAutomator2 and Espresso drivers"],
+          "lab_task": "Run a test with UiAutomator2 and with the Espresso driver, use ADB to install builds and grant permissions, and use an emulator snapshot to speed up the suite.",
+          "deliverable": "Driver comparison and ADB helper scripts",
+          "checks": [["Compare drivers", "Both drivers run the test with notes on differences", "Comparison"], ["Use ADB", "Builds and permissions are handled with ADB", "Scripts"], ["Speed up", "Snapshots cut emulator start time", "Timing notes"]],
+          "objectives": ["Automate Android apps", "Use ADB in tests", "Choose Android drivers"]
+        },
+        {
+          "topic": "Running on Real Devices and Device Clouds",
+          "subtopics": ["Emulators compared with real devices", "Connecting a real Android phone", "Device clouds such as BrowserStack, Sauce Labs and AWS Device Farm", "Capabilities for cloud devices", "Uploading app builds", "Choosing a device coverage matrix", "Costs and session limits", "Reading cloud logs and videos"],
+          "tools": ["Real Android device", "Device cloud account", "Appium java-client"],
+          "lab_task": "Run the suite on a real Android phone and on three devices in a device cloud, choose a coverage matrix and review the cloud's videos for one failure.",
+          "deliverable": "Real-device and cloud runs with a coverage matrix",
+          "checks": [["Run on hardware", "The suite runs on a real phone", "Test output"], ["Run in the cloud", "Three cloud devices run the suite", "Cloud dashboard"], ["Choose coverage", "The matrix is justified by user data", "Coverage matrix"]],
+          "objectives": ["Test on real devices", "Use device clouds", "Choose device coverage"]
+        },
+        {
+          "topic": "Debugging Failing Mobile Tests",
+          "subtopics": ["Reading Appium server logs", "Session and driver errors", "Element not found and stale element errors", "Timing problems on slow devices", "Crashes and ANRs", "Differences between emulators and devices", "Reproducing failures by hand", "A debugging checklist"],
+          "tools": ["Appium server logs", "Appium Inspector", "Device logs"],
+          "lab_task": "Diagnose four failing tests (a capability error, a missing element, a timing problem and an app crash) using logs and the Inspector, fix them and write a checklist.",
+          "deliverable": "Diagnoses, fixes and checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All four tests pass", "Test output"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug mobile tests", "Read Appium logs", "Fix common failures"]
+        },
+        {
+          "topic": "Beginner Capstone: Mobile Regression Suite for a Shopping App",
+          "subtopics": ["Critical user journeys", "Screen objects for both platforms", "Gestures and hybrid steps", "Test data through APIs", "TestNG and Maven runs", "Device cloud run"],
+          "tools": ["Appium", "Appium java-client", "TestNG", "Maven", "Device cloud"],
+          "lab_task": "Build a regression suite for a shopping app covering login, search, cart and checkout with screen objects for Android and iOS, gestures, a hybrid payment step and API-created data, and run it locally and on a device cloud.",
+          "deliverable": "Mobile regression suite with run reports",
+          "checks": [["Cover journeys", "Each critical journey has passing tests", "Test report"], ["Share code", "Tests run on Android and iOS from the same code", "Test output"], ["Run in the cloud", "The suite runs on cloud devices", "Cloud dashboard"]],
+          "objectives": ["Combine beginner Appium skills", "Build a cross-platform suite", "Run on real and cloud devices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and SDETs who write Appium tests and now build a team framework. Covers framework design, driver management and thread safety, configuration for devices and environments, parallel execution on emulators and grids, Appium plugins, image-based checks, visual testing, accessibility checks, performance signals, network mocking with proxies, push notifications and system interactions, biometrics, deep testing of webviews, BDD with Cucumber, Python and JavaScript clients, reporting, CI pipelines with emulators, flakiness, app builds and device farm strategy.",
+      "prerequisites": ["Writes Appium tests with screen objects, waits and gestures", "Comfortable with Java, Maven and Git", "Has run mobile tests on emulators and real devices"],
+      "outcomes": ["Build a maintainable Appium framework for Android and iOS that a team can extend", "Run suites in parallel on emulators, real devices and clouds", "Add visual, accessibility, performance and network checks to mobile tests", "Run mobile tests reliably in CI with clear reports"],
+      "days": [
+        {
+          "topic": "Framework Design for Mobile Automation",
+          "subtopics": ["Layers: tests, screens, components and drivers", "Shared and platform-specific code", "Component objects for reusable widgets", "Naming and folder conventions", "Configuration and constants", "Code review rules for mobile tests", "A contributor guide", "Measuring framework health"],
+          "tools": ["Appium java-client", "Maven", "IntelliJ IDEA"],
+          "lab_task": "Restructure a mobile suite into tests, screens, components and drivers, write a contributor guide and have a colleague add a test using only the guide.",
+          "deliverable": "Layered framework and contributor guide",
+          "checks": [["Layer", "Tests call screens, screens use components", "Code review"], ["Share code", "Platform-specific code is isolated", "Project tree"], ["Onboard", "A colleague adds a passing test from the guide", "Pull request"]],
+          "objectives": ["Design a mobile framework", "Separate shared and platform code", "Make the framework easy to extend"]
+        },
+        {
+          "topic": "Driver Management and Thread Safety",
+          "subtopics": ["Driver factory pattern", "ThreadLocal drivers for parallel runs", "Starting and stopping Appium services per thread", "Port allocation for parallel sessions", "systemPort, wdaLocalPort and other parallel capabilities", "Cleaning up sessions after failures", "Driver logging per thread", "Common parallel driver errors"],
+          "tools": ["Appium java-client", "AppiumServiceBuilder", "TestNG"],
+          "lab_task": "Build a driver factory with ThreadLocal drivers and unique ports per thread, run two Android emulators in parallel and confirm sessions never cross.",
+          "deliverable": "Thread-safe driver factory with parallel runs",
+          "checks": [["Isolate drivers", "Each thread has its own driver", "Logs"], ["Allocate ports", "Parallel sessions use unique system ports", "Capabilities log"], ["Clean up", "Sessions are closed after failures", "Test output"]],
+          "objectives": ["Manage drivers safely", "Run sessions in parallel", "Avoid port conflicts"]
+        },
+        {
+          "topic": "Configuration for Devices, Builds and Environments",
+          "subtopics": ["Device profiles in configuration files", "App builds per environment", "Capabilities assembled from configuration", "Selecting devices at run time", "Secrets for cloud providers", "Local, CI and cloud modes", "Validating configuration at start", "Avoiding hard-coded capabilities"],
+          "tools": ["YAML or properties configuration", "Maven profiles", "CI secrets"],
+          "lab_task": "Move all capabilities into device profiles, select device, build and environment at run time, and run the same suite locally, in CI and in a device cloud.",
+          "deliverable": "Configuration module and three run modes",
+          "checks": [["Configure", "No capability is hard-coded in tests", "Code search"], ["Select at run time", "Device and build are chosen from the command line", "Terminal output"], ["Run three modes", "Local, CI and cloud runs pass", "Run logs"]],
+          "objectives": ["Configure mobile runs", "Manage builds and devices", "Support several run modes"]
+        },
+        {
+          "topic": "Parallel Execution on Emulators, Simulators and Grids",
+          "subtopics": ["Running several emulators on one machine", "Parallel iOS simulators", "Selenium Grid 4 with Appium nodes", "Distributing tests across devices", "Balancing by duration", "Resource limits on CI machines", "Collecting results from parallel runs", "Measuring the gain"],
+          "tools": ["Selenium Grid 4", "Appium", "Android emulators", "iOS simulators"],
+          "lab_task": "Set up a Selenium Grid with Appium nodes for two Android emulators and one iOS simulator, run the suite in parallel and compare duration with a single device.",
+          "deliverable": "Grid setup and timing comparison",
+          "checks": [["Connect nodes", "Appium nodes register with the grid", "Grid console"], ["Run in parallel", "Tests run on three devices at once", "Test output"], ["Measure", "Duration drops compared with one device", "Timing comparison"]],
+          "objectives": ["Run mobile tests in parallel", "Use Selenium Grid with Appium", "Measure speed gains"]
+        },
+        {
+          "topic": "Appium Plugins: Images, Gestures and Custom Commands",
+          "subtopics": ["The Appium plugin system", "Installing and activating plugins", "The images plugin for image-based location", "The gestures plugin", "Execute driver and relaxed caps style plugins", "Writing a simple custom plugin", "Risks of plugins in shared grids", "Plugin version management"],
+          "tools": ["Appium plugins", "Node.js", "Appium server"],
+          "lab_task": "Install and use the images and gestures plugins, locate a canvas button by image, perform a gesture with the plugin and write a small plugin that logs commands.",
+          "deliverable": "Plugin usage tests and a custom plugin",
+          "checks": [["Use images", "The canvas button is found by image", "Test output"], ["Use gestures", "The gesture plugin performs a swipe", "Test output"], ["Extend", "The custom plugin logs commands", "Server log"]],
+          "objectives": ["Use Appium plugins", "Locate elements by image", "Write simple plugins"]
+        },
+        {
+          "topic": "Visual Testing for Mobile Apps",
+          "subtopics": ["Why layouts break across devices", "Screenshot comparison approaches", "Masking dynamic regions", "Baselines per device and OS", "Visual testing services", "Reviewing visual changes", "Dark mode and font size variations", "When visual tests are worth it"],
+          "tools": ["Visual testing library or service", "Appium", "Device cloud"],
+          "lab_task": "Add visual checks for five screens on two device sizes and dark mode, mask dynamic areas and review an intended design change.",
+          "deliverable": "Visual checks and a reviewed change",
+          "checks": [["Create baselines", "Baselines exist for screens, sizes and dark mode", "Baseline store"], ["Stay stable", "Visual checks pass without false failures", "Test output"], ["Review", "The intended change is approved", "Review record"]],
+          "objectives": ["Add visual testing to mobile", "Handle device variations", "Review visual changes"]
+        },
+        {
+          "topic": "Mobile Accessibility Testing: TalkBack, VoiceOver and Automated Checks",
+          "subtopics": ["Mobile accessibility guidelines", "Content descriptions and accessibility labels", "Touch target sizes", "Colour contrast and dynamic type", "TalkBack and VoiceOver checks by hand", "Accessibility Scanner and Xcode Accessibility Inspector", "Automating label checks with Appium", "Reporting accessibility issues"],
+          "tools": ["TalkBack", "VoiceOver", "Accessibility Scanner", "Xcode Accessibility Inspector"],
+          "lab_task": "Check five screens with TalkBack and VoiceOver, run the platform scanners, automate checks for missing labels with Appium and report issues with guideline references.",
+          "deliverable": "Accessibility findings and automated label checks",
+          "checks": [["Test by hand", "Screen reader results are recorded for five screens", "Test notes"], ["Automate", "Missing labels fail an automated check", "Test output"], ["Report", "Issues reference guidelines", "Issue report"]],
+          "objectives": ["Test mobile accessibility", "Use screen readers", "Automate label checks"]
+        },
+        {
+          "topic": "Performance Signals in Mobile Tests: Start Time, Memory and CPU",
+          "subtopics": ["App start time", "Memory and CPU from device tools", "Collecting performance data during tests", "Frame rendering and jank", "Battery impact in brief", "Comparing builds", "Budgets and soft failures", "When to use specialist tools"],
+          "tools": ["ADB dumpsys", "Xcode Instruments", "Appium performance data commands"],
+          "lab_task": "Measure cold start time and memory for two app builds during automated tests, set budgets and flag the build that exceeds them.",
+          "deliverable": "Performance data and build comparison",
+          "checks": [["Measure", "Start time and memory are recorded for both builds", "Data table"], ["Set budgets", "Exceeding a budget marks a soft failure", "Test output"], ["Compare", "The slower build is identified with numbers", "Comparison"]],
+          "objectives": ["Collect mobile performance signals", "Compare builds", "Set performance budgets"]
+        },
+        {
+          "topic": "Network Mocking and Proxies for Mobile Tests",
+          "subtopics": ["Why mobile tests need controlled networks", "Proxy tools such as mitmproxy", "Trusting proxy certificates on devices", "Mocking API responses for edge cases", "Simulating slow and failing networks", "Certificate pinning and test builds", "Recording traffic for debugging", "Keeping mocks in step with APIs"],
+          "tools": ["mitmproxy", "Android emulator", "Appium"],
+          "lab_task": "Route the emulator through mitmproxy, mock an empty list and a server error for the product API, simulate a slow network and check how the app behaves.",
+          "deliverable": "Proxy setup and network edge-case tests",
+          "checks": [["Route traffic", "App traffic passes through the proxy", "Proxy log"], ["Mock responses", "Empty and error responses are shown correctly", "Test output"], ["Slow down", "The app handles the slow network as designed", "Test output"]],
+          "objectives": ["Control mobile networks", "Mock API responses", "Test network edge cases"]
+        },
+        {
+          "topic": "Notifications, System Apps and Interruptions",
+          "subtopics": ["Opening the notification shade", "Checking push notification content", "Tapping notifications into the app", "Interacting with system apps such as settings and camera", "Phone calls and SMS on emulators", "Interruptions during critical flows", "Returning to the app", "Platform differences"],
+          "tools": ["Appium java-client", "Android emulator console", "iOS simulator"],
+          "lab_task": "Trigger a push notification, check its content and open the app from it, then interrupt a checkout with a call and confirm the app recovers.",
+          "deliverable": "Notification and interruption tests",
+          "checks": [["Check notifications", "Notification text is asserted", "Test output"], ["Open from notification", "Tapping opens the right screen", "Test output"], ["Recover", "Checkout continues after the interruption", "Test output"]],
+          "objectives": ["Test notifications", "Interact with system apps", "Test interruptions"]
+        },
+        {
+          "topic": "Biometrics, Camera and Device Features",
+          "subtopics": ["Fingerprint simulation on Android emulators", "Face ID and Touch ID on iOS simulators", "Camera and photo picker flows", "Media injection on some device clouds", "QR code scanning flows", "Sensors and orientation", "Clipboard", "Limits of simulation"],
+          "tools": ["Android emulator", "iOS simulator", "Device cloud media injection"],
+          "lab_task": "Automate a biometric login on both platforms with simulated fingerprints and Face ID, test a photo upload from the picker and test a QR scan with an injected image where available.",
+          "deliverable": "Device feature tests with limits noted",
+          "checks": [["Simulate biometrics", "Biometric login succeeds and fails as expected", "Test output"], ["Use the camera", "Photo selection completes", "Test output"], ["Note limits", "Features that need real devices are listed", "Limits list"]],
+          "objectives": ["Test device features", "Simulate biometrics", "Know simulation limits"]
+        },
+        {
+          "topic": "Webviews and Hybrid Apps in Depth",
+          "subtopics": ["Hybrid frameworks such as Ionic and Capacitor", "React Native and Flutter elements", "Multiple webviews and window handles", "Debuggable webview settings", "Chromedriver versions and autodownload", "iOS webview inspection", "Performance of context switching", "Choosing native or web locators"],
+          "tools": ["Appium", "Chromedriver", "Hybrid and React Native sample apps"],
+          "lab_task": "Automate a hybrid app with several webviews and a React Native app, handle Chromedriver version matching and decide the locator approach for each.",
+          "deliverable": "Hybrid and React Native tests with locator decisions",
+          "checks": [["Handle webviews", "The right webview is chosen each time", "Test output"], ["Match Chromedriver", "Chromedriver versions are matched automatically", "Server log"], ["Decide locators", "Each app has a recorded locator approach", "Decision notes"]],
+          "objectives": ["Test hybrid apps in depth", "Handle multiple webviews", "Automate cross-platform frameworks"]
+        },
+        {
+          "topic": "BDD for Mobile with Cucumber and Appium",
+          "subtopics": ["Mobile behaviour in Gherkin", "Steps that call screen objects", "One feature for both platforms", "Tags for platform-specific scenarios", "Hooks for drivers and evidence", "Parallel scenarios on devices", "Living documentation for mobile", "Avoiding UI details in Gherkin"],
+          "tools": ["Cucumber-JVM", "Appium", "TestNG or JUnit 5"],
+          "lab_task": "Write features for login and checkout that run on Android and iOS through shared steps and screen objects, tag platform-only scenarios and attach screenshots to the report.",
+          "deliverable": "Mobile feature set with reports",
+          "checks": [["Share features", "One feature file runs on both platforms", "Test output"], ["Tag platforms", "Platform-only scenarios run only on their platform", "Test output"], ["Report", "Reports include screenshots", "Report"]],
+          "objectives": ["Use BDD for mobile", "Share scenarios across platforms", "Report mobile behaviour"]
+        },
+        {
+          "topic": "Appium with Python and JavaScript Clients",
+          "subtopics": ["Appium Python client with pytest", "WebdriverIO for JavaScript and TypeScript teams", "Same tests in different languages", "Fixtures and hooks in each runner", "Reporting options", "Choosing a client for a team", "Mixed-language organisations", "Sharing locators and practices"],
+          "tools": ["Appium Python client", "pytest", "WebdriverIO"],
+          "lab_task": "Port the login test to Python with pytest and to WebdriverIO, compare setup and reporting and recommend a client for a team that already writes Python.",
+          "deliverable": "Ported tests and a recommendation",
+          "checks": [["Port", "Both ported tests pass", "Test output"], ["Compare", "Setup, runners and reports are compared", "Comparison"], ["Recommend", "The recommendation fits the team's skills", "Recommendation note"]],
+          "objectives": ["Use other Appium clients", "Compare runners", "Choose a client for a team"]
+        },
+        {
+          "topic": "Reporting for Mobile Test Suites",
+          "subtopics": ["Allure for mobile tests", "Attaching screenshots, video and logs", "Device and build details in reports", "Grouping results by platform and device", "Trends across builds", "Linking to tickets", "Reports for developers and managers", "Publishing reports from CI"],
+          "tools": ["Allure", "TestNG or JUnit 5", "CI pipelines"],
+          "lab_task": "Add Allure reporting with device details, screenshots, video links and logs, group results by platform and publish the report from CI.",
+          "deliverable": "Allure report with mobile evidence",
+          "checks": [["Attach evidence", "Failures have screenshots, video and logs", "Report"], ["Group", "Results are grouped by platform and device", "Report screenshot"], ["Publish", "Reports are linked from CI runs", "Report link"]],
+          "objectives": ["Report mobile results", "Attach device evidence", "Publish reports"]
+        },
+        {
+          "topic": "CI Pipelines with Emulators and Device Clouds",
+          "subtopics": ["Running Android emulators in CI", "Hardware acceleration in CI runners", "macOS runners for iOS simulators", "Building and uploading app builds", "Smoke on pull requests and regression nightly", "Device clouds in pipelines", "Caching SDKs and builds", "Reading CI failures"],
+          "tools": ["GitHub Actions or Jenkins", "Android emulator runner", "Device cloud", "macOS runner"],
+          "lab_task": "Build a pipeline that builds the app, runs Android smoke tests on an emulator for each pull request, runs iOS and cloud regression nightly and publishes reports.",
+          "deliverable": "Mobile CI pipeline with reports",
+          "checks": [["Run on PRs", "Android smoke tests run on each pull request", "Pipeline run"], ["Run nightly", "iOS and cloud regression run nightly", "Pipeline runs"], ["Publish", "Reports are attached to runs", "Report links"]],
+          "objectives": ["Run mobile tests in CI", "Use emulators and clouds in pipelines", "Tier mobile test runs"]
+        },
+        {
+          "topic": "Flaky Mobile Tests: Causes and Fixes",
+          "subtopics": ["Why mobile tests are especially flaky", "Animations and system dialogs", "Device performance and timing", "Network and back-end instability", "State left from previous tests", "Retries and their risks", "Quarantine and ownership", "Tracking flakiness by device"],
+          "tools": ["Test results history", "Appium logs", "Issue tracker"],
+          "lab_task": "Find flaky tests from repeated runs across devices, diagnose three, fix them, disable animations in test builds and set a retry and quarantine policy.",
+          "deliverable": "Flaky report, fixes and policy",
+          "checks": [["Detect", "Flaky tests are listed with rates by device", "Flaky report"], ["Fix", "Three tests pass fifty runs after fixes", "Test output"], ["Set policy", "Retry and quarantine rules are written", "Policy document"]],
+          "objectives": ["Find and fix flaky mobile tests", "Reduce device-related flakiness", "Manage retries and quarantine"]
+        },
+        {
+          "topic": "App Builds, Test Builds and Testability Hooks",
+          "subtopics": ["Debug, release and test builds", "Test-only hooks and their risks", "Disabling animations and onboarding in test builds", "Feature flags for tests", "Accessibility IDs as a testability feature", "Build signing and distribution for testers", "Keeping test hooks out of production", "Working with mobile developers on testability"],
+          "tools": ["Android Gradle build variants", "Xcode schemes", "Feature flag service"],
+          "lab_task": "Agree three testability changes with developers (accessibility IDs, disabled animations and a flag to skip onboarding), build a test variant and show the effect on stability.",
+          "deliverable": "Testability agreement, test build and stability comparison",
+          "checks": [["Agree changes", "Developers accept three testability changes", "Agreement notes"], ["Build variants", "A test build includes the hooks", "Build output"], ["Improve stability", "Failure rate drops with the test build", "Comparison"]],
+          "objectives": ["Improve app testability", "Use test builds safely", "Work with developers on hooks"]
+        },
+        {
+          "topic": "Device Coverage Strategy and Device Farm Management",
+          "subtopics": ["Choosing devices from user analytics", "OS version and screen size coverage", "Emulators, simulators, real devices and clouds", "Building an in-house device lab", "Device farm tools and maintenance", "Cost of device coverage", "Reviewing coverage each quarter", "Coverage reports"],
+          "tools": ["User analytics", "Device cloud", "Device lab inventory"],
+          "lab_task": "Build a device coverage strategy from sample analytics, choose the mix of emulators, real devices and clouds, estimate costs and write the quarterly review process.",
+          "deliverable": "Device coverage strategy and cost estimate",
+          "checks": [["Use data", "Device choices are justified by analytics", "Strategy"], ["Mix options", "The mix covers emulators, real devices and clouds", "Strategy"], ["Estimate", "Costs are estimated with assumptions", "Cost estimate"]],
+          "objectives": ["Plan device coverage", "Balance cost and coverage", "Manage device farms"]
+        },
+        {
+          "topic": "Intermediate Capstone: Parallel Cross-Platform Appium Framework in CI",
+          "subtopics": ["Layered framework", "Thread-safe drivers", "Parallel runs on a grid", "Visual, accessibility and network checks", "CI pipeline with clouds", "Reports and handover"],
+          "tools": ["Appium", "Selenium Grid 4", "Device cloud", "Allure", "GitHub Actions or Jenkins"],
+          "lab_task": "Build a team-ready Appium framework for a shopping app with layered screens, thread-safe drivers, parallel grid runs, visual, accessibility and network checks, a CI pipeline using emulators and a device cloud, and hand it to a colleague to extend.",
+          "deliverable": "Framework, pipeline, reports and handover notes",
+          "checks": [["Run in parallel", "Parallel runs pass on the grid", "Test output"], ["Run in CI", "Smoke and nightly runs work with reports", "Pipeline runs"], ["Hand over", "A colleague adds a test without help", "Pull request"]],
+          "objectives": ["Combine intermediate Appium skills", "Build a team framework", "Run mobile tests at scale"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For mobile automation leads and SDETs who run Appium across apps and teams. Covers mobile test strategy, framework architecture for many apps, self-hosted device farms, Appium on Kubernetes, scaling with clouds, test impact analysis, mobile security checks, privacy, resilience testing, performance engineering, testing apps built with Flutter and React Native, AI-assisted automation, observability for test runs, governance, migration to or from Espresso and XCUITest, Appium server internals and drivers, release quality gates, team enablement and troubleshooting.",
+      "prerequisites": ["Has built and maintained an Appium framework used by a team", "Strong Java or another client language and CI skills", "Understands mobile release processes"],
+      "outcomes": ["Set mobile test strategy and architecture for many apps and teams", "Run large mobile suites fast and reliably on device farms and clouds", "Add security, privacy, resilience and performance testing to mobile quality", "Lead mobile automation governance, migrations and capability"],
+      "days": [
+        {
+          "topic": "Mobile Test Strategy for an Organisation",
+          "subtopics": ["Mobile risks by app type", "The mobile test pyramid", "Unit, UI component and end-to-end layers", "Espresso and XCUITest compared with Appium", "Manual and exploratory mobile testing", "Device coverage in the strategy", "Ownership between developers and QA", "Reviewing the strategy"],
+          "tools": ["Risk map", "Strategy template", "Test inventory"],
+          "lab_task": "Assess the current tests of two apps by layer and risk, write a mobile test strategy that defines Appium's role, and present it to role-played engineering leaders.",
+          "deliverable": "Test inventory analysis and mobile strategy",
+          "checks": [["Analyse", "Tests are mapped by layer and risk", "Analysis"], ["Define Appium's role", "The strategy states which risks Appium covers", "Strategy"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Set mobile test strategy", "Balance test layers", "Assign ownership"]
+        },
+        {
+          "topic": "Framework Architecture for Many Mobile Apps",
+          "subtopics": ["One framework for several apps", "Shared libraries for drivers, reporting and gestures", "App-specific screens and tests", "Versioning internal libraries", "Templates for new apps", "Ownership and support"],
+          "tools": ["Maven multi-module", "Internal artifact repository", "Project templates"],
+          "lab_task": "Design the framework architecture for three apps with a shared driver and reporting library, create a starter template and onboard a new app with it.",
+          "deliverable": "Architecture design, shared library and template",
+          "checks": [["Share", "Two apps use the shared library", "Project files"], ["Template", "A new app runs tests from the template", "Onboarding record"], ["Assign ownership", "Library and app ownership are written", "Ownership document"]],
+          "objectives": ["Architect mobile automation for many apps", "Share libraries", "Provide templates"]
+        },
+        {
+          "topic": "Self-Hosted Device Farms",
+          "subtopics": ["When to build a device farm", "Hardware: hubs, power and cooling", "Device management and resets", "Open-source farm tools", "Connecting devices to Appium nodes", "Security of shared devices", "Monitoring device health", "Total cost compared with clouds"],
+          "tools": ["USB hubs and devices", "Device farm software", "Appium nodes"],
+          "lab_task": "Design a self-hosted farm for twenty devices, set up two devices as Appium nodes with health checks and compare the three-year cost with a cloud provider.",
+          "deliverable": "Farm design, working nodes and cost comparison",
+          "checks": [["Connect", "Two devices serve tests as Appium nodes", "Grid console"], ["Monitor", "Device health checks report status", "Health dashboard"], ["Compare costs", "Three-year costs are compared with a cloud", "Cost comparison"]],
+          "objectives": ["Design device farms", "Operate devices as nodes", "Compare farm and cloud costs"]
+        },
+        {
+          "topic": "Appium on Kubernetes and Containerised Emulators",
+          "subtopics": ["Android emulators in containers", "Hardware acceleration in clusters", "Appium and grid on Kubernetes", "Scaling emulators for peak runs", "Storage and app build distribution", "Network and security policies", "Costs of cluster emulators", "Limits for iOS"],
+          "tools": ["Kubernetes", "Android emulator containers", "Selenium Grid 4"],
+          "lab_task": "Run containerised Android emulators and Appium on a Kubernetes cluster, scale to six parallel sessions for a suite and record costs and limits.",
+          "deliverable": "Cluster setup, parallel run and cost notes",
+          "checks": [["Deploy", "Emulators and Appium run in the cluster", "Cluster status"], ["Scale", "Six sessions run in parallel", "Test output"], ["Record limits", "Costs and iOS limits are documented", "Notes"]],
+          "objectives": ["Run Appium on Kubernetes", "Scale emulators", "Understand cluster limits"]
+        },
+        {
+          "topic": "Scaling with Device Clouds: Concurrency, Costs and Reliability",
+          "subtopics": ["Choosing a device cloud provider", "Concurrency limits and queueing", "App upload and versioning", "Local testing tunnels", "Flakiness from cloud infrastructure", "Cost control and usage reports", "Data security with cloud providers", "Multi-cloud or hybrid with a local farm"],
+          "tools": ["Device cloud accounts", "Tunnel tools", "Usage reports"],
+          "lab_task": "Compare two device clouds on the same suite for speed, reliability and cost, test a private environment through a tunnel and recommend a provider or hybrid set-up.",
+          "deliverable": "Provider comparison and recommendation",
+          "checks": [["Compare", "Speed, reliability and cost are measured for both", "Comparison"], ["Tunnel", "The private environment is reached through the tunnel", "Test output"], ["Recommend", "The recommendation is justified with data", "Recommendation"]],
+          "objectives": ["Scale with device clouds", "Control cloud costs", "Choose providers on evidence"]
+        },
+        {
+          "topic": "Test Impact Analysis and Smart Selection for Mobile Suites",
+          "subtopics": ["Where mobile suite time goes", "Mapping tests to screens and features", "Selecting tests by changed code", "Smoke, regression and nightly tiers", "Device tiers per run type", "Feedback time targets", "Cost per run", "Measuring missed defects"],
+          "tools": ["Test-to-feature mapping", "CI pipelines", "Test duration data"],
+          "lab_task": "Map tests to features, run only affected tests on pull requests on one device, keep nightly full runs on the device matrix and report feedback time, cost and missed defects.",
+          "deliverable": "Selection rules, pipeline and report",
+          "checks": [["Map", "Every test links to a feature", "Mapping file"], ["Select", "Pull requests run affected tests only", "Pipeline run"], ["Report", "Feedback time, cost and missed defects are reported", "Report"]],
+          "objectives": ["Select mobile tests by impact", "Tier device runs", "Balance speed and risk"]
+        },
+        {
+          "topic": "Mobile Security Testing Checks with Automation",
+          "subtopics": ["OWASP Mobile Top 10 and MASVS", "Insecure data storage checks", "Certificate pinning and traffic interception", "Root and jailbreak detection behaviour", "Authentication and session checks", "Static analysis of app builds"],
+          "tools": ["OWASP MASVS", "MobSF", "mitmproxy", "Appium"],
+          "lab_task": "Scan an app build with MobSF, check stored data and pinning behaviour with automated tests and a proxy, and triage findings with developers against MASVS.",
+          "deliverable": "Security scan, automated checks and triaged findings",
+          "checks": [["Scan", "MobSF findings are produced and reviewed", "Scan report"], ["Check behaviour", "Pinning and storage checks run in tests", "Test output"], ["Triage", "Findings map to MASVS with owners", "Findings list"]],
+          "objectives": ["Add security checks to mobile testing", "Use MASVS", "Work with security teams"]
+        },
+        {
+          "topic": "Privacy and Data Protection in Mobile Apps",
+          "subtopics": ["Personal data on devices", "Permissions and data minimisation", "Consent flows", "Privacy labels and data safety forms", "GDPR and India's DPDP Act for mobile apps", "Analytics and third-party SDKs", "Testing data deletion requests", "Evidence for privacy reviews"],
+          "tools": ["Proxy tools", "Appium", "Privacy checklist"],
+          "lab_task": "Test consent flows, permission minimisation and account deletion in an app, capture third-party SDK traffic and produce evidence for a privacy review.",
+          "deliverable": "Privacy test results and evidence pack",
+          "checks": [["Test consent", "Consent choices change data collection as stated", "Traffic logs"], ["Test deletion", "Account deletion removes user data as specified", "Test output"], ["Produce evidence", "The evidence pack supports the privacy review", "Evidence pack"]],
+          "objectives": ["Test mobile privacy", "Check consent and deletion", "Produce privacy evidence"]
+        },
+        {
+          "topic": "Resilience Testing for Mobile Apps",
+          "subtopics": ["Back-end failures seen from the app", "Timeouts, retries and offline queues", "Fault injection through proxies", "App behaviour on low memory", "Process death and state restoration", "Partial outages of third-party services", "Reporting resilience weaknesses", "Following up on fixes"],
+          "tools": ["mitmproxy", "ADB", "Appium"],
+          "lab_task": "Inject back-end errors and timeouts through a proxy, force process death during checkout and confirm the app restores state, then report the weaknesses found.",
+          "deliverable": "Resilience tests and weakness report",
+          "checks": [["Inject faults", "Errors and timeouts are injected", "Proxy logs"], ["Restore state", "The app restores checkout after process death", "Test output"], ["Report", "Weaknesses have owners and planned fixes", "Weakness report"]],
+          "objectives": ["Test mobile resilience", "Inject faults", "Report and follow up weaknesses"]
+        },
+        {
+          "topic": "Mobile Performance Engineering with Automation",
+          "subtopics": ["Performance goals for mobile apps", "Start-up, rendering and memory budgets", "Profiling with Android Studio and Instruments", "Automated performance runs on real devices", "Comparing builds in CI", "Network performance and payload size", "Battery and thermal checks", "Reporting performance trends"],
+          "tools": ["Android Studio profiler", "Xcode Instruments", "Appium", "Dashboard tool"],
+          "lab_task": "Run automated performance journeys on two real devices for three builds, profile one regression, and publish a performance trend dashboard with budgets.",
+          "deliverable": "Performance runs, profiling findings and dashboard",
+          "checks": [["Measure", "Start-up, rendering and memory are recorded for three builds", "Data table"], ["Profile", "The regression's cause is found with profiler evidence", "Profiling notes"], ["Trend", "The dashboard shows budgets and trends", "Dashboard"]],
+          "objectives": ["Engineer mobile performance testing", "Profile regressions", "Track performance trends"]
+        },
+        {
+          "topic": "Testing Flutter and React Native Apps",
+          "subtopics": ["How Flutter and React Native render UI", "Accessibility identifiers in cross-platform frameworks", "The Appium Flutter integration driver", "React Native test IDs", "Mixing native and cross-platform screens", "Framework-native test tools compared with Appium", "Choosing the right layer", "Testability agreements with developers"],
+          "tools": ["Appium Flutter integration driver", "React Native sample app", "Appium"],
+          "lab_task": "Automate a Flutter screen with the Flutter integration driver and a React Native screen with test IDs, compare with the frameworks' own test tools and record the layer decision.",
+          "deliverable": "Cross-platform framework tests and a layer decision",
+          "checks": [["Automate Flutter", "The Flutter screen test passes", "Test output"], ["Automate React Native", "The React Native test passes with test IDs", "Test output"], ["Decide layers", "The decision compares Appium with framework tools", "Decision note"]],
+          "objectives": ["Test cross-platform framework apps", "Use framework-aware drivers", "Choose the right test layer"]
+        },
+        {
+          "topic": "AI-Assisted Mobile Automation",
+          "subtopics": ["AI tools that generate mobile tests", "Self-healing locators and their risks", "Visual AI for mobile screens", "Reviewing AI output for value and stability", "Data privacy with AI services", "Team rules for AI-generated tests", "Measuring effort and quality changes", "Keeping humans responsible for test intent"],
+          "tools": ["AI coding assistant", "Visual AI tool", "Appium"],
+          "lab_task": "Generate tests for a new screen with an AI assistant, try a self-healing locator tool on a changed screen, review both outputs and record effort, defects and risks.",
+          "deliverable": "Reviewed AI outputs and an effort and risk record",
+          "checks": [["Generate", "Generated tests run on the emulator", "Test output"], ["Review", "Wrong or fragile parts are corrected", "Review notes"], ["Record", "Effort, defects and risks are recorded", "Record"]],
+          "objectives": ["Use AI in mobile automation", "Review generated tests", "Set rules for AI use"]
+        },
+        {
+          "topic": "Observability for Mobile Test Runs",
+          "subtopics": ["Test results as data", "Device, OS and build in every result", "Dashboards for pass rate, flakiness and duration by device", "Linking failures to crash reports", "Alerts on quality trends", "Using test data in release decisions", "Retention of videos and logs", "Sharing insights with developers"],
+          "tools": ["Results database", "Crash reporting tool", "Dashboard tool"],
+          "lab_task": "Store results with device and build data, link failures to crash reports, build a dashboard by device and set an alert for rising failure rates on one OS version.",
+          "deliverable": "Results pipeline, dashboard and alert",
+          "checks": [["Store", "Every run is stored with device and build", "Database records"], ["Link crashes", "Failures link to crash reports", "Dashboard"], ["Alert", "A rising failure rate triggers the alert", "Alert test"]],
+          "objectives": ["Observe mobile test runs", "Link failures to crashes", "Alert on device trends"]
+        },
+        {
+          "topic": "Governance for Mobile Automation",
+          "subtopics": ["Standards for mobile tests", "Review checklists", "Locator and testability standards", "Naming, tagging and ownership", "Device coverage policy", "Retiring low-value tests", "Dependency and upgrade policy for Appium and drivers", "Reporting governance status"],
+          "tools": ["Code review tools", "Test inventory", "Dashboard tool"],
+          "lab_task": "Write mobile automation standards and a driver upgrade policy, review twenty tests against them, retire low-value tests and report status by team.",
+          "deliverable": "Standards, upgrade policy, review records and report",
+          "checks": [["Set standards", "Standards cover locators, waits, data and ownership", "Standards document"], ["Review", "Twenty tests are reviewed", "Review records"], ["Report", "Status is reported by team", "Report"]],
+          "objectives": ["Govern mobile automation", "Manage Appium upgrades", "Retire low-value tests"]
+        },
+        {
+          "topic": "Migrating Between Appium, Espresso and XCUITest",
+          "subtopics": ["Reasons to move tests to native frameworks", "Reasons to keep Appium", "Mapping Appium tests to Espresso and XCUITest", "Developer ownership of native UI tests", "Running both side by side", "Prioritising which tests move", "Measuring speed and stability", "Retiring tests"],
+          "tools": ["Espresso", "XCUITest", "Appium"],
+          "lab_task": "Move five Appium tests to Espresso and XCUITest, run both versions for a week of builds and recommend which tests should live where.",
+          "deliverable": "Migrated tests, comparison and recommendation",
+          "checks": [["Migrate", "Native versions of five tests pass", "Test output"], ["Compare", "Speed and stability are compared", "Comparison"], ["Recommend", "Tests are allocated to frameworks with reasons", "Recommendation"]],
+          "objectives": ["Compare Appium with native frameworks", "Migrate tests", "Allocate tests by layer"]
+        },
+        {
+          "topic": "Appium Server Internals, Drivers and Upgrades",
+          "subtopics": ["How the Appium server handles commands", "Driver architecture and the base driver", "Reading server logs in depth", "Upgrading Appium and drivers safely", "Breaking changes between major versions", "Pinning versions in CI", "Reporting bugs to driver projects", "Contributing fixes"],
+          "tools": ["Appium server", "Driver source code", "Server logs"],
+          "lab_task": "Trace one command through the server logs to the driver, upgrade Appium and the drivers in a test environment, fix one breaking change and pin versions in CI.",
+          "deliverable": "Command trace, upgrade record and pinned versions",
+          "checks": [["Trace", "The command path is explained from logs", "Trace notes"], ["Upgrade", "The suite passes after the upgrade", "Test output"], ["Pin", "CI uses pinned server and driver versions", "Pipeline config"]],
+          "objectives": ["Understand Appium internals", "Upgrade safely", "Manage driver versions"]
+        },
+        {
+          "topic": "Release Quality Gates for Mobile Apps",
+          "subtopics": ["Mobile release processes and app stores", "Quality gates for internal, beta and store releases", "Crash-free rate and vitals", "Staged rollouts", "Go and no-go decisions", "Hotfix testing", "Communicating release readiness", "Learning from releases"],
+          "tools": ["CI pipelines", "Crash reporting", "App store consoles"],
+          "lab_task": "Define quality gates for internal, beta and store releases, run a release readiness review for a sample build with test and crash data, and recommend a staged rollout plan.",
+          "deliverable": "Gate definitions, readiness review and rollout plan",
+          "checks": [["Define gates", "Each release stage has measurable gates", "Gate definitions"], ["Review readiness", "The review uses test results and crash data", "Readiness review"], ["Plan rollout", "The staged rollout has stop criteria", "Rollout plan"]],
+          "objectives": ["Gate mobile releases", "Use crash and test data", "Plan staged rollouts"]
+        },
+        {
+          "topic": "Enabling Teams in Mobile Automation",
+          "subtopics": ["Skills needed for Appium", "Assessing team skills", "Learning paths for manual mobile testers", "Starter projects and templates", "Pairing with developers", "Communities of practice", "Measuring growth", "Supporting developers who write UI tests"],
+          "tools": ["Skills matrix", "Starter template", "Team wiki"],
+          "lab_task": "Assess a team's mobile automation skills, design a learning path, provide a starter project and coach a manual mobile tester through a first merged test.",
+          "deliverable": "Skills assessment, learning path and first merged test",
+          "checks": [["Assess", "Each person has a skills rating", "Skills matrix"], ["Enable", "The starter project runs on a new machine", "Run log"], ["Coach", "A manual tester merges a first test", "Pull request"]],
+          "objectives": ["Grow mobile automation skills", "Provide starter projects", "Coach new automators"]
+        },
+        {
+          "topic": "Troubleshooting Large Mobile Suites",
+          "subtopics": ["Failures that appear only on some devices", "Grid and farm failures", "Driver and OS version problems", "App build and signing issues", "Reading device logs, server logs and videos together", "Reproducing failures on the same device"],
+          "tools": ["Appium logs", "Device logs", "Device cloud videos"],
+          "lab_task": "Diagnose four failures from a large suite (a device-specific layout, a grid node failure, a driver version issue and a signing problem), reproduce two and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "Two failures are reproduced on the same device type", "Test output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot large mobile suites", "Reproduce device-specific failures", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Mobile Quality Platform for Several Apps",
+          "subtopics": ["Strategy and architecture", "Device farm and cloud mix", "Test selection and gates", "Security, performance and resilience tests", "Observability and governance", "Leadership presentation"],
+          "tools": ["Appium", "Device farm or cloud", "CI pipelines", "Dashboard tool"],
+          "lab_task": "Design and build mobile quality for three apps with a shared framework, a device farm and cloud mix, impact-based selection, release gates, security, performance and resilience checks and dashboards, and present it to engineering leadership.",
+          "deliverable": "Platform, dashboards and strategy presentation",
+          "checks": [["Share", "All three apps use the shared framework", "Repositories"], ["Gate releases", "Release gates use test, crash and performance data", "Pipeline runs"], ["Win support", "Leadership approves the plan", "Presentation notes"]],
+          "objectives": ["Combine advanced Appium skills", "Build mobile quality for several apps", "Lead mobile automation"]
+        }
+      ]
+    }
+  }
+}
