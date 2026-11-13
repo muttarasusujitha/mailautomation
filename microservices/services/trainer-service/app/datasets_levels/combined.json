@@ -4485,6 +4485,439 @@
           "Monitor integration"
         ]
       }
+    },
+    {
+      "between": [
+        "Apache Airflow",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Skills for Writing Production DAGs",
+        "subtopics": [
+          "Python packaging for DAG projects",
+          "Pure functions behind tasks",
+          "Type hints and pydantic for task inputs",
+          "Testing task code without Airflow",
+          "Logging from tasks",
+          "Managing dependencies per task",
+          "Performance of Python in tasks",
+          "Code review for DAG code"
+        ],
+        "tools": [
+          "Python",
+          "Apache Airflow",
+          "pytest",
+          "ruff"
+        ],
+        "lab_task": "Refactor a DAG so all logic lives in tested Python functions with typed inputs, keep the DAG file thin, add logging and pin task dependencies.",
+        "deliverable": "Refactored DAG project and tests",
+        "checks": [
+          [
+            "Run the tests without Airflow",
+            "Task logic tests pass",
+            "pytest output"
+          ],
+          [
+            "Pass bad input",
+            "Validation error raised clearly",
+            "Test output"
+          ],
+          [
+            "Review the DAG file",
+            "Only orchestration code left",
+            "Code review"
+          ]
+        ],
+        "objectives": [
+          "Write production Python for Airflow",
+          "Test task logic",
+          "Keep DAGs thin"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Apache Airflow",
+        "Apache Spark"
+      ],
+      "day": {
+        "topic": "Orchestrating Spark Jobs with Airflow",
+        "subtopics": [
+          "SparkSubmitOperator",
+          "Running Spark on Kubernetes from Airflow",
+          "EMR, Dataproc and Databricks operators",
+          "Passing data intervals to Spark jobs",
+          "Waiting with deferrable operators",
+          "Idempotent Spark writes for retries",
+          "Collecting Spark metrics in Airflow",
+          "Cost of clusters started by Airflow"
+        ],
+        "tools": [
+          "Apache Airflow",
+          "Apache Spark",
+          "Spark Operator"
+        ],
+        "lab_task": "Run a daily Spark job from Airflow on Kubernetes with the data interval as parameters, wait with a deferrable operator, retry safely and record run time and cost.",
+        "deliverable": "DAG, Spark job and run evidence",
+        "checks": [
+          [
+            "Run for one day",
+            "Spark processes only that day",
+            "Job log"
+          ],
+          [
+            "Retry the task",
+            "No duplicate output",
+            "Table check"
+          ],
+          [
+            "Wait deferrably",
+            "No worker slot held",
+            "Pool view"
+          ]
+        ],
+        "objectives": [
+          "Orchestrate Spark",
+          "Parameterise by interval",
+          "Retry safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Apache Airflow",
+        "Databricks"
+      ],
+      "day": {
+        "topic": "Orchestrating Databricks with Airflow",
+        "subtopics": [
+          "Databricks provider operators",
+          "Running notebooks and jobs",
+          "Databricks Workflows compared with Airflow",
+          "Passing parameters",
+          "Job clusters and serverless compute",
+          "Waiting and monitoring",
+          "Handling failures",
+          "Choosing where to orchestrate"
+        ],
+        "tools": [
+          "Apache Airflow",
+          "Databricks provider",
+          "Databricks Workflows"
+        ],
+        "lab_task": "Trigger a Databricks job from Airflow with parameters, wait for it, fail it on purpose to see alerts and write guidance on when to orchestrate in Airflow or Databricks Workflows.",
+        "deliverable": "DAG, run evidence and guidance",
+        "checks": [
+          [
+            "Trigger the job",
+            "Databricks run started with the parameters",
+            "Run page"
+          ],
+          [
+            "Fail the job",
+            "Airflow task fails and alerts",
+            "Task log"
+          ],
+          [
+            "Write the guidance",
+            "Clear rules for each orchestrator",
+            "Guidance note"
+          ]
+        ],
+        "objectives": [
+          "Orchestrate Databricks",
+          "Pass parameters",
+          "Choose orchestrators"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Informatica",
+        "SQL"
+      ],
+      "day": {
+        "topic": "SQL Skills for Informatica Developers",
+        "subtopics": [
+          "Source qualifier and source queries",
+          "Pushing filters and joins into SQL",
+          "Reading pushdown SQL",
+          "Database tuning for ETL",
+          "Indexes for lookups",
+          "Set-based compared with row-based logic",
+          "SQL in pre- and post-session commands",
+          "Validating loads with SQL"
+        ],
+        "tools": [
+          "Informatica",
+          "PostgreSQL, Oracle or SQL Server",
+          "Query plans"
+        ],
+        "lab_task": "Move filtering and joins from a slow mapping into the source query, index lookup tables, read the pushdown SQL and validate the load with SQL checks.",
+        "deliverable": "Changed mapping, indexes and validation queries",
+        "checks": [
+          [
+            "Compare run times",
+            "Faster with SQL pushed to the database",
+            "Timing table"
+          ],
+          [
+            "Read the plan",
+            "Index used by the lookup query",
+            "Query plan"
+          ],
+          [
+            "Validate the load",
+            "Counts and totals match",
+            "Validation queries"
+          ]
+        ],
+        "objectives": [
+          "Use SQL with Informatica",
+          "Push work to databases",
+          "Validate loads"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Informatica",
+        "Snowflake"
+      ],
+      "day": {
+        "topic": "Loading Snowflake with Informatica Cloud Data Integration",
+        "subtopics": [
+          "Snowflake connector options",
+          "Bulk loading through stages",
+          "Full pushdown to Snowflake",
+          "Warehouse sizing for loads",
+          "Handling semi-structured data",
+          "Change data capture into Snowflake",
+          "Cost of loads",
+          "Monitoring loads in both tools"
+        ],
+        "tools": [
+          "Informatica Cloud Data Integration",
+          "Snowflake"
+        ],
+        "lab_task": "Load staging and warehouse tables into Snowflake with full pushdown, apply CDC changes, size the warehouse for the load and compare cost per run.",
+        "deliverable": "Mappings, pushdown SQL and cost comparison",
+        "checks": [
+          [
+            "Run with full pushdown",
+            "Processing in Snowflake",
+            "Query history"
+          ],
+          [
+            "Apply CDC",
+            "Changes merged correctly",
+            "Query result"
+          ],
+          [
+            "Compare warehouse sizes",
+            "Cost per run for each",
+            "Cost table"
+          ]
+        ],
+        "objectives": [
+          "Load Snowflake",
+          "Use pushdown",
+          "Control cost"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GRC (Governance, Risk and Compliance)",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Connecting Security Operations to GRC",
+        "subtopics": [
+          "Security controls as GRC controls",
+          "Using security tool data as evidence",
+          "Vulnerability management metrics for risk",
+          "Incidents in the risk register",
+          "Security exceptions",
+          "Reporting security risk to leadership",
+          "Shared language between security and GRC",
+          "Working agreements between teams"
+        ],
+        "tools": [
+          "Vulnerability scanner reports",
+          "SIEM reports",
+          "GRC platform"
+        ],
+        "lab_task": "Map security controls to the control framework, feed vulnerability and incident data into the risk register and build a joint security risk report.",
+        "deliverable": "Control mapping, updated register and joint report",
+        "checks": [
+          [
+            "Map controls",
+            "Security controls linked to framework controls",
+            "Mapping"
+          ],
+          [
+            "Feed data",
+            "Risk ratings updated from tool data",
+            "Risk register"
+          ],
+          [
+            "Present the report",
+            "Security risk explained in business terms",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Link security and GRC",
+          "Use tool data as evidence",
+          "Report security risk"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GRC (Governance, Risk and Compliance)",
+        "ServiceNow"
+      ],
+      "day": {
+        "topic": "Running GRC on ServiceNow Integrated Risk Management",
+        "subtopics": [
+          "ServiceNow IRM modules",
+          "Policy and compliance management",
+          "Risk management",
+          "Control testing and indicators",
+          "Vendor risk management",
+          "Linking risks to CMDB items",
+          "Automated indicators from IT data",
+          "Reporting and dashboards"
+        ],
+        "tools": [
+          "ServiceNow IRM",
+          "CMDB",
+          "Performance Analytics"
+        ],
+        "lab_task": "Load a control framework into ServiceNow IRM, link controls to CMDB items, set automated indicators from patching data and build a compliance dashboard.",
+        "deliverable": "Configured IRM, indicators and dashboard",
+        "checks": [
+          [
+            "Link controls to CIs",
+            "Controls shown on CI records",
+            "Screenshot"
+          ],
+          [
+            "Fail an indicator",
+            "Issue created automatically",
+            "Issue record"
+          ],
+          [
+            "View the dashboard",
+            "Compliance by policy shown",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Configure ServiceNow IRM",
+          "Automate indicators",
+          "Report compliance"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft 365 Administration",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Microsoft 365 and Azure Together: Identity, Security and Governance",
+        "subtopics": [
+          "Shared Entra ID for Microsoft 365 and Azure",
+          "Admin roles across both",
+          "Conditional Access for Azure portal access",
+          "Defender for Cloud and Defender XDR together",
+          "Logs from both in Sentinel",
+          "Azure Automation for Microsoft 365 tasks",
+          "Cost management for both",
+          "Governance boundaries"
+        ],
+        "tools": [
+          "Microsoft Entra ID",
+          "Azure",
+          "Microsoft Defender",
+          "Microsoft Sentinel"
+        ],
+        "lab_task": "Separate admin roles for Microsoft 365 and Azure, protect Azure portal access with Conditional Access, send both sets of logs to Sentinel and run a Microsoft 365 task from Azure Automation.",
+        "deliverable": "Role design, policies, Sentinel connectors and runbook",
+        "checks": [
+          [
+            "Sign in to the Azure portal without MFA",
+            "Blocked",
+            "Sign-in log"
+          ],
+          [
+            "Query both log sources in Sentinel",
+            "Microsoft 365 and Azure events returned",
+            "Query results"
+          ],
+          [
+            "Run the runbook",
+            "Microsoft 365 task done with a managed identity",
+            "Runbook output"
+          ]
+        ],
+        "objectives": [
+          "Run Microsoft 365 and Azure together",
+          "Separate admin duties",
+          "Centralise logs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft 365 Administration",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Securing Microsoft 365 Against Common Attacks",
+        "subtopics": [
+          "Common attacks on Microsoft 365",
+          "Phishing and business email compromise",
+          "Password spraying",
+          "MFA fatigue and token theft",
+          "Malicious OAuth consent",
+          "Hardening checklist",
+          "Detection with Defender",
+          "Response playbooks"
+        ],
+        "tools": [
+          "Microsoft Defender XDR",
+          "Entra ID",
+          "Conditional Access"
+        ],
+        "lab_task": "Simulate password spraying, MFA fatigue and a consent phishing attack in a lab tenant, detect each with Defender and Entra logs and apply the hardening that stops them.",
+        "deliverable": "Attack simulations, detections and hardening changes",
+        "checks": [
+          [
+            "Run password spraying",
+            "Detected and blocked",
+            "Sign-in log"
+          ],
+          [
+            "Run MFA fatigue",
+            "Number matching stops approval",
+            "Sign-in log"
+          ],
+          [
+            "Run consent phishing",
+            "Consent blocked by the admin consent workflow",
+            "Audit log"
+          ]
+        ],
+        "objectives": [
+          "Understand Microsoft 365 attacks",
+          "Detect attacks",
+          "Harden the tenant"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -6954,6 +7387,142 @@
           "Combine SuccessFactors and S/4HANA",
           "Run an integrated HR and finance flow",
           "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Apache Airflow",
+        "Apache Spark"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Orchestrated Spark Data Platform",
+        "subtopics": [
+          "Design",
+          "Spark jobs",
+          "Orchestration",
+          "Demo"
+        ],
+        "tools": [
+          "Apache Airflow",
+          "Apache Spark",
+          "Delta Lake",
+          "Kubernetes"
+        ],
+        "lab_task": "Build a daily platform where Airflow orchestrates Spark ingestion, transformation and quality jobs on Kubernetes with backfills, alerts and data-aware scheduling, then demo a failure and backfill.",
+        "deliverable": "DAGs, Spark jobs, dashboards and demo recording",
+        "checks": [
+          [
+            "Backfill a month",
+            "One correct run per day",
+            "Demo recording"
+          ],
+          [
+            "Fail a Spark job",
+            "Alert sent and retry succeeds without duplicates",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Orchestration and job choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Airflow and Spark",
+          "Build a reliable platform",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "GRC (Governance, Risk and Compliance)",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Security Risk and Compliance Programme",
+        "subtopics": [
+          "Risk and controls",
+          "Security evidence",
+          "Reporting",
+          "Demo"
+        ],
+        "tools": [
+          "GRC platform",
+          "Vulnerability scanner",
+          "SIEM",
+          "Control framework"
+        ],
+        "lab_task": "Build a security risk and compliance programme with controls mapped to ISO 27001, evidence fed from security tools, quantified top risks and a board-ready report, then present it.",
+        "deliverable": "Programme pack, evidence links and board report",
+        "checks": [
+          [
+            "Trace a control",
+            "Control linked to tool evidence and risk",
+            "Trace"
+          ],
+          [
+            "Present quantified risk",
+            "Top risks in money terms",
+            "Presentation"
+          ],
+          [
+            "Answer design questions",
+            "Programme choices defended",
+            "Panel feedback"
+          ]
+        ],
+        "objectives": [
+          "Combine GRC and security",
+          "Run evidence-based compliance",
+          "Report to leadership"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Microsoft 365 Administration",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hardened Microsoft 365 Tenant",
+        "subtopics": [
+          "Identity",
+          "Email and devices",
+          "Data protection",
+          "Attack demo"
+        ],
+        "tools": [
+          "Entra ID",
+          "Conditional Access",
+          "Intune",
+          "Defender XDR",
+          "Purview"
+        ],
+        "lab_task": "Harden a Microsoft 365 tenant with phishing-resistant MFA, Conditional Access, compliant devices, mail authentication, Defender policies and DLP, then demo blocking three attacks.",
+        "deliverable": "Configuration documentation, test results and demo recording",
+        "checks": [
+          [
+            "Demo three attacks",
+            "Each blocked or detected",
+            "Demo recording"
+          ],
+          [
+            "Check Secure Score",
+            "Score above the agreed target",
+            "Secure Score"
+          ],
+          [
+            "Answer design questions",
+            "Hardening choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Microsoft 365 and security",
+          "Harden a tenant",
+          "Prove protection"
         ]
       }
     }
