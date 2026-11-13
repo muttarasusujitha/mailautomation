@@ -3512,6 +3512,542 @@
           "Check changes automatically"
         ]
       }
+    },
+    {
+      "between": [
+        "SQL",
+        "SQL Server"
+      ],
+      "day": {
+        "topic": "From Standard SQL to T-SQL: SQL Server Features and Execution Plans",
+        "subtopics": [
+          "Where T-SQL follows the standard and where it differs",
+          "TOP, OFFSET FETCH and APPLY",
+          "MERGE and OUTPUT",
+          "Temporary tables and table variables",
+          "String and date functions in T-SQL",
+          "Reading execution plans for the earlier reports",
+          "Indexes for the report queries",
+          "Moving portable SQL to T-SQL on purpose"
+        ],
+        "tools": [
+          "SQL Server 2022",
+          "SSMS",
+          "Execution plans"
+        ],
+        "lab_task": "Port five portable SQL reports to T-SQL using APPLY, OUTPUT and window functions, compare plans and logical reads for both versions and record which version to keep.",
+        "deliverable": "Both versions of each report, plans and a decision note",
+        "checks": [
+          [
+            "Compare results",
+            "Portable and T-SQL versions return the same rows",
+            "Query results"
+          ],
+          [
+            "Compare logical reads",
+            "Reads recorded for both versions",
+            "STATISTICS IO output"
+          ],
+          [
+            "Write the decision note",
+            "Portability or speed choice justified for each report",
+            "Decision note"
+          ]
+        ],
+        "objectives": [
+          "Use T-SQL features",
+          "Compare plans",
+          "Choose portability deliberately"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SQL",
+        "MySQL"
+      ],
+      "day": {
+        "topic": "From Standard SQL to MySQL: Dialect Differences and Plans",
+        "subtopics": [
+          "MySQL behaviour that differs from the standard",
+          "SQL modes and ONLY_FULL_GROUP_BY",
+          "LIMIT, upserts and REPLACE",
+          "Emulating FULL OUTER JOIN",
+          "Collations and case sensitivity",
+          "Date and string functions in MySQL",
+          "EXPLAIN for the earlier reports",
+          "Indexes for the report queries"
+        ],
+        "tools": [
+          "MySQL 8.4",
+          "MySQL Shell",
+          "EXPLAIN"
+        ],
+        "lab_task": "Port five portable SQL reports to MySQL, fix one that fails under ONLY_FULL_GROUP_BY and one affected by case-insensitive collation, and compare plans with EXPLAIN ANALYZE.",
+        "deliverable": "Ported reports, fixes and plans",
+        "checks": [
+          [
+            "Fix the GROUP BY report",
+            "Valid and correct under strict mode",
+            "Query result"
+          ],
+          [
+            "Fix the collation issue",
+            "Comparison behaves as intended",
+            "Query result"
+          ],
+          [
+            "Compare plans",
+            "EXPLAIN ANALYZE recorded for each report",
+            "Plan output"
+          ]
+        ],
+        "objectives": [
+          "Write MySQL SQL",
+          "Avoid dialect traps",
+          "Read MySQL plans"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SQL Server",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Running SQL Server Workloads on Azure: Azure SQL, Managed Instance and VMs",
+        "subtopics": [
+          "Choosing Azure SQL Database, Managed Instance or SQL Server on VMs",
+          "Networking: private endpoints and VNets",
+          "Microsoft Entra authentication and managed identities",
+          "Backups, geo-restore and failover groups",
+          "Azure Monitor and Query Performance Insight",
+          "Elastic pools for many databases",
+          "Cost: vCores, DTUs and reserved capacity",
+          "Migration paths with Azure Database Migration Service"
+        ],
+        "tools": [
+          "Azure SQL Database",
+          "Azure SQL Managed Instance",
+          "Azure Monitor",
+          "Azure Database Migration Service"
+        ],
+        "lab_task": "Deploy Azure SQL with a private endpoint and Entra login, connect an App Service with managed identity, set up a failover group and move ten small databases into an elastic pool with a cost comparison.",
+        "deliverable": "Deployment configuration, failover evidence and cost comparison",
+        "checks": [
+          [
+            "Connect from the public internet",
+            "Blocked by the private endpoint",
+            "Client error"
+          ],
+          [
+            "Connect from the app with managed identity",
+            "Works without a stored password",
+            "App log"
+          ],
+          [
+            "Compare costs",
+            "Single databases and pool costs compared",
+            "Cost table"
+          ]
+        ],
+        "objectives": [
+          "Choose Azure SQL options",
+          "Secure access",
+          "Control cost"
+        ]
+      }
+    },
+    {
+      "between": [
+        "C#",
+        "SQL Server"
+      ],
+      "day": {
+        "topic": "Building .NET Data Access on SQL Server: EF Core, Transactions and Concurrency",
+        "subtopics": [
+          "EF Core with SQL Server provider features",
+          "Migrations in team workflows",
+          "Optimistic concurrency with rowversion",
+          "Transactions and retry strategies",
+          "Calling stored procedures and table-valued parameters",
+          "Bulk operations",
+          "Connection resiliency",
+          "Reviewing generated SQL in Query Store"
+        ],
+        "tools": [
+          ".NET 8",
+          "EF Core",
+          "SQL Server",
+          "Query Store"
+        ],
+        "lab_task": "Add rowversion concurrency to an ASP.NET Core API, handle conflicts in the client, use a table-valued parameter for bulk updates and turn on connection resiliency, then check the generated SQL in Query Store.",
+        "deliverable": "API changes, conflict tests and Query Store findings",
+        "checks": [
+          [
+            "Update the same row from two clients",
+            "Second update gets a concurrency error",
+            "Test output"
+          ],
+          [
+            "Run the bulk update",
+            "One round trip for all rows",
+            "SQL trace"
+          ],
+          [
+            "Drop the connection briefly",
+            "Request succeeds after retry",
+            "API log"
+          ]
+        ],
+        "objectives": [
+          "Use SQL Server well from .NET",
+          "Handle concurrency",
+          "Make data access resilient"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Angular",
+        "TypeScript"
+      ],
+      "day": {
+        "topic": "Advanced TypeScript in Angular Codebases",
+        "subtopics": [
+          "Strict compiler settings for Angular",
+          "Typing signals, inputs and outputs",
+          "Generic components and services",
+          "Typed reactive forms",
+          "Discriminated unions for view states",
+          "Typing HTTP responses and validating them at runtime",
+          "Utility types in Angular code",
+          "Fixing common type errors"
+        ],
+        "tools": [
+          "Angular",
+          "TypeScript",
+          "Zod"
+        ],
+        "lab_task": "Turn on all strict Angular and TypeScript settings for an app, fix the errors, add a generic table component, model loading and error states with discriminated unions and validate API responses with Zod.",
+        "deliverable": "Typed codebase and list of bugs found by the compiler",
+        "checks": [
+          [
+            "Build with strict settings",
+            "Zero errors",
+            "Build output"
+          ],
+          [
+            "Pass a wrong input type",
+            "Compile error at the template",
+            "Build output"
+          ],
+          [
+            "Receive a malformed response",
+            "Runtime validation error handled",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Type Angular code well",
+          "Use generics and unions",
+          "Validate data at runtime"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Angular",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Connecting an Angular Front End to a Spring Boot API",
+        "subtopics": [
+          "Shared API contracts with OpenAPI",
+          "Generating an Angular client from the spec",
+          "CORS and proxy configuration",
+          "OIDC login across Angular and Spring Security",
+          "Mapping server validation errors to forms",
+          "Paging and sorting from Angular tables",
+          "Serving Angular from Spring Boot or a CDN",
+          "End-to-end tests across both"
+        ],
+        "tools": [
+          "Angular",
+          "Spring Boot",
+          "OpenAPI Generator",
+          "Playwright"
+        ],
+        "lab_task": "Generate a typed Angular client from the Spring Boot OpenAPI spec, build login, a paged table and a form that shows server validation errors, and test the main flow with Playwright.",
+        "deliverable": "Generated client, Angular pages and end-to-end test",
+        "checks": [
+          [
+            "Submit an invalid form",
+            "Server errors shown on the right fields",
+            "Screenshot"
+          ],
+          [
+            "Change an API field and regenerate",
+            "Angular build fails until fixed",
+            "Build output"
+          ],
+          [
+            "Run the Playwright test",
+            "Login, list and create pass",
+            "Test report"
+          ]
+        ],
+        "objectives": [
+          "Connect Angular and Spring Boot",
+          "Share contracts",
+          "Test the full flow"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Angular",
+        "C#"
+      ],
+      "day": {
+        "topic": "Angular with ASP.NET Core: APIs, Authentication and Hosting",
+        "subtopics": [
+          "ASP.NET Core Web API for Angular clients",
+          "NSwag or OpenAPI clients for Angular",
+          "Authentication with Microsoft Entra ID and MSAL Angular",
+          "SignalR for real-time updates",
+          "Problem Details errors in Angular",
+          "Hosting Angular with ASP.NET Core or Azure Static Web Apps",
+          "Environment configuration",
+          "End-to-end tests"
+        ],
+        "tools": [
+          "Angular",
+          "ASP.NET Core",
+          "MSAL Angular",
+          "SignalR",
+          "Azure Static Web Apps"
+        ],
+        "lab_task": "Connect an Angular app to an ASP.NET Core API with Entra login through MSAL, a generated client, SignalR notifications and Problem Details error handling, and host both on Azure.",
+        "deliverable": "Angular app, API, hosting configuration and tests",
+        "checks": [
+          [
+            "Log in with Entra ID",
+            "Token sent to the API",
+            "Network panel"
+          ],
+          [
+            "Trigger a server event",
+            "Angular updates through SignalR",
+            "Screenshot"
+          ],
+          [
+            "Cause a validation error",
+            "Problem Details shown in the form",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Connect Angular and ASP.NET Core",
+          "Use Entra ID",
+          "Add real-time updates"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MLOps",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "From Model Notebooks to Operated Models",
+        "subtopics": [
+          "What changes when a model must run every day",
+          "Turning experiments into pipelines",
+          "Choosing metrics that can be monitored",
+          "Baselines and thresholds for release",
+          "Packaging preprocessing with the model",
+          "Monitoring the assumptions behind the model",
+          "Retraining plans",
+          "Handover between data science and operations"
+        ],
+        "tools": [
+          "scikit-learn",
+          "MLflow",
+          "DVC",
+          "Evidently"
+        ],
+        "lab_task": "Take a model built in the machine learning days, turn it into a tracked pipeline with release thresholds, package it with its preprocessing and define what to monitor and when to retrain.",
+        "deliverable": "Pipeline, registered model and monitoring plan",
+        "checks": [
+          [
+            "Re-run the pipeline",
+            "Same model and metric",
+            "Pipeline output"
+          ],
+          [
+            "Train below the threshold",
+            "Release blocked",
+            "Pipeline log"
+          ],
+          [
+            "Review the monitoring plan",
+            "Each model assumption has a check",
+            "Monitoring plan"
+          ]
+        ],
+        "objectives": [
+          "Operate ML models",
+          "Set release thresholds",
+          "Plan monitoring and retraining"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MLOps",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Running ML Pipelines and Model Serving on Kubernetes",
+        "subtopics": [
+          "ML workloads on Kubernetes",
+          "GPU scheduling",
+          "Training Jobs and pipelines",
+          "KServe for serving",
+          "Autoscaling models",
+          "Storage for data and models",
+          "Quotas for data science teams",
+          "Observability for ML pods"
+        ],
+        "tools": [
+          "Kubernetes",
+          "KServe",
+          "Kubeflow Pipelines",
+          "Prometheus"
+        ],
+        "lab_task": "Run training as a Kubernetes Job on a GPU node, serve the model with KServe and autoscaling, set namespace quotas for a team and monitor model pods.",
+        "deliverable": "Manifests, serving configuration and dashboards",
+        "checks": [
+          [
+            "Run the training Job",
+            "Completes on a GPU node",
+            "kubectl output"
+          ],
+          [
+            "Raise traffic",
+            "KServe scales out",
+            "kubectl output"
+          ],
+          [
+            "Exceed the quota",
+            "New pods refused",
+            "Event log"
+          ]
+        ],
+        "objectives": [
+          "Run ML on Kubernetes",
+          "Serve with KServe",
+          "Share clusters fairly"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MLOps",
+        "Azure"
+      ],
+      "day": {
+        "topic": "MLOps on Azure: Azure Machine Learning, DevOps and Monitoring",
+        "subtopics": [
+          "Azure ML workspaces and compute",
+          "Pipelines and components",
+          "Registries across workspaces",
+          "Managed online endpoints and blue-green traffic",
+          "Azure DevOps or GitHub Actions pipelines",
+          "Managed identities and Key Vault",
+          "Monitoring with Application Insights",
+          "Cost controls"
+        ],
+        "tools": [
+          "Azure Machine Learning",
+          "GitHub Actions",
+          "Key Vault",
+          "Application Insights"
+        ],
+        "lab_task": "Build an Azure ML pipeline, share the model through a registry, deploy to a managed endpoint with blue-green traffic from a CI/CD pipeline and monitor it with Application Insights.",
+        "deliverable": "Pipeline, registry entry, endpoint and workflow",
+        "checks": [
+          [
+            "Run the workflow",
+            "Model trained, registered and deployed",
+            "Workflow log"
+          ],
+          [
+            "Shift traffic to green",
+            "Split applied",
+            "Endpoint details"
+          ],
+          [
+            "Search configuration for keys",
+            "Managed identity and Key Vault used",
+            "Configuration review"
+          ]
+        ],
+        "objectives": [
+          "Run MLOps on Azure",
+          "Deploy safely",
+          "Secure and monitor endpoints"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MLOps",
+        "AWS"
+      ],
+      "day": {
+        "topic": "MLOps on AWS: SageMaker Pipelines, Registry and Monitoring",
+        "subtopics": [
+          "SageMaker training and processing jobs",
+          "SageMaker Pipelines",
+          "Model Registry and approvals",
+          "Real-time, serverless and batch endpoints",
+          "Model Monitor",
+          "IAM roles for pipelines",
+          "CI/CD with CodePipeline or GitHub Actions",
+          "Cost controls"
+        ],
+        "tools": [
+          "Amazon SageMaker",
+          "AWS IAM",
+          "GitHub Actions"
+        ],
+        "lab_task": "Build a SageMaker pipeline with an approval step, deploy the approved model to a serverless endpoint from CI and set up Model Monitor for data quality.",
+        "deliverable": "Pipeline, endpoint, monitor and workflow",
+        "checks": [
+          [
+            "Approve the model",
+            "Deployment starts from CI",
+            "Workflow log"
+          ],
+          [
+            "Send bad data",
+            "Monitor reports a violation",
+            "Monitor report"
+          ],
+          [
+            "Review IAM roles",
+            "Least-privilege roles for each step",
+            "Role policies"
+          ]
+        ],
+        "objectives": [
+          "Run MLOps on AWS",
+          "Gate releases",
+          "Monitor endpoints"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -5618,6 +6154,190 @@
           "Combine networking and Python",
           "Roll out networks automatically",
           "Validate changes"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Angular",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Full-Stack Application with Angular and Spring Boot",
+        "subtopics": [
+          "API and data model",
+          "Angular UI with a generated client",
+          "Authentication end to end",
+          "Tests and deployment"
+        ],
+        "tools": [
+          "Angular",
+          "Spring Boot",
+          "PostgreSQL",
+          "Playwright",
+          "Docker"
+        ],
+        "lab_task": "Build and deploy a booking application with a secured Spring Boot API, an Angular UI using a generated client, OIDC login, validation shown in forms and Playwright tests, then present it.",
+        "deliverable": "Repositories, deployed app, test reports and a 15-minute demo",
+        "checks": [
+          [
+            "Run the Playwright tests",
+            "All main flows pass",
+            "Test report"
+          ],
+          [
+            "Call an admin endpoint as a normal user",
+            "403 returned and the UI hides the action",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "API and UI choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Angular and Spring Boot",
+          "Deliver a full-stack app",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SQL Server",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: SQL Server Workload Migrated to Azure",
+        "subtopics": [
+          "Assessment",
+          "Migration",
+          "Security and availability",
+          "Demo"
+        ],
+        "tools": [
+          "SQL Server",
+          "Azure SQL Managed Instance",
+          "Azure Database Migration Service",
+          "Azure Monitor"
+        ],
+        "lab_task": "Assess an on-premises SQL Server database, migrate it to Azure SQL Managed Instance with minimal downtime, secure it with private access and Entra login, add a failover group and present cost and results.",
+        "deliverable": "Assessment, migration log, configuration and presentation",
+        "checks": [
+          [
+            "Cut over",
+            "Downtime within the target",
+            "Migration log"
+          ],
+          [
+            "Fail over the group",
+            "Application reconnects",
+            "Demo recording"
+          ],
+          [
+            "Present the cost",
+            "Monthly cost compared with on-premises",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine SQL Server and Azure",
+          "Migrate safely",
+          "Defend cost and design"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "MLOps",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Model Built, Shipped and Monitored",
+        "subtopics": [
+          "Model development",
+          "Pipeline and registry",
+          "Serving and monitoring",
+          "Demo"
+        ],
+        "tools": [
+          "scikit-learn",
+          "MLflow",
+          "DVC",
+          "FastAPI",
+          "Docker",
+          "Evidently"
+        ],
+        "lab_task": "Build a model with sound validation, ship it through a tracked pipeline with release thresholds, serve it in a container with CI and monitor drift, then demo retraining after drift.",
+        "deliverable": "Repository, pipeline, service, dashboards and demo recording",
+        "checks": [
+          [
+            "Reproduce the model from a clean clone",
+            "Same metric as registered",
+            "Reproduction notes"
+          ],
+          [
+            "Inject drift",
+            "Alert and retraining run",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Modelling and operations choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine machine learning and MLOps",
+          "Ship and monitor a model",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "MLOps",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: ML Platform on Kubernetes",
+        "subtopics": [
+          "Platform set-up",
+          "Pipelines and serving",
+          "Quotas and monitoring",
+          "Demo"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Kubeflow Pipelines",
+          "KServe",
+          "MLflow",
+          "Prometheus and Grafana"
+        ],
+        "lab_task": "Build a small ML platform on Kubernetes with pipelines, a registry, KServe serving with canary releases, team quotas and monitoring, then demo a model release and rollback.",
+        "deliverable": "Manifests, pipelines, dashboards and demo recording",
+        "checks": [
+          [
+            "Release a model as a canary",
+            "Traffic shifted gradually",
+            "Demo recording"
+          ],
+          [
+            "Roll back",
+            "Previous model serving within minutes",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Platform choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine MLOps and Kubernetes",
+          "Run models on a shared platform",
+          "Defend design decisions"
         ]
       }
     }
