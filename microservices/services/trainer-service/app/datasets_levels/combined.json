@@ -5307,6 +5307,599 @@
           "Split admin duties"
         ]
       }
+    },
+    {
+      "between": [
+        "LangChain",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for LangChain Projects: Typing, Packaging and Version Pinning",
+        "subtopics": [
+          "Project layout for LangChain applications",
+          "Pinning langchain-core and partner packages with uv",
+          "Typed chains with pydantic input and output models",
+          "Settings and secrets with pydantic-settings",
+          "Fake chat models and fixtures for unit tests",
+          "Async chain calls inside FastAPI",
+          "Linting and type checks with Ruff and mypy",
+          "Upgrading LangChain packages safely"
+        ],
+        "tools": [
+          "Python",
+          "uv",
+          "pydantic",
+          "pytest",
+          "Ruff",
+          "mypy"
+        ],
+        "lab_task": "Restructure a notebook LangChain prototype into a typed Python package with pinned dependencies, pydantic settings, unit tests that use fake chat models and a FastAPI endpoint that calls the chain asynchronously.",
+        "deliverable": "Package repository with tests and lock file",
+        "checks": [
+          [
+            "Run the unit tests",
+            "Tests pass without network calls to a model provider",
+            "pytest output"
+          ],
+          [
+            "Run type checks",
+            "mypy reports no errors on chain inputs and outputs",
+            "mypy output"
+          ],
+          [
+            "Upgrade a partner package",
+            "Lock file updated and tests still pass",
+            "Pull request diff"
+          ]
+        ],
+        "objectives": [
+          "Structure LangChain code as a Python package",
+          "Test chains without live models",
+          "Upgrade dependencies safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "LangChain",
+        "RAG Pipelines"
+      ],
+      "day": {
+        "topic": "Comparing RAG Pipeline Variants with LangChain Interfaces and LangSmith Experiments",
+        "subtopics": [
+          "Retriever and vector store interfaces as swap points",
+          "Configurable chains with configurable fields and alternatives",
+          "Building variants: chunk size, embedding model and reranker",
+          "A shared evaluation dataset",
+          "Running one LangSmith experiment per variant",
+          "Retrieval metrics and answer metrics side by side",
+          "Cost and latency per variant",
+          "Choosing and documenting the winning pipeline"
+        ],
+        "tools": [
+          "LangChain",
+          "LangSmith",
+          "Vector store",
+          "Reranker"
+        ],
+        "lab_task": "Build one RAG chain with configurable chunking, embeddings and reranking, run four variants against the same LangSmith dataset and pick a winner on quality, cost and latency.",
+        "deliverable": "Experiment results and decision record",
+        "checks": [
+          [
+            "Run four variants",
+            "Each variant has an experiment on the same dataset",
+            "Experiment list"
+          ],
+          [
+            "Compare metrics",
+            "Retrieval and answer scores shown per variant",
+            "Comparison table"
+          ],
+          [
+            "Record the decision",
+            "Winner chosen with cost and latency trade-offs explained",
+            "Decision record"
+          ]
+        ],
+        "objectives": [
+          "Swap RAG components through LangChain interfaces",
+          "Compare pipelines fairly",
+          "Choose pipelines with evidence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "LangChain",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Provider-Agnostic Generative AI Apps with LangChain Model Abstractions",
+        "subtopics": [
+          "init_chat_model and provider packages",
+          "Provider differences in tool calling and structured output",
+          "Fallbacks between models",
+          "Routing requests to cheaper or stronger models",
+          "Rate limiters and retries per provider",
+          "Running open-weight models through Ollama or vLLM",
+          "Comparing outputs across providers",
+          "Keeping the provider choice in configuration"
+        ],
+        "tools": [
+          "LangChain",
+          "OpenAI",
+          "Anthropic",
+          "Google Gemini",
+          "Ollama"
+        ],
+        "lab_task": "Build a generative AI feature that runs on three hosted providers and one local model, add fallbacks and a router that sends simple requests to a cheaper model, and compare quality and cost.",
+        "deliverable": "Multi-provider application and comparison report",
+        "checks": [
+          [
+            "Switch providers",
+            "Same feature works on all four models through configuration",
+            "Run log"
+          ],
+          [
+            "Force a provider failure",
+            "Fallback model answers the request",
+            "Trace screenshot"
+          ],
+          [
+            "Route by difficulty",
+            "Simple requests go to the cheaper model",
+            "Routing report"
+          ]
+        ],
+        "objectives": [
+          "Write provider-agnostic generative AI code",
+          "Add fallbacks and routing",
+          "Compare models fairly"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Prompt Engineering",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Prompt Reviews for Generative AI Products: Requirements, Failure Modes and Sign-Off",
+        "subtopics": [
+          "Writing prompt requirements from product needs",
+          "A review checklist for system prompts",
+          "Failure mode analysis for prompts",
+          "Edge cases, misuse and sensitive topics",
+          "Test cases traced to requirements",
+          "Reviewing prompts with product, legal and support teams",
+          "Sign-off criteria before release",
+          "Change control after launch"
+        ],
+        "tools": [
+          "Prompt review checklist",
+          "Evaluation spreadsheet",
+          "LLM playground"
+        ],
+        "lab_task": "Run a prompt review for a generative AI feature: write requirements, list failure modes, build test cases, hold a review with product and legal roles and record the sign-off decision.",
+        "deliverable": "Prompt requirements, failure mode table and sign-off record",
+        "checks": [
+          [
+            "Write requirements",
+            "Each requirement has at least one test case",
+            "Traceability table"
+          ],
+          [
+            "Analyse failure modes",
+            "Failure modes ranked by impact with mitigations",
+            "Failure mode table"
+          ],
+          [
+            "Hold the review",
+            "Sign-off decision recorded with open actions",
+            "Review minutes"
+          ]
+        ],
+        "objectives": [
+          "Review prompts like product code",
+          "Find failure modes early",
+          "Control prompt changes after launch"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Prompt Engineering",
+        "Python"
+      ],
+      "day": {
+        "topic": "Prompt Experiment Scripts in Python: Batch Runs, Scoring and Reports",
+        "subtopics": [
+          "Loading test cases from CSV or JSONL",
+          "Calling model APIs concurrently with asyncio",
+          "Caching responses to avoid repeat costs",
+          "Scoring with rules, regular expressions and LLM judges",
+          "Collecting results in pandas",
+          "Comparing prompt variants with confidence intervals",
+          "Tracking tokens and cost",
+          "Producing Markdown or HTML reports"
+        ],
+        "tools": [
+          "Python",
+          "asyncio",
+          "pandas",
+          "OpenAI SDK",
+          "Jinja2"
+        ],
+        "lab_task": "Write a Python script that runs three prompt variants over 200 test cases concurrently with caching, scores answers with rules and an LLM judge, and produces a comparison report with cost.",
+        "deliverable": "Experiment script and comparison report",
+        "checks": [
+          [
+            "Run the batch",
+            "600 results collected without rate-limit failures",
+            "Run log"
+          ],
+          [
+            "Rerun with the cache",
+            "Second run makes no new API calls",
+            "Log comparison"
+          ],
+          [
+            "Produce the report",
+            "Report ranks variants with scores and cost",
+            "Report file"
+          ]
+        ],
+        "objectives": [
+          "Automate prompt experiments in Python",
+          "Score results consistently",
+          "Report results with costs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Prompt Engineering",
+        "LangChain"
+      ],
+      "day": {
+        "topic": "From Tested Prompts to LangChain Chains: Templates, Parsers and Regression Evals",
+        "subtopics": [
+          "Moving playground prompts into ChatPromptTemplate",
+          "Keeping instructions and examples in versioned files",
+          "Pairing prompts with structured output schemas",
+          "Storing prompt versions in the LangSmith prompt hub",
+          "Regression datasets from earlier prompt tests",
+          "Running evaluations on every prompt change",
+          "Comparing prompt versions in LangSmith",
+          "Rolling back a bad prompt"
+        ],
+        "tools": [
+          "LangChain",
+          "LangSmith",
+          "pytest",
+          "Git"
+        ],
+        "lab_task": "Take three prompts tested in a playground, implement them as LangChain chains with structured output, store them in the prompt hub with versions, and run regression evaluations that block a worse version.",
+        "deliverable": "Chains, prompt versions and evaluation results",
+        "checks": [
+          [
+            "Implement the chains",
+            "Chains return valid structured output for all test cases",
+            "Test output"
+          ],
+          [
+            "Change a prompt",
+            "Regression evaluation scores both versions",
+            "LangSmith comparison"
+          ],
+          [
+            "Block a regression",
+            "Worse prompt version rejected and rolled back",
+            "CI log"
+          ]
+        ],
+        "objectives": [
+          "Turn tested prompts into chains",
+          "Version prompts",
+          "Catch prompt regressions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft Copilot",
+        "Microsoft 365 Administration"
+      ],
+      "day": {
+        "topic": "Automating Copilot Administration with PowerShell and Microsoft Graph",
+        "subtopics": [
+          "Group-based Copilot licence assignment",
+          "Microsoft Graph PowerShell for licence reports",
+          "Copilot usage reports through the Graph reports API",
+          "Audit log searches for Copilot interactions",
+          "Finding overshared sites with SharePoint Advanced Management reports",
+          "Scheduling scripts with Azure Automation",
+          "Sending reports to Power BI or email",
+          "Least-privilege app registrations for scripts"
+        ],
+        "tools": [
+          "Microsoft Graph PowerShell",
+          "Microsoft 365 admin center",
+          "Microsoft Purview audit",
+          "Azure Automation"
+        ],
+        "lab_task": "Script group-based Copilot licence assignment, export weekly Copilot usage and audit reports with Microsoft Graph PowerShell, list overshared sites and schedule the scripts in Azure Automation with a least-privilege app.",
+        "deliverable": "Admin scripts, scheduled runbooks and sample reports",
+        "checks": [
+          [
+            "Assign licences by group",
+            "New group members receive Copilot licences automatically",
+            "Licence report"
+          ],
+          [
+            "Export usage",
+            "Weekly usage report matches the admin center figures",
+            "Report comparison"
+          ],
+          [
+            "Run on a schedule",
+            "Runbook completes with app-only permissions",
+            "Runbook job log"
+          ]
+        ],
+        "objectives": [
+          "Automate Copilot licensing",
+          "Report Copilot usage and audit data",
+          "Run admin scripts with least privilege"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft Copilot",
+        "SharePoint"
+      ],
+      "day": {
+        "topic": "Designing SharePoint Content for Accurate Copilot Answers",
+        "subtopics": [
+          "How Copilot finds and ranks SharePoint content",
+          "Authoritative sources and official sites",
+          "Page and document structure that grounds well",
+          "Titles, descriptions and metadata",
+          "Archiving outdated and duplicate content",
+          "Restricting discovery of sensitive sites",
+          "Testing answers with a question set",
+          "Content ownership and review cycles"
+        ],
+        "tools": [
+          "SharePoint Online",
+          "Microsoft 365 Copilot",
+          "SharePoint Advanced Management",
+          "Microsoft Search"
+        ],
+        "lab_task": "Pick a department site, write 25 questions staff ask, test Copilot answers, then restructure pages, fix metadata, archive outdated files and retest to measure the improvement.",
+        "deliverable": "Question set, before and after results and content plan",
+        "checks": [
+          [
+            "Record baseline answers",
+            "Accuracy for 25 questions recorded",
+            "Baseline sheet"
+          ],
+          [
+            "Clean up content",
+            "Outdated and duplicate files archived",
+            "Archive log"
+          ],
+          [
+            "Retest the questions",
+            "Accuracy improves on the same questions",
+            "Before and after comparison"
+          ]
+        ],
+        "objectives": [
+          "Structure SharePoint content for Copilot",
+          "Remove content that misleads answers",
+          "Measure answer quality"
+        ]
+      }
+    },
+    {
+      "between": [
+        "VMware vSphere",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Running Linux Guests on vSphere: open-vm-tools, Paravirtual Drivers and Time Sync",
+        "subtopics": [
+          "open-vm-tools packages and services",
+          "PVSCSI and VMXNET3 drivers in Linux",
+          "Disk timeouts and I/O schedulers for virtual disks",
+          "Time synchronisation with chrony instead of VMware Tools",
+          "Growing disks online with LVM after a VMDK resize",
+          "Guest customisation with cloud-init",
+          "Quiesced snapshots with pre-freeze and post-thaw scripts",
+          "Hot-adding CPU and memory in Linux guests"
+        ],
+        "tools": [
+          "open-vm-tools",
+          "chrony",
+          "LVM",
+          "cloud-init",
+          "vSphere Client"
+        ],
+        "lab_task": "Build a RHEL or Ubuntu VM with PVSCSI and VMXNET3, configure chrony and open-vm-tools, grow a disk online with LVM after resizing the VMDK, and deploy a clone customised with cloud-init.",
+        "deliverable": "Linux guest build standard and template",
+        "checks": [
+          [
+            "Grow a disk online",
+            "File system larger with no reboot",
+            "df output before and after"
+          ],
+          [
+            "Check time sync",
+            "chrony tracks the NTP source with a small offset",
+            "chronyc tracking output"
+          ],
+          [
+            "Customise a clone",
+            "Clone boots with a new hostname and IP from cloud-init",
+            "Console screenshot"
+          ]
+        ],
+        "objectives": [
+          "Run Linux well on vSphere",
+          "Manage virtual disks from the guest",
+          "Customise Linux clones"
+        ]
+      }
+    },
+    {
+      "between": [
+        "VMware vSphere",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Terraform for vSphere: Modules for VMs, Networks, Tags and Content Libraries",
+        "subtopics": [
+          "The hashicorp/vsphere provider and authentication",
+          "Data sources for datacenters, clusters, datastores and networks",
+          "Cloning VMs from content library templates",
+          "Guest customisation in Terraform",
+          "Tags and folders as code",
+          "A reusable VM module",
+          "Importing existing VMs into state",
+          "Handling changes made in the vSphere Client"
+        ],
+        "tools": [
+          "Terraform",
+          "hashicorp/vsphere provider",
+          "vCenter Server",
+          "Git"
+        ],
+        "lab_task": "Write a Terraform module that clones VMs from a content library template with customisation, tags and folders, deploy three VMs, import one existing VM and detect a change made in the vSphere Client.",
+        "deliverable": "vSphere Terraform module and environment code",
+        "checks": [
+          [
+            "Deploy VMs",
+            "Three VMs created with the right tags and folders",
+            "terraform apply output"
+          ],
+          [
+            "Import a VM",
+            "Existing VM in state with no planned changes",
+            "terraform plan output"
+          ],
+          [
+            "Detect drift",
+            "Plan shows the change made in the vSphere Client",
+            "Drift plan output"
+          ]
+        ],
+        "objectives": [
+          "Manage vSphere with Terraform",
+          "Build reusable VM modules",
+          "Bring existing VMs under code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "VMware vSphere",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Upstream Kubernetes on vSphere: CSI Storage, Cloud Provider and Node VMs",
+        "subtopics": [
+          "Node VM sizing and templates for Kubernetes",
+          "The vSphere Cloud Provider Interface (CPI)",
+          "The vSphere CSI driver and storage classes from storage policies",
+          "Volume expansion and snapshots with CSI",
+          "Anti-affinity rules for control plane VMs",
+          "Cluster API Provider vSphere (CAPV)",
+          "Node maintenance with vMotion and DRS",
+          "Troubleshooting volumes that will not attach"
+        ],
+        "tools": [
+          "kubeadm",
+          "vSphere CSI driver",
+          "vSphere CPI",
+          "Cluster API Provider vSphere",
+          "kubectl"
+        ],
+        "lab_task": "Build a kubeadm cluster on vSphere VMs, install the CPI and CSI driver, create a storage class from a storage policy, run a stateful application and expand its volume, then put a host into maintenance mode.",
+        "deliverable": "Kubernetes on vSphere build guide",
+        "checks": [
+          [
+            "Install the CSI driver",
+            "PersistentVolumeClaim binds to a vSphere volume",
+            "kubectl get pvc output"
+          ],
+          [
+            "Expand a volume",
+            "Pod sees the larger volume without data loss",
+            "Volume size output"
+          ],
+          [
+            "Maintain a host",
+            "Nodes stay ready during host maintenance",
+            "Node status log"
+          ]
+        ],
+        "objectives": [
+          "Run upstream Kubernetes on vSphere",
+          "Use vSphere storage from Kubernetes",
+          "Operate node VMs safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "VMware vSphere",
+        "Ansible"
+      ],
+      "day": {
+        "topic": "Ansible for vSphere: Inventory Plugins, VM Provisioning and Host Configuration",
+        "subtopics": [
+          "The vmware.vmware, vmware.vmware_rest and community.vmware collections",
+          "The vSphere VM inventory plugin",
+          "Provisioning VMs from templates with playbooks",
+          "Configuring ESXi hosts: NTP, syslog and services",
+          "Managing distributed port groups",
+          "Snapshots before changes in playbooks",
+          "vCenter credentials in Ansible Vault",
+          "Idempotency checks with check and diff modes"
+        ],
+        "tools": [
+          "Ansible",
+          "vmware.vmware collection",
+          "community.vmware collection",
+          "Ansible Vault"
+        ],
+        "lab_task": "Build a dynamic inventory of VMs grouped by tag, provision two VMs from a template, set NTP and syslog on every ESXi host, and take a snapshot before patching guests with a playbook.",
+        "deliverable": "vSphere playbooks and inventory configuration",
+        "checks": [
+          [
+            "Build the inventory",
+            "VMs grouped by vSphere tags in ansible-inventory output",
+            "Inventory output"
+          ],
+          [
+            "Configure hosts",
+            "Second run reports no changes",
+            "Playbook output"
+          ],
+          [
+            "Snapshot before patching",
+            "Snapshot exists before the patch task runs",
+            "Playbook log"
+          ]
+        ],
+        "objectives": [
+          "Automate vSphere with Ansible",
+          "Use dynamic inventory",
+          "Make host configuration repeatable"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -8050,6 +8643,231 @@
           "Combine OCI and Oracle Database",
           "Run databases on OCI",
           "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "LangChain",
+        "RAG Pipelines"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: LangChain RAG Service with Evaluated Retrieval",
+        "subtopics": [
+          "Ingestion and indexing",
+          "Retrieval and generation chain",
+          "Evaluation and monitoring",
+          "Demo"
+        ],
+        "tools": [
+          "LangChain",
+          "LangSmith",
+          "Vector database",
+          "FastAPI"
+        ],
+        "lab_task": "Build a production-style RAG service on LangChain for a policy library with layout-aware ingestion, hybrid retrieval and reranking, citations, permission filtering and LangSmith evaluations, then demo it.",
+        "deliverable": "Repository, evaluation report and demo recording",
+        "checks": [
+          [
+            "Run the evaluation",
+            "Retrieval and answer scores meet agreed targets",
+            "Evaluation report"
+          ],
+          [
+            "Ask a restricted question",
+            "User without access gets no restricted content",
+            "Demo recording"
+          ],
+          [
+            "Present the design",
+            "Component choices defended with experiment results",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine LangChain and RAG skills",
+          "Ship an evaluated RAG service",
+          "Defend design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Prompt Engineering",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Evaluated Prompt Suite for a Generative AI Product",
+        "subtopics": [
+          "Requirements and prompts",
+          "Evaluation suite",
+          "Safety review",
+          "Demo"
+        ],
+        "tools": [
+          "LLM API",
+          "Evaluation framework",
+          "Prompt library"
+        ],
+        "lab_task": "Design the prompts for a generative AI product feature, build an evaluation suite with rules and LLM judges, run a safety and injection review, and present results with a release recommendation.",
+        "deliverable": "Prompt suite, evaluation results and release recommendation",
+        "checks": [
+          [
+            "Run the suite",
+            "Pass rate meets the release threshold",
+            "Evaluation report"
+          ],
+          [
+            "Run injection tests",
+            "No test case leaks the system prompt",
+            "Red-team log"
+          ],
+          [
+            "Recommend release",
+            "Recommendation backed by evaluation evidence",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine prompt engineering and generative AI delivery",
+          "Prove prompt quality",
+          "Make a release decision"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Microsoft Copilot",
+        "Microsoft 365 Administration"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Tenant-Wide Copilot Rollout with Governance",
+        "subtopics": [
+          "Readiness",
+          "Deployment",
+          "Governance and reporting",
+          "Results"
+        ],
+        "tools": [
+          "Microsoft 365 admin center",
+          "Microsoft Purview",
+          "SharePoint Advanced Management",
+          "Copilot Analytics"
+        ],
+        "lab_task": "Prepare a tenant for Copilot by fixing oversharing and labels, roll out licences in waves by group, set admin controls and audit, and present adoption and risk reports after the first wave.",
+        "deliverable": "Rollout plan, configuration evidence and wave report",
+        "checks": [
+          [
+            "Fix oversharing",
+            "High-risk sites remediated before the first wave",
+            "Remediation report"
+          ],
+          [
+            "Roll out a wave",
+            "Wave users licensed and trained",
+            "Licence and training report"
+          ],
+          [
+            "Report results",
+            "Adoption and risk figures presented to sponsors",
+            "Sponsor presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Copilot and Microsoft 365 administration",
+          "Roll out Copilot safely",
+          "Report adoption and risk"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "VMware vSphere",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Automated Linux Server Estate on vSphere",
+        "subtopics": [
+          "Templates and builds",
+          "Storage and networking",
+          "Operations and recovery",
+          "Handover"
+        ],
+        "tools": [
+          "vSphere",
+          "Linux",
+          "cloud-init",
+          "Ansible",
+          "Backup tool"
+        ],
+        "lab_task": "Build a Linux golden template, deploy a three-tier Linux application on vSphere with cloud-init and Ansible, grow storage online, patch with snapshots, back up and restore a server, then hand over runbooks.",
+        "deliverable": "Templates, automation code, runbooks and recovery evidence",
+        "checks": [
+          [
+            "Deploy the estate",
+            "Application works across all three tiers",
+            "Demo recording"
+          ],
+          [
+            "Restore a server",
+            "Restored server rejoins the application",
+            "Restore log"
+          ],
+          [
+            "Hand over",
+            "Peer completes a routine change from the runbook",
+            "Peer sign-off"
+          ]
+        ],
+        "objectives": [
+          "Combine vSphere and Linux administration",
+          "Automate Linux servers on vSphere",
+          "Prove recovery"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "VMware vSphere",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: vSphere Infrastructure as Code with Terraform",
+        "subtopics": [
+          "Module design",
+          "Pipeline",
+          "Drift and change control",
+          "Demo"
+        ],
+        "tools": [
+          "Terraform",
+          "hashicorp/vsphere provider",
+          "Git",
+          "CI pipeline"
+        ],
+        "lab_task": "Manage folders, tags, port groups and application VMs for two environments with Terraform modules, run plans and applies from a pipeline with approval, and show how drift is detected and fixed.",
+        "deliverable": "Repository, pipeline and change records",
+        "checks": [
+          [
+            "Deploy two environments",
+            "Both environments built from the same modules",
+            "Pipeline log"
+          ],
+          [
+            "Approve a change",
+            "Apply runs only after approval",
+            "Approval record"
+          ],
+          [
+            "Fix drift",
+            "Drift found by plan and corrected",
+            "Plan and apply output"
+          ]
+        ],
+        "objectives": [
+          "Combine vSphere and Terraform",
+          "Manage vSphere through a pipeline",
+          "Control drift"
         ]
       }
     }
