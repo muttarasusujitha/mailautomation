@@ -4918,6 +4918,395 @@
           "Harden the tenant"
         ]
       }
+    },
+    {
+      "between": [
+        "MongoDB",
+        "Python"
+      ],
+      "day": {
+        "topic": "Building Python Applications on MongoDB",
+        "subtopics": [
+          "PyMongo and the async driver",
+          "Beanie and pydantic models",
+          "Connection pools in web apps",
+          "Aggregation from Python",
+          "Transactions from Python",
+          "Testing with a MongoDB container",
+          "Data loading scripts",
+          "Common Python driver mistakes"
+        ],
+        "tools": [
+          "Python",
+          "PyMongo",
+          "Beanie",
+          "FastAPI",
+          "Testcontainers"
+        ],
+        "lab_task": "Build a FastAPI service on MongoDB with Beanie models, run aggregation reports from Python, place orders in transactions and test against a MongoDB container.",
+        "deliverable": "Service code and tests",
+        "checks": [
+          [
+            "Call the report endpoint",
+            "Aggregation results returned",
+            "API response"
+          ],
+          [
+            "Fail an order mid-transaction",
+            "No partial writes",
+            "Test output"
+          ],
+          [
+            "Run the tests",
+            "Pass against a container",
+            "pytest output"
+          ]
+        ],
+        "objectives": [
+          "Use MongoDB from Python",
+          "Model documents with pydantic",
+          "Test applications"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MongoDB",
+        "Full Stack"
+      ],
+      "day": {
+        "topic": "MongoDB in the MERN Stack",
+        "subtopics": [
+          "MongoDB with Express and Node.js",
+          "Mongoose schemas and validation",
+          "REST APIs over collections",
+          "React data fetching from the API",
+          "Authentication data in MongoDB",
+          "Pagination and search for the UI",
+          "Deploying with Atlas",
+          "Securing the stack"
+        ],
+        "tools": [
+          "MongoDB Atlas",
+          "Mongoose",
+          "Express",
+          "React"
+        ],
+        "lab_task": "Build a MERN product catalogue with Mongoose validation, paged search, user login and deployment against Atlas.",
+        "deliverable": "Application and deployed URL",
+        "checks": [
+          [
+            "Search products",
+            "Paged results in the UI",
+            "Screenshot"
+          ],
+          [
+            "Submit invalid data",
+            "Mongoose validation error shown",
+            "Screenshot"
+          ],
+          [
+            "Deploy",
+            "App works against Atlas",
+            "Browser screenshot"
+          ]
+        ],
+        "objectives": [
+          "Use MongoDB in MERN",
+          "Validate with Mongoose",
+          "Deploy with Atlas"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Natural Language Processing",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Tooling for NLP Projects",
+        "subtopics": [
+          "Project structure for NLP code",
+          "Text processing pipelines as functions",
+          "Testing text processing",
+          "Configuration for models and data paths",
+          "Caching downloaded models",
+          "Batch processing with multiprocessing",
+          "Packaging NLP tools",
+          "Notebook to package workflow"
+        ],
+        "tools": [
+          "Python",
+          "spaCy",
+          "pytest",
+          "uv"
+        ],
+        "lab_task": "Turn an NLP notebook into a tested package with configurable models, cached downloads and batch processing, and run it on 100,000 documents.",
+        "deliverable": "Package, tests and run log",
+        "checks": [
+          [
+            "Run the tests",
+            "Text functions tested",
+            "pytest output"
+          ],
+          [
+            "Process 100,000 documents",
+            "Completed with batch processing",
+            "Run log"
+          ],
+          [
+            "Change the model in configuration",
+            "New model used without code changes",
+            "Run log"
+          ]
+        ],
+        "objectives": [
+          "Structure NLP code",
+          "Test text processing",
+          "Process at scale"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Natural Language Processing",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Classic NLP and LLMs Together",
+        "subtopics": [
+          "Where classic NLP still wins",
+          "Using LLMs for labelling data",
+          "Pre-processing before LLM calls",
+          "Post-processing LLM output with NLP tools",
+          "Cost and latency comparison",
+          "Hybrid pipelines",
+          "Evaluating both approaches",
+          "Choosing per task"
+        ],
+        "tools": [
+          "spaCy",
+          "scikit-learn",
+          "LLM API"
+        ],
+        "lab_task": "Build a hybrid ticket pipeline where a small classifier handles easy cases and an LLM handles the rest, compare cost and accuracy with LLM-only and classic-only.",
+        "deliverable": "Pipeline and comparison",
+        "checks": [
+          [
+            "Route by confidence",
+            "Share handled by each part reported",
+            "Pipeline stats"
+          ],
+          [
+            "Compare accuracy",
+            "Scores for all three approaches",
+            "Comparison table"
+          ],
+          [
+            "Compare cost",
+            "Cost per thousand tickets",
+            "Comparison table"
+          ]
+        ],
+        "objectives": [
+          "Combine NLP and LLMs",
+          "Route by confidence",
+          "Weigh cost and accuracy"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Natural Language Processing",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Text Features in Machine Learning Models",
+        "subtopics": [
+          "Combining text and tabular features",
+          "TF-IDF and embeddings as features",
+          "Feature pipelines with ColumnTransformer",
+          "Gradient boosting with text features",
+          "Leakage from text",
+          "Explaining text features",
+          "Monitoring text inputs",
+          "Choosing feature types"
+        ],
+        "tools": [
+          "scikit-learn",
+          "sentence-transformers",
+          "LightGBM"
+        ],
+        "lab_task": "Predict ticket resolution time from ticket text and customer data, compare TF-IDF and embedding features in one pipeline and explain the top features.",
+        "deliverable": "Pipeline, comparison and explanation",
+        "checks": [
+          [
+            "Build the combined pipeline",
+            "Text and tabular features used together",
+            "Code review"
+          ],
+          [
+            "Compare feature types",
+            "Scores for each",
+            "Comparison table"
+          ],
+          [
+            "Explain features",
+            "Top text and tabular drivers listed",
+            "Explanation"
+          ]
+        ],
+        "objectives": [
+          "Use text in ML models",
+          "Combine features",
+          "Explain models"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Cloud",
+        "Oracle Database"
+      ],
+      "day": {
+        "topic": "Running Oracle Databases on OCI",
+        "subtopics": [
+          "Database options on OCI",
+          "Moving from on-premises to Base Database or Autonomous Database",
+          "Licensing: bring your own licence or licence included",
+          "Networking for database clients",
+          "Backups to object storage",
+          "Data Guard across availability domains and regions",
+          "Monitoring with Database Management",
+          "Cost comparison"
+        ],
+        "tools": [
+          "OCI Base Database",
+          "Autonomous Database",
+          "Zero Downtime Migration"
+        ],
+        "lab_task": "Move a sample on-premises database to OCI Base Database with ZDM, configure backups and a cross-region standby and compare cost under both licence models.",
+        "deliverable": "Migration log, configuration and cost comparison",
+        "checks": [
+          [
+            "Migrate the database",
+            "Data on OCI with little downtime",
+            "ZDM log"
+          ],
+          [
+            "Add a standby",
+            "Data Guard healthy across regions",
+            "Console screenshot"
+          ],
+          [
+            "Compare licence models",
+            "Monthly cost for each",
+            "Cost table"
+          ]
+        ],
+        "objectives": [
+          "Run Oracle databases on OCI",
+          "Migrate with ZDM",
+          "Choose licence models"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Cloud",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Terraform for Oracle Cloud Infrastructure",
+        "subtopics": [
+          "OCI provider authentication",
+          "Compartments and networking as code",
+          "Modules for OCI",
+          "Resource Manager stacks",
+          "State management",
+          "Policies as code",
+          "Landing zone modules",
+          "Testing Terraform for OCI"
+        ],
+        "tools": [
+          "Terraform",
+          "OCI provider",
+          "Resource Manager"
+        ],
+        "lab_task": "Write modules for compartments, a VCN and an OKE cluster, run them through Resource Manager and a Git pipeline and test a plan in CI.",
+        "deliverable": "Modules, stack and pipeline",
+        "checks": [
+          [
+            "Run the plan in CI",
+            "Plan shown on the pull request",
+            "CI log"
+          ],
+          [
+            "Apply the stack",
+            "Resources created",
+            "Resource Manager job"
+          ],
+          [
+            "Change a module",
+            "Only affected resources change",
+            "Plan output"
+          ]
+        ],
+        "objectives": [
+          "Use Terraform on OCI",
+          "Write modules",
+          "Automate plans"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SharePoint",
+        "Microsoft 365 Administration"
+      ],
+      "day": {
+        "topic": "SharePoint Administration Within Microsoft 365",
+        "subtopics": [
+          "SharePoint settings in the wider tenant",
+          "Identity and Conditional Access for SharePoint",
+          "Teams and SharePoint together",
+          "Sensitivity labels across Microsoft 365",
+          "Retention across workloads",
+          "Guest access across Teams and SharePoint",
+          "Reports across services",
+          "Admin roles split between teams"
+        ],
+        "tools": [
+          "SharePoint admin center",
+          "Microsoft 365 admin center",
+          "Entra ID",
+          "Purview"
+        ],
+        "lab_task": "Align SharePoint sharing with Teams guest settings, apply Conditional Access for unmanaged devices to SharePoint, use labels for Teams and sites and split admin roles.",
+        "deliverable": "Settings and test results",
+        "checks": [
+          [
+            "Add a guest to a team",
+            "SharePoint sharing allows the same guest",
+            "Test result"
+          ],
+          [
+            "Open SharePoint from an unmanaged device",
+            "Web-only access",
+            "Screenshot"
+          ],
+          [
+            "Assign split roles",
+            "SharePoint admin cannot change Exchange settings",
+            "Test result"
+          ]
+        ],
+        "objectives": [
+          "Administer SharePoint in Microsoft 365",
+          "Align settings",
+          "Split admin duties"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -7523,6 +7912,144 @@
           "Combine Microsoft 365 and security",
           "Harden a tenant",
           "Prove protection"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "MongoDB",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python Service on MongoDB Atlas",
+        "subtopics": [
+          "Model and API",
+          "Reports and search",
+          "Tests and deployment",
+          "Demo"
+        ],
+        "tools": [
+          "Python",
+          "FastAPI",
+          "MongoDB Atlas",
+          "Atlas Search",
+          "Docker"
+        ],
+        "lab_task": "Build and deploy a Python order service on Atlas with a modelled schema, validation, transactions, aggregation reports, Atlas Search and tests, then present it.",
+        "deliverable": "Repository, deployed service and demo recording",
+        "checks": [
+          [
+            "Run the tests",
+            "All pass",
+            "Test report"
+          ],
+          [
+            "Search products in the demo",
+            "Typo-tolerant results",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Model and API choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine MongoDB and Python",
+          "Deliver a tested service",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Natural Language Processing",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Text Analytics Package in Python",
+        "subtopics": [
+          "Pipeline design",
+          "Models",
+          "Tests and packaging",
+          "Demo"
+        ],
+        "tools": [
+          "Python",
+          "spaCy",
+          "scikit-learn",
+          "sentence-transformers",
+          "pytest"
+        ],
+        "lab_task": "Build a tested Python package that cleans, classifies, extracts entities from and searches support tickets, run it on a large batch and present the results.",
+        "deliverable": "Package, evaluation report and presentation",
+        "checks": [
+          [
+            "Run on the batch",
+            "All tickets processed",
+            "Run log"
+          ],
+          [
+            "Show evaluation",
+            "Classifier and search scores meet targets",
+            "Evaluation report"
+          ],
+          [
+            "Answer design questions",
+            "Pipeline choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine NLP and Python",
+          "Deliver a reusable package",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Oracle Cloud",
+        "Oracle Database"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Oracle Database Platform on OCI",
+        "subtopics": [
+          "Migration",
+          "High availability",
+          "Security and cost",
+          "Demo"
+        ],
+        "tools": [
+          "OCI",
+          "Base Database or Autonomous Database",
+          "Data Guard",
+          "Vault",
+          "ZDM"
+        ],
+        "lab_task": "Migrate an Oracle database to OCI with ZDM, add a cross-region standby, encrypt with customer keys, monitor it and present cost and recovery results.",
+        "deliverable": "Migration log, configuration and presentation",
+        "checks": [
+          [
+            "Switch over in the demo",
+            "Application reconnects",
+            "Demo recording"
+          ],
+          [
+            "Show encryption",
+            "Customer-managed keys in use",
+            "Screenshot"
+          ],
+          [
+            "Present cost",
+            "Monthly cost with licence choice",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine OCI and Oracle Database",
+          "Run databases on OCI",
+          "Defend design decisions"
         ]
       }
     }
