@@ -1,0 +1,573 @@
+{
+  "domain": "Java",
+  "name": "Java",
+  "category": "Programming Languages",
+  "icon": "coffee",
+  "aliases": ["Core Java", "Java Programming", "Java SE", "Java 21", "Modern Java", "Java Developer", "Advanced Java"],
+  "certifications": ["Oracle Certified Foundations Associate, Java (1Z0-811)", "Oracle Certified Professional: Java SE 21 Developer (1Z0-830)", "Spring Certified Professional"],
+  "tools": ["JDK 21", "IntelliJ IDEA", "Maven", "Gradle", "JUnit 5", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No Java experience assumed. Participants learn the language, object-oriented programming, collections, exceptions, files and testing, and finish with a working console application.",
+      "prerequisites": ["Basic computer and file system use", "Can install software on their machine", "Some logical thinking; earlier programming helps but is not required"],
+      "outcomes": ["Write, compile and run Java programs", "Model problems with classes, interfaces and inheritance", "Use collections, exceptions and file I/O correctly", "Build and test a small Maven project"],
+      "days": [
+        {
+          "topic": "Java Setup, JDK and First Program",
+          "subtopics": ["What Java is used for and how the JVM runs bytecode", "JDK, JRE and JVM differences", "Installing JDK 21 and checking java -version", "Installing IntelliJ IDEA and creating a project", "The structure of a class with a main method", "Compiling with javac and running with java", "Running single-file programs with java Hello.java", "Packages and the source folder layout", "Printing output with System.out.println and printf", "Reading compiler errors"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Install JDK 21 and IntelliJ, write a program that prints a formatted receipt for three items, compile it with javac from the terminal and run it both from the terminal and the IDE.",
+          "deliverable": "Receipt program source, terminal compile and run output, and an IDE screenshot",
+          "checks": [["Run javac Receipt.java then java Receipt", "Prints three aligned item lines and a total", "Terminal output"], ["Remove a semicolon and compile", "Compiler reports the line and the missing semicolon", "Compiler error text"], ["Run java -version", "Shows version 21", "Terminal output"]],
+          "objectives": ["Explain how Java code becomes running bytecode", "Set up a Java development environment", "Compile and run a program"]
+        },
+        {
+          "topic": "Variables, Primitive Types and Operators",
+          "subtopics": ["Declaring and initialising variables", "The eight primitive types and their ranges", "int versus long and integer overflow", "double, float and rounding errors", "char and Unicode", "boolean values", "Arithmetic, comparison and logical operators", "Integer division and the remainder operator", "Casting and type promotion", "var for local type inference"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Write a unit converter that converts temperatures, distances and weights, showing correct integer and decimal results and demonstrating one overflow and one rounding issue with an explanation.",
+          "deliverable": "Converter source and a short note explaining the overflow and rounding examples",
+          "checks": [["Convert 100 degrees Celsius", "Prints 212.0 Fahrenheit", "Program output"], ["Multiply Integer.MAX_VALUE by 2 as int and as long", "int result is negative, long result is correct", "Program output"], ["Compute 7 / 2 and 7 / 2.0", "Prints 3 and 3.5", "Program output"]],
+          "objectives": ["Choose the right primitive type", "Use operators correctly", "Recognise overflow and rounding problems"]
+        },
+        {
+          "topic": "Strings, Text Blocks and Formatting",
+          "subtopics": ["String as an immutable object", "Concatenation and StringBuilder", "Common methods: length, substring, indexOf, replace, split", "Comparing strings with equals versus ==", "equalsIgnoreCase and compareTo", "String.format and formatted", "Text blocks for multi-line text", "Character checks with Character methods"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a text utility that counts words and vowels, reverses each word, checks whether a phrase is a palindrome ignoring case and spaces, and prints a formatted report using a text block.",
+          "deliverable": "Text utility source and sample output for three phrases",
+          "checks": [["Check \"Never odd or even\"", "Reports it is a palindrome", "Program output"], ["Compare two equal strings built at runtime with == and equals", "== is false, equals is true", "Program output"], ["Count words in \"  Java   is fun \"", "Reports 3 words", "Program output"]],
+          "objectives": ["Manipulate strings correctly", "Compare strings safely", "Format text output"]
+        },
+        {
+          "topic": "Conditions and Switch Expressions",
+          "subtopics": ["if, else if and else", "Nested conditions and early returns", "Logical operators and short-circuit evaluation", "The ternary operator", "Classic switch statements and fall-through", "Switch expressions with arrow labels", "yield in switch expressions", "Switching on strings and enums"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Write a shipping cost calculator that applies rules by country, weight band and membership level using if statements for ranges and a switch expression for country zones.",
+          "deliverable": "Calculator source and a table of ten test inputs with expected costs",
+          "checks": [["Enter a 2 kg parcel to zone A for a member", "Cost matches the rule table", "Program output and table"], ["Enter an unknown country", "Prints a clear error instead of a cost", "Program output"], ["Show the switch expression", "Uses arrow labels with no fall-through", "Source code"]],
+          "objectives": ["Write clear decision logic", "Use switch expressions", "Handle invalid input"]
+        },
+        {
+          "topic": "Loops and Control Flow",
+          "subtopics": ["while and do-while loops", "for loops and loop counters", "Enhanced for loops", "break and continue", "Labelled breaks for nested loops", "Avoiding infinite loops", "Reading input with Scanner in a loop", "Validating user input"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a number guessing game that reads guesses with Scanner, gives higher or lower hints, rejects non-numeric input, limits attempts to seven and prints a multiplication table on a win.",
+          "deliverable": "Game source and a recorded play session",
+          "checks": [["Type \"abc\" as a guess", "Game asks again without crashing", "Session output"], ["Guess correctly on the third attempt", "Reports three attempts and prints the table", "Session output"], ["Use all seven attempts", "Game ends and reveals the number", "Session output"]],
+          "objectives": ["Choose the right loop", "Control loops with break and continue", "Validate input in a loop"]
+        },
+        {
+          "topic": "Methods, Parameters and Overloading",
+          "subtopics": ["Declaring methods and return types", "Parameters and arguments", "Pass-by-value for primitives and references", "Method overloading", "Static methods", "Variable arguments", "Local variable scope", "Recursion with a base case"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Refactor the shipping calculator into small static methods, add overloaded methods for kilograms and pounds, and write a recursive method that computes factorials with input checks.",
+          "deliverable": "Refactored source with each method under 15 lines",
+          "checks": [["Call the overloaded method with pounds", "Returns the same cost as the equivalent kilograms", "Program output"], ["Compute factorial of 20 and of -1", "Correct value for 20, clear error for -1", "Program output"], ["Change a parameter inside a method", "Caller's primitive variable is unchanged", "Program output"]],
+          "objectives": ["Break programs into methods", "Use overloading and recursion", "Explain pass-by-value"]
+        },
+        {
+          "topic": "Arrays and Simple Algorithms",
+          "subtopics": ["Declaring and creating arrays", "Indexing and ArrayIndexOutOfBoundsException", "Iterating over arrays", "The Arrays utility class: sort, fill, toString, copyOf", "Two-dimensional arrays", "Linear search and binary search", "Finding minimum, maximum and average", "Simple sorting by hand"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Write a grade book that stores marks for five students in four subjects in a 2D array, prints averages per student and subject, finds the top student and searches for a mark with binary search.",
+          "deliverable": "Grade book source and printed report",
+          "checks": [["Run with the provided marks", "Averages match the answer sheet", "Program output"], ["Read index 5 of a 5-element array", "Program catches the exception and explains it", "Program output"], ["Binary search for a missing mark", "Reports not found", "Program output"]],
+          "objectives": ["Store and process data in arrays", "Use the Arrays class", "Implement simple search algorithms"]
+        },
+        {
+          "topic": "Classes, Objects and Constructors",
+          "subtopics": ["Classes as blueprints and objects as instances", "Fields and methods", "Constructors and constructor overloading", "The this keyword", "Object references and null", "toString, equals and hashCode", "Static fields versus instance fields", "Object lifecycle and garbage collection basics"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Model a library with Book and Member classes, constructors that validate input, equals and hashCode based on ISBN and member ID, and a static counter of created books.",
+          "deliverable": "Library model classes and a main program that demonstrates them",
+          "checks": [["Create two Book objects with the same ISBN", "equals returns true", "Program output"], ["Create a Book with an empty title", "Constructor throws IllegalArgumentException", "Program output"], ["Print a Book", "toString shows title, author and ISBN", "Program output"]],
+          "objectives": ["Design classes with fields and methods", "Write constructors that validate", "Implement equals and hashCode correctly"]
+        },
+        {
+          "topic": "Encapsulation, Packages and Access Modifiers",
+          "subtopics": ["private, package-private, protected and public", "Getters, setters and when to avoid setters", "Immutable classes with final fields", "Organising code into packages", "Imports and fully qualified names", "Defensive copies", "Records for simple data carriers", "Naming conventions"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Restructure the library into model, service and app packages, make Book immutable, replace a data class with a record and show that outside code cannot change internal state.",
+          "deliverable": "Packaged project and a note on each access modifier used",
+          "checks": [["Try to change a Book field from another package", "Compilation fails", "Compiler error"], ["Modify a list returned by a getter", "Internal list is unchanged", "Program output"], ["Print a record", "Shows generated toString with all components", "Program output"]],
+          "objectives": ["Hide internal state", "Organise code in packages", "Use records and immutability"]
+        },
+        {
+          "topic": "Inheritance and Polymorphism",
+          "subtopics": ["extends and the is-a relationship", "super and constructor chaining", "Method overriding and @Override", "Polymorphism through superclass references", "Abstract classes and abstract methods", "final classes and methods", "The Object class", "When to prefer composition over inheritance"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a payroll program with an abstract Employee class and salaried, hourly and contract subclasses that each override pay calculation, processed polymorphically from one list.",
+          "deliverable": "Payroll source and the printed monthly payslip summary",
+          "checks": [["Run payroll for one of each employee type", "Each pay amount matches the rules", "Program output"], ["Add a new employee type", "No change needed to the payroll loop", "Source diff"], ["Remove @Override and misspell the method", "Explain why the subclass method is no longer called", "Written explanation"]],
+          "objectives": ["Use inheritance and overriding", "Apply polymorphism", "Decide between inheritance and composition"]
+        },
+        {
+          "topic": "Interfaces, Enums and Sealed Types",
+          "subtopics": ["Declaring and implementing interfaces", "Default and static interface methods", "Multiple interfaces on one class", "Functional interfaces", "Enums with fields and methods", "EnumMap and EnumSet", "Sealed interfaces and permitted subclasses", "Pattern matching with instanceof"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Add a Payable interface implemented by employees and invoices, an enum for departments with budgets, and a sealed Shape hierarchy whose area is computed with pattern matching.",
+          "deliverable": "Source code and output for each feature",
+          "checks": [["Process employees and invoices through Payable", "One loop totals both", "Program output"], ["Add an unpermitted Shape subclass", "Compilation fails", "Compiler error"], ["Print the budget for each department", "EnumMap lists every department", "Program output"]],
+          "objectives": ["Design with interfaces", "Model fixed values with enums", "Restrict hierarchies with sealed types"]
+        },
+        {
+          "topic": "Exception Handling",
+          "subtopics": ["Checked versus unchecked exceptions", "try, catch and finally", "Catching multiple exception types", "try-with-resources", "Throwing exceptions", "Creating custom exceptions", "Exception messages and stack traces", "Not swallowing exceptions"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Add a bank account class that throws a custom InsufficientFundsException, a transfer method that handles failures without losing money, and a reader that uses try-with-resources.",
+          "deliverable": "Source code and output for successful and failed transfers",
+          "checks": [["Transfer more than the balance", "Custom exception raised and both balances unchanged", "Program output"], ["Read a missing file", "Clear message, and the resource is still closed", "Program output"], ["Read a stack trace from a failed run", "Participant identifies the line that failed", "Written answer"]],
+          "objectives": ["Handle errors with exceptions", "Write custom exceptions", "Close resources safely"]
+        },
+        {
+          "topic": "Collections: Lists, Sets and Maps",
+          "subtopics": ["The Collection hierarchy", "ArrayList versus LinkedList", "HashSet, LinkedHashSet and TreeSet", "HashMap, LinkedHashMap and TreeMap", "Iterating and removing safely", "List.of and Map.of immutable collections", "Choosing the right collection", "Why equals and hashCode matter for sets and maps"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a word frequency counter over a text file that stores counts in a HashMap, prints the top ten words in order, and lists unique words alphabetically with a TreeSet.",
+          "deliverable": "Counter source and output for the provided text",
+          "checks": [["Run on the provided text", "Top ten words and counts match the answer file", "Program output"], ["Remove items while iterating with a for-each loop", "Explain the ConcurrentModificationException and fix it with an Iterator", "Program output and fix"], ["Add to a List.of list", "UnsupportedOperationException is thrown", "Program output"]],
+          "objectives": ["Use the main collection types", "Choose collections by need", "Iterate and modify safely"]
+        },
+        {
+          "topic": "Generics and Sorting with Comparators",
+          "subtopics": ["Why generics exist", "Generic classes and methods", "Bounded type parameters", "Wildcards: ? extends and ? super", "Type erasure in brief", "Comparable and natural ordering", "Comparator.comparing and thenComparing", "Sorting lists and arrays of objects"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Write a generic Pair and a generic Repository<T> with add, find and list methods, then sort library books by author then title with a Comparator chain.",
+          "deliverable": "Generic classes, sorting code and output",
+          "checks": [["Add a Member to a Repository<Book>", "Compilation fails", "Compiler error"], ["Sort the provided books", "Order matches author then title", "Program output"], ["Reverse the sort", "Uses reversed() without a new class", "Source code"]],
+          "objectives": ["Write generic classes and methods", "Sort with Comparable and Comparator", "Explain wildcards"]
+        },
+        {
+          "topic": "Lambdas and the Stream API",
+          "subtopics": ["Lambda syntax", "Method references", "java.util.function: Predicate, Function, Consumer, Supplier", "Creating streams", "filter, map and sorted", "collect with toList, groupingBy and counting", "reduce and summary statistics", "Optional for missing values"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Load the sales CSV into a list of records and use streams to compute total sales per region, the top five products, the average order value and the customer with the largest order.",
+          "deliverable": "Stream report source and output",
+          "checks": [["Group total sales by region", "Totals match the answer file", "Program output"], ["Find a product that does not exist", "Returns an empty Optional handled without null", "Program output"], ["Rewrite one loop as a stream", "Same result with fewer lines", "Source diff"]],
+          "objectives": ["Write lambdas and method references", "Process data with streams", "Use Optional"]
+        },
+        {
+          "topic": "Files and the java.nio API",
+          "subtopics": ["Path and Paths", "Files.readAllLines, lines and writeString", "Buffered readers and writers", "Character encoding", "Listing and walking directories", "Creating, copying and deleting files", "Parsing CSV lines safely", "Handling IOException"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Write a tool that reads every CSV file in a folder, validates each row, writes valid rows to a combined file and invalid rows with the reason to an errors file.",
+          "deliverable": "Tool source, combined output file and errors file",
+          "checks": [["Run on the provided folder", "Combined file has the 47 valid rows", "Output file"], ["Include a row with a missing price", "Row appears in the errors file with the reason", "Errors file"], ["Run against a folder that does not exist", "Clear message and non-zero exit code", "Terminal output"]],
+          "objectives": ["Read and write files with java.nio", "Process folders of files", "Handle file errors"]
+        },
+        {
+          "topic": "Dates and Times with java.time",
+          "subtopics": ["LocalDate, LocalTime and LocalDateTime", "ZonedDateTime and time zones", "Instant for timestamps", "Duration and Period", "Formatting and parsing with DateTimeFormatter", "Date arithmetic", "Daylight saving changes", "Why to avoid java.util.Date"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a meeting planner that converts a meeting time between London, New York and Bangalore, lists the next four weekly dates and computes the days left until a deadline.",
+          "deliverable": "Planner source and output for the provided meetings",
+          "checks": [["Convert 15:00 London on a date in July", "Shows the correct New York and Bangalore times", "Program output"], ["Schedule across the daylight saving change", "Times shift correctly", "Program output"], ["Parse an invalid date string", "DateTimeParseException handled with a message", "Program output"]],
+          "objectives": ["Represent dates, times and zones", "Format and parse dates", "Calculate durations"]
+        },
+        {
+          "topic": "Maven Projects and Unit Testing with JUnit 5",
+          "subtopics": ["Maven project layout and pom.xml", "Dependencies and scopes", "The Maven lifecycle: compile, test, package", "Running a JAR file", "Writing tests with JUnit 5", "Assertions and assertThrows", "Parameterised tests", "Running tests in the IDE and with mvn test"],
+          "tools": ["Maven", "JUnit 5", "IntelliJ IDEA"],
+          "lab_task": "Convert the bank account code into a Maven project, write at least twelve JUnit 5 tests including parameterised and exception tests, and package it as a runnable JAR.",
+          "deliverable": "Maven project, test report and runnable JAR",
+          "checks": [["Run mvn test", "All tests pass", "Maven output"], ["Break the transfer rule and run tests", "At least one test fails with a clear message", "Maven output"], ["Run java -jar target/bank.jar", "Application starts", "Terminal output"]],
+          "objectives": ["Build projects with Maven", "Write unit tests with JUnit 5", "Package an application"]
+        },
+        {
+          "topic": "Debugging and Clean Code Practices",
+          "subtopics": ["Using the IntelliJ debugger", "Breakpoints, step over and step into", "Watching variables and evaluating expressions", "Conditional breakpoints", "Reading stack traces", "Naming and small methods", "Removing duplication", "Code formatting and inspections"],
+          "tools": ["IntelliJ IDEA", "JUnit 5"],
+          "lab_task": "Find and fix five planted bugs in a provided order-processing program using the debugger, write a test that reproduces each bug first, and refactor the longest method.",
+          "deliverable": "Fixed code, five new tests and a bug log with the cause of each",
+          "checks": [["Run the five new tests on the original code", "All five fail", "Test output"], ["Run them on the fixed code", "All five pass", "Test output"], ["Show a conditional breakpoint in use", "Stops only on the failing order", "Screenshot"]],
+          "objectives": ["Debug with breakpoints", "Reproduce bugs with tests", "Improve code readability"]
+        },
+        {
+          "topic": "Beginner Capstone: Library Management Console Application",
+          "subtopics": ["Requirements and class design", "Domain model with records, enums and classes", "Borrowing rules with exceptions", "File persistence and loading", "Reports with streams", "Tests and demo"],
+          "tools": ["JDK 21", "Maven", "JUnit 5", "IntelliJ IDEA"],
+          "lab_task": "Build a console library system that adds books and members, lends and returns books with due dates and fines, saves to CSV files, prints overdue and popular-book reports and has tests for every rule.",
+          "deliverable": "Maven project, test report, sample data files and a 10-minute demo",
+          "checks": [["Borrow a book that is already lent", "Refused with a clear message", "Demo output"], ["Return a book five days late", "Correct fine is charged", "Demo output and test"], ["Restart the application", "All data is reloaded from the files", "Demo output"]],
+          "objectives": ["Combine the beginner topics in one application", "Apply rules with tests", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who can write basic Java. Covers modern language features, deeper collections and streams, concurrency, databases, build tools, testing and building REST services with Spring Boot.",
+      "prerequisites": ["Writes Java classes, interfaces and collections confidently", "Has used exceptions and basic streams", "Has built and tested a Maven project"],
+      "outcomes": ["Write idiomatic modern Java 21 code", "Use concurrency and databases correctly", "Build and test REST services with Spring Boot", "Organise multi-module builds with Maven or Gradle"],
+      "days": [
+        {
+          "topic": "Modern Java Language Features from 11 to 21",
+          "subtopics": ["Records with compact constructors", "Sealed classes in domain models", "Pattern matching for switch", "Record patterns and deconstruction", "Text blocks in practice", "Enhanced instanceof", "Sequenced collections", "Reading release notes and preview features"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Rewrite an old Java 8 order model into Java 21 using records, a sealed payment hierarchy and pattern-matching switch, keeping all existing tests passing.",
+          "deliverable": "Before and after source with passing tests",
+          "checks": [["Run the original tests", "All pass after the rewrite", "Test output"], ["Add a new payment type without handling it in the switch", "Compiler reports the missing case", "Compiler error"], ["Compare line counts", "Rewritten model is shorter", "Line count report"]],
+          "objectives": ["Use modern language features", "Model data with records and sealed types", "Write exhaustive switches"]
+        },
+        {
+          "topic": "Object-Oriented Design Principles and SOLID",
+          "subtopics": ["Single responsibility", "Open-closed principle", "Liskov substitution", "Interface segregation", "Dependency inversion", "Composition over inheritance", "Coupling and cohesion", "Spotting design smells"],
+          "tools": ["JDK 21", "IntelliJ IDEA", "JUnit 5"],
+          "lab_task": "Refactor a provided 600-line OrderService into classes that follow SOLID, injecting dependencies through constructors so each part can be unit tested on its own.",
+          "deliverable": "Refactored code, class diagram and new unit tests",
+          "checks": [["Run the existing integration test", "Still passes", "Test output"], ["Add a new discount rule", "Only a new class is added", "Source diff"], ["Test the pricing class alone", "Runs without a database or network", "Test output"]],
+          "objectives": ["Apply SOLID principles", "Reduce coupling", "Make code testable"]
+        },
+        {
+          "topic": "Common Design Patterns in Java",
+          "subtopics": ["Factory and static factory methods", "Builder", "Strategy", "Observer and listeners", "Decorator", "Adapter", "Singleton and its problems", "Template method"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Implement a notification system using a builder for messages, strategies for email, SMS and push channels, a decorator that adds retry, and an adapter for a third-party SMS client.",
+          "deliverable": "Source code with a short note on why each pattern was chosen",
+          "checks": [["Send a message through each channel", "Each strategy is used", "Program output"], ["Make the SMS client fail twice", "Retry decorator succeeds on the third attempt", "Program output"], ["Build a message missing a recipient", "Builder rejects it", "Program output"]],
+          "objectives": ["Recognise and apply common patterns", "Avoid overusing patterns", "Explain trade-offs"]
+        },
+        {
+          "topic": "Advanced Collections and Data Structure Choice",
+          "subtopics": ["Big-O cost of common operations", "ArrayDeque for stacks and queues", "PriorityQueue", "ConcurrentHashMap basics", "Immutable and unmodifiable views", "Map methods: computeIfAbsent, merge, getOrDefault", "Sorted collections with NavigableMap", "Measuring with a simple benchmark"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a job scheduler that orders jobs by priority with a PriorityQueue, keeps an undo stack with ArrayDeque, and finds jobs in a time range with a TreeMap, then measure lookups with 100,000 jobs.",
+          "deliverable": "Scheduler source and a timing table for each structure",
+          "checks": [["Add jobs with mixed priorities", "Highest priority runs first", "Program output"], ["Query jobs between 09:00 and 10:00", "Only jobs in that range are returned", "Program output"], ["Compare list search with map lookup for 100,000 jobs", "Map lookup is clearly faster", "Timing table"]],
+          "objectives": ["Choose data structures by cost", "Use the less common collections", "Measure performance"]
+        },
+        {
+          "topic": "Advanced Streams and Collectors",
+          "subtopics": ["Collectors.groupingBy with downstream collectors", "partitioningBy", "toMap and merge functions", "flatMap", "Custom collectors", "Primitive streams", "Parallel streams and when not to use them", "Debugging streams with peek"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Produce a sales analytics report with nested grouping by region and month, a top-three product list per region, duplicate-key handling in toMap and a comparison of sequential and parallel runs.",
+          "deliverable": "Report source, output and timing comparison",
+          "checks": [["Group sales by region and month", "Totals match the answer file", "Program output"], ["Build a map with duplicate keys", "Merge function combines values without an exception", "Program output"], ["Run the report in parallel", "Same result, with a timing note", "Program output"]],
+          "objectives": ["Write complex stream pipelines", "Use downstream collectors", "Decide when parallel streams help"]
+        },
+        {
+          "topic": "Functional Programming Patterns in Java",
+          "subtopics": ["Functions as values", "Composing functions with andThen and compose", "Higher-order methods", "Immutability in practice", "Optional chaining", "Avoiding side effects in streams", "Currying with functions", "Replacing conditionals with function maps"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a validation library that composes reusable Predicate rules, returns all errors for an input, and replaces a long if-else chain with a map of command names to functions.",
+          "deliverable": "Validation library, tests and before and after code",
+          "checks": [["Validate an input with three problems", "All three errors are reported", "Test output"], ["Add a new rule", "Only one function is added", "Source diff"], ["Run the command map with an unknown command", "Returns a clear error", "Program output"]],
+          "objectives": ["Compose functions", "Write side-effect-free code", "Replace conditionals with functions"]
+        },
+        {
+          "topic": "Concurrency: Threads and the Executor Framework",
+          "subtopics": ["Threads and Runnable", "Race conditions", "synchronized and intrinsic locks", "volatile and visibility", "ExecutorService and thread pools", "Callable and Future", "Shutting down executors", "Thread-safe collections"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Download and checksum 50 files concurrently with an ExecutorService, show a race condition in a shared counter, then fix it with an AtomicInteger and with synchronized.",
+          "deliverable": "Concurrent program, race demonstration and fixed versions",
+          "checks": [["Run the broken counter 10 times", "Totals vary below the expected number", "Program output"], ["Run the fixed counter 10 times", "Always the expected total", "Program output"], ["Compare sequential and pooled downloads", "Pooled version is faster", "Timing output"]],
+          "objectives": ["Run work in thread pools", "Detect and fix race conditions", "Shut down executors correctly"]
+        },
+        {
+          "topic": "CompletableFuture and Virtual Threads",
+          "subtopics": ["CompletableFuture supplyAsync and thenApply", "Combining futures with thenCombine and allOf", "Error handling with exceptionally and handle", "Timeouts", "Virtual threads in Java 21", "Executors.newVirtualThreadPerTaskExecutor", "When virtual threads help", "Structured concurrency preview"],
+          "tools": ["JDK 21", "IntelliJ IDEA"],
+          "lab_task": "Build a price comparison service that calls three slow mock suppliers in parallel with CompletableFuture, applies a two-second timeout and fallback, then handles 10,000 requests with virtual threads.",
+          "deliverable": "Service source and timing results for platform and virtual threads",
+          "checks": [["Make one supplier time out", "Result uses the fallback price", "Program output"], ["Make one supplier throw", "Other prices are still returned", "Program output"], ["Run 10,000 blocking requests on virtual threads", "Completes within a few seconds", "Timing output"]],
+          "objectives": ["Compose asynchronous work", "Handle failures and timeouts", "Use virtual threads"]
+        },
+        {
+          "topic": "JDBC and Database Access",
+          "subtopics": ["JDBC drivers and connections", "PreparedStatement and SQL injection", "ResultSet mapping", "Transactions and rollback", "Batch inserts", "Connection pooling with HikariCP", "Database migrations with Flyway", "Testing with an embedded or containerised database"],
+          "tools": ["PostgreSQL", "JDBC", "HikariCP", "Flyway"],
+          "lab_task": "Write a repository class for orders using JDBC with prepared statements, a transfer that runs in one transaction, Flyway migrations and a batch import of 10,000 rows.",
+          "deliverable": "Repository code, migration scripts and import timing",
+          "checks": [["Pass a name containing a quote and an OR clause", "Stored as text, no injection", "Database row"], ["Fail the second step of a transfer", "Transaction rolls back both steps", "Database rows"], ["Import 10,000 rows with batching", "Faster than single inserts", "Timing output"]],
+          "objectives": ["Access databases safely with JDBC", "Use transactions", "Manage schema changes"]
+        },
+        {
+          "topic": "JPA and Hibernate",
+          "subtopics": ["Entities and mapping annotations", "Primary keys and generation", "One-to-many and many-to-one relationships", "Lazy and eager loading", "The N+1 query problem", "JPQL and Criteria queries", "The persistence context and dirty checking", "Optimistic locking with @Version"],
+          "tools": ["Hibernate", "PostgreSQL", "Maven"],
+          "lab_task": "Map customers, orders and order lines with JPA, find and fix an N+1 query with a fetch join, and show optimistic locking stopping a lost update.",
+          "deliverable": "Entity code, SQL logs before and after the fix and the locking test",
+          "checks": [["Load 50 orders with lines before the fix", "SQL log shows 51 queries", "SQL log"], ["Load them after the fix", "SQL log shows one query", "SQL log"], ["Update the same order from two sessions", "Second update fails with OptimisticLockException", "Test output"]],
+          "objectives": ["Map entities and relationships", "Diagnose N+1 queries", "Prevent lost updates"]
+        },
+        {
+          "topic": "Gradle and Multi-Module Builds",
+          "subtopics": ["Gradle with the Kotlin DSL", "Tasks and the build lifecycle", "Dependency configurations", "Version catalogs", "Multi-module projects", "Sharing code between modules", "Build caching", "Maven versus Gradle"],
+          "tools": ["Gradle", "Maven", "IntelliJ IDEA"],
+          "lab_task": "Split the order application into domain, persistence and api modules in Gradle with a version catalog, so the domain module has no database dependency.",
+          "deliverable": "Multi-module Gradle build and a dependency graph",
+          "checks": [["Run ./gradlew build", "All modules build and test", "Build output"], ["Import a JDBC class into the domain module", "Build fails", "Build output"], ["Run the build a second time", "Tasks are up to date or from cache", "Build output"]],
+          "objectives": ["Build projects with Gradle", "Structure multi-module builds", "Enforce module boundaries"]
+        },
+        {
+          "topic": "Testing with Mockito and AssertJ",
+          "subtopics": ["Test structure: arrange, act, assert", "AssertJ fluent assertions", "Mocks and stubs with Mockito", "Verifying interactions", "Argument captors", "Testing exceptions and edge cases", "Test doubles versus real objects", "Measuring coverage with JaCoCo"],
+          "tools": ["JUnit 5", "Mockito", "AssertJ", "JaCoCo"],
+          "lab_task": "Write unit tests for the order service that mock the repository and the payment gateway, capture the saved order, test every failure path and reach 85 percent line coverage.",
+          "deliverable": "Test suite and JaCoCo coverage report",
+          "checks": [["Make the payment gateway throw", "Test confirms the order is not saved", "Test output"], ["Capture the saved order", "Status and total are asserted", "Test code"], ["Open the coverage report", "At least 85 percent line coverage", "JaCoCo report"]],
+          "objectives": ["Test classes in isolation", "Use mocks appropriately", "Measure coverage"]
+        },
+        {
+          "topic": "JSON Processing with Jackson",
+          "subtopics": ["ObjectMapper reading and writing", "Mapping records and classes", "Field naming and @JsonProperty", "Ignoring unknown fields", "Dates with the JavaTimeModule", "Polymorphic types with @JsonTypeInfo", "Streaming large JSON files", "Custom serialisers and deserialisers"],
+          "tools": ["Jackson", "JDK 21", "JUnit 5"],
+          "lab_task": "Read a 200 MB orders JSON file with the streaming API without running out of memory, map nested orders to records with java.time dates, and write a summary JSON with a custom serialiser for money.",
+          "deliverable": "Parser source, summary JSON and memory usage note",
+          "checks": [["Parse the large file with a 256 MB heap", "Completes without OutOfMemoryError", "Terminal output"], ["Read JSON with an extra unknown field", "Parsed without failing", "Test output"], ["Serialise an amount of 10.5", "Written as \"10.50\" with the currency", "Output JSON"]],
+          "objectives": ["Convert between JSON and Java objects", "Handle dates, unknown fields and polymorphism", "Process large JSON efficiently"]
+        },
+        {
+          "topic": "Calling External APIs with the Java HTTP Client",
+          "subtopics": ["java.net.http.HttpClient", "Synchronous and asynchronous requests", "Headers, query parameters and JSON bodies", "Timeouts and redirects", "Handling status codes", "Retrying failed calls", "Authentication with bearer tokens", "Testing with WireMock"],
+          "tools": ["JDK 21", "WireMock", "Jackson"],
+          "lab_task": "Write a client for a weather API that sends authenticated requests, maps JSON responses, retries on 503 with back-off, times out after three seconds and is tested against WireMock stubs.",
+          "deliverable": "Client source and WireMock tests",
+          "checks": [["Stub a 503 then a 200", "Client retries and returns the result", "Test output"], ["Stub a five-second delay", "Client times out after three seconds", "Test output"], ["Stub a 401", "Client raises a clear authentication error without retrying", "Test output"]],
+          "objectives": ["Call HTTP APIs from Java", "Handle errors, retries and timeouts", "Test clients without the real service"]
+        },
+        {
+          "topic": "Spring Core: Dependency Injection and Configuration",
+          "subtopics": ["Inversion of control", "Beans and the application context", "Component scanning and @Component", "Constructor injection", "@Configuration and @Bean", "Profiles", "Properties and @ConfigurationProperties", "Bean scopes"],
+          "tools": ["Spring Framework", "Spring Boot", "Maven"],
+          "lab_task": "Convert the notification system into a Spring application with constructor-injected channels, a profile that swaps the real SMS client for a fake, and typed configuration properties.",
+          "deliverable": "Spring application and the configuration files",
+          "checks": [["Start with the dev profile", "Fake SMS client is used", "Application log"], ["Remove a required property", "Startup fails with a clear binding error", "Application log"], ["List the beans with the actuator or a test", "Expected beans are present", "Output"]],
+          "objectives": ["Explain dependency injection", "Configure beans and profiles", "Bind configuration safely"]
+        },
+        {
+          "topic": "Building REST APIs with Spring Boot",
+          "subtopics": ["Spring Boot starters and auto-configuration", "@RestController and request mappings", "Path variables, query parameters and request bodies", "Response codes and ResponseEntity", "Bean validation", "Global error handling with @ControllerAdvice", "OpenAPI documentation with springdoc", "Calling the API with curl and Postman"],
+          "tools": ["Spring Boot", "springdoc-openapi", "Postman"],
+          "lab_task": "Build a products REST API with create, read, update, delete and search endpoints, validation, consistent error responses and OpenAPI documentation.",
+          "deliverable": "API source, OpenAPI page and a Postman collection",
+          "checks": [["Create a product with a negative price", "400 response listing the field error", "Postman result"], ["Get a product that does not exist", "404 with the error format", "Postman result"], ["Open /swagger-ui.html", "Every endpoint is documented", "Screenshot"]],
+          "objectives": ["Build REST endpoints", "Validate input", "Return consistent errors"]
+        },
+        {
+          "topic": "Spring Data JPA",
+          "subtopics": ["Repositories and derived queries", "@Query for custom queries", "Paging and sorting", "Projections", "Auditing with @CreatedDate", "Transactions with @Transactional", "Testing with @DataJpaTest", "Testcontainers for PostgreSQL"],
+          "tools": ["Spring Data JPA", "PostgreSQL", "Testcontainers"],
+          "lab_task": "Store products in PostgreSQL with Spring Data JPA, add paged and sorted search, a projection for the list view and repository tests that run against a Testcontainers database.",
+          "deliverable": "Repository code and passing database tests",
+          "checks": [["Request page 2 with 10 items sorted by price", "Correct 10 items in price order", "API response"], ["Run the repository tests", "Pass against a real PostgreSQL container", "Test output"], ["Create a product", "created date is filled automatically", "Database row"]],
+          "objectives": ["Use Spring Data repositories", "Page and sort results", "Test against a real database"]
+        },
+        {
+          "topic": "Spring Security Essentials",
+          "subtopics": ["The security filter chain", "Authentication versus authorisation", "Password hashing with BCrypt", "Securing endpoints by role", "Stateless JWT authentication", "Method security with @PreAuthorize", "CORS and CSRF", "Testing secured endpoints"],
+          "tools": ["Spring Security", "Spring Boot", "JUnit 5"],
+          "lab_task": "Secure the products API so anyone can read, only users can create and only admins can delete, using JWT login, BCrypt passwords and tests for every rule.",
+          "deliverable": "Security configuration and security tests",
+          "checks": [["Delete a product as a normal user", "403 Forbidden", "Test output"], ["Call create without a token", "401 Unauthorized", "Test output"], ["Look at the users table", "Passwords are BCrypt hashes", "Database row"]],
+          "objectives": ["Secure a REST API", "Apply role-based rules", "Test security"]
+        },
+        {
+          "topic": "Logging, Configuration and Actuator",
+          "subtopics": ["SLF4J and Logback", "Log levels and parameterised messages", "Structured JSON logging", "Externalised configuration and environment variables", "Spring Boot Actuator endpoints", "Health checks and custom health indicators", "Metrics with Micrometer", "Not logging secrets"],
+          "tools": ["Spring Boot Actuator", "Micrometer", "Logback"],
+          "lab_task": "Add structured logging with a request ID, a custom health indicator for the payment gateway and a metric for orders created, and configure everything from environment variables.",
+          "deliverable": "Configuration, logs and actuator output",
+          "checks": [["Make one request", "Every log line for it carries the same request ID", "Log output"], ["Stop the payment gateway", "/actuator/health reports DOWN for it", "Actuator response"], ["Create three orders", "Order counter metric shows 3", "Actuator metrics"]],
+          "objectives": ["Log usefully and safely", "Expose health and metrics", "Configure from the environment"]
+        },
+        {
+          "topic": "Intermediate Capstone: Order Management REST Service",
+          "subtopics": ["Requirements and API design", "Domain model and persistence", "Security and validation", "Testing at unit and integration level", "Observability and configuration", "Demo and design defence"],
+          "tools": ["Spring Boot", "Spring Data JPA", "Spring Security", "PostgreSQL", "Testcontainers", "Gradle"],
+          "lab_task": "Build an order management service with products, customers and orders, stock checks in transactions, JWT security, OpenAPI docs, Testcontainers tests, health checks and metrics, then present it.",
+          "deliverable": "Source repository, test reports, OpenAPI page and a 15-minute demo",
+          "checks": [["Order more than the stock", "Order rejected and stock unchanged", "API response and database"], ["Run the full test suite", "All tests pass with a real database", "Build output"], ["Stop the database", "Health endpoint reports DOWN", "Actuator response"]],
+          "objectives": ["Combine the intermediate topics in one service", "Defend design decisions", "Deliver a tested, documented API"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For working Java developers. Covers JVM internals, memory and garbage collection, performance, advanced concurrency, reactive and event-driven services, microservices, security and running Java in production.",
+      "prerequisites": ["Builds Spring Boot services professionally", "Comfortable with concurrency, JPA and testing", "Has deployed a Java application"],
+      "outcomes": ["Diagnose memory, CPU and latency problems in the JVM", "Design reliable concurrent and event-driven systems", "Build production-ready microservices", "Run, secure and observe Java services in containers"],
+      "days": [
+        {
+          "topic": "JVM Architecture and Class Loading",
+          "subtopics": ["JVM components", "Class loading phases and class loaders", "The bytecode format and javap", "The JIT compilers C1 and C2", "Tiered compilation", "Method inlining and deoptimisation", "The Java Platform Module System", "JVM flags and diagnostics"],
+          "tools": ["JDK 21", "javap", "JDK Mission Control"],
+          "lab_task": "Inspect bytecode with javap for a lambda and a switch, log JIT compilation for a hot method, and write a custom class loader that loads plugins from a folder.",
+          "deliverable": "javap output, JIT log extract and plugin loader source",
+          "checks": [["Run with -XX:+PrintCompilation", "Hot method appears as compiled", "JVM output"], ["Drop a new plugin JAR into the folder", "Loaded without restarting", "Program output"], ["Explain the lambda bytecode", "Participant identifies invokedynamic", "Written answer"]],
+          "objectives": ["Explain how the JVM loads and runs code", "Read bytecode", "Observe JIT compilation"]
+        },
+        {
+          "topic": "Memory Management and Garbage Collection Tuning",
+          "subtopics": ["Heap regions and object allocation", "Young and old generations", "G1, ZGC and Parallel collectors", "GC logs", "Heap sizing flags", "Pause time versus throughput", "Escape analysis", "Choosing a collector for a workload"],
+          "tools": ["JDK 21", "GCeasy or GCViewer", "JDK Mission Control"],
+          "lab_task": "Run a provided allocation-heavy service under load with G1 and ZGC, collect GC logs, and compare pause times and throughput to choose a collector.",
+          "deliverable": "GC logs, comparison table and recommendation",
+          "checks": [["Enable GC logging with -Xlog:gc*", "Log file is produced", "Log file"], ["Compare p99 pause time", "ZGC shows shorter pauses", "Comparison table"], ["Halve the heap and rerun", "Participant explains the change in GC frequency", "Written analysis"]],
+          "objectives": ["Read GC logs", "Tune heap and collectors", "Choose a collector for a workload"]
+        },
+        {
+          "topic": "Diagnosing Memory Leaks with Heap Dumps",
+          "subtopics": ["Symptoms of a memory leak", "Taking heap dumps with jcmd", "HeapDumpOnOutOfMemoryError", "Analysing dumps in Eclipse MAT", "Dominator trees and retained size", "Common leaks: caches, listeners, ThreadLocals", "Class loader leaks", "Native memory tracking"],
+          "tools": ["jcmd", "Eclipse MAT", "JDK 21"],
+          "lab_task": "Run a service with a planted cache leak until it runs out of memory, analyse the heap dump to find the leaking objects and their GC root, fix it and show memory staying flat.",
+          "deliverable": "Heap dump analysis, fix and memory graph before and after",
+          "checks": [["Open the dump in MAT", "Leak suspect points to the cache map", "MAT report"], ["Rerun under the same load after the fix", "Heap stays flat for 30 minutes", "Memory graph"], ["Show the path to the GC root", "Correct reference chain identified", "MAT screenshot"]],
+          "objectives": ["Capture and analyse heap dumps", "Find leak causes", "Verify a fix"]
+        },
+        {
+          "topic": "Performance Profiling with JFR and async-profiler",
+          "subtopics": ["Java Flight Recorder events", "Continuous recording in production", "JDK Mission Control analysis", "CPU flame graphs with async-profiler", "Allocation profiling", "Lock contention profiling", "Thread dumps for stuck threads", "Finding hot paths"],
+          "tools": ["Java Flight Recorder", "JDK Mission Control", "async-profiler"],
+          "lab_task": "Profile a slow endpoint with JFR and async-profiler, find the hot method and a lock contention problem, fix both and show the latency improvement.",
+          "deliverable": "Flame graphs before and after, JFR report and latency numbers",
+          "checks": [["Generate a CPU flame graph", "Hot method is visible at the top", "Flame graph"], ["Take three thread dumps under load", "Blocked threads point to the same lock", "Thread dumps"], ["Measure p95 latency after the fixes", "At least 40 percent lower", "Load test output"]],
+          "objectives": ["Profile CPU, allocation and locks", "Use JFR in production", "Fix measured bottlenecks"]
+        },
+        {
+          "topic": "Microbenchmarking with JMH",
+          "subtopics": ["Why naive benchmarks lie", "JMH setup with Maven", "Benchmark modes and units", "Warm-up and measurement iterations", "Blackhole and dead-code elimination", "State and parameters", "Comparing implementations", "Reporting results honestly"],
+          "tools": ["JMH", "Maven", "JDK 21"],
+          "lab_task": "Benchmark three ways of building a large string and three ways of looking up keys with JMH, including a deliberately broken benchmark that dead-code elimination ruins.",
+          "deliverable": "JMH project, results table and explanation of the broken benchmark",
+          "checks": [["Run the benchmarks", "Results include error margins", "JMH output"], ["Run the broken benchmark", "Unrealistically fast result explained", "Written explanation"], ["Fix it with a Blackhole", "Realistic timing", "JMH output"]],
+          "objectives": ["Write reliable microbenchmarks", "Avoid benchmark pitfalls", "Compare implementations with evidence"]
+        },
+        {
+          "topic": "Java Memory Model and Lock-Free Programming",
+          "subtopics": ["Happens-before rules", "Visibility and reordering", "Safe publication", "Atomic classes and compare-and-set", "VarHandles", "ReentrantLock and ReadWriteLock", "StampedLock", "False sharing"],
+          "tools": ["JDK 21", "JMH", "jcstress"],
+          "lab_task": "Show a visibility bug with jcstress, fix it with volatile, then build a lock-free counter and stack with compare-and-set and compare their throughput with lock-based versions.",
+          "deliverable": "jcstress results, lock-free code and throughput comparison",
+          "checks": [["Run the broken jcstress test", "Forbidden outcomes are observed", "jcstress report"], ["Run the fixed version", "No forbidden outcomes", "jcstress report"], ["Benchmark lock-free and locked counters at 8 threads", "Lock-free counter is faster", "JMH output"]],
+          "objectives": ["Apply the Java Memory Model", "Write lock-free code", "Choose locks deliberately"]
+        },
+        {
+          "topic": "Advanced Concurrency: Structured Concurrency and Scoped Values",
+          "subtopics": ["Problems with unstructured threads", "StructuredTaskScope", "ShutdownOnFailure and ShutdownOnSuccess", "Cancellation propagation", "Scoped values versus ThreadLocal", "Virtual thread pinning", "Diagnosing virtual threads", "Back-pressure with semaphores"],
+          "tools": ["JDK 21", "JDK Mission Control"],
+          "lab_task": "Rewrite the price comparison service with structured concurrency so one failure cancels the others, pass the request context with scoped values, and find and fix a pinning problem.",
+          "deliverable": "Rewritten service, pinning trace and tests",
+          "checks": [["Make one subtask fail", "Other subtasks are cancelled", "Test output"], ["Run with -Djdk.tracePinnedThreads=full", "Pinning location is identified then removed", "JVM output"], ["Limit supplier calls with a semaphore", "Never more than 20 concurrent calls", "Metrics"]],
+          "objectives": ["Use structured concurrency", "Replace ThreadLocal with scoped values", "Avoid virtual thread pinning"]
+        },
+        {
+          "topic": "Reactive Programming with Project Reactor and WebFlux",
+          "subtopics": ["Reactive streams and back-pressure", "Mono and Flux", "Operators: map, flatMap, zip, merge", "Error handling and retry", "Schedulers", "Spring WebFlux controllers", "WebClient", "Testing with StepVerifier"],
+          "tools": ["Project Reactor", "Spring WebFlux", "WebClient"],
+          "lab_task": "Build a WebFlux endpoint that streams stock prices, combines two upstream services with WebClient, retries with back-off and is tested with StepVerifier.",
+          "deliverable": "Reactive service and StepVerifier tests",
+          "checks": [["Subscribe to the price stream", "Receives a price every second", "curl output"], ["Make an upstream service fail twice", "Retry recovers the result", "Test output"], ["Block a reactive thread on purpose and run BlockHound", "BlockHound reports the blocking call", "Test output"]],
+          "objectives": ["Write reactive pipelines", "Build non-blocking services", "Test reactive code"]
+        },
+        {
+          "topic": "Event-Driven Services with Apache Kafka",
+          "subtopics": ["Topics, partitions and consumer groups", "Spring for Apache Kafka", "Producer settings: acks and idempotence", "Consumer offsets and commit strategies", "Serialisation with JSON or Avro", "Retries and dead-letter topics", "Exactly-once processing", "Testing with embedded Kafka or Testcontainers"],
+          "tools": ["Apache Kafka", "Spring for Apache Kafka", "Testcontainers"],
+          "lab_task": "Publish order events from the order service and consume them in an inventory service, with retries, a dead-letter topic for bad messages and idempotent handling of duplicates.",
+          "deliverable": "Producer and consumer services and integration tests",
+          "checks": [["Send the same event twice", "Stock is reduced only once", "Database rows"], ["Send a malformed event", "Moves to the dead-letter topic after retries", "Topic contents"], ["Stop and restart the consumer", "Resumes from the committed offset without loss", "Logs and counts"]],
+          "objectives": ["Build event-driven services", "Handle failures and duplicates", "Test messaging code"]
+        },
+        {
+          "topic": "Domain-Driven Design and Hexagonal Architecture in Java",
+          "subtopics": ["Ubiquitous language and bounded contexts", "Entities, value objects and aggregates", "Aggregate rules and invariants", "Domain events", "Ports and adapters", "Keeping frameworks out of the domain", "Application services", "Package structure for a hexagonal service"],
+          "tools": ["JDK 21", "Spring Boot", "ArchUnit"],
+          "lab_task": "Restructure the order service into a framework-free domain core with aggregates and domain events, ports for persistence and payment, and Spring adapters, enforced with ArchUnit.",
+          "deliverable": "Restructured code, context map and ArchUnit rules",
+          "checks": [["Run the domain tests", "Pass with no Spring context", "Test output"], ["Import a Spring class into the domain package", "ArchUnit test fails", "Test output"], ["Add an order line that breaks the aggregate limit", "Aggregate rejects it", "Test output"]],
+          "objectives": ["Model a domain with DDD building blocks", "Separate the domain from frameworks", "Enforce architecture boundaries"]
+        },
+        {
+          "topic": "Microservices Architecture with Spring Cloud",
+          "subtopics": ["Service boundaries and bounded contexts", "Synchronous versus asynchronous communication", "Spring Cloud Gateway", "Service discovery", "Centralised configuration", "Declarative clients with OpenFeign", "Distributed transactions and the saga pattern", "API versioning"],
+          "tools": ["Spring Cloud Gateway", "Spring Cloud Config", "OpenFeign", "Docker Compose"],
+          "lab_task": "Split the order system into order, inventory and payment services behind a gateway, with central configuration and a saga that cancels an order when payment fails.",
+          "deliverable": "Service repositories, Compose file and saga sequence diagram",
+          "checks": [["Make payment fail", "Order is cancelled and stock released", "Database rows and logs"], ["Change a setting in the config server", "Service picks it up after refresh", "Service response"], ["Call a service through the gateway with a v1 and v2 path", "Each version routes correctly", "curl output"]],
+          "objectives": ["Design service boundaries", "Connect services through a gateway", "Coordinate work with sagas"]
+        },
+        {
+          "topic": "Resilience Patterns with Resilience4j",
+          "subtopics": ["Timeouts", "Retries with back-off and jitter", "Circuit breakers", "Bulkheads", "Rate limiters", "Fallbacks", "Monitoring resilience state", "Chaos testing a dependency"],
+          "tools": ["Resilience4j", "Spring Boot", "Toxiproxy"],
+          "lab_task": "Protect the order service's calls to payment with a timeout, retry, circuit breaker and bulkhead, then inject latency and failures with Toxiproxy and show the service staying responsive.",
+          "deliverable": "Resilience configuration, chaos test results and metrics graph",
+          "checks": [["Add 5 seconds of latency to payment", "Order calls fail fast after the timeout", "Response times"], ["Make payment fail continuously", "Circuit opens and fallback is used", "Actuator circuit state"], ["Restore payment", "Circuit closes after the half-open trial", "Actuator circuit state"]],
+          "objectives": ["Apply resilience patterns", "Test failure handling", "Monitor resilience state"]
+        },
+        {
+          "topic": "Distributed Tracing and Observability for Java Services",
+          "subtopics": ["Micrometer Observation", "OpenTelemetry Java agent", "Trace and span context propagation", "Exporting traces to Jaeger or Tempo", "Metrics to Prometheus", "Correlating logs with trace IDs", "Service level indicators", "Dashboards for the JVM"],
+          "tools": ["OpenTelemetry", "Micrometer", "Prometheus", "Grafana", "Jaeger"],
+          "lab_task": "Instrument the three services with OpenTelemetry, follow one order through the gateway, services and Kafka in Jaeger, and build a Grafana dashboard for latency, errors and JVM memory.",
+          "deliverable": "Tracing setup, trace screenshot and dashboard export",
+          "checks": [["Place an order", "One trace shows every service and the Kafka hop", "Jaeger screenshot"], ["Search logs by trace ID", "All log lines for the order are found", "Log search"], ["Open the dashboard under load", "Latency, error rate and heap are shown", "Grafana screenshot"]],
+          "objectives": ["Trace requests across services", "Correlate logs and metrics", "Monitor JVM health"]
+        },
+        {
+          "topic": "Advanced Spring Security with OAuth2 and OpenID Connect",
+          "subtopics": ["OAuth2 roles: client, resource server, authorisation server", "OpenID Connect login", "JWT validation and key rotation", "Scopes and authorities mapping", "Service-to-service authentication with client credentials", "Keycloak as an identity provider", "Token relay through the gateway", "Security testing"],
+          "tools": ["Spring Security", "Keycloak", "Spring Cloud Gateway"],
+          "lab_task": "Replace the custom JWT login with Keycloak, protect each service as a resource server with scope rules, relay tokens through the gateway and use client credentials between services.",
+          "deliverable": "Keycloak realm export, security configuration and tests",
+          "checks": [["Call inventory with a token lacking the inventory scope", "403 Forbidden", "Test output"], ["Rotate the Keycloak signing key", "Services accept new tokens without restart", "Test output"], ["Call payment directly from order", "Uses a client credentials token", "Logs"]],
+          "objectives": ["Secure services with OAuth2 and OIDC", "Authenticate services to each other", "Handle key rotation"]
+        },
+        {
+          "topic": "Secure Coding and Dependency Security",
+          "subtopics": ["OWASP Top 10 for Java", "Injection in SQL, JPQL and logs", "Deserialisation risks", "XML external entity attacks", "Secrets management", "Dependency scanning with OWASP Dependency-Check", "Software bill of materials with CycloneDX", "Static analysis with SpotBugs and SonarQube"],
+          "tools": ["OWASP Dependency-Check", "CycloneDX", "SpotBugs", "SonarQube"],
+          "lab_task": "Find and fix five planted vulnerabilities in a service, add dependency scanning and an SBOM to the build, and make the build fail on a high-severity finding.",
+          "deliverable": "Fixed code, scan reports, SBOM and build configuration",
+          "checks": [["Add a dependency with a known critical CVE", "Build fails with the CVE listed", "Build output"], ["Send an XXE payload to the XML endpoint", "Rejected after the fix", "Test output"], ["Run SpotBugs", "No high-priority findings remain", "SpotBugs report"]],
+          "objectives": ["Write secure Java code", "Scan dependencies", "Produce an SBOM"]
+        },
+        {
+          "topic": "Advanced Testing: Contract, Integration and Mutation Testing",
+          "subtopics": ["The test pyramid for microservices", "Integration tests with Testcontainers", "Consumer-driven contracts with Spring Cloud Contract or Pact", "Testing Kafka flows", "Mutation testing with PIT", "Architecture tests with ArchUnit", "Test data builders", "Keeping test suites fast"],
+          "tools": ["Testcontainers", "Pact", "PIT", "ArchUnit"],
+          "lab_task": "Add contract tests between order and inventory, mutation-test the pricing module and raise its mutation score to 80 percent, and add ArchUnit rules that enforce the layering.",
+          "deliverable": "Contract tests, PIT report and ArchUnit rules",
+          "checks": [["Change the inventory response field name", "Contract test fails before deployment", "Test output"], ["Run PIT on pricing", "Mutation score at least 80 percent", "PIT report"], ["Call a repository from a controller", "ArchUnit test fails", "Test output"]],
+          "objectives": ["Test service contracts", "Measure test strength", "Enforce architecture rules"]
+        },
+        {
+          "topic": "Containerising Java Applications",
+          "subtopics": ["Layered JARs and Docker images", "Building images with Jib or Buildpacks", "JVM container awareness and memory limits", "Choosing base images", "Class data sharing for faster start", "Health probes", "Image size and scanning", "Running as a non-root user"],
+          "tools": ["Docker", "Jib", "Spring Boot Buildpacks", "Trivy"],
+          "lab_task": "Build images for the services with Jib and Buildpacks, set memory limits and JVM flags so the container is not killed, add health probes and compare image sizes and start times.",
+          "deliverable": "Image build configuration, comparison table and scan report",
+          "checks": [["Run with a 512 MB limit under load", "Container is not OOM-killed", "docker stats and logs"], ["Scan the image with Trivy", "No critical vulnerabilities", "Trivy report"], ["Check the running user", "Not root", "docker exec output"]],
+          "objectives": ["Build efficient Java images", "Configure the JVM for containers", "Secure images"]
+        },
+        {
+          "topic": "Native Images and Fast Startup with GraalVM",
+          "subtopics": ["Ahead-of-time compilation", "GraalVM native-image", "Spring Boot native support", "Reflection and resource configuration", "Tracing agent", "Startup time and memory comparison", "Limitations and trade-offs", "CRaC checkpoint and restore"],
+          "tools": ["GraalVM", "Spring Boot", "Docker"],
+          "lab_task": "Compile the inventory service to a native image, fix the reflection errors with the tracing agent, and compare start time, memory and throughput with the JVM version.",
+          "deliverable": "Native build configuration and comparison table",
+          "checks": [["Start the native image", "Ready in under 0.5 seconds", "Startup log"], ["Call an endpoint that uses reflection", "Works after configuration", "curl output"], ["Compare peak throughput", "Participant explains where the JVM is faster", "Comparison table"]],
+          "objectives": ["Build native images", "Fix native-image configuration problems", "Decide when native images help"]
+        },
+        {
+          "topic": "Running Java on Kubernetes",
+          "subtopics": ["Deployments for Java services", "Resource requests, limits and JVM sizing", "Readiness, liveness and startup probes", "Graceful shutdown", "ConfigMaps and Secrets with Spring", "Horizontal pod autoscaling on metrics", "Rolling updates without dropped requests", "Troubleshooting crash loops"],
+          "tools": ["Kubernetes", "Helm", "Spring Boot", "k6"],
+          "lab_task": "Deploy the services to Kubernetes with probes, graceful shutdown and autoscaling, then run a rolling update under load and confirm no requests fail.",
+          "deliverable": "Manifests or Helm chart, load test results and scaling graph",
+          "checks": [["Roll out a new version under load", "Zero failed requests", "k6 output"], ["Increase load", "Autoscaler adds pods", "kubectl get hpa output"], ["Set too little memory", "Participant diagnoses OOMKilled and fixes the limits", "Pod events and fix"]],
+          "objectives": ["Deploy Java services on Kubernetes", "Size the JVM for pods", "Update without downtime"]
+        },
+        {
+          "topic": "Advanced Capstone: Production-Grade Java Microservices Platform",
+          "subtopics": ["Architecture and service design", "Event-driven flows and resilience", "Security with OAuth2", "Testing strategy", "Containers, Kubernetes and observability", "Load test, demo and design defence"],
+          "tools": ["Spring Boot", "Apache Kafka", "Keycloak", "Kubernetes", "OpenTelemetry", "Resilience4j"],
+          "lab_task": "Deliver an e-commerce platform of at least three services with Kafka events, sagas, resilience, OAuth2 security, contract tests, Kubernetes deployment and tracing, then load-test and present it.",
+          "deliverable": "Source repositories, deployment files, load test report, dashboards and a 20-minute demo",
+          "checks": [["Kill the payment service during a load test", "Orders are compensated and no data is lost", "Load test report and database"], ["Follow one order in the tracing tool", "Complete trace across services and Kafka", "Trace screenshot"], ["Run the contract and mutation tests", "Pass with the agreed thresholds", "Build output"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove reliability under failure", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}
