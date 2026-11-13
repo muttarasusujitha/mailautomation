@@ -1,0 +1,573 @@
+{
+  "domain": "REST Assured",
+  "name": "REST Assured API Test Automation",
+  "category": "Testing and QA",
+  "icon": "link",
+  "aliases": ["REST Assured API Testing", "Java REST Testing", "API Testing using REST Assured", "API Testing with REST Assured", "API Automation using REST Assured", "API Automation with REST Assured", "RestAssured", "Rest Assured Framework", "REST Assured with Java", "API Automation in Java"],
+  "certifications": ["No official REST Assured certification; assessed by capstone projects", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)", "ISTQB Certified Tester Foundation Level (CTFL)"],
+  "tools": ["REST Assured", "Java 17 or 21", "Maven or Gradle", "TestNG or JUnit 5", "IntelliJ IDEA", "Allure", "WireMock"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For testers and developers starting API automation in Java with REST Assured. Covers Java essentials for API tests, Maven projects, the given-when-then style, requests with parameters, headers and bodies, response checks with Hamcrest, JSON path, POJOs with Jackson, authentication, specifications, logging and filters, JSON Schema validation, chained CRUD flows, data-driven tests with TestNG, file uploads, cookies, XML responses, negative tests, reports and running suites with Maven in CI.",
+      "prerequisites": ["Understands HTTP methods, status codes and JSON", "Basic Java or another programming language", "Has tested APIs by hand, for example with Postman"],
+      "outcomes": ["Write readable REST Assured tests that check status, headers, bodies and schemas", "Serialise and deserialise JSON with POJOs and reuse request and response specifications", "Build chained and data-driven API test flows with TestNG", "Run the suite with Maven in CI and publish Allure reports"],
+      "days": [
+        {
+          "topic": "REST Assured Overview and Maven Project Setup",
+          "subtopics": ["What REST Assured is and where it fits in API testing", "REST Assured compared with Postman and other API tools", "Installing a JDK and IntelliJ IDEA", "Creating a Maven project", "Adding REST Assured, TestNG and Hamcrest dependencies", "Project folders for tests and resources", "Writing and running a first GET test", "Running tests from the IDE and with mvn test", "Reading test output and failures", "The course API and project overview"],
+          "tools": ["Java 17 or 21", "Maven", "IntelliJ IDEA", "REST Assured"],
+          "lab_task": "Create a Maven project with REST Assured and TestNG, write a first GET test against the course API that checks the status code, and run it from the IDE and the command line.",
+          "deliverable": "Maven project with a first passing test",
+          "checks": [["Build", "mvn test compiles and runs the test", "Terminal output"], ["Assert status", "The test checks the status code", "Test code"], ["Read failures", "A deliberately wrong status assertion is explained from its output", "Notes"]],
+          "objectives": ["Set up a REST Assured project", "Run tests with Maven", "Read test results"]
+        },
+        {
+          "topic": "Java Essentials for API Testers: Classes, Collections and Exceptions",
+          "subtopics": ["Classes, objects and methods", "Strings and string formatting", "Lists and maps for test data", "Loops and conditions", "Static imports used by REST Assured", "Exceptions and stack traces", "Packages and naming", "Common Java mistakes in tests"],
+          "tools": ["Java", "IntelliJ IDEA", "Maven"],
+          "lab_task": "Write a small data helper class with lists and maps of test users, use it from a test with static imports and fix three compile and runtime errors in sample code.",
+          "deliverable": "Helper class, test and fixed examples",
+          "checks": [["Write helpers", "The helper class compiles and is used by a test", "Test code"], ["Use collections", "Users are stored and read from a list and a map", "Helper code"], ["Fix errors", "All three broken examples run", "Terminal output"]],
+          "objectives": ["Write Java for API tests", "Use collections for data", "Read Java errors"]
+        },
+        {
+          "topic": "Given, When, Then: Writing Requests and Checking Responses",
+          "subtopics": ["The given, when, then structure", "baseURI and basePath", "GET, POST, PUT, PATCH and DELETE calls", "Checking status codes and status lines", "Checking headers and content types", "Checking response time", "Extracting the whole response", "Keeping tests short and readable"],
+          "tools": ["REST Assured", "TestNG", "Course API"],
+          "lab_task": "Write tests for each HTTP method on the products API, checking status, content type and response time, and extract one response to print its body.",
+          "deliverable": "Test class covering five methods",
+          "checks": [["Use each method", "Five tests cover GET, POST, PUT, PATCH and DELETE", "Test output"], ["Check headers", "Content type is asserted in every test", "Test code"], ["Check time", "Response time stays under the agreed limit", "Test output"]],
+          "objectives": ["Write REST Assured requests", "Check status, headers and time", "Structure tests with given, when, then"]
+        },
+        {
+          "topic": "Path Parameters, Query Parameters, Headers and Bodies",
+          "subtopics": ["Path parameters with pathParam", "Query parameters with queryParam", "Form parameters", "Request headers", "JSON bodies as strings and files", "Content type and accept headers", "Logging the request that was sent", "Building requests from test data"],
+          "tools": ["REST Assured", "JSON files", "Course API"],
+          "lab_task": "Write tests that fetch a product by path parameter, search with query parameters, create a product from a JSON file and send custom headers, logging every request.",
+          "deliverable": "Parameter and body tests with request logs",
+          "checks": [["Use parameters", "Path and query parameters change the results as expected", "Test output"], ["Send bodies", "A JSON file body creates a product", "Test output"], ["Log requests", "Each request is logged with its headers and body", "Log output"]],
+          "objectives": ["Send parameters and headers", "Send JSON bodies", "Log requests"]
+        },
+        {
+          "topic": "Response Assertions with Hamcrest Matchers",
+          "subtopics": ["body() with Hamcrest matchers", "equalTo, hasItem, hasItems and hasSize", "Nested fields in JSON responses", "Arrays and collections in responses", "Numbers, nulls and booleans", "Multiple assertions in one then block", "Clear failure messages", "Avoiding over-checking"],
+          "tools": ["REST Assured", "Hamcrest", "Course API"],
+          "lab_task": "Assert nested fields, array sizes and item values on the orders API, write one assertion that fails on purpose and improve its failure message.",
+          "deliverable": "Assertion-rich test class",
+          "checks": [["Check nested data", "Nested fields are asserted with path expressions", "Test code"], ["Check arrays", "Array size and items are checked", "Test output"], ["Improve failures", "The failing assertion's message points to the field", "Test output"]],
+          "objectives": ["Assert responses with Hamcrest", "Check nested and array data", "Write clear assertions"]
+        },
+        {
+          "topic": "JSON Path: Extracting and Filtering Response Data",
+          "subtopics": ["JsonPath in REST Assured", "extract().path() for single values", "Lists and maps from responses", "Groovy GPath filters such as find and findAll", "Sums, minimums and maximums", "Using extracted values in later steps", "Debugging path expressions", "When to deserialise instead"],
+          "tools": ["REST Assured JsonPath", "Course API"],
+          "lab_task": "Extract IDs, lists and filtered items from the products API with JsonPath and GPath, calculate a total price and use an extracted ID in a follow-up request.",
+          "deliverable": "Extraction tests and a follow-up request test",
+          "checks": [["Extract", "Single values and lists are extracted correctly", "Test output"], ["Filter", "GPath filters return the expected items", "Test output"], ["Reuse", "The extracted ID is used in the next request", "Test code"]],
+          "objectives": ["Use JsonPath", "Filter response data", "Reuse extracted values"]
+        },
+        {
+          "topic": "POJOs, Serialisation and Deserialisation with Jackson",
+          "subtopics": ["Plain old Java objects for requests and responses", "Serialising POJOs to JSON bodies", "Deserialising responses into objects", "Jackson annotations for field names and unknown fields", "Lombok to reduce boilerplate", "Lists of objects", "Comparing objects in assertions", "When POJOs help and when they get in the way"],
+          "tools": ["REST Assured", "Jackson", "Lombok"],
+          "lab_task": "Create POJOs for products and orders, send them as request bodies, deserialise responses into objects and compare expected and actual objects in assertions.",
+          "deliverable": "POJO classes and tests that use them",
+          "checks": [["Serialise", "Requests send POJOs as JSON", "Request log"], ["Deserialise", "Responses map into objects without errors", "Test output"], ["Compare", "Assertions compare whole objects", "Test code"]],
+          "objectives": ["Model API data as POJOs", "Serialise and deserialise with Jackson", "Compare objects in tests"]
+        },
+        {
+          "topic": "Authentication: Basic, Bearer Tokens, OAuth 2.0 and API Keys",
+          "subtopics": ["Basic and preemptive basic authentication", "Bearer tokens in headers", "Fetching tokens from a login endpoint", "OAuth 2.0 tokens with oauth2()", "API keys in headers or query strings", "Form authentication for older services", "Reusing a token across tests", "Testing roles and permissions", "Missing, invalid and expired credentials", "Keeping credentials out of code"],
+          "tools": ["REST Assured", "Course API with auth", "Environment variables"],
+          "lab_task": "Implement basic, bearer and API key authentication, fetch a token once for the suite, test each role's access and check the API's responses to missing and expired tokens.",
+          "deliverable": "Authentication helpers and access tests",
+          "checks": [["Authenticate", "Each auth type works on its endpoint", "Test output"], ["Test roles", "Forbidden actions return 403 for lower roles", "Test output"], ["Protect secrets", "Credentials are read from environment variables", "Code review"]],
+          "objectives": ["Authenticate API tests", "Test role-based access", "Protect credentials"]
+        },
+        {
+          "topic": "Request and Response Specifications",
+          "subtopics": ["Why specifications reduce repetition", "RequestSpecBuilder for base URL, headers and auth", "ResponseSpecBuilder for common checks", "Combining and overriding specifications", "Specifications per environment", "Base test classes", "Keeping specifications simple", "Refactoring tests to use specifications"],
+          "tools": ["REST Assured", "TestNG", "Course API"],
+          "lab_task": "Refactor the suite so base URL, headers and auth come from a request specification and common checks from a response specification, and switch environments by configuration.",
+          "deliverable": "Specifications and refactored tests",
+          "checks": [["Remove repetition", "Base URL and headers appear in one place", "Code search"], ["Share checks", "Common response checks use one specification", "Test code"], ["Switch environments", "The suite runs against two environments from configuration", "Terminal output"]],
+          "objectives": ["Use request and response specifications", "Reduce duplication", "Configure environments"]
+        },
+        {
+          "topic": "Logging, Filters and Debugging Failed Requests",
+          "subtopics": ["log().all() and log().ifValidationFails()", "Request and response logging filters", "Custom filters", "Logging to files", "Hiding secrets in logs", "Debugging connection and SSL errors", "Reading stack traces from REST Assured", "A debugging checklist"],
+          "tools": ["REST Assured filters", "IntelliJ IDEA debugger", "Log files"],
+          "lab_task": "Add logging only on validation failures, write a filter that masks tokens in logs, diagnose three failing tests and write a debugging checklist.",
+          "deliverable": "Logging configuration, masking filter and checklist",
+          "checks": [["Log on failure", "Logs appear only for failing tests", "Test output"], ["Mask secrets", "Tokens are masked in all logs", "Log output"], ["Diagnose", "All three failures have recorded causes and fixes", "Diagnosis notes"]],
+          "objectives": ["Log requests usefully", "Write filters", "Debug failing API tests"]
+        },
+        {
+          "topic": "JSON Schema Validation",
+          "subtopics": ["Why schema checks catch contract changes", "Writing a JSON Schema", "The json-schema-validator module", "matchesJsonSchemaInClasspath", "Required fields, types and formats", "Schemas from OpenAPI definitions", "Schema checks for lists", "Keeping schemas up to date"],
+          "tools": ["REST Assured json-schema-validator", "JSON Schema", "OpenAPI file"],
+          "lab_task": "Write schemas for product and order responses, validate them in tests, break a field type in a mock response and confirm the schema test catches it.",
+          "deliverable": "Schema files and schema tests",
+          "checks": [["Validate", "Responses pass schema validation", "Test output"], ["Catch changes", "The broken field type fails the schema test", "Test output"], ["Cover lists", "List responses are validated item by item", "Schema file"]],
+          "objectives": ["Validate responses with JSON Schema", "Detect contract changes", "Maintain schemas"]
+        },
+        {
+          "topic": "Chained CRUD Flows and Test Data Cleanup",
+          "subtopics": ["Create, read, update and delete as one flow", "Passing IDs between tests or steps", "Test independence compared with flows", "TestNG dependsOnMethods and priorities", "Cleaning up created data", "Unique data per run", "Handling failures in the middle of a flow", "Making flows readable"],
+          "tools": ["REST Assured", "TestNG", "Data builders"],
+          "lab_task": "Build a CRUD flow for products with unique data, pass the created ID through the flow, clean up in an after method and show that a mid-flow failure still cleans up.",
+          "deliverable": "CRUD flow test with cleanup",
+          "checks": [["Run the flow", "Create, read, update and delete pass in order", "Test output"], ["Create unique data", "Each run uses new product names", "Test output"], ["Clean up", "Created products are deleted even after a failure", "API check"]],
+          "objectives": ["Test resource lifecycles", "Pass data between steps", "Clean up reliably"]
+        },
+        {
+          "topic": "Data-Driven Tests with TestNG DataProvider",
+          "subtopics": ["TestNG DataProvider basics in practice", "Data from arrays, CSV and JSON files", "Data from Excel with Apache POI", "Positive, boundary and negative rows", "Naming data-driven test runs", "Parallel data providers", "Keeping data next to the tests", "When data-driven tests become too large"],
+          "tools": ["TestNG DataProvider", "CSV and JSON files", "Apache POI"],
+          "lab_task": "Turn a sign-up test into a data-driven test with valid, boundary and invalid rows from CSV, give each run a clear name and run the rows in parallel.",
+          "deliverable": "Data-driven test with data file",
+          "checks": [["Drive by data", "Each row runs as a separate test", "Test report"], ["Cover edges", "Boundary and invalid rows are included", "Data file"], ["Name runs", "Failing rows can be identified from the report", "Report screenshot"]],
+          "objectives": ["Write data-driven API tests", "Read external data", "Keep data tests readable"]
+        },
+        {
+          "topic": "File Uploads, Downloads and Multipart Requests",
+          "subtopics": ["Multipart form data", "Uploading files with multiPart", "Uploading several files", "Checking upload validation errors", "Downloading files as bytes", "Checking file size and content type", "Large files and timeouts", "Cleaning up uploaded files"],
+          "tools": ["REST Assured", "Sample files", "Course API"],
+          "lab_task": "Upload a valid image, an oversized file and a wrong file type, check each response, download an invoice and verify its size and content type.",
+          "deliverable": "Upload and download tests",
+          "checks": [["Upload", "The valid file is stored and returned in the response", "Test output"], ["Validate", "Oversized and wrong-type files are rejected correctly", "Test output"], ["Download", "The invoice has the expected content type and non-zero size", "Test output"]],
+          "objectives": ["Test multipart uploads", "Verify downloads", "Check file validation"]
+        },
+        {
+          "topic": "Cookies, Sessions and Headers in Depth",
+          "subtopics": ["Reading and sending cookies", "Session-based authentication", "Session filters", "Response headers for security and caching", "ETags and conditional requests", "Redirects and their settings", "CORS headers in API tests", "Header checks as regression tests"],
+          "tools": ["REST Assured SessionFilter", "Course API"],
+          "lab_task": "Log in with a session-based API using a session filter, check security and caching headers, test an ETag conditional request and control redirect following.",
+          "deliverable": "Session, header and conditional request tests",
+          "checks": [["Keep sessions", "Requests after login reuse the session", "Test output"], ["Check headers", "Security and caching headers are asserted", "Test code"], ["Use ETags", "A conditional request returns 304 when unchanged", "Test output"]],
+          "objectives": ["Handle cookies and sessions", "Check headers", "Test conditional requests"]
+        },
+        {
+          "topic": "XML Responses and SOAP Calls with REST Assured",
+          "subtopics": ["XML responses and XmlPath", "Namespaces in XML", "Checking XML with Hamcrest", "Sending XML bodies", "Calling a SOAP service over HTTP", "XML schema validation", "Converting XML to objects", "When to use a dedicated SOAP tool"],
+          "tools": ["REST Assured XmlPath", "Sample XML and SOAP services"],
+          "lab_task": "Test an XML endpoint with XmlPath, call a SOAP service with an XML envelope, validate the response against its XML schema and compare with a JSON version of the same data.",
+          "deliverable": "XML and SOAP tests",
+          "checks": [["Read XML", "XmlPath assertions pass on nested elements", "Test output"], ["Call SOAP", "The SOAP request returns the expected result", "Test output"], ["Validate", "The response passes XML schema validation", "Test output"]],
+          "objectives": ["Test XML APIs", "Call SOAP services", "Validate XML"]
+        },
+        {
+          "topic": "Negative and Error-Handling Tests",
+          "subtopics": ["Why negative tests matter for APIs", "Missing and extra fields", "Wrong types and formats", "Boundary values", "Unknown and deleted resources", "Duplicate and conflicting requests", "Error response format checks", "Reporting API defects"],
+          "tools": ["REST Assured", "TestNG", "Course API"],
+          "lab_task": "Write twenty negative tests for the orders API covering missing fields, wrong types, boundaries, unknown IDs and duplicates, and report responses that leak internal details.",
+          "deliverable": "Negative test class and defect list",
+          "checks": [["Cover negatives", "All five categories have tests", "Test code"], ["Check error format", "Error responses follow the documented format", "Test output"], ["Report leaks", "Responses exposing stack traces are reported", "Defect list"]],
+          "objectives": ["Design negative API tests", "Check error handling", "Report API defects"]
+        },
+        {
+          "topic": "Allure Reports and Test Organisation",
+          "subtopics": ["Allure with TestNG", "The AllureRestAssured filter", "Steps, descriptions and severity", "Attaching requests and responses", "Grouping tests by feature and story", "TestNG groups and suites in testng.xml", "Running groups from Maven", "Sharing reports"],
+          "tools": ["Allure", "TestNG", "Maven"],
+          "lab_task": "Add Allure reporting with request and response attachments, group tests into smoke and regression suites in testng.xml, and run each suite from Maven.",
+          "deliverable": "Allure report and suite configuration",
+          "checks": [["Report", "Allure shows steps with request and response attachments", "Allure report"], ["Group", "Smoke and regression suites run separately", "Terminal output"], ["Organise", "Tests are grouped by feature in the report", "Report screenshot"]],
+          "objectives": ["Report with Allure", "Organise suites", "Run groups from Maven"]
+        },
+        {
+          "topic": "Running the Suite with Maven in CI",
+          "subtopics": ["Maven Surefire and test configuration", "System properties and profiles for environments", "Running in GitHub Actions or Jenkins", "Secrets in CI", "Publishing Allure reports from CI", "Failing builds on test failures", "Running on pull requests and schedules", "Reading CI failures"],
+          "tools": ["Maven", "GitHub Actions or Jenkins", "Allure"],
+          "lab_task": "Run the suite in GitHub Actions or Jenkins with environment profiles and secrets, publish the Allure report and fix one failure that appears only in CI.",
+          "deliverable": "CI pipeline with published reports",
+          "checks": [["Run in CI", "The pipeline runs the suite on pull requests", "Pipeline run"], ["Use profiles", "The environment is chosen by Maven profile", "Pipeline config"], ["Publish", "The Allure report is available from the run", "Report link"]],
+          "objectives": ["Run API tests in CI", "Configure environments with Maven", "Publish reports"]
+        },
+        {
+          "topic": "Beginner Capstone: API Regression Suite for a Booking Service",
+          "subtopics": ["Test plan for the API", "Specifications and POJOs", "Positive, negative and schema tests", "Data-driven and chained flows", "Allure reporting", "CI pipeline"],
+          "tools": ["REST Assured", "TestNG", "Maven", "Allure", "GitHub Actions or Jenkins"],
+          "lab_task": "Build a REST Assured regression suite for a booking service with specifications, POJOs, schema checks, data-driven and negative tests, a chained booking flow and an Allure report produced in CI.",
+          "deliverable": "Regression suite, reports and pipeline",
+          "checks": [["Cover the API", "Every endpoint has positive and negative tests", "Test inventory"], ["Structure well", "Specifications, POJOs and data providers are used", "Code review"], ["Run in CI", "The suite runs in CI and publishes Allure", "Pipeline run"]],
+          "objectives": ["Combine beginner REST Assured skills", "Build an API regression suite", "Run it in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and SDETs who write REST Assured tests and now build a maintainable framework. Covers framework layers, configuration and environments, API client classes, test data builders and Faker, JUnit 5 as an alternative runner, parallel execution, WireMock stubs, Testcontainers, OAuth 2.0 flows, contract checks against OpenAPI, Pact contract testing in Java, Spring MockMvc tests, GraphQL testing, database checks, asynchronous APIs, retries and flakiness, combined API and UI tests with Selenium, Kotlin and Groovy options, and quality checks on test code.",
+      "prerequisites": ["Writes REST Assured tests with specifications and POJOs", "Comfortable with Java, Maven and Git", "Has run an API suite in CI"],
+      "outcomes": ["Design a layered REST Assured framework that a team can extend", "Isolate tests from unstable dependencies with WireMock and Testcontainers", "Add contract tests with OpenAPI validation and Pact", "Run large suites in parallel with reliable data and clear reports"],
+      "days": [
+        {
+          "topic": "Framework Layers: Clients, Models, Tests and Utilities",
+          "subtopics": ["Why a layered framework helps", "API client classes that hide request details", "Models for requests and responses", "Tests that read like behaviour", "Shared utilities and constants", "Package structure and naming", "Code review rules for the framework", "A contributor guide"],
+          "tools": ["REST Assured", "Maven", "IntelliJ IDEA"],
+          "lab_task": "Restructure a flat REST Assured suite into client, model and test layers, write a contributor guide and have a colleague add a test using only the guide.",
+          "deliverable": "Layered framework and contributor guide",
+          "checks": [["Separate layers", "Tests call client methods, not raw requests", "Code review"], ["Organise packages", "Clients, models and tests have their own packages", "Project tree"], ["Onboard", "A colleague adds a passing test from the guide", "Pull request"]],
+          "objectives": ["Design a layered framework", "Hide request details in clients", "Make the framework easy to extend"]
+        },
+        {
+          "topic": "Configuration and Environment Management",
+          "subtopics": ["Configuration files per environment", "Typed configuration with Owner or a properties loader", "System properties and environment variables", "Secrets from CI or a vault", "Switching environments at run time", "Feature toggles in tests", "Avoiding hard-coded values", "Validating configuration at start"],
+          "tools": ["Owner library or properties files", "Maven profiles", "CI secrets"],
+          "lab_task": "Add typed configuration for three environments, load secrets from environment variables, fail fast with a clear message when configuration is missing and run the suite against two environments.",
+          "deliverable": "Configuration module and environment runs",
+          "checks": [["Configure", "All values come from configuration, not code", "Code search"], ["Fail fast", "Missing configuration stops the run with a clear message", "Test output"], ["Switch", "The suite passes against two environments", "Terminal output"]],
+          "objectives": ["Manage configuration", "Load secrets safely", "Switch environments reliably"]
+        },
+        {
+          "topic": "Test Data Builders and Faker",
+          "subtopics": ["Builders for request objects", "Defaults with overrides", "Faker for realistic data", "Unique values for parallel runs", "Data for boundary and negative cases", "Seeding data through the API", "Cleaning up created data", "Keeping data readable in tests"],
+          "tools": ["Java builder pattern", "Datafaker", "REST Assured"],
+          "lab_task": "Write builders for users, products and orders with sensible defaults and Faker data, use them in ten tests and show that two parallel runs create no conflicting data.",
+          "deliverable": "Builder classes and refactored tests",
+          "checks": [["Build data", "Tests create objects through builders", "Test code"], ["Override defaults", "Tests override only the fields they care about", "Test code"], ["Avoid conflicts", "Two parallel runs pass together", "Terminal output"]],
+          "objectives": ["Build test data with builders", "Generate realistic data", "Avoid data conflicts"]
+        },
+        {
+          "topic": "JUnit 5 for API Tests: Extensions, Parameterised Tests and Tags",
+          "subtopics": ["JUnit 5 compared with TestNG", "Lifecycle annotations", "Parameterised tests with CSV and method sources", "Tags and filtering", "Extensions for setup and reporting", "Assertions with AssertJ", "Running JUnit 5 with Maven", "Choosing a runner for the team"],
+          "tools": ["JUnit 5", "AssertJ", "Maven Surefire"],
+          "lab_task": "Port ten TestNG tests to JUnit 5 with parameterised tests, tags and an extension that logs failures, and compare both runners for the team.",
+          "deliverable": "JUnit 5 tests and a runner comparison",
+          "checks": [["Port", "Ten tests pass on JUnit 5", "Test output"], ["Parameterise", "Parameterised tests read CSV and method sources", "Test code"], ["Compare", "The comparison recommends a runner with reasons", "Comparison note"]],
+          "objectives": ["Use JUnit 5 for API tests", "Write parameterised tests", "Choose a test runner"]
+        },
+        {
+          "topic": "Parallel Execution and Test Isolation",
+          "subtopics": ["Parallel suites in TestNG and JUnit 5", "Thread safety of REST Assured configuration", "Avoiding shared static state", "Data isolation between threads", "Ordering assumptions that break in parallel", "Choosing thread counts", "Measuring the speed gain", "Debugging parallel failures"],
+          "tools": ["TestNG parallel mode", "JUnit 5 parallel execution", "REST Assured"],
+          "lab_task": "Run the suite in parallel, fix two tests that share static state and one that depends on order, and measure the time saved.",
+          "deliverable": "Parallel-safe suite with timing comparison",
+          "checks": [["Run in parallel", "The suite passes with parallel execution enabled", "Terminal output"], ["Fix shared state", "No test relies on shared static variables", "Code review"], ["Measure", "Suite time drops compared with serial runs", "Timing comparison"]],
+          "objectives": ["Run API tests in parallel", "Remove shared state", "Measure speed gains"]
+        },
+        {
+          "topic": "Service Virtualisation with WireMock",
+          "subtopics": ["Why stub dependencies", "WireMock standalone and embedded", "Stubbing responses by URL, method and body", "Simulating delays and faults", "Stateful scenarios", "Verifying calls to stubs", "Recording real traffic", "Keeping stubs in step with real services"],
+          "tools": ["WireMock", "REST Assured", "Docker"],
+          "lab_task": "Stub a payment service with WireMock for success, decline and timeout cases, test the order API against each and verify the calls made to the stub.",
+          "deliverable": "WireMock stubs and order tests",
+          "checks": [["Stub cases", "Success, decline and timeout are stubbed", "Stub files"], ["Test behaviour", "The order API handles each case as specified", "Test output"], ["Verify calls", "Calls to the stub are verified in tests", "Test code"]],
+          "objectives": ["Stub dependencies with WireMock", "Simulate faults", "Verify service interactions"]
+        },
+        {
+          "topic": "Testcontainers for Real Dependencies in Tests",
+          "subtopics": ["Testcontainers with Java", "Starting a database container for tests", "Running the service under test in a container", "Network between containers", "Seeding data at start", "Reusing containers for speed", "Running Testcontainers in CI", "When containers are worth the cost"],
+          "tools": ["Testcontainers", "Docker", "REST Assured"],
+          "lab_task": "Start the service under test and a PostgreSQL database with Testcontainers, seed data, run API tests against them and run the same setup in CI.",
+          "deliverable": "Containerised API test setup",
+          "checks": [["Start containers", "Service and database start before tests", "Test output"], ["Seed data", "Tests start with known data", "Test output"], ["Run in CI", "The setup runs in the CI pipeline", "Pipeline run"]],
+          "objectives": ["Use Testcontainers", "Test against real dependencies", "Run container tests in CI"]
+        },
+        {
+          "topic": "OAuth 2.0 Flows and Token Management in Frameworks",
+          "subtopics": ["Client credentials for service tests", "Authorisation code flows in automated tests", "Token caching and refresh", "Tokens per role", "Decoding and checking JWT claims", "Expiry and clock skew", "Mutual TLS for some APIs", "Securing test identities"],
+          "tools": ["REST Assured", "Test identity provider", "JWT library"],
+          "lab_task": "Build a token manager that gets client credentials tokens per role, caches and refreshes them, and add tests that check JWT claims and expiry behaviour.",
+          "deliverable": "Token manager and token tests",
+          "checks": [["Cache tokens", "Tokens are fetched once per role and reused", "Logs"], ["Refresh", "Expired tokens are refreshed automatically", "Test output"], ["Check claims", "Tests assert roles and expiry in the JWT", "Test code"]],
+          "objectives": ["Manage tokens in frameworks", "Test OAuth 2.0 flows", "Check JWT claims"]
+        },
+        {
+          "topic": "Contract Checks Against OpenAPI",
+          "subtopics": ["OpenAPI as the API contract", "Validating requests and responses against OpenAPI", "The swagger-request-validator REST Assured filter", "Catching undocumented fields and status codes", "Contract checks in CI", "Versioning the OpenAPI file", "Reporting contract breaks", "Working with API designers"],
+          "tools": ["swagger-request-validator", "OpenAPI file", "REST Assured"],
+          "lab_task": "Add the OpenAPI validation filter to the suite, find three places where the API does not match its description and report them to the API team.",
+          "deliverable": "Validated suite and contract mismatch report",
+          "checks": [["Validate", "Every request and response is checked against OpenAPI", "Test output"], ["Find mismatches", "Three mismatches are recorded with evidence", "Mismatch report"], ["Gate", "A contract break fails the CI build", "Pipeline run"]],
+          "objectives": ["Validate APIs against OpenAPI", "Catch contract breaks", "Report mismatches"]
+        },
+        {
+          "topic": "Consumer-Driven Contract Testing with Pact JVM",
+          "subtopics": ["Consumer-driven contracts", "Writing consumer tests with Pact JVM", "Publishing pacts to a broker", "Provider verification", "Provider states", "can-i-deploy checks", "Where REST Assured tests still fit", "Rolling out contracts across teams"],
+          "tools": ["Pact JVM", "Pact Broker", "JUnit 5"],
+          "lab_task": "Write a Pact consumer test for a client of the order service, publish the pact, verify it on the provider with provider states and gate a deployment with can-i-deploy.",
+          "deliverable": "Consumer pact, provider verification and deployment gate",
+          "checks": [["Write the pact", "The consumer test publishes a pact", "Pact Broker"], ["Verify", "The provider verifies the pact in CI", "Pipeline run"], ["Gate", "can-i-deploy blocks an incompatible change", "Pipeline run"]],
+          "objectives": ["Write consumer-driven contracts", "Verify providers", "Gate deployments"]
+        },
+        {
+          "topic": "Testing Spring Boot APIs with REST Assured and MockMvc",
+          "subtopics": ["REST Assured spring-mock-mvc module", "Testing controllers without a server", "Full integration tests with a random port", "Mocking beans in tests", "Security in Spring tests", "Test slices and speed", "Sharing assertions between both styles", "Choosing the right level"],
+          "tools": ["Spring Boot", "REST Assured spring-mock-mvc", "JUnit 5"],
+          "lab_task": "Test a Spring Boot controller with RestAssuredMockMvc, write a full integration test on a random port for the same endpoint and compare speed and what each catches.",
+          "deliverable": "MockMvc and integration tests with a comparison",
+          "checks": [["Test controllers", "MockMvc tests pass without starting a server", "Test output"], ["Test integration", "The random-port test calls the real stack", "Test output"], ["Compare", "The comparison lists speed and defects each catches", "Comparison note"]],
+          "objectives": ["Test Spring Boot APIs", "Use MockMvc with REST Assured", "Choose test levels"]
+        },
+        {
+          "topic": "GraphQL API Testing with REST Assured",
+          "subtopics": ["GraphQL over HTTP", "Sending queries and mutations as JSON", "Variables in GraphQL requests", "Checking data and errors arrays", "Partial results", "Authorisation on fields", "Pagination in GraphQL", "Schema checks"],
+          "tools": ["REST Assured", "Sample GraphQL API", "JsonPath"],
+          "lab_task": "Write REST Assured tests for GraphQL queries and mutations with variables, check error responses and partial results, and test field-level authorisation for two roles.",
+          "deliverable": "GraphQL test class",
+          "checks": [["Query", "Queries and mutations return expected data", "Test output"], ["Check errors", "Errors and partial data are asserted", "Test code"], ["Check fields", "Restricted fields are hidden from lower roles", "Test output"]],
+          "objectives": ["Test GraphQL with REST Assured", "Check GraphQL errors", "Test field authorisation"]
+        },
+        {
+          "topic": "Database Validation in API Tests",
+          "subtopics": ["Checking that data was really stored", "JDBC in tests", "Queries for verification", "Comparing API responses with database records", "Transactions and cleanup", "Avoiding tight coupling to schemas", "Database access in different environments", "When to verify through the API instead"],
+          "tools": ["JDBC", "PostgreSQL or MySQL", "REST Assured"],
+          "lab_task": "Verify with JDBC queries that orders created through the API are stored correctly, compare the API response with the database record and clean up in a transaction.",
+          "deliverable": "Database verification tests",
+          "checks": [["Verify storage", "Created orders exist with the right values", "Test output"], ["Compare", "API and database values match", "Test output"], ["Clean up", "Test data is removed after each test", "Database check"]],
+          "objectives": ["Verify data in the database", "Compare API and stored data", "Clean up safely"]
+        },
+        {
+          "topic": "Testing Asynchronous APIs and Polling with Awaitility",
+          "subtopics": ["Asynchronous processing behind APIs", "202 Accepted and status endpoints", "Polling with Awaitility", "Timeouts and poll intervals", "Webhook callbacks", "Eventual consistency", "Avoiding Thread.sleep", "Reporting slow asynchronous steps"],
+          "tools": ["Awaitility", "REST Assured", "Webhook receiver"],
+          "lab_task": "Test an export API that returns 202 and a status URL, poll it with Awaitility until completion, receive a webhook callback and assert on the final result without fixed sleeps.",
+          "deliverable": "Asynchronous API tests",
+          "checks": [["Poll", "Awaitility waits for completion with a timeout", "Test code"], ["Receive callbacks", "The webhook is received and checked", "Test output"], ["Avoid sleeps", "No Thread.sleep remains in the tests", "Code search"]],
+          "objectives": ["Test asynchronous APIs", "Poll with Awaitility", "Handle callbacks"]
+        },
+        {
+          "topic": "Retries, Flakiness and Stable API Suites",
+          "subtopics": ["Causes of flaky API tests", "Data collisions and environment instability", "Retries with TestNG or JUnit extensions", "When retries hide real problems", "Timeouts and connection settings", "Quarantining tests", "Tracking flakiness", "A team flakiness policy"],
+          "tools": ["TestNG retry analyzer", "JUnit 5 extensions", "Test results history"],
+          "lab_task": "Find flaky tests by running the suite twenty times, diagnose three, fix the causes and add a limited retry policy with reporting of retried tests.",
+          "deliverable": "Flaky test report, fixes and retry policy",
+          "checks": [["Detect", "Flaky tests are listed with failure rates", "Flaky report"], ["Fix", "Three tests pass fifty runs after fixes", "Terminal output"], ["Retry wisely", "Retried tests are reported, not hidden", "Report screenshot"]],
+          "objectives": ["Find and fix flaky tests", "Use retries carefully", "Keep suites trusted"]
+        },
+        {
+          "topic": "Combining API and UI Tests with Selenium or Playwright for Java",
+          "subtopics": ["Using API calls to prepare UI tests", "Verifying UI actions through the API", "Sharing models and clients", "Sharing authentication tokens with the browser", "Faster UI tests through API setup", "Deciding which layer tests what", "One report for API and UI tests", "Keeping both layers maintainable"],
+          "tools": ["REST Assured", "Selenium WebDriver or Playwright for Java", "TestNG"],
+          "lab_task": "Use REST Assured to create data and log in for five Selenium or Playwright tests, verify results through the API and compare test time with UI-only setup.",
+          "deliverable": "Hybrid tests with timing comparison",
+          "checks": [["Prepare by API", "UI tests start with data created by REST Assured", "Test code"], ["Verify by API", "UI results are checked through the API", "Test code"], ["Save time", "Hybrid tests are faster than UI-only versions", "Timing comparison"]],
+          "objectives": ["Combine API and UI testing", "Share clients and models", "Choose test layers"]
+        },
+        {
+          "topic": "Groovy and Kotlin with REST Assured",
+          "subtopics": ["REST Assured's Groovy roots", "GPath in depth", "Kotlin extensions for REST Assured", "Writing tests in Kotlin", "Mixing Java and Kotlin in one project", "Spock framework tests with REST Assured", "Team skills and language choice", "Migrating gradually"],
+          "tools": ["Kotlin", "REST Assured Kotlin extensions", "Spock"],
+          "lab_task": "Write five tests in Kotlin with the REST Assured Kotlin extensions and two Spock specifications, and recommend whether the team should adopt either language.",
+          "deliverable": "Kotlin tests, Spock specs and a recommendation",
+          "checks": [["Write Kotlin tests", "Five Kotlin tests pass", "Test output"], ["Write Spock specs", "Two Spock specifications pass", "Test output"], ["Recommend", "The recommendation weighs readability and skills", "Recommendation note"]],
+          "objectives": ["Use REST Assured with other JVM languages", "Compare styles", "Make a language decision"]
+        },
+        {
+          "topic": "API Test Pipelines: Stages, Tags, Notifications and Quality Gates",
+          "subtopics": ["Pipeline stages for smoke, regression and nightly runs", "Selecting tests by TestNG groups or JUnit tags", "Running against several environments", "Publishing Allure reports and history", "Notifications to chat channels", "Quality gates on pass rate and contract checks", "Parallel jobs and pipeline duration", "Reading pipeline failures quickly"],
+          "tools": ["GitHub Actions or Jenkins", "Allure", "Maven profiles"],
+          "lab_task": "Build a pipeline with smoke tests on pull requests, regression on merge and a nightly run against staging, publish Allure history, notify the team chat and block merges when the smoke gate fails.",
+          "deliverable": "Multi-stage API test pipeline",
+          "checks": [["Stage runs", "Each stage runs the right tests for its trigger", "Pipeline config"], ["Keep history", "Allure shows trends across runs", "Allure report"], ["Gate merges", "A failing smoke gate blocks the merge", "Pull request checks"]],
+          "objectives": ["Design API test pipelines", "Gate merges on quality", "Notify teams of results"]
+        },
+        {
+          "topic": "Code Quality for API Test Frameworks",
+          "subtopics": ["Coding standards for test code", "Static analysis with SonarQube or SpotBugs", "Duplicate detection", "Code reviews for tests", "Naming and assertion style", "Dependency updates", "Deleting low-value tests", "Measuring framework health"],
+          "tools": ["SonarQube or SpotBugs", "Checkstyle", "Code review tools"],
+          "lab_task": "Run static analysis on the framework, fix the main issues, write a review checklist, review a colleague's pull request with it and delete two low-value tests.",
+          "deliverable": "Analysis results, checklist and cleanup",
+          "checks": [["Analyse", "Static analysis issues are reduced", "Analysis report"], ["Review", "The checklist is used on a pull request", "Review comments"], ["Clean up", "Two low-value tests are removed with reasons", "Commit diff"]],
+          "objectives": ["Keep test code healthy", "Review test code", "Remove low-value tests"]
+        },
+        {
+          "topic": "Intermediate Capstone: Layered API Framework with Stubs and Contracts",
+          "subtopics": ["Layered framework", "Configuration and data builders", "WireMock and Testcontainers", "OpenAPI and Pact contracts", "Parallel runs and reports", "Handover"],
+          "tools": ["REST Assured", "WireMock", "Testcontainers", "Pact JVM", "Allure"],
+          "lab_task": "Build a team-ready REST Assured framework for a microservice with layered clients, builders, WireMock stubs, Testcontainers, OpenAPI validation and a Pact contract, running in parallel in CI with Allure, and hand it to a colleague to extend.",
+          "deliverable": "Framework, pipeline and handover notes",
+          "checks": [["Isolate", "Tests run against stubs and containers without shared environments", "Pipeline run"], ["Check contracts", "OpenAPI and Pact checks gate the build", "Pipeline run"], ["Hand over", "A colleague adds a test without help", "Pull request"]],
+          "objectives": ["Combine intermediate REST Assured skills", "Build a team framework", "Add contracts and isolation"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For automation leads and SDETs who own API quality across many Java services. Covers framework architecture for many services, shared libraries, test impact analysis, contract testing at scale, API performance with Gatling or JMeter DSL, security testing, chaos and resilience checks, event-driven systems with Kafka, test environments and data at scale, observability for tests, AI-assisted test generation, governance, migration from other tools, extending REST Assured, regulated APIs, metrics, team enablement, strategy and troubleshooting.",
+      "prerequisites": ["Has built and maintained a REST Assured framework used by a team", "Strong Java, Maven and CI skills", "Understands microservices and contract testing"],
+      "outcomes": ["Architect API test automation across many services and teams", "Add performance, security, resilience and event-driven testing to API quality", "Govern API tests and keep large suites fast and trusted", "Lead API automation strategy and capability"],
+      "days": [
+        {
+          "topic": "API Test Architecture for Many Services",
+          "subtopics": ["One framework or many", "Shared libraries for clients, auth and reporting", "Generated clients from OpenAPI", "Versioning and publishing internal libraries", "Ownership by service teams", "Consistency without central bottlenecks"],
+          "tools": ["OpenAPI Generator", "Maven multi-module", "Internal artifact repository"],
+          "lab_task": "Design the test architecture for five services with a shared library for auth, reporting and configuration, generate one service client from OpenAPI and publish the library.",
+          "deliverable": "Architecture design, shared library and generated client",
+          "checks": [["Share", "Two services use the shared library", "Project files"], ["Generate", "The generated client is used in tests", "Test code"], ["Assign ownership", "Each service team owns its tests", "Ownership map"]],
+          "objectives": ["Architect API testing for many services", "Share libraries", "Generate clients"]
+        },
+        {
+          "topic": "Shared Test Libraries: Versioning, Releases and Upgrades",
+          "subtopics": ["Semantic versioning for test libraries", "Release notes and changelogs", "Backwards compatibility", "Automated dependency updates", "Testing the library itself", "Deprecating library features", "Supporting many consumers", "Measuring adoption"],
+          "tools": ["Maven", "Renovate or Dependabot", "Internal artifact repository"],
+          "lab_task": "Release two versions of the shared test library with changelogs, deprecate one method, let automated dependency updates raise pull requests in two consumer projects and confirm both still pass.",
+          "deliverable": "Library releases and consumer upgrade evidence",
+          "checks": [["Release", "Two versions are published with changelogs", "Repository"], ["Deprecate safely", "The deprecated method warns but still works", "Test output"], ["Upgrade consumers", "Both consumers pass after upgrade pull requests", "Pipeline runs"]],
+          "objectives": ["Version shared test libraries", "Manage deprecations", "Support many consumers"]
+        },
+        {
+          "topic": "Test Impact Analysis and Smart Test Selection",
+          "subtopics": ["Where suite time goes", "Mapping tests to services and endpoints", "Running tests affected by a change", "Smoke, regression and nightly tiers", "Risk-based selection", "Feedback time targets", "CI cost", "Measuring missed defects"],
+          "tools": ["Test-to-service mapping", "CI pipelines", "Test duration data"],
+          "lab_task": "Map tests to endpoints, run only tests affected by a pull request plus smoke tests, keep a nightly full run and report feedback time, cost and any defects missed.",
+          "deliverable": "Selection rules, pipeline changes and report",
+          "checks": [["Map tests", "Every test is linked to at least one endpoint", "Mapping file"], ["Select", "Pull requests run only affected tests plus smoke", "Pipeline run"], ["Report", "Feedback time, cost and missed defects are reported", "Report"]],
+          "objectives": ["Select tests by impact", "Tier test runs", "Balance speed and risk"]
+        },
+        {
+          "topic": "Contract Testing at Scale: Brokers, Versioning and Many Teams",
+          "subtopics": ["Rolling out contracts across many teams", "Pact Broker or PactFlow operations", "Branches, environments and deployment records", "Bi-directional contract testing", "Webhooks to trigger provider builds", "Breaking-change workflows", "Contract coverage reporting", "Common organisational problems"],
+          "tools": ["Pact Broker or PactFlow", "Pact JVM", "CI pipelines"],
+          "lab_task": "Roll out contracts for four consumer-provider pairs with branch and deployment records, trigger provider verification by webhook and run a breaking-change workflow end to end.",
+          "deliverable": "Contract network, workflows and coverage report",
+          "checks": [["Record deployments", "The broker knows what is deployed in each environment", "Broker screenshot"], ["Trigger verification", "Provider builds run when consumers publish", "Pipeline runs"], ["Handle breaks", "A breaking change is caught and resolved through the workflow", "Workflow record"]],
+          "objectives": ["Scale contract testing", "Operate a pact broker", "Manage breaking changes"]
+        },
+        {
+          "topic": "API Performance Testing with Gatling and JMeter DSL",
+          "subtopics": ["Performance goals for APIs", "Gatling simulations in Java", "JMeter DSL for Java developers", "Reusing API clients and data in performance tests", "Load, stress, spike and soak profiles", "Assertions as service level checks", "Analysing results with developers", "Performance checks in CI"],
+          "tools": ["Gatling", "JMeter DSL", "Grafana"],
+          "lab_task": "Write a Gatling simulation and a JMeter DSL test for the order API with a ramp-up profile and response time assertions, find the bottleneck and add a short performance check to CI.",
+          "deliverable": "Performance scripts, analysis and CI check",
+          "checks": [["Simulate load", "Both tools run the planned profile", "Run reports"], ["Find bottlenecks", "The bottleneck is identified with evidence", "Analysis notes"], ["Gate", "A breached assertion fails the CI check", "Pipeline run"]],
+          "objectives": ["Write API performance tests in Java", "Define service level checks", "Analyse bottlenecks"]
+        },
+        {
+          "topic": "API Security Testing in Java Frameworks",
+          "subtopics": ["Threat-based API test design", "Authorisation matrices by role and object", "Injection and input handling tests", "Mass assignment checks", "Rate limiting and abuse tests", "Integrating OWASP ZAP with the suite"],
+          "tools": ["REST Assured", "OWASP ZAP", "Authorisation matrix"],
+          "lab_task": "Build an authorisation matrix test for three roles and five resources, add injection and mass assignment tests, proxy the suite through OWASP ZAP and triage findings.",
+          "deliverable": "Security tests and triaged findings",
+          "checks": [["Test authorisation", "Every role and resource combination is tested", "Test report"], ["Test inputs", "Injection and mass assignment tests run", "Test output"], ["Triage", "ZAP findings have owners and severity", "Findings list"]],
+          "objectives": ["Add security tests to API suites", "Test authorisation systematically", "Work with security tools"]
+        },
+        {
+          "topic": "Resilience and Chaos Testing for APIs",
+          "subtopics": ["Timeouts, retries and circuit breakers", "Fault injection with WireMock and proxies", "Toxiproxy for network faults", "Steady-state checks", "Testing graceful degradation", "Running experiments safely", "Reporting weaknesses", "Following up on fixes"],
+          "tools": ["Toxiproxy", "WireMock", "REST Assured"],
+          "lab_task": "Inject latency, errors and dropped connections into a dependency with Toxiproxy, check timeouts, retries and fallbacks through API tests and report the weaknesses found.",
+          "deliverable": "Resilience tests and weakness report",
+          "checks": [["Inject faults", "Latency, errors and drops are injected", "Test logs"], ["Check behaviour", "Timeouts and fallbacks behave as designed or fail clearly", "Test output"], ["Report", "Weaknesses have owners and planned fixes", "Weakness report"]],
+          "objectives": ["Test API resilience", "Inject faults", "Report and follow up weaknesses"]
+        },
+        {
+          "topic": "Testing Event-Driven Systems: Kafka and Message Queues",
+          "subtopics": ["APIs that publish events", "Consuming test messages from Kafka", "Checking event schemas with a schema registry", "Correlating API calls with events", "Ordering, duplicates and retries", "Dead-letter topics", "Testcontainers for Kafka", "Avoiding flaky asynchronous checks"],
+          "tools": ["Kafka", "Testcontainers", "Schema registry", "Awaitility"],
+          "lab_task": "Start Kafka with Testcontainers, call the order API, consume and validate the resulting event, test duplicate handling and check that a bad message reaches the dead-letter topic.",
+          "deliverable": "Event-driven test suite",
+          "checks": [["Consume events", "The order event is consumed and validated", "Test output"], ["Check duplicates", "Duplicate events do not create duplicate orders", "Test output"], ["Check failures", "Bad messages reach the dead-letter topic", "Test output"]],
+          "objectives": ["Test event-driven APIs", "Validate event schemas", "Check failure handling"]
+        },
+        {
+          "topic": "Test Environments and Data at Scale",
+          "subtopics": ["Shared, ephemeral and local environments", "Environment readiness checks", "Seeding services for many teams", "Synthetic data and masking", "Data ownership", "Environment contention", "Costs of environments", "Choosing environments per test tier"],
+          "tools": ["Ephemeral environment platform", "Seeding service", "Data masking tool"],
+          "lab_task": "Design environments and data for three test tiers, build a readiness check and a seeding service call, and measure data-related failures before and after.",
+          "deliverable": "Environment and data design with failure comparison",
+          "checks": [["Design tiers", "Each tier has a defined environment and data source", "Design document"], ["Check readiness", "Tests start only when readiness passes", "Pipeline log"], ["Improve", "Data-related failures drop", "Failure comparison"]],
+          "objectives": ["Plan environments at scale", "Manage test data across teams", "Reduce environment failures"]
+        },
+        {
+          "topic": "Observability for API Test Runs",
+          "subtopics": ["Test results as data", "Sending results to a database or dashboard", "Correlation IDs from tests to service logs", "Distributed traces for failed tests", "Dashboards for pass rate, duration and flakiness", "Alerts on quality trends", "Using test data in incident reviews", "Retention of artefacts"],
+          "tools": ["Allure TestOps or a results database", "OpenTelemetry", "Grafana"],
+          "lab_task": "Send correlation IDs from tests, link failures to service traces, store results in a database and build a dashboard with an alert on rising failure rates.",
+          "deliverable": "Correlated results, dashboard and alert",
+          "checks": [["Correlate", "Failed tests link to service traces", "Trace screenshot"], ["Store results", "Every run is stored", "Database records"], ["Alert", "A rising failure rate triggers the alert", "Alert test"]],
+          "objectives": ["Observe test runs", "Link tests to service traces", "Alert on trends"]
+        },
+        {
+          "topic": "AI-Assisted API Test Generation and Review",
+          "subtopics": ["AI tools for generating API tests from OpenAPI", "Generating edge cases and negative data", "Reviewing generated tests for value", "Avoiding wrong expectations in generated assertions", "Data privacy in prompts", "Team rules for AI-generated tests", "Measuring effort and quality changes", "Keeping humans accountable for test intent"],
+          "tools": ["AI coding assistant", "OpenAPI file", "REST Assured"],
+          "lab_task": "Generate tests for a new endpoint from its OpenAPI description with an AI assistant, review and correct them, add the edge cases it missed and record effort and defects in the generated code.",
+          "deliverable": "Reviewed generated tests and an effort record",
+          "checks": [["Generate", "Generated tests compile and run", "Test output"], ["Review", "Wrong or weak assertions are corrected", "Review notes"], ["Measure", "Time saved and defects found are recorded", "Effort record"]],
+          "objectives": ["Use AI for API tests", "Review generated tests", "Set rules for AI use"]
+        },
+        {
+          "topic": "Governance for API Test Automation",
+          "subtopics": ["Standards for API tests", "Review checklists", "Naming, tagging and ownership rules", "Test inventory and coverage maps", "Removing obsolete tests", "Dependency and upgrade policy", "Exceptions and waivers", "Reporting governance status"],
+          "tools": ["Test inventory", "Code review tools", "Dashboard tool"],
+          "lab_task": "Write API test standards and a coverage map for five services, review twenty tests against them, remove obsolete ones and report governance status to leads.",
+          "deliverable": "Standards, coverage map, review records and status report",
+          "checks": [["Set standards", "Standards cover structure, data, assertions and ownership", "Standards document"], ["Map coverage", "Each service's endpoints show test coverage", "Coverage map"], ["Report", "Leads receive the status report", "Report"]],
+          "objectives": ["Govern API automation", "Map coverage", "Remove obsolete tests"]
+        },
+        {
+          "topic": "Migrating API Suites from Postman or Other Tools to REST Assured",
+          "subtopics": ["Reasons to migrate", "Mapping Postman scripts to Java", "Migrating environments and data", "Running old and new suites side by side", "Prioritising tests to move", "Training testers in Java", "Measuring results", "Retiring the old suite"],
+          "tools": ["Postman", "REST Assured", "Migration tracker"],
+          "lab_task": "Migrate twenty Postman tests to REST Assured, run both suites for a week, compare stability and maintenance and write the plan for the remaining tests.",
+          "deliverable": "Migrated tests, comparison and plan",
+          "checks": [["Migrate", "Twenty migrated tests pass", "Test output"], ["Compare", "Stability and effort are compared", "Comparison table"], ["Plan", "The plan covers the remaining tests and training", "Migration plan"]],
+          "objectives": ["Plan API suite migrations", "Map tools to code", "Measure migration results"]
+        },
+        {
+          "topic": "Extending REST Assured: Custom Filters, Matchers and Config",
+          "subtopics": ["RestAssuredConfig options", "Custom filters for signing and auditing", "Custom Hamcrest matchers", "Object mappers and custom serialisation", "Connection and SSL configuration", "Proxies in corporate networks", "Packaging extensions", "Testing extensions"],
+          "tools": ["REST Assured", "Hamcrest", "Jackson"],
+          "lab_task": "Write a filter that signs requests with HMAC, a custom matcher for money values, a custom object mapper setting and package them with tests for other teams.",
+          "deliverable": "Extension package with tests",
+          "checks": [["Sign requests", "The signing filter produces accepted requests", "Test output"], ["Match values", "The custom matcher gives clear failure messages", "Test output"], ["Package", "Extensions ship with passing tests", "CI run"]],
+          "objectives": ["Extend REST Assured", "Write filters and matchers", "Package extensions"]
+        },
+        {
+          "topic": "Testing Regulated and Financial APIs",
+          "subtopics": ["Regulations affecting APIs: banking, payments and health", "Audit trails in API tests", "Evidence for auditors", "Data privacy rules such as GDPR and India's DPDP Act", "Idempotency and money handling", "Open banking style APIs", "Strong customer authentication", "Validation and sign-off"],
+          "tools": ["REST Assured", "Evidence repository", "Traceability matrix"],
+          "lab_task": "Test a payment API for idempotency, rounding and audit fields, produce traceable evidence for each requirement and answer a role-played auditor's questions.",
+          "deliverable": "Payment API tests and an evidence pack",
+          "checks": [["Test money handling", "Idempotency and rounding rules are verified", "Test output"], ["Produce evidence", "Each requirement links to signed results", "Evidence pack"], ["Answer auditors", "Auditor questions are answered from the evidence", "Audit notes"]],
+          "objectives": ["Test regulated APIs", "Produce audit evidence", "Protect financial correctness"]
+        },
+        {
+          "topic": "API Quality Metrics and Reporting",
+          "subtopics": ["Metrics that matter for API quality", "Coverage by endpoint and risk", "Escaped defects", "Contract compliance", "Suite health: duration and flakiness", "Performance trends", "Reports for leadership", "Avoiding vanity metrics"],
+          "tools": ["Dashboard tool", "Test results database", "Incident data"],
+          "lab_task": "Build an API quality dashboard with coverage, escapes, contract compliance, suite health and performance, and brief role-played leaders on three findings.",
+          "deliverable": "Dashboard and leadership briefing",
+          "checks": [["Measure", "The dashboard shows all five metric groups", "Dashboard"], ["Link to incidents", "Escaped defects link to incidents", "Dashboard"], ["Brief", "Leaders receive three findings with actions", "Briefing notes"]],
+          "objectives": ["Measure API quality", "Report to leadership", "Link metrics to outcomes"]
+        },
+        {
+          "topic": "Enabling Teams: Training Testers and Developers in API Automation",
+          "subtopics": ["Skills needed for REST Assured", "Assessing current skills", "Learning paths from manual to automated API testing", "Pairing and mob programming", "Templates and starter projects", "Communities of practice", "Measuring growth", "Supporting developers who write API tests"],
+          "tools": ["Skills matrix", "Starter project template", "Team wiki"],
+          "lab_task": "Assess a team's API automation skills, design a learning path, create a starter project and run a pairing session that takes a manual tester to their first merged test.",
+          "deliverable": "Skills assessment, learning path, starter project and session notes",
+          "checks": [["Assess", "Each person has a skills rating", "Skills matrix"], ["Enable", "The starter project builds and runs on a new machine", "Run log"], ["Coach", "A manual tester merges a first test", "Pull request"]],
+          "objectives": ["Grow API automation skills", "Provide starter projects", "Coach new automators"]
+        },
+        {
+          "topic": "Strategy for API Automation in an Organisation",
+          "subtopics": ["Linking API testing to business risk", "Test pyramid for services", "Tools for each layer", "Ownership between QA and development", "Investment and return", "Roadmap for improvement", "Communicating strategy", "Reviewing strategy each year"],
+          "tools": ["Strategy template", "Risk map", "Test inventory"],
+          "lab_task": "Write an API automation strategy for a case organisation with risks, layers, tools, ownership and a one-year roadmap, and present it to engineering leaders.",
+          "deliverable": "Strategy and roadmap with presentation notes",
+          "checks": [["Link to risk", "Each layer addresses named risks", "Strategy"], ["Assign ownership", "QA and development responsibilities are clear", "Strategy"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Set API automation strategy", "Assign ownership", "Plan improvement"]
+        },
+        {
+          "topic": "Troubleshooting Large API Test Suites",
+          "subtopics": ["Failures that appear only in CI", "Environment and dependency problems", "Data and ordering problems", "SSL, proxy and network issues", "Reading logs, traces and reports together", "Reproducing failures locally"],
+          "tools": ["Logs and traces", "Allure reports", "Local containers"],
+          "lab_task": "Diagnose four failures in a large suite (a proxy problem, a data collision, an ordering issue and a dependency outage), reproduce two locally and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "Two failures are reproduced locally", "Terminal output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot large suites", "Reproduce failures", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: API Quality Platform for a Java Microservices Estate",
+          "subtopics": ["Architecture and shared libraries", "Contracts at scale", "Performance, security and resilience tests", "Event-driven testing", "Observability and metrics", "Strategy presentation"],
+          "tools": ["REST Assured", "Pact Broker", "Gatling", "Testcontainers", "Grafana"],
+          "lab_task": "Build API quality for five Java microservices with shared libraries, contracts, performance, security and resilience tests, event checks and a quality dashboard, and present the strategy to engineering leadership.",
+          "deliverable": "Platform, dashboard and strategy presentation",
+          "checks": [["Gate quality", "Contract and test gates run on every pull request", "Pipeline runs"], ["Cover risks", "Performance, security and resilience tests exist for critical services", "Test inventory"], ["Win support", "Leadership approves the strategy", "Presentation notes"]],
+          "objectives": ["Combine advanced REST Assured skills", "Build API quality for an estate", "Lead API automation"]
+        }
+      ]
+    }
+  }
+}

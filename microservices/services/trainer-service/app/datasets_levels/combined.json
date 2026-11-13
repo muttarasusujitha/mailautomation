@@ -10171,6 +10171,686 @@
           "Report coverage from automation"
         ]
       }
+    },
+    {
+      "between": [
+        "REST Assured",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Postman for Exploration, REST Assured for Regression: Splitting API Testing Work",
+        "subtopics": [
+          "What each tool is best at",
+          "Exploring a new API in Postman",
+          "Turning stable checks into REST Assured tests",
+          "One OpenAPI contract for both tools",
+          "Shared environments and secrets",
+          "Avoiding duplicated regression checks",
+          "Who owns which suite",
+          "Reporting both suites together"
+        ],
+        "tools": [
+          "Postman",
+          "REST Assured",
+          "OpenAPI file",
+          "CI pipeline"
+        ],
+        "lab_task": "Explore a new endpoint in Postman, move its stable checks into REST Assured tests, remove the duplicated Postman checks and publish one summary for both suites from CI.",
+        "deliverable": "Exploration notes, new REST Assured tests and a combined summary",
+        "checks": [
+          [
+            "Explore",
+            "Exploration notes record behaviour and questions",
+            "Notes"
+          ],
+          [
+            "Move checks",
+            "Stable checks run in REST Assured and are removed from Postman",
+            "Commit diff"
+          ],
+          [
+            "Report together",
+            "CI publishes one summary for both suites",
+            "Pipeline run"
+          ]
+        ],
+        "objectives": [
+          "Split API testing between tools",
+          "Avoid duplicated checks",
+          "Report API quality together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "REST Assured",
+        "Java"
+      ],
+      "day": {
+        "topic": "Modern Java for API Tests: Records, Streams, Optional and Text Blocks",
+        "subtopics": [
+          "Records for request and response models",
+          "Streams for filtering response data",
+          "Optional for values that may be missing",
+          "Text blocks for JSON bodies",
+          "var and readable test code",
+          "Sealed types for test data variants",
+          "Java version choices for test projects",
+          "Refactoring old test code safely"
+        ],
+        "tools": [
+          "Java 21",
+          "REST Assured",
+          "Jackson",
+          "IntelliJ IDEA"
+        ],
+        "lab_task": "Refactor an older REST Assured test class to use records, streams, Optional and text blocks, keep all tests passing and compare readability with the original.",
+        "deliverable": "Refactored test class with before-and-after comparison",
+        "checks": [
+          [
+            "Use records",
+            "Request and response models are records",
+            "Code review"
+          ],
+          [
+            "Keep behaviour",
+            "All tests pass after refactoring",
+            "Test output"
+          ],
+          [
+            "Compare",
+            "The comparison shows shorter and clearer code",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Apply modern Java to tests",
+          "Model data with records",
+          "Refactor test code safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "REST Assured",
+        "Cucumber"
+      ],
+      "day": {
+        "topic": "Sharing REST Assured Clients Between Plain Tests and Cucumber Scenarios",
+        "subtopics": [
+          "One API client layer for two styles of test",
+          "Thin steps that call clients",
+          "Plain tests for detailed checks",
+          "Scenarios for business behaviour",
+          "Shared models and builders",
+          "Scenario context and dependency injection",
+          "Avoiding HTTP details in Gherkin",
+          "Reports for both styles"
+        ],
+        "tools": [
+          "REST Assured",
+          "Cucumber-JVM",
+          "PicoContainer or Spring"
+        ],
+        "lab_task": "Build one API client layer used by plain TestNG tests and by Cucumber steps, write detailed checks as plain tests and business rules as scenarios, and publish both reports.",
+        "deliverable": "Shared client layer, tests, scenarios and reports",
+        "checks": [
+          [
+            "Share clients",
+            "Tests and steps call the same client classes",
+            "Code search"
+          ],
+          [
+            "Split purpose",
+            "Scenarios describe rules and tests check details",
+            "Review notes"
+          ],
+          [
+            "Report",
+            "Both reports are published",
+            "Report links"
+          ]
+        ],
+        "objectives": [
+          "Share API clients across test styles",
+          "Keep Gherkin business-focused",
+          "Combine detailed and behaviour tests"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cucumber",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Parallel Cucumber and Selenium Grid Runs: Thread-Safe Drivers and Scenario Isolation",
+        "subtopics": [
+          "Parallel scenarios with the JUnit 5 Platform or TestNG",
+          "One WebDriver per scenario thread",
+          "Selenium Grid 4 for parallel browsers",
+          "Isolating scenario data",
+          "Screenshots and logs per thread",
+          "Grouping scenarios that cannot run in parallel",
+          "Choosing parallel thread counts",
+          "Measuring time saved"
+        ],
+        "tools": [
+          "Cucumber-JVM",
+          "Selenium Grid 4",
+          "Docker"
+        ],
+        "lab_task": "Run Cucumber UI scenarios in parallel against a Selenium Grid in Docker with thread-safe drivers and isolated data, and compare duration with serial runs.",
+        "deliverable": "Parallel Cucumber suite on a grid with timing comparison",
+        "checks": [
+          [
+            "Isolate drivers",
+            "Each scenario thread has its own driver",
+            "Logs"
+          ],
+          [
+            "Run on the grid",
+            "Scenarios run on several grid nodes",
+            "Grid console"
+          ],
+          [
+            "Measure",
+            "Duration drops compared with serial runs",
+            "Timing comparison"
+          ]
+        ],
+        "objectives": [
+          "Run Cucumber and Selenium in parallel",
+          "Keep scenarios isolated",
+          "Use Selenium Grid"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Cucumber",
+        "Manual Testing and ISTQB"
+      ],
+      "day": {
+        "topic": "From ISTQB Test Conditions to Gherkin Scenarios: Techniques Behind Examples",
+        "subtopics": [
+          "Test conditions as the source of examples",
+          "Equivalence partitions as Scenario Outline rows",
+          "Boundary values in Examples tables",
+          "Decision tables as rules with examples",
+          "State transitions as scenarios",
+          "Coverage of rules by examples",
+          "Reviewing scenarios as test cases",
+          "Keeping scenarios readable for business people"
+        ],
+        "tools": [
+          "Test design worksheet",
+          "Gherkin",
+          "Cucumber-JVM"
+        ],
+        "lab_task": "Design tests for a discount rule with partitions, boundaries and a decision table, express them as Gherkin rules and outlines, and check coverage against the design.",
+        "deliverable": "Test designs, feature file and coverage check",
+        "checks": [
+          [
+            "Design",
+            "Partitions, boundaries and decision rules are documented",
+            "Design worksheet"
+          ],
+          [
+            "Express",
+            "Each design case appears as a scenario or outline row",
+            "Feature file"
+          ],
+          [
+            "Check coverage",
+            "Every rule and boundary is covered",
+            "Coverage table"
+          ]
+        ],
+        "objectives": [
+          "Use test design techniques in BDD",
+          "Write outlines from designs",
+          "Check scenario coverage"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Appium",
+        "Android Development"
+      ],
+      "day": {
+        "topic": "Testable Android Apps: Accessibility IDs, Test Builds and Espresso Alongside Appium",
+        "subtopics": [
+          "contentDescription and resource IDs for automation",
+          "Test IDs in Jetpack Compose with testTag",
+          "Build variants for testing",
+          "Disabling animations in test builds",
+          "Espresso for developer-owned UI tests",
+          "Appium for cross-app and end-to-end journeys",
+          "Splitting tests between Espresso and Appium",
+          "Testability reviews in pull requests"
+        ],
+        "tools": [
+          "Android Studio",
+          "Jetpack Compose",
+          "Espresso",
+          "Appium"
+        ],
+        "lab_task": "Add testTag and content descriptions to two Compose screens, build a test variant without animations, write one Espresso test and one Appium journey, and agree which tests belong where.",
+        "deliverable": "Testability changes, two tests and a split agreement",
+        "checks": [
+          [
+            "Add IDs",
+            "Appium finds the new elements by ID",
+            "Test output"
+          ],
+          [
+            "Build for tests",
+            "The test variant disables animations",
+            "Build output"
+          ],
+          [
+            "Split tests",
+            "Developers and testers agree the Espresso and Appium split",
+            "Agreement note"
+          ]
+        ],
+        "objectives": [
+          "Build testable Android apps",
+          "Combine Espresso and Appium",
+          "Agree test ownership"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Appium",
+        "iOS Development"
+      ],
+      "day": {
+        "topic": "Testable iOS Apps: Accessibility Identifiers, Launch Arguments and XCUITest Alongside Appium",
+        "subtopics": [
+          "accessibilityIdentifier in UIKit and SwiftUI",
+          "Launch arguments and environment for test modes",
+          "Disabling animations and onboarding for tests",
+          "XCUITest for developer-owned UI tests",
+          "Appium for end-to-end journeys",
+          "Simulators, devices and signing for testing",
+          "Splitting tests between XCUITest and Appium",
+          "Testability reviews in pull requests"
+        ],
+        "tools": [
+          "Xcode",
+          "SwiftUI",
+          "XCUITest",
+          "Appium XCUITest driver"
+        ],
+        "lab_task": "Add accessibility identifiers to two SwiftUI screens, support a test launch argument that skips onboarding, write one XCUITest and one Appium journey, and agree the split.",
+        "deliverable": "Testability changes, two tests and a split agreement",
+        "checks": [
+          [
+            "Add identifiers",
+            "Appium finds the new elements by accessibility ID",
+            "Test output"
+          ],
+          [
+            "Use launch arguments",
+            "The test mode skips onboarding",
+            "Test output"
+          ],
+          [
+            "Split tests",
+            "Developers and testers agree the XCUITest and Appium split",
+            "Agreement note"
+          ]
+        ],
+        "objectives": [
+          "Build testable iOS apps",
+          "Combine XCUITest and Appium",
+          "Agree test ownership"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Appium",
+        "Flutter"
+      ],
+      "day": {
+        "topic": "Automating Flutter Apps: Keys, Semantics and the Appium Flutter Integration Driver",
+        "subtopics": [
+          "How Flutter renders widgets",
+          "Keys and semantics labels for automation",
+          "The Appium Flutter integration driver",
+          "Finding widgets by key, text and semantics",
+          "Flutter integration tests compared with Appium",
+          "Native screens inside Flutter apps",
+          "Waiting for Flutter frames",
+          "Testability agreements with Flutter developers"
+        ],
+        "tools": [
+          "Flutter",
+          "Appium Flutter integration driver",
+          "Android emulator"
+        ],
+        "lab_task": "Add keys and semantics to a Flutter login and list screen, automate them with the Flutter integration driver, compare with a Flutter integration test and record which layer to use.",
+        "deliverable": "Flutter automation tests and a layer decision",
+        "checks": [
+          [
+            "Add keys",
+            "Widgets have keys or semantics labels",
+            "Code diff"
+          ],
+          [
+            "Automate",
+            "Appium tests pass with the Flutter driver",
+            "Test output"
+          ],
+          [
+            "Decide",
+            "The layer decision compares both approaches",
+            "Decision note"
+          ]
+        ],
+        "objectives": [
+          "Automate Flutter apps",
+          "Use keys and semantics",
+          "Choose test layers for Flutter"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Appium",
+        "React Native"
+      ],
+      "day": {
+        "topic": "Automating React Native Apps: testID, Accessibility Labels and Detox Compared with Appium",
+        "subtopics": [
+          "How React Native maps to native views",
+          "testID and accessibilityLabel props",
+          "Platform differences in element attributes",
+          "Appium locators for React Native",
+          "Detox for grey-box testing",
+          "Choosing between Detox and Appium",
+          "Hermes and debug builds in tests",
+          "Testability rules for React Native teams"
+        ],
+        "tools": [
+          "React Native",
+          "Appium",
+          "Detox",
+          "Android emulator and iOS simulator"
+        ],
+        "lab_task": "Add testID props to two React Native screens, automate them with Appium on Android and iOS, write the same test in Detox and recommend a tool for the team.",
+        "deliverable": "Appium and Detox tests with a recommendation",
+        "checks": [
+          [
+            "Add test IDs",
+            "Elements are found by testID on both platforms",
+            "Test output"
+          ],
+          [
+            "Compare tools",
+            "Speed and stability are compared with Detox",
+            "Comparison"
+          ],
+          [
+            "Recommend",
+            "The recommendation fits the team's needs",
+            "Recommendation note"
+          ]
+        ],
+        "objectives": [
+          "Automate React Native apps",
+          "Use testID consistently",
+          "Compare Detox and Appium"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Appium",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "From Selenium to Appium: Reusing WebDriver Skills, Grids and Page Objects for Mobile",
+        "subtopics": [
+          "What WebDriver skills carry over to mobile",
+          "Differences: gestures, contexts and app lifecycle",
+          "Page objects to screen objects",
+          "Selenium Grid 4 with Appium nodes",
+          "Shared reporting for web and mobile",
+          "Sharing test data and API setup",
+          "One framework or two",
+          "Planning the move for a Selenium team"
+        ],
+        "tools": [
+          "Selenium WebDriver",
+          "Appium",
+          "Selenium Grid 4",
+          "TestNG"
+        ],
+        "lab_task": "Convert a Selenium page object pattern into screen objects for a mobile app, register Appium nodes on the existing Selenium Grid and run web and mobile tests with one report.",
+        "deliverable": "Screen objects, shared grid and combined report",
+        "checks": [
+          [
+            "Convert patterns",
+            "Mobile screen objects follow the team's page object style",
+            "Code review"
+          ],
+          [
+            "Share the grid",
+            "Web and mobile sessions run on one grid",
+            "Grid console"
+          ],
+          [
+            "Report together",
+            "One report shows web and mobile results",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Move Selenium skills to mobile",
+          "Share grids and patterns",
+          "Report web and mobile together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "JMeter",
+        "Prometheus and Grafana"
+      ],
+      "day": {
+        "topic": "Load Test Dashboards: JMeter Results Next to Prometheus Server Metrics in Grafana",
+        "subtopics": [
+          "Why load results need server context",
+          "Sending JMeter results to a time series store",
+          "Prometheus metrics for application and infrastructure",
+          "One Grafana dashboard for load and server data",
+          "Annotating test phases",
+          "Alerts during load tests",
+          "Comparing runs on dashboards",
+          "Sharing dashboards with developers"
+        ],
+        "tools": [
+          "Apache JMeter",
+          "Prometheus",
+          "Grafana",
+          "InfluxDB or Prometheus exporter"
+        ],
+        "lab_task": "Build a Grafana dashboard that shows JMeter response times and throughput next to Prometheus CPU, memory and request metrics, annotate test phases and find the first saturated resource.",
+        "deliverable": "Combined dashboard and saturation finding",
+        "checks": [
+          [
+            "Combine data",
+            "Load and server metrics share one time axis",
+            "Dashboard"
+          ],
+          [
+            "Annotate",
+            "Ramp-up and peak phases are marked",
+            "Dashboard screenshot"
+          ],
+          [
+            "Find saturation",
+            "The first saturated resource is named with evidence",
+            "Findings"
+          ]
+        ],
+        "objectives": [
+          "Combine load and server metrics",
+          "Build load test dashboards",
+          "Find saturation points"
+        ]
+      }
+    },
+    {
+      "between": [
+        "JMeter",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "From Postman Collections to JMeter Load Tests: Reusing Requests and Data",
+        "subtopics": [
+          "Which functional requests make good load journeys",
+          "Exporting requests from Postman",
+          "Rebuilding requests in JMeter with variables",
+          "Converting Postman environments to JMeter properties",
+          "Reusing data files",
+          "Replacing Postman scripts with extractors and Groovy",
+          "Checking that load scripts match functional behaviour",
+          "Keeping both in step as the API changes"
+        ],
+        "tools": [
+          "Postman",
+          "Apache JMeter",
+          "CSV data files"
+        ],
+        "lab_task": "Turn a Postman collection for an order flow into a JMeter load script with properties, extractors and the same data file, and confirm both produce the same responses for one user.",
+        "deliverable": "JMeter script derived from the collection with a parity check",
+        "checks": [
+          [
+            "Rebuild",
+            "The JMeter script covers the collection's flow",
+            "Test plan"
+          ],
+          [
+            "Reuse data",
+            "Both tools read the same data file",
+            "Configuration"
+          ],
+          [
+            "Prove parity",
+            "One-user responses match the Postman run",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Reuse functional tests for load",
+          "Convert Postman logic to JMeter",
+          "Keep functional and load tests aligned"
+        ]
+      }
+    },
+    {
+      "between": [
+        "JMeter",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "Performance Stages in Jenkins: JMeter Runs, Trend Reports and Gates",
+        "subtopics": [
+          "Where performance stages fit in a Jenkins pipeline",
+          "Running JMeter from a Jenkinsfile",
+          "Agents and load generators for pipeline runs",
+          "Publishing HTML dashboards and trends",
+          "Pass and fail thresholds",
+          "Parameterised performance jobs",
+          "Scheduling nightly performance runs",
+          "Handling noisy results in pipelines"
+        ],
+        "tools": [
+          "Jenkins",
+          "Apache JMeter",
+          "Jenkins Performance plugin"
+        ],
+        "lab_task": "Add a JMeter stage to a Jenkinsfile with parameters for users and duration, publish the HTML dashboard and trends, and fail the build when the 95th percentile breaks its threshold.",
+        "deliverable": "Jenkins pipeline with a performance stage and gate",
+        "checks": [
+          [
+            "Run",
+            "The pipeline runs JMeter with parameters",
+            "Jenkins build log"
+          ],
+          [
+            "Publish",
+            "Dashboards and trends are visible in Jenkins",
+            "Build page"
+          ],
+          [
+            "Gate",
+            "A threshold breach fails the build",
+            "Jenkins build result"
+          ]
+        ],
+        "objectives": [
+          "Run JMeter in Jenkins",
+          "Publish performance trends",
+          "Gate builds on performance"
+        ]
+      }
+    },
+    {
+      "between": [
+        "JMeter",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Load Testing on AWS: Generators on EC2, Distributed Load Testing and CloudWatch",
+        "subtopics": [
+          "Running JMeter generators on EC2",
+          "Instance types for load generation",
+          "The Distributed Load Testing on AWS solution",
+          "Network limits and placement",
+          "CloudWatch metrics for the system under test",
+          "Testing autoscaling groups",
+          "Costs of load generation",
+          "Cleaning up resources after tests"
+        ],
+        "tools": [
+          "Amazon EC2",
+          "AWS CloudFormation",
+          "Amazon CloudWatch",
+          "Apache JMeter"
+        ],
+        "lab_task": "Launch JMeter generators on EC2 from a template, run a distributed test against an autoscaling service, watch CloudWatch metrics and tear everything down with a cost note.",
+        "deliverable": "Generator template, test results and cost note",
+        "checks": [
+          [
+            "Launch",
+            "Generators start from the template",
+            "CloudFormation stack"
+          ],
+          [
+            "Observe",
+            "CloudWatch shows scaling during the test",
+            "CloudWatch dashboard"
+          ],
+          [
+            "Clean up",
+            "All resources are removed and costs recorded",
+            "Cost note"
+          ]
+        ],
+        "objectives": [
+          "Run load tests on AWS",
+          "Observe with CloudWatch",
+          "Control load testing cost"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -14986,6 +15666,281 @@
           "Combine test design and Selenium",
           "Automate designed tests",
           "Report combined coverage"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "REST Assured",
+        "Cucumber"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: BDD API Suite with Cucumber and REST Assured",
+        "subtopics": [
+          "Example mapping for API rules",
+          "Feature files for API behaviour",
+          "Shared REST Assured client layer",
+          "Plain detailed tests",
+          "Reports and CI"
+        ],
+        "tools": [
+          "Cucumber-JVM",
+          "REST Assured",
+          "Maven",
+          "CI pipeline"
+        ],
+        "lab_task": "Run example mapping for an order API, write feature files for its rules, implement steps on a shared REST Assured client layer, add detailed plain tests and run both in CI with reports.",
+        "deliverable": "Feature files, client layer, tests and pipeline",
+        "checks": [
+          [
+            "Specify",
+            "Rules and examples exist for each feature",
+            "Example maps"
+          ],
+          [
+            "Automate",
+            "Scenarios and plain tests pass",
+            "Test output"
+          ],
+          [
+            "Run in CI",
+            "Both suites run and report in CI",
+            "Pipeline run"
+          ]
+        ],
+        "objectives": [
+          "Combine BDD and API automation",
+          "Share clients across styles",
+          "Run API behaviour checks in CI"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Appium",
+        "Android Development"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Testable Android App with an Appium Regression Suite",
+        "subtopics": [
+          "Testability changes",
+          "Test build variant",
+          "Espresso tests",
+          "Appium journeys",
+          "CI with emulators"
+        ],
+        "tools": [
+          "Android Studio",
+          "Espresso",
+          "Appium",
+          "CI pipeline"
+        ],
+        "lab_task": "Make an Android app testable with IDs and a test build, add Espresso tests for screens and Appium tests for end-to-end journeys, and run both on emulators in CI.",
+        "deliverable": "Testable app, two test suites and a pipeline",
+        "checks": [
+          [
+            "Make testable",
+            "Elements have stable IDs and the test build works",
+            "Code diff"
+          ],
+          [
+            "Test both layers",
+            "Espresso and Appium suites pass",
+            "Test output"
+          ],
+          [
+            "Run in CI",
+            "Both suites run on emulators in CI",
+            "Pipeline run"
+          ]
+        ],
+        "objectives": [
+          "Combine Android development and Appium",
+          "Build testable apps",
+          "Automate at two layers"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Appium",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Web and Mobile Regression Suite with Selenium and Appium",
+        "subtopics": [
+          "Shared framework conventions",
+          "Web page objects",
+          "Mobile screen objects",
+          "One grid",
+          "Combined reports"
+        ],
+        "tools": [
+          "Selenium WebDriver",
+          "Appium",
+          "Selenium Grid 4",
+          "Allure"
+        ],
+        "lab_task": "Build regression suites for a product's website and mobile app with shared conventions and test data, run both on one grid and publish a combined report.",
+        "deliverable": "Web and mobile suites, grid setup and combined report",
+        "checks": [
+          [
+            "Share conventions",
+            "Both suites follow the same structure and naming",
+            "Code review"
+          ],
+          [
+            "Run on one grid",
+            "Web and mobile sessions run on the shared grid",
+            "Grid console"
+          ],
+          [
+            "Report",
+            "One report covers both suites",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Combine web and mobile automation",
+          "Share infrastructure",
+          "Report one quality picture"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "JMeter",
+        "Prometheus and Grafana"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Load Test with Live Server Observability",
+        "subtopics": [
+          "Workload model",
+          "JMeter script",
+          "Prometheus metrics",
+          "Grafana dashboard",
+          "Findings report"
+        ],
+        "tools": [
+          "Apache JMeter",
+          "Prometheus",
+          "Grafana"
+        ],
+        "lab_task": "Run a planned load test of a service with JMeter while watching a combined Grafana dashboard of load and Prometheus metrics, find the bottleneck and write a findings report.",
+        "deliverable": "Script, dashboard and findings report",
+        "checks": [
+          [
+            "Run the test",
+            "The planned load is reached",
+            "Results"
+          ],
+          [
+            "Observe",
+            "Load and server metrics are visible together",
+            "Dashboard"
+          ],
+          [
+            "Report",
+            "The bottleneck is reported with evidence",
+            "Findings report"
+          ]
+        ],
+        "objectives": [
+          "Combine load testing and observability",
+          "Find bottlenecks with live data",
+          "Report performance findings"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Cucumber",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: BDD UI Suite with Cucumber and Selenium",
+        "subtopics": [
+          "Example mapping",
+          "Declarative feature files",
+          "Page objects behind steps",
+          "Parallel grid runs",
+          "Living documentation"
+        ],
+        "tools": [
+          "Cucumber-JVM",
+          "Selenium WebDriver",
+          "Selenium Grid 4",
+          "Cucumber reports"
+        ],
+        "lab_task": "Specify three web features through example mapping, automate the scenarios with page objects behind thin steps, run them in parallel on a grid and publish living documentation.",
+        "deliverable": "Features, framework, grid runs and documentation",
+        "checks": [
+          [
+            "Specify",
+            "Each feature has rules and examples",
+            "Example maps"
+          ],
+          [
+            "Automate",
+            "Scenarios pass in parallel on the grid",
+            "Test output"
+          ],
+          [
+            "Document",
+            "Living documentation is published",
+            "Report link"
+          ]
+        ],
+        "objectives": [
+          "Combine BDD and Selenium",
+          "Run scenarios in parallel",
+          "Publish living documentation"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "JMeter",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Functional and Load Testing of an API with Postman and JMeter",
+        "subtopics": [
+          "Functional collection",
+          "Load script derived from it",
+          "Shared data",
+          "Load run and analysis",
+          "Combined report"
+        ],
+        "tools": [
+          "Postman",
+          "Newman",
+          "Apache JMeter",
+          "CI pipeline"
+        ],
+        "lab_task": "Build a functional Postman collection for an API, derive a JMeter load script from it with shared data, run functional checks and a load test in CI and publish one report.",
+        "deliverable": "Collection, load script, results and combined report",
+        "checks": [
+          [
+            "Test function",
+            "The collection passes in CI",
+            "Newman report"
+          ],
+          [
+            "Test load",
+            "The load test meets or reports against its goals",
+            "JMeter dashboard"
+          ],
+          [
+            "Report",
+            "One report combines functional and load results",
+            "Combined report"
+          ]
+        ],
+        "objectives": [
+          "Combine functional and load testing",
+          "Reuse requests and data",
+          "Report API quality and performance"
         ]
       }
     }
