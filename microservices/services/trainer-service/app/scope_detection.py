@@ -39,6 +39,10 @@ _UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP"}}
 # "DevOps; AWS; Azure; Git; Docker" keeps Docker as a DevOps topic even though
 # Docker now has its own course. Requested alone, Docker uses that course.
 _ABSORBING_COURSES = {"DevOps", "Agentic AI", "Data Engineering", "Full Stack", "Java Full Stack", "Python Full Stack"}
+# A requested umbrella programme also keeps the tool courses of its own category as
+# topics: "DevOps; AWS; Azure; Git; Docker" is one DevOps block, not DevOps + Git.
+# Legacy technologies such as Kubernetes stay separate.
+_FAMILY_HOSTS = {"DevOps": "DevOps and CI/CD"}
 _PRIOR_KNOWLEDGE = re.compile(
     r"\b(?:know|knows|knowledge of|familiar with|experience (?:in|with)|experienced in|"
     r"prerequisites?|prior|already (?:use|using|work with))\s+(?:[a-z0-9+#.]+\s+){0,3}$")
@@ -150,6 +154,10 @@ def detect_technologies(primary_text, secondary_text=""):
     def folded(domain):
         if domain in LEGACY_TECHNOLOGIES:
             return False
+        from app.level_curriculum import category_for
+        if any(host in detected and host != domain and category_for(domain) == family
+               for host, family in _FAMILY_HOSTS.items()):
+            return True
         own_name = matched[domain] == _norm(domain)
         hosts = [other for other in detected if other != domain and matched[domain] in raw.get(other, set())]
         return bool(hosts) and (not own_name or linked[domain] or any(host in _ABSORBING_COURSES for host in hosts))

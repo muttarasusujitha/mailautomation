@@ -486,6 +486,342 @@
           "Decide when multi-cloud is justified"
         ]
       }
+    },
+    {
+      "between": [
+        "Terraform",
+        "Ansible"
+      ],
+      "day": {
+        "topic": "Terraform and Ansible Together: Provision Then Configure",
+        "subtopics": [
+          "Dividing work between provisioning and configuration",
+          "Passing Terraform outputs to an Ansible inventory",
+          "Dynamic inventory from cloud tags",
+          "Running Ansible after terraform apply",
+          "Golden images with Packer and Ansible",
+          "Avoiding settings managed by both tools",
+          "One pipeline for both",
+          "Destroying and rebuilding"
+        ],
+        "tools": [
+          "Terraform",
+          "Ansible",
+          "Packer"
+        ],
+        "lab_task": "Provision servers with Terraform, configure them with Ansible using a dynamic inventory built from Terraform tags, and rebuild the whole environment from one pipeline.",
+        "deliverable": "Terraform and Ansible code, pipeline and the rebuilt environment",
+        "checks": [
+          [
+            "Run the pipeline from empty",
+            "Servers are created and configured and the app responds",
+            "Pipeline log and URL"
+          ],
+          [
+            "Run the pipeline again",
+            "Neither tool reports changes",
+            "Plan and play recap"
+          ],
+          [
+            "Read the responsibility table",
+            "No setting is owned by both tools",
+            "Table"
+          ]
+        ],
+        "objectives": [
+          "Combine Terraform and Ansible",
+          "Pass data between provisioning and configuration",
+          "Rebuild environments reliably"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jenkins",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Jenkins with Docker: Container Builds and Docker Agents",
+        "subtopics": [
+          "Docker agents for consistent build tools",
+          "Building images in a Jenkinsfile",
+          "Tagging images with build numbers and commits",
+          "Scanning images in the pipeline",
+          "Pushing to a registry with stored credentials",
+          "Cleaning images on agents",
+          "Docker-in-Docker and socket risks",
+          "Caching image layers"
+        ],
+        "tools": [
+          "Jenkins",
+          "Docker",
+          "Trivy"
+        ],
+        "lab_task": "Run every pipeline stage inside Docker agents, build and scan the application image, and push it with traceable tags only from main.",
+        "deliverable": "Jenkinsfile, scan report and registry listing",
+        "checks": [
+          [
+            "Run from main",
+            "Image is pushed with build and commit tags",
+            "Registry listing"
+          ],
+          [
+            "Add a critical vulnerability",
+            "Pipeline fails at the scan",
+            "Console output"
+          ],
+          [
+            "Check agent disk after builds",
+            "Old images are cleaned",
+            "Disk report"
+          ]
+        ],
+        "objectives": [
+          "Build images from Jenkins",
+          "Use Docker agents for consistency",
+          "Avoid common Docker-in-CI risks"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jenkins",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Jenkins on Kubernetes: Pod Agents and Deployments",
+        "subtopics": [
+          "Running Jenkins with the Helm chart",
+          "Kubernetes plugin pod templates",
+          "Separate containers per tool",
+          "Deploying to Kubernetes from a pipeline",
+          "Service accounts and RBAC for deployments",
+          "Rollout status checks",
+          "Rollback on failure",
+          "Cleaning up agent pods"
+        ],
+        "tools": [
+          "Jenkins",
+          "Kubernetes",
+          "Helm"
+        ],
+        "lab_task": "Run Jenkins on Kubernetes with on-demand pod agents and deploy the application to the cluster with a rollout check and automatic rollback.",
+        "deliverable": "Helm values, pod templates, Jenkinsfile and deployment evidence",
+        "checks": [
+          [
+            "Start three builds at once",
+            "Three agent pods run and are removed afterwards",
+            "kubectl output"
+          ],
+          [
+            "Deploy a broken image",
+            "Rollout check fails and the deployment rolls back",
+            "Console output"
+          ],
+          [
+            "Check the deploy service account",
+            "Has only the permissions it needs",
+            "RBAC review"
+          ]
+        ],
+        "objectives": [
+          "Run Jenkins on Kubernetes",
+          "Deploy to Kubernetes from pipelines",
+          "Roll back failed deployments"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitHub Actions",
+        "Docker"
+      ],
+      "day": {
+        "topic": "GitHub Actions with Docker: Build, Scan and Publish Images",
+        "subtopics": [
+          "docker/build-push-action",
+          "Image metadata and tags",
+          "Layer caching in Actions",
+          "Multi-platform builds",
+          "Scanning with Trivy and SARIF",
+          "Pushing to GitHub Container Registry",
+          "Build provenance attestations",
+          "Publishing only from main"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "Docker",
+          "Trivy"
+        ],
+        "lab_task": "Build, scan and publish multi-platform images from GitHub Actions with layer caching, SARIF results and provenance attestations, pushing only from main.",
+        "deliverable": "Workflow, scan results and the published image with its attestation",
+        "checks": [
+          [
+            "Merge to main",
+            "Image is published with tags and an attestation",
+            "Package page"
+          ],
+          [
+            "Open a pull request",
+            "Image is built and scanned but not pushed",
+            "Run logs"
+          ],
+          [
+            "Compare cached and uncached build times",
+            "Cached build is faster",
+            "Timing table"
+          ]
+        ],
+        "objectives": [
+          "Build images in GitHub Actions",
+          "Scan and attest images",
+          "Publish images safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitHub Actions",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "GitHub Actions for Terraform: Plan on Pull Request, Apply on Merge",
+        "subtopics": [
+          "OIDC authentication to the cloud",
+          "Plan on pull requests",
+          "Posting plans as comments",
+          "Saved plan files",
+          "Approval for production apply",
+          "Concurrency and state locking",
+          "Nightly drift checks",
+          "Cost estimates in pull requests"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "Terraform",
+          "Infracost"
+        ],
+        "lab_task": "Run Terraform from GitHub Actions with OIDC: post plans and cost estimates on pull requests, apply the saved plan on merge after approval, and run nightly drift checks.",
+        "deliverable": "Workflows, a pull request with plan and cost comments, and an apply run",
+        "checks": [
+          [
+            "Open a pull request",
+            "Plan and cost comments appear",
+            "Pull request page"
+          ],
+          [
+            "Merge and approve",
+            "The saved plan is applied",
+            "Run logs"
+          ],
+          [
+            "Change infrastructure manually",
+            "Nightly drift check reports it",
+            "Run logs"
+          ]
+        ],
+        "objectives": [
+          "Automate Terraform with GitHub Actions",
+          "Review plans and costs",
+          "Detect drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitHub Actions",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "GitHub Actions to Kubernetes: Deploy with Rollout Checks",
+        "subtopics": [
+          "OIDC to the cloud for cluster access",
+          "Deploying with kubectl or Helm from Actions",
+          "Environments and approvals",
+          "Rollout status checks",
+          "Canary with traffic splitting",
+          "Automatic rollback",
+          "Handing off to GitOps by pull request",
+          "Deployment history"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "Kubernetes",
+          "Helm"
+        ],
+        "lab_task": "Deploy the application from GitHub Actions to a Kubernetes cluster with environments, approval for prod, rollout checks and automatic rollback.",
+        "deliverable": "Workflows, environment settings and deployment evidence for success and rollback",
+        "checks": [
+          [
+            "Deploy to prod",
+            "Waits for approval then rolls out",
+            "Run page"
+          ],
+          [
+            "Deploy a broken image",
+            "Rollback restores the previous version",
+            "Run logs"
+          ],
+          [
+            "Check stored secrets",
+            "No cluster credentials stored; OIDC is used",
+            "Secrets page"
+          ]
+        ],
+        "objectives": [
+          "Deploy to Kubernetes from Actions",
+          "Use approvals and rollout checks",
+          "Authenticate without stored credentials"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Git",
+        "GitHub Actions"
+      ],
+      "day": {
+        "topic": "Git Workflow Meets CI: Branch Protection, Checks and Merge Queues",
+        "subtopics": [
+          "Branch protection with required checks",
+          "Rulesets for many repositories",
+          "CODEOWNERS and required reviews",
+          "Status checks from workflows",
+          "Merge queues",
+          "Conventional Commits and automated releases",
+          "Signed commits in CI",
+          "Keeping main always green"
+        ],
+        "tools": [
+          "Git",
+          "GitHub",
+          "GitHub Actions"
+        ],
+        "lab_task": "Protect main with required workflow checks and code owner reviews, add a merge queue, and automate versioned releases from Conventional Commits.",
+        "deliverable": "Ruleset configuration, merge queue run and an automated release",
+        "checks": [
+          [
+            "Merge a pull request with failing checks",
+            "Blocked",
+            "Pull request page"
+          ],
+          [
+            "Add two pull requests to the merge queue",
+            "Both are tested together and merged in order",
+            "Merge queue history"
+          ],
+          [
+            "Merge a feat commit",
+            "Minor release is created automatically",
+            "Release page"
+          ]
+        ],
+        "objectives": [
+          "Connect Git workflows to CI checks",
+          "Keep main green with merge queues",
+          "Automate releases from commits"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -928,6 +1264,63 @@
           "Deliver one Python service on three clouds end to end",
           "Apply security and monitoring on each cloud",
           "Compare and justify multi-cloud design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Git",
+        "Jenkins",
+        "GitHub Actions",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "Ansible",
+        "AWS",
+        "Azure",
+        "GCP"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: End-to-End DevOps Toolchain",
+        "subtopics": [
+          "Requirements and toolchain design",
+          "Repository rules and review workflow",
+          "CI pipeline with tests, scans and images",
+          "Infrastructure and configuration as code",
+          "Deployment with approvals and rollback",
+          "Verify acceptance criteria, monitoring and demo"
+        ],
+        "tools": [
+          "Git",
+          "CI system",
+          "Docker",
+          "Terraform",
+          "Ansible",
+          "Kubernetes"
+        ],
+        "lab_task": "Deliver an application through the requested toolchain: protected repository, CI with tests and scans, infrastructure and configuration as code, and a deployment with approval and rollback, then demonstrate a failed release.",
+        "deliverable": "Repositories, pipeline runs, infrastructure code, dashboards and a 15-minute demo",
+        "checks": [
+          [
+            "Merge a change during the demo",
+            "It reaches production through every gate",
+            "Pipeline history"
+          ],
+          [
+            "Release a broken version",
+            "Rollback restores service",
+            "Pipeline log and app check"
+          ],
+          [
+            "Rebuild the environment from code",
+            "Returns with no manual steps",
+            "Pipeline log"
+          ]
+        ],
+        "objectives": [
+          "Deliver software through a complete DevOps toolchain",
+          "Combine source control, CI, infrastructure and deployment",
+          "Demonstrate safe releases and recovery"
         ]
       }
     }
