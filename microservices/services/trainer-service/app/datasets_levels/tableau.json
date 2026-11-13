@@ -1,0 +1,573 @@
+{
+  "domain": "Tableau",
+  "name": "Tableau",
+  "category": "Data Engineering and Analytics",
+  "icon": "bar-chart-2",
+  "aliases": ["Tableau Desktop", "Tableau Training", "Tableau Developer", "Tableau Dashboards", "Tableau Public", "Tableau Server", "Tableau Cloud", "Tableau Prep", "Tableau Visualisation", "Tableau Visualization"],
+  "certifications": ["Tableau Desktop Specialist", "Tableau Certified Data Analyst", "Tableau Server Certified Associate", "Tableau Certified Consultant"],
+  "tools": ["Tableau Desktop", "Tableau Prep Builder", "Tableau Cloud or Tableau Server", "Tableau Public", "Excel", "PostgreSQL or SQL Server"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts and business users new to Tableau. Covers the workspace, connecting to data, data types and roles, basic charts, filters, sorting and grouping, hierarchies, calculated fields, table calculations, maps, date analysis, parameters, dashboards, actions, stories, formatting, relationships and joins, extracts, publishing and the Desktop Specialist exam.",
+      "prerequisites": ["Comfortable with Excel tables and simple formulas", "Basic understanding of business metrics", "No previous Tableau experience needed"],
+      "outcomes": ["Connect to data and build accurate charts and maps", "Write calculated fields and table calculations", "Build interactive dashboards with filters, parameters and actions", "Publish and share work and prepare for the Desktop Specialist exam"],
+      "days": [
+        {
+          "topic": "Tableau Overview, Products and Workspace Setup",
+          "subtopics": ["What Tableau is and where it fits", "Tableau Desktop, Prep, Cloud, Server and Public", "Installing Tableau Desktop or Tableau Public", "The start page and connecting to sample data", "The workspace: data pane, shelves, cards and marks", "Sheets, dashboards and stories", "Show Me", "Saving workbooks: twb and twbx", "Tableau Public profile for practice", "The course datasets: Superstore and HR data"],
+          "tools": ["Tableau Desktop or Tableau Public", "Superstore sample data"],
+          "lab_task": "Install Tableau, connect to Superstore, build a first bar chart of sales by category, label every part of the workspace and save as a packaged workbook.",
+          "deliverable": "Packaged workbook and a labelled workspace screenshot",
+          "checks": [["Build the bar chart", "Sales by category shown", "Screenshot"], ["Save as twbx", "Opens on another machine with data", "Workbook"], ["Label the workspace", "Shelves, cards and panes named correctly", "Labelled screenshot"]],
+          "objectives": ["Describe Tableau products", "Navigate the workspace", "Build a first chart"]
+        },
+        {
+          "topic": "Connecting to Data Sources",
+          "subtopics": ["File sources: Excel, CSV and text", "Database connections", "The data source page", "Live connections and extracts", "Data interpreter", "Pivoting columns to rows", "Splitting fields", "Renaming and hiding fields"],
+          "tools": ["Tableau Desktop", "Excel", "PostgreSQL"],
+          "lab_task": "Connect to a messy Excel file with the data interpreter, pivot month columns into rows, split a full name field, then connect to a PostgreSQL table live and as an extract.",
+          "deliverable": "Data sources and notes on live and extract",
+          "checks": [["Use the data interpreter", "Header rows cleaned", "Data source page"], ["Pivot month columns", "One row per month", "Data preview"], ["Compare live and extract", "Speed difference recorded", "Notes"]],
+          "objectives": ["Connect to data", "Clean data on connection", "Choose live or extract"]
+        },
+        {
+          "topic": "Dimensions, Measures and Data Types",
+          "subtopics": ["Dimensions and measures", "Discrete and continuous fields", "Blue and green pills", "Data types", "Default aggregations", "Changing data types and roles", "Geographic roles", "Common mistakes with data roles"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build the same view with a field as discrete and as continuous, fix a postcode read as a number, change default aggregations and explain each pill colour.",
+          "deliverable": "Workbook and explanation notes",
+          "checks": [["Switch a date between discrete and continuous", "Headers become an axis", "Screenshots"], ["Fix the postcode", "String type with a geographic role", "Data pane"], ["Explain pill colours", "Discrete and continuous explained correctly", "Notes"]],
+          "objectives": ["Understand fields", "Use data roles", "Avoid type mistakes"]
+        },
+        {
+          "topic": "Building Core Chart Types",
+          "subtopics": ["Bar charts", "Line charts", "Scatter plots", "Text tables and highlight tables", "Pie and donut charts and their limits", "Histograms", "Box plots", "Choosing a chart for the question"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Answer eight business questions about Superstore with the best chart for each, and explain why a pie chart is or is not suitable for two of them.",
+          "deliverable": "Workbook with eight sheets and chart choice notes",
+          "checks": [["Review chart choices", "Each chart fits its question", "Review notes"], ["Build a histogram", "Bins sensible for order values", "Screenshot"], ["Explain pie chart use", "Clear reasons for each case", "Notes"]],
+          "objectives": ["Build core charts", "Choose charts", "Avoid misleading charts"]
+        },
+        {
+          "topic": "Filters, Sorting and Grouping",
+          "subtopics": ["Dimension and measure filters", "Date filters", "Top N filters", "Context filters", "Filter order of operations", "Sorting options", "Groups", "Sets in brief"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a top 10 products view that respects a region filter using a context filter, sort in several ways, group small categories into \"Other\" and explain the filter order.",
+          "deliverable": "Workbook and filter order notes",
+          "checks": [["Apply top 10 with a region filter", "Correct products after adding context", "Screenshot"], ["Group categories", "Small categories grouped", "Screenshot"], ["Explain filter order", "Order of operations described correctly", "Notes"]],
+          "objectives": ["Filter data", "Sort and group", "Understand filter order"]
+        },
+        {
+          "topic": "Hierarchies, Drill-Down and Sets",
+          "subtopics": ["Creating hierarchies", "Drilling up and down", "Date hierarchies", "Sets: fixed and dynamic", "Combined sets", "Set actions in brief", "In and out of sets", "Comparing members with sets"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Create a product hierarchy, drill from category to product, build a set of top customers and compare their sales with everyone else.",
+          "deliverable": "Workbook and screenshots",
+          "checks": [["Drill down", "Category to sub-category to product", "Screenshot"], ["Build the top customers set", "Set updates with filters", "Screenshot"], ["Compare in and out", "Sales shown for both groups", "Screenshot"]],
+          "objectives": ["Use hierarchies", "Drill into data", "Use sets"]
+        },
+        {
+          "topic": "Calculated Fields and Functions",
+          "subtopics": ["Creating calculated fields", "Arithmetic and string functions", "Date functions", "Logical functions: IF and CASE", "Aggregate calculations", "Row-level compared with aggregate calculations", "Ratios such as profit margin", "Commenting calculations"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Calculate profit margin correctly at aggregate level, days to ship, a customer segment label with CASE and a cleaned product name, and fix a margin calculated at row level.",
+          "deliverable": "Workbook with documented calculations",
+          "checks": [["Compare margin calculations", "Aggregate margin differs from averaged row margins", "Screenshot"], ["Calculate days to ship", "Correct for sample orders", "View data"], ["Comment calculations", "Each calculation explained", "Calculation editor"]],
+          "objectives": ["Write calculations", "Handle aggregation correctly", "Document logic"]
+        },
+        {
+          "topic": "Table Calculations",
+          "subtopics": ["What table calculations are", "Running totals", "Percent of total", "Difference and percent difference", "Rank", "Moving averages", "Compute using: table, pane and specific dimensions", "Editing table calculations as formulas"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build running totals, percent of total by region, year-over-year growth, a rank of products and a three-month moving average, and fix one with the wrong compute-using setting.",
+          "deliverable": "Workbook and notes",
+          "checks": [["Fix compute using", "Percent of total sums to 100 per region", "Screenshot"], ["Show year-over-year growth", "Matches a manual check", "View data"], ["Rank products", "Ranks restart per category as intended", "Screenshot"]],
+          "objectives": ["Use table calculations", "Set compute using", "Calculate growth and rank"]
+        },
+        {
+          "topic": "Maps and Geographic Analysis",
+          "subtopics": ["Geographic roles", "Symbol and filled maps", "Dual-axis maps", "Custom geocoding", "Spatial files", "Map layers and backgrounds", "Density maps", "Distance and buffers in brief"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Map sales by state and city, build a dual-axis map with profit colour and sales size, add a custom geocode for store locations and load a spatial file of sales territories.",
+          "deliverable": "Workbook with maps",
+          "checks": [["Fix unknown locations", "No unknown locations left", "Map indicator"], ["Build the dual-axis map", "Both layers shown", "Screenshot"], ["Load the spatial file", "Territories drawn", "Screenshot"]],
+          "objectives": ["Build maps", "Add custom locations", "Use spatial files"]
+        },
+        {
+          "topic": "Working with Dates and Time Series",
+          "subtopics": ["Date parts and date values", "Fiscal years", "Custom date formats", "Continuous time series", "Comparing periods", "Year to date", "Forecasting in Tableau", "Trend lines"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Show monthly sales as a continuous series, compare this year with last year by week, add a year-to-date calculation, set a fiscal year starting in April and add a forecast.",
+          "deliverable": "Workbook and screenshots",
+          "checks": [["Set the fiscal year", "Quarters start in April", "Screenshot"], ["Compare years", "Two lines aligned by week", "Screenshot"], ["Add a forecast", "Forecast with an interval shown", "Screenshot"]],
+          "objectives": ["Analyse time series", "Compare periods", "Forecast"]
+        },
+        {
+          "topic": "Parameters for Interactive Analysis",
+          "subtopics": ["Creating parameters", "Parameter controls", "Parameters in calculations", "Parameters in filters and reference lines", "Dynamic parameters", "Parameter actions in brief", "Swapping measures with parameters", "What-if analysis"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a measure selector, a top N parameter, a target line parameter and a what-if discount calculation that shows the effect on profit.",
+          "deliverable": "Workbook and screenshots",
+          "checks": [["Swap measures", "View changes measure from the control", "Screenshot"], ["Change top N", "Number of items shown changes", "Screenshot"], ["Change the discount", "Profit effect updates", "Screenshot"]],
+          "objectives": ["Create parameters", "Use them in calculations", "Build what-if analysis"]
+        },
+        {
+          "topic": "Building Dashboards",
+          "subtopics": ["Dashboard planning", "Tiled and floating layouts", "Containers", "Device layouts", "Adding filters and legends", "Text, images and web objects", "Dashboard size", "Performance of dashboards"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Plan and build a sales dashboard with KPIs at the top, trend and breakdown charts, shared filters, a phone layout and a fixed size.",
+          "deliverable": "Dashboard and layout sketch",
+          "checks": [["Apply a filter", "All relevant sheets filtered", "Screenshot"], ["Preview the phone layout", "Readable on a phone", "Screenshot"], ["Check layout order", "Most important KPIs top left", "Screenshot"]],
+          "objectives": ["Build dashboards", "Use containers", "Design for devices"]
+        },
+        {
+          "topic": "Dashboard Actions",
+          "subtopics": ["Filter actions", "Highlight actions", "URL actions", "Go to sheet actions", "Parameter actions", "Set actions", "Action design", "Testing actions"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Add a click-to-filter action from a map, highlight on hover, a set action that compares a selected region with others and a URL action to a product page.",
+          "deliverable": "Dashboard with actions",
+          "checks": [["Click a region on the map", "Other sheets filtered", "Screenshot"], ["Use the set action", "Selected region compared with others", "Screenshot"], ["Click a product", "URL opens with the product", "Browser screenshot"]],
+          "objectives": ["Add interactivity", "Use set and parameter actions", "Test actions"]
+        },
+        {
+          "topic": "Stories and Presenting Insights",
+          "subtopics": ["When to use stories", "Story points", "Captions and annotations", "Guiding the audience", "Narrative structure", "Presenting in Tableau", "Exporting to PDF and PowerPoint", "Common storytelling mistakes"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a five-point story about a drop in profit, with annotations and captions, present it in five minutes and export it to PDF.",
+          "deliverable": "Story, PDF and presentation recording",
+          "checks": [["Review captions", "Each point states a finding", "Story"], ["Present", "Story clear in five minutes", "Recording"], ["Export to PDF", "All points exported", "PDF"]],
+          "objectives": ["Tell stories with data", "Annotate views", "Present insights"]
+        },
+        {
+          "topic": "Formatting and Visual Best Practices",
+          "subtopics": ["Formatting panes", "Fonts and text", "Colour palettes and accessibility", "Tooltips and viz in tooltip", "Reference lines and bands", "Removing clutter", "Consistent styles across dashboards", "Accessibility basics"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Restyle the sales dashboard with an accessible palette, clear tooltips with a viz in tooltip, reference lines for targets and a consistent style guide.",
+          "deliverable": "Restyled dashboard and style guide",
+          "checks": [["Check colour contrast", "Meets contrast guidance", "Contrast checker"], ["Hover a mark", "Tooltip shows a small chart", "Screenshot"], ["Review the style guide", "Fonts, colours and spacing defined", "Style guide"]],
+          "objectives": ["Format views", "Use colour well", "Make dashboards accessible"]
+        },
+        {
+          "topic": "Relationships, Joins, Unions and Blending",
+          "subtopics": ["The logical and physical layers", "Relationships", "Joins and their effect on counts", "Unions", "Data blending", "Choosing relationships, joins or blending", "Join duplication problems", "Checking row counts"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Combine orders, returns and targets with relationships, show how a join duplicates sales, union monthly files and blend a separate targets source.",
+          "deliverable": "Data sources and comparison notes",
+          "checks": [["Compare relationship and join totals", "Join duplicates sales and relationship does not", "Screenshots"], ["Union monthly files", "All months present", "Data preview"], ["Blend targets", "Targets shown against sales", "Screenshot"]],
+          "objectives": ["Combine data", "Avoid duplication", "Choose combination methods"]
+        },
+        {
+          "topic": "Extracts, Performance and Data Freshness",
+          "subtopics": ["Hyper extracts", "Full and incremental refresh", "Extract filters and aggregation", "Performance recording", "Slow calculations and filters", "Context filters for performance", "Dashboard load time", "Live connections and query performance"],
+          "tools": ["Tableau Desktop", "Performance recorder"],
+          "lab_task": "Record performance of a slow dashboard, fix the top three problems with an aggregated extract, simpler calculations and fewer filters, and compare load time.",
+          "deliverable": "Performance recordings before and after",
+          "checks": [["Record performance", "Slowest events identified", "Performance recording"], ["Aggregate the extract", "Extract smaller and faster", "Comparison"], ["Compare load times", "Dashboard faster", "Timing table"]],
+          "objectives": ["Use extracts", "Find slow parts", "Speed up dashboards"]
+        },
+        {
+          "topic": "Publishing and Sharing with Tableau Cloud or Server",
+          "subtopics": ["Publishing workbooks and data sources", "Projects and permissions", "Embedded and published data sources", "Refresh schedules", "Subscriptions and alerts", "Tableau Public sharing", "Web editing", "Version history"],
+          "tools": ["Tableau Cloud or Tableau Server", "Tableau Public"],
+          "lab_task": "Publish the dashboard and its data source, set project permissions, schedule a refresh, subscribe a user and set a data-driven alert.",
+          "deliverable": "Published content and settings screenshots",
+          "checks": [["Open as a viewer", "Can view but not edit", "Screenshot"], ["Run the refresh", "Data updated on schedule", "Refresh history"], ["Trigger the alert", "Alert email sent", "Email"]],
+          "objectives": ["Publish content", "Set permissions", "Schedule refreshes"]
+        },
+        {
+          "topic": "Desktop Specialist Certification Preparation",
+          "subtopics": ["Exam topics", "Connecting and preparing data questions", "Exploring and analysing data questions", "Sharing insights questions", "Understanding Tableau concepts questions", "Common traps", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "Tableau Desktop"],
+          "lab_task": "Take a timed practice exam, rebuild each wrong answer in Tableau, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each answer confirmed in Tableau", "Workbook"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Performance Dashboard",
+          "subtopics": ["Brief", "Data and calculations", "Dashboard and actions", "Publishing and presentation"],
+          "tools": ["Tableau Desktop", "Tableau Cloud or Public"],
+          "lab_task": "Build and publish a sales performance dashboard for a regional manager with correct calculations, a map, trends, parameters, actions and a phone layout, then present a short story of the findings.",
+          "deliverable": "Published dashboard, story and presentation recording",
+          "checks": [["Reconcile totals", "Dashboard totals match the source", "Reconciliation table"], ["Test interactions", "Filters, parameters and actions all work", "Demo recording"], ["Present findings", "Story clear and supported by the dashboard", "Rubric scores"]],
+          "objectives": ["Combine the beginner topics in one dashboard", "Build accurate, interactive views", "Share and present them"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For analysts who build Tableau dashboards. Covers level of detail expressions, advanced table calculations, advanced chart types, dynamic dashboards, advanced actions, data modelling, Tableau Prep, statistics and analytics, spatial analysis, row-level security, performance tuning, dashboard design and usability, Tableau Pulse and AI features, embedding, advanced Prep flows, governance basics, extensions, calendar and cohort analysis and the Certified Data Analyst exam.",
+      "prerequisites": ["Builds Tableau dashboards with calculated fields, filters and actions", "Writes table calculations", "Publishes to Tableau Cloud or Server"],
+      "outcomes": ["Answer complex questions with LOD expressions and advanced calculations", "Model and prepare data with relationships and Tableau Prep", "Build fast, secure and usable dashboards for many users", "Use Tableau's AI features and pass the Certified Data Analyst exam"],
+      "days": [
+        {
+          "topic": "Level of Detail Expressions: FIXED, INCLUDE and EXCLUDE",
+          "subtopics": ["Why LOD expressions", "FIXED", "INCLUDE", "EXCLUDE", "LODs and filters", "Nested LODs", "Common uses: first purchase, customer totals and percent of total", "LODs compared with table calculations"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Find each customer's first order date, average sales per customer by region, each product's share of category sales and fix an LOD broken by a filter with a context filter.",
+          "deliverable": "Workbook with LOD calculations",
+          "checks": [["Find first order dates", "Correct for sample customers", "View data"], ["Fix the filtered LOD", "Results correct after adding context", "Screenshot"], ["Compare with a table calculation", "Same answer with both where possible", "Screenshot"]],
+          "objectives": ["Write LOD expressions", "Handle filters with LODs", "Choose LOD or table calculations"]
+        },
+        {
+          "topic": "Advanced Table Calculations",
+          "subtopics": ["Addressing and partitioning in depth", "LOOKUP, PREVIOUS_VALUE and WINDOW functions", "INDEX and SIZE", "Running and moving calculations with nesting", "Table calculations as filters", "Combining table calculations and LODs", "Debugging table calculations", "Performance of table calculations"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a comparison to the previous period with LOOKUP, a window average line, a top N filter that keeps totals and debug a nested table calculation.",
+          "deliverable": "Workbook and debugging notes",
+          "checks": [["Use LOOKUP", "Previous period values correct", "View data"], ["Filter with a table calculation", "Totals unchanged by the filter", "Screenshot"], ["Debug the nested calculation", "Addressing fixed", "Notes"]],
+          "objectives": ["Use advanced table calculations", "Filter without losing totals", "Debug calculations"]
+        },
+        {
+          "topic": "Advanced Chart Types",
+          "subtopics": ["Dual and combined axes", "Bullet charts", "Waterfall charts", "Pareto charts", "Bump charts", "Slope charts", "Small multiples", "Dumbbell and lollipop charts"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a waterfall of profit by sub-category, a Pareto of customers, a bullet chart against targets, a bump chart of product rank and small multiples of regional trends.",
+          "deliverable": "Workbook with advanced charts",
+          "checks": [["Build the Pareto", "Cumulative percent line correct", "Screenshot"], ["Build the waterfall", "Bars add up to total profit", "Screenshot"], ["Build small multiples", "One trend per region on shared axes", "Screenshot"]],
+          "objectives": ["Build advanced charts", "Use dual axes", "Choose advanced charts well"]
+        },
+        {
+          "topic": "Dynamic Dashboards and Zone Visibility",
+          "subtopics": ["Dynamic zone visibility", "Show and hide buttons", "Switching between views", "Navigation buttons", "Collapsible filter panels", "Sheet swapping", "Dashboard templates", "Testing dynamic layouts"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a dashboard that switches between chart and table views, hides a filter panel behind a button and shows a detail section only when a mark is selected.",
+          "deliverable": "Dynamic dashboard",
+          "checks": [["Switch views", "Chart and table swap correctly", "Screenshot"], ["Toggle the filter panel", "Panel shows and hides", "Screenshot"], ["Select a mark", "Detail section appears", "Screenshot"]],
+          "objectives": ["Build dynamic dashboards", "Use zone visibility", "Improve navigation"]
+        },
+        {
+          "topic": "Advanced Actions: Set, Parameter and Navigation",
+          "subtopics": ["Set actions for drill-down", "Parameter actions for selection", "Asymmetric drill-down", "Highlighting with parameter actions", "Actions across dashboards", "Combining actions", "Clearing selections", "Action performance"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build an asymmetric drill-down with set actions, a parameter action that highlights a selected product across views and navigation between three dashboards that keeps filters.",
+          "deliverable": "Dashboards with advanced actions",
+          "checks": [["Drill into one category", "Only that category expands", "Screenshot"], ["Select a product", "Highlighted in every view", "Screenshot"], ["Navigate between dashboards", "Filters kept", "Screenshot"]],
+          "objectives": ["Use set and parameter actions", "Build drill-downs", "Link dashboards"]
+        },
+        {
+          "topic": "Data Modelling in Tableau",
+          "subtopics": ["Logical and physical layers in depth", "Relationship cardinality and referential integrity", "Multi-fact models", "Star schemas for Tableau", "Published data sources as shared models", "Calculations in the model", "Testing model results", "Model documentation"],
+          "tools": ["Tableau Desktop", "Tableau Cloud"],
+          "lab_task": "Model sales and returns as a multi-fact relationship model, set cardinality, publish it as a certified data source and test totals against SQL.",
+          "deliverable": "Data model, published source and test results",
+          "checks": [["Compare totals with SQL", "All key totals match", "Reconciliation table"], ["Set cardinality", "Settings justified", "Model notes"], ["Publish and certify", "Source certified with a description", "Screenshot"]],
+          "objectives": ["Model data", "Use multi-fact relationships", "Share models"]
+        },
+        {
+          "topic": "Preparing Data with Tableau Prep",
+          "subtopics": ["Prep Builder interface", "Input, clean, aggregate, pivot, join and union steps", "Profile pane", "Cleaning operations", "Fixing data quality", "Outputs to files and published sources", "Flow parameters", "Scheduling with Prep Conductor"],
+          "tools": ["Tableau Prep Builder", "Tableau Cloud"],
+          "lab_task": "Build a Prep flow that unions monthly files, cleans customer names, pivots targets, joins returns, aggregates to monthly grain and outputs a published data source.",
+          "deliverable": "Prep flow and output source",
+          "checks": [["Union monthly files", "All files included with source names", "Flow profile"], ["Clean names", "Duplicates from spelling merged", "Profile pane"], ["Publish the output", "Data source available in Tableau Cloud", "Screenshot"]],
+          "objectives": ["Prepare data in Prep", "Clean and reshape", "Publish outputs"]
+        },
+        {
+          "topic": "Statistics and Analytics in Tableau",
+          "subtopics": ["Reference lines, bands and distributions", "Trend lines and models", "Clustering", "Box plots", "Correlation", "Forecast settings", "Explain Data", "Integrating Python or R with TabPy"],
+          "tools": ["Tableau Desktop", "TabPy"],
+          "lab_task": "Add trend models and read their statistics, cluster customers, tune a forecast, use Explain Data on an outlier and call a Python model through TabPy.",
+          "deliverable": "Workbook and analysis notes",
+          "checks": [["Read the trend model", "R-squared and p-value interpreted", "Describe trend model"], ["Cluster customers", "Clusters described", "Screenshot"], ["Call TabPy", "Python scores returned in Tableau", "Screenshot"]],
+          "objectives": ["Use analytics features", "Cluster and forecast", "Extend with Python"]
+        },
+        {
+          "topic": "Spatial Analysis",
+          "subtopics": ["Spatial joins", "MAKEPOINT and MAKELINE", "Buffers and distances", "Spatial calculations", "Map layers", "Custom territories", "Origin-destination maps", "Performance with spatial data"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Join customers to sales territories with a spatial join, draw delivery routes from stores to customers, find customers within 10 km of each store and redesign territories.",
+          "deliverable": "Spatial workbook",
+          "checks": [["Run the spatial join", "Each customer in a territory", "View data"], ["Draw routes", "Lines from stores to customers", "Screenshot"], ["Find nearby customers", "Customers within 10 km listed", "Screenshot"]],
+          "objectives": ["Analyse spatial data", "Use spatial joins", "Draw routes and buffers"]
+        },
+        {
+          "topic": "Row-Level Security and User Filters",
+          "subtopics": ["Why row-level security", "User functions", "Entitlement tables", "Data policies in virtual connections", "Testing as other users", "Performance of security filters", "Security in extracts", "Common mistakes"],
+          "tools": ["Tableau Cloud or Server", "Virtual connections"],
+          "lab_task": "Restrict regional managers to their region with an entitlement table, test as several users and move the rule into a virtual connection data policy.",
+          "deliverable": "Security set-up and test results",
+          "checks": [["View as a regional manager", "Only their region shown", "Screenshot"], ["View as an admin", "All regions shown", "Screenshot"], ["Move to a data policy", "Same results through the virtual connection", "Screenshot"]],
+          "objectives": ["Secure data by user", "Use entitlement tables", "Use data policies"]
+        },
+        {
+          "topic": "Performance Tuning for Workbooks",
+          "subtopics": ["Performance recorder in depth", "Workbook optimiser", "Query performance", "Efficient calculations", "Filter performance", "Extract design", "Dashboard design for speed", "Server-side caching"],
+          "tools": ["Tableau Desktop", "Performance recorder", "Workbook optimiser"],
+          "lab_task": "Tune three slow workbooks with the recorder and optimiser, record each fix and its effect and write team performance guidelines.",
+          "deliverable": "Tuning log and guidelines",
+          "checks": [["Run the workbook optimiser", "Recommendations addressed", "Optimiser output"], ["Compare load times", "Each workbook faster", "Timing table"], ["Publish guidelines", "Rules with examples", "Guidelines"]],
+          "objectives": ["Tune workbooks", "Use the optimiser", "Set performance guidelines"]
+        },
+        {
+          "topic": "Dashboard Design and Usability",
+          "subtopics": ["Users and their questions", "Layout patterns", "Visual hierarchy", "Consistency across dashboards", "Mobile design", "Usability testing", "Measuring use with admin views", "Retiring unused dashboards"],
+          "tools": ["Tableau Desktop", "Tableau Cloud admin insights"],
+          "lab_task": "Interview two users, redesign a cluttered dashboard, test both versions with three tasks and use admin views to find dashboards nobody uses.",
+          "deliverable": "Interview notes, redesign and test results",
+          "checks": [["Run user tasks", "Tasks faster on the new design", "Test results"], ["Review consistency", "Shared style across dashboards", "Style review"], ["Find unused dashboards", "Dashboards with no views listed", "Admin report"]],
+          "objectives": ["Design for users", "Test usability", "Manage dashboard use"]
+        },
+        {
+          "topic": "Tableau Pulse, Tableau Agent and AI Features",
+          "subtopics": ["AI features in Tableau", "Tableau Pulse metrics", "Metric definitions and goals", "Natural-language insights", "Tableau Agent in authoring", "Data quality and trust for AI", "Governance of AI features", "When AI helps and when it misleads"],
+          "tools": ["Tableau Pulse", "Tableau Agent", "Tableau Cloud"],
+          "lab_task": "Define three Pulse metrics with goals, subscribe users, check the generated insights against the data and use Tableau Agent to draft a calculation and a view.",
+          "deliverable": "Metric definitions, insight checks and notes",
+          "checks": [["Check an insight", "Insight matches the underlying data", "Comparison"], ["Draft with Tableau Agent", "Generated calculation reviewed and corrected", "Calculation editor"], ["Write the guidance", "Rules for trusting AI output", "Guidance note"]],
+          "objectives": ["Use Tableau AI features", "Define metrics", "Check AI output"]
+        },
+        {
+          "topic": "Embedding Tableau in Applications",
+          "subtopics": ["Embedding options", "Embedding API v3", "Authentication: connected apps and single sign-on", "Filtering embedded views from the app", "Events from embedded views", "Licensing for embedded analytics", "Performance and caching", "Security for embedded content"],
+          "tools": ["Tableau Embedding API", "Connected apps", "JavaScript"],
+          "lab_task": "Embed a dashboard in a web page with a connected app, pass filters from the page, react to mark selections in the page and test security for two users.",
+          "deliverable": "Web page, configuration and tests",
+          "checks": [["Load the page", "Dashboard shown without a second login", "Screenshot"], ["Change a page filter", "Embedded view filtered", "Screenshot"], ["Select a mark", "Page shows the selection", "Screenshot"]],
+          "objectives": ["Embed Tableau", "Authenticate embedded content", "Interact through the API"]
+        },
+        {
+          "topic": "Advanced Tableau Prep Flows",
+          "subtopics": ["Scripts in Prep with Python or R", "Incremental refresh in Prep", "Reusable flows", "Parameters at run time", "Writing to databases", "Error handling and data quality steps", "Flow performance", "Monitoring scheduled flows"],
+          "tools": ["Tableau Prep Builder", "Prep Conductor", "TabPy"],
+          "lab_task": "Build an incremental Prep flow that writes to a database, adds a Python cleaning script, uses a run-time parameter and alerts on failure.",
+          "deliverable": "Flow, schedule and run history",
+          "checks": [["Run incrementally", "Only new rows processed", "Run history"], ["Pass a parameter", "Flow uses the run-time value", "Output"], ["Fail the flow", "Alert sent", "Email"]],
+          "objectives": ["Build advanced flows", "Run incrementally", "Monitor flows"]
+        },
+        {
+          "topic": "Content Governance and Certification",
+          "subtopics": ["Projects and permissions design", "Certified data sources", "Naming and descriptions", "Data quality warnings", "Lineage with Tableau Catalog", "Content ownership", "Stale content clean-up", "Governance roles"],
+          "tools": ["Tableau Cloud", "Tableau Catalog"],
+          "lab_task": "Design a project and permissions structure for three departments, certify shared sources, add quality warnings, trace lineage and archive stale content.",
+          "deliverable": "Governance design and screenshots",
+          "checks": [["View lineage", "Dashboard traced to database tables", "Catalog screenshot"], ["Add a quality warning", "Warning shown to users of the source", "Screenshot"], ["Archive stale content", "Unused content moved", "Content list"]],
+          "objectives": ["Govern content", "Certify sources", "Trace lineage"]
+        },
+        {
+          "topic": "Extensions and Integrations",
+          "subtopics": ["Dashboard extensions", "Viz extensions", "Writeback extensions", "Tableau with Slack and Teams", "Web data connectors", "REST API basics", "Metadata API basics", "Choosing safe extensions"],
+          "tools": ["Tableau extensions", "Tableau REST API", "Slack"],
+          "lab_task": "Add a writeback extension for comments, send dashboard alerts to Slack and list workbooks and their owners with the REST API.",
+          "deliverable": "Extension set-up, Slack alerts and API script",
+          "checks": [["Write a comment", "Saved and shown in the dashboard", "Screenshot"], ["Trigger an alert", "Message in Slack", "Slack screenshot"], ["Run the API script", "Workbooks and owners listed", "Script output"]],
+          "objectives": ["Use extensions", "Integrate with chat", "Use Tableau APIs"]
+        },
+        {
+          "topic": "Cohort, Retention and Calendar Analysis",
+          "subtopics": ["Cohort analysis with LODs", "Retention heatmaps", "Customer lifetime value views", "Calendar heatmaps", "Fiscal and retail calendars", "Period comparison dashboards", "Funnel views", "Validating cohort numbers"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a monthly cohort retention heatmap with LODs, a calendar heatmap of orders, a 4-4-5 retail calendar comparison and validate cohort numbers against SQL.",
+          "deliverable": "Workbook and validation table",
+          "checks": [["Build cohorts", "Month zero retention is 100 percent", "Screenshot"], ["Validate against SQL", "Cohort counts match", "Validation table"], ["Build the calendar heatmap", "Days coloured by orders", "Screenshot"]],
+          "objectives": ["Build cohort analysis", "Use calendars", "Validate results"]
+        },
+        {
+          "topic": "Certified Data Analyst Exam Preparation",
+          "subtopics": ["Exam topics and hands-on format", "Data connection and preparation tasks", "Exploration and analysis tasks", "Content creation tasks", "Publishing tasks", "Time management", "Timed practice", "Weak-area review"],
+          "tools": ["Practice exams", "Tableau Desktop", "Tableau Prep", "Tableau Cloud"],
+          "lab_task": "Complete a timed practice exam with hands-on tasks, review mistakes, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Redo failed tasks", "Each completed correctly", "Workbooks"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Work under time", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Customer Analytics Suite",
+          "subtopics": ["Data preparation and model", "Analysis dashboards", "Security and performance", "Delivery"],
+          "tools": ["Tableau Prep", "Tableau Desktop", "Tableau Cloud"],
+          "lab_task": "Build a customer analytics suite with a Prep flow, a certified multi-fact model, cohort and LOD analysis, advanced actions, row-level security, tuned performance and Pulse metrics, then present it to stakeholders.",
+          "deliverable": "Flows, data source, dashboards and presentation",
+          "checks": [["Test as two users", "Each sees only their data", "Test results"], ["Reconcile with SQL", "Key numbers match", "Reconciliation table"], ["Present to stakeholders", "Questions answered from the dashboards", "Feedback"]],
+          "objectives": ["Combine the intermediate topics in one suite", "Deliver secure, fast analytics", "Present to stakeholders"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior analysts, Tableau developers and administrators. Covers Tableau Server architecture and administration, Tableau Cloud administration, identity, scaling, extract and refresh strategy, monitoring, upgrades and migration to Cloud, the REST and Metadata APIs, Hyper API automation, content migration, embedded analytics at scale, semantic layers, performance at scale, advanced visual design, enterprise governance, data culture, licensing and cost, and production troubleshooting.",
+      "prerequisites": ["Builds advanced dashboards with LODs and actions", "Publishes, secures and tunes content", "Comfortable with scripting in Python"],
+      "outcomes": ["Administer and scale Tableau Server and Tableau Cloud", "Automate Tableau with its APIs", "Deliver embedded and governed analytics at scale", "Lead Tableau programmes, adoption and cost"],
+      "days": [
+        {
+          "topic": "Tableau Server Architecture and Installation",
+          "subtopics": ["Server processes", "Single-node and multi-node topologies", "Installing on Linux and Windows", "TSM command line", "Repository and file store", "Gateway and load balancers", "Backups with TSM", "Planning hardware"],
+          "tools": ["Tableau Server", "TSM"],
+          "lab_task": "Install a three-node Tableau Server cluster with TSM, place processes for availability, take a backup and restore it to a test server.",
+          "deliverable": "Topology design, install log and restore evidence",
+          "checks": [["View the process status", "Processes running on all nodes", "TSM status"], ["Stop one node", "Server keeps serving", "Browser test"], ["Restore the backup", "Content available on the test server", "Screenshot"]],
+          "objectives": ["Install Tableau Server", "Design topologies", "Back up and restore"]
+        },
+        {
+          "topic": "Tableau Server Administration",
+          "subtopics": ["Sites and projects", "Users and groups", "Licences and site roles", "Schedules and backgrounder", "Server settings", "Content management at scale", "Administrative views", "Maintenance tasks"],
+          "tools": ["Tableau Server", "TSM", "Admin views"],
+          "lab_task": "Create two sites with projects and groups, set schedules and backgrounder settings, use admin views to find heavy jobs and plan weekly maintenance.",
+          "deliverable": "Configuration, admin findings and maintenance plan",
+          "checks": [["Use admin views", "Heaviest refreshes found", "Admin view screenshot"], ["Change backgrounder settings", "Queue times lower", "Admin view"], ["Review the maintenance plan", "Backups, clean-up and log rotation included", "Plan"]],
+          "objectives": ["Administer Tableau Server", "Manage schedules", "Use admin views"]
+        },
+        {
+          "topic": "Tableau Cloud Administration",
+          "subtopics": ["Tableau Cloud sites", "Authentication with SAML and identity providers", "SCIM user provisioning", "Tableau Bridge for private data", "Admin Insights", "Activity Log", "Site limits", "Release management in Cloud"],
+          "tools": ["Tableau Cloud", "Tableau Bridge", "Identity provider"],
+          "lab_task": "Set up SAML and SCIM with an identity provider, connect a private database through Tableau Bridge, build an admin dashboard from Admin Insights and review the Activity Log.",
+          "deliverable": "Configuration, Bridge set-up and admin dashboard",
+          "checks": [["Add a user in the identity provider", "User created in Tableau Cloud", "User list"], ["Refresh through Bridge", "Private data refreshed", "Refresh history"], ["Review the Activity Log", "Permission changes listed", "Activity Log output"]],
+          "objectives": ["Administer Tableau Cloud", "Provision users", "Reach private data"]
+        },
+        {
+          "topic": "Identity, Authentication and Permissions at Scale",
+          "subtopics": ["Authentication options", "Group-based permissions", "Permission templates and locked projects", "Site roles and licence use", "Service accounts", "Personal access tokens", "Auditing permissions", "Permission problems and fixes"],
+          "tools": ["Tableau Server or Cloud", "REST API"],
+          "lab_task": "Design locked project permissions for five departments using groups only, audit current permissions with the REST API and fix exceptions.",
+          "deliverable": "Permission design, audit report and fixes",
+          "checks": [["Run the audit", "Permissions granted to individuals found", "Audit report"], ["Lock projects", "Owners cannot override permissions", "Screenshot"], ["Test as department users", "Access matches the design", "Test results"]],
+          "objectives": ["Design permissions", "Audit access", "Fix exceptions"]
+        },
+        {
+          "topic": "Scaling and High Availability",
+          "subtopics": ["Load testing with TabJolt or similar", "Scaling VizQL and backgrounder", "Workload separation with node roles", "Caching and pre-computing", "High availability for the repository", "Disaster recovery", "Capacity planning", "Monitoring under load"],
+          "tools": ["Tableau Server", "Load testing tool", "TSM"],
+          "lab_task": "Load test the server with 200 users, add nodes and node roles to separate refreshes from viewing, retest and write a DR plan.",
+          "deliverable": "Load test results, topology changes and DR plan",
+          "checks": [["Run the first load test", "Bottleneck found", "Load test report"], ["Separate workloads", "Viewing speed kept during refreshes", "Load test report"], ["Review the DR plan", "Recovery steps and targets defined", "DR plan"]],
+          "objectives": ["Scale Tableau Server", "Separate workloads", "Plan disaster recovery"]
+        },
+        {
+          "topic": "Extract and Refresh Strategy",
+          "subtopics": ["Live or extract by workload", "Incremental refreshes", "Shared extracts and published sources", "Refresh windows", "Priorities and schedules", "Failed refresh handling", "Hyper performance", "Moving logic upstream"],
+          "tools": ["Tableau Server or Cloud", "Admin views"],
+          "lab_task": "Review 50 refresh jobs, switch the heaviest to incremental, merge duplicate extracts into shared sources, rebalance schedules and alert on failures.",
+          "deliverable": "Refresh review and changes",
+          "checks": [["Switch to incremental", "Refresh time lower", "Refresh history"], ["Merge duplicate extracts", "Fewer extracts with the same data", "Content list"], ["Fail a refresh", "Owner alerted", "Email"]],
+          "objectives": ["Plan refresh strategy", "Share extracts", "Handle failures"]
+        },
+        {
+          "topic": "Monitoring Tableau Server and Cloud",
+          "subtopics": ["Admin views and Admin Insights", "Resource Monitoring Tool", "Server logs", "Usage and adoption metrics", "Performance metrics", "Alerting on problems", "Monitoring dashboards", "Monthly health reports"],
+          "tools": ["Resource Monitoring Tool", "Admin views", "Tableau Cloud Admin Insights"],
+          "lab_task": "Set up monitoring with the Resource Monitoring Tool, alert on slow views and failed refreshes and build a monthly health report for leadership.",
+          "deliverable": "Monitoring set-up, alerts and health report",
+          "checks": [["Trigger a slow view", "Alert raised", "Alert notification"], ["Review usage", "Adoption by department shown", "Report"], ["Present the health report", "Performance and adoption trends explained", "Presentation"]],
+          "objectives": ["Monitor Tableau", "Alert on problems", "Report platform health"]
+        },
+        {
+          "topic": "Upgrades and Migrating from Server to Cloud",
+          "subtopics": ["Upgrade planning", "Testing upgrades", "Content migration tool", "Migrating users and permissions", "Data source differences in Cloud", "Bridge for on-premises data", "Cutover and communication", "Post-migration checks"],
+          "tools": ["Tableau Content Migration Tool", "Tableau Cloud Manager", "Tableau Bridge"],
+          "lab_task": "Plan a move from Tableau Server to Tableau Cloud, migrate a project with its permissions using the Content Migration Tool, fix data connections and validate dashboards.",
+          "deliverable": "Migration plan, migration log and validation report",
+          "checks": [["Migrate the project", "Content and permissions in Cloud", "Screenshot"], ["Fix data connections", "Dashboards refresh in Cloud", "Refresh history"], ["Validate dashboards", "Numbers match the Server versions", "Validation report"]],
+          "objectives": ["Plan upgrades", "Migrate to Tableau Cloud", "Validate migrations"]
+        },
+        {
+          "topic": "Automating Tableau with the REST API and Python",
+          "subtopics": ["REST API concepts", "Tableau Server Client library", "Authentication with tokens", "Publishing and downloading content", "Managing users and groups", "Triggering refreshes", "Bulk operations", "Error handling and logging"],
+          "tools": ["Tableau Server Client (Python)", "REST API"],
+          "lab_task": "Write Python scripts that onboard users from a CSV, publish workbooks from Git, trigger refreshes after an upstream job and report content without owners.",
+          "deliverable": "Scripts and run logs",
+          "checks": [["Onboard users", "Users and groups created", "Script output"], ["Publish from Git", "Workbooks published with the right project", "Script output"], ["Report orphaned content", "Content without owners listed", "Report"]],
+          "objectives": ["Automate with the REST API", "Script administration", "Publish from source control"]
+        },
+        {
+          "topic": "Metadata API and Lineage Analysis",
+          "subtopics": ["Tableau Catalog", "GraphQL basics", "Querying lineage", "Impact analysis for database changes", "Finding duplicate calculations", "Data quality warnings at scale", "Documentation from metadata", "Governance reporting"],
+          "tools": ["Metadata API", "GraphiQL", "Python"],
+          "lab_task": "Query the Metadata API to find every dashboard using a column that will be dropped, list duplicate calculations across workbooks and generate documentation for a certified source.",
+          "deliverable": "Queries, impact report and generated documentation",
+          "checks": [["Run impact analysis", "Affected dashboards and owners listed", "Impact report"], ["Find duplicate calculations", "Repeated formulas listed", "Report"], ["Generate documentation", "Fields and descriptions documented", "Documentation"]],
+          "objectives": ["Query metadata", "Analyse impact", "Generate documentation"]
+        },
+        {
+          "topic": "Hyper API and Data Automation",
+          "subtopics": ["Hyper files", "Creating extracts with the Hyper API", "Updating extracts", "Publishing Hyper files", "Pipelines that build extracts", "Performance of Hyper", "Hyper compared with live connections", "Scheduling with orchestrators"],
+          "tools": ["Hyper API", "Python", "Airflow or another scheduler"],
+          "lab_task": "Build a pipeline that creates and updates a Hyper extract from a data warehouse with the Hyper API, publishes it and runs on a schedule.",
+          "deliverable": "Pipeline code and run history",
+          "checks": [["Create the extract", "Hyper file with expected rows", "Script output"], ["Update incrementally", "Only new rows added", "Script output"], ["Publish on a schedule", "Source updated in Tableau", "Refresh history"]],
+          "objectives": ["Use the Hyper API", "Automate extracts", "Schedule data pipelines"]
+        },
+        {
+          "topic": "Content Migration and DevOps for Tableau",
+          "subtopics": ["Development, test and production sites", "Promoting content", "Changing data connections between environments", "Version control for workbooks", "Automated testing of dashboards", "Release processes", "Rollback", "Change records"],
+          "tools": ["Tableau Server Client", "Git", "Content Migration Tool"],
+          "lab_task": "Set up dev, test and prod projects, promote a workbook with changed connections through a scripted pipeline, test key numbers automatically and roll back a bad release.",
+          "deliverable": "Pipeline, tests and release records",
+          "checks": [["Promote a workbook", "Connection switched to production", "Data source details"], ["Run automated tests", "Key numbers match expected values", "Test output"], ["Roll back", "Previous version restored", "Version history"]],
+          "objectives": ["Promote content safely", "Test dashboards", "Roll back releases"]
+        },
+        {
+          "topic": "Embedded Analytics at Scale",
+          "subtopics": ["Embedded architecture", "Multi-tenant embedding", "Connected apps and JWT", "User attribute functions for security", "Performance for many users", "White labelling", "Licensing models", "Monitoring embedded use"],
+          "tools": ["Tableau Embedding API", "Connected apps", "Tableau Cloud"],
+          "lab_task": "Embed dashboards in a multi-tenant web app using JWT with user attributes for row-level security, load test it and monitor use by tenant.",
+          "deliverable": "App, configuration, load test and usage report",
+          "checks": [["Log in as two tenants", "Each sees only their data", "Screenshots"], ["Load test", "Response times within target", "Load test report"], ["Report use by tenant", "Views per tenant shown", "Usage report"]],
+          "objectives": ["Embed at scale", "Secure by tenant", "Monitor embedded use"]
+        },
+        {
+          "topic": "Semantic Layers and Shared Models",
+          "subtopics": ["Why shared models", "Published data sources as models", "Virtual connections", "Tableau semantics and external semantic layers", "Metric definitions", "Model ownership", "Testing models", "Migration to shared models"],
+          "tools": ["Tableau Cloud", "Virtual connections", "dbt Semantic Layer or similar"],
+          "lab_task": "Replace five workbook-specific sources with one shared model, define metrics once, connect an external semantic layer and test that all dashboards keep their numbers.",
+          "deliverable": "Shared model, metric definitions and test results",
+          "checks": [["Compare dashboard numbers", "Same values after the switch", "Validation report"], ["Change a metric definition", "Change appears everywhere", "Screenshots"], ["Review ownership", "Owner and process recorded", "Model document"]],
+          "objectives": ["Build shared models", "Define metrics once", "Migrate to shared models"]
+        },
+        {
+          "topic": "Performance at Enterprise Scale",
+          "subtopics": ["Database-side tuning", "Query patterns from Tableau", "Initial SQL and custom SQL risks", "Caching strategy", "Dashboard design rules at scale", "View acceleration", "Monitoring slow content", "Working with database teams"],
+          "tools": ["Tableau Server or Cloud", "Database tools", "Performance recorder"],
+          "lab_task": "Find the ten slowest views on the platform, work through database indexes, view acceleration and design changes, and report improvements.",
+          "deliverable": "Slow view report and fixes",
+          "checks": [["Find slow views", "Ten slowest listed with load times", "Admin report"], ["Turn on view acceleration", "Load time lower for eligible views", "Timing table"], ["Report improvements", "Before and after times for each view", "Report"]],
+          "objectives": ["Tune at scale", "Work with databases", "Use acceleration"]
+        },
+        {
+          "topic": "Advanced Visual Design and Custom Charts",
+          "subtopics": ["Design principles for executives", "Custom shapes and icons", "Sankey and radial charts", "Data densification", "Map-based designs", "Annotations at scale", "When custom charts hurt understanding", "Design reviews"],
+          "tools": ["Tableau Desktop"],
+          "lab_task": "Build a Sankey diagram, a radial chart and an executive one-page dashboard, run a design review with peers and simplify any chart that hurts understanding.",
+          "deliverable": "Workbook and review notes",
+          "checks": [["Build the Sankey", "Flows match the data", "Screenshot"], ["Run the review", "Feedback recorded and acted on", "Review notes"], ["Test understanding", "Users answer questions correctly", "Test results"]],
+          "objectives": ["Build custom charts", "Design for executives", "Review designs"]
+        },
+        {
+          "topic": "Enterprise Governance and Data Culture",
+          "subtopics": ["Governance models: centralised, delegated and self-governing", "Tableau Blueprint", "Centres of excellence", "Training and certification programmes", "Community and champions", "Measuring data culture", "Content standards", "Executive sponsorship"],
+          "tools": ["Tableau Blueprint", "Survey tools"],
+          "lab_task": "Assess an organisation against Tableau Blueprint, design a governance model and a champions programme and set measures for adoption.",
+          "deliverable": "Assessment, governance model and programme plan",
+          "checks": [["Run the assessment", "Gaps listed with evidence", "Assessment"], ["Design the model", "Roles and decision rights defined", "Governance model"], ["Set measures", "Adoption measures with targets", "Programme plan"]],
+          "objectives": ["Govern analytics at scale", "Build data culture", "Measure adoption"]
+        },
+        {
+          "topic": "Licensing, Cost and Platform Strategy",
+          "subtopics": ["Licence types: Creator, Explorer and Viewer", "Licence use reviews", "Server and Cloud costs", "Comparing Tableau with Power BI and others", "Consolidating tools", "Contract negotiation inputs", "Roadmaps", "Communicating with leadership"],
+          "tools": ["Admin views", "Spreadsheet"],
+          "lab_task": "Review licence use, find users with the wrong licence, estimate savings, compare platform options and present a three-year analytics platform plan.",
+          "deliverable": "Licence review, savings estimate and plan",
+          "checks": [["Review licence use", "Wrong or unused licences listed", "Licence report"], ["Estimate savings", "Annual saving calculated", "Savings estimate"], ["Present the plan", "Options and costs explained", "Presentation feedback"]],
+          "objectives": ["Manage licences", "Control cost", "Plan the platform"]
+        },
+        {
+          "topic": "Troubleshooting Production Tableau Issues",
+          "subtopics": ["An incident method for Tableau", "Failed refreshes", "Slow dashboards after changes", "Authentication failures", "Backgrounder backlogs", "Out-of-disk and repository problems", "Reading logs with Log Viewer", "Post-incident reviews"],
+          "tools": ["Tableau Log Viewer", "TSM", "Admin views"],
+          "lab_task": "Diagnose five injected issues (an expired database credential, a backgrounder backlog, a slow view after a change, an SSO failure and a full disk), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the backlog", "Queue cleared and cause removed", "Admin view"], ["Fix SSO", "Users log in again", "Login test"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose Tableau issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Tableau Programme",
+          "subtopics": ["Platform", "Automation", "Governance", "Leadership review"],
+          "tools": ["Tableau Server or Cloud", "REST API", "Metadata API", "Hyper API", "Embedding API"],
+          "lab_task": "Design and deliver an enterprise Tableau programme: platform set-up with identity and scaling, automated content promotion, shared models, embedded analytics, monitoring, governance and licence review, then present it to a leadership panel.",
+          "deliverable": "Platform design, scripts, dashboards, governance plan and presentation",
+          "checks": [["Promote content through the pipeline", "Tested and published automatically", "Pipeline log"], ["Load test the platform", "Response times within target", "Load test report"], ["Present to leadership", "Plan, cost and adoption measures defended", "Panel feedback"]],
+          "objectives": ["Combine the advanced topics in one programme", "Run Tableau at enterprise scale", "Lead the analytics platform"]
+        }
+      ]
+    }
+  }
+}

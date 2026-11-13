@@ -1,0 +1,573 @@
+{
+  "domain": "Django",
+  "name": "Django Web Development with Django REST Framework",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "globe",
+  "aliases": ["Django Framework", "Django Developer", "Django Web Development", "Django Web Framework", "Django Training", "Django REST Framework", "Django REST", "DRF", "Django 5", "Django Backend"],
+  "certifications": ["No vendor certification; assessed by capstone project", "Python Institute PCAP: Certified Associate Python Programmer (Python foundation)"],
+  "tools": ["Python", "Django", "Django REST Framework", "PostgreSQL", "Celery", "Redis", "pytest-django", "Docker", "Gunicorn", "NGINX"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers starting web development. Covers Django projects and apps, URLs and views, templates, models and the ORM, migrations, the admin, QuerySets, forms, class-based views, static and media files, authentication, permissions, relationships, sessions and messages, pagination and search, email, testing with pytest-django, REST APIs with Django REST Framework and deployment with Gunicorn, NGINX and PostgreSQL.",
+      "prerequisites": ["Writes Python functions, classes and modules", "Knows basic HTML", "Understands what a database table is"],
+      "outcomes": ["Build database-backed websites with Django", "Use the ORM, forms, admin and authentication", "Expose REST APIs with Django REST Framework", "Test and deploy Django applications"],
+      "days": [
+        {
+          "topic": "Django Overview, Project Setup and First App",
+          "subtopics": ["What Django provides: batteries included", "The model, template and view pattern", "Creating a virtual environment and installing Django", "django-admin and manage.py", "Projects compared with apps", "The development server", "settings.py essentials", "The project folder layout", "Creating a first app and view", "Django documentation and LTS releases"],
+          "tools": ["Python", "Django", "VS Code", "pip or uv"],
+          "lab_task": "Create a Django project for an event booking site in a virtual environment, add an events app with a home page view, run the development server and explore the settings and folder layout.",
+          "deliverable": "Running project skeleton in a Git repository",
+          "checks": [["Run the server", "Home page loads from the events app", "Browser screenshot"], ["Explain the layout", "Project and app files described correctly", "Layout notes"], ["Pin versions", "Django version pinned in the requirements file", "Requirements file"]],
+          "objectives": ["Explain how Django works", "Create projects and apps", "Run the development server"]
+        },
+        {
+          "topic": "URLs, Views and Responses",
+          "subtopics": ["URL patterns and path converters", "Including app URLs", "Function-based views", "HttpResponse, JsonResponse and redirects", "Named URLs and reverse", "Handling 404 with get_object_or_404", "Request methods and query strings", "Organising views in an app"],
+          "tools": ["Django", "Browser DevTools"],
+          "lab_task": "Add URLs and views for event lists, event details by slug and a search query, use named URLs everywhere and return 404 for unknown events.",
+          "deliverable": "URL configuration and views",
+          "checks": [["Open an event by slug", "Detail view shows the right event", "Screenshot"], ["Request an unknown slug", "404 page returned", "Response status"], ["Change a URL pattern", "Links still work through reverse and named URLs", "Screenshot"]],
+          "objectives": ["Map URLs to views", "Return different responses", "Use named URLs"]
+        },
+        {
+          "topic": "Templates and Template Inheritance",
+          "subtopics": ["The Django template language", "Variables, filters and tags", "Base templates and blocks", "Including partial templates", "Loops and conditions in templates", "Static files in templates", "Auto-escaping and safe output", "Custom template filters"],
+          "tools": ["Django templates", "Bootstrap or plain CSS"],
+          "lab_task": "Build a base layout with navigation and blocks, event list and detail templates with filters for dates and prices, a reusable event card partial and one custom filter.",
+          "deliverable": "Template set for the site",
+          "checks": [["Extend the base", "All pages share the base layout", "Screenshots"], ["Use a custom filter", "Prices formatted by the custom filter", "Screenshot"], ["Test escaping", "Script in an event title shown as text", "Screenshot"]],
+          "objectives": ["Write Django templates", "Reuse layouts with inheritance", "Keep output safe"]
+        },
+        {
+          "topic": "Models and the Django ORM",
+          "subtopics": ["Defining models and fields", "Field options: null, blank, default and choices", "The __str__ method and Meta options", "Creating and saving objects", "Querying with objects.all, filter and get", "Updating and deleting objects", "The Django shell", "Model methods for business logic"],
+          "tools": ["Django ORM", "SQLite", "Django shell"],
+          "lab_task": "Model events, venues and categories with suitable fields and choices, create and query records in the shell and move a business rule into a model method.",
+          "deliverable": "Models with sample data",
+          "checks": [["Create records in the shell", "Events saved and listed", "Shell output"], ["Use choices", "Status shown with readable labels", "Admin or shell output"], ["Call a model method", "Seats-left rule returns correct values", "Shell output"]],
+          "objectives": ["Define Django models", "Query with the ORM", "Keep business rules in models"]
+        },
+        {
+          "topic": "Migrations and Database Changes",
+          "subtopics": ["makemigrations and migrate", "Reading migration files", "Adding, renaming and removing fields", "Default values for existing rows", "Data migrations", "Squashing migrations", "Migrations in a team", "Switching from SQLite to PostgreSQL"],
+          "tools": ["Django migrations", "PostgreSQL", "Docker"],
+          "lab_task": "Add and rename fields with migrations, write a data migration that fills a new slug field, resolve a migration conflict from a teammate and move the project to PostgreSQL.",
+          "deliverable": "Clean migration history on PostgreSQL",
+          "checks": [["Run a data migration", "Every event has a unique slug", "Query output"], ["Resolve a conflict", "Merge migration applied and tests pass", "Migration output"], ["Move to PostgreSQL", "Site runs on PostgreSQL with all data", "Screenshot"]],
+          "objectives": ["Manage schema changes with migrations", "Write data migrations", "Work with migrations in a team"]
+        },
+        {
+          "topic": "The Django Admin",
+          "subtopics": ["Registering models", "list_display, list_filter and search_fields", "Inline editing of related models", "Custom admin actions", "Read-only fields and fieldsets", "Admin permissions per user", "Customising the admin look", "When not to use the admin"],
+          "tools": ["Django admin"],
+          "lab_task": "Build an admin for events, venues and bookings with filters, search, inline tickets, a bulk publish action and staff users who can edit only events.",
+          "deliverable": "Configured admin site",
+          "checks": [["Filter and search", "Staff find events by date, venue and name", "Screenshot"], ["Run a bulk action", "Selected events published in one step", "Screenshot"], ["Limit a staff user", "Staff user cannot edit venues", "Screenshot"]],
+          "objectives": ["Configure the Django admin", "Add admin actions", "Control admin access"]
+        },
+        {
+          "topic": "QuerySets: Filtering, Ordering and Aggregation",
+          "subtopics": ["Lookups such as contains, gte and in", "Chaining filters and exclude", "Ordering and slicing", "Q objects for OR conditions", "Aggregation with Count, Sum and Avg", "annotate for per-row values", "values and values_list", "Seeing the SQL Django runs"],
+          "tools": ["Django ORM", "Django shell", "django-debug-toolbar"],
+          "lab_task": "Write QuerySets for upcoming events by category, events with seats left, bookings per venue and revenue per month, and check the SQL with django-debug-toolbar.",
+          "deliverable": "Query module with sample results",
+          "checks": [["Count bookings per venue", "Annotated counts match the data", "Shell output"], ["Combine conditions", "Q objects return events matching either condition", "Shell output"], ["Inspect SQL", "Debug toolbar shows the generated SQL", "Screenshot"]],
+          "objectives": ["Write expressive QuerySets", "Aggregate data", "Inspect generated SQL"]
+        },
+        {
+          "topic": "Forms and ModelForms",
+          "subtopics": ["Django forms and fields", "Rendering forms in templates", "ModelForms from models", "Validation with clean methods", "Showing errors to users", "CSRF protection", "Handling POST and redirect after success", "Formsets for repeated forms"],
+          "tools": ["Django forms", "Django templates"],
+          "lab_task": "Build a booking form with a ModelForm, validate seat limits in clean methods, show errors, protect it with CSRF and redirect after success, then add a formset for multiple attendees.",
+          "deliverable": "Booking forms",
+          "checks": [["Overbook an event", "Form shows the seat limit error", "Screenshot"], ["Submit without a CSRF token", "Request rejected", "Response status"], ["Add attendees", "Formset saves several attendees at once", "Database rows"]],
+          "objectives": ["Build forms with Django", "Validate user input", "Handle form submission safely"]
+        },
+        {
+          "topic": "Class-Based Views and Generic Views",
+          "subtopics": ["Function views compared with class-based views", "ListView and DetailView", "CreateView, UpdateView and DeleteView", "get_queryset and get_context_data", "Mixins", "Success URLs and messages", "Choosing between function and class views", "Testing class-based views"],
+          "tools": ["Django generic views"],
+          "lab_task": "Rewrite the event pages with ListView, DetailView, CreateView, UpdateView and DeleteView, filter the list in get_queryset and add a mixin that sets the organiser.",
+          "deliverable": "Event views built from generic views",
+          "checks": [["Create an event", "Organiser set automatically by the mixin", "Database row"], ["Filter the list", "get_queryset limits events to upcoming ones", "Screenshot"], ["Delete an event", "Confirmation page shown before deletion", "Screenshot"]],
+          "objectives": ["Use class-based views", "Customise generic views", "Reuse behaviour with mixins"]
+        },
+        {
+          "topic": "Static Files, Media and Image Uploads",
+          "subtopics": ["Static files in development", "collectstatic for production", "MEDIA_ROOT and MEDIA_URL", "ImageField and FileField", "Validating uploads", "Resizing images with Pillow", "Serving media safely", "WhiteNoise for static files"],
+          "tools": ["Django", "Pillow", "WhiteNoise"],
+          "lab_task": "Add event banner uploads with validation and resizing, serve static files with WhiteNoise, collect static files for production and show banners on event cards.",
+          "deliverable": "Image upload feature and static configuration",
+          "checks": [["Upload a banner", "Resized banner shown on the event card", "Screenshot"], ["Upload a large file", "Oversized upload rejected", "Screenshot"], ["Collect static", "collectstatic gathers all static files", "Command output"]],
+          "objectives": ["Serve static files", "Handle uploads", "Prepare files for production"]
+        },
+        {
+          "topic": "User Authentication: Login, Logout and Sign-Up",
+          "subtopics": ["The django.contrib.auth system", "Login and logout views", "Sign-up with UserCreationForm", "Password reset by email", "login_required and LoginRequiredMixin", "The request.user object", "Redirects after login", "Password validators"],
+          "tools": ["Django auth", "Email backend"],
+          "lab_task": "Add sign-up, login, logout and password reset, protect booking pages with login_required and show the signed-in user's bookings.",
+          "deliverable": "Authentication flows",
+          "checks": [["Sign up and log in", "New user signs up and sees their bookings", "Screen recording"], ["Reset a password", "Reset email sent and password changed", "Email and screenshot"], ["Open a protected page signed out", "Redirected to login and back", "Screen recording"]],
+          "objectives": ["Add authentication to Django sites", "Protect views", "Support password resets"]
+        },
+        {
+          "topic": "Permissions and Groups",
+          "subtopics": ["Built-in model permissions", "Groups for organisers, staff and attendees", "permission_required and PermissionRequiredMixin", "Object-level ownership checks", "Showing UI based on permissions", "Custom permissions", "Testing permission rules", "Keeping permissions manageable"],
+          "tools": ["Django auth permissions", "Django admin"],
+          "lab_task": "Create organiser and staff groups with permissions, let organisers edit only their own events, hide edit buttons from other users and test the rules.",
+          "deliverable": "Permission setup with tests",
+          "checks": [["Edit someone else's event", "Organiser receives 403", "Response"], ["View as an attendee", "Edit and delete buttons hidden", "Screenshot"], ["Run permission tests", "Rules tested for each group", "Test output"]],
+          "objectives": ["Use groups and permissions", "Check object ownership", "Test access rules"]
+        },
+        {
+          "topic": "Relationships: ForeignKey, ManyToMany and OneToOne",
+          "subtopics": ["ForeignKey and on_delete choices", "ManyToManyField and through models", "OneToOneField for profiles", "related_name and reverse lookups", "Querying across relationships", "select_related and prefetch_related basics", "Forms for related data", "Deleting related data safely"],
+          "tools": ["Django ORM", "django-debug-toolbar"],
+          "lab_task": "Add speakers to events with a many-to-many through model, user profiles with one-to-one fields, query events by speaker and cut the query count on the list page.",
+          "deliverable": "Related models and optimised list page",
+          "checks": [["Add speakers", "Speakers linked with their session times", "Admin screenshot"], ["Query across relations", "Events found by speaker name", "Shell output"], ["Cut queries", "List page query count drops", "Debug toolbar screenshots"]],
+          "objectives": ["Model relationships", "Query across relations", "Avoid excess queries"]
+        },
+        {
+          "topic": "Messages, Sessions and Cookies",
+          "subtopics": ["The messages framework", "Session storage options", "Reading and writing session data", "A session-based basket", "Cookie settings and security flags", "Session expiry", "Remembering user preferences", "Clearing sessions on logout"],
+          "tools": ["Django sessions", "Django messages"],
+          "lab_task": "Show success and error messages across the site, build a session-based ticket basket, remember a preferred city and set secure cookie flags.",
+          "deliverable": "Basket and preference features",
+          "checks": [["Add to the basket", "Basket keeps items across pages", "Screen recording"], ["Show messages", "Success message appears once after booking", "Screenshot"], ["Inspect cookies", "Session cookie is HttpOnly and Secure in production settings", "Cookie panel screenshot"]],
+          "objectives": ["Use messages and sessions", "Store temporary user data", "Secure cookies"]
+        },
+        {
+          "topic": "Pagination, Search and Filtering",
+          "subtopics": ["The Paginator class", "Pagination in ListView", "Search with icontains and Q objects", "Filtering by category and date", "Keeping filters in the query string", "django-filter", "Sorting options", "Performance of search queries"],
+          "tools": ["Django Paginator", "django-filter"],
+          "lab_task": "Add pagination, search and filters by category, city and date to the event list, keep filters in the URL across pages and add sorting.",
+          "deliverable": "Searchable, paginated event list",
+          "checks": [["Page through results", "Filters stay applied on every page", "Screen recording"], ["Search events", "Matching events returned by name and description", "Screenshot"], ["Sort the list", "Events sorted by date or price", "Screenshot"]],
+          "objectives": ["Paginate lists", "Build search and filters", "Keep filters in URLs"]
+        },
+        {
+          "topic": "Sending Email from Django",
+          "subtopics": ["Email backends for development and production", "send_mail and EmailMessage", "HTML email templates", "Attachments such as tickets", "Sending from a transactional email service", "Avoiding slow requests when sending email", "Testing email", "Unsubscribe and preferences"],
+          "tools": ["Django email", "Mailpit or console backend", "SendGrid or Amazon SES"],
+          "lab_task": "Send booking confirmation emails with HTML templates and a PDF ticket attachment, test them with Mailpit and send through a transactional email service in staging.",
+          "deliverable": "Email templates and configuration",
+          "checks": [["Book a ticket", "Confirmation email arrives with the ticket attached", "Mailpit screenshot"], ["Test emails", "Test asserts the email subject and recipient", "Test output"], ["Send in staging", "Email delivered through the provider", "Provider log"]],
+          "objectives": ["Send email from Django", "Use HTML templates", "Test email sending"]
+        },
+        {
+          "topic": "Testing Django Apps with pytest-django",
+          "subtopics": ["pytest-django setup", "The test client", "Testing models, forms and views", "Fixtures and factories with factory_boy", "Database access in tests", "Testing authentication and permissions", "Coverage reports", "Running tests in CI"],
+          "tools": ["pytest", "pytest-django", "factory_boy", "coverage.py"],
+          "lab_task": "Write tests for models, forms, views and permissions with factory_boy, use the test client for booking flows and reach 80 percent coverage.",
+          "deliverable": "Test suite with coverage report",
+          "checks": [["Run the suite", "All tests pass", "pytest output"], ["Test a booking flow", "Test client books a ticket end to end", "Test output"], ["Measure coverage", "Coverage of 80 percent or more", "Coverage report"]],
+          "objectives": ["Test Django apps", "Use factories", "Measure coverage"]
+        },
+        {
+          "topic": "REST APIs with Django REST Framework",
+          "subtopics": ["Why and when to add an API", "Serializers and ModelSerializers", "APIView and generic views", "ViewSets and routers", "Authentication for API clients", "Permissions on API views", "The browsable API", "Pagination in DRF"],
+          "tools": ["Django REST Framework", "Postman or HTTPie"],
+          "lab_task": "Expose events and bookings through a DRF API with ModelSerializers, ViewSets, routers, token authentication, permissions and pagination, and test it from Postman.",
+          "deliverable": "REST API with a Postman collection",
+          "checks": [["List events", "Paginated JSON returned", "Response"], ["Book without a token", "401 returned", "Response"], ["Use the browsable API", "API explorable in the browser", "Screenshot"]],
+          "objectives": ["Build REST APIs with DRF", "Serialise models", "Protect API endpoints"]
+        },
+        {
+          "topic": "Deploying Django with Gunicorn, NGINX and PostgreSQL",
+          "subtopics": ["Production settings and DEBUG off", "The deployment checklist command", "Environment-based settings", "Gunicorn as the application server", "NGINX as reverse proxy and static server", "PostgreSQL in production", "HTTPS with Let's Encrypt", "Logs and restarts with systemd"],
+          "tools": ["Gunicorn", "NGINX", "PostgreSQL", "Certbot", "systemd"],
+          "lab_task": "Deploy the site to a Linux server with Gunicorn, NGINX, PostgreSQL and HTTPS, pass the deployment checklist and restart automatically with systemd.",
+          "deliverable": "Live site and deployment guide",
+          "checks": [["Run the deployment checklist", "check --deploy reports no warnings", "Command output"], ["Open the live site", "Site served over HTTPS", "Browser screenshot"], ["Kill Gunicorn", "systemd restarts the service", "systemctl output"]],
+          "objectives": ["Configure Django for production", "Deploy with Gunicorn and NGINX", "Run the site reliably"]
+        },
+        {
+          "topic": "Beginner Capstone: Event Booking Website",
+          "subtopics": ["Plan", "Build", "Test", "Deploy"],
+          "tools": ["Django", "Django REST Framework", "PostgreSQL", "pytest-django", "NGINX"],
+          "lab_task": "Complete the event booking site with events, bookings, uploads, authentication, permissions, search, email, an API, tests and a production deployment, then demo it.",
+          "deliverable": "Repository, live URL and demo recording",
+          "checks": [["Demo the site", "Browsing, booking and organiser flows work end to end", "Demo recording"], ["Run the tests", "Test suite passes", "Test report"], ["Use the API", "API returns events and accepts bookings", "Postman run"]],
+          "objectives": ["Combine the beginner topics in one project", "Build a complete Django site", "Deploy it to production"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already build Django sites. Covers settings for multiple environments, custom user models, ORM performance, transactions and constraints, DRF serializers, viewsets and routers in depth, API authentication with tokens and JWT, permissions and throttling, Celery and Redis, caching, signals and middleware, async views and ASGI, Django Channels, HTMX, PostgreSQL full-text search, S3 storage, security hardening, testing in depth, Docker and CI/CD, and monitoring with Sentry.",
+      "prerequisites": ["Has built and deployed a Django site with models, forms and authentication", "Comfortable with Python classes and decorators", "Knows SQL basics"],
+      "outcomes": ["Structure and tune Django projects for production", "Build secure, well-tested APIs with DRF", "Add background jobs, caching, real-time and search features", "Containerise, deploy and monitor Django services"],
+      "days": [
+        {
+          "topic": "Project Structure and Settings for Multiple Environments",
+          "subtopics": ["Splitting settings by environment", "Environment variables with django-environ", "Secrets outside the code", "App structure for larger projects", "Shared and reusable apps", "Logging configuration", "Settings checks at start-up", "Documenting project conventions"],
+          "tools": ["django-environ", "Django system checks", "pre-commit"],
+          "lab_task": "Split settings into base, development, test and production, load secrets from the environment, restructure apps by feature and add a custom system check for required settings.",
+          "deliverable": "Restructured project with environment settings",
+          "checks": [["Start without a secret", "Custom system check stops start-up with a clear message", "Command output"], ["Switch environments", "Each environment loads its own settings", "Command output"], ["Review structure", "Apps grouped by feature with clear ownership", "Structure notes"]],
+          "objectives": ["Manage settings across environments", "Structure larger projects", "Keep secrets out of code"]
+        },
+        {
+          "topic": "Custom User Models and Authentication Backends",
+          "subtopics": ["Why to start with a custom user model", "AbstractUser and AbstractBaseUser", "Email as the login field", "Custom managers", "Authentication backends", "Social login with django-allauth", "Two-factor authentication", "Migrating an existing project to a custom user"],
+          "tools": ["Django auth", "django-allauth", "django-otp"],
+          "lab_task": "Create a custom user model with email login, add Google sign-in with django-allauth and two-factor authentication, and plan how an existing project would move to a custom user.",
+          "deliverable": "Custom user model with social login and 2FA",
+          "checks": [["Log in with email", "Users sign in with email and password", "Screen recording"], ["Sign in with Google", "allauth creates and links the account", "Screen recording"], ["Require 2FA", "Login asks for a one-time code", "Screenshot"]],
+          "objectives": ["Build custom user models", "Add social login", "Add two-factor authentication"]
+        },
+        {
+          "topic": "ORM Performance: select_related, prefetch_related and Query Expressions",
+          "subtopics": ["Finding N+1 queries", "select_related for foreign keys", "prefetch_related and Prefetch objects", "only and defer", "F expressions for atomic updates", "Subquery and OuterRef", "Database functions", "Bulk create and bulk update"],
+          "tools": ["django-debug-toolbar", "nplusone or django-silk", "PostgreSQL"],
+          "lab_task": "Find and fix N+1 queries on three pages, use F expressions for seat counts, add subqueries for latest booking dates and replace a loop of saves with bulk operations.",
+          "deliverable": "Optimised queries with before and after counts",
+          "checks": [["Fix N+1 queries", "Page query counts drop to a fixed number", "Debug toolbar screenshots"], ["Update atomically", "Concurrent seat updates stay correct", "Test output"], ["Use bulk operations", "Import time drops with bulk_create", "Timing comparison"]],
+          "objectives": ["Find ORM performance problems", "Use query expressions", "Write efficient bulk code"]
+        },
+        {
+          "topic": "Database Transactions, Constraints and Indexes in Django",
+          "subtopics": ["atomic blocks and decorators", "select_for_update for locking", "on_commit hooks", "UniqueConstraint and CheckConstraint", "Indexes and conditional indexes", "Database-level defaults", "Handling IntegrityError", "Testing concurrency"],
+          "tools": ["Django ORM", "PostgreSQL", "pytest-django"],
+          "lab_task": "Make booking safe under concurrency with atomic blocks and select_for_update, enforce rules with database constraints, add conditional indexes and send emails only after commit.",
+          "deliverable": "Safe booking logic with constraints and tests",
+          "checks": [["Book concurrently", "No overbooking under parallel requests", "Test output"], ["Break a constraint", "Database rejects invalid data", "Error output"], ["Send after commit", "Email sent only when the transaction commits", "Test output"]],
+          "objectives": ["Use transactions correctly", "Enforce rules in the database", "Prevent race conditions"]
+        },
+        {
+          "topic": "DRF in Depth: Serializers, ViewSets and Routers",
+          "subtopics": ["Nested and writable serializers", "Validation in serializers", "SerializerMethodField and computed values", "ModelViewSet and custom actions", "Routers and URL design", "Filtering with django-filter in DRF", "Query optimisation in viewsets", "API documentation with drf-spectacular"],
+          "tools": ["Django REST Framework", "django-filter", "drf-spectacular"],
+          "lab_task": "Build a full API for events, sessions and bookings with nested writable serializers, custom actions, filters, optimised querysets and OpenAPI docs from drf-spectacular.",
+          "deliverable": "Documented REST API",
+          "checks": [["Create nested data", "Event with sessions created in one request", "Response"], ["Call a custom action", "Cancel action changes status and returns the booking", "Response"], ["Read the docs", "OpenAPI schema covers every endpoint", "Swagger UI screenshot"]],
+          "objectives": ["Design DRF serializers", "Build viewsets and routers", "Document APIs"]
+        },
+        {
+          "topic": "API Authentication with Tokens, JWT and Sessions in DRF",
+          "subtopics": ["Session authentication for browser clients", "Token authentication", "JWT with Simple JWT", "Refresh and blacklisting", "CSRF with session-authenticated APIs", "API keys for partners", "Choosing an authentication method", "Testing authenticated APIs"],
+          "tools": ["Django REST Framework", "djangorestframework-simplejwt", "djangorestframework-api-key"],
+          "lab_task": "Support session login for the site, JWT with refresh and blacklisting for a mobile app and API keys for a partner, and test all three.",
+          "deliverable": "Authentication options with tests",
+          "checks": [["Refresh a token", "New access token issued from the refresh token", "Response"], ["Use a blacklisted token", "Request rejected after logout", "Response"], ["Call with an API key", "Partner request accepted with a valid key", "Response"]],
+          "objectives": ["Authenticate API clients", "Use JWT safely", "Support partner access"]
+        },
+        {
+          "topic": "API Permissions, Throttling and Filtering",
+          "subtopics": ["DRF permission classes", "Object-level permissions", "Custom permission classes", "Throttling by user and by IP", "Scoped throttles", "Filtering, searching and ordering", "Limiting queryset by user", "Testing permissions and throttles"],
+          "tools": ["Django REST Framework", "django-filter"],
+          "lab_task": "Add object-level permissions so organisers manage only their events, scoped throttles for booking, search and ordering filters, and tests for each rule.",
+          "deliverable": "Permission and throttle configuration with tests",
+          "checks": [["Edit another organiser's event", "API returns 403", "Response"], ["Exceed the booking throttle", "429 returned", "Response"], ["Search and order", "Results filtered and ordered as requested", "Response"]],
+          "objectives": ["Protect APIs with permissions", "Throttle requests", "Filter results"]
+        },
+        {
+          "topic": "Background Tasks with Celery and Redis",
+          "subtopics": ["Why background tasks", "Celery workers and brokers", "Defining and calling tasks", "Retries and error handling", "Scheduled tasks with Celery Beat", "Task results and monitoring with Flower", "Idempotent tasks", "Running tasks after commit"],
+          "tools": ["Celery", "Redis", "Celery Beat", "Flower"],
+          "lab_task": "Move emails and report generation to Celery tasks with retries, schedule reminder tasks with Celery Beat, make tasks idempotent and monitor them with Flower.",
+          "deliverable": "Celery setup with monitored tasks",
+          "checks": [["Book a ticket", "Email sent by a worker without slowing the response", "Timing and worker log"], ["Fail a task", "Task retries and then records the failure", "Flower screenshot"], ["Schedule reminders", "Reminder task runs at the scheduled time", "Beat log"]],
+          "objectives": ["Run background tasks with Celery", "Schedule jobs", "Make tasks reliable"]
+        },
+        {
+          "topic": "Caching with Redis and the Django Cache Framework",
+          "subtopics": ["Cache backends", "Per-view caching", "Template fragment caching", "Low-level cache API", "Cache keys and versioning", "Invalidation on save", "Caching API responses", "Measuring cache hit rates"],
+          "tools": ["Redis", "django-redis", "Django cache framework"],
+          "lab_task": "Cache the home page fragments, popular event queries and API list responses in Redis, invalidate on updates and measure response times and hit rates.",
+          "deliverable": "Caching implementation with measurements",
+          "checks": [["Measure response times", "Cached pages respond faster under load", "Load test results"], ["Update an event", "Cached data refreshed after the change", "Test output"], ["Read hit rates", "Hit rate reported from Redis", "Redis stats"]],
+          "objectives": ["Cache Django pages and data", "Invalidate correctly", "Measure cache benefit"]
+        },
+        {
+          "topic": "Signals, Middleware and the Request Lifecycle",
+          "subtopics": ["How a request flows through Django", "Writing middleware", "Request IDs and timing middleware", "Built-in signals", "Custom signals", "When signals make code harder to follow", "Context processors", "Debugging the request lifecycle"],
+          "tools": ["Django middleware", "Django signals"],
+          "lab_task": "Add middleware for request IDs and timing, a context processor for site settings, a signal that creates profiles for new users, and replace one confusing signal with explicit code.",
+          "deliverable": "Middleware, context processor and signal changes",
+          "checks": [["Read timing headers", "Each response carries a request ID and duration", "Response headers"], ["Create a user", "Profile created automatically", "Database row"], ["Replace a signal", "Behaviour unchanged with explicit code", "Test output"]],
+          "objectives": ["Understand the request lifecycle", "Write middleware", "Use signals carefully"]
+        },
+        {
+          "topic": "Async Django: Async Views and ASGI",
+          "subtopics": ["Sync and async in Django", "ASGI servers: Uvicorn and Daphne", "Writing async views", "The async ORM interface", "Calling external APIs concurrently", "sync_to_async and async_to_sync", "When async helps and when it does not", "Testing async views"],
+          "tools": ["Django", "Uvicorn", "httpx"],
+          "lab_task": "Write an async view that calls three external APIs concurrently, run Django under Uvicorn, use the async ORM interface and compare latency with the sync version.",
+          "deliverable": "Async views with latency comparison",
+          "checks": [["Call APIs concurrently", "Latency close to the slowest API call", "Timing results"], ["Run under ASGI", "Site works under Uvicorn", "Server log"], ["Test async views", "Async tests pass", "Test output"]],
+          "objectives": ["Write async views", "Run Django on ASGI", "Decide when async helps"]
+        },
+        {
+          "topic": "Real-Time Features with Django Channels",
+          "subtopics": ["Channels architecture", "Consumers and routing", "Channel layers with Redis", "Groups for broadcasting", "Authentication in WebSocket connections", "Sending events from views and tasks", "Scaling Channels", "Testing consumers"],
+          "tools": ["Django Channels", "Redis channel layer", "Daphne or Uvicorn"],
+          "lab_task": "Add live seat availability and organiser notifications with Channels, broadcast updates from bookings and Celery tasks, authenticate sockets and test consumers.",
+          "deliverable": "Real-time features with tests",
+          "checks": [["Book a seat", "Other viewers see seats update instantly", "Screen recording"], ["Connect signed out", "Socket connection refused", "Console output"], ["Test a consumer", "Consumer test sends and receives messages", "Test output"]],
+          "objectives": ["Build real-time features with Channels", "Broadcast events", "Secure WebSocket connections"]
+        },
+        {
+          "topic": "HTMX with Django for Interactive Pages",
+          "subtopics": ["Server-rendered interactivity with HTMX", "hx-get, hx-post and hx-target", "Partial templates for fragments", "Inline editing and search as you type", "Infinite scroll", "Forms with inline validation", "django-htmx helpers", "When to choose HTMX over a JavaScript framework"],
+          "tools": ["HTMX", "django-htmx", "Django templates"],
+          "lab_task": "Add search as you type, inline editing of bookings, infinite scroll and inline form validation to the site with HTMX and partial templates, without writing JavaScript.",
+          "deliverable": "Interactive pages built with HTMX",
+          "checks": [["Search as you type", "Results update without a full page reload", "Screen recording"], ["Edit inline", "Booking updated in place", "Screen recording"], ["Count JavaScript", "No custom JavaScript written for these features", "Code search output"]],
+          "objectives": ["Add interactivity with HTMX", "Render partial templates", "Choose between HTMX and SPA frameworks"]
+        },
+        {
+          "topic": "Full-Text Search with PostgreSQL in Django",
+          "subtopics": ["django.contrib.postgres search", "SearchVector and SearchQuery", "Ranking results", "Search indexes with GIN", "Trigram similarity for typos", "Weighting fields", "Search in DRF endpoints", "When to use a search engine instead"],
+          "tools": ["PostgreSQL", "django.contrib.postgres", "pg_trgm"],
+          "lab_task": "Add ranked full-text search over events with weighted fields, a stored search vector with a GIN index, trigram matching for typos and a search API endpoint.",
+          "deliverable": "Search feature with performance notes",
+          "checks": [["Search with a typo", "Trigram search finds the intended event", "Screenshot"], ["Rank results", "Title matches rank above description matches", "Response"], ["Check the plan", "Search uses the GIN index", "EXPLAIN output"]],
+          "objectives": ["Build search with PostgreSQL", "Rank and weight results", "Index search data"]
+        },
+        {
+          "topic": "File Storage on S3 with django-storages",
+          "subtopics": ["Storage backends in Django", "django-storages with Amazon S3 or compatible stores", "Public and private files", "Signed URLs for private downloads", "Static files on S3 and a CDN", "Direct uploads from the browser", "Cleaning up files", "Local development with MinIO"],
+          "tools": ["django-storages", "Amazon S3 or MinIO", "CloudFront"],
+          "lab_task": "Move media to S3 with django-storages, keep tickets private with signed URLs, serve static files through a CDN and develop locally against MinIO.",
+          "deliverable": "Storage configuration and test notes",
+          "checks": [["Upload a banner", "File stored in S3 and shown on the site", "Screenshot"], ["Download a ticket", "Signed URL works and then expires", "Response after expiry"], ["Develop locally", "Same code works against MinIO", "Screenshot"]],
+          "objectives": ["Store files in object storage", "Protect private files", "Serve static files from a CDN"]
+        },
+        {
+          "topic": "Security Hardening for Django: OWASP Risks and the Deployment Checklist",
+          "subtopics": ["Django's built-in protections", "SQL injection with raw queries", "Cross-site scripting and mark_safe", "CSRF and CORS settings", "Clickjacking and security headers", "HTTPS settings and HSTS", "Brute-force protection with django-axes", "Dependency and secret scanning"],
+          "tools": ["Django security middleware", "django-axes", "Bandit", "pip-audit"],
+          "lab_task": "Find and fix planted issues: raw SQL injection, unsafe mark_safe, missing HSTS and open CORS, add django-axes, and scan with Bandit and pip-audit.",
+          "deliverable": "Security fixes and scan reports",
+          "checks": [["Fix injection", "Injection attempt no longer changes the query", "Test output"], ["Lock out brute force", "Account locked after repeated failures", "Screenshot"], ["Scan the code", "No high-severity Bandit or pip-audit findings", "Scan output"]],
+          "objectives": ["Use Django's protections", "Fix OWASP risks", "Scan code and dependencies"]
+        },
+        {
+          "topic": "Testing in Depth: Factories, Mocks and API Tests",
+          "subtopics": ["Test layers for Django projects", "factory_boy traits and sub-factories", "Mocking external services", "Testing DRF endpoints with APIClient", "Testing Celery tasks", "Freezing time", "Parallel test runs", "Keeping tests fast"],
+          "tools": ["pytest-django", "factory_boy", "freezegun", "responses or respx"],
+          "lab_task": "Extend the suite with factories and traits, API tests for every endpoint, Celery task tests, time-frozen reminder tests and mocked payment calls, and run it in parallel.",
+          "deliverable": "Expanded test suite with timings",
+          "checks": [["Test the API", "Every endpoint covered by APIClient tests", "Test output"], ["Freeze time", "Reminder tests pass for fixed dates", "Test output"], ["Run in parallel", "Suite time drops with parallel workers", "Timing comparison"]],
+          "objectives": ["Test Django projects thoroughly", "Mock external services", "Keep tests fast"]
+        },
+        {
+          "topic": "Docker and CI/CD for Django",
+          "subtopics": ["Dockerfile for Django", "Docker Compose with PostgreSQL, Redis and Celery", "Running migrations in deployments", "GitHub Actions pipelines", "Test databases in CI", "Building and pushing images", "Deploying to a server or a platform", "Rollbacks"],
+          "tools": ["Docker", "Docker Compose", "GitHub Actions", "PostgreSQL"],
+          "lab_task": "Containerise the project with Compose services for web, worker, beat, PostgreSQL and Redis, build a GitHub Actions pipeline that tests and builds images and deploys with migrations.",
+          "deliverable": "Dockerfiles, Compose file and pipeline",
+          "checks": [["Start the stack", "All services healthy with one command", "docker compose ps output"], ["Run the pipeline", "Tests, build and deploy stages pass", "Pipeline run"], ["Roll back", "Previous image restored", "Deployment log"]],
+          "objectives": ["Containerise Django projects", "Automate testing and deployment", "Roll back safely"]
+        },
+        {
+          "topic": "Logging, Monitoring and Error Tracking with Sentry",
+          "subtopics": ["Django logging configuration", "Structured logs", "Sentry for errors and performance", "Health check endpoints", "Monitoring Celery workers", "Database monitoring", "Uptime checks", "Alerting and on-call basics"],
+          "tools": ["Sentry", "structlog", "Prometheus or a hosted monitor"],
+          "lab_task": "Add structured logging, Sentry error and performance monitoring, health checks for web and workers, and uptime alerts, then respond to a simulated outage.",
+          "deliverable": "Monitoring setup and outage notes",
+          "checks": [["Raise an error", "Error appears in Sentry with request details", "Sentry screenshot"], ["Check health", "Health endpoint reports database and Redis status", "Response"], ["Respond to an outage", "Outage detected and resolved with notes", "Incident notes"]],
+          "objectives": ["Monitor Django apps", "Track errors", "Respond to outages"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-User Project Tracker with API",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["Django", "Django REST Framework", "Celery", "Channels", "PostgreSQL", "Docker"],
+          "lab_task": "Build a project tracker with a custom user model, teams and permissions, a documented API, background jobs, real-time updates, search, tests, containers, CI/CD and monitoring, then present it.",
+          "deliverable": "Repository, live URL, test reports and presentation",
+          "checks": [["Demo the tracker", "Teams, tasks and live updates work end to end", "Demo recording"], ["Show quality", "Tests, security scans and performance results meet targets", "Reports"], ["Defend choices", "Data, API and deployment choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one product", "Ship a production Django app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Django engineers and technical leads. Covers Django internals, large codebases and service layers, multi-tenancy, database routing and replicas, performance engineering, advanced Celery workflows, event-driven Django, GraphQL, zero-downtime migrations, OIDC and security architecture, Kubernetes, cloud hosting choices, OpenTelemetry, API governance, LTS upgrades, reusable packages, data-heavy features, AI features with pgvector and production troubleshooting.",
+      "prerequisites": ["Several years building production Django applications", "Strong Python, PostgreSQL and DRF skills", "Has deployed and operated Django in production"],
+      "outcomes": ["Architect large and multi-tenant Django platforms", "Scale databases, tasks and APIs", "Secure, observe and upgrade Django estates", "Lead Django teams and technical decisions"],
+      "days": [
+        {
+          "topic": "Django Internals: ORM Compiler, Middleware Chain and App Loading",
+          "subtopics": ["App registry and start-up", "Settings loading", "The middleware chain", "How QuerySets become SQL", "Lookups and transforms", "Template engine internals", "Request and response objects", "Reading the Django source"],
+          "tools": ["Django source code", "Python debugger", "django-debug-toolbar"],
+          "lab_task": "Step through a request from WSGI to the view in the debugger, trace how a QuerySet compiles to SQL, write a custom lookup and explain app loading order problems.",
+          "deliverable": "Internals notebook with a custom lookup",
+          "checks": [["Trace a request", "Each middleware and handler step identified", "Debugger notes"], ["Write a custom lookup", "Lookup generates the expected SQL", "SQL output"], ["Explain app loading", "Import-time problem diagnosed and fixed", "Fix notes"]],
+          "objectives": ["Understand Django internals", "Extend the ORM", "Diagnose start-up problems"]
+        },
+        {
+          "topic": "Large Django Codebases: Apps, Boundaries and Service Layers",
+          "subtopics": ["When fat models stop working", "Service and selector layers", "App boundaries and dependencies", "Enforcing import rules", "Domain events inside a monolith", "Shared kernels", "Refactoring towards boundaries", "Architecture decision records"],
+          "tools": ["import-linter", "Django", "pytest"],
+          "lab_task": "Introduce service and selector layers into a large project, enforce app boundaries with import-linter, replace direct cross-app calls with domain events and record the decisions.",
+          "deliverable": "Refactored code and architecture records",
+          "checks": [["Enforce boundaries", "import-linter fails on a forbidden import", "Lint output"], ["Test services", "Service functions tested without HTTP", "Test output"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Structure large Django projects", "Enforce boundaries", "Refactor safely"]
+        },
+        {
+          "topic": "Multi-Tenant Django with Schemas or Row-Level Isolation",
+          "subtopics": ["Tenancy models for Django", "Schema per tenant with django-tenants", "Shared schema with tenant foreign keys", "PostgreSQL row-level security", "Tenant resolution by domain", "Tenant-aware caching and tasks", "Tenant onboarding and offboarding", "Isolation testing"],
+          "tools": ["django-tenants", "PostgreSQL row-level security", "Celery"],
+          "lab_task": "Build the same feature with schema-per-tenant and shared-schema models, resolve tenants by domain, keep cache keys and Celery tasks tenant-aware and prove isolation with tests.",
+          "deliverable": "Multi-tenant design comparison and isolation tests",
+          "checks": [["Test isolation", "No cross-tenant data in views, APIs or tasks", "Test output"], ["Onboard a tenant", "New tenant ready automatically", "Onboarding log"], ["Compare models", "Trade-offs of both models recorded", "Comparison notes"]],
+          "objectives": ["Choose tenancy models", "Enforce isolation", "Run tenant-aware tasks"]
+        },
+        {
+          "topic": "Scaling Django: Database Routing, Read Replicas and Connection Pooling",
+          "subtopics": ["Multiple databases in Django", "Database routers", "Read replicas and replication lag", "Read-after-write consistency", "Connection pooling with PgBouncer or the built-in pool", "Persistent connections", "Partitioning large tables", "Load testing the database tier"],
+          "tools": ["PostgreSQL", "PgBouncer", "Django database routers", "Locust"],
+          "lab_task": "Route reads to a replica while keeping read-after-write consistency, pool connections, partition the bookings table and load test to find the new limit.",
+          "deliverable": "Database scaling configuration and results",
+          "checks": [["Route reads", "Reads go to the replica except after a user's own writes", "Query log"], ["Pool connections", "No connection errors at peak load", "Load test results"], ["Partition a table", "Queries on recent bookings scan only recent partitions", "EXPLAIN output"]],
+          "objectives": ["Scale Django databases", "Use replicas safely", "Pool connections"]
+        },
+        {
+          "topic": "Performance Engineering: Profiling Queries and Views at Scale",
+          "subtopics": ["Performance budgets for pages and APIs", "Profiling with django-silk and py-spy", "Query plans for ORM queries", "Template rendering cost", "Serializer cost in DRF", "Caching layers", "Gunicorn workers and threads", "Load testing with Locust"],
+          "tools": ["django-silk", "py-spy", "Locust", "PostgreSQL EXPLAIN"],
+          "lab_task": "Profile the slowest page and API, fix query plans, serializer and template costs, tune Gunicorn workers, and show gains under load with Locust.",
+          "deliverable": "Performance report with before and after results",
+          "checks": [["Profile a slow view", "Hot spots identified with profiler output", "Profiler screenshot"], ["Speed up serializers", "API response time lower for the same data", "Timing comparison"], ["Load test", "p95 latency meets the budget", "Locust report"]],
+          "objectives": ["Profile Django apps", "Fix bottlenecks across layers", "Prove gains under load"]
+        },
+        {
+          "topic": "Advanced Celery: Workflows, Retries and Monitoring",
+          "subtopics": ["Chains, groups and chords", "Task routing and queues", "Rate limits and priorities", "Retries with backoff and jitter", "Visibility timeouts and acknowledgements", "Long-running and resumable tasks", "Monitoring and alerting on queues", "Alternatives such as Dramatiq and RQ"],
+          "tools": ["Celery", "Redis or RabbitMQ", "Flower", "Prometheus"],
+          "lab_task": "Build a report pipeline with chains and chords, route heavy tasks to their own queue, handle late acknowledgements correctly and alert on queue backlogs.",
+          "deliverable": "Celery workflow and monitoring setup",
+          "checks": [["Run a chord", "Final task runs after all parallel tasks finish", "Flower screenshot"], ["Kill a worker mid-task", "Task reprocessed once without duplicates", "Task log"], ["Alert on backlog", "Alert fires when the queue grows", "Alert notification"]],
+          "objectives": ["Build Celery workflows", "Make tasks safe under failure", "Monitor queues"]
+        },
+        {
+          "topic": "Event-Driven Django with Kafka or RabbitMQ",
+          "subtopics": ["Events between Django and other services", "Publishing events reliably with an outbox", "Consumers as management commands or workers", "Idempotent consumers", "Event schemas and versioning", "Dead letter handling", "Testing event flows", "Choosing Kafka or RabbitMQ"],
+          "tools": ["Kafka or RabbitMQ", "confluent-kafka or pika", "Django"],
+          "lab_task": "Publish booking events through an outbox, consume them in a separate analytics service idempotently, route failures to a dead letter queue and evolve the event schema safely.",
+          "deliverable": "Event-driven integration with an event catalogue",
+          "checks": [["Replay events", "No duplicate records after replay", "Database counts"], ["Fail a consumer", "Message lands in the dead letter queue", "Queue screenshot"], ["Evolve the schema", "Old and new consumers keep working", "Test output"]],
+          "objectives": ["Integrate Django with event streams", "Publish events reliably", "Consume events safely"]
+        },
+        {
+          "topic": "GraphQL APIs with Strawberry for Django",
+          "subtopics": ["When GraphQL fits a Django product", "Strawberry Django types from models", "Queries, mutations and input types", "DataLoaders to avoid N+1 queries", "Permissions in GraphQL", "Query depth and complexity limits", "Subscriptions", "Running GraphQL next to DRF"],
+          "tools": ["Strawberry Django", "DataLoader", "Django"],
+          "lab_task": "Add a GraphQL API for the dashboard with Strawberry, batch loading with DataLoaders, permissions and depth limits, and run it next to the existing DRF API.",
+          "deliverable": "GraphQL API alongside DRF",
+          "checks": [["Batch loading", "Nested query runs a fixed small number of SQL queries", "Query log"], ["Limit depth", "Overly deep query rejected", "Response"], ["Check permissions", "Fields hidden from unauthorised users", "Response"]],
+          "objectives": ["Build GraphQL APIs on Django", "Avoid N+1 queries", "Protect GraphQL endpoints"]
+        },
+        {
+          "topic": "Zero-Downtime Migrations on Large Tables",
+          "subtopics": ["Which migrations lock tables", "Expand and contract changes", "Adding columns and indexes concurrently", "Backfilling data in batches", "Renaming columns safely", "Running migrations with rolling deploys", "Migration linting", "Rollback plans"],
+          "tools": ["django-pg-zero-downtime-migrations or django-migration-linter", "PostgreSQL"],
+          "lab_task": "Rename and restructure a column on a large table with expand and contract, add an index concurrently, backfill in batches during traffic and lint migrations in CI.",
+          "deliverable": "Migration plan, scripts and release notes",
+          "checks": [["Add an index concurrently", "No table lock during index creation", "Lock monitoring output"], ["Backfill in batches", "Backfill completes with no latency spike", "Metrics"], ["Lint migrations", "CI blocks an unsafe migration", "CI log"]],
+          "objectives": ["Change large tables safely", "Plan expand and contract releases", "Automate migration checks"]
+        },
+        {
+          "topic": "Security Architecture: OIDC, Secrets and Audit Trails",
+          "subtopics": ["Single sign-on with OpenID Connect", "Django as an OIDC client", "Fine-grained authorisation", "Secrets from a vault", "Encrypting sensitive fields", "Audit trails for sensitive actions", "Threat modelling a Django platform", "Security testing in pipelines"],
+          "tools": ["mozilla-django-oidc or django-allauth", "HashiCorp Vault", "django-auditlog", "OWASP ZAP"],
+          "lab_task": "Add SSO through an OIDC provider, load secrets from Vault, encrypt sensitive fields, record audit trails for admin actions and threat model the platform.",
+          "deliverable": "Security architecture and threat model",
+          "checks": [["Sign in with SSO", "Users sign in through the identity provider", "Screen recording"], ["Encrypt fields", "Sensitive fields unreadable in the database", "Query output"], ["Review the audit trail", "Admin changes recorded with user and time", "Audit log"]],
+          "objectives": ["Integrate enterprise SSO", "Protect secrets and data", "Keep audit trails"]
+        },
+        {
+          "topic": "Django on Kubernetes",
+          "subtopics": ["Container images for Django", "Deployments for web, workers and beat", "Migrations as Kubernetes jobs", "Probes and graceful shutdown", "Static and media files on Kubernetes", "Autoscaling web and workers", "Configuration and secrets", "Helm charts"],
+          "tools": ["Kubernetes", "Helm", "KEDA", "kubectl"],
+          "lab_task": "Package web, worker and beat as a Helm chart, run migrations as a job, add probes and graceful shutdown, autoscale workers on queue length and prove a rollout drops no requests.",
+          "deliverable": "Helm chart and rollout results",
+          "checks": [["Roll out", "No failed requests during the rollout", "Load test output"], ["Run migrations", "Migration job completes before new pods serve traffic", "Job and pod events"], ["Autoscale workers", "Workers scale with queue length", "KEDA metrics"]],
+          "objectives": ["Run Django on Kubernetes", "Handle migrations in deployments", "Autoscale web and workers"]
+        },
+        {
+          "topic": "Hosting Django on AWS or Azure: Containers, Serverless and Managed Services",
+          "subtopics": ["Hosting options compared", "AWS: ECS Fargate, App Runner and RDS", "Azure: Container Apps, App Service and Azure Database for PostgreSQL", "Serverless Django and its limits", "Managed Redis and queues", "Secrets and identity in the cloud", "Costs at different scales", "Making a hosting decision"],
+          "tools": ["AWS ECS or App Runner", "Azure Container Apps", "Managed PostgreSQL"],
+          "lab_task": "Deploy the platform to one AWS and one Azure option with managed PostgreSQL and Redis, compare effort, performance and cost and write a hosting recommendation.",
+          "deliverable": "Hosting comparison and recommendation",
+          "checks": [["Deploy twice", "Platform works on both clouds", "Deployment URLs"], ["Compare options", "Effort, latency and cost compared", "Comparison table"], ["Recommend", "Recommendation covers risk, cost and team skills", "Recommendation document"]],
+          "objectives": ["Host Django in the cloud", "Use managed services", "Choose a hosting option"]
+        },
+        {
+          "topic": "Observability with OpenTelemetry for Django",
+          "subtopics": ["OpenTelemetry instrumentation for Django", "Tracing ORM queries, Celery tasks and HTTP calls", "Metrics for requests and queues", "Correlating logs and traces", "SLOs for key journeys", "Alerting on burn rate", "Dashboards for teams", "Telemetry costs"],
+          "tools": ["OpenTelemetry", "Grafana Tempo or Jaeger", "Prometheus", "Grafana"],
+          "lab_task": "Instrument web and workers with OpenTelemetry, trace a booking through Django, PostgreSQL and Celery, define an SLO for booking and alert on burn rate.",
+          "deliverable": "Observability setup with SLO and dashboards",
+          "checks": [["Trace a booking", "One trace covers view, database and task", "Trace screenshot"], ["Link logs", "Log lines carry trace IDs", "Log sample"], ["Alert on burn rate", "Alert fires during a simulated failure", "Alert notification"]],
+          "objectives": ["Instrument Django with OpenTelemetry", "Define SLOs", "Alert on user impact"]
+        },
+        {
+          "topic": "API Governance at Scale: Versioning, Pagination and Contracts with drf-spectacular",
+          "subtopics": ["API design guidelines for many teams", "Versioning strategies in DRF", "Pagination and filtering standards", "Error format standards", "OpenAPI as a contract", "Breaking change detection in CI", "Deprecation policies", "API catalogues"],
+          "tools": ["drf-spectacular", "oasdiff", "Spectral"],
+          "lab_task": "Write API guidelines, lint the OpenAPI schema with Spectral rules, version two endpoints, detect breaking changes in CI and publish a deprecation notice.",
+          "deliverable": "API guidelines and contract pipeline",
+          "checks": [["Lint the schema", "Spectral rules pass for all endpoints", "Lint output"], ["Break the contract", "CI fails on a breaking change", "CI log"], ["Deprecate an endpoint", "Deprecation headers and notice published", "Response headers"]],
+          "objectives": ["Govern Django APIs", "Protect contracts", "Manage deprecation"]
+        },
+        {
+          "topic": "Upgrading Django Across LTS Releases",
+          "subtopics": ["Django release and support policy", "Reading release notes and deprecations", "Running with deprecation warnings as errors", "Upgrading third-party packages", "django-upgrade and pyupgrade", "Testing the upgrade", "Upgrading Python at the same time", "Rolling out upgrades across services"],
+          "tools": ["django-upgrade", "pyupgrade", "tox or nox", "Renovate"],
+          "lab_task": "Upgrade a project from one Django LTS release to the next, fix deprecations with warnings as errors, upgrade third-party apps and roll out with a staged deployment.",
+          "deliverable": "Upgraded project and upgrade guide",
+          "checks": [["Fix deprecations", "Test run with warnings as errors passes", "Test output"], ["Upgrade packages", "Third-party apps compatible with the new version", "Dependency report"], ["Roll out", "Staged rollout completes without errors", "Deployment log"]],
+          "objectives": ["Plan Django upgrades", "Remove deprecations", "Roll out upgrades safely"]
+        },
+        {
+          "topic": "Building Reusable Django Packages",
+          "subtopics": ["When to extract a reusable app", "Package layout and pyproject.toml", "Settings and extension points", "Migrations in reusable apps", "Templates and static files in packages", "Testing against several Django versions", "Documentation", "Publishing to a private index"],
+          "tools": ["pyproject.toml", "tox or nox", "twine or uv publish"],
+          "lab_task": "Extract an audit app into a reusable package with configurable settings and migrations, test it against two Django versions and publish it to a private index.",
+          "deliverable": "Published reusable package",
+          "checks": [["Install the package", "Another project installs and uses it", "Screenshot"], ["Test two versions", "Tests pass on both Django versions", "Test matrix output"], ["Configure it", "Behaviour changes through settings only", "Test output"]],
+          "objectives": ["Build reusable Django apps", "Test across versions", "Publish packages"]
+        },
+        {
+          "topic": "Data-Heavy Django: Reporting, Exports and Analytics",
+          "subtopics": ["Reporting needs and data volumes", "Aggregation queries and materialised views", "Streaming CSV and Excel exports", "Background report generation", "Charts and dashboards", "Read-only analytics databases", "Data warehouse feeds", "Permissions on reports"],
+          "tools": ["PostgreSQL materialised views", "openpyxl", "Celery", "Chart.js"],
+          "lab_task": "Build a reporting module with materialised views, streamed exports of a million rows, background report jobs and charts, served from a read-only connection.",
+          "deliverable": "Reporting module with performance notes",
+          "checks": [["Stream an export", "Million-row export starts immediately and completes", "Timing log"], ["Refresh a view", "Materialised view refreshes without blocking readers", "Lock monitoring output"], ["Show charts", "Dashboard charts load from the read-only connection", "Screenshot"]],
+          "objectives": ["Build reports at scale", "Stream large exports", "Separate analytics load"]
+        },
+        {
+          "topic": "AI Features in Django: LLM APIs, pgvector and Background Jobs",
+          "subtopics": ["AI use cases in Django products", "Calling LLM APIs from Django", "Embeddings stored with pgvector", "Semantic search over content", "Streaming answers to the browser", "Running AI work in Celery", "Guardrails and moderation", "Cost tracking and evaluation"],
+          "tools": ["pgvector", "OpenAI or Azure OpenAI", "Celery", "Django"],
+          "lab_task": "Add semantic search over events with pgvector, an assistant that answers questions from event content with streaming responses, background embedding jobs and cost tracking.",
+          "deliverable": "AI features with evaluation notes",
+          "checks": [["Search semantically", "Relevant events found without shared keywords", "Search results"], ["Stream answers", "Answer streams to the page with sources", "Screen recording"], ["Track cost", "Cost per request reported", "Cost report"]],
+          "objectives": ["Add AI features to Django", "Use pgvector", "Control AI cost and risk"]
+        },
+        {
+          "topic": "Troubleshooting Production Django Incidents",
+          "subtopics": ["Incident triage for Django platforms", "Slow requests from missing indexes", "Memory growth in workers", "Celery backlogs and stuck tasks", "Database connection exhaustion", "Errors after releases", "Collecting evidence safely", "Post-incident reviews"],
+          "tools": ["Sentry", "py-spy", "PostgreSQL pg_stat_statements", "Flower"],
+          "lab_task": "Work through four incidents: a missing index after a release, worker memory growth, a stuck Celery queue and connection exhaustion, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot Django in production", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant SaaS on Django",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["Django", "DRF", "PostgreSQL", "Celery", "Kubernetes", "OpenTelemetry"],
+          "lab_task": "Design and build a multi-tenant SaaS on Django with service layers, tenant isolation, replicas, event-driven integration, zero-downtime migrations, SSO, AI search and SLOs, then defend it to a review panel.",
+          "deliverable": "Platform repository, architecture document and defence",
+          "checks": [["Prove isolation", "No cross-tenant data in tests", "Test report"], ["Meet SLOs", "Load test meets the agreed SLOs", "Load test report"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect large Django systems", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}
