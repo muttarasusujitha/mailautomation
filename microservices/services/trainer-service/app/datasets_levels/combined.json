@@ -5900,6 +5900,599 @@
           "Make host configuration repeatable"
         ]
       }
+    },
+    {
+      "between": [
+        "Node.js",
+        "MongoDB"
+      ],
+      "day": {
+        "topic": "MongoDB Native Driver Patterns for Node.js Services",
+        "subtopics": [
+          "The official MongoDB Node.js driver compared with Mongoose",
+          "One MongoClient per process and pool settings",
+          "Typed collections with TypeScript generics",
+          "Bulk writes: ordered and unordered",
+          "Transactions with sessions and retryable writes",
+          "Change streams consumed by a Node.js worker",
+          "Streaming large cursors without loading everything",
+          "Driver monitoring events and slow operation logs"
+        ],
+        "tools": [
+          "Node.js",
+          "MongoDB Node.js driver",
+          "MongoDB Atlas",
+          "TypeScript"
+        ],
+        "lab_task": "Build a Node.js ingestion service on the native driver with a shared client, typed collections, bulk upserts, a transaction for order placement, a change stream worker and pool metrics from driver events.",
+        "deliverable": "Service code with pool and throughput measurements",
+        "checks": [
+          [
+            "Bulk upsert 100,000 documents",
+            "Unordered bulk write finishes with counts reconciled",
+            "Run log"
+          ],
+          [
+            "Restart the worker",
+            "Change stream resumes from the stored token",
+            "Worker log"
+          ],
+          [
+            "Watch pool events",
+            "Pool size and wait times reported under load",
+            "Metrics output"
+          ]
+        ],
+        "objectives": [
+          "Use the MongoDB driver directly from Node.js",
+          "Manage connections and transactions",
+          "Consume change streams reliably"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Node.js",
+        "React"
+      ],
+      "day": {
+        "topic": "React Client and Node.js API Contracts: Auth, CORS and Shared Types",
+        "subtopics": [
+          "Monorepo layout for a React client and a Node.js API",
+          "Shared Zod schemas and inferred types",
+          "Cookie sessions or tokens for a browser client",
+          "CORS and CSRF settings that match the deployment",
+          "API errors mapped to form fields in React",
+          "Generating a typed client from OpenAPI",
+          "Local development with a Vite proxy",
+          "Serving client and API on the same domain"
+        ],
+        "tools": [
+          "React",
+          "Node.js",
+          "Express or Fastify",
+          "Zod",
+          "Vite",
+          "OpenAPI"
+        ],
+        "lab_task": "Connect a React client to a Node.js API with shared Zod schemas, cookie sessions with CSRF protection, a generated typed client, field-level error mapping and same-domain deployment behind a reverse proxy.",
+        "deliverable": "Monorepo with shared contracts and deployment configuration",
+        "checks": [
+          [
+            "Change a shared schema",
+            "Type errors appear in client and API wherever affected",
+            "tsc output"
+          ],
+          [
+            "Submit a form that fails on the server",
+            "Error shown on the matching field",
+            "Screenshot"
+          ],
+          [
+            "Send a cross-site request",
+            "Request without the CSRF token rejected",
+            "Response"
+          ]
+        ],
+        "objectives": [
+          "Connect React to Node.js APIs safely",
+          "Share types and schemas",
+          "Deploy client and API together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Node.js",
+        "TypeScript"
+      ],
+      "day": {
+        "topic": "End-to-End Type Safety Between Node.js APIs and Clients with tRPC",
+        "subtopics": [
+          "When tRPC fits and when REST or GraphQL is better",
+          "Routers, procedures and input validation",
+          "Context with authentication",
+          "Calling procedures from React or other clients",
+          "Error codes and formatting",
+          "Middleware for logging and rate limits",
+          "Breaking changes without a schema file",
+          "Testing procedures directly"
+        ],
+        "tools": [
+          "tRPC",
+          "TypeScript",
+          "Zod",
+          "Node.js"
+        ],
+        "lab_task": "Build a tRPC API for a notes product with authenticated context, validated inputs and middleware, call it from a typed client, then rename a field and let the compiler find every caller.",
+        "deliverable": "tRPC API, client and decision notes",
+        "checks": [
+          [
+            "Rename a field",
+            "Compiler flags every affected caller",
+            "tsc output"
+          ],
+          [
+            "Call without a session",
+            "Procedure returns UNAUTHORIZED",
+            "Response"
+          ],
+          [
+            "Test a procedure",
+            "Procedure tested without starting an HTTP server",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Share types from API to client",
+          "Validate procedure inputs",
+          "Choose between tRPC, REST and GraphQL"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "day": {
+        "topic": "node-postgres in Production: Pools, Prepared Statements and LISTEN/NOTIFY",
+        "subtopics": [
+          "Pool sizing against max_connections",
+          "Parameterised queries and prepared statements",
+          "Transactions on a dedicated client",
+          "Statement timeouts and query cancellation",
+          "Streaming large results with cursors",
+          "COPY for bulk loads",
+          "LISTEN/NOTIFY for lightweight events",
+          "PgBouncer modes and their effect on Node.js code"
+        ],
+        "tools": [
+          "node-postgres",
+          "PostgreSQL",
+          "PgBouncer",
+          "pg-copy-streams"
+        ],
+        "lab_task": "Tune a node-postgres pool for the target load, add statement timeouts, load one million rows with COPY, stream a large export with a cursor and push cache invalidations with LISTEN/NOTIFY.",
+        "deliverable": "Data access module with load and timing results",
+        "checks": [
+          [
+            "Hit the statement timeout",
+            "Long query cancelled with a clear error",
+            "Error output"
+          ],
+          [
+            "Load with COPY",
+            "One million rows loaded faster than batched inserts",
+            "Timing comparison"
+          ],
+          [
+            "Send a notification",
+            "Listening instances clear the cache entry",
+            "Log output"
+          ]
+        ],
+        "objectives": [
+          "Use PostgreSQL well from Node.js",
+          "Control pools and timeouts",
+          "Load and stream large data"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Node.js",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Node.js with the AWS SDK v3: S3, SQS, DynamoDB and IAM Roles",
+        "subtopics": [
+          "Modular AWS SDK v3 clients and commands",
+          "Credentials from IAM roles instead of keys",
+          "Uploading and streaming objects in S3",
+          "Pre-signed URLs",
+          "Sending and receiving SQS messages",
+          "DynamoDB with the document client",
+          "Retries, timeouts and pagination helpers",
+          "Local testing with mocks or LocalStack"
+        ],
+        "tools": [
+          "AWS SDK for JavaScript v3",
+          "Amazon S3",
+          "Amazon SQS",
+          "Amazon DynamoDB",
+          "LocalStack"
+        ],
+        "lab_task": "Build a Node.js service that stores uploads in S3 with pre-signed URLs, queues processing jobs in SQS, records status in DynamoDB, runs with an IAM role and is tested against LocalStack.",
+        "deliverable": "Service code, IAM policy and test suite",
+        "checks": [
+          [
+            "Run with an IAM role",
+            "No access keys in code or environment files",
+            "Configuration review"
+          ],
+          [
+            "Process a queued job",
+            "Job status updated in DynamoDB after processing",
+            "Table item"
+          ],
+          [
+            "Test locally",
+            "Tests pass against LocalStack",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Call AWS services from Node.js",
+          "Use least-privilege roles",
+          "Test AWS code locally"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Angular",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Angular Front End on a Node.js API: Interceptors, Auth and Deployment",
+        "subtopics": [
+          "Angular HttpClient calling an Express or NestJS API",
+          "Interceptors for tokens and errors",
+          "Route guards backed by API sessions",
+          "Typed models shared with the API",
+          "Proxy configuration for local development",
+          "File uploads with progress",
+          "Server-side rendering with Angular SSR on Node.js",
+          "Deploying the API and the Angular build together"
+        ],
+        "tools": [
+          "Angular",
+          "Node.js",
+          "NestJS or Express",
+          "Angular SSR"
+        ],
+        "lab_task": "Connect an Angular app to a NestJS API with interceptors for auth and errors, guards, shared models and uploads with progress, then serve the Angular SSR build and the API from one Node.js deployment.",
+        "deliverable": "Angular and Node.js application with deployment notes",
+        "checks": [
+          [
+            "Expire a session",
+            "Interceptor sends the user to sign in",
+            "Screen recording"
+          ],
+          [
+            "Upload a file",
+            "Progress shown and file stored by the API",
+            "Screenshot"
+          ],
+          [
+            "Render on the server",
+            "Page HTML contains data from the API",
+            "Page source"
+          ]
+        ],
+        "objectives": [
+          "Connect Angular to Node.js APIs",
+          "Handle auth and errors centrally",
+          "Deploy Angular and Node.js together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Vue.js",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Vue Client on a Node.js API: Sessions, Uploads and Typed Contracts",
+        "subtopics": [
+          "Project layout for a Vue client and a Node.js API",
+          "Session cookies and CSRF with a single-page app",
+          "A typed API client shared with the server",
+          "Pinia stores fed by API calls",
+          "Uploads from Vue to a Node.js endpoint",
+          "Validation errors mapped to form fields",
+          "Vite proxy for local development",
+          "Serving the Vue build and API behind NGINX"
+        ],
+        "tools": [
+          "Vue 3",
+          "Pinia",
+          "Node.js",
+          "Express or Fastify",
+          "Vite",
+          "NGINX"
+        ],
+        "lab_task": "Connect a Vue app to a Node.js API with cookie sessions, CSRF protection, a typed client, Pinia stores, uploads and field-level validation errors, then serve both behind NGINX.",
+        "deliverable": "Vue and Node.js application with deployment configuration",
+        "checks": [
+          [
+            "Sign in",
+            "Session cookie set and user loaded into the Pinia store",
+            "Screen recording"
+          ],
+          [
+            "Upload a file",
+            "File stored by the API with progress shown",
+            "Screenshot"
+          ],
+          [
+            "Submit invalid data",
+            "Server errors shown on the matching fields",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Connect Vue to Node.js APIs",
+          "Share contracts",
+          "Deploy client and API together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Vue.js",
+        "React"
+      ],
+      "day": {
+        "topic": "Vue and React Side by Side: Concepts, Migration and Shared Design Tokens",
+        "subtopics": [
+          "Components, props and events in both frameworks",
+          "Vue reactivity compared with React hooks",
+          "Pinia compared with Redux Toolkit and Zustand",
+          "Vue Router compared with React Router",
+          "Sharing design tokens and styles across both",
+          "Web components for shared widgets",
+          "Moving a feature from one framework to the other",
+          "Choosing a framework for a new project"
+        ],
+        "tools": [
+          "Vue 3",
+          "React",
+          "Style Dictionary",
+          "Web components"
+        ],
+        "lab_task": "Build the same filterable list in Vue and React, share design tokens and one web component between them, move a small feature across and write a framework recommendation.",
+        "deliverable": "Two implementations, shared tokens and a recommendation",
+        "checks": [
+          [
+            "Build both versions",
+            "Both lists pass the same behaviour tests",
+            "Test output"
+          ],
+          [
+            "Share a widget",
+            "One web component works in both apps",
+            "Screenshots"
+          ],
+          [
+            "Recommend a framework",
+            "Recommendation backed by team, hiring and ecosystem factors",
+            "Recommendation document"
+          ]
+        ],
+        "objectives": [
+          "Map concepts between Vue and React",
+          "Share design assets",
+          "Advise on framework choice"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Vue.js",
+        "Python"
+      ],
+      "day": {
+        "topic": "Vue Front End on a Python API with FastAPI or Django",
+        "subtopics": [
+          "FastAPI or Django REST Framework as the back end",
+          "CORS and cookie settings for a Vue client",
+          "Authentication with sessions or JWT",
+          "Generating a TypeScript client from the OpenAPI schema",
+          "Pagination and filtering contracts",
+          "Uploads from Vue to Python",
+          "Serving the Vue build from Django or behind NGINX",
+          "Testing the pair end to end"
+        ],
+        "tools": [
+          "Vue 3",
+          "FastAPI or Django REST Framework",
+          "openapi-typescript",
+          "Playwright"
+        ],
+        "lab_task": "Build a Vue client on a FastAPI back end with cookie authentication, a generated TypeScript client, paginated lists and uploads, then add one Playwright test that runs across both.",
+        "deliverable": "Vue and Python application with an end-to-end test",
+        "checks": [
+          [
+            "Regenerate the client",
+            "TypeScript client updates from the FastAPI schema",
+            "Generated file diff"
+          ],
+          [
+            "Page through results",
+            "Pagination matches the API contract",
+            "Screen recording"
+          ],
+          [
+            "Run the end-to-end test",
+            "Test passes across Vue and Python",
+            "Playwright report"
+          ]
+        ],
+        "objectives": [
+          "Connect Vue to Python APIs",
+          "Generate typed clients",
+          "Test across the stack"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Next.js",
+        "React"
+      ],
+      "day": {
+        "topic": "Bringing an Existing React Codebase into Next.js",
+        "subtopics": [
+          "Auditing a React app before the move",
+          "Moving routes into the App Router",
+          "Client-only components and use client",
+          "Replacing client data fetching with server components",
+          "Global state, providers and context in layouts",
+          "Browser-only APIs and environment settings",
+          "Moving one route at a time behind a proxy",
+          "Measuring the result"
+        ],
+        "tools": [
+          "Next.js",
+          "React",
+          "React Router",
+          "Lighthouse"
+        ],
+        "lab_task": "Move a React Router app into Next.js route by route behind a proxy, keep shared providers in layouts, move two pages to server data fetching and compare load times and bundle sizes.",
+        "deliverable": "Partly migrated app with before and after measurements",
+        "checks": [
+          [
+            "Migrate a route",
+            "Route works in Next.js at the same URL",
+            "Screen recording"
+          ],
+          [
+            "Move data to the server",
+            "Page renders with data in the HTML",
+            "Page source"
+          ],
+          [
+            "Measure the change",
+            "Bundle size and load time compared",
+            "Measurement table"
+          ]
+        ],
+        "objectives": [
+          "Plan a React to Next.js move",
+          "Migrate routes incrementally",
+          "Measure the gain"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Next.js",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Next.js Front End with a Separate Node.js API: BFF, Auth and Deployment",
+        "subtopics": [
+          "When to keep a separate Node.js API",
+          "Next.js route handlers as a backend for frontend",
+          "Calling the API from server components",
+          "Forwarding authentication to the API",
+          "Caching API responses in Next.js",
+          "Error handling across the boundary",
+          "Local development with both apps",
+          "Deploying and versioning the pair"
+        ],
+        "tools": [
+          "Next.js",
+          "Node.js",
+          "Fastify or NestJS",
+          "Docker Compose"
+        ],
+        "lab_task": "Put a Next.js front end on an existing Node.js API with a BFF layer, forward user tokens, cache public data, map API errors to pages and run both locally with Docker Compose.",
+        "deliverable": "Next.js BFF and API integration",
+        "checks": [
+          [
+            "Call the API from a server component",
+            "Data rendered without exposing the API URL to the browser",
+            "Network log"
+          ],
+          [
+            "Forward auth",
+            "API sees the signed-in user",
+            "API log"
+          ],
+          [
+            "Cache public data",
+            "Repeat page loads skip the API within the cache lifetime",
+            "API request count"
+          ]
+        ],
+        "objectives": [
+          "Integrate Next.js with Node.js APIs",
+          "Build a BFF layer",
+          "Cache and secure API calls"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Next.js",
+        "MongoDB"
+      ],
+      "day": {
+        "topic": "MongoDB in Next.js: Connection Reuse, Server Actions and Atlas Search",
+        "subtopics": [
+          "One MongoClient across hot reloads and serverless invocations",
+          "Reading data in server components",
+          "Writing data in Server Actions",
+          "Serialising ObjectIds and dates for client components",
+          "Caching and revalidating MongoDB-backed pages",
+          "Atlas Search for site search",
+          "Indexes for page queries",
+          "Connection limits on serverless hosting"
+        ],
+        "tools": [
+          "Next.js",
+          "MongoDB Node.js driver",
+          "MongoDB Atlas",
+          "Atlas Search"
+        ],
+        "lab_task": "Build a Next.js catalogue on MongoDB Atlas with a reused client, server component reads, Server Action writes, revalidation after edits and Atlas Search with autocomplete.",
+        "deliverable": "Catalogue app with connection measurements",
+        "checks": [
+          [
+            "Reload repeatedly in development",
+            "Connection count stays flat",
+            "Atlas metrics"
+          ],
+          [
+            "Edit a product",
+            "Page shows the change after revalidation",
+            "Screen recording"
+          ],
+          [
+            "Search with a typo",
+            "Atlas Search returns the intended product",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Use MongoDB from Next.js",
+          "Manage connections on serverless",
+          "Add search with Atlas"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -8868,6 +9461,237 @@
           "Combine vSphere and Terraform",
           "Manage vSphere through a pipeline",
           "Control drift"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Node.js",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: React and Node.js Product with Shared Contracts",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Test",
+          "Ship"
+        ],
+        "tools": [
+          "React",
+          "Node.js",
+          "TypeScript",
+          "PostgreSQL or MongoDB",
+          "Playwright",
+          "Docker"
+        ],
+        "lab_task": "Build a React and Node.js product with shared schemas, sessions, uploads, real-time updates, tests across both tiers and a container deployment, then demo it.",
+        "deliverable": "Repository, live URL and demo recording",
+        "checks": [
+          [
+            "Demo the product",
+            "Main user journeys work end to end",
+            "Demo recording"
+          ],
+          [
+            "Run the tests",
+            "Unit, API and end-to-end tests pass",
+            "Test reports"
+          ],
+          [
+            "Change a contract",
+            "Shared types catch the breaking change before release",
+            "CI log"
+          ]
+        ],
+        "objectives": [
+          "Combine React and Node.js",
+          "Keep client and API in step",
+          "Ship a tested product"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Node.js",
+        "MongoDB"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Node.js Service on MongoDB Atlas",
+        "subtopics": [
+          "Data model and API",
+          "Events and jobs",
+          "Tests and operations",
+          "Demo"
+        ],
+        "tools": [
+          "Node.js",
+          "MongoDB Atlas",
+          "MongoDB Node.js driver or Mongoose",
+          "Docker"
+        ],
+        "lab_task": "Build an order service in Node.js on MongoDB Atlas with a designed schema, transactions, change stream jobs, indexes from explain plans, tests and monitoring, then present it.",
+        "deliverable": "Repository, deployed service and presentation",
+        "checks": [
+          [
+            "Run the tests",
+            "Tests pass against a real MongoDB",
+            "Test report"
+          ],
+          [
+            "Show the indexes",
+            "Main queries use indexes",
+            "explain output"
+          ],
+          [
+            "Defend the model",
+            "Schema choices explained against access patterns",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Node.js and MongoDB",
+          "Deliver a tested service",
+          "Defend data design"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Next.js",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Next.js Product on a Shared React Component Library",
+        "subtopics": [
+          "Components",
+          "Product",
+          "Quality",
+          "Demo"
+        ],
+        "tools": [
+          "Next.js",
+          "React",
+          "Storybook",
+          "Tailwind CSS",
+          "Playwright"
+        ],
+        "lab_task": "Build a React component library in Storybook and use it in a Next.js product with server rendering, Server Actions, caching and tests, then present it.",
+        "deliverable": "Component library, product repository and presentation",
+        "checks": [
+          [
+            "Publish components",
+            "Library documented in Storybook and used by the product",
+            "Storybook URL"
+          ],
+          [
+            "Run the tests",
+            "Component and end-to-end tests pass",
+            "Test reports"
+          ],
+          [
+            "Show performance",
+            "Lighthouse performance score of 90 or more",
+            "Lighthouse report"
+          ]
+        ],
+        "objectives": [
+          "Combine React and Next.js",
+          "Share components",
+          "Ship a fast product"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Vue.js",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Vue and Node.js Booking System",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Test",
+          "Ship"
+        ],
+        "tools": [
+          "Vue 3",
+          "Pinia",
+          "Node.js",
+          "PostgreSQL",
+          "Playwright",
+          "Docker"
+        ],
+        "lab_task": "Build a booking system with a Vue client and a Node.js API, sessions, availability checks, test-mode payments, email confirmations, tests and a deployment, then demo it.",
+        "deliverable": "Repository, live URL and demo recording",
+        "checks": [
+          [
+            "Book a slot",
+            "Booking confirmed and double booking prevented",
+            "Demo recording"
+          ],
+          [
+            "Run the tests",
+            "Client, API and end-to-end tests pass",
+            "Test reports"
+          ],
+          [
+            "Use the live site",
+            "Deployed system works on mobile and desktop",
+            "Screenshots"
+          ]
+        ],
+        "objectives": [
+          "Combine Vue and Node.js",
+          "Build a complete booking product",
+          "Ship it live"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Node.js",
+        "TypeScript"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Typed Node.js API Platform",
+        "subtopics": [
+          "Contracts",
+          "Services",
+          "Quality",
+          "Defence"
+        ],
+        "tools": [
+          "TypeScript",
+          "Node.js",
+          "Fastify or NestJS",
+          "Zod",
+          "OpenTelemetry"
+        ],
+        "lab_task": "Build two typed Node.js services with strict TypeScript, shared contracts, validated configuration, tracing and contract tests, then defend the type and module design.",
+        "deliverable": "Repository, contract tests and presentation",
+        "checks": [
+          [
+            "Type-check",
+            "Strict build passes with no suppressions",
+            "tsc output"
+          ],
+          [
+            "Break a contract",
+            "Contract test fails before deployment",
+            "CI log"
+          ],
+          [
+            "Defend the design",
+            "Type and module choices explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine TypeScript and Node.js",
+          "Share contracts between services",
+          "Defend design choices"
         ]
       }
     }
