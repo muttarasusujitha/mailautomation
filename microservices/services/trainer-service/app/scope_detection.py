@@ -65,7 +65,7 @@ _HOST_EXTRAS = {"DevOps": {"Prometheus and Grafana"},
                 "Full Stack": {"Node.js", "HTML and CSS"},
                 "Java Full Stack": {"HTML and CSS"},
                 "Python Full Stack": {"HTML and CSS", "Django", "FastAPI"},
-                ".NET Full Stack": {"HTML and CSS"}}
+                ".NET Full Stack": {"HTML and CSS", "ASP.NET Core"}}
 _PRIOR_KNOWLEDGE = re.compile(
     r"\b(?:know|knows|knowledge of|familiar with|experience (?:in|with)|experienced in|"
     r"prerequisites?|prior|already (?:use|using|work with))\s+(?:[a-z0-9+#.]+\s+){0,3}$")

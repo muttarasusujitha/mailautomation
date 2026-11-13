@@ -7090,6 +7090,840 @@
           "Limit agent cost"
         ]
       }
+    },
+    {
+      "between": [
+        "ASP.NET Core",
+        "C#"
+      ],
+      "day": {
+        "topic": "Modern C# in ASP.NET Core Code: Records, Pattern Matching and Async Streams",
+        "subtopics": [
+          "Records for request and response contracts",
+          "Required members and init-only properties",
+          "Pattern matching in endpoint and validation logic",
+          "Nullable reference types across an API",
+          "Async streams for streaming responses",
+          "Primary constructors for services",
+          "Collection expressions and spans in hot paths",
+          "Analyzers and code style for a web team"
+        ],
+        "tools": [
+          "C#",
+          "ASP.NET Core",
+          ".NET analyzers",
+          "EditorConfig"
+        ],
+        "lab_task": "Refactor an ASP.NET Core API to use records for contracts, pattern matching for rules, nullable annotations, an async stream endpoint and analyzers that enforce the team's style.",
+        "deliverable": "Refactored API with analyzer configuration",
+        "checks": [
+          [
+            "Enable nullable checks",
+            "API builds with no nullable warnings",
+            "Build output"
+          ],
+          [
+            "Stream results",
+            "Async stream endpoint sends items as they are produced",
+            "Network timing"
+          ],
+          [
+            "Enforce style",
+            "Analyzer flags a rule violation in a pull request",
+            "CI log"
+          ]
+        ],
+        "objectives": [
+          "Apply modern C# to web code",
+          "Use language features that reduce bugs",
+          "Enforce team style"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ASP.NET Core",
+        "Angular"
+      ],
+      "day": {
+        "topic": "Angular Client on ASP.NET Core: Typed Clients, Cookie Auth and SPA Hosting",
+        "subtopics": [
+          "Solution layout for an ASP.NET Core API and an Angular app",
+          "Generating TypeScript clients from the OpenAPI document",
+          "Cookie authentication for the Angular app through a BFF",
+          "Antiforgery tokens with Angular HttpClient",
+          "Mapping ProblemDetails to Angular form errors",
+          "Development proxy and hot reload for both projects",
+          "Hosting the Angular build from ASP.NET Core",
+          "Deploying the pair as one unit"
+        ],
+        "tools": [
+          "ASP.NET Core",
+          "Angular",
+          "NSwag or Kiota",
+          "Duende BFF or YARP"
+        ],
+        "lab_task": "Connect an Angular app to an ASP.NET Core API through a BFF with cookie sign-in and antiforgery, generate a typed client, map ProblemDetails to form errors and host the build from ASP.NET Core.",
+        "deliverable": "Angular and ASP.NET Core application with deployment notes",
+        "checks": [
+          [
+            "Sign in",
+            "Angular app signed in with cookies and no tokens in the browser",
+            "Storage inspection"
+          ],
+          [
+            "Post without antiforgery",
+            "Write request without the token rejected",
+            "Response"
+          ],
+          [
+            "Show server errors",
+            "ProblemDetails errors appear on the matching fields",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Connect Angular to ASP.NET Core securely",
+          "Share typed contracts",
+          "Host and deploy the pair"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ASP.NET Core",
+        "React"
+      ],
+      "day": {
+        "topic": "React Client on ASP.NET Core: BFF Sign-In, Typed Clients and Hosting",
+        "subtopics": [
+          "Project layout for a React client and an ASP.NET Core API",
+          "BFF sign-in with cookies",
+          "Typed clients from the OpenAPI document",
+          "TanStack Query against ASP.NET Core endpoints",
+          "ProblemDetails in React forms",
+          "Vite proxy during development",
+          "Serving the React build from ASP.NET Core or a CDN",
+          "End-to-end tests across both"
+        ],
+        "tools": [
+          "ASP.NET Core",
+          "React",
+          "Vite",
+          "TanStack Query",
+          "Playwright"
+        ],
+        "lab_task": "Connect a React client to an ASP.NET Core API with BFF cookie sign-in, a generated typed client, TanStack Query caching and ProblemDetails mapping, and run one Playwright test across both.",
+        "deliverable": "React and ASP.NET Core application with an end-to-end test",
+        "checks": [
+          [
+            "Sign in through the BFF",
+            "Session works without browser-stored tokens",
+            "Storage inspection"
+          ],
+          [
+            "Regenerate the client",
+            "API change updates the TypeScript types",
+            "Generated file diff"
+          ],
+          [
+            "Run the end-to-end test",
+            "Test passes across React and ASP.NET Core",
+            "Playwright report"
+          ]
+        ],
+        "objectives": [
+          "Connect React to ASP.NET Core",
+          "Use the BFF pattern",
+          "Test across the stack"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ASP.NET Core",
+        "SQL Server"
+      ],
+      "day": {
+        "topic": "ASP.NET Core with SQL Server: EF Core Tuning, Dapper and Resilient Connections",
+        "subtopics": [
+          "Connection strings and pooling in ASP.NET Core",
+          "Connection resiliency and transient faults",
+          "Reading execution plans for EF Core queries",
+          "Compiled queries and no-tracking reads",
+          "Dapper for hot read paths",
+          "Table-valued parameters and bulk copy",
+          "Row-level security and session context",
+          "Monitoring queries from the application"
+        ],
+        "tools": [
+          "ASP.NET Core",
+          "EF Core",
+          "Dapper",
+          "SQL Server",
+          "Query Store"
+        ],
+        "lab_task": "Tune the slowest endpoints of an ASP.NET Core app on SQL Server using execution plans, compiled and no-tracking queries, Dapper for one hot path and bulk copy for imports, with retry on transient faults.",
+        "deliverable": "Tuned data access with before and after results",
+        "checks": [
+          [
+            "Fix a slow endpoint",
+            "Query time drops after the plan-based fix",
+            "Execution plans"
+          ],
+          [
+            "Bulk import",
+            "Import time drops with bulk copy",
+            "Timing comparison"
+          ],
+          [
+            "Survive transient faults",
+            "Requests retry and succeed during a simulated failover",
+            "Log output"
+          ]
+        ],
+        "objectives": [
+          "Use SQL Server well from ASP.NET Core",
+          "Tune EF Core queries",
+          "Handle transient faults"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ASP.NET Core",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Hosting ASP.NET Core on Azure: App Service, Container Apps and Managed Identity",
+        "subtopics": [
+          "App Service plans and deployment slots",
+          "Azure Container Apps for containerised apps",
+          "Managed identity to Azure SQL, Key Vault and Storage",
+          "Configuration with App Configuration",
+          "Scaling rules",
+          "Application Insights for ASP.NET Core",
+          "Custom domains and certificates",
+          "Choosing a hosting option"
+        ],
+        "tools": [
+          "Azure App Service",
+          "Azure Container Apps",
+          "Managed identity",
+          "Azure Key Vault",
+          "Application Insights"
+        ],
+        "lab_task": "Deploy the same ASP.NET Core app to App Service with slots and to Container Apps with scaling rules, connect both to Azure SQL and Key Vault with managed identity and compare them.",
+        "deliverable": "Two Azure deployments and a comparison",
+        "checks": [
+          [
+            "Use managed identity",
+            "No connection strings with passwords in configuration",
+            "Configuration review"
+          ],
+          [
+            "Swap a slot",
+            "Release goes live with no failed requests",
+            "Availability log"
+          ],
+          [
+            "Compare hosting",
+            "Cost, scaling and operations compared",
+            "Comparison table"
+          ]
+        ],
+        "objectives": [
+          "Host ASP.NET Core on Azure",
+          "Remove secrets with managed identity",
+          "Choose an Azure hosting option"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GraphQL",
+        "React"
+      ],
+      "day": {
+        "topic": "React Clients for GraphQL: Apollo Client Caching, Fragments and Codegen",
+        "subtopics": [
+          "Apollo Client set-up in a React app",
+          "Colocating fragments with components",
+          "Typed hooks from GraphQL Code Generator",
+          "Cache policies and pagination merges",
+          "Optimistic UI for mutations",
+          "Error and loading states per component",
+          "Suspense with Apollo Client",
+          "Testing components with mocked GraphQL"
+        ],
+        "tools": [
+          "React",
+          "Apollo Client",
+          "GraphQL Code Generator",
+          "Mock Service Worker"
+        ],
+        "lab_task": "Build a React catalogue on a GraphQL API with colocated fragments, generated typed hooks, a paginated cache policy, optimistic mutations and component tests with mocked responses.",
+        "deliverable": "React GraphQL client with tests",
+        "checks": [
+          [
+            "Colocate fragments",
+            "Each component declares the fields it uses",
+            "Code review"
+          ],
+          [
+            "Merge pages",
+            "Infinite list merges pages in the cache",
+            "Screen recording"
+          ],
+          [
+            "Test with mocks",
+            "Component tests pass without a server",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Build React clients for GraphQL",
+          "Type operations with codegen",
+          "Manage the client cache"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GraphQL",
+        "ASP.NET Core"
+      ],
+      "day": {
+        "topic": "GraphQL on ASP.NET Core with Hot Chocolate",
+        "subtopics": [
+          "Hot Chocolate server set-up",
+          "Code-first and annotation-based schemas",
+          "Projections, filtering and sorting with EF Core",
+          "DataLoaders in Hot Chocolate",
+          "Authorisation with ASP.NET Core policies",
+          "Subscriptions",
+          "Query cost analysis",
+          "Banana Cake Pop or Nitro for exploring the API"
+        ],
+        "tools": [
+          "Hot Chocolate",
+          "ASP.NET Core",
+          "EF Core",
+          "Nitro"
+        ],
+        "lab_task": "Build a GraphQL API on ASP.NET Core with Hot Chocolate over EF Core with projections, filtering, DataLoaders, policy-based authorisation, a subscription and cost limits.",
+        "deliverable": "Hot Chocolate API with tests",
+        "checks": [
+          [
+            "Use projections",
+            "SQL selects only requested columns",
+            "Query log"
+          ],
+          [
+            "Authorise fields",
+            "Policy blocks a protected field for normal users",
+            "Response"
+          ],
+          [
+            "Limit cost",
+            "Expensive query rejected by cost analysis",
+            "Response"
+          ]
+        ],
+        "objectives": [
+          "Build GraphQL APIs in .NET",
+          "Use projections and DataLoaders",
+          "Secure GraphQL with ASP.NET Core policies"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microservices",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Building Microservices with Spring Boot and Spring Cloud",
+        "subtopics": [
+          "Service template with Spring Boot",
+          "Spring Cloud Config for central configuration",
+          "Service discovery with Eureka or Kubernetes",
+          "Spring Cloud Gateway routes and filters",
+          "Resilience4j circuit breakers and retries",
+          "Spring Cloud Stream with Kafka or RabbitMQ",
+          "Micrometer tracing across services",
+          "Contract tests with Spring Cloud Contract"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring Cloud",
+          "Resilience4j",
+          "Kafka or RabbitMQ",
+          "Micrometer Tracing"
+        ],
+        "lab_task": "Build three Spring Boot services with central configuration, discovery, a gateway, circuit breakers, event messaging with Spring Cloud Stream, tracing and a contract test between two services.",
+        "deliverable": "Spring Boot microservices with configuration and tests",
+        "checks": [
+          [
+            "Route through the gateway",
+            "Gateway routes and filters requests to each service",
+            "Request log"
+          ],
+          [
+            "Open a breaker",
+            "Circuit breaker opens when a service is down",
+            "Actuator metrics"
+          ],
+          [
+            "Break a contract",
+            "Contract test fails when the producer changes",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Build microservices with Spring Boot",
+          "Use Spring Cloud building blocks",
+          "Test service contracts"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microservices",
+        "ASP.NET Core"
+      ],
+      "day": {
+        "topic": "ASP.NET Core Microservices with .NET Aspire, YARP and MassTransit",
+        "subtopics": [
+          "Service template with ASP.NET Core",
+          ".NET Aspire for local orchestration",
+          "YARP as the gateway",
+          "MassTransit for messaging",
+          "Resilience handlers between services",
+          "OpenTelemetry through the Aspire service defaults",
+          "Health checks for each service",
+          "Deploying the services to Azure Container Apps"
+        ],
+        "tools": [
+          "ASP.NET Core",
+          ".NET Aspire",
+          "YARP",
+          "MassTransit",
+          "RabbitMQ or Azure Service Bus"
+        ],
+        "lab_task": "Build three ASP.NET Core services orchestrated by .NET Aspire with a YARP gateway, MassTransit messaging, resilience, health checks and tracing, and deploy them to Azure Container Apps.",
+        "deliverable": ".NET microservices solution with deployment",
+        "checks": [
+          [
+            "Run with Aspire",
+            "Dashboard shows all services, logs and traces",
+            "Aspire dashboard screenshot"
+          ],
+          [
+            "Publish an event",
+            "Consumers receive it through MassTransit",
+            "Log output"
+          ],
+          [
+            "Deploy",
+            "Services run in Azure Container Apps",
+            "Browser screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build microservices on .NET",
+          "Orchestrate with Aspire",
+          "Message between services with MassTransit"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microservices",
+        "C#"
+      ],
+      "day": {
+        "topic": "C# Service Templates for Microservices: gRPC Contracts and Messaging Clients",
+        "subtopics": [
+          "Shared contracts as NuGet packages",
+          "gRPC contracts with Protocol Buffers in C#",
+          "Generated clients and servers",
+          "Messaging client libraries",
+          "Correlation and tracing helpers",
+          "Versioning shared packages",
+          "A dotnet new template for services",
+          "Avoiding a shared library that couples services"
+        ],
+        "tools": [
+          "C#",
+          "dotnet new templates",
+          "Grpc.Tools",
+          "NuGet"
+        ],
+        "lab_task": "Create a dotnet new template for services with gRPC contracts, a messaging client and tracing helpers, publish contracts as versioned packages and generate two services from it.",
+        "deliverable": "Service template and contract packages",
+        "checks": [
+          [
+            "Generate a service",
+            "New service builds and runs from the template",
+            "Terminal output"
+          ],
+          [
+            "Version contracts",
+            "Contract package versioned and consumed by two services",
+            "Package listing"
+          ],
+          [
+            "Avoid coupling",
+            "Shared library holds no business logic",
+            "Code review"
+          ]
+        ],
+        "objectives": [
+          "Template C# services",
+          "Share contracts safely",
+          "Keep services decoupled"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microservices",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Node.js Microservices with NestJS Transports and a Gateway",
+        "subtopics": [
+          "NestJS microservice transports",
+          "Message patterns and event patterns",
+          "Request-response over RabbitMQ or NATS",
+          "A Node.js API gateway in front of services",
+          "Validation of messages with DTOs",
+          "Retries and dead letter handling",
+          "Tracing across Node.js services",
+          "Running services with Docker Compose"
+        ],
+        "tools": [
+          "NestJS",
+          "RabbitMQ or NATS",
+          "OpenTelemetry",
+          "Docker Compose"
+        ],
+        "lab_task": "Build three NestJS services that talk through RabbitMQ or NATS transports with message and event patterns, a gateway, DTO validation, retries and tracing, and run them with Docker Compose.",
+        "deliverable": "Node.js microservices with Compose setup",
+        "checks": [
+          [
+            "Call through the gateway",
+            "Gateway gets a response from a service over the transport",
+            "Request log"
+          ],
+          [
+            "Send an invalid message",
+            "Message rejected by DTO validation",
+            "Log output"
+          ],
+          [
+            "Trace a request",
+            "Trace spans all three services",
+            "Trace screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build microservices with NestJS",
+          "Use message transports",
+          "Trace Node.js services"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microservices",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Running a Microservice Estate on Kubernetes: Discovery, Configuration and Rollouts",
+        "subtopics": [
+          "One namespace per environment or team",
+          "Services and DNS for discovery",
+          "ConfigMaps and Secrets per service",
+          "Helm charts from a shared library",
+          "Probes and graceful shutdown for every service",
+          "Network policies between services",
+          "Rolling updates per service",
+          "Debugging calls between pods"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Helm",
+          "kubectl",
+          "Network policies"
+        ],
+        "lab_task": "Deploy a six-service estate to Kubernetes with charts from a shared library, configuration per service, network policies that allow only known calls and independent rolling updates.",
+        "deliverable": "Kubernetes deployment for the estate",
+        "checks": [
+          [
+            "Discover services",
+            "Services call each other by DNS name",
+            "Log output"
+          ],
+          [
+            "Block unknown calls",
+            "Network policy blocks a call that is not allowed",
+            "Connection test"
+          ],
+          [
+            "Update one service",
+            "Rolling update of one service leaves others untouched",
+            "kubectl output"
+          ]
+        ],
+        "objectives": [
+          "Run many services on Kubernetes",
+          "Restrict traffic between services",
+          "Update services independently"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microservices",
+        "Apache Kafka"
+      ],
+      "day": {
+        "topic": "Kafka as the Backbone of Event-Driven Microservices",
+        "subtopics": [
+          "Event topics owned by services",
+          "Keys, partitions and ordering per entity",
+          "Consumer groups per service",
+          "The outbox pattern with Kafka",
+          "Idempotent consumers",
+          "Schema Registry and compatibility",
+          "Dead letter topics and retries",
+          "Monitoring lag per service"
+        ],
+        "tools": [
+          "Apache Kafka",
+          "Schema Registry",
+          "Debezium",
+          "Kafka UI"
+        ],
+        "lab_task": "Connect four services through Kafka topics with owned schemas, publish through an outbox with Debezium, consume idempotently, route failures to dead letter topics and monitor lag.",
+        "deliverable": "Event-driven estate on Kafka",
+        "checks": [
+          [
+            "Preserve ordering",
+            "Events for one order processed in order",
+            "Consumer log"
+          ],
+          [
+            "Evolve a schema",
+            "Compatible change accepted and consumers keep working",
+            "Registry output"
+          ],
+          [
+            "Monitor lag",
+            "Lag per consumer group shown on a dashboard",
+            "Dashboard screenshot"
+          ]
+        ],
+        "objectives": [
+          "Use Kafka between services",
+          "Publish events reliably",
+          "Evolve event schemas"
+        ]
+      }
+    },
+    {
+      "between": [
+        "System Design",
+        "Java"
+      ],
+      "day": {
+        "topic": "Low-Level Design in Java: Classes, Patterns and Concurrency",
+        "subtopics": [
+          "Modelling entities with classes, records and enums",
+          "Interfaces for extension points",
+          "Design patterns in idiomatic Java",
+          "Immutability and value objects",
+          "Concurrency with java.util.concurrent",
+          "Thread-safe collections and locks",
+          "Unit tests for design problems",
+          "Explaining Java designs in interviews"
+        ],
+        "tools": [
+          "Java",
+          "JUnit",
+          "IntelliJ IDEA"
+        ],
+        "lab_task": "Solve two low-level design problems in Java with records, interfaces, patterns and thread-safe allocation using java.util.concurrent, with tests and a short design explanation.",
+        "deliverable": "Java low-level designs with tests",
+        "checks": [
+          [
+            "Use patterns",
+            "Patterns chosen fit each problem",
+            "Code review"
+          ],
+          [
+            "Allocate safely",
+            "Concurrent requests never double-allocate",
+            "Test output"
+          ],
+          [
+            "Explain the design",
+            "Classes and trade-offs explained in five minutes",
+            "Recording"
+          ]
+        ],
+        "objectives": [
+          "Implement low-level designs in Java",
+          "Use Java concurrency tools",
+          "Explain designs in Java"
+        ]
+      }
+    },
+    {
+      "between": [
+        "System Design",
+        "Python"
+      ],
+      "day": {
+        "topic": "Low-Level Design in Python: Classes, Protocols and Concurrency",
+        "subtopics": [
+          "Classes, dataclasses and enums for entities",
+          "Protocols and abstract base classes for extension points",
+          "Design patterns in Pythonic form",
+          "Immutability with frozen dataclasses",
+          "Concurrency with threading, asyncio and locks",
+          "Type hints for design clarity",
+          "Unit tests with pytest",
+          "Explaining Python designs in interviews"
+        ],
+        "tools": [
+          "Python",
+          "pytest",
+          "mypy"
+        ],
+        "lab_task": "Solve two low-level design problems in Python with dataclasses, protocols, patterns and safe concurrency, add type hints and tests, and explain the design.",
+        "deliverable": "Python low-level designs with tests",
+        "checks": [
+          [
+            "Type-check",
+            "mypy passes on both designs",
+            "mypy output"
+          ],
+          [
+            "Allocate safely",
+            "Concurrent requests never double-allocate",
+            "Test output"
+          ],
+          [
+            "Explain the design",
+            "Classes and trade-offs explained in five minutes",
+            "Recording"
+          ]
+        ],
+        "objectives": [
+          "Implement low-level designs in Python",
+          "Use protocols and dataclasses",
+          "Handle concurrency in Python"
+        ]
+      }
+    },
+    {
+      "between": [
+        "System Design",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Mapping a System Design onto AWS Services",
+        "subtopics": [
+          "Load balancing with ALB and NLB",
+          "Compute choices: EC2, ECS, EKS and Lambda",
+          "Databases: RDS, Aurora and DynamoDB",
+          "Caching with ElastiCache",
+          "Queues and streams: SQS, SNS and Kinesis",
+          "Object storage and CDN: S3 and CloudFront",
+          "Multi-AZ and multi-region on AWS",
+          "Cost estimates with the AWS Pricing Calculator"
+        ],
+        "tools": [
+          "AWS Pricing Calculator",
+          "AWS architecture icons",
+          "Diagram tool"
+        ],
+        "lab_task": "Map the URL shortener and notification system designs onto AWS services, make them multi-AZ, estimate monthly cost and explain where managed services change the design.",
+        "deliverable": "AWS architecture diagrams and cost estimates",
+        "checks": [
+          [
+            "Map components",
+            "Every design component mapped to an AWS service",
+            "Diagram"
+          ],
+          [
+            "Make it multi-AZ",
+            "No single-AZ dependency remains",
+            "Diagram review"
+          ],
+          [
+            "Estimate cost",
+            "Monthly cost estimated for the target load",
+            "Pricing Calculator export"
+          ]
+        ],
+        "objectives": [
+          "Map designs to AWS",
+          "Use managed services well",
+          "Estimate cloud cost"
+        ]
+      }
+    },
+    {
+      "between": [
+        "System Design",
+        "Microservices"
+      ],
+      "day": {
+        "topic": "From System Design to Service Boundaries and Contracts",
+        "subtopics": [
+          "Turning a high-level design into services",
+          "Boundaries from capabilities and data",
+          "Synchronous and asynchronous interactions",
+          "Contracts for APIs and events",
+          "Consistency choices per interaction",
+          "Failure handling between services",
+          "Deployment and scaling units",
+          "Reviewing the split"
+        ],
+        "tools": [
+          "Diagram tool",
+          "OpenAPI",
+          "AsyncAPI"
+        ],
+        "lab_task": "Turn the food delivery system design into services with owned data, define API and event contracts with OpenAPI and AsyncAPI, choose consistency per interaction and review the split.",
+        "deliverable": "Service map with contracts",
+        "checks": [
+          [
+            "Assign data",
+            "Each service owns its data",
+            "Service map"
+          ],
+          [
+            "Write contracts",
+            "API and event contracts cover every interaction",
+            "Contract files"
+          ],
+          [
+            "Review the split",
+            "Review finds and fixes chatty interactions",
+            "Review notes"
+          ]
+        ],
+        "objectives": [
+          "Turn designs into services",
+          "Define contracts",
+          "Review service splits"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -10523,6 +11357,331 @@
           "Combine Python and FastAPI",
           "Deliver a production-style service",
           "Explain design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "ASP.NET Core",
+        "Angular"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Angular and ASP.NET Core Line-of-Business App",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Test",
+          "Ship"
+        ],
+        "tools": [
+          "ASP.NET Core",
+          "Angular",
+          "EF Core",
+          "SQL Server",
+          "Playwright",
+          "Azure"
+        ],
+        "lab_task": "Build a line-of-business app with an ASP.NET Core API, an Angular client behind a BFF, typed contracts, role-based access, reports and tests, deploy it to Azure and demo it.",
+        "deliverable": "Repository, live URL and demo recording",
+        "checks": [
+          [
+            "Demo the app",
+            "Main business flows work end to end",
+            "Demo recording"
+          ],
+          [
+            "Run the tests",
+            "API and end-to-end tests pass",
+            "Test reports"
+          ],
+          [
+            "Use the live site",
+            "Deployed app works over HTTPS",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Combine ASP.NET Core and Angular",
+          "Build a secure business app",
+          "Ship it to Azure"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "ASP.NET Core",
+        "C#"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: C# and ASP.NET Core Service",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Quality",
+          "Ship"
+        ],
+        "tools": [
+          "C#",
+          "ASP.NET Core",
+          "EF Core",
+          "xUnit",
+          "Docker"
+        ],
+        "lab_task": "Build a well-structured ASP.NET Core service using modern C#, validation, authentication, caching, background work and tests, ship it in a container and present the design.",
+        "deliverable": "Repository, container image and presentation",
+        "checks": [
+          [
+            "Demo the service",
+            "Endpoints work from the API explorer",
+            "Demo recording"
+          ],
+          [
+            "Run quality checks",
+            "Tests pass with analyzers clean",
+            "CI run"
+          ],
+          [
+            "Explain the design",
+            "C# and ASP.NET Core choices explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine C# and ASP.NET Core",
+          "Deliver a production-style service",
+          "Explain design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "GraphQL",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: GraphQL API with a React Client",
+        "subtopics": [
+          "Schema",
+          "Server",
+          "Client",
+          "Ship"
+        ],
+        "tools": [
+          "GraphQL",
+          "Apollo Server or GraphQL Yoga",
+          "React",
+          "Apollo Client",
+          "GraphQL Code Generator"
+        ],
+        "lab_task": "Build a GraphQL API and a React client with a reviewed schema, batched resolvers, auth, generated types, cache policies, subscriptions and tests, deploy both and demo them.",
+        "deliverable": "Repository, live URLs and demo recording",
+        "checks": [
+          [
+            "Demo the product",
+            "Queries, mutations and live updates work end to end",
+            "Demo recording"
+          ],
+          [
+            "Change the schema",
+            "Generated types catch the breaking change in the client",
+            "CI log"
+          ],
+          [
+            "Check query counts",
+            "Nested queries use batched loading",
+            "Query log"
+          ]
+        ],
+        "objectives": [
+          "Combine GraphQL and React",
+          "Keep schema and client in step",
+          "Ship a typed product"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Microservices",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Spring Boot Microservices Platform",
+        "subtopics": [
+          "Boundaries",
+          "Services",
+          "Operations",
+          "Defence"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring Cloud",
+          "Kafka",
+          "Resilience4j",
+          "Docker",
+          "Kubernetes"
+        ],
+        "lab_task": "Build a Spring Boot microservices platform with clear boundaries, a gateway, central configuration, event messaging, sagas, resilience, tracing, contract tests and a Kubernetes deployment, then defend it.",
+        "deliverable": "Repository, running platform and defence",
+        "checks": [
+          [
+            "Demo an order",
+            "Order flows across services with compensation on failure",
+            "Demo recording"
+          ],
+          [
+            "Survive a failure",
+            "Platform keeps serving when one service is down",
+            "Chaos test record"
+          ],
+          [
+            "Defend the design",
+            "Boundary and consistency choices explained",
+            "Panel notes"
+          ]
+        ],
+        "objectives": [
+          "Combine microservices patterns with Spring Boot",
+          "Run a service platform",
+          "Defend design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Microservices",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Microservices Platform on Kubernetes",
+        "subtopics": [
+          "Platform",
+          "Services",
+          "Operations",
+          "Defence"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Helm",
+          "Argo CD",
+          "OpenTelemetry",
+          "Prometheus",
+          "Service mesh"
+        ],
+        "lab_task": "Run a microservices estate on Kubernetes with GitOps, network policies, mesh mTLS, autoscaling, tracing, SLO alerts and progressive delivery, and defend the operating model.",
+        "deliverable": "Platform repository, dashboards and defence",
+        "checks": [
+          [
+            "Release progressively",
+            "Canary promoted or rolled back by analysis",
+            "Rollout history"
+          ],
+          [
+            "Show observability",
+            "Traces and SLO alerts cover key journeys",
+            "Dashboard screenshots"
+          ],
+          [
+            "Defend the platform",
+            "Operating model questions answered",
+            "Panel notes"
+          ]
+        ],
+        "objectives": [
+          "Combine microservices and Kubernetes",
+          "Operate a service estate",
+          "Defend platform choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "System Design",
+        "Java"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Designing and Building a Scalable Java Service",
+        "subtopics": [
+          "High-level design",
+          "Low-level design",
+          "Build",
+          "Defence"
+        ],
+        "tools": [
+          "Java",
+          "Spring Boot",
+          "Redis",
+          "PostgreSQL",
+          "Load testing tool"
+        ],
+        "lab_task": "Design a ticket booking service at high and low level, build its core in Java with caching and safe concurrency, load test it against the design targets and defend the design.",
+        "deliverable": "Design document, code, load test report and defence",
+        "checks": [
+          [
+            "Meet targets",
+            "Load test meets the stated throughput and latency",
+            "Load test report"
+          ],
+          [
+            "Prevent double booking",
+            "Concurrency tests pass",
+            "Test output"
+          ],
+          [
+            "Defend the design",
+            "Design questions answered with numbers",
+            "Panel notes"
+          ]
+        ],
+        "objectives": [
+          "Combine system design and Java",
+          "Build what was designed",
+          "Prove the design under load"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "System Design",
+        "Microservices"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: From System Design to Running Microservices",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Operate",
+          "Defence"
+        ],
+        "tools": [
+          "Diagram tool",
+          "Docker",
+          "Kubernetes",
+          "Kafka",
+          "OpenTelemetry"
+        ],
+        "lab_task": "Design a ride-sharing back end, split it into services with contracts, build three core services with messaging and tracing, run them on Kubernetes and compare the result with the design.",
+        "deliverable": "Design pack, running services and defence",
+        "checks": [
+          [
+            "Build to the design",
+            "Running services match the designed boundaries and contracts",
+            "Comparison notes"
+          ],
+          [
+            "Trace a trip",
+            "One trace follows a trip across services",
+            "Trace screenshot"
+          ],
+          [
+            "Defend the design",
+            "Trade-offs explained with evidence",
+            "Panel notes"
+          ]
+        ],
+        "objectives": [
+          "Combine system design and microservices",
+          "Turn a design into running services",
+          "Learn from design versus reality"
         ]
       }
     }
