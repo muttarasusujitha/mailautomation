@@ -1,0 +1,573 @@
+{
+  "domain": "Cybersecurity",
+  "name": "Cybersecurity",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Cyber Security", "Information Security", "IT Security", "Cybersecurity Fundamentals", "Cybersecurity Analyst", "Security Operations", "Cyber Defence", "Cyber Defense"],
+  "certifications": ["CompTIA Security+", "CompTIA CySA+", "EC-Council Certified Ethical Hacker (CEH)", "ISC2 CISSP", "Microsoft Certified: Security Operations Analyst Associate (SC-200)"],
+  "tools": ["Kali Linux", "Wireshark", "Nmap", "Splunk or Microsoft Sentinel", "Burp Suite", "VirtualBox lab"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For IT staff and graduates starting in security. Covers security principles, threats and attacks, networking and operating system security, cryptography, identity and access, web application risks, vulnerability scanning, logging and SIEM basics, incident response, policies and compliance, and Security+ preparation, all in an isolated practice lab.",
+      "prerequisites": ["Basic IT knowledge: files, networks, users and passwords", "Comfortable with Windows and a command line", "A laptop able to run virtual machines"],
+      "outcomes": ["Explain security principles, common threats and defences", "Secure Windows and Linux systems and networks at a basic level", "Find vulnerabilities and read security logs", "Follow an incident response process and prepare for Security+"],
+      "days": [
+        {
+          "topic": "Cybersecurity Overview and Lab Setup",
+          "subtopics": ["Why cybersecurity matters to every organisation", "Confidentiality, integrity and availability", "Threats, vulnerabilities and risk", "Types of attackers and their motives", "Security roles and careers", "Laws and ethics: only test what you are allowed to test", "Building an isolated lab with VirtualBox", "Kali Linux and a vulnerable target machine", "Snapshots and safe lab practice", "Course lab overview"],
+          "tools": ["VirtualBox", "Kali Linux", "Metasploitable or a vulnerable VM"],
+          "lab_task": "Build an isolated lab with Kali Linux and a deliberately vulnerable machine on a host-only network, take snapshots and confirm the lab cannot reach the internet or the home network.",
+          "deliverable": "Lab diagram, network settings and connectivity test results",
+          "checks": [["Ping the target from Kali", "Reply received on the host-only network", "Terminal output"], ["Ping an internet address from the target", "No reply", "Terminal output"], ["Restore a snapshot", "Machine returns to the saved state", "Screenshot"]],
+          "objectives": ["Explain core security principles", "Build a safe practice lab", "Work within legal and ethical limits"]
+        },
+        {
+          "topic": "Threats, Attacks and Social Engineering",
+          "subtopics": ["Malware: viruses, worms, trojans, ransomware", "Phishing, spear phishing and smishing", "Pretexting and other social engineering", "Password attacks", "Denial of service", "Supply chain attacks", "Insider threats", "Real breach case studies"],
+          "tools": ["Phishing examples", "Miro"],
+          "lab_task": "Analyse ten sample emails and messages, mark each as phishing or genuine with the clues, and map three real breaches to the attack types used.",
+          "deliverable": "Email analysis and breach mapping",
+          "checks": [["Classify the ten messages", "At least nine correct with clues listed", "Analysis sheet"], ["Map three breaches", "Attack types and entry points named", "Mapping"], ["Explain how ransomware spreads", "Correct explanation", "Written answer"]],
+          "objectives": ["Recognise common attacks", "Spot phishing", "Learn from real breaches"]
+        },
+        {
+          "topic": "Networking for Security",
+          "subtopics": ["OSI and TCP/IP models", "IP addressing and subnets", "Ports and protocols", "DNS, DHCP and ARP", "TCP handshake", "Network devices: switches, routers, firewalls", "Capturing traffic with Wireshark", "Spotting suspicious traffic"],
+          "tools": ["Wireshark", "Kali Linux"],
+          "lab_task": "Capture traffic in the lab, identify DNS, HTTP and TCP handshakes, find a plain-text password in a captured login and explain why encryption matters.",
+          "deliverable": "Annotated packet capture and findings",
+          "checks": [["Find the TCP handshake", "SYN, SYN-ACK and ACK identified", "Wireshark screenshot"], ["Find the plain-text password", "Password found in the HTTP traffic", "Screenshot"], ["Filter DNS queries", "Queried names listed", "Wireshark filter output"]],
+          "objectives": ["Explain networking for security", "Capture and read traffic", "Spot insecure protocols"]
+        },
+        {
+          "topic": "Network Scanning and Discovery",
+          "subtopics": ["Why defenders scan their own networks", "Host discovery", "Port scanning with Nmap", "Service and version detection", "OS detection", "Scan types and their noise", "Reading scan results", "Rules for scanning only authorised systems"],
+          "tools": ["Nmap", "Kali Linux"],
+          "lab_task": "Scan the lab network with Nmap to list live hosts, open ports, services and versions, and write a short report of exposed services on the target.",
+          "deliverable": "Scan output and exposure report",
+          "checks": [["Discover live hosts", "All lab hosts found", "Nmap output"], ["Detect service versions", "Versions listed for open ports", "Nmap output"], ["Review the report", "Each exposed service has a risk note", "Report"]],
+          "objectives": ["Scan networks safely", "Read scan results", "Report exposed services"]
+        },
+        {
+          "topic": "Securing Windows Systems",
+          "subtopics": ["Windows accounts and groups", "User Account Control", "Windows Defender and firewall", "Patching with Windows Update", "Group Policy basics", "BitLocker", "Event Viewer and security logs", "Hardening checklists"],
+          "tools": ["Windows Server or Windows 10/11 VM", "Group Policy Editor"],
+          "lab_task": "Harden a Windows VM with a checklist: remove an admin account, enable the firewall and Defender, set password and lockout policy, enable BitLocker and find failed logons in Event Viewer.",
+          "deliverable": "Hardening checklist with evidence",
+          "checks": [["Try five wrong passwords", "Account locks out", "Screenshot"], ["Find failed logons", "Event ID 4625 entries found", "Event Viewer screenshot"], ["Check BitLocker", "Drive encrypted", "Screenshot"]],
+          "objectives": ["Harden Windows", "Use security logs", "Apply account policies"]
+        },
+        {
+          "topic": "Securing Linux Systems",
+          "subtopics": ["Users, groups and sudo", "File permissions", "SSH hardening", "Firewalls with ufw or firewalld", "Package updates", "Services and open ports", "Logs in /var/log and journalctl", "Hardening checklists"],
+          "tools": ["Ubuntu VM", "Kali Linux"],
+          "lab_task": "Harden a Linux server: disable root SSH login, use key-based SSH, set a firewall, remove an unused service and find failed SSH attempts in the logs.",
+          "deliverable": "Hardening checklist with evidence",
+          "checks": [["Try root SSH login", "Refused", "Terminal output"], ["Scan the server after hardening", "Only SSH is open", "Nmap output"], ["Find failed SSH attempts", "Entries found in the auth log", "Log output"]],
+          "objectives": ["Harden Linux", "Secure SSH", "Read Linux security logs"]
+        },
+        {
+          "topic": "Cryptography Essentials",
+          "subtopics": ["Symmetric and asymmetric encryption", "Hashing", "Digital signatures", "Certificates and PKI", "TLS", "Password hashing and salting", "Encryption at rest and in transit", "Common crypto mistakes"],
+          "tools": ["OpenSSL", "Kali Linux"],
+          "lab_task": "Encrypt and decrypt a file with AES and RSA, compare file hashes, create a self-signed certificate and inspect a website's TLS certificate chain.",
+          "deliverable": "Commands, outputs and explanations",
+          "checks": [["Change one byte in a file", "Hash changes completely", "Terminal output"], ["Decrypt with the wrong key", "Decryption fails", "Terminal output"], ["Inspect a TLS chain", "Root, intermediate and leaf certificates identified", "OpenSSL output"]],
+          "objectives": ["Explain cryptography", "Use encryption and hashing", "Inspect certificates"]
+        },
+        {
+          "topic": "Identity and Access Management",
+          "subtopics": ["Authentication and authorisation", "Passwords and password managers", "Multi-factor authentication", "Single sign-on", "Least privilege", "Role-based access control", "Account lifecycle: joiners, movers, leavers", "Privileged accounts"],
+          "tools": ["Microsoft Entra ID or Keycloak", "Password manager"],
+          "lab_task": "Set up users and roles in an identity provider, enforce MFA, apply least privilege to three roles and run a leaver process that removes all access.",
+          "deliverable": "Identity configuration and leaver checklist",
+          "checks": [["Log in without the second factor", "Access refused", "Screenshot"], ["Run the leaver process", "All access removed", "Access review output"], ["Review role permissions", "No role has more than it needs", "Role table"]],
+          "objectives": ["Manage identities", "Enforce MFA", "Apply least privilege"]
+        },
+        {
+          "topic": "Web Application Security and the OWASP Top 10",
+          "subtopics": ["How web applications work", "OWASP Top 10", "Injection", "Broken access control", "Cross-site scripting", "Security misconfiguration", "Authentication failures", "Using a deliberately vulnerable app"],
+          "tools": ["OWASP Juice Shop or DVWA", "Burp Suite Community", "Browser developer tools"],
+          "lab_task": "In the lab, find and demonstrate SQL injection, cross-site scripting and broken access control in a deliberately vulnerable app, and write the fix for each.",
+          "deliverable": "Findings with evidence and fixes",
+          "checks": [["Demonstrate SQL injection", "Login bypass or data shown", "Screenshot"], ["Demonstrate stored XSS", "Script runs in another user's view", "Screenshot"], ["Write the fixes", "Each fix addresses the root cause", "Findings report"]],
+          "objectives": ["Explain OWASP Top 10 risks", "Find common web flaws", "Recommend fixes"]
+        },
+        {
+          "topic": "Vulnerability Scanning and Patching",
+          "subtopics": ["Vulnerabilities and CVEs", "CVSS scores", "Vulnerability scanners", "Authenticated versus unauthenticated scans", "False positives", "Prioritising by risk", "Patching and mitigation", "Rescanning to confirm fixes"],
+          "tools": ["OpenVAS or Nessus Essentials", "Kali Linux"],
+          "lab_task": "Scan the lab target with a vulnerability scanner, prioritise the top five findings by risk, fix two and rescan to confirm.",
+          "deliverable": "Scan report, prioritised list and rescan evidence",
+          "checks": [["Run the scan", "Findings with CVSS scores listed", "Scan report"], ["Prioritise findings", "Order justified by risk and exposure", "Priority list"], ["Rescan after fixing", "Two findings closed", "Rescan report"]],
+          "objectives": ["Scan for vulnerabilities", "Prioritise by risk", "Confirm fixes"]
+        },
+        {
+          "topic": "Firewalls, IDS and Network Defence",
+          "subtopics": ["Firewall types", "Rules and rule order", "Network segmentation", "DMZ design", "Intrusion detection and prevention", "VPNs", "Wireless security", "Network defence in depth"],
+          "tools": ["pfSense", "Suricata or Snort", "Kali Linux"],
+          "lab_task": "Set up pfSense to segment the lab into user and server zones, write firewall rules, enable Suricata and trigger an alert with a port scan.",
+          "deliverable": "Network diagram, rules and IDS alert",
+          "checks": [["Reach the server zone from users on a blocked port", "Connection refused", "Test output"], ["Run a port scan", "Suricata alert raised", "Alert log"], ["Review rule order", "Specific allow rules before the default deny", "Rule list"]],
+          "objectives": ["Segment networks", "Write firewall rules", "Detect attacks with IDS"]
+        },
+        {
+          "topic": "Logging, Monitoring and a First SIEM",
+          "subtopics": ["Why logs matter", "Log sources", "Centralising logs", "SIEM concepts", "Searching logs", "Correlation rules", "Dashboards", "Alert fatigue"],
+          "tools": ["Splunk Free or Elastic", "Windows and Linux VMs"],
+          "lab_task": "Send Windows and Linux logs to a SIEM, search for failed logons, build a dashboard and create an alert for five failed logons in one minute.",
+          "deliverable": "SIEM searches, dashboard and alert rule",
+          "checks": [["Search failed logons", "Results from both systems", "Search output"], ["Trigger the alert", "Alert fires after five failures", "Alert screenshot"], ["Build the dashboard", "Logons, failures and top sources shown", "Dashboard"]],
+          "objectives": ["Centralise logs", "Search and alert in a SIEM", "Build security dashboards"]
+        },
+        {
+          "topic": "Endpoint Security and Malware Defence",
+          "subtopics": ["Antivirus and EDR", "Application allow listing", "Patch management", "Email security", "Browser security", "USB and removable media", "Ransomware defences", "Backups and recovery"],
+          "tools": ["Windows Defender", "EICAR test file", "Backup tool"],
+          "lab_task": "Test antivirus with the EICAR file, block an unapproved application with allow listing, and restore files from backup after a simulated ransomware encryption.",
+          "deliverable": "Test results and recovery evidence",
+          "checks": [["Download the EICAR file", "Antivirus blocks it", "Alert screenshot"], ["Run the unapproved application", "Blocked", "Screenshot"], ["Restore encrypted files", "Files restored from backup", "Screenshot"]],
+          "objectives": ["Protect endpoints", "Defend against malware", "Recover from ransomware"]
+        },
+        {
+          "topic": "Incident Response: Detect, Contain and Recover",
+          "subtopics": ["Incident response life cycle", "Preparation", "Detection and analysis", "Containment, eradication and recovery", "Evidence handling", "Communication during incidents", "Lessons learned", "Incident response plans"],
+          "tools": ["SIEM", "Incident response template"],
+          "lab_task": "Respond to a simulated account compromise: detect it in the SIEM, contain the account, collect evidence, recover and write an incident report.",
+          "deliverable": "Incident timeline and report",
+          "checks": [["Detect the compromise", "Suspicious logon found in the SIEM", "Search output"], ["Contain the account", "Account disabled and sessions ended", "Screenshot"], ["Write the report", "Timeline, impact and actions included", "Incident report"]],
+          "objectives": ["Follow the incident response life cycle", "Contain incidents", "Write incident reports"]
+        },
+        {
+          "topic": "Cloud Security Basics",
+          "subtopics": ["Shared responsibility model", "Identity in the cloud", "Storage bucket exposure", "Security groups", "Logging in the cloud", "Encryption in the cloud", "Cloud security posture checks", "Common cloud breaches"],
+          "tools": ["AWS or Azure free account", "Prowler or Defender for Cloud"],
+          "lab_task": "Create a storage bucket with public access by mistake, find it with a posture tool, fix it, restrict a security group and enable cloud audit logging.",
+          "deliverable": "Findings before and after and configuration evidence",
+          "checks": [["Run the posture check", "Public bucket flagged", "Tool output"], ["Fix and rerun", "Finding closed", "Tool output"], ["Check audit logging", "API calls recorded", "Log screenshot"]],
+          "objectives": ["Explain cloud security responsibilities", "Find common cloud misconfigurations", "Fix exposed resources"]
+        },
+        {
+          "topic": "Security Policies, Risk and Compliance",
+          "subtopics": ["Security policies and standards", "Risk assessment", "Risk treatment options", "Security controls", "Frameworks: NIST CSF and ISO 27001", "Data protection laws: DPDP Act and GDPR", "Security awareness programmes", "Audits"],
+          "tools": ["Excel", "Policy templates"],
+          "lab_task": "Write an acceptable use policy, run a risk assessment for five assets and map existing controls to NIST CSF functions.",
+          "deliverable": "Policy, risk register and control mapping",
+          "checks": [["Review the risk register", "Likelihood, impact and treatment for each risk", "Risk register"], ["Map controls to NIST CSF", "Each function has at least one control", "Mapping"], ["Review the policy", "Clear rules and consequences", "Policy"]],
+          "objectives": ["Write security policies", "Assess risk", "Map controls to frameworks"]
+        },
+        {
+          "topic": "Scripting for Security Tasks",
+          "subtopics": ["Why security staff script", "Bash basics for security", "PowerShell basics for security", "Python for log parsing", "Automating checks", "Parsing scan output", "Safe scripting practices", "Sharing scripts"],
+          "tools": ["Bash", "PowerShell", "Python 3.12"],
+          "lab_task": "Write a Python script that parses an auth log and lists IPs with more than ten failed logins, and a PowerShell script that lists local administrators on a Windows host.",
+          "deliverable": "Two scripts and their output",
+          "checks": [["Run the Python script on the sample log", "Correct IPs and counts", "Script output"], ["Run the PowerShell script", "Local administrators listed", "Script output"], ["Review scripts for hard-coded secrets", "None found", "Code review"]],
+          "objectives": ["Automate security tasks", "Parse logs with scripts", "Script safely"]
+        },
+        {
+          "topic": "Security Awareness and Human Factors",
+          "subtopics": ["Why people are targeted", "Designing awareness training", "Phishing simulations", "Measuring awareness", "Reporting culture", "Physical security", "Clean desk and device rules", "Security champions"],
+          "tools": ["GoPhish", "Survey tools"],
+          "lab_task": "Run a phishing simulation in the lab with GoPhish against test accounts, measure click and report rates, and design a short awareness session from the results.",
+          "deliverable": "Simulation results and awareness session plan",
+          "checks": [["Run the simulation", "Click and report rates recorded", "GoPhish dashboard"], ["Review the session plan", "Addresses the mistakes seen", "Session plan"], ["Define measures", "Next simulation targets set", "Measures"]],
+          "objectives": ["Run awareness programmes", "Measure human risk", "Build a reporting culture"]
+        },
+        {
+          "topic": "CompTIA Security+ Exam Preparation",
+          "subtopics": ["Exam domains", "Threats and vulnerabilities", "Architecture and design", "Implementation", "Operations and incident response", "Governance, risk and compliance", "Performance-based questions", "Study plan"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take a 90-question timed practice exam with performance-based items, analyse results by domain and plan final study.",
+          "deliverable": "Practice score, domain analysis and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Analyse by domain", "Weakest domain identified", "Analysis"], ["Review the study plan", "Covers weak areas with dates", "Study plan"]],
+          "objectives": ["Prepare for Security+", "Practise performance-based questions", "Plan study"]
+        },
+        {
+          "topic": "Beginner Capstone: Securing a Small Office Network",
+          "subtopics": ["Assessment of the network", "Hardening systems", "Network segmentation and firewall rules", "Logging and alerting", "Incident simulation", "Security report and presentation"],
+          "tools": ["VirtualBox lab", "pfSense", "Splunk Free or Elastic", "Nmap", "OpenVAS"],
+          "lab_task": "Assess a small office lab network, harden its Windows and Linux machines, segment it with firewall rules, centralise logs with alerts, respond to a simulated attack and present a security report.",
+          "deliverable": "Assessment, hardening evidence, SIEM alerts, incident report and a 10-minute presentation",
+          "checks": [["Rescan after hardening", "Critical and high findings closed", "Scan report"], ["Run the simulated attack", "Alert fires and the incident is contained", "SIEM and incident report"], ["Present the report", "Risks, fixes and next steps clear", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one engagement", "Secure a small network", "Report security posture"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For security analysts and engineers. Covers SOC operations, detection engineering with SIEM and MITRE ATT&CK, network and endpoint detection, threat intelligence, vulnerability management programmes, penetration testing of networks, web apps and Active Directory, cloud security, digital forensics, malware analysis, DevSecOps and security frameworks.",
+      "prerequisites": ["Knows networking, Windows and Linux security and basic SIEM use", "Has done Security+ level study", "Comfortable with scripting in Python or PowerShell"],
+      "outcomes": ["Run SOC operations and build detections mapped to MITRE ATT&CK", "Test networks, web applications and Active Directory in authorised labs", "Investigate incidents with forensics and malware analysis", "Build vulnerability management and DevSecOps programmes"],
+      "days": [
+        {
+          "topic": "Security Operations Centre Operations",
+          "subtopics": ["SOC tiers and roles", "Alert triage workflow", "Playbooks and runbooks", "Case management", "Shift handover", "SOC metrics: MTTD and MTTR", "Escalation to incident response", "Avoiding analyst burnout"],
+          "tools": ["Splunk or Microsoft Sentinel", "TheHive or a case tool"],
+          "lab_task": "Work a simulated SOC shift: triage 25 alerts with playbooks, open cases for real threats, close false positives with reasons and hand over to the next shift.",
+          "deliverable": "Triage log, cases and handover note",
+          "checks": [["Triage the 25 alerts", "True and false positives match the answer key in at least 22", "Triage log"], ["Open cases for real threats", "Each case has evidence and next steps", "Case records"], ["Write the handover", "Open cases and risks clear", "Handover note"]],
+          "objectives": ["Work in a SOC", "Triage alerts with playbooks", "Manage cases"]
+        },
+        {
+          "topic": "Detection Engineering with SIEM and MITRE ATT&CK",
+          "subtopics": ["MITRE ATT&CK tactics and techniques", "Writing detection rules", "Sigma rules", "Mapping detections to ATT&CK", "Testing detections with Atomic Red Team", "Tuning false positives", "Detection coverage maps", "Documenting detections"],
+          "tools": ["Splunk or Microsoft Sentinel", "Sigma", "Atomic Red Team", "ATT&CK Navigator"],
+          "lab_task": "Write five detections for credential dumping, persistence and lateral movement, test them with Atomic Red Team, tune them and show coverage in ATT&CK Navigator.",
+          "deliverable": "Detection rules, test results and coverage map",
+          "checks": [["Run the Atomic tests", "All five detections fire", "Alert log"], ["Tune one noisy rule", "False positives reduced with no missed true alerts", "Before and after counts"], ["Show coverage", "Techniques marked in ATT&CK Navigator", "Navigator layer"]],
+          "objectives": ["Engineer detections", "Map detections to ATT&CK", "Test and tune rules"]
+        },
+        {
+          "topic": "Threat Intelligence",
+          "subtopics": ["Intelligence types: strategic, operational, tactical", "Indicators of compromise", "Threat intelligence feeds", "Threat actor profiles", "MISP and STIX/TAXII", "Enriching alerts with intelligence", "Intelligence requirements", "Writing intelligence reports"],
+          "tools": ["MISP", "VirusTotal", "SIEM"],
+          "lab_task": "Build a profile of one threat actor targeting your sector, load its indicators into MISP, enrich SIEM alerts with them and write a one-page intelligence brief.",
+          "deliverable": "Actor profile, MISP event and intelligence brief",
+          "checks": [["Load indicators into MISP", "Event with indicators created", "MISP screenshot"], ["Enrich an alert", "Alert shows matching intelligence", "SIEM screenshot"], ["Review the brief", "Actionable recommendations included", "Intelligence brief"]],
+          "objectives": ["Use threat intelligence", "Profile threat actors", "Enrich detections"]
+        },
+        {
+          "topic": "Network Security Monitoring",
+          "subtopics": ["Full packet capture versus flow data", "Zeek logs", "Suricata rules", "Detecting command and control", "DNS-based threats", "TLS inspection limits", "Network baselines", "Hunting in network data"],
+          "tools": ["Zeek", "Suricata", "Wireshark", "Security Onion"],
+          "lab_task": "Analyse a provided packet capture of an infected host with Zeek and Wireshark, find the command-and-control traffic and write a Suricata rule to detect it.",
+          "deliverable": "Analysis notes and Suricata rule",
+          "checks": [["Find the beaconing host", "Host and interval identified", "Zeek conn log analysis"], ["Find the C2 domain", "Domain identified from DNS logs", "Zeek DNS log"], ["Test the Suricata rule", "Rule alerts on the capture", "Suricata output"]],
+          "objectives": ["Monitor network traffic", "Find command and control", "Write network detections"]
+        },
+        {
+          "topic": "Endpoint Detection and Response",
+          "subtopics": ["EDR capabilities", "Process trees", "Sysmon", "Detecting suspicious PowerShell", "Living off the land binaries", "Isolating hosts", "EDR investigations", "Tuning endpoint telemetry"],
+          "tools": ["Sysmon", "Microsoft Defender for Endpoint or Wazuh", "SIEM"],
+          "lab_task": "Deploy Sysmon and an EDR agent, run simulated attacker actions, investigate the process tree, isolate the host and write the investigation summary.",
+          "deliverable": "Telemetry evidence, investigation summary and isolation record",
+          "checks": [["Investigate the encoded PowerShell", "Decoded command and parent process found", "Process tree"], ["Isolate the host", "Host loses network access except to the EDR console", "Screenshot"], ["Write the summary", "Timeline and attacker actions listed", "Summary"]],
+          "objectives": ["Use EDR", "Investigate endpoint activity", "Contain hosts"]
+        },
+        {
+          "topic": "Vulnerability Management Programmes",
+          "subtopics": ["Asset inventory as the base", "Scan coverage and scheduling", "Risk-based prioritisation with CVSS, EPSS and KEV", "Remediation SLAs", "Exceptions and compensating controls", "Working with IT teams", "Metrics and reporting", "Patch Tuesday workflow"],
+          "tools": ["Nessus or OpenVAS", "Excel or Power BI"],
+          "lab_task": "Design a vulnerability management process for 500 assets, prioritise a provided scan of 2,000 findings with EPSS and the KEV catalogue and report SLA compliance.",
+          "deliverable": "Process design, prioritised list and SLA report",
+          "checks": [["Prioritise with EPSS and KEV", "Known exploited findings at the top", "Priority list"], ["Set remediation SLAs", "SLAs by severity and exposure", "Process design"], ["Report SLA compliance", "Overdue findings by owner", "Report"]],
+          "objectives": ["Run vulnerability management", "Prioritise by real risk", "Report remediation"]
+        },
+        {
+          "topic": "Penetration Testing Methodology",
+          "subtopics": ["Rules of engagement and scope", "Reconnaissance", "Scanning and enumeration", "Exploitation", "Privilege escalation", "Post-exploitation", "Reporting findings", "Legal and ethical limits"],
+          "tools": ["Kali Linux", "Nmap", "Metasploit"],
+          "lab_task": "Under written rules of engagement for the lab, test a vulnerable host from reconnaissance to privilege escalation and write a findings report with risk ratings and fixes.",
+          "deliverable": "Rules of engagement, test notes and findings report",
+          "checks": [["Gain initial access", "Shell obtained on the lab target", "Screenshot"], ["Escalate privileges", "Root or SYSTEM access shown", "Screenshot"], ["Review the report", "Each finding has evidence, risk and fix", "Findings report"]],
+          "objectives": ["Follow a testing methodology", "Exploit lab vulnerabilities", "Report findings professionally"]
+        },
+        {
+          "topic": "Web Application Penetration Testing",
+          "subtopics": ["Mapping an application", "Burp Suite proxy and repeater", "Authentication testing", "Access control testing", "Injection testing", "File upload flaws", "Server-side request forgery", "API testing"],
+          "tools": ["Burp Suite", "OWASP Juice Shop", "Postman"],
+          "lab_task": "Test a deliberately vulnerable web app and its API with Burp Suite, find at least six vulnerabilities including an IDOR and SSRF and report them with reproduction steps.",
+          "deliverable": "Findings report with reproduction steps",
+          "checks": [["Find the IDOR", "Another user's data accessed by changing an ID", "Burp request and response"], ["Find the SSRF", "Internal resource reached through the app", "Burp request"], ["Review reproduction steps", "Another tester can repeat each finding", "Report"]],
+          "objectives": ["Test web applications", "Use Burp Suite", "Report web vulnerabilities"]
+        },
+        {
+          "topic": "Active Directory Security",
+          "subtopics": ["Active Directory structure", "Kerberos and NTLM", "Common AD attacks: Kerberoasting, pass-the-hash", "BloodHound attack paths", "Tiered administration", "LAPS", "Hardening AD", "Detecting AD attacks"],
+          "tools": ["Windows Server lab", "BloodHound", "Impacket", "SIEM"],
+          "lab_task": "In a lab domain, find an attack path to Domain Admin with BloodHound, demonstrate Kerberoasting, then fix the path with tiering and LAPS and detect the attack in the SIEM.",
+          "deliverable": "Attack path, fixes and detection evidence",
+          "checks": [["Show the attack path", "Path to Domain Admin found", "BloodHound graph"], ["Detect Kerberoasting", "SIEM alert on the ticket requests", "Alert"], ["Rerun BloodHound after fixes", "Path no longer exists", "BloodHound graph"]],
+          "objectives": ["Understand AD attacks", "Harden Active Directory", "Detect AD attacks"]
+        },
+        {
+          "topic": "Cloud Security in AWS and Azure",
+          "subtopics": ["Cloud identity and roles", "Storage security", "Network security groups and VPCs", "Logging: CloudTrail and Activity Log", "Security services: GuardDuty and Defender for Cloud", "Key management", "Cloud security benchmarks", "Incident response in the cloud"],
+          "tools": ["AWS", "Azure", "Prowler", "ScoutSuite"],
+          "lab_task": "Audit a deliberately misconfigured cloud account with Prowler or ScoutSuite, fix the top five issues, enable threat detection and investigate a simulated credential leak.",
+          "deliverable": "Audit report, fixes and investigation notes",
+          "checks": [["Run the audit", "Top issues listed by severity", "Audit report"], ["Rerun after fixes", "Five issues closed", "Audit report"], ["Investigate the leaked key", "Actions taken with the key traced in logs", "CloudTrail or Activity Log"]],
+          "objectives": ["Secure cloud accounts", "Use cloud security services", "Investigate cloud incidents"]
+        },
+        {
+          "topic": "Digital Forensics and Incident Investigation",
+          "subtopics": ["Forensic principles", "Order of volatility", "Disk imaging", "Memory capture and analysis with Volatility", "Windows artefacts: prefetch, registry, event logs", "Timelines", "Chain of custody", "Forensic reporting"],
+          "tools": ["FTK Imager", "Volatility", "Autopsy", "KAPE"],
+          "lab_task": "Investigate a provided memory image and disk image from a compromised machine, build a timeline of attacker activity and write a forensic report.",
+          "deliverable": "Timeline and forensic report",
+          "checks": [["Analyse memory", "Malicious process and network connection found", "Volatility output"], ["Build the timeline", "Entry, persistence and actions in order", "Timeline"], ["Review chain of custody", "Evidence handling recorded", "Chain of custody form"]],
+          "objectives": ["Collect and analyse evidence", "Build attack timelines", "Write forensic reports"]
+        },
+        {
+          "topic": "Malware Analysis: Static and Dynamic Techniques",
+          "subtopics": ["Safe analysis environments", "Static analysis: hashes, strings, PE headers", "Dynamic analysis in a sandbox", "Behaviour monitoring", "Indicators from malware", "YARA rules", "Packers and obfuscation", "Sharing findings"],
+          "tools": ["FLARE VM or REMnux", "Any.Run or a local sandbox", "YARA"],
+          "lab_task": "Analyse a provided malware sample in an isolated VM with static and dynamic methods, extract indicators and write a YARA rule that detects it.",
+          "deliverable": "Analysis report, indicators and YARA rule",
+          "checks": [["Extract indicators", "File hashes, domains and registry keys listed", "Report"], ["Run the YARA rule", "Matches the sample and not clean files", "YARA output"], ["Confirm isolation", "Analysis VM had no network path out", "Network settings"]],
+          "objectives": ["Analyse malware safely", "Extract indicators", "Write YARA rules"]
+        },
+        {
+          "topic": "Identity Security and Privileged Access Management",
+          "subtopics": ["Identity as the new perimeter", "Phishing-resistant MFA", "Conditional access", "Privileged access management", "Just-in-time access", "Service account security", "Identity threat detection", "Access reviews"],
+          "tools": ["Microsoft Entra ID", "CyberArk or an open-source PAM", "SIEM"],
+          "lab_task": "Configure conditional access and phishing-resistant MFA, set up just-in-time admin access and run an access review that removes stale privileges.",
+          "deliverable": "Policies, PAM configuration and review results",
+          "checks": [["Sign in from a blocked location", "Conditional access blocks it", "Sign-in log"], ["Request admin access", "Granted for a limited time with approval", "PAM log"], ["Run the access review", "Stale privileges removed", "Review report"]],
+          "objectives": ["Secure identities", "Manage privileged access", "Review access"]
+        },
+        {
+          "topic": "Secure Software Development and DevSecOps",
+          "subtopics": ["Secure development life cycle", "Threat modelling with STRIDE", "Static analysis", "Dependency scanning", "Secrets scanning", "Dynamic testing in pipelines", "Container image scanning", "Security gates without blocking delivery"],
+          "tools": ["Semgrep", "OWASP ZAP", "Trivy", "Gitleaks", "GitHub Actions"],
+          "lab_task": "Threat-model a small web app with STRIDE and add static analysis, dependency, secrets and image scanning and a ZAP scan to its pipeline with sensible gates.",
+          "deliverable": "Threat model and pipeline with security gates",
+          "checks": [["Commit a hard-coded secret", "Pipeline blocks the commit", "Pipeline log"], ["Add a vulnerable dependency", "Scan reports it with severity", "Pipeline log"], ["Review the threat model", "Each STRIDE category considered", "Threat model"]],
+          "objectives": ["Build security into development", "Threat-model applications", "Automate security testing"]
+        },
+        {
+          "topic": "Email and Phishing Defence",
+          "subtopics": ["Email authentication: SPF, DKIM, DMARC", "Secure email gateways", "Analysing phishing emails", "URL and attachment analysis", "User-reported phishing workflow", "Business email compromise", "Automating phishing response", "Measuring email threats"],
+          "tools": ["Email header analyser", "URL sandbox", "SIEM"],
+          "lab_task": "Analyse five reported phishing emails from their headers, URLs and attachments, check the domain's SPF, DKIM and DMARC records and automate removal of a phish from mailboxes.",
+          "deliverable": "Analysis notes, DNS record review and automation evidence",
+          "checks": [["Analyse headers", "Spoofed sender identified", "Header analysis"], ["Check DMARC", "Policy and gaps reported", "DNS record review"], ["Run the removal automation", "Phish removed from all test mailboxes", "Automation log"]],
+          "objectives": ["Defend against phishing", "Use email authentication", "Automate phishing response"]
+        },
+        {
+          "topic": "Security Automation with Python and SOAR",
+          "subtopics": ["Why automate security work", "APIs of security tools", "Python for enrichment", "SOAR playbooks", "Automated triage", "Human approval steps", "Testing automations", "Measuring time saved"],
+          "tools": ["Python 3.12", "Shuffle or Splunk SOAR", "VirusTotal API"],
+          "lab_task": "Build a playbook that enriches suspicious-IP alerts with intelligence, blocks the IP after analyst approval and records every step, and measure time saved.",
+          "deliverable": "Playbook, scripts and time comparison",
+          "checks": [["Trigger the playbook", "Alert enriched automatically", "Playbook log"], ["Approve the block", "IP blocked only after approval", "Playbook log"], ["Compare handling time", "Time saved measured", "Comparison"]],
+          "objectives": ["Automate security tasks", "Build SOAR playbooks", "Keep humans in control"]
+        },
+        {
+          "topic": "Security Frameworks and Risk Management in Practice",
+          "subtopics": ["NIST Cybersecurity Framework 2.0", "ISO 27001 and Annex A controls", "CIS Controls", "Risk registers", "Control testing", "Security metrics for leadership", "Third-party risk", "Preparing for audits"],
+          "tools": ["Excel", "Framework templates"],
+          "lab_task": "Assess an organisation against CIS Controls, map gaps to ISO 27001 Annex A, build a risk register and present a prioritised improvement plan.",
+          "deliverable": "Assessment, gap mapping, risk register and plan",
+          "checks": [["Complete the CIS assessment", "Implementation level for each control", "Assessment"], ["Map gaps to Annex A", "Each gap mapped", "Mapping"], ["Present the plan", "Ordered by risk reduction", "Presentation"]],
+          "objectives": ["Apply security frameworks", "Manage security risk", "Plan improvements"]
+        },
+        {
+          "topic": "Incident Response Exercises and Playbooks",
+          "subtopics": ["Incident response plans in depth", "Ransomware playbook", "Business email compromise playbook", "Data breach playbook", "Tabletop exercises", "Legal and regulatory notification", "Working with outside responders", "Improving after exercises"],
+          "tools": ["Incident response templates", "Miro"],
+          "lab_task": "Write a ransomware playbook and run a tabletop exercise with roles for IT, legal, communications and leadership, then record improvements.",
+          "deliverable": "Playbook, exercise record and improvements",
+          "checks": [["Review the playbook", "Steps, roles and decision points defined", "Playbook"], ["Run the tabletop", "Each role makes its decisions on time", "Exercise record"], ["Record improvements", "Owners and dates set", "Improvement list"]],
+          "objectives": ["Write incident playbooks", "Run tabletop exercises", "Improve response"]
+        },
+        {
+          "topic": "CySA+ and CEH Exam Preparation",
+          "subtopics": ["CySA+ domains", "CEH domains", "Scenario questions", "Tool-based questions", "Practice exams", "Time management", "Study plans", "Hands-on practice options"],
+          "tools": ["Practice question bank", "Lab VMs"],
+          "lab_task": "Take timed practice exams for CySA+ and CEH, analyse results by domain and plan final study.",
+          "deliverable": "Practice scores, analysis and study plan",
+          "checks": [["Complete both practice exams", "Scores recorded", "Test results"], ["Analyse by domain", "Weakest domains identified", "Analysis"], ["Review the study plan", "Weak domains covered with dates", "Study plan"]],
+          "objectives": ["Prepare for CySA+ and CEH", "Practise scenario questions", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: SOC Detection and Response Engagement",
+          "subtopics": ["Environment and threat model", "Detections mapped to ATT&CK", "Attack simulation", "Investigation and forensics", "Response and recovery", "Report and presentation"],
+          "tools": ["SIEM", "EDR", "Atomic Red Team", "Volatility", "SOAR"],
+          "lab_task": "Build detections for a lab company, run a multi-stage attack simulation, detect and investigate it with SIEM, EDR and forensics, respond with a playbook and present the incident report.",
+          "deliverable": "Detection set, investigation timeline, incident report and a 15-minute presentation",
+          "checks": [["Run the attack simulation", "Each stage detected or the gap recorded", "Detection log"], ["Build the timeline", "Attack stages in order with evidence", "Timeline"], ["Present the incident report", "Root cause, impact and fixes clear", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one engagement", "Detect and respond to a full attack", "Report to leadership"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior analysts, security engineers, architects and security leaders. Covers threat hunting, red, blue and purple teaming, advanced Active Directory and cloud attacks and defences, container and Kubernetes security, zero trust, security architecture, detection as code, advanced forensics and reverse engineering, OT and AI security, application security programmes and security leadership.",
+      "prerequisites": ["Has worked in security operations, testing or engineering", "Knows ATT&CK, SIEM, EDR and penetration testing", "Scripts confidently in Python or PowerShell"],
+      "outcomes": ["Hunt threats and emulate adversaries", "Design zero trust and secure architectures", "Lead advanced investigations and security programmes", "Govern security risk and report to boards"],
+      "days": [
+        {
+          "topic": "Threat Hunting",
+          "subtopics": ["Hypothesis-driven hunting", "Hunting with ATT&CK", "Data needed for hunting", "Hunting queries in KQL and SPL", "Stacking and frequency analysis", "Hunting for persistence", "Turning hunts into detections", "Measuring hunting"],
+          "tools": ["Microsoft Sentinel or Splunk", "Velociraptor", "ATT&CK"],
+          "lab_task": "Run three hypothesis-driven hunts across a month of lab telemetry for persistence, lateral movement and data staging, document findings and convert one into a detection.",
+          "deliverable": "Hunt reports and new detection",
+          "checks": [["Run the persistence hunt", "Planted persistence found", "Hunt report"], ["Document a negative hunt", "Hypothesis, data and conclusion recorded", "Hunt report"], ["Convert a hunt into a detection", "Detection fires on the planted activity", "Alert"]],
+          "objectives": ["Hunt for threats", "Use hypotheses", "Turn hunts into detections"]
+        },
+        {
+          "topic": "Adversary Emulation and Red Teaming",
+          "subtopics": ["Red team versus penetration test", "Threat-informed planning", "Command and control frameworks", "Initial access techniques", "Operational security", "Objectives and rules of engagement", "Reporting red team results", "Ethics and authorisation"],
+          "tools": ["Caldera or Sliver", "Kali Linux", "ATT&CK"],
+          "lab_task": "Plan and run an authorised emulation of a named threat actor's techniques in the lab with Caldera, reach the agreed objective and record which steps were detected.",
+          "deliverable": "Emulation plan, operation log and detection gap report",
+          "checks": [["Follow the emulation plan", "Each technique executed as planned", "Operation log"], ["Reach the objective", "Agreed objective achieved in the lab", "Evidence"], ["Report detection gaps", "Detected and missed steps listed", "Gap report"]],
+          "objectives": ["Emulate adversaries", "Plan red team operations", "Report detection gaps"]
+        },
+        {
+          "topic": "Purple Teaming and Detection Validation",
+          "subtopics": ["Purple team exercises", "Atomic testing at scale", "Breach and attack simulation", "Detection coverage scoring", "Fixing gaps together", "Regression testing of detections", "Reporting improvement", "Running a purple team programme"],
+          "tools": ["Atomic Red Team", "Caldera", "ATT&CK Navigator", "SIEM"],
+          "lab_task": "Run a purple team exercise for 15 techniques, score detection coverage before and after joint fixes and set up regular regression testing.",
+          "deliverable": "Coverage scores, fixes and regression schedule",
+          "checks": [["Score coverage before", "Detected, logged and missed recorded per technique", "Coverage sheet"], ["Score coverage after fixes", "Coverage improved", "Coverage sheet"], ["Run the regression tests", "Detections still fire", "Test log"]],
+          "objectives": ["Run purple team exercises", "Validate detections", "Improve coverage"]
+        },
+        {
+          "topic": "Advanced Active Directory and Entra ID Attacks and Defences",
+          "subtopics": ["Delegation attacks", "AD Certificate Services abuse", "DCSync and golden tickets", "Hybrid identity risks", "Entra ID attack paths", "Tier 0 protection", "Recovering a compromised domain", "Identity threat detection"],
+          "tools": ["Windows Server lab", "Certify", "BloodHound", "Microsoft Defender for Identity"],
+          "lab_task": "Demonstrate a certificate services abuse path and a DCSync in a lab domain, detect both, harden Tier 0 and rehearse recovery after a golden ticket.",
+          "deliverable": "Attack evidence, detections, hardening and recovery plan",
+          "checks": [["Detect the DCSync", "Alert raised", "Alert"], ["Fix the certificate template", "Abuse no longer possible", "Test result"], ["Rehearse recovery", "KRBTGT reset twice and tickets invalidated", "Recovery log"]],
+          "objectives": ["Defend against advanced identity attacks", "Protect Tier 0", "Recover compromised domains"]
+        },
+        {
+          "topic": "Advanced Cloud Attack and Defence",
+          "subtopics": ["Cloud attack paths", "Privilege escalation in IAM", "Cross-account and tenant attacks", "Serverless security", "Cloud detection engineering", "Cloud forensics", "Organisation-wide guardrails", "Cloud security architecture"],
+          "tools": ["Pacu", "Stratus Red Team", "AWS", "Azure"],
+          "lab_task": "Emulate cloud attacks with Stratus Red Team, detect them, investigate one end to end and apply organisation-wide guardrails that prevent it.",
+          "deliverable": "Detections, investigation and guardrails",
+          "checks": [["Run three cloud attack techniques", "Each detected or the gap recorded", "Detection log"], ["Investigate one attack", "Timeline from cloud logs", "Investigation notes"], ["Apply guardrails", "Attack blocked on retest", "Retest log"]],
+          "objectives": ["Attack and defend cloud environments", "Detect cloud attacks", "Enforce guardrails"]
+        },
+        {
+          "topic": "Container and Kubernetes Security",
+          "subtopics": ["Container threats", "Image security and signing", "Kubernetes RBAC", "Pod security standards", "Network policies", "Runtime detection with Falco", "Secrets in Kubernetes", "Kubernetes attack paths"],
+          "tools": ["Kubernetes (kind)", "Trivy", "Falco", "Kyverno", "cosign"],
+          "lab_task": "Attack a misconfigured cluster in the lab to escape a privileged pod, then fix it with pod security, RBAC, network policies and signed images, and detect the attack with Falco.",
+          "deliverable": "Attack evidence, fixes and Falco alerts",
+          "checks": [["Escape the privileged pod", "Node access shown before fixes", "Evidence"], ["Deploy the same pod after fixes", "Admission refused", "kubectl output"], ["Run the attack again", "Falco alerts", "Falco log"]],
+          "objectives": ["Secure containers and Kubernetes", "Enforce policies", "Detect runtime threats"]
+        },
+        {
+          "topic": "Zero Trust Architecture",
+          "subtopics": ["Zero trust principles", "NIST SP 800-207", "Identity, device and network pillars", "Microsegmentation", "Zero trust network access", "Continuous verification", "Migration roadmaps", "Measuring zero trust maturity"],
+          "tools": ["Zero trust maturity model", "Diagramming tool"],
+          "lab_task": "Assess a provided organisation against a zero trust maturity model, design the target architecture and build a three-year migration roadmap.",
+          "deliverable": "Maturity assessment, architecture and roadmap",
+          "checks": [["Assess maturity", "Score per pillar with evidence", "Assessment"], ["Review the architecture", "Every access path verified", "Architecture diagram"], ["Review the roadmap", "Steps ordered by risk reduction", "Roadmap"]],
+          "objectives": ["Design zero trust", "Assess maturity", "Plan migration"]
+        },
+        {
+          "topic": "Security Architecture and Design Reviews",
+          "subtopics": ["Security architecture principles", "Reference architectures", "Threat modelling at system level", "Security requirements", "Design review process", "Architecture decision records", "Secure patterns and anti-patterns", "Working with architects and developers"],
+          "tools": ["Microsoft Threat Modeling Tool or OWASP Threat Dragon", "Diagramming tool"],
+          "lab_task": "Run a security design review of a new payments platform with a system-level threat model, security requirements and decision records, and present the findings.",
+          "deliverable": "Threat model, requirements, decision records and review report",
+          "checks": [["Review the threat model", "Threats and mitigations for each component", "Threat model"], ["Review the requirements", "Testable security requirements", "Requirements list"], ["Present findings", "Risks ranked with recommendations", "Presentation"]],
+          "objectives": ["Review system designs for security", "Threat-model architectures", "Write security requirements"]
+        },
+        {
+          "topic": "Detection as Code and Security Data Engineering",
+          "subtopics": ["Detections in version control", "Testing detections in CI", "Security data pipelines", "Normalisation and schemas", "Data lakes for security", "Cost of security data", "Detection lifecycle", "Metrics for detection quality"],
+          "tools": ["Git", "Sigma", "GitHub Actions", "SIEM"],
+          "lab_task": "Move detections into Git with tests in CI that replay sample events, deploy them to the SIEM from the pipeline and reduce log costs by filtering low-value data.",
+          "deliverable": "Detection repository, pipeline and cost report",
+          "checks": [["Push a broken detection", "CI fails", "CI log"], ["Deploy from the pipeline", "Detections updated in the SIEM", "Deployment log"], ["Report log cost", "Volume reduced without losing needed data", "Cost report"]],
+          "objectives": ["Manage detections as code", "Test detections automatically", "Control security data cost"]
+        },
+        {
+          "topic": "Advanced Digital Forensics and Incident Response",
+          "subtopics": ["Enterprise-scale collection", "Velociraptor hunts", "Memory forensics in depth", "Cloud and SaaS forensics", "Ransomware investigations", "Anti-forensics", "Expert reporting", "Working with law enforcement"],
+          "tools": ["Velociraptor", "Volatility 3", "Plaso", "Timesketch"],
+          "lab_task": "Investigate a simulated ransomware attack across 20 hosts with Velociraptor, build a super-timeline in Timesketch, find patient zero and the exfiltration path.",
+          "deliverable": "Investigation timeline, findings and expert report",
+          "checks": [["Find patient zero", "First infected host and entry point identified", "Timeline"], ["Find the exfiltration", "Data, method and destination identified", "Findings"], ["Review the expert report", "Clear, evidence-based and reproducible", "Report"]],
+          "objectives": ["Investigate at enterprise scale", "Build super-timelines", "Write expert reports"]
+        },
+        {
+          "topic": "Malware Reverse Engineering",
+          "subtopics": ["Assembly basics for x64", "Disassembly with Ghidra", "Debugging with x64dbg", "Unpacking", "Configuration extraction", "Anti-analysis tricks", "Writing detections from analysis", "Reporting to defenders"],
+          "tools": ["Ghidra", "x64dbg", "FLARE VM"],
+          "lab_task": "Reverse engineer a provided sample in an isolated lab, unpack it, extract its configuration and command-and-control addresses, and write detections from the findings.",
+          "deliverable": "Analysis report, extracted configuration and detections",
+          "checks": [["Unpack the sample", "Unpacked payload obtained", "Analysis notes"], ["Extract the configuration", "C2 addresses and keys found", "Config extract"], ["Test the detections", "Match the sample", "Test output"]],
+          "objectives": ["Reverse engineer malware", "Extract configuration", "Turn analysis into detections"]
+        },
+        {
+          "topic": "OT and ICS Security",
+          "subtopics": ["OT versus IT", "Industrial protocols: Modbus, DNP3", "Purdue model", "OT threats and incidents", "Monitoring OT networks", "Safety and availability first", "IEC 62443", "OT incident response"],
+          "tools": ["OT lab simulator", "Wireshark", "Zeek with OT plugins"],
+          "lab_task": "Analyse traffic from a simulated plant, spot an unauthorised Modbus write, design segmentation using the Purdue model and write an OT-specific response playbook.",
+          "deliverable": "Traffic analysis, segmentation design and playbook",
+          "checks": [["Find the unauthorised write", "Source and register identified", "Packet analysis"], ["Review segmentation", "Zones and conduits defined", "Design"], ["Review the playbook", "Safety steps before containment", "Playbook"]],
+          "objectives": ["Secure OT environments", "Monitor industrial protocols", "Respond to OT incidents"]
+        },
+        {
+          "topic": "Security for AI Systems",
+          "subtopics": ["Threats to AI and LLM applications", "Prompt injection", "Data poisoning", "Model theft", "OWASP Top 10 for LLM applications", "Securing AI pipelines", "AI red teaming", "AI governance and policy"],
+          "tools": ["garak", "PyRIT", "OWASP LLM Top 10"],
+          "lab_task": "Red-team a lab LLM assistant for prompt injection and data leakage, fix the top findings and write an AI security policy for the organisation.",
+          "deliverable": "Red-team report, fixes and AI security policy",
+          "checks": [["Run injection attacks", "Successful attacks recorded", "Red-team report"], ["Retest after fixes", "Top attacks blocked", "Retest log"], ["Review the policy", "Covers data, access, testing and approval", "Policy"]],
+          "objectives": ["Secure AI systems", "Red-team LLM applications", "Govern AI use"]
+        },
+        {
+          "topic": "Application Security Programmes",
+          "subtopics": ["Building an AppSec programme", "Security champions", "Secure coding training", "SAST, DAST and SCA at scale", "Bug bounty programmes", "Vulnerability triage for developers", "AppSec metrics", "Software bill of materials and supply chain"],
+          "tools": ["Semgrep", "Dependency-Track", "OWASP SAMM"],
+          "lab_task": "Assess an organisation with OWASP SAMM, design an AppSec programme with champions and tooling, and set up SBOM tracking for three applications.",
+          "deliverable": "SAMM assessment, programme design and SBOM tracking",
+          "checks": [["Complete the SAMM assessment", "Scores for each practice", "Assessment"], ["Review the programme", "Roles, tools and metrics defined", "Programme design"], ["Track SBOMs", "Vulnerable components flagged", "Dependency-Track screenshot"]],
+          "objectives": ["Build AppSec programmes", "Scale security testing", "Manage software supply chain risk"]
+        },
+        {
+          "topic": "Third-Party and Software Supply Chain Risk",
+          "subtopics": ["Third-party risk management life cycle", "Supplier security questionnaires and evidence", "Risk tiering of suppliers", "Contract security clauses", "Software supply chain attacks", "SBOMs, provenance and signing", "Continuous monitoring of suppliers", "Responding to a supplier breach"],
+          "tools": ["Excel", "Dependency-Track", "cosign", "Supplier assessment templates"],
+          "lab_task": "Tier 20 suppliers by risk, assess the top three with evidence, add security clauses to a contract and run a response to a simulated breach at a software supplier.",
+          "deliverable": "Supplier tiers, assessments, contract clauses and breach response record",
+          "checks": [["Tier the suppliers", "Tiers justified by data access and criticality", "Tiering sheet"], ["Assess the top three", "Findings and required actions for each", "Assessments"], ["Respond to the supplier breach", "Affected systems found and actions taken within the plan's timings", "Response record"]],
+          "objectives": ["Manage third-party risk", "Secure the software supply chain", "Respond to supplier breaches"]
+        },
+        {
+          "topic": "Security Leadership, Governance and Board Reporting",
+          "subtopics": ["The CISO role", "Security strategy", "Security budgets", "Risk appetite", "Board reporting", "Cyber insurance", "Regulatory duties: CERT-In, DPDP Act, sector rules", "Building security teams"],
+          "tools": ["Excel", "PowerPoint"],
+          "lab_task": "Write a three-year security strategy with budget and risk appetite for a provided company and present a quarterly board report on cyber risk.",
+          "deliverable": "Strategy, budget and board report",
+          "checks": [["Review the strategy", "Linked to business risks", "Strategy"], ["Review the budget", "Costs tied to risk reduction", "Budget"], ["Present to the board", "Clear risk position and decisions needed", "Presentation"]],
+          "objectives": ["Lead security", "Build strategy and budgets", "Report to boards"]
+        },
+        {
+          "topic": "Crisis Management and Ransomware Response Leadership",
+          "subtopics": ["Crisis management structure", "Decisions during ransomware", "Ransom payment considerations and law", "Regulator and customer notification", "Media handling", "Business recovery priorities", "Working with insurers and responders", "After-action reviews"],
+          "tools": ["Crisis playbook templates"],
+          "lab_task": "Lead a two-day simulated ransomware crisis with executives, legal, insurers and communications, make the key decisions and run the after-action review.",
+          "deliverable": "Decision log, notifications and after-action report",
+          "checks": [["Send notifications", "CERT-In and regulator deadlines met with correct content", "Notification records"], ["Prioritise recovery", "Critical services restored first", "Recovery plan"], ["Run the after-action review", "Improvements with owners", "Report"]],
+          "objectives": ["Lead cyber crises", "Make ransomware decisions", "Communicate under pressure"]
+        },
+        {
+          "topic": "Privacy Engineering and Data Security",
+          "subtopics": ["Data discovery and classification", "Data loss prevention", "Encryption and key management at scale", "Tokenisation", "Privacy by design", "Data subject rights", "Data security posture management", "Privacy incidents"],
+          "tools": ["Microsoft Purview", "DLP tools", "Key management service"],
+          "lab_task": "Discover and classify sensitive data across a lab environment, apply DLP policies, handle a data subject request and respond to a simulated privacy incident.",
+          "deliverable": "Classification results, DLP policies and incident record",
+          "checks": [["Run discovery", "Sensitive data found and labelled", "Discovery report"], ["Test DLP", "Sensitive file blocked from sharing", "Policy alert"], ["Handle the data subject request", "Completed within the legal deadline", "Request record"]],
+          "objectives": ["Protect sensitive data", "Apply DLP", "Meet privacy duties"]
+        },
+        {
+          "topic": "CISSP Exam Preparation",
+          "subtopics": ["Eight CISSP domains", "Security and risk management", "Asset and architecture security", "Network security", "Identity and access", "Assessment and operations", "Software security", "Management-level thinking for questions"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take a timed 125-question CISSP practice exam, analyse results by domain and write a study plan.",
+          "deliverable": "Practice score, analysis and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Analyse by domain", "Weakest domains identified", "Analysis"], ["Review the study plan", "Weak domains covered", "Study plan"]],
+          "objectives": ["Prepare for CISSP", "Think like a security manager", "Plan study"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Security Programme and Adversary Simulation",
+          "subtopics": ["Threat model and strategy", "Zero trust architecture", "Detection, hunting and purple teaming", "Adversary emulation", "Crisis response", "Board presentation and defence"],
+          "tools": ["SIEM", "EDR", "Caldera", "Velociraptor", "ATT&CK Navigator"],
+          "lab_task": "Design a security programme and zero trust architecture for a lab enterprise, emulate a named adversary, hunt and respond, close detection gaps with a purple team and present the programme to a mock board.",
+          "deliverable": "Strategy, architecture, emulation and response reports and a 20-minute board presentation",
+          "checks": [["Run the adversary emulation", "Stages detected or gaps recorded", "Detection report"], ["Close detection gaps", "Coverage improved on retest", "Coverage sheet"], ["Answer board questions", "Programme defended with risk evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one programme", "Prove detection and response", "Lead security at board level"]
+        }
+      ]
+    }
+  }
+}

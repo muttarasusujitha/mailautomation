@@ -1,0 +1,573 @@
+{
+  "domain": "Cloud Security",
+  "name": "Cloud Security",
+  "category": "Cloud",
+  "icon": "cloud-lightning",
+  "aliases": ["Cloud Security Engineering", "Cloud Security Architecture", "AWS Security", "Azure Security", "GCP Security", "Multi-Cloud Security", "Securing the Cloud", "CCSP"],
+  "certifications": ["AWS Certified Security - Specialty (SCS-C02)", "Microsoft Certified: Azure Security Engineer Associate (AZ-500)", "Google Professional Cloud Security Engineer", "ISC2 CCSP"],
+  "tools": ["AWS", "Microsoft Azure", "Google Cloud", "Terraform", "Prowler", "Checkov"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For cloud engineers, administrators and security staff starting cloud security. Covers the shared responsibility model, cloud identity, network security, data protection and encryption, logging and monitoring, posture checks, compute and serverless security, secrets, compliance basics and incident response in AWS and Azure, ending with securing a small cloud workload.",
+      "prerequisites": ["Has used AWS or Azure for basic tasks such as creating a VM or storage", "Understands networking basics: IP addresses, ports and firewalls", "Access to an AWS and an Azure free or training account"],
+      "outcomes": ["Explain cloud security responsibilities and common cloud risks", "Secure identities, networks, storage and compute in AWS and Azure", "Turn on logging, threat detection and posture checks", "Respond to a basic cloud security incident"],
+      "days": [
+        {
+          "topic": "Cloud Security Overview and the Shared Responsibility Model",
+          "subtopics": ["Why cloud security is different", "IaaS, PaaS and SaaS responsibilities", "Shared responsibility in AWS, Azure and Google Cloud", "Common cloud breaches and their causes", "Cloud security frameworks: CSA CCM and CIS Benchmarks", "Security services in each cloud", "Setting up training accounts safely", "Budgets and alerts to avoid surprise bills", "Course lab overview", "Ground rules for the lab"],
+          "tools": ["AWS", "Microsoft Azure", "CIS Benchmarks"],
+          "lab_task": "Set up AWS and Azure training accounts with budget alerts and MFA on the root and global admin accounts, and map five real cloud breaches to who was responsible for the failed control.",
+          "deliverable": "Secured accounts and breach responsibility table",
+          "checks": [["Sign in to the root and global admin accounts", "MFA required", "Screenshot"], ["Trigger a budget alert threshold", "Alert email received", "Email"], ["Map the five breaches", "Responsible party and failed control named", "Table"]],
+          "objectives": ["Explain shared responsibility", "Set up cloud accounts safely", "Learn from cloud breaches"]
+        },
+        {
+          "topic": "Cloud Identity: Users, Groups and Roles",
+          "subtopics": ["Root and global administrator accounts", "IAM users and Entra ID users", "Groups and roles", "Policies and role assignments", "Least privilege", "Roles for applications and services", "Access keys and why to avoid them", "Access reviews"],
+          "tools": ["AWS IAM", "Microsoft Entra ID", "Azure RBAC"],
+          "lab_task": "Create users, groups and roles in AWS and Azure for developers, auditors and administrators with least privilege, and show each role can only do its job.",
+          "deliverable": "Identity set-up and permission test results",
+          "checks": [["Delete a resource as an auditor", "Access denied", "Error message"], ["Deploy a VM as a developer in the allowed resource group", "Succeeds", "Screenshot"], ["Review access keys", "No long-lived keys for people", "IAM credential report"]],
+          "objectives": ["Manage cloud identities", "Apply least privilege", "Avoid long-lived keys"]
+        },
+        {
+          "topic": "IAM Policies in Practice",
+          "subtopics": ["AWS policy structure: effect, action, resource, condition", "Azure role definitions", "Managed versus custom policies", "Conditions: MFA, IP and tags", "Permission boundaries", "Policy simulators", "Common policy mistakes", "Reviewing policies"],
+          "tools": ["AWS IAM Policy Simulator", "Azure RBAC", "IAM Access Analyzer"],
+          "lab_task": "Write a custom AWS policy that allows S3 access only to one bucket with MFA, a custom Azure role for VM operators, and test both with simulators and real calls.",
+          "deliverable": "Custom policies and test results",
+          "checks": [["Access another bucket", "Denied by the policy", "Simulator and CLI output"], ["Access without MFA", "Denied", "CLI output"], ["Run IAM Access Analyzer", "No unintended public or cross-account access", "Analyzer findings"]],
+          "objectives": ["Write IAM policies", "Use conditions", "Test permissions"]
+        },
+        {
+          "topic": "Network Security in the Cloud",
+          "subtopics": ["VPCs and VNets", "Subnets: public and private", "Security groups and network security groups", "Network ACLs", "NAT gateways", "Private endpoints", "Bastion access", "Flow logs"],
+          "tools": ["AWS VPC", "Azure Virtual Network", "Azure Bastion", "VPC Flow Logs"],
+          "lab_task": "Build a two-tier network in AWS and Azure with public and private subnets, restrict access with security groups, reach a private VM through a bastion and inspect flow logs for denied traffic.",
+          "deliverable": "Network diagrams, rules and flow log evidence",
+          "checks": [["Reach the database VM from the internet", "Connection refused", "Test output"], ["Connect through the bastion", "Session opened without a public IP on the VM", "Screenshot"], ["Find denied traffic in flow logs", "Rejected connection attempts listed", "Flow log query"]],
+          "objectives": ["Secure cloud networks", "Use security groups and private subnets", "Read flow logs"]
+        },
+        {
+          "topic": "Data Protection: Storage Security and Encryption",
+          "subtopics": ["Securing S3 buckets and Azure Storage", "Blocking public access", "Encryption at rest with managed keys", "Customer-managed keys in KMS and Key Vault", "Encryption in transit", "Versioning and soft delete", "Data classification", "Access logging for storage"],
+          "tools": ["Amazon S3", "Azure Storage", "AWS KMS", "Azure Key Vault"],
+          "lab_task": "Secure a bucket and a storage account with public access blocked, customer-managed key encryption, versioning and access logs, then recover a deleted object.",
+          "deliverable": "Storage configuration and recovery evidence",
+          "checks": [["Try public access", "Blocked", "Error message"], ["Disable the key", "Data cannot be read until the key is enabled", "Error message"], ["Recover a deleted object", "Restored from versioning or soft delete", "Screenshot"]],
+          "objectives": ["Protect cloud storage", "Use encryption keys", "Recover deleted data"]
+        },
+        {
+          "topic": "Key and Secrets Management",
+          "subtopics": ["Cloud key management services", "Key rotation", "Key policies and access", "Secrets Manager and Key Vault secrets", "Application access to secrets", "Avoiding secrets in code", "Certificate management", "Auditing key use"],
+          "tools": ["AWS Secrets Manager", "Azure Key Vault", "AWS KMS"],
+          "lab_task": "Store a database password in Secrets Manager and Key Vault, let a VM read it with its own identity, rotate it and audit who accessed it.",
+          "deliverable": "Secrets set-up, rotation record and audit log",
+          "checks": [["Read the secret from the VM", "Retrieved with the VM identity, no stored credentials", "Terminal output"], ["Rotate the secret", "Application still connects after rotation", "Test output"], ["Audit access", "Reads recorded with identity and time", "CloudTrail or Key Vault log"]],
+          "objectives": ["Manage keys and secrets", "Use workload identities", "Rotate and audit secrets"]
+        },
+        {
+          "topic": "Logging and Monitoring in the Cloud",
+          "subtopics": ["AWS CloudTrail", "Azure Activity Log and diagnostic settings", "CloudWatch and Azure Monitor", "Centralising logs", "Log retention", "Alerting on risky actions", "Protecting logs from tampering", "What to log"],
+          "tools": ["AWS CloudTrail", "CloudWatch", "Azure Monitor", "Log Analytics"],
+          "lab_task": "Enable organisation-wide audit logging in AWS and Azure, centralise logs, and alert when someone disables logging or creates an access key.",
+          "deliverable": "Logging configuration and alert evidence",
+          "checks": [["Create an access key", "Alert fires", "Alert notification"], ["Try to stop CloudTrail as a normal user", "Denied and logged", "Log entry"], ["Query a week of activity", "Results returned from the central store", "Query output"]],
+          "objectives": ["Turn on cloud logging", "Alert on risky actions", "Protect audit logs"]
+        },
+        {
+          "topic": "Threat Detection Services",
+          "subtopics": ["Amazon GuardDuty", "Microsoft Defender for Cloud", "Google Security Command Center in brief", "Types of findings", "Sample findings and testing", "Routing findings to alerts", "Suppressing noise", "First response to findings"],
+          "tools": ["Amazon GuardDuty", "Microsoft Defender for Cloud"],
+          "lab_task": "Enable GuardDuty and Defender for Cloud, generate sample findings, route high-severity findings to email or chat and write first response steps for three finding types.",
+          "deliverable": "Detection set-up, routed findings and response steps",
+          "checks": [["Generate sample findings", "Findings appear in both services", "Console screenshots"], ["Route a high-severity finding", "Notification received", "Notification"], ["Review response steps", "Clear first actions for each finding type", "Response notes"]],
+          "objectives": ["Enable threat detection", "Route findings", "Respond to common findings"]
+        },
+        {
+          "topic": "Cloud Security Posture Checks",
+          "subtopics": ["What posture management is", "CIS Benchmarks for AWS and Azure", "AWS Security Hub and Config rules", "Defender for Cloud secure score", "Open-source scanners: Prowler and ScoutSuite", "Prioritising findings", "Fixing common misconfigurations", "Tracking posture over time"],
+          "tools": ["Prowler", "AWS Security Hub", "Defender for Cloud", "AWS Config"],
+          "lab_task": "Scan the lab accounts with Prowler and Security Hub, fix the top ten findings, raise the Azure secure score and track the improvement.",
+          "deliverable": "Scan results, fixes and posture trend",
+          "checks": [["Run the scan", "Findings ranked by severity", "Scan report"], ["Fix the top ten", "Findings closed on rescan", "Rescan report"], ["Check the secure score", "Score increased", "Screenshot"]],
+          "objectives": ["Check cloud posture", "Fix misconfigurations", "Track improvement"]
+        },
+        {
+          "topic": "Securing Virtual Machines and Compute",
+          "subtopics": ["Hardened images", "Patching cloud VMs", "Instance metadata protection", "Disk encryption", "Endpoint protection in the cloud", "Just-in-time VM access", "Session Manager instead of SSH keys", "Vulnerability scanning for VMs"],
+          "tools": ["AWS Systems Manager", "Amazon Inspector", "Defender for Servers"],
+          "lab_task": "Launch VMs from a hardened image, require IMDSv2, patch them with Systems Manager, open admin access just in time and scan them with Inspector.",
+          "deliverable": "Configuration evidence and scan results",
+          "checks": [["Query instance metadata without a token", "Request refused", "Terminal output"], ["Request just-in-time access", "Port opens only for the approved time", "Screenshot"], ["Scan VMs", "Vulnerabilities listed and critical ones patched", "Inspector report"]],
+          "objectives": ["Secure cloud VMs", "Patch and scan compute", "Control admin access"]
+        },
+        {
+          "topic": "Serverless and PaaS Security",
+          "subtopics": ["Function permissions", "Environment variables and secrets", "API Gateway authentication", "Managed database security", "App Service and Lambda networking", "Input validation in functions", "Logging for serverless", "Common serverless risks"],
+          "tools": ["AWS Lambda", "API Gateway", "Azure Functions", "Azure App Service"],
+          "lab_task": "Secure a Lambda function and an Azure Function behind authenticated APIs with least-privilege roles, secrets from the vault and private database access.",
+          "deliverable": "Secured functions and test results",
+          "checks": [["Call the API without a token", "401 Unauthorized", "API response"], ["Try an action outside the function role", "Denied", "Function log"], ["Check the database", "Reachable only from the private network", "Connection test"]],
+          "objectives": ["Secure serverless functions", "Protect APIs", "Secure managed services"]
+        },
+        {
+          "topic": "Securing Managed Databases",
+          "subtopics": ["Managed database options: RDS, Azure SQL, Cloud SQL", "Network isolation for databases", "Authentication with cloud identities", "Encryption at rest and in transit", "Auditing database access", "Backups and point-in-time restore", "Patching and maintenance windows", "Common database exposures"],
+          "tools": ["Amazon RDS", "Azure SQL Database", "AWS Secrets Manager"],
+          "lab_task": "Deploy a managed database reachable only from a private subnet, require TLS and identity-based login, turn on auditing and restore it to a point in time.",
+          "deliverable": "Database configuration, audit log and restore evidence",
+          "checks": [["Connect from the internet", "Connection refused", "Test output"], ["Connect without TLS", "Connection rejected", "Error message"], ["Restore to a point in time", "Database restored with data from that time", "Query result"]],
+          "objectives": ["Secure managed databases", "Use identity-based access", "Audit and restore databases"]
+        },
+        {
+          "topic": "Container Security in the Cloud Basics",
+          "subtopics": ["Container risks", "Image scanning", "Private registries", "Managed Kubernetes security settings", "Pod identities", "Network policies in brief", "Runtime protection services", "Secure defaults for clusters"],
+          "tools": ["Amazon ECR", "Azure Container Registry", "Amazon EKS or AKS", "Trivy"],
+          "lab_task": "Scan images in a private registry, block deployment of images with critical vulnerabilities, create a private cluster and give a pod access to storage with a workload identity.",
+          "deliverable": "Scan results, policy and cluster configuration",
+          "checks": [["Push an image with a critical vulnerability", "Scan flags it and deployment is blocked", "Registry and policy output"], ["Reach the cluster API from the internet", "Not reachable", "Test output"], ["Read storage from the pod", "Access through workload identity, no keys", "Pod log"]],
+          "objectives": ["Secure containers in the cloud", "Scan images", "Use workload identities"]
+        },
+        {
+          "topic": "Web Application Firewalls and DDoS Protection",
+          "subtopics": ["Web application firewalls", "Managed rule sets", "Rate limiting", "Bot protection", "DDoS protection services", "Content delivery networks for security", "TLS certificates", "Testing WAF rules"],
+          "tools": ["AWS WAF", "Azure Front Door WAF", "AWS Shield", "CloudFront"],
+          "lab_task": "Put a web app behind a WAF with managed rules and rate limiting, send SQL injection and flood test traffic and confirm it is blocked and logged.",
+          "deliverable": "WAF configuration and test results",
+          "checks": [["Send a SQL injection request", "Blocked by the WAF", "WAF log"], ["Exceed the rate limit", "Requests blocked", "WAF log"], ["Check normal traffic", "Allowed", "Test output"]],
+          "objectives": ["Protect web apps with WAF", "Use rate limiting", "Plan DDoS protection"]
+        },
+        {
+          "topic": "Infrastructure as Code Security",
+          "subtopics": ["Why scan infrastructure code", "Terraform basics for security", "Checkov and tfsec", "Policies as code", "Secure modules", "Secrets in Terraform state", "Scanning in pull requests", "Drift and manual changes"],
+          "tools": ["Terraform", "Checkov", "GitHub Actions"],
+          "lab_task": "Scan provided Terraform code with Checkov, fix the misconfigurations, add the scan to a pull request workflow and protect the state file.",
+          "deliverable": "Fixed code, scan results and workflow",
+          "checks": [["Open a pull request with a public bucket", "Scan fails the check", "Workflow log"], ["Fix and rerun", "No high findings", "Checkov output"], ["Check the state file", "Stored encrypted with restricted access", "Backend configuration"]],
+          "objectives": ["Scan infrastructure code", "Fix misconfigurations before deployment", "Protect Terraform state"]
+        },
+        {
+          "topic": "Compliance in the Cloud",
+          "subtopics": ["Compliance frameworks: ISO 27001, SOC 2, PCI DSS", "Data residency and India's DPDP Act", "Provider compliance reports", "Continuous compliance checks", "Evidence collection", "Tagging for compliance", "Audit preparation", "Common gaps"],
+          "tools": ["AWS Artifact", "AWS Audit Manager", "Azure Policy", "Microsoft Purview Compliance Manager"],
+          "lab_task": "Check a workload against a compliance standard with Azure Policy and AWS Config, collect evidence for five controls and download provider compliance reports.",
+          "deliverable": "Compliance results, evidence pack and gap list",
+          "checks": [["Assign a compliance initiative", "Compliant and non-compliant resources shown", "Compliance dashboard"], ["Collect evidence", "Evidence for each of the five controls", "Evidence pack"], ["Enforce data residency", "Resource creation outside the allowed region is denied", "Error message"]],
+          "objectives": ["Meet compliance in the cloud", "Collect evidence", "Enforce data residency"]
+        },
+        {
+          "topic": "Incident Response in the Cloud",
+          "subtopics": ["Cloud incident types", "Preparation: access, logs and playbooks", "Detecting compromised credentials", "Containing compromised identities", "Isolating instances", "Snapshots for evidence", "Recovery", "Lessons learned"],
+          "tools": ["AWS CloudTrail", "GuardDuty", "Microsoft Sentinel or Defender for Cloud"],
+          "lab_task": "Respond to a simulated leaked access key: detect it, disable the key, find what it did in the logs, isolate an affected instance, snapshot it and write the report.",
+          "deliverable": "Incident timeline and report",
+          "checks": [["Disable the leaked key", "Key inactive", "IAM screenshot"], ["Trace the attacker's actions", "All API calls with the key listed", "CloudTrail query"], ["Isolate the instance", "Network access removed and snapshot taken", "Screenshot"]],
+          "objectives": ["Respond to cloud incidents", "Contain compromised credentials", "Preserve evidence"]
+        },
+        {
+          "topic": "Multi-Cloud and Google Cloud Security Basics",
+          "subtopics": ["Google Cloud IAM", "Organisation policies", "VPC Service Controls", "Security Command Center", "Comparing AWS, Azure and Google Cloud controls", "Central identity across clouds", "Consistent logging across clouds", "Multi-cloud posture tools"],
+          "tools": ["Google Cloud", "Security Command Center", "Prowler"],
+          "lab_task": "Secure a Google Cloud project with least-privilege IAM, an organisation policy that blocks public IPs and Security Command Center, and compare the controls with AWS and Azure.",
+          "deliverable": "Google Cloud configuration and comparison table",
+          "checks": [["Create a VM with a public IP", "Blocked by the organisation policy", "Error message"], ["Review Security Command Center", "Findings listed", "Screenshot"], ["Complete the comparison", "Equivalent controls named for three clouds", "Comparison table"]],
+          "objectives": ["Secure Google Cloud basics", "Compare controls across clouds", "Plan multi-cloud security"]
+        },
+        {
+          "topic": "AWS and Azure Security Certification Preparation",
+          "subtopics": ["AWS Security Specialty domains", "AZ-500 domains", "Scenario questions", "Service-specific questions", "Practice exams", "Time management", "Study plans", "Hands-on revision labs"],
+          "tools": ["Practice question bank", "AWS", "Azure"],
+          "lab_task": "Take timed practice exams for AWS Security Specialty and AZ-500, analyse results by domain and plan final study and labs.",
+          "deliverable": "Practice scores, analysis and study plan",
+          "checks": [["Complete both practice exams", "Scores recorded", "Test results"], ["Analyse by domain", "Weakest domains identified", "Analysis"], ["Review the study plan", "Weak domains covered with labs", "Study plan"]],
+          "objectives": ["Prepare for cloud security certifications", "Practise scenario questions", "Plan study"]
+        },
+        {
+          "topic": "Beginner Capstone: Securing a Cloud Web Application",
+          "subtopics": ["Architecture and threat list", "Identity and network controls", "Data and secrets protection", "Logging, detection and posture", "Incident simulation", "Security report and presentation"],
+          "tools": ["AWS or Azure", "Terraform", "Prowler", "GuardDuty or Defender for Cloud"],
+          "lab_task": "Deploy a web application with a database in AWS or Azure using Terraform, secure identity, network, data and secrets, turn on logging, detection and posture checks, respond to a simulated key leak and present the security report.",
+          "deliverable": "Terraform code, posture report, incident report and a 10-minute presentation",
+          "checks": [["Run the posture scan", "No critical or high findings", "Scan report"], ["Respond to the key leak", "Key disabled and actions traced", "Incident report"], ["Present the report", "Risks, controls and gaps clear", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one secured workload", "Prove controls with scans", "Report cloud security posture"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For cloud and security engineers securing production workloads. Covers multi-account and landing zone security, advanced IAM and federation, network architecture and private connectivity, data security at scale, detection engineering for cloud logs, Kubernetes security, DevSecOps for cloud, CSPM and CNAPP tools, compliance automation and cloud incident response.",
+      "prerequisites": ["Can secure identity, network and storage in AWS or Azure", "Uses Terraform and CI pipelines", "Knows cloud logging and threat detection services"],
+      "outcomes": ["Design secure landing zones and organisation guardrails", "Build cloud detections and automated responses", "Secure Kubernetes and cloud-native pipelines", "Automate compliance and lead cloud incident response"],
+      "days": [
+        {
+          "topic": "Secure Landing Zones and Multi-Account Design",
+          "subtopics": ["Why many accounts and subscriptions", "AWS Organizations and Control Tower", "Azure management groups and landing zones", "Security, logging and shared services accounts", "Guardrails with service control policies and Azure Policy", "Account vending", "Break-glass access", "Landing zone reviews"],
+          "tools": ["AWS Control Tower", "AWS Organizations", "Azure Landing Zones", "Azure Policy"],
+          "lab_task": "Build a landing zone with separate security, logging and workload accounts or subscriptions, apply guardrails that block disabling logging and leaving approved regions, and test them.",
+          "deliverable": "Landing zone design, guardrails and test results",
+          "checks": [["Disable CloudTrail in a workload account", "Blocked by the guardrail", "Error message"], ["Create a resource in an unapproved region", "Denied", "Error message"], ["Use break-glass access", "Works and raises an alert", "Alert"]],
+          "objectives": ["Design secure landing zones", "Apply organisation guardrails", "Control break-glass access"]
+        },
+        {
+          "topic": "Advanced IAM: Federation, SSO and Permission Management",
+          "subtopics": ["Federating with a corporate identity provider", "AWS IAM Identity Center and Entra ID", "Attribute-based access control", "Permission sets", "Cross-account roles", "Privileged Identity Management", "Finding unused permissions", "Access reviews at scale"],
+          "tools": ["AWS IAM Identity Center", "Microsoft Entra ID PIM", "IAM Access Analyzer"],
+          "lab_task": "Federate AWS with Entra ID, use attribute-based access by team, set up just-in-time admin with PIM and remove unused permissions found by Access Analyzer.",
+          "deliverable": "Federation set-up, ABAC policy, PIM configuration and permission clean-up",
+          "checks": [["Sign in to AWS through Entra ID", "Correct permission set by team", "Screenshot"], ["Activate admin through PIM", "Granted for a limited time with approval", "PIM log"], ["Remove unused permissions", "Policies reduced and apps still work", "Before and after policies"]],
+          "objectives": ["Federate cloud identities", "Use attribute-based access", "Remove excess permissions"]
+        },
+        {
+          "topic": "Network Security Architecture and Private Connectivity",
+          "subtopics": ["Hub-and-spoke designs", "Transit gateways and virtual WAN", "Cloud firewalls", "Private connectivity: VPN and Direct Connect or ExpressRoute", "Private DNS", "Egress control", "Microsegmentation", "Network monitoring"],
+          "tools": ["AWS Transit Gateway", "AWS Network Firewall", "Azure Firewall", "Azure Virtual WAN"],
+          "lab_task": "Build a hub-and-spoke network with a central firewall, force all egress through it with domain allow lists, connect a simulated on-premise site by VPN and inspect blocked traffic.",
+          "deliverable": "Network design, firewall rules and inspection evidence",
+          "checks": [["Call an unapproved domain from a workload", "Blocked by the firewall", "Firewall log"], ["Reach on-premise over VPN", "Connection works on allowed ports only", "Test output"], ["Route spoke-to-spoke traffic", "Passes through the hub firewall", "Route tables and logs"]],
+          "objectives": ["Design secure cloud networks", "Control egress", "Connect private networks"]
+        },
+        {
+          "topic": "Data Security at Scale",
+          "subtopics": ["Data discovery with Macie and Purview", "Classifying sensitive data", "Encryption strategy across services", "Database security: RDS and Azure SQL", "Data loss prevention", "Cross-account data sharing", "Backups and immutable storage", "Monitoring data access"],
+          "tools": ["Amazon Macie", "Microsoft Purview", "Azure SQL auditing", "AWS Backup"],
+          "lab_task": "Discover personal data in storage with Macie or Purview, encrypt and restrict access, enable database auditing and set immutable backups that survive an admin deletion attempt.",
+          "deliverable": "Discovery results, controls and backup test",
+          "checks": [["Run discovery", "Buckets with personal data flagged", "Discovery report"], ["Delete a backup as an admin", "Blocked by the vault lock", "Error message"], ["Query the database audit log", "Data access recorded by user", "Audit log"]],
+          "objectives": ["Find and protect sensitive data", "Secure databases", "Protect backups from deletion"]
+        },
+        {
+          "topic": "Cloud Detection Engineering",
+          "subtopics": ["Cloud log sources for detection", "Detection queries in KQL and Athena", "Mapping to MITRE ATT&CK for cloud", "Testing detections with Stratus Red Team", "Sentinel analytics rules", "Detection for identity attacks in the cloud", "Tuning noise", "Detection documentation"],
+          "tools": ["Microsoft Sentinel", "Amazon Athena", "Stratus Red Team", "MITRE ATT&CK"],
+          "lab_task": "Write six cloud detections for credential misuse, persistence and data exfiltration, test them with Stratus Red Team and tune them.",
+          "deliverable": "Detection rules, test results and tuning notes",
+          "checks": [["Run the attack techniques", "Each detection fires", "Alert log"], ["Tune a noisy rule", "False positives reduced", "Before and after counts"], ["Map to ATT&CK", "Techniques recorded for each rule", "Coverage sheet"]],
+          "objectives": ["Build cloud detections", "Test detections with attacks", "Tune for noise"]
+        },
+        {
+          "topic": "Automated Response and Security Orchestration",
+          "subtopics": ["Why automate cloud response", "EventBridge and Logic Apps", "Lambda and Functions for response", "Automatic remediation of misconfigurations", "Isolating compromised resources", "Human approval steps", "Testing automations safely", "Measuring response time"],
+          "tools": ["Amazon EventBridge", "AWS Lambda", "Azure Logic Apps", "Microsoft Sentinel playbooks"],
+          "lab_task": "Build automations that make public buckets private, quarantine a VM flagged by GuardDuty after approval and notify the team, and measure response time.",
+          "deliverable": "Automations, test results and timing",
+          "checks": [["Make a bucket public", "Automation reverts it within minutes", "Event log"], ["Trigger a GuardDuty finding", "VM quarantined after approval", "Automation log"], ["Measure response time", "Before and after times recorded", "Comparison"]],
+          "objectives": ["Automate cloud response", "Remediate misconfigurations", "Keep humans in control"]
+        },
+        {
+          "topic": "Kubernetes Security in Managed Clusters",
+          "subtopics": ["EKS and AKS security settings", "Cluster access and RBAC", "Pod Security Standards", "Network policies", "Secrets encryption", "Admission control with Kyverno or OPA Gatekeeper", "Runtime detection", "Cluster upgrades and patching"],
+          "tools": ["Amazon EKS", "Azure Kubernetes Service", "Kyverno", "Falco"],
+          "lab_task": "Harden a managed cluster with private API access, RBAC, Pod Security Standards, network policies and admission policies, and detect a container escape attempt with Falco.",
+          "deliverable": "Cluster configuration, policies and detection evidence",
+          "checks": [["Deploy a privileged pod", "Rejected by admission policy", "kubectl output"], ["Connect between namespaces", "Blocked by network policy", "Test output"], ["Attempt a container escape", "Falco alert raised", "Falco log"]],
+          "objectives": ["Secure managed Kubernetes", "Enforce policies", "Detect runtime threats"]
+        },
+        {
+          "topic": "DevSecOps Pipelines for Cloud Workloads",
+          "subtopics": ["Security in the pipeline", "Code, dependency and secret scanning", "Infrastructure as code scanning", "Container image scanning and signing", "Deployment with OIDC instead of keys", "Policy gates", "Software bill of materials", "Pipeline security itself"],
+          "tools": ["GitHub Actions", "Checkov", "Trivy", "Gitleaks", "cosign"],
+          "lab_task": "Build a pipeline that scans code, dependencies, secrets, Terraform and images, signs images, deploys to the cloud with OIDC and blocks deployment on critical findings.",
+          "deliverable": "Pipeline, scan reports and signed image",
+          "checks": [["Commit a secret", "Pipeline fails", "Pipeline log"], ["Deploy with OIDC", "No long-lived cloud keys in the pipeline", "Pipeline configuration"], ["Verify the image signature", "Valid signature", "cosign output"]],
+          "objectives": ["Build DevSecOps pipelines", "Deploy without stored keys", "Gate deployments on security"]
+        },
+        {
+          "topic": "CSPM and CNAPP Platforms",
+          "subtopics": ["CSPM, CWPP and CNAPP explained", "Attack path analysis", "Agentless scanning", "Prioritising by exposure", "Integrating with ticketing", "Multi-cloud views", "Choosing a platform", "Measuring risk reduction"],
+          "tools": ["Microsoft Defender for Cloud", "Wiz or Prisma Cloud trial", "Jira"],
+          "lab_task": "Use a CNAPP platform to find the top three attack paths in the lab, fix them, send remaining findings to Jira with owners and report risk reduction.",
+          "deliverable": "Attack path analysis, fixes and risk report",
+          "checks": [["Find attack paths", "Top three paths with entry and target", "Platform screenshot"], ["Fix them", "Paths no longer shown", "Platform screenshot"], ["Send findings to Jira", "Tickets with owners and severity", "Jira issues"]],
+          "objectives": ["Use CNAPP platforms", "Prioritise by attack path", "Track risk reduction"]
+        },
+        {
+          "topic": "Secrets, Certificates and Workload Identity at Scale",
+          "subtopics": ["Workload identity federation", "Eliminating static credentials", "Central secrets management with HashiCorp Vault", "Dynamic database credentials", "Certificate automation", "Rotating secrets at scale", "Detecting leaked secrets", "Auditing secret use"],
+          "tools": ["HashiCorp Vault", "AWS Secrets Manager", "Azure Key Vault", "Gitleaks"],
+          "lab_task": "Replace static database passwords with Vault dynamic credentials, use workload identity federation from Kubernetes to the cloud and detect a leaked secret in a repository.",
+          "deliverable": "Vault configuration, identity set-up and leak detection evidence",
+          "checks": [["Request database credentials", "Short-lived credentials issued and expire", "Vault output"], ["Access cloud storage from a pod", "Works through federation without keys", "Pod log"], ["Commit a fake secret", "Detected by the scanner", "Scan output"]],
+          "objectives": ["Remove static credentials", "Use dynamic secrets", "Detect leaked secrets"]
+        },
+        {
+          "topic": "Compliance Automation and Policy as Code",
+          "subtopics": ["Policy as code concepts", "Azure Policy at scale", "AWS Config conformance packs", "Open Policy Agent for cloud resources", "Continuous evidence collection", "Exceptions and waivers", "Reporting to auditors", "Keeping policies maintainable"],
+          "tools": ["Azure Policy", "AWS Config", "Open Policy Agent", "Terraform"],
+          "lab_task": "Deploy a conformance pack and an Azure Policy initiative for a standard, write an OPA policy for Terraform plans, handle one waiver and produce an auditor report.",
+          "deliverable": "Policies, waiver record and auditor report",
+          "checks": [["Deploy a non-compliant resource", "Flagged or denied by policy", "Policy result"], ["Evaluate a Terraform plan with OPA", "Violation reported before apply", "OPA output"], ["Produce the auditor report", "Compliance by control with evidence", "Report"]],
+          "objectives": ["Automate compliance", "Write policies as code", "Manage waivers"]
+        },
+        {
+          "topic": "Cloud Incident Response and Forensics",
+          "subtopics": ["Cloud incident response plans", "Access for responders", "Evidence collection in the cloud", "Memory and disk acquisition", "Log analysis at scale", "Containment playbooks", "Communication and legal steps", "Post-incident improvements"],
+          "tools": ["AWS CloudTrail Lake", "Microsoft Sentinel", "Cado or open-source forensics tools"],
+          "lab_task": "Investigate a simulated multi-step cloud compromise from leaked keys to data theft, acquire disk evidence, contain it and write a forensic report.",
+          "deliverable": "Investigation timeline, evidence and forensic report",
+          "checks": [["Build the timeline", "Initial access to exfiltration in order", "Timeline"], ["Acquire evidence", "Disk snapshot and logs preserved with hashes", "Evidence log"], ["Review the report", "Root cause and fixes clear", "Forensic report"]],
+          "objectives": ["Investigate cloud compromises", "Collect cloud evidence", "Report incidents"]
+        },
+        {
+          "topic": "Vulnerability Management for Cloud Workloads",
+          "subtopics": ["Agent and agentless scanning", "Scanning VMs, containers and functions", "Prioritising with exposure and exploitability", "Golden images and rebuilds instead of patching", "Patch automation", "Exceptions and compensating controls", "Remediation SLAs by owner", "Reporting vulnerability risk"],
+          "tools": ["Amazon Inspector", "Defender for Cloud", "Trivy", "AWS Systems Manager"],
+          "lab_task": "Scan VMs, images and functions across the lab accounts, prioritise findings by internet exposure and known exploits, rebuild one image and report SLA status by owner.",
+          "deliverable": "Scan results, prioritised list, rebuilt image and SLA report",
+          "checks": [["Prioritise findings", "Exposed and exploited findings ranked first", "Priority list"], ["Rebuild the image", "Rescan shows the critical findings fixed", "Scan report"], ["Report SLA status", "Overdue findings by owner", "Report"]],
+          "objectives": ["Manage cloud vulnerabilities", "Prioritise by exposure", "Fix through rebuilds"]
+        },
+        {
+          "topic": "Logging Architecture and SIEM Integration at Scale",
+          "subtopics": ["Log types across cloud services", "Organisation-wide log collection", "Amazon Security Lake and OCSF", "Sending cloud logs to Sentinel or Splunk", "Normalising logs", "Retention and cost tiers", "Log integrity and tamper protection", "Monitoring log pipelines"],
+          "tools": ["Amazon Security Lake", "Microsoft Sentinel", "Azure Monitor", "Splunk"],
+          "lab_task": "Collect audit, network and workload logs from all lab accounts into a security data lake in OCSF format, forward key sources to a SIEM, set retention tiers and alert if a source stops sending.",
+          "deliverable": "Logging architecture, pipeline configuration and source health alert",
+          "checks": [["Query logs from every account", "Results returned from one place", "Query output"], ["Stop a log source", "Health alert raised", "Alert"], ["Review retention", "Hot and archive tiers set with costs", "Configuration"]],
+          "objectives": ["Design cloud logging at scale", "Integrate with a SIEM", "Monitor log pipelines"]
+        },
+        {
+          "topic": "Securing Cloud APIs and Identity for Applications",
+          "subtopics": ["API gateways and authentication", "OAuth 2.0 and OpenID Connect for cloud apps", "Cognito and Entra ID External ID", "API keys versus tokens", "Throttling and quotas", "API security testing", "Logging API access", "Common API attacks"],
+          "tools": ["Amazon API Gateway", "Amazon Cognito", "Azure API Management", "Postman"],
+          "lab_task": "Protect an API with OAuth tokens from Cognito or Entra ID, scopes per operation, throttling and logging, and test it with valid, expired and wrongly scoped tokens.",
+          "deliverable": "API configuration and test results",
+          "checks": [["Call with an expired token", "401 returned", "API response"], ["Call a write operation with a read scope", "403 returned", "API response"], ["Exceed the quota", "Requests throttled", "API response"]],
+          "objectives": ["Secure cloud APIs", "Use OAuth scopes", "Throttle and log APIs"]
+        },
+        {
+          "topic": "Security for Data and AI Services in the Cloud",
+          "subtopics": ["Securing data lakes", "Lake Formation and Purview access controls", "Securing Azure OpenAI and Amazon Bedrock", "Private endpoints for AI services", "Content filtering and logging for AI", "Protecting training data", "Prompt injection risks for cloud AI apps", "Governance of AI use"],
+          "tools": ["AWS Lake Formation", "Amazon Bedrock", "Azure OpenAI", "Microsoft Purview"],
+          "lab_task": "Restrict a data lake with column-level permissions, put an AI service behind a private endpoint with logging and content filters, and test a prompt injection against the app.",
+          "deliverable": "Access controls, AI configuration and test results",
+          "checks": [["Query a restricted column", "Access denied", "Query error"], ["Call the AI service from the internet", "Blocked", "Error message"], ["Run the prompt injection test", "Blocked or logged with the gap recorded", "Test notes"]],
+          "objectives": ["Secure cloud data platforms", "Secure cloud AI services", "Govern AI use"]
+        },
+        {
+          "topic": "Cost, Security and Governance Together",
+          "subtopics": ["Security cost trade-offs", "Tagging for ownership and security", "Budget guardrails", "Detecting crypto-mining through cost", "Security tool costs", "Shutting down unused resources", "Reporting by owner", "Governance reviews"],
+          "tools": ["AWS Cost Explorer", "Azure Cost Management", "Azure Policy"],
+          "lab_task": "Enforce owner and data classification tags, detect a crypto-mining spike from cost anomalies, remove unused exposed resources and report security cost by team.",
+          "deliverable": "Tag policy, anomaly evidence and cost report",
+          "checks": [["Create an untagged resource", "Denied by policy", "Error message"], ["Simulate a mining spike", "Cost anomaly alert raised", "Alert"], ["Report security costs", "Costs by team and tool", "Report"]],
+          "objectives": ["Link cost and security", "Enforce tagging", "Detect abuse through cost"]
+        },
+        {
+          "topic": "Third-Party and SaaS Security",
+          "subtopics": ["SaaS security posture", "Securing Microsoft 365 and Google Workspace", "OAuth app consent risks", "Third-party integrations with cloud accounts", "Cross-account access for vendors", "Vendor risk reviews", "Monitoring SaaS activity", "Offboarding vendors"],
+          "tools": ["Microsoft Defender for Cloud Apps", "AWS IAM", "Entra ID"],
+          "lab_task": "Review OAuth app consents in Microsoft 365, restrict user consent, give a vendor limited cross-account access with an external ID and remove a vendor's access completely.",
+          "deliverable": "Consent review, vendor access set-up and offboarding evidence",
+          "checks": [["Restrict user consent", "Users cannot approve risky apps", "Settings screenshot"], ["Assume the vendor role without the external ID", "Denied", "Error message"], ["Offboard the vendor", "All access removed", "Access review"]],
+          "objectives": ["Secure SaaS and vendor access", "Control OAuth consent", "Offboard vendors safely"]
+        },
+        {
+          "topic": "Authorised Cloud Security Testing and Red Teaming",
+          "subtopics": ["Rules for testing in the cloud", "Provider penetration testing policies", "Cloud attack tools: Pacu and ROADtools", "Testing IAM privilege escalation", "Testing exposed services", "Reporting findings", "Fixing and retesting", "Working with blue teams"],
+          "tools": ["Pacu", "ROADtools", "Prowler"],
+          "lab_task": "Under written authorisation in the lab, find an IAM privilege escalation path with Pacu, test exposed services, report findings and retest after fixes.",
+          "deliverable": "Authorisation, findings report and retest results",
+          "checks": [["Find the escalation path", "Path from low-privilege user to admin shown", "Pacu output"], ["Report findings", "Evidence, risk and fix for each", "Report"], ["Retest after fixes", "Path closed", "Retest output"]],
+          "objectives": ["Test cloud security safely", "Find IAM escalation paths", "Report and retest"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure Multi-Account Cloud Platform",
+          "subtopics": ["Landing zone and guardrails", "Identity federation and least privilege", "Network and data protection", "Detection, response automation and posture", "DevSecOps pipeline and compliance", "Demo and design defence"],
+          "tools": ["AWS Control Tower or Azure Landing Zones", "Terraform", "Microsoft Sentinel or GuardDuty", "Checkov", "GitHub Actions"],
+          "lab_task": "Build a secure platform with a landing zone, federated access, hub-and-spoke network, data protection, cloud detections with automated response, a DevSecOps pipeline and compliance reporting, then present it.",
+          "deliverable": "Terraform repository, pipeline, detection rules, compliance report and a 15-minute demo",
+          "checks": [["Run an attack simulation", "Detected and automatically contained", "Alert and automation log"], ["Deploy a non-compliant change", "Blocked in the pipeline or by guardrails", "Pipeline log"], ["Present the compliance report", "Status by control with evidence", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Prove prevention, detection and response", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For cloud security architects and leads. Covers cloud security architecture and zero trust, enterprise multi-cloud governance, advanced identity attacks and defences, cloud-native threat hunting, supply chain security, confidential computing, sovereign and regulated cloud, security for AI platforms, red and purple teaming in the cloud, security engineering at scale and cloud security leadership.",
+      "prerequisites": ["Has designed or run security for production cloud environments", "Knows landing zones, detection, Kubernetes and DevSecOps in the cloud", "Comfortable with Terraform and scripting"],
+      "outcomes": ["Architect zero trust and multi-cloud security", "Hunt threats and run purple teams in the cloud", "Secure supply chains, AI platforms and regulated workloads", "Lead cloud security programmes and report to boards"],
+      "days": [
+        {
+          "topic": "Cloud Security Architecture and Reference Designs",
+          "subtopics": ["Security architecture principles for cloud", "Reference architectures from AWS, Azure and Google", "Threat modelling cloud systems", "Security patterns for common workloads", "Designing for blast radius", "Security non-functional requirements", "Architecture decision records", "Design reviews"],
+          "tools": ["Threat modelling tool", "Diagramming tool", "Architecture decision record template"],
+          "lab_task": "Design and threat-model a regulated payments platform on two clouds with blast-radius limits and security requirements, record decisions and defend them in a review.",
+          "deliverable": "Architecture, threat model, requirements and decision records",
+          "checks": [["Review the threat model", "Threats and controls for every component", "Threat model"], ["Review blast radius", "A compromise in one account cannot reach the others", "Architecture review"], ["Defend the design", "Questions answered with evidence", "Review notes"]],
+          "objectives": ["Architect cloud security", "Threat-model cloud systems", "Limit blast radius"]
+        },
+        {
+          "topic": "Zero Trust Architecture in the Cloud",
+          "subtopics": ["Zero trust principles", "Identity-aware access", "Device trust", "Microsegmentation and service identity", "Zero trust network access", "Continuous evaluation", "Migration from network-based trust", "Maturity measurement"],
+          "tools": ["Entra ID Conditional Access", "AWS Verified Access", "Google BeyondCorp", "Service mesh"],
+          "lab_task": "Replace VPN access to an internal app with identity-aware access that checks user, device and risk, add service identity between microservices and measure maturity.",
+          "deliverable": "Access design, configuration and maturity assessment",
+          "checks": [["Access from an unmanaged device", "Denied", "Access log"], ["Call a service without a valid identity", "Rejected by the mesh", "Service log"], ["Assess maturity", "Score per pillar with evidence", "Assessment"]],
+          "objectives": ["Apply zero trust in the cloud", "Use identity-aware access", "Measure maturity"]
+        },
+        {
+          "topic": "Enterprise Multi-Cloud Security Governance",
+          "subtopics": ["Governance operating models", "Common control frameworks across clouds", "Central versus federated security teams", "Policy consistency", "Exceptions management", "Metrics across clouds", "Security champions in cloud teams", "Governance reviews"],
+          "tools": ["Cloud Security Alliance CCM", "CNAPP platform", "Policy as code"],
+          "lab_task": "Design a governance model for three clouds and 200 accounts with a common control set, consistent policies, an exception process and a metrics dashboard.",
+          "deliverable": "Governance model, control set and dashboard",
+          "checks": [["Map controls to three clouds", "Equivalent control named in each", "Control mapping"], ["Run an exception through the process", "Approved with expiry and compensating control", "Exception record"], ["Build the dashboard", "Compliance and risk by cloud and business unit", "Dashboard"]],
+          "objectives": ["Govern multi-cloud security", "Keep controls consistent", "Manage exceptions"]
+        },
+        {
+          "topic": "Advanced Cloud Identity Attacks and Defences",
+          "subtopics": ["Token theft and replay", "Consent phishing", "Federation abuse", "Privilege escalation chains", "Cross-tenant attacks", "Identity threat detection", "Hardening identity providers", "Recovering identity compromise"],
+          "tools": ["ROADtools", "Pacu", "Microsoft Entra ID Protection", "Sentinel"],
+          "lab_task": "In the lab, demonstrate token replay and consent phishing, detect both, harden the identity provider and rehearse recovery from a compromised global admin.",
+          "deliverable": "Attack evidence, detections, hardening and recovery runbook",
+          "checks": [["Detect token replay", "Alert raised", "Alert"], ["Block consent phishing after hardening", "Consent prompt prevented", "Test result"], ["Rehearse admin recovery", "Access restored and attacker sessions revoked", "Recovery log"]],
+          "objectives": ["Defend cloud identity", "Detect identity attacks", "Recover from identity compromise"]
+        },
+        {
+          "topic": "Cloud Threat Hunting",
+          "subtopics": ["Hypothesis-driven hunting in cloud logs", "Hunting for persistence in IAM", "Hunting for data exfiltration", "Hunting in Kubernetes audit logs", "Using CloudTrail Lake and KQL at scale", "Baselines and anomalies", "Turning hunts into detections", "Hunt reporting"],
+          "tools": ["CloudTrail Lake", "Microsoft Sentinel", "Kubernetes audit logs"],
+          "lab_task": "Run three hunts across a month of cloud and Kubernetes logs for hidden IAM persistence, unusual data access and suspicious cluster activity, and turn one into a detection.",
+          "deliverable": "Hunt reports and new detection",
+          "checks": [["Run the IAM persistence hunt", "Planted backdoor role found", "Hunt report"], ["Run the data access hunt", "Unusual downloads found or ruled out with evidence", "Hunt report"], ["Create the detection", "Fires on the planted activity", "Alert"]],
+          "objectives": ["Hunt threats in the cloud", "Use cloud logs at scale", "Turn hunts into detections"]
+        },
+        {
+          "topic": "Purple Teaming and Adversary Emulation in the Cloud",
+          "subtopics": ["Cloud adversary profiles", "Emulation plans", "Stratus Red Team and Atomic tests at scale", "Detection coverage scoring", "Joint fixing sessions", "Regression testing detections", "Reporting coverage to leaders", "Running an ongoing programme"],
+          "tools": ["Stratus Red Team", "Atomic Red Team", "MITRE ATT&CK Navigator", "SIEM"],
+          "lab_task": "Emulate a named cloud threat actor's techniques, score detection coverage, fix gaps with the blue team and schedule regression runs.",
+          "deliverable": "Emulation plan, coverage scores and regression schedule",
+          "checks": [["Score coverage before", "Detected, logged and missed recorded per technique", "Coverage sheet"], ["Score after fixes", "Coverage improved", "Coverage sheet"], ["Run regression", "Detections still fire", "Test log"]],
+          "objectives": ["Run cloud purple teams", "Emulate adversaries", "Improve detection coverage"]
+        },
+        {
+          "topic": "Software Supply Chain Security",
+          "subtopics": ["Supply chain attacks", "SLSA levels", "Build provenance", "Signing with Sigstore", "SBOM generation and use", "Dependency risk management", "Securing build systems", "Admission control for signed artefacts"],
+          "tools": ["Sigstore cosign", "Syft", "SLSA GitHub generator", "Kyverno"],
+          "lab_task": "Raise a build pipeline to SLSA level 3 with provenance, sign images and SBOMs, and allow only signed images with valid provenance into the cluster.",
+          "deliverable": "Pipeline, provenance, SBOMs and admission policy",
+          "checks": [["Deploy an unsigned image", "Rejected", "kubectl output"], ["Verify provenance", "Build source and steps verified", "Verification output"], ["Find a vulnerable dependency in the SBOM", "Component and affected images identified", "SBOM query"]],
+          "objectives": ["Secure the software supply chain", "Use provenance and signing", "Enforce trusted artefacts"]
+        },
+        {
+          "topic": "Confidential Computing and Advanced Data Protection",
+          "subtopics": ["Confidential computing concepts", "AWS Nitro Enclaves and Azure confidential VMs", "Hardware security modules", "Bring and hold your own key", "Tokenisation services", "Data sovereignty with external keys", "Performance and cost trade-offs", "Use cases"],
+          "tools": ["AWS Nitro Enclaves", "Azure Confidential Computing", "CloudHSM or Managed HSM"],
+          "lab_task": "Process sensitive records inside a confidential environment with keys released only to it, compare with standard encryption and document the trade-offs.",
+          "deliverable": "Confidential workload, key policy and trade-off note",
+          "checks": [["Read data outside the enclave", "Not possible", "Test output"], ["Check key release", "Key released only to the attested environment", "Key policy and logs"], ["Compare performance", "Overhead measured", "Comparison"]],
+          "objectives": ["Use confidential computing", "Control key release", "Decide when it is worth it"]
+        },
+        {
+          "topic": "Sovereign Cloud and Regulated Workloads",
+          "subtopics": ["Data residency and sovereignty", "India's DPDP Act, RBI and SEBI cloud rules", "EU and GDPR requirements", "Sovereign cloud offerings", "Encryption and key custody for sovereignty", "Audit and regulator access", "Designing for regulated sectors", "Documentation for regulators"],
+          "tools": ["Azure Policy", "AWS Control Tower", "Compliance templates"],
+          "lab_task": "Design a cloud deployment for an Indian bank that meets RBI outsourcing and data localisation rules, with residency guardrails, key custody and regulator documentation.",
+          "deliverable": "Design, guardrails and regulator documentation",
+          "checks": [["Create a resource outside India", "Denied by guardrails", "Error message"], ["Review key custody", "Keys held by the bank as required", "Design document"], ["Review the documentation", "Each rule mapped to a control", "Regulator pack"]],
+          "objectives": ["Meet sovereignty requirements", "Design regulated workloads", "Document for regulators"]
+        },
+        {
+          "topic": "Security for AI and Machine Learning Platforms",
+          "subtopics": ["Threats to cloud AI platforms", "Securing training pipelines", "Model registry security", "Prompt injection and data leakage in AI apps", "Guardrails for generative AI services", "Monitoring AI usage", "AI red teaming", "AI governance in the cloud"],
+          "tools": ["Amazon SageMaker", "Azure AI Foundry", "Amazon Bedrock Guardrails", "garak"],
+          "lab_task": "Secure an ML platform's data, training jobs and model registry, add guardrails to a generative AI app, red-team it and set up AI usage monitoring.",
+          "deliverable": "Platform controls, guardrails, red-team report and monitoring",
+          "checks": [["Access training data from an unapproved role", "Denied", "Error message"], ["Run the red-team tests", "Attacks blocked or recorded with fixes", "Red-team report"], ["Monitor AI usage", "Usage and blocked prompts reported", "Dashboard"]],
+          "objectives": ["Secure AI platforms", "Add guardrails to AI apps", "Govern AI use"]
+        },
+        {
+          "topic": "Security Engineering at Scale: Automation and Platforms",
+          "subtopics": ["Security as a platform for engineering teams", "Paved roads and secure modules", "Self-service security controls", "Automating reviews", "Security data lakes", "Metrics for security engineering", "Developer experience", "Platform roadmap"],
+          "tools": ["Terraform modules", "Backstage", "Security data lake (Amazon Security Lake or Sentinel)"],
+          "lab_task": "Build a paved road with secure Terraform modules and a self-service template, centralise security findings in a security data lake and report adoption and risk metrics.",
+          "deliverable": "Secure modules, template, data lake and metrics",
+          "checks": [["Create a service from the template", "Secure by default with no findings", "Scan report"], ["Query the security data lake", "Findings from all accounts in one place", "Query output"], ["Report adoption", "Share of teams using the paved road", "Metrics"]],
+          "objectives": ["Engineer security at scale", "Build paved roads", "Centralise security data"]
+        },
+        {
+          "topic": "Kubernetes and Cloud-Native Security at Scale",
+          "subtopics": ["Fleet-wide cluster security", "Policy management across clusters", "Service mesh security", "eBPF-based runtime security", "Secrets at scale", "Multi-tenant clusters", "Cluster compliance", "Incident response in Kubernetes"],
+          "tools": ["Kyverno", "Istio", "Cilium Tetragon", "Falco"],
+          "lab_task": "Apply consistent policies across three clusters, enforce mTLS with a service mesh, detect suspicious process activity with eBPF and respond to a compromised pod.",
+          "deliverable": "Policies, mesh configuration, detections and response record",
+          "checks": [["Deploy a non-compliant workload to any cluster", "Rejected everywhere", "kubectl output"], ["Send plain-text traffic between services", "Rejected by mTLS", "Service log"], ["Respond to the compromised pod", "Pod isolated and evidence collected", "Response record"]],
+          "objectives": ["Secure Kubernetes fleets", "Enforce mTLS", "Respond to Kubernetes incidents"]
+        },
+        {
+          "topic": "Resilience, Ransomware and Disaster Recovery in the Cloud",
+          "subtopics": ["Ransomware in the cloud", "Immutable and isolated backups", "Cross-region and cross-account recovery", "Recovery testing", "Clean room recovery", "Business continuity planning", "Chaos testing for security", "Recovery metrics"],
+          "tools": ["AWS Backup", "Azure Backup", "AWS Elastic Disaster Recovery"],
+          "lab_task": "Simulate ransomware encrypting a workload account, recover into a clean isolated account from immutable backups and measure recovery time and data loss.",
+          "deliverable": "Recovery plan, test results and metrics",
+          "checks": [["Delete backups as a compromised admin", "Immutable backups survive", "Error message"], ["Recover in the clean account", "Workload running from backup", "Screenshot"], ["Measure recovery", "RTO and RPO compared with targets", "Metrics"]],
+          "objectives": ["Plan cloud ransomware recovery", "Use immutable backups", "Test recovery"]
+        },
+        {
+          "topic": "Cloud Security Operations Centre Design",
+          "subtopics": ["Cloud-focused SOC", "Telemetry strategy", "Detection and response roles", "Playbooks for cloud incidents", "Automation and SOAR", "Metrics: MTTD and MTTR for cloud", "Managed detection and response partners", "SOC maturity"],
+          "tools": ["Microsoft Sentinel", "Amazon Security Lake", "SOAR platform"],
+          "lab_task": "Design a cloud SOC with telemetry, detections, playbooks and automation, run a simulated week of alerts and report detection and response metrics.",
+          "deliverable": "SOC design, playbooks and metrics report",
+          "checks": [["Run the simulated week", "Alerts triaged with playbooks", "Case records"], ["Report MTTD and MTTR", "Calculated from the cases", "Metrics report"], ["Review the design", "Roles, tools and escalation defined", "SOC design"]],
+          "objectives": ["Design cloud SOCs", "Measure detection and response", "Use automation"]
+        },
+        {
+          "topic": "Cloud Security Risk Quantification and Board Reporting",
+          "subtopics": ["Risk quantification with FAIR", "Loss scenarios for cloud", "Linking controls to risk reduction", "Security investment cases", "Board-level metrics", "Cyber insurance and cloud", "Reporting cadence", "Telling the risk story"],
+          "tools": ["FAIR method", "Excel", "PowerPoint"],
+          "lab_task": "Quantify three cloud loss scenarios with FAIR, show the risk reduction of planned controls and present an investment case to a mock board.",
+          "deliverable": "Risk model, investment case and board presentation",
+          "checks": [["Quantify the scenarios", "Annual loss ranges calculated", "Risk model"], ["Show risk reduction", "Before and after values for each control", "Risk model"], ["Present to the board", "Clear decision requested with numbers", "Presentation"]],
+          "objectives": ["Quantify cloud risk", "Build security investment cases", "Report to boards"]
+        },
+        {
+          "topic": "Mergers, Acquisitions and Cloud Estate Integration",
+          "subtopics": ["Security due diligence for cloud estates", "Discovering unknown accounts and assets", "Trust between tenants and organisations", "Integrating identity safely", "Bringing acquired accounts under guardrails", "Migrating or isolating risky workloads", "Divestitures and separating cloud estates", "Integration roadmaps"],
+          "tools": ["CNAPP platform", "AWS Organizations", "Entra ID cross-tenant access"],
+          "lab_task": "Run security due diligence on an acquired company's cloud estate, find unknown and risky accounts, set safe cross-tenant access and plan bringing the estate under group guardrails.",
+          "deliverable": "Due diligence report, access configuration and integration plan",
+          "checks": [["Discover accounts and assets", "Unknown accounts found and listed", "Discovery report"], ["Configure cross-tenant access", "Only approved users and apps allowed", "Settings screenshot"], ["Review the integration plan", "Phased with risks and owners", "Plan"]],
+          "objectives": ["Secure cloud estates in mergers", "Discover unknown assets", "Integrate identities safely"]
+        },
+        {
+          "topic": "Cloud Security Programme Leadership",
+          "subtopics": ["Building a cloud security team", "Roles and skills", "Working with platform and product teams", "Security culture in cloud teams", "Budgets and tools", "Roadmaps", "Vendor and partner management", "Leadership anti-patterns"],
+          "tools": ["Skills matrix template", "Roadmap template"],
+          "lab_task": "Build a cloud security programme for a growing company with team structure, skills plan, tooling budget, roadmap and engagement model with engineering teams.",
+          "deliverable": "Programme plan",
+          "checks": [["Review the team structure", "Roles and responsibilities clear", "Programme plan"], ["Review the roadmap", "Milestones tied to risk reduction", "Roadmap"], ["Review the engagement model", "How teams get help and reviews defined", "Programme plan"]],
+          "objectives": ["Lead cloud security programmes", "Build teams", "Engage engineering teams"]
+        },
+        {
+          "topic": "CCSP and Advanced Cloud Security Certification Preparation",
+          "subtopics": ["CCSP domains", "Cloud architecture and design", "Cloud data security", "Cloud platform security", "Cloud application security", "Operations and legal", "Practice exams", "Study plans"],
+          "tools": ["Practice question bank"],
+          "lab_task": "Take a timed CCSP practice exam, analyse results by domain and plan final study.",
+          "deliverable": "Practice score, analysis and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Analyse by domain", "Weakest domains identified", "Analysis"], ["Review the study plan", "Weak domains covered", "Study plan"]],
+          "objectives": ["Prepare for CCSP", "Review cloud security domains", "Plan study"]
+        },
+        {
+          "topic": "Troubleshooting Cloud Security Incidents at Scale",
+          "subtopics": ["Mass misconfiguration events", "Guardrails blocking production", "Detection outages", "Compromised pipelines", "Third-party breaches", "Coordinating many teams", "Communicating with leaders", "Post-incident reviews"],
+          "tools": ["CNAPP platform", "SIEM", "Cloud consoles"],
+          "lab_task": "Handle three injected incidents (a pipeline compromise, a guardrail blocking production deployments and a vendor breach), restore safe operation and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Contain the pipeline compromise", "Credentials rotated and malicious changes reverted", "Incident record"], ["Fix the guardrail problem", "Deployments resume without weakening the control", "Change record"], ["Write a runbook for vendor breaches", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Handle large cloud incidents", "Balance security and delivery", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Cloud Security Strategy and Platform for an Enterprise",
+          "subtopics": ["Architecture and zero trust design", "Multi-cloud governance and guardrails", "Detection, hunting and purple teaming", "Supply chain and AI platform security", "Resilience and risk quantification", "Board presentation and defence"],
+          "tools": ["AWS", "Azure", "Terraform", "Microsoft Sentinel", "CNAPP platform", "Sigstore"],
+          "lab_task": "Deliver a cloud security strategy and working platform with zero trust access, multi-cloud guardrails, cloud detections proven by purple teaming, signed supply chain, AI platform controls and ransomware recovery, then present the risk case to a mock board.",
+          "deliverable": "Strategy, platform code, test reports, risk model and a 20-minute board presentation",
+          "checks": [["Run the purple team exercise", "Coverage meets the agreed target", "Coverage sheet"], ["Run the ransomware recovery test", "Recovery within RTO and RPO", "Test report"], ["Answer board questions", "Strategy defended with quantified risk", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one strategy", "Prove controls work", "Lead cloud security at board level"]
+        }
+      ]
+    }
+  }
+}
