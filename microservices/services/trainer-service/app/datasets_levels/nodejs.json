@@ -1,0 +1,573 @@
+{
+  "domain": "Node.js",
+  "name": "Node.js Back-End Development",
+  "category": "Web and Full Stack Development",
+  "icon": "hexagon",
+  "aliases": ["NodeJS", "Node JS", "Node.js Developer", "Node.js Backend", "Node.js Back End", "Node.js Training", "Node.js Development", "Express.js", "ExpressJS", "NestJS", "Nest.js", "Fastify"],
+  "certifications": ["OpenJS Node.js Application Developer (JSNAD)", "OpenJS Node.js Services Developer (JSNSD)"],
+  "tools": ["Node.js LTS", "npm", "Express", "Fastify", "NestJS", "node:test", "Vitest", "Pino", "Docker", "OpenTelemetry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For JavaScript developers and freshers starting back-end work. Covers the Node.js runtime and tooling, JavaScript for the server, CommonJS and ES modules, npm, the event loop and async code, files, streams and buffers, events and configuration, the http module, REST APIs with Express, middleware and errors, request validation, databases with Prisma, password hashing and JWT, calling other APIs, testing with the built-in test runner, logging and debugging, command-line tools and running Node.js in containers.",
+      "prerequisites": ["Knows JavaScript variables, functions, arrays and objects", "Comfortable with a terminal and Git", "Understands HTTP requests and JSON at a basic level"],
+      "outcomes": ["Build REST APIs with Node.js and Express", "Write correct asynchronous code with promises and streams", "Store data, secure endpoints and test APIs", "Debug, log and ship a Node.js service in a container"],
+      "days": [
+        {
+          "topic": "Node.js Overview, Installation and Tooling Setup",
+          "subtopics": ["What Node.js is: V8, libuv and the standard library", "Where Node.js fits: APIs, real-time services, tools and serverless", "LTS and current release lines", "Installing Node.js with a version manager (nvm or fnm)", "The REPL and running scripts", "npm, npx and alternatives such as pnpm", "VS Code setup for Node.js", "Watch mode with node --watch", "Loading .env files with --env-file", "Project folder conventions"],
+          "tools": ["Node.js LTS", "nvm or fnm", "VS Code", "npm"],
+          "lab_task": "Install two Node.js versions with a version manager, switch between them, write a script that prints system information, run it in watch mode and load settings from a .env file.",
+          "deliverable": "Working toolchain and a first script in a Git repository",
+          "checks": [["Switch Node.js versions", "node --version shows each installed version", "Terminal output"], ["Run in watch mode", "Script restarts automatically after a save", "Terminal recording"], ["Load a .env file", "Script prints the value from the file", "Script output"]],
+          "objectives": ["Explain how Node.js runs JavaScript", "Install and manage Node.js versions", "Run and reload scripts"]
+        },
+        {
+          "topic": "JavaScript Essentials for Node.js Developers",
+          "subtopics": ["let, const and block scope", "Arrow functions and this", "Destructuring and spread", "Template literals", "Array methods: map, filter, reduce and find", "Classes and objects", "Optional chaining and nullish coalescing", "Strict equality and common traps"],
+          "tools": ["Node.js", "VS Code", "ESLint"],
+          "lab_task": "Refactor a 200-line legacy script into modern JavaScript with const, arrow functions, destructuring and array methods, and fix every ESLint warning.",
+          "deliverable": "Refactored script with lint report",
+          "checks": [["Run the refactored script", "Output identical to the original", "Diff of outputs"], ["Run ESLint", "No errors or warnings", "ESLint output"], ["Explain this binding", "Correct value of this predicted in five snippets", "Quiz answers"]],
+          "objectives": ["Write modern JavaScript", "Avoid common language traps", "Use array methods fluently"]
+        },
+        {
+          "topic": "Modules: CommonJS and ES Modules",
+          "subtopics": ["require and module.exports", "import and export syntax", "The type field in package.json", ".mjs and .cjs extensions", "Default and named exports", "Dynamic import()", "Importing JSON and built-in node: modules", "Mixing CommonJS and ES modules safely"],
+          "tools": ["Node.js", "npm"],
+          "lab_task": "Split a single-file program into ES modules with named and default exports, import a CommonJS library from ES module code and load a plugin with dynamic import().",
+          "deliverable": "Modular project with a short note on module choices",
+          "checks": [["Run the modular program", "Same output as the single file", "Terminal output"], ["Import a CommonJS package", "Package works from ES module code", "Script output"], ["Load a plugin dynamically", "Plugin chosen at runtime is loaded", "Log output"]],
+          "objectives": ["Use CommonJS and ES modules", "Organise code into modules", "Load modules dynamically"]
+        },
+        {
+          "topic": "npm, package.json and Dependency Management",
+          "subtopics": ["package.json fields and scripts", "Semantic versioning and version ranges", "package-lock.json and npm ci", "Dependencies and devDependencies", "npm run and node --run", "npm audit and outdated packages", "Workspaces for multi-package repositories", "Choosing safe and maintained packages"],
+          "tools": ["npm", "npm audit", "pnpm"],
+          "lab_task": "Create a project with runtime and development dependencies, add build, test and lint scripts, reproduce an install from the lock file with npm ci, and fix the vulnerabilities npm audit reports.",
+          "deliverable": "Project with scripts, lock file and audit notes",
+          "checks": [["Reinstall from the lock file", "npm ci installs identical versions", "Install log"], ["Run the scripts", "Build, test and lint scripts all succeed", "Terminal output"], ["Fix audit findings", "No high or critical vulnerabilities remain", "npm audit output"]],
+          "objectives": ["Manage dependencies with npm", "Write useful scripts", "Keep dependencies safe"]
+        },
+        {
+          "topic": "The Event Loop, Callbacks, Promises and async/await",
+          "subtopics": ["Single thread and non-blocking I/O", "Event loop phases at a high level", "Callbacks and error-first callbacks", "Promises and chaining", "async and await", "Promise.all, allSettled, race and any", "Timers, setImmediate and process.nextTick", "Unhandled rejections and how to avoid them"],
+          "tools": ["Node.js", "util.promisify"],
+          "lab_task": "Convert a callback-based file processor to async/await, run independent requests in parallel with Promise.all, show how a blocking loop delays timers and fix an unhandled rejection.",
+          "deliverable": "Refactored processor and an event loop experiment write-up",
+          "checks": [["Run requests in parallel", "Total time close to the slowest request", "Timing log"], ["Demonstrate blocking", "Timer fires late while the loop blocks", "Timing output"], ["Fix the rejection", "No unhandled rejection warnings", "Terminal output"]],
+          "objectives": ["Explain the event loop", "Write correct async code", "Handle async errors"]
+        },
+        {
+          "topic": "Working with Files and Paths",
+          "subtopics": ["fs/promises for reading and writing files", "Synchronous and asynchronous file APIs", "path and URL helpers", "Directories: creating, listing and walking", "File metadata with stat", "Watching files for changes", "Temporary files and safe overwrites", "Handling missing files and permissions errors"],
+          "tools": ["Node.js", "fs/promises", "path"],
+          "lab_task": "Build a script that walks a folder tree, reports file counts and sizes by extension, writes the report as JSON and CSV, and handles missing and unreadable files without crashing.",
+          "deliverable": "Folder report script with sample outputs",
+          "checks": [["Walk the tree", "Totals match du or Explorer for the folder", "Comparison output"], ["Write reports", "JSON and CSV files contain the same totals", "Report files"], ["Handle bad paths", "Clear error message for a missing folder", "Terminal output"]],
+          "objectives": ["Read and write files asynchronously", "Work with paths portably", "Handle file system errors"]
+        },
+        {
+          "topic": "Streams and Buffers",
+          "subtopics": ["Buffers and character encodings", "Readable, writable, duplex and transform streams", "Piping and stream.pipeline", "Reading large files line by line", "Backpressure in simple terms", "Compressing with zlib streams", "Streaming HTTP responses", "Choosing streams over reading whole files"],
+          "tools": ["Node.js", "stream", "zlib", "readline"],
+          "lab_task": "Process a 2 GB log file with streams to count errors per hour, gzip the output on the fly and compare memory use with a version that reads the whole file.",
+          "deliverable": "Streaming processor and memory comparison",
+          "checks": [["Process the large file", "Error counts per hour produced", "Output file"], ["Compare memory", "Stream version stays under 100 MB of memory", "Memory measurements"], ["Compress on the fly", "Gzip output decompresses to the expected content", "Checksum comparison"]],
+          "objectives": ["Use buffers and streams", "Process large data with low memory", "Build stream pipelines"]
+        },
+        {
+          "topic": "Events, Process and Environment Configuration",
+          "subtopics": ["The EventEmitter pattern", "Custom events and listeners", "The process object: argv, env and exit codes", "Signals and graceful exit", "Configuration from environment and files", "Validating configuration at start-up", "Separating settings per environment", "Keeping secrets out of code"],
+          "tools": ["Node.js", "events", "dotenv files"],
+          "lab_task": "Build a job runner that emits progress events, reads settings from the environment with validation, refuses to start with missing settings and exits cleanly on SIGINT.",
+          "deliverable": "Job runner with configuration module",
+          "checks": [["Start without required settings", "Runner exits with a clear message and non-zero code", "Terminal output"], ["Listen to events", "Progress events logged in order", "Log output"], ["Press Ctrl+C", "Runner finishes the current job and exits cleanly", "Terminal recording"]],
+          "objectives": ["Use EventEmitter", "Configure apps through the environment", "Shut down cleanly"]
+        },
+        {
+          "topic": "Building an HTTP Server with the http Module",
+          "subtopics": ["How an HTTP request and response work", "Creating a server with http.createServer", "Reading the method, URL and headers", "Parsing JSON request bodies", "Status codes and response headers", "Simple routing by hand", "Serving static files", "Why frameworks exist"],
+          "tools": ["Node.js", "http module", "curl"],
+          "lab_task": "Build a small JSON API with the http module only, with GET, POST and DELETE routes, correct status codes, JSON body parsing and static file serving.",
+          "deliverable": "HTTP server and a list of pain points for frameworks to solve",
+          "checks": [["Call each route", "Correct status codes for success and errors", "curl output"], ["Send bad JSON", "Server returns 400 instead of crashing", "Response"], ["Serve a static file", "File downloads with the correct content type", "Response headers"]],
+          "objectives": ["Understand HTTP in Node.js", "Build a server without a framework", "Explain what frameworks add"]
+        },
+        {
+          "topic": "REST APIs with Express",
+          "subtopics": ["Express application and routing", "Route parameters and query strings", "Request bodies with express.json", "Response helpers and status codes", "Routers for resources", "REST conventions for resources and verbs", "Express 5 changes from Express 4", "Testing endpoints with an HTTP client"],
+          "tools": ["Express", "Postman or Bruno", "curl"],
+          "lab_task": "Build a books API in Express with routers for books and authors, full CRUD, filtering by query string and correct REST status codes, tested from an HTTP client collection.",
+          "deliverable": "Books API and HTTP client collection",
+          "checks": [["Run the collection", "All CRUD requests succeed", "Collection run report"], ["Filter by query", "Only matching books returned", "Response body"], ["Request a missing book", "404 with a JSON error", "Response"]],
+          "objectives": ["Build REST APIs with Express", "Follow REST conventions", "Test endpoints"]
+        },
+        {
+          "topic": "Middleware, Routing and Error Handling in Express",
+          "subtopics": ["How middleware works", "Application, router and route middleware", "Logging and timing middleware", "CORS and body size limits", "Async errors in Express 5", "A central error handler", "Consistent error responses", "404 handling"],
+          "tools": ["Express", "cors", "morgan or pino-http"],
+          "lab_task": "Add request logging, CORS, body size limits and a central error handler to the books API, and make every error return the same JSON shape with a request ID.",
+          "deliverable": "API with middleware and an error format document",
+          "checks": [["Throw inside an async route", "Central handler returns a JSON error", "Response"], ["Send an oversized body", "413 response returned", "Response"], ["Read the logs", "Each request logged with its ID and duration", "Log output"]],
+          "objectives": ["Write and order middleware", "Handle errors centrally", "Return consistent errors"]
+        },
+        {
+          "topic": "Validating Requests with Zod",
+          "subtopics": ["Why input validation matters", "Zod schemas for body, params and query", "Validation middleware", "Coercing and transforming values", "Friendly validation error messages", "Sharing schemas with the front end", "Validating responses in development", "Generating types from schemas"],
+          "tools": ["Zod", "Express", "TypeScript types"],
+          "lab_task": "Add Zod validation to every books API endpoint with a reusable middleware, return field-level error messages and share the schemas with a small front-end form.",
+          "deliverable": "Validated API and shared schema package",
+          "checks": [["Send invalid fields", "400 with a message for each bad field", "Response body"], ["Coerce query values", "Numeric filters arrive as numbers", "Test output"], ["Reuse schemas", "Front-end form uses the same schema", "Code reference"]],
+          "objectives": ["Validate input at the boundary", "Return useful validation errors", "Share schemas"]
+        },
+        {
+          "topic": "Persisting Data with Prisma and PostgreSQL",
+          "subtopics": ["Relational data for APIs", "Prisma schema and models", "Migrations with Prisma Migrate", "CRUD with Prisma Client", "Relations and includes", "Filtering, sorting and pagination", "Transactions", "Seeding development data"],
+          "tools": ["PostgreSQL", "Prisma", "Docker"],
+          "lab_task": "Move the books API from memory to PostgreSQL with Prisma, create migrations, add author relations, paginate results and seed sample data.",
+          "deliverable": "Database-backed API with migrations and seed script",
+          "checks": [["Run migrations", "Tables created from the Prisma schema", "Migration output"], ["Paginate results", "Page size and next page links correct", "Response body"], ["Create in a transaction", "Book and author saved together or not at all", "Test output"]],
+          "objectives": ["Store API data in PostgreSQL", "Use Prisma models and migrations", "Paginate and filter safely"]
+        },
+        {
+          "topic": "Password Hashing, JWT and Protected Routes",
+          "subtopics": ["Storing passwords with bcrypt or argon2", "Registration and login endpoints", "Issuing JSON Web Tokens", "Verifying tokens in middleware", "Token expiry and refresh in brief", "Roles in tokens", "Rate limiting login attempts", "Common authentication mistakes"],
+          "tools": ["argon2 or bcrypt", "jsonwebtoken or jose", "express-rate-limit"],
+          "lab_task": "Add registration and login to the API with argon2 hashing and JWTs, protect write routes, allow only admins to delete, and rate-limit failed logins.",
+          "deliverable": "Authenticated API and security notes",
+          "checks": [["Call a protected route", "401 without a token and success with one", "Responses"], ["Delete as a normal user", "403 returned", "Response"], ["Repeat failed logins", "Requests blocked after the limit", "Response log"]],
+          "objectives": ["Store passwords safely", "Protect routes with JWT", "Apply role checks"]
+        },
+        {
+          "topic": "Calling External APIs with fetch",
+          "subtopics": ["The built-in fetch API", "Headers, JSON and query strings", "Timeouts with AbortController", "Retrying with backoff", "Handling non-200 responses", "Pagination when calling APIs", "Caching responses in memory", "Wrapping an API in a client module"],
+          "tools": ["Node.js fetch", "AbortController"],
+          "lab_task": "Build a client module for a public weather API with timeouts, retries with backoff, error handling and a short in-memory cache, and use it from an API endpoint.",
+          "deliverable": "API client module with tests",
+          "checks": [["Simulate a slow API", "Request aborts at the timeout", "Log output"], ["Simulate failures", "Client retries and then returns a clear error", "Test output"], ["Repeat a request", "Second call served from cache", "Timing log"]],
+          "objectives": ["Call APIs with fetch", "Handle timeouts and retries", "Wrap external services"]
+        },
+        {
+          "topic": "Testing with the Node.js Test Runner and Supertest",
+          "subtopics": ["node:test and assert", "Describe, it and hooks", "Mocking functions and timers", "Testing async code", "HTTP tests with Supertest", "Test databases and clean-up", "Coverage reports", "Running tests in watch mode"],
+          "tools": ["node:test", "Supertest", "c8 or built-in coverage"],
+          "lab_task": "Write unit tests for the services and HTTP tests for every API route with Supertest against a test database, mock the weather client and reach 80 percent coverage.",
+          "deliverable": "Test suite with coverage report",
+          "checks": [["Run the suite", "All tests pass", "Test output"], ["Measure coverage", "Line coverage of 80 percent or more", "Coverage report"], ["Mock the external client", "Tests pass with the network disconnected", "Test output"]],
+          "objectives": ["Test Node.js code with node:test", "Test HTTP APIs", "Mock dependencies"]
+        },
+        {
+          "topic": "Logging and Debugging Node.js Applications",
+          "subtopics": ["console versus a structured logger", "Pino log levels and JSON logs", "Request IDs in logs", "The Node.js inspector", "Debugging in VS Code with breakpoints", "Reading stack traces", "Finding async bugs", "Not logging secrets and personal data"],
+          "tools": ["Pino", "VS Code debugger", "Chrome DevTools"],
+          "lab_task": "Replace console logging with Pino, add request IDs, redact passwords and tokens, then use the VS Code debugger to find and fix two planted bugs.",
+          "deliverable": "Logging setup and bug fix notes",
+          "checks": [["Read a request log", "Each line is JSON with a request ID", "Log sample"], ["Check redaction", "Passwords and tokens never appear in logs", "Log search output"], ["Fix planted bugs", "Both bugs found with breakpoints and fixed", "Debugger screenshots"]],
+          "objectives": ["Log in a structured way", "Debug with the inspector", "Protect sensitive data in logs"]
+        },
+        {
+          "topic": "Command-Line Tools with Node.js",
+          "subtopics": ["Shebang lines and bin entries in package.json", "Parsing arguments with util.parseArgs", "Interactive prompts with readline", "Colours and progress output", "Exit codes and errors", "Reading from stdin and writing to stdout", "Publishing a CLI to a private registry", "Testing CLIs"],
+          "tools": ["Node.js", "util.parseArgs", "readline", "npm"],
+          "lab_task": "Build a CLI that imports a CSV of books into the API with options for dry run and batch size, progress output, correct exit codes and tests.",
+          "deliverable": "Installable CLI with README",
+          "checks": [["Run a dry run", "No data changed and a summary printed", "Terminal output"], ["Pipe a file to stdin", "Import works from a pipe", "Terminal output"], ["Fail on bad input", "Non-zero exit code with a helpful message", "Exit code output"]],
+          "objectives": ["Build CLIs with Node.js", "Parse arguments and streams", "Package tools for a team"]
+        },
+        {
+          "topic": "Packaging and Running Node.js in Production with Docker",
+          "subtopics": ["Production and development dependencies", "Writing a Dockerfile for Node.js", "Multi-stage builds and small images", "Running as a non-root user", "Health check endpoints", "Graceful shutdown on SIGTERM", "Docker Compose with PostgreSQL", "Process managers and restarts"],
+          "tools": ["Docker", "Docker Compose", "Node.js"],
+          "lab_task": "Containerise the API with a multi-stage Dockerfile, run it as a non-root user with PostgreSQL in Docker Compose, add a health check and prove in-flight requests finish on shutdown.",
+          "deliverable": "Dockerfile, Compose file and run guide",
+          "checks": [["Build the image", "Image under 200 MB running as non-root", "docker image and inspect output"], ["Run with Compose", "API and database start and pass health checks", "docker compose ps output"], ["Stop the container", "In-flight requests complete before exit", "Log output"]],
+          "objectives": ["Containerise Node.js services", "Run them safely", "Shut down gracefully"]
+        },
+        {
+          "topic": "Beginner Capstone: Task Management REST API",
+          "subtopics": ["Design", "Build", "Test", "Ship"],
+          "tools": ["Node.js", "Express", "PostgreSQL", "Prisma", "Docker"],
+          "lab_task": "Build a task management API with users, projects and tasks, validation, JWT authentication, pagination, logging, tests and a Docker Compose setup, then demo it to the group.",
+          "deliverable": "Repository, API collection and demo recording",
+          "checks": [["Demo the API", "All features work from the collection", "Demo recording"], ["Run the tests", "Suite passes in CI or locally with coverage", "Test report"], ["Start with one command", "docker compose up runs the full stack", "Terminal recording"]],
+          "objectives": ["Combine the beginner topics in one project", "Build a complete REST API", "Present working software"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already build Node.js APIs. Covers TypeScript for services, layered architecture, Fastify, NestJS, OpenAPI documentation, database transactions and pools, Mongoose in production, Redis caching, BullMQ jobs, Socket.IO, OAuth 2.0 and OpenID Connect, OWASP risks, worker threads, stream backpressure, integration testing with containers, observability with OpenTelemetry, profiling and memory leaks, GraphQL with Apollo Server and CI/CD.",
+      "prerequisites": ["Has built a REST API with Express or a similar framework", "Writes async/await code confidently", "Knows SQL or MongoDB basics"],
+      "outcomes": ["Design maintainable Node.js services with TypeScript and clear layers", "Use Fastify or NestJS with caching, queues and real-time features", "Secure, observe and profile services in production", "Test and deliver services through CI/CD"],
+      "days": [
+        {
+          "topic": "TypeScript for Node.js Services",
+          "subtopics": ["tsconfig settings for Node.js", "Running TypeScript with tsx or type stripping", "Typing Express and Fastify handlers", "Types from Zod schemas", "Typing environment configuration", "ES module output and path aliases", "Building for production", "Gradual migration from JavaScript"],
+          "tools": ["TypeScript", "tsx", "Node.js", "Zod"],
+          "lab_task": "Migrate the books API to TypeScript with strict mode, typed handlers and configuration, run it in development without a build step and ship a compiled build.",
+          "deliverable": "TypeScript service with build scripts",
+          "checks": [["Type-check the project", "tsc reports no errors in strict mode", "tsc output"], ["Run without a build step", "Service starts directly from TypeScript in development", "Terminal output"], ["Ship the build", "Compiled output runs in the container", "Container logs"]],
+          "objectives": ["Use TypeScript in Node.js services", "Type requests and configuration", "Build and run TypeScript"]
+        },
+        {
+          "topic": "Project Structure and Layered Architecture for Node.js APIs",
+          "subtopics": ["Routes, controllers, services and repositories", "Dependency injection without a framework", "Domain errors versus HTTP errors", "Configuration and composition root", "Feature folders and modules", "Keeping business logic testable", "Shared libraries", "Architecture decision records"],
+          "tools": ["TypeScript", "Node.js", "ESLint import rules"],
+          "lab_task": "Restructure an API into feature modules with controllers, services and repositories, inject dependencies at a composition root and enforce layer boundaries with lint rules.",
+          "deliverable": "Restructured service and architecture decision record",
+          "checks": [["Enforce boundaries", "Lint fails when a controller imports a repository", "ESLint output"], ["Test a service alone", "Service tests run with fake repositories", "Test output"], ["Map domain errors", "Domain errors become correct HTTP codes", "Response samples"]],
+          "objectives": ["Structure Node.js services", "Separate business logic from HTTP", "Keep code testable"]
+        },
+        {
+          "topic": "Fastify for High-Performance APIs",
+          "subtopics": ["Fastify instances, routes and plugins", "JSON Schema validation and serialisation", "Encapsulation and decorators", "Hooks across the request lifecycle", "Logging with the built-in Pino logger", "Type providers for TypeScript", "Benchmarking Fastify against Express", "Migrating routes from Express"],
+          "tools": ["Fastify", "autocannon", "TypeScript"],
+          "lab_task": "Rebuild three routes of the books API in Fastify with schema validation and serialisation, write a plugin for authentication and benchmark both versions with autocannon.",
+          "deliverable": "Fastify service and benchmark report",
+          "checks": [["Validate with JSON Schema", "Invalid requests rejected by the schema", "Response"], ["Use a plugin", "Authentication plugin applied only to its scope", "Test output"], ["Benchmark", "Requests per second compared for both frameworks", "autocannon results"]],
+          "objectives": ["Build APIs with Fastify", "Use plugins and hooks", "Measure framework performance"]
+        },
+        {
+          "topic": "NestJS Modules, Providers and Dependency Injection",
+          "subtopics": ["NestJS architecture: modules, controllers and providers", "Dependency injection and scopes", "DTOs and validation pipes", "Guards and interceptors", "Exception filters", "Configuration module", "Database access with TypeORM or Prisma", "Testing NestJS modules"],
+          "tools": ["NestJS", "Nest CLI", "Prisma or TypeORM", "Jest"],
+          "lab_task": "Build an inventory service in NestJS with modules, DTO validation, a role guard, a logging interceptor, an exception filter and unit and end-to-end tests.",
+          "deliverable": "NestJS service with tests",
+          "checks": [["Protect a route with a guard", "Users without the role receive 403", "Response"], ["Validate DTOs", "Invalid bodies rejected with field errors", "Response body"], ["Run e2e tests", "End-to-end tests pass", "Test output"]],
+          "objectives": ["Build services with NestJS", "Use guards, pipes and interceptors", "Test NestJS modules"]
+        },
+        {
+          "topic": "API Documentation with OpenAPI",
+          "subtopics": ["OpenAPI 3 documents", "Design-first and code-first approaches", "Generating docs from schemas", "Swagger UI and Redoc", "Examples and error responses", "Versioning APIs", "Generating clients from the spec", "Contract checks in CI"],
+          "tools": ["OpenAPI", "Swagger UI", "Redoc", "openapi-typescript"],
+          "lab_task": "Produce an OpenAPI document for the service from its schemas, publish it with Swagger UI, generate a typed client, and fail CI when the implementation breaks the contract.",
+          "deliverable": "OpenAPI document, docs site and generated client",
+          "checks": [["Publish the docs", "Every endpoint documented with examples", "Docs screenshot"], ["Generate a client", "Typed client compiles and calls the API", "Client test output"], ["Break the contract", "CI fails on the contract check", "CI log"]],
+          "objectives": ["Document APIs with OpenAPI", "Generate clients", "Protect API contracts"]
+        },
+        {
+          "topic": "Database Transactions, Migrations and Connection Pools",
+          "subtopics": ["Connection pools and sizing", "Transactions and isolation levels", "Avoiding N+1 queries", "Migrations in teams and in CI", "Zero-downtime schema changes", "Raw SQL with parameterised queries", "Read replicas in brief", "Monitoring slow queries"],
+          "tools": ["PostgreSQL", "Prisma or Knex", "node-postgres", "pg_stat_statements"],
+          "lab_task": "Fix an N+1 query, tune the connection pool under load, run a zero-downtime column rename in three migrations and use a transaction for a money transfer with correct isolation.",
+          "deliverable": "Database improvements with before and after measurements",
+          "checks": [["Fix the N+1 query", "Query count drops for the list endpoint", "Query log"], ["Tune the pool", "No pool timeouts at the target load", "Load test results"], ["Transfer money", "Balances stay correct under concurrent transfers", "Test output"]],
+          "objectives": ["Use transactions correctly", "Manage schema changes safely", "Tune database access"]
+        },
+        {
+          "topic": "Mongoose Schemas, Population and Transactions",
+          "subtopics": ["Schemas, types and validation", "Indexes defined in schemas", "Population and its costs", "Lean queries for reads", "Middleware hooks", "Transactions with sessions", "Optimistic concurrency with versions", "Testing with an in-memory server"],
+          "tools": ["MongoDB", "Mongoose", "mongodb-memory-server"],
+          "lab_task": "Build an orders module with Mongoose schemas and indexes, compare populated and lean reads, place orders in a transaction and prevent lost updates with versioning.",
+          "deliverable": "Orders module with tests and performance notes",
+          "checks": [["Compare reads", "Lean queries faster than hydrated documents", "Timing results"], ["Place an order in a transaction", "Stock and order saved together", "Test output"], ["Prevent lost updates", "Concurrent edit rejected with a version error", "Test output"]],
+          "objectives": ["Model data with Mongoose", "Use transactions", "Avoid concurrency bugs"]
+        },
+        {
+          "topic": "Caching with Redis",
+          "subtopics": ["When to cache and what to cache", "Cache-aside pattern", "Expiry and invalidation", "Cache stampedes and locking", "Caching HTTP responses with ETags", "Redis data types for apps", "Rate limiting with Redis", "Measuring hit rates"],
+          "tools": ["Redis", "ioredis or node-redis", "autocannon"],
+          "lab_task": "Add cache-aside caching for the most expensive endpoint, invalidate on writes, protect against stampedes, add ETags and measure latency and hit rate under load.",
+          "deliverable": "Cached service with measurements",
+          "checks": [["Measure latency", "p95 latency lower with the cache", "Load test results"], ["Update a record", "Next read returns fresh data", "Test output"], ["Simulate a stampede", "Only one request rebuilds the cache entry", "Log output"]],
+          "objectives": ["Cache with Redis", "Invalidate correctly", "Measure cache value"]
+        },
+        {
+          "topic": "Background Jobs with BullMQ",
+          "subtopics": ["Why work moves to background jobs", "Queues, workers and jobs", "Retries and backoff", "Delayed and repeatable jobs", "Concurrency and rate limits", "Job progress and events", "Dead letter handling", "Monitoring queues with a dashboard"],
+          "tools": ["BullMQ", "Redis", "Bull Board"],
+          "lab_task": "Move email sending and report generation to BullMQ workers with retries, a repeatable nightly job and a failed-jobs view, and show the API stays fast during heavy job load.",
+          "deliverable": "Queue setup with workers and dashboard",
+          "checks": [["Fail a job", "Job retries with backoff and lands in failed after the limit", "Dashboard screenshot"], ["Schedule a repeatable job", "Nightly job runs at the set time", "Job history"], ["Load the queue", "API latency unchanged while workers are busy", "Load test results"]],
+          "objectives": ["Run background work with queues", "Handle retries and failures", "Monitor workers"]
+        },
+        {
+          "topic": "Socket.IO Rooms, Namespaces and Scaling",
+          "subtopics": ["WebSockets and Socket.IO", "Events and acknowledgements", "Rooms and namespaces", "Authentication for socket connections", "Reconnection and missed messages", "Scaling with the Redis adapter", "Sticky sessions behind a load balancer", "Server-sent events as a simpler option"],
+          "tools": ["Socket.IO", "Redis adapter", "NGINX"],
+          "lab_task": "Build live order status updates with Socket.IO rooms per customer, authenticate connections with JWT, run three instances behind NGINX with the Redis adapter and test reconnection.",
+          "deliverable": "Real-time service with scaling notes",
+          "checks": [["Join rooms", "Customers receive only their own updates", "Browser console logs"], ["Scale out", "Messages reach clients on every instance", "Test output"], ["Drop the connection", "Client reconnects and receives missed updates", "Recording"]],
+          "objectives": ["Build real-time features", "Secure socket connections", "Scale Socket.IO"]
+        },
+        {
+          "topic": "OAuth 2.0 and OpenID Connect in Node.js",
+          "subtopics": ["OAuth 2.0 roles and flows", "Authorization code with PKCE", "OpenID Connect and ID tokens", "Validating access tokens with JWKS", "Scopes and audience checks", "Machine-to-machine client credentials", "Using an identity provider: Keycloak, Auth0 or Entra ID", "Session handling for web clients"],
+          "tools": ["Keycloak or Auth0", "jose", "openid-client"],
+          "lab_task": "Protect the API with tokens from an identity provider, validate signatures with JWKS, enforce scopes per route, and add a client credentials flow for a partner integration.",
+          "deliverable": "Protected API and integration guide",
+          "checks": [["Call with a valid token", "Request accepted with the right scope", "Response"], ["Use a token for another audience", "Request rejected with 401", "Response"], ["Use client credentials", "Partner service gets a token and calls the API", "Log output"]],
+          "objectives": ["Use OAuth 2.0 and OIDC", "Validate tokens correctly", "Support service-to-service access"]
+        },
+        {
+          "topic": "Securing Node.js APIs Against the OWASP Top 10",
+          "subtopics": ["Broken access control and object-level checks", "Injection in SQL, NoSQL and shell commands", "Security headers with Helmet", "Server-side request forgery", "Prototype pollution", "Regular expression denial of service", "Dependency vulnerabilities", "Security tests in CI"],
+          "tools": ["Helmet", "npm audit", "OWASP ZAP", "Semgrep"],
+          "lab_task": "Find and fix planted vulnerabilities in a sample API: an IDOR, a NoSQL injection, an SSRF, prototype pollution and a slow regular expression, then add Semgrep and ZAP to CI.",
+          "deliverable": "Vulnerability fixes and security pipeline",
+          "checks": [["Fix the IDOR", "Users cannot read other users' orders", "Test output"], ["Block SSRF", "Requests to internal addresses refused", "Test output"], ["Scan in CI", "Pipeline fails on a new high finding", "CI log"]],
+          "objectives": ["Recognise common Node.js vulnerabilities", "Fix them in code", "Automate security checks"]
+        },
+        {
+          "topic": "Worker Threads and CPU-Bound Work",
+          "subtopics": ["Why CPU work blocks the event loop", "Measuring event loop delay", "worker_threads basics", "Worker pools with Piscina", "Sharing data with transfer lists", "Child processes for external tools", "Offloading to queues or other services", "Choosing the right option"],
+          "tools": ["worker_threads", "Piscina", "perf_hooks"],
+          "lab_task": "Measure event loop delay while an endpoint resizes images, move the work to a Piscina pool and show latency for other endpoints returns to normal.",
+          "deliverable": "Worker pool implementation and measurements",
+          "checks": [["Measure loop delay", "Delay spikes recorded before the change", "perf_hooks output"], ["Use a worker pool", "Other endpoints stay fast during image work", "Load test results"], ["Size the pool", "Throughput compared for three pool sizes", "Results table"]],
+          "objectives": ["Find CPU blocking", "Use worker threads", "Choose between threads, processes and queues"]
+        },
+        {
+          "topic": "Streams in Depth: Backpressure and Pipelines",
+          "subtopics": ["How backpressure works", "highWaterMark and buffering", "Writing custom transform streams", "Async iterators with streams", "stream.pipeline and error handling", "Web Streams in Node.js", "Streaming uploads and downloads", "Streaming database results"],
+          "tools": ["stream", "stream/promises", "Web Streams API"],
+          "lab_task": "Stream a large CSV upload through validation and transformation into the database without buffering, handle a broken row and stream a large export back to the client.",
+          "deliverable": "Streaming import and export endpoints",
+          "checks": [["Upload a large file", "Memory stays flat during the upload", "Memory graph"], ["Hit a bad row", "Pipeline stops cleanly with an error report", "Error output"], ["Stream an export", "Download starts before the query finishes", "Network timing"]],
+          "objectives": ["Control backpressure", "Build custom streams", "Stream large data through APIs"]
+        },
+        {
+          "topic": "Integration Testing with Testcontainers and Mocks",
+          "subtopics": ["The testing pyramid for services", "Testcontainers for PostgreSQL, Redis and MongoDB", "Seeding and resetting data", "Mocking HTTP with MSW or nock", "Contract tests with consumers", "Running tests in parallel", "Flaky test causes and fixes", "Test reports in CI"],
+          "tools": ["Testcontainers", "Vitest or node:test", "MSW or nock"],
+          "lab_task": "Write integration tests that start PostgreSQL and Redis containers, mock a payment provider, run in parallel safely and produce a JUnit report for CI.",
+          "deliverable": "Integration test suite and CI report",
+          "checks": [["Run with containers", "Tests pass against real PostgreSQL and Redis", "Test output"], ["Mock the payment provider", "Payment failures handled in tests", "Test output"], ["Run in parallel", "No shared-state failures across ten runs", "Repeated run log"]],
+          "objectives": ["Test services against real dependencies", "Mock external APIs", "Keep tests reliable"]
+        },
+        {
+          "topic": "Observability with Pino, OpenTelemetry and Metrics",
+          "subtopics": ["Structured logging with context", "OpenTelemetry tracing in Node.js", "Automatic and manual instrumentation", "AsyncLocalStorage for request context", "Metrics with Prometheus", "Correlating logs and traces", "Health and readiness endpoints", "Dashboards and alerts"],
+          "tools": ["Pino", "OpenTelemetry", "Prometheus", "Grafana", "Jaeger"],
+          "lab_task": "Instrument the service with OpenTelemetry traces across HTTP, database and queue calls, add Prometheus metrics, link logs to trace IDs and build a Grafana dashboard with an alert.",
+          "deliverable": "Instrumented service and dashboard",
+          "checks": [["Trace a request", "Single trace shows HTTP, database and queue spans", "Jaeger screenshot"], ["Link logs", "Log lines carry the trace ID", "Log sample"], ["Fire an alert", "Alert triggers on high error rate", "Alert screenshot"]],
+          "objectives": ["Instrument Node.js services", "Correlate logs and traces", "Alert on symptoms"]
+        },
+        {
+          "topic": "Performance Profiling: Flame Graphs and Memory Leaks",
+          "subtopics": ["Load testing with autocannon or k6", "CPU profiles with --cpu-prof", "Flame graphs", "Heap snapshots and comparisons", "Common leak sources: caches, listeners and closures", "Garbage collection traces", "Event loop utilisation", "Fixing and proving improvements"],
+          "tools": ["autocannon or k6", "Chrome DevTools", "--cpu-prof", "Heap snapshots"],
+          "lab_task": "Load test a slow endpoint, find the hot function in a flame graph, find a memory leak with heap snapshot comparison, fix both and prove the gains.",
+          "deliverable": "Profiling report with before and after results",
+          "checks": [["Find the hot path", "Hot function identified in the flame graph", "Flame graph screenshot"], ["Find the leak", "Leaking objects identified between snapshots", "Snapshot comparison"], ["Prove the fix", "Higher throughput and flat memory over 30 minutes", "Load test results"]],
+          "objectives": ["Profile CPU use", "Find memory leaks", "Prove performance fixes"]
+        },
+        {
+          "topic": "GraphQL APIs with Apollo Server",
+          "subtopics": ["GraphQL schema and types", "Queries, mutations and resolvers", "DataLoader for batching", "Authentication in context", "Errors and partial results", "Pagination with connections", "Query depth and cost limits", "GraphQL versus REST trade-offs"],
+          "tools": ["Apollo Server", "DataLoader", "GraphQL Code Generator"],
+          "lab_task": "Build a GraphQL API over the books data with queries, mutations, DataLoader batching, authenticated context and depth limits, and generate TypeScript types for resolvers.",
+          "deliverable": "GraphQL service with generated types",
+          "checks": [["Batch with DataLoader", "Nested query runs one database query per type", "Query log"], ["Limit depth", "Overly deep query rejected", "Response"], ["Generate types", "Resolvers compile against generated types", "tsc output"]],
+          "objectives": ["Build GraphQL APIs", "Batch data loading", "Protect GraphQL servers"]
+        },
+        {
+          "topic": "CI/CD for Node.js Services",
+          "subtopics": ["Pipeline stages: install, lint, test and build", "Caching dependencies in CI", "Matrix builds across Node.js versions", "Building and scanning container images", "Semantic versioning and changelogs", "Deploying to staging and production", "Database migrations in pipelines", "Rollbacks"],
+          "tools": ["GitHub Actions", "Docker", "Trivy", "Changesets or semantic-release"],
+          "lab_task": "Build a GitHub Actions pipeline that lints, tests on two Node.js versions, builds and scans the image, runs migrations and deploys to staging, with a manual approval for production.",
+          "deliverable": "Pipeline definition and release notes",
+          "checks": [["Run the pipeline", "All stages pass on a pull request", "Pipeline run"], ["Test on two versions", "Matrix shows both Node.js versions passing", "Matrix results"], ["Roll back", "Previous version restored from the pipeline", "Deployment log"]],
+          "objectives": ["Automate Node.js delivery", "Gate releases with tests and scans", "Roll back safely"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production Order Service",
+          "subtopics": ["Design", "Build", "Operate", "Present"],
+          "tools": ["TypeScript", "Fastify or NestJS", "PostgreSQL", "Redis", "BullMQ", "OpenTelemetry"],
+          "lab_task": "Build an order service with TypeScript, OpenAPI docs, transactions, caching, background jobs, real-time status updates, OAuth protection, tests with containers, tracing and a CI/CD pipeline, then present it.",
+          "deliverable": "Repository, pipeline, dashboards and presentation",
+          "checks": [["Demo the service", "Orders flow from creation to live status updates", "Demo recording"], ["Show observability", "Trace and dashboard explain one slow request", "Screenshots"], ["Defend the design", "Architecture choices explained with trade-offs", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one service", "Run a production-style Node.js service", "Explain design trade-offs"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Node.js engineers and technical leads. Covers Node.js internals, microservice boundaries, event-driven services with Kafka and RabbitMQ, scaling and statelessness, resilience patterns, supply chain security and the permission model, multi-tenant APIs, serverless Node.js, Node.js on Kubernetes, native addons and WebAssembly, advanced diagnostics, HTTP/2 and gRPC, data-intensive processing, federated GraphQL and BFFs, monorepos, runtime choices, large upgrades, incident troubleshooting and architecture leadership.",
+      "prerequisites": ["Several years building production Node.js services", "Comfortable with TypeScript, databases and containers", "Has worked with queues or distributed systems"],
+      "outcomes": ["Design and scale distributed Node.js systems", "Diagnose deep performance and reliability problems", "Secure the Node.js supply chain and runtime", "Lead architecture and upgrade decisions for Node.js teams"],
+      "days": [
+        {
+          "topic": "Node.js Internals: V8, libuv and Event Loop Phases",
+          "subtopics": ["V8 compilation tiers and hidden classes", "Garbage collection: young and old generations", "libuv thread pool and which APIs use it", "Event loop phases in detail", "Microtasks, nextTick and ordering", "How async_hooks and AsyncLocalStorage work", "Writing code V8 can optimise", "Reading V8 and libuv diagnostics"],
+          "tools": ["Node.js", "--trace-gc", "--trace-deopt", "UV_THREADPOOL_SIZE"],
+          "lab_task": "Predict and verify execution order in ten tricky async snippets, starve the libuv thread pool with crypto work and fix it, and find a deoptimisation with V8 tracing.",
+          "deliverable": "Internals lab notebook with explanations",
+          "checks": [["Predict execution order", "At least nine of ten orders predicted correctly", "Lab notebook"], ["Starve the thread pool", "DNS and file calls slow until the pool is resized", "Timing results"], ["Find a deoptimisation", "Deoptimised function identified and fixed", "Trace output"]],
+          "objectives": ["Explain V8 and libuv behaviour", "Predict event loop ordering", "Use internal diagnostics"]
+        },
+        {
+          "topic": "Microservices with Node.js: Boundaries and Communication",
+          "subtopics": ["Finding service boundaries from the domain", "Synchronous HTTP and gRPC calls", "Asynchronous messaging", "Data ownership per service", "Sagas for multi-service workflows", "Service templates and shared libraries", "Versioning service contracts", "When a modular monolith is better"],
+          "tools": ["Node.js", "gRPC", "NATS or RabbitMQ", "Docker Compose"],
+          "lab_task": "Split an order monolith into order, payment and inventory services with clear data ownership, implement a saga for checkout and compare it with the modular monolith version.",
+          "deliverable": "Service map, saga implementation and comparison",
+          "checks": [["Run the saga", "Failed payment releases reserved stock", "Test output"], ["Check data ownership", "No service reads another service's database", "Architecture review"], ["Compare designs", "Latency and complexity compared with the monolith", "Comparison report"]],
+          "objectives": ["Draw service boundaries", "Coordinate services with sagas", "Choose between monolith and microservices"]
+        },
+        {
+          "topic": "Event-Driven Node.js with Kafka and RabbitMQ",
+          "subtopics": ["Events, commands and messages", "KafkaJS or Confluent clients for Node.js", "RabbitMQ exchanges and queues with amqplib", "Consumer groups and partitions", "Idempotent consumers", "The outbox pattern", "Dead letter queues and retries", "Schema evolution for events"],
+          "tools": ["Kafka", "RabbitMQ", "Confluent Kafka JavaScript client", "amqplib"],
+          "lab_task": "Publish order events through an outbox to Kafka, consume them idempotently in two services, route failures to a dead letter queue and evolve an event schema without breaking consumers.",
+          "deliverable": "Event-driven services with an event catalogue",
+          "checks": [["Replay events", "Consumers produce no duplicates after replay", "Database counts"], ["Fail a consumer", "Message reaches the dead letter queue after retries", "Queue screenshot"], ["Evolve a schema", "Old and new consumers both keep working", "Test output"]],
+          "objectives": ["Build event-driven Node.js services", "Make consumers idempotent", "Evolve events safely"]
+        },
+        {
+          "topic": "Scaling Node.js: Clustering, Load Balancing and Statelessness",
+          "subtopics": ["Vertical and horizontal scaling", "The cluster module and process managers", "Stateless services and session storage", "Load balancing and keep-alive tuning", "HTTP agent and connection reuse with undici", "Back-pressure at the service edge", "Capacity testing and limits", "Autoscaling signals"],
+          "tools": ["cluster", "NGINX", "undici", "k6"],
+          "lab_task": "Find the single-instance limit of an API, scale it with the cluster module and then across containers behind NGINX, tune keep-alive and connection reuse, and document capacity per instance.",
+          "deliverable": "Capacity model and scaling configuration",
+          "checks": [["Find the limit", "Saturation point measured for one instance", "k6 results"], ["Scale out", "Throughput grows close to linearly across instances", "Scaling chart"], ["Reuse connections", "Upstream connection count drops after tuning", "Connection metrics"]],
+          "objectives": ["Scale Node.js services", "Keep services stateless", "Model capacity"]
+        },
+        {
+          "topic": "Resilience Patterns: Timeouts, Retries, Circuit Breakers and Bulkheads",
+          "subtopics": ["Failure modes in distributed calls", "Timeouts at every hop", "Retries with jitter and budgets", "Circuit breakers", "Bulkheads and concurrency limits", "Load shedding", "Fallbacks and degraded modes", "Chaos testing a service"],
+          "tools": ["opossum", "p-limit", "Toxiproxy", "k6"],
+          "lab_task": "Inject latency and errors into a dependency with Toxiproxy, add timeouts, retry budgets, a circuit breaker and a bulkhead, and show the service degrades gracefully instead of failing.",
+          "deliverable": "Resilience changes with chaos test results",
+          "checks": [["Inject latency", "Requests time out at the configured limit", "Test output"], ["Open the breaker", "Calls fail fast while the dependency is down", "Breaker metrics"], ["Shed load", "Service keeps serving priority traffic under overload", "Load test results"]],
+          "objectives": ["Apply resilience patterns", "Test failure handling", "Degrade gracefully"]
+        },
+        {
+          "topic": "Supply Chain Security, the Permission Model and Secrets",
+          "subtopics": ["Recent npm package compromises and how they spread", "Lock files, npm ci and install scripts", "Provenance and signed packages", "Private registries and allow lists", "Software bills of materials", "The Node.js permission model", "Secrets from a vault at runtime", "Reviewing new dependencies"],
+          "tools": ["npm", "Socket or Snyk", "CycloneDX", "Node.js permission model", "HashiCorp Vault"],
+          "lab_task": "Audit a service's dependency tree, block install scripts, produce an SBOM, restrict file and network access with the permission model and load secrets from Vault at start-up.",
+          "deliverable": "Supply chain policy, SBOM and hardened run configuration",
+          "checks": [["Produce an SBOM", "SBOM lists every direct and transitive package", "SBOM file"], ["Restrict permissions", "Access outside allowed paths is denied", "Error output"], ["Load secrets", "No secrets in environment files or images", "Image scan output"]],
+          "objectives": ["Reduce supply chain risk", "Restrict runtime permissions", "Manage secrets safely"]
+        },
+        {
+          "topic": "Multi-Tenant API Design in Node.js",
+          "subtopics": ["Tenancy models: shared, schema and database per tenant", "Resolving the tenant per request", "Tenant context with AsyncLocalStorage", "Row-level security in PostgreSQL", "Per-tenant rate limits and quotas", "Tenant-aware caching", "Onboarding and offboarding tenants", "Noisy neighbour protection"],
+          "tools": ["PostgreSQL row-level security", "AsyncLocalStorage", "Redis"],
+          "lab_task": "Make an API multi-tenant with tenant resolution from the domain, AsyncLocalStorage context, PostgreSQL row-level security, per-tenant rate limits and tenant-aware cache keys.",
+          "deliverable": "Multi-tenant API and isolation test suite",
+          "checks": [["Test isolation", "Tenant A never sees tenant B data in any endpoint", "Test output"], ["Limit a noisy tenant", "Other tenants unaffected during a flood", "Load test results"], ["Offboard a tenant", "Tenant data removed and verified", "Offboarding log"]],
+          "objectives": ["Design tenancy models", "Enforce tenant isolation", "Protect tenants from each other"]
+        },
+        {
+          "topic": "Serverless Node.js on AWS Lambda and Azure Functions",
+          "subtopics": ["Serverless trade-offs for Node.js", "Handler design and cold starts", "Bundling with esbuild", "Connecting to databases from functions", "Event sources: HTTP, queues and schedules", "Idempotency and retries", "Local testing and emulation", "Cost and observability"],
+          "tools": ["AWS Lambda", "Azure Functions", "esbuild", "AWS SAM or Serverless Framework"],
+          "lab_task": "Move the report generator to AWS Lambda triggered by a queue, cut cold start time with bundling, make it idempotent and compare cost with the container version.",
+          "deliverable": "Serverless function, measurements and cost comparison",
+          "checks": [["Reduce cold starts", "Cold start time lower after bundling", "Measurement table"], ["Retry a message", "Duplicate delivery produces one report", "Test output"], ["Compare cost", "Monthly cost compared at three traffic levels", "Cost model"]],
+          "objectives": ["Run Node.js serverless", "Handle cold starts and retries", "Compare serverless costs"]
+        },
+        {
+          "topic": "Node.js on Kubernetes: Graceful Shutdown, Probes and Autoscaling",
+          "subtopics": ["Container images for Node.js on Kubernetes", "Liveness, readiness and start-up probes", "Graceful shutdown with preStop and SIGTERM", "Memory limits and the V8 heap size", "CPU limits and event loop behaviour", "Horizontal Pod Autoscaler signals", "Configuration and secrets", "Zero-downtime rollouts"],
+          "tools": ["Kubernetes", "Helm", "kubectl", "k6"],
+          "lab_task": "Deploy the service to Kubernetes with correct probes, heap sizing and graceful shutdown, autoscale on a custom metric and prove a rolling update drops no requests.",
+          "deliverable": "Helm chart and rollout test results",
+          "checks": [["Roll out a new version", "No failed requests during the rollout", "k6 results"], ["Size the heap", "No out-of-memory restarts at peak load", "Pod events"], ["Autoscale", "Pods scale on the custom metric", "HPA history"]],
+          "objectives": ["Run Node.js well on Kubernetes", "Shut down without dropping requests", "Autoscale correctly"]
+        },
+        {
+          "topic": "Native Addons with Node-API and WebAssembly",
+          "subtopics": ["When native code is worth it", "Node-API and node-addon-api", "Rust addons with napi-rs", "Building prebuilt binaries", "WebAssembly modules in Node.js", "Passing data between JavaScript and native code", "Memory safety and crashes", "Distributing native packages"],
+          "tools": ["Node-API", "napi-rs", "Rust", "WebAssembly"],
+          "lab_task": "Speed up a hashing function with a Rust addon via napi-rs and with WebAssembly, benchmark both against JavaScript and publish prebuilt binaries for two platforms.",
+          "deliverable": "Native addon, WebAssembly module and benchmark report",
+          "checks": [["Benchmark", "Speed-up measured for both options", "Benchmark results"], ["Build prebuilt binaries", "Package installs without a compiler on both platforms", "Install log"], ["Handle bad input", "Addon throws a JavaScript error instead of crashing", "Test output"]],
+          "objectives": ["Extend Node.js with native code", "Use WebAssembly", "Ship native packages"]
+        },
+        {
+          "topic": "Advanced Diagnostics: Heap Snapshots, Core Dumps and diagnostics_channel",
+          "subtopics": ["Diagnostic reports on crashes", "Heap snapshots near the heap limit", "Core dumps and llnode", "diagnostics_channel for library tracing", "Continuous profiling in production", "Debugging production safely", "Event loop stall detection", "Building a diagnostics runbook"],
+          "tools": ["Diagnostic reports", "Heap snapshots", "llnode", "Pyroscope"],
+          "lab_task": "Capture a diagnostic report and heap snapshot from a crashing process, analyse a core dump with llnode, subscribe to diagnostics channels from a library and set up continuous profiling.",
+          "deliverable": "Diagnostics runbook with sample analyses",
+          "checks": [["Capture on crash", "Diagnostic report and heap snapshot written automatically", "Files list"], ["Analyse a core dump", "Crashing stack identified", "llnode output"], ["Profile continuously", "Hot functions visible in production profiles", "Profiler screenshot"]],
+          "objectives": ["Collect production diagnostics", "Analyse crashes and leaks", "Build diagnostics runbooks"]
+        },
+        {
+          "topic": "HTTP/2, gRPC and Streaming APIs",
+          "subtopics": ["HTTP/2 in Node.js", "gRPC with Protocol Buffers", "Unary and streaming calls", "Deadlines and cancellation", "Load balancing gRPC", "Server-sent events and streaming HTTP", "Choosing REST, gRPC or GraphQL", "Interoperability with other languages"],
+          "tools": ["@grpc/grpc-js", "Protocol Buffers", "buf", "HTTP/2"],
+          "lab_task": "Build a gRPC service with unary and server-streaming calls, enforce deadlines, call it from a Python client and compare it with a REST version for latency and payload size.",
+          "deliverable": "gRPC service, clients and comparison",
+          "checks": [["Stream results", "Client receives a stream of updates", "Client output"], ["Enforce deadlines", "Slow call cancelled at the deadline", "Error output"], ["Call from Python", "Python client works with the same proto", "Client output"]],
+          "objectives": ["Build gRPC services in Node.js", "Use streaming APIs", "Choose API styles"]
+        },
+        {
+          "topic": "Data-Intensive Node.js: Batch Processing and ETL with Streams",
+          "subtopics": ["Batch and streaming data jobs", "Reading from object storage as streams", "Parsing CSV, JSON lines and Parquet", "Parallelism with limits", "Checkpoints and resumable jobs", "Bulk loading into databases", "Data quality checks", "Scheduling and monitoring jobs"],
+          "tools": ["Node.js streams", "AWS SDK for JavaScript", "DuckDB", "PostgreSQL COPY"],
+          "lab_task": "Build a resumable ETL job that streams 10 million rows from object storage, validates and transforms them, bulk-loads PostgreSQL and resumes from a checkpoint after a crash.",
+          "deliverable": "ETL job with run metrics",
+          "checks": [["Load the data", "10 million rows loaded with counts reconciled", "Reconciliation report"], ["Crash and resume", "Job resumes from the checkpoint without duplicates", "Run log"], ["Reject bad rows", "Invalid rows written to a quarantine file", "Quarantine file"]],
+          "objectives": ["Build data jobs in Node.js", "Make jobs resumable", "Check data quality"]
+        },
+        {
+          "topic": "Federated GraphQL and BFF Services in Node.js",
+          "subtopics": ["Backend for frontend responsibilities", "Aggregating services for one screen", "GraphQL federation with subgraphs", "Router and gateway choices", "Caching and persisted queries", "Authorisation across subgraphs", "Schema governance", "Performance budgets for BFFs"],
+          "tools": ["Apollo Federation", "GraphQL Hive or Apollo GraphOS", "Node.js"],
+          "lab_task": "Build two subgraphs and a federated graph for a product page, add persisted queries and caching, enforce authorisation in subgraphs and check schema changes in CI.",
+          "deliverable": "Federated graph and schema governance rules",
+          "checks": [["Query the product page", "One request returns data from both subgraphs", "Response"], ["Check schema changes", "Breaking change blocked in CI", "CI log"], ["Cache persisted queries", "Repeat queries served from cache", "Cache metrics"]],
+          "objectives": ["Build BFF services", "Federate GraphQL", "Govern shared schemas"]
+        },
+        {
+          "topic": "Monorepos and Shared Libraries for Node.js Teams",
+          "subtopics": ["Monorepo and polyrepo trade-offs", "pnpm workspaces", "Nx or Turborepo task pipelines", "Remote caching of builds and tests", "Shared libraries and versioning", "Code ownership and boundaries", "Affected-only CI", "Publishing internal packages"],
+          "tools": ["pnpm", "Nx or Turborepo", "Changesets"],
+          "lab_task": "Move three services and two shared libraries into a pnpm monorepo, run only affected tasks in CI with remote caching and publish a shared library with Changesets.",
+          "deliverable": "Monorepo with CI pipeline and release process",
+          "checks": [["Run affected tasks", "CI builds only changed projects", "CI log"], ["Use the remote cache", "Second run completes mostly from cache", "Run timings"], ["Publish a library", "New version released with a changelog", "Registry listing"]],
+          "objectives": ["Organise Node.js code in monorepos", "Speed up CI", "Share libraries safely"]
+        },
+        {
+          "topic": "Runtime Choices: Node.js, Deno and Bun",
+          "subtopics": ["What Deno and Bun change", "Compatibility with npm packages and Node APIs", "Built-in tooling: test runners, bundlers and formatters", "Performance claims and how to test them", "Security models", "Hosting and ecosystem support", "Risks of switching runtimes", "Making a runtime decision"],
+          "tools": ["Node.js", "Deno", "Bun", "k6"],
+          "lab_task": "Run the same service on Node.js, Deno and Bun, compare compatibility issues, test performance with your own workload and write a recommendation.",
+          "deliverable": "Runtime comparison and recommendation",
+          "checks": [["Run on three runtimes", "Service works or gaps are listed for each", "Compatibility log"], ["Benchmark your workload", "Throughput and memory compared", "Benchmark table"], ["Recommend", "Decision covers risk, support and benefit", "Recommendation document"]],
+          "objectives": ["Compare JavaScript runtimes", "Test claims with real workloads", "Make runtime decisions"]
+        },
+        {
+          "topic": "Upgrading Node.js Versions and Dependencies at Scale",
+          "subtopics": ["The Node.js release schedule and end-of-life dates", "Reading changelogs and breaking changes", "Codemods for API changes", "Testing upgrades with CI matrices", "Upgrading major frameworks such as Express 5", "Automated dependency updates with Renovate", "Rolling out upgrades across many services", "Tracking upgrade status"],
+          "tools": ["Renovate", "CI matrix", "Codemods", "Node.js release schedule"],
+          "lab_task": "Plan an upgrade of five services to the next LTS release, run codemods, upgrade Express 4 to 5 in one service, configure Renovate and track progress on a dashboard.",
+          "deliverable": "Upgrade plan, pull requests and tracking dashboard",
+          "checks": [["Upgrade a service", "Tests pass on the new LTS version", "CI run"], ["Move to Express 5", "Routes and error handling work after the upgrade", "Test output"], ["Automate updates", "Renovate opens grouped update pull requests", "Pull request list"]],
+          "objectives": ["Plan runtime upgrades", "Upgrade frameworks safely", "Keep dependencies current at scale"]
+        },
+        {
+          "topic": "Troubleshooting Production Node.js Incidents",
+          "subtopics": ["Incident triage for Node.js services", "High CPU and event loop stalls", "Memory growth and out-of-memory crashes", "Connection pool exhaustion", "Unhandled errors and crash loops", "Latency spikes from dependencies", "Collecting evidence without making things worse", "Writing blameless post-incident reviews"],
+          "tools": ["OpenTelemetry", "Diagnostic reports", "Heap snapshots", "Grafana"],
+          "lab_task": "Work through four simulated incidents: an event loop stall, a memory leak, pool exhaustion and a crash loop, restore service in each and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Find root causes", "Each root cause proven with evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Triage Node.js incidents", "Find root causes under pressure", "Learn from incidents"]
+        },
+        {
+          "topic": "Node.js Architecture Reviews and Technical Leadership",
+          "subtopics": ["Running architecture reviews", "Coding standards and review guidelines", "Service templates and golden paths", "Performance and security budgets", "Mentoring and skill growth for Node.js teams", "Technical debt registers", "Choosing frameworks and libraries as a team", "Communicating decisions to stakeholders"],
+          "tools": ["Architecture decision records", "Review templates", "Service template"],
+          "lab_task": "Run an architecture review of a sample Node.js system, write three decision records, create a service template with standards built in and present a technical debt plan.",
+          "deliverable": "Review report, decision records and service template",
+          "checks": [["Run the review", "Risks and recommendations ranked by impact", "Review report"], ["Write decision records", "Each record has context, options and consequences", "Decision records"], ["Build the template", "New service created from the template passes all checks", "Template repository"]],
+          "objectives": ["Lead Node.js architecture", "Set standards through templates", "Manage technical debt"]
+        },
+        {
+          "topic": "Advanced Capstone: Event-Driven Microservices Platform in Node.js",
+          "subtopics": ["Architecture", "Build", "Reliability and security", "Defence"],
+          "tools": ["Node.js", "TypeScript", "Kafka", "PostgreSQL", "Kubernetes", "OpenTelemetry"],
+          "lab_task": "Build an event-driven commerce platform with three Node.js services, an outbox, idempotent consumers, multi-tenancy, resilience patterns, supply chain controls, Kubernetes deployment and full tracing, then defend it to a review panel.",
+          "deliverable": "Platform repository, runbooks and architecture defence",
+          "checks": [["Survive failures", "Platform recovers from a broker and a service failure", "Chaos test report"], ["Prove isolation", "No cross-tenant data in tests", "Test report"], ["Defend the architecture", "Panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Build reliable distributed Node.js systems", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

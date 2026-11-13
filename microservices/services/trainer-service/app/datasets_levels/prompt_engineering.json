@@ -1,0 +1,573 @@
+{
+  "domain": "Prompt Engineering",
+  "name": "Prompt Engineering",
+  "category": "Generative AI and Agents",
+  "icon": "edit-3",
+  "aliases": ["Prompt Engineering Training", "Prompt Engineer", "Prompt Writing", "Prompting", "Prompt Engineering for Developers", "Prompt Engineering for Business", "Prompt Engineering Course", "Context Engineering"],
+  "certifications": ["No single standard certification; assessed by projects", "Optional: vendor courses from OpenAI, Anthropic, Google and Microsoft", "Optional: Microsoft Certified: Azure AI Engineer Associate"],
+  "tools": ["ChatGPT, Claude, Gemini or Microsoft Copilot", "OpenAI, Anthropic or Azure OpenAI APIs", "Python", "promptfoo", "Spreadsheet for prompt tests"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For business users, analysts and developers new to prompting. Covers how language models respond to prompts, clear instructions, context, roles, examples, output formats, step-by-step reasoning, prompts for writing, summarising, analysis, data and code, iterating on prompts, reducing errors, checking outputs, prompt libraries, prompts for images, responsible use and measuring prompt quality.",
+      "prerequisites": ["Uses a computer for everyday work", "Has tried an AI chat assistant", "No programming needed for most days"],
+      "outcomes": ["Write clear prompts that give accurate, well-formatted results", "Use examples, roles and reasoning steps to improve answers", "Apply prompting to writing, analysis, data and code tasks", "Check outputs, reduce errors and use AI responsibly"],
+      "days": [
+        {
+          "topic": "How Language Models Respond to Prompts and Course Setup",
+          "subtopics": ["What a language model does with a prompt", "Tokens and context windows", "Why answers vary between runs", "Chat assistants and APIs", "Choosing an assistant: ChatGPT, Claude, Gemini and Copilot", "Company AI policies", "Saving prompts and results", "A simple prompt testing sheet", "Course tasks from real work", "Setting personal learning goals"],
+          "tools": ["AI chat assistant", "Spreadsheet"],
+          "lab_task": "Run the same three prompts several times in two assistants, record how answers differ, set up a prompt testing sheet and list five work tasks to improve during the course.",
+          "deliverable": "Testing sheet with results and a task list",
+          "checks": [["Repeat a prompt", "Differences between runs recorded", "Testing sheet"], ["Compare two assistants", "Strengths of each noted", "Testing sheet"], ["List work tasks", "Five real tasks with goals", "Task list"]],
+          "objectives": ["Explain how prompts work", "Set up a testing habit", "Choose tasks to improve"]
+        },
+        {
+          "topic": "Writing Clear Instructions",
+          "subtopics": ["Saying exactly what you want", "Task, context, format and constraints", "Being specific about audience and length", "Positive instructions instead of only \"don't\"", "Breaking big requests into steps", "Common vague prompts and how to fix them", "Delimiters for pasted text", "Checking the answer against the instruction"],
+          "tools": ["AI chat assistant"],
+          "lab_task": "Rewrite five vague prompts from your work using task, context, format and constraints, and compare old and new answers.",
+          "deliverable": "Before and after prompts with answers",
+          "checks": [["Compare answers", "New prompts give more usable answers", "Testing sheet"], ["Check constraints", "Length and format followed", "Answers"], ["Use delimiters", "Pasted text clearly separated", "Prompts"]],
+          "objectives": ["Write clear prompts", "Add constraints", "Fix vague requests"]
+        },
+        {
+          "topic": "Giving Context and Background",
+          "subtopics": ["Why context changes answers", "Adding background facts", "Pasting documents safely", "Describing the reader", "Company terms and definitions", "Too much context", "Context from files and links", "Keeping sensitive data out"],
+          "tools": ["AI chat assistant"],
+          "lab_task": "Ask for a customer email reply with no context, then with order details, tone guidelines and company terms, and compare accuracy and tone.",
+          "deliverable": "Prompts, answers and comparison",
+          "checks": [["Add context", "Reply uses the correct order facts", "Answer"], ["Remove sensitive data", "No personal data pasted", "Prompt review"], ["Compare tone", "Tone matches the guidelines", "Comparison"]],
+          "objectives": ["Provide context", "Describe audiences", "Protect sensitive data"]
+        },
+        {
+          "topic": "Roles, Personas and Tone",
+          "subtopics": ["Assigning roles", "When roles help and when they do not", "Setting tone and style", "Brand voice guides", "Writing for different readers", "Consistent style across prompts", "Avoiding exaggerated personas", "Testing tone"],
+          "tools": ["AI chat assistant"],
+          "lab_task": "Write one product update for engineers, executives and customers using roles and a brand voice guide, and check each against the guide.",
+          "deliverable": "Three versions and a voice checklist",
+          "checks": [["Check each version", "Tone fits its reader", "Checklist"], ["Follow the voice guide", "Banned words absent", "Checklist"], ["Compare with and without a role", "Difference recorded", "Notes"]],
+          "objectives": ["Use roles", "Control tone", "Write for different readers"]
+        },
+        {
+          "topic": "Showing Examples: Few-Shot Prompting",
+          "subtopics": ["Zero-shot and few-shot prompts", "Choosing good examples", "Number and order of examples", "Covering edge cases", "Examples for formats", "Examples for classification", "When examples cause copying", "Keeping example libraries"],
+          "tools": ["AI chat assistant", "Spreadsheet"],
+          "lab_task": "Classify 30 customer comments with zero-shot and few-shot prompts, compare accuracy against your own labels and fix an example that causes copying.",
+          "deliverable": "Prompts, labels and accuracy comparison",
+          "checks": [["Compare accuracy", "Few-shot accuracy recorded against labels", "Testing sheet"], ["Add an edge case example", "Edge cases handled better", "Testing sheet"], ["Fix copying", "Answers no longer copy the example text", "Answers"]],
+          "objectives": ["Use examples", "Choose examples well", "Measure accuracy"]
+        },
+        {
+          "topic": "Controlling Output Format",
+          "subtopics": ["Bullet lists, tables and headings", "JSON and CSV output", "Templates to fill in", "Length control", "Asking for sections", "Formatting for email, slides and chat", "Checking format automatically", "Fixing format drift"],
+          "tools": ["AI chat assistant", "Spreadsheet"],
+          "lab_task": "Get meeting notes as a table of decisions, owners and dates, product data as valid JSON and a slide outline with a fixed number of points.",
+          "deliverable": "Prompts and outputs",
+          "checks": [["Produce JSON", "Output parses as valid JSON", "JSON validator"], ["Produce the table", "Columns as requested", "Output"], ["Limit points", "Exact number of points per slide", "Output"]],
+          "objectives": ["Control output formats", "Get structured data", "Keep formats consistent"]
+        },
+        {
+          "topic": "Step-by-Step Reasoning Prompts",
+          "subtopics": ["Asking for steps", "Reasoning before answering", "Checklists inside prompts", "Breaking problems into parts", "Reasoning models and when to use them", "Asking for assumptions", "Reviewing reasoning for mistakes", "When reasoning is not needed"],
+          "tools": ["AI chat assistant", "Reasoning model"],
+          "lab_task": "Solve five business word problems with and without step-by-step prompts, compare correctness, and use a reasoning model for the hardest one.",
+          "deliverable": "Prompts, answers and correctness record",
+          "checks": [["Compare correctness", "Step-by-step answers more often correct", "Testing sheet"], ["List assumptions", "Model states its assumptions", "Answer"], ["Find a reasoning error", "Mistake spotted and corrected", "Notes"]],
+          "objectives": ["Prompt for reasoning", "Review reasoning", "Choose reasoning models"]
+        },
+        {
+          "topic": "Prompts for Writing and Editing",
+          "subtopics": ["Drafting emails, reports and posts", "Editing for clarity and length", "Rewriting for different readers", "Proofreading", "Keeping your own voice", "Feedback-style prompts", "Translation with care", "Final human review"],
+          "tools": ["AI chat assistant"],
+          "lab_task": "Draft a report section, edit it to half its length, rewrite it for a customer, proofread it and translate a short version into Hindi with a review step.",
+          "deliverable": "Drafts and review notes",
+          "checks": [["Halve the length", "Key points kept", "Comparison"], ["Rewrite for a customer", "Jargon removed", "Draft"], ["Review the translation", "Meaning checked by a speaker or tool", "Review notes"]],
+          "objectives": ["Write with AI", "Edit with AI", "Keep human review"]
+        },
+        {
+          "topic": "Prompts for Summarising Documents and Meetings",
+          "subtopics": ["Summaries for different purposes", "Extracting decisions and actions", "Summarising long documents", "Comparing documents", "Avoiding invented details", "Asking for quotes as evidence", "Summaries for executives", "Checking summaries"],
+          "tools": ["AI chat assistant", "Meeting transcript", "Long document"],
+          "lab_task": "Summarise a long policy and a meeting transcript for three readers, extract actions with owners and check every claim against the source.",
+          "deliverable": "Summaries and a fact-check table",
+          "checks": [["Extract actions", "Owners and dates correct", "Fact-check table"], ["Check claims", "No invented details", "Fact-check table"], ["Use quotes", "Supporting quotes match the source", "Summary"]],
+          "objectives": ["Summarise reliably", "Extract actions", "Check summaries"]
+        },
+        {
+          "topic": "Prompts for Analysis and Research",
+          "subtopics": ["Analysing text feedback", "Pros and cons and comparisons", "Asking for alternatives", "Research with web-enabled assistants", "Checking sources", "Separating facts from opinions", "Asking the model to criticise", "Reporting findings"],
+          "tools": ["AI assistant with web search", "Spreadsheet"],
+          "lab_task": "Analyse 50 customer reviews for themes, compare three vendor options with sources and ask the model to criticise its own recommendation.",
+          "deliverable": "Theme analysis, comparison and critique",
+          "checks": [["Find themes", "Themes supported by quoted reviews", "Analysis"], ["Check sources", "Every source opened and confirmed", "Source list"], ["Critique the recommendation", "Weaknesses listed", "Critique"]],
+          "objectives": ["Analyse with AI", "Research with sources", "Challenge conclusions"]
+        },
+        {
+          "topic": "Prompts for Spreadsheets and Data",
+          "subtopics": ["Asking for formulas", "Explaining formulas", "Cleaning data with AI help", "Analysing tables", "Charts from descriptions", "Data privacy in spreadsheets", "Checking numbers", "When to use code instead"],
+          "tools": ["AI chat assistant", "Excel or Google Sheets"],
+          "lab_task": "Get formulas for a sales sheet, explain an unfamiliar formula, clean a messy column and check every number the assistant reports against the sheet.",
+          "deliverable": "Formulas, cleaned data and check results",
+          "checks": [["Use the formula", "Correct results in the sheet", "Spreadsheet"], ["Check reported numbers", "Each matches the sheet", "Check table"], ["Clean the column", "Values standardised", "Spreadsheet"]],
+          "objectives": ["Use AI for spreadsheets", "Check numbers", "Protect data"]
+        },
+        {
+          "topic": "Prompts for Code",
+          "subtopics": ["Explaining code", "Writing small functions", "Fixing errors from messages", "Writing tests", "Asking for comments and documentation", "Code review prompts", "Security of generated code", "Running and testing every result"],
+          "tools": ["AI chat assistant", "Python"],
+          "lab_task": "Ask for a function to clean phone numbers, write tests for it, fix a bug from an error message and ask for a security review of a snippet.",
+          "deliverable": "Code, tests and review notes",
+          "checks": [["Run the tests", "Tests pass", "Test output"], ["Fix the bug", "Error resolved", "Terminal output"], ["Review security", "Risky code identified", "Review notes"]],
+          "objectives": ["Use AI for code", "Test generated code", "Review for security"]
+        },
+        {
+          "topic": "Iterating and Debugging Prompts",
+          "subtopics": ["Treating prompts as drafts", "Changing one thing at a time", "Diagnosing bad answers", "Asking the model why it answered", "Prompt chains for complex tasks", "Keeping versions", "Knowing when to stop", "Writing down what worked"],
+          "tools": ["AI chat assistant", "Testing sheet"],
+          "lab_task": "Improve a failing prompt over five versions changing one thing each time, record results and keep the best version with notes.",
+          "deliverable": "Version history and notes",
+          "checks": [["Record versions", "Five versions with one change each", "Testing sheet"], ["Measure improvement", "Best version beats the first", "Testing sheet"], ["Write notes", "What worked explained", "Notes"]],
+          "objectives": ["Iterate on prompts", "Debug answers", "Keep versions"]
+        },
+        {
+          "topic": "Reducing Errors and Hallucinations",
+          "subtopics": ["Why models make things up", "Grounding answers in provided text", "Asking for \"I don't know\"", "Citing sources", "Checking numbers and names", "Double-checking with a second prompt", "High-risk uses that need review", "Error logs"],
+          "tools": ["AI chat assistant"],
+          "lab_task": "Ask questions about a document with and without grounding instructions, count invented facts and add a self-check step.",
+          "deliverable": "Prompts, error counts and comparison",
+          "checks": [["Count invented facts", "Fewer with grounding", "Error log"], ["Ask an unanswerable question", "Assistant says it does not know", "Answer"], ["Add a self-check", "Errors caught by the check", "Error log"]],
+          "objectives": ["Reduce hallucinations", "Ground answers", "Check outputs"]
+        },
+        {
+          "topic": "Building a Personal and Team Prompt Library",
+          "subtopics": ["Why keep a library", "Templates with placeholders", "Naming and tagging prompts", "Sharing in Teams, Notion or a wiki", "Custom instructions and saved prompts", "Custom GPTs, Gems and Copilot agents in brief", "Keeping prompts current", "Measuring reuse"],
+          "tools": ["AI assistant custom instructions", "Team wiki"],
+          "lab_task": "Build a library of ten tested prompts for your team with placeholders, set custom instructions and create a simple custom assistant for one task.",
+          "deliverable": "Prompt library and custom assistant",
+          "checks": [["Reuse a template", "Placeholders filled and result good", "Answer"], ["Use custom instructions", "Preferences applied automatically", "Answer"], ["Share the library", "Team members can find and use prompts", "Wiki screenshot"]],
+          "objectives": ["Build prompt libraries", "Use custom instructions", "Share prompts"]
+        },
+        {
+          "topic": "Prompts for Images and Presentations",
+          "subtopics": ["Image generation prompts", "Style, composition and constraints", "Editing images with prompts", "Copyright and brand rules", "Prompts for slide decks", "Diagrams from descriptions", "Accessibility of generated images", "Reviewing generated visuals"],
+          "tools": ["Image generation tool", "Presentation assistant"],
+          "lab_task": "Generate three images for a campaign that follow brand rules, edit one with a prompt and build a five-slide outline with speaker notes.",
+          "deliverable": "Images, prompts and slide outline",
+          "checks": [["Follow brand rules", "Colours and style match", "Review notes"], ["Edit an image", "Change made as asked", "Image"], ["Add alt text", "Alt text written for each image", "Slides"]],
+          "objectives": ["Prompt for images", "Follow brand rules", "Build presentations"]
+        },
+        {
+          "topic": "Responsible and Safe Use of AI at Work",
+          "subtopics": ["Company policies", "Personal and confidential data", "Bias in answers", "Copyright and ownership", "Disclosure of AI use", "Overreliance", "Reporting problems", "Rules for high-risk decisions"],
+          "tools": ["Company AI policy", "AI chat assistant"],
+          "lab_task": "Review five work scenarios against the AI policy, rewrite risky prompts to remove confidential data and test an assistant for biased answers.",
+          "deliverable": "Scenario decisions, rewritten prompts and bias notes",
+          "checks": [["Decide scenarios", "Each decision matches the policy", "Decision sheet"], ["Rewrite risky prompts", "Confidential data removed", "Prompts"], ["Test for bias", "Biased answers recorded", "Bias notes"]],
+          "objectives": ["Use AI responsibly", "Protect data", "Spot bias"]
+        },
+        {
+          "topic": "Measuring Prompt Quality",
+          "subtopics": ["What good looks like for a task", "Test sets of inputs", "Scoring rubrics", "Comparing prompt versions", "Using a model to score in brief", "Spreadsheet-based evaluation", "Sharing results", "Deciding when a prompt is good enough"],
+          "tools": ["Spreadsheet", "AI chat assistant"],
+          "lab_task": "Build a test set of 15 inputs and a rubric for one work prompt, score two prompt versions and choose the better one with evidence.",
+          "deliverable": "Test set, rubric and scores",
+          "checks": [["Build the rubric", "Clear criteria with scores", "Rubric"], ["Score versions", "Scores for all 15 inputs", "Testing sheet"], ["Choose a version", "Choice supported by scores", "Notes"]],
+          "objectives": ["Measure prompt quality", "Use rubrics", "Choose with evidence"]
+        },
+        {
+          "topic": "Prompting Different Models and Tools",
+          "subtopics": ["Differences between assistants", "Model sizes and speed", "Reasoning and non-reasoning models", "Assistants with web search, files and tools", "Copilot inside Office apps", "Local models in brief", "Moving prompts between models", "Choosing per task"],
+          "tools": ["Two or more AI assistants", "Microsoft Copilot"],
+          "lab_task": "Run your library prompts on two assistants and a reasoning model, record which is best per task and adapt two prompts that worked worse on one model.",
+          "deliverable": "Comparison table and adapted prompts",
+          "checks": [["Compare models", "Best model per task recorded", "Comparison table"], ["Adapt prompts", "Adapted prompts score better", "Testing sheet"], ["Use Copilot in Office", "Task done inside Word or Excel", "Screenshot"]],
+          "objectives": ["Compare models", "Adapt prompts", "Choose tools per task"]
+        },
+        {
+          "topic": "Beginner Capstone: Prompt Toolkit for a Real Work Process",
+          "subtopics": ["Choosing a process", "Writing and testing prompts", "Library and guidance", "Presentation"],
+          "tools": ["AI chat assistant", "Spreadsheet", "Team wiki"],
+          "lab_task": "Pick a real process from your work, build and test prompts for each step with a test set and rubric, add them to the team library with safe-use guidance and present time saved.",
+          "deliverable": "Prompt toolkit, test results and presentation",
+          "checks": [["Show test results", "Prompts meet the rubric target", "Testing sheet"], ["Review guidance", "Data and review rules included", "Guidance"], ["Present time saved", "Before and after time estimated", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one toolkit", "Improve a real process", "Share it with the team"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and technical analysts who use prompts in applications. Covers system prompts, messages and parameters in APIs, prompt templates in code, structured outputs and schemas, tool and function calling prompts, prompt chaining, context engineering, retrieval-augmented prompts, prompting reasoning models, multimodal prompts, prompts for agents, prompt evaluation with test suites, LLM judges, prompt injection and defences, cost and latency, prompt versioning, domain prompts and prompt optimisation tools.",
+      "prerequisites": ["Writes clear prompts and tests them with rubrics", "Writes basic Python", "Has called an LLM API or is ready to learn"],
+      "outcomes": ["Design system prompts, templates and structured outputs for applications", "Engineer context for retrieval, tools and agents", "Evaluate prompts automatically and defend against injection", "Manage prompts in production for quality, cost and speed"],
+      "days": [
+        {
+          "topic": "System Prompts, Messages and Parameters in APIs",
+          "subtopics": ["System, user and assistant messages", "What belongs in the system prompt", "Temperature and top-p", "Max tokens and stop sequences", "Seeds and determinism", "Developer messages and instruction hierarchy", "Provider differences", "Reading API usage data"],
+          "tools": ["OpenAI or Anthropic API", "Python"],
+          "lab_task": "Write a system prompt for a support assistant, test temperature settings on 20 inputs and compare how two providers follow the same instructions.",
+          "deliverable": "System prompt, settings test and comparison",
+          "checks": [["Test temperatures", "Consistency per setting recorded", "Results table"], ["Compare providers", "Instruction following compared", "Comparison"], ["Read usage", "Tokens and cost per call recorded", "Usage log"]],
+          "objectives": ["Use API messages", "Tune parameters", "Write system prompts"]
+        },
+        {
+          "topic": "Prompt Templates and Placeholders in Code",
+          "subtopics": ["Templates in Python", "Jinja and f-strings", "Escaping user input", "Template libraries", "Conditional sections", "Keeping templates out of code", "Template tests", "Naming and documentation"],
+          "tools": ["Python", "Jinja2"],
+          "lab_task": "Move prompts into template files with variables and conditional sections, escape user input safely and write tests for rendered prompts.",
+          "deliverable": "Templates and tests",
+          "checks": [["Render templates", "Variables filled correctly", "Test output"], ["Pass hostile input", "Input stays inside its section", "Test output"], ["Load from files", "No prompts hard-coded", "Code review"]],
+          "objectives": ["Template prompts", "Escape input", "Test templates"]
+        },
+        {
+          "topic": "Structured Outputs and JSON Schemas",
+          "subtopics": ["Structured output features", "JSON Schema design", "Pydantic models", "Enums and constraints", "Optional fields and nulls", "Handling refusals", "Validation and repair", "Schema versioning"],
+          "tools": ["Structured outputs API", "Pydantic"],
+          "lab_task": "Extract order details into a strict schema with enums and constraints, handle refusals and missing data and version the schema.",
+          "deliverable": "Schema, extraction code and tests",
+          "checks": [["Extract with the schema", "All outputs valid", "Test output"], ["Send incomplete input", "Missing fields null, not invented", "Output"], ["Change the schema", "Old and new versions handled", "Test output"]],
+          "objectives": ["Design schemas", "Get structured output", "Handle missing data"]
+        },
+        {
+          "topic": "Prompting for Tool and Function Calling",
+          "subtopics": ["Tool descriptions that models understand", "Parameter descriptions", "When to call tools", "Several tools at once", "Tool results in the conversation", "Preventing unneeded calls", "Errors from tools", "Testing tool selection"],
+          "tools": ["Function calling API", "Python"],
+          "lab_task": "Write descriptions for five tools, test whether the model picks the right one for 30 requests, improve descriptions and stop unneeded calls.",
+          "deliverable": "Tool definitions and selection results",
+          "checks": [["Test tool choice", "Accuracy on 30 requests", "Results table"], ["Improve descriptions", "Accuracy improves", "Results table"], ["Ask a question needing no tool", "No tool called", "Log"]],
+          "objectives": ["Describe tools well", "Test tool selection", "Avoid unneeded calls"]
+        },
+        {
+          "topic": "Prompt Chaining and Workflows",
+          "subtopics": ["Splitting tasks into steps", "Passing outputs between prompts", "Routing by type", "Parallel prompts", "Checking steps", "Error handling between steps", "Workflow compared with one big prompt", "Measuring chain quality"],
+          "tools": ["Python", "LLM API"],
+          "lab_task": "Turn a long report-writing prompt into a chain of outline, draft, check and polish steps, route by report type and compare with one big prompt.",
+          "deliverable": "Chain code and comparison",
+          "checks": [["Run the chain", "Each step output saved", "Log"], ["Route by type", "Right template per report type", "Log"], ["Compare with one prompt", "Quality scores for both", "Comparison table"]],
+          "objectives": ["Chain prompts", "Route tasks", "Compare designs"]
+        },
+        {
+          "topic": "Context Engineering: What to Put in the Window",
+          "subtopics": ["Context windows and cost", "Choosing what to include", "Ordering context", "Summarising history", "Notes and scratchpads", "Removing stale context", "Long-context models", "Measuring the effect of context"],
+          "tools": ["Python", "LLM API"],
+          "lab_task": "Build context for a support assistant from profile data, recent tickets and policies, test the effect of order and size and trim it to a budget.",
+          "deliverable": "Context builder and test results",
+          "checks": [["Change context order", "Effect on answers recorded", "Results table"], ["Trim to a budget", "Quality kept under the token budget", "Results table"], ["Summarise history", "Long chats stay within limits", "Log"]],
+          "objectives": ["Engineer context", "Control size and order", "Measure effects"]
+        },
+        {
+          "topic": "Retrieval-Augmented Prompts",
+          "subtopics": ["Putting retrieved text in prompts", "Formatting sources", "Instructions for grounded answers", "Citations", "Handling conflicting sources", "Handling no results", "Query rewriting prompts", "Evaluating grounded answers"],
+          "tools": ["Python", "Vector store", "LLM API"],
+          "lab_task": "Write prompts that answer from retrieved policy text with citations, handle conflicting and missing sources and rewrite user questions for search.",
+          "deliverable": "Prompts and evaluation",
+          "checks": [["Answer with citations", "Citations match sources", "Evaluation sheet"], ["Give conflicting sources", "Conflict pointed out", "Answer"], ["Rewrite queries", "Retrieval improves", "Results table"]],
+          "objectives": ["Write grounded prompts", "Cite sources", "Handle conflicts"]
+        },
+        {
+          "topic": "Prompting Reasoning Models",
+          "subtopics": ["How reasoning models differ", "Shorter, goal-focused prompts", "Reasoning effort settings", "When not to add step-by-step instructions", "Planning and verification tasks", "Cost and latency of reasoning", "Mixing reasoning and fast models", "Evaluating reasoning tasks"],
+          "tools": ["Reasoning models", "Fast models"],
+          "lab_task": "Run planning and maths tasks on a reasoning model with different effort settings and on a fast model, compare accuracy, cost and time and build a router.",
+          "deliverable": "Comparison and router",
+          "checks": [["Compare effort settings", "Accuracy and cost per setting", "Results table"], ["Compare with a fast model", "Trade-offs recorded", "Results table"], ["Route tasks", "Hard tasks sent to the reasoning model", "Log"]],
+          "objectives": ["Prompt reasoning models", "Choose effort", "Route by difficulty"]
+        },
+        {
+          "topic": "Multimodal Prompts: Images, Documents and Audio",
+          "subtopics": ["Images in prompts", "Charts, tables and screenshots", "PDFs and scanned documents", "Audio input", "Prompting for visual extraction", "Combining text and images", "Accuracy checks", "Cost of multimodal input"],
+          "tools": ["Multimodal model API"],
+          "lab_task": "Extract values from receipts, read charts from screenshots and summarise a short audio clip, and check accuracy against the source.",
+          "deliverable": "Prompts, outputs and accuracy table",
+          "checks": [["Read receipts", "Totals correct", "Accuracy table"], ["Read a chart", "Values within tolerance", "Accuracy table"], ["Summarise audio", "Key points correct", "Review notes"]],
+          "objectives": ["Prompt with images and audio", "Extract visual data", "Check accuracy"]
+        },
+        {
+          "topic": "Prompts for Agents",
+          "subtopics": ["Agent instructions", "Goals, limits and stopping rules", "Planning prompts", "Tool use policies", "Asking for confirmation", "Reflection and self-correction", "Handling uncertainty", "Testing agent prompts"],
+          "tools": ["Agent framework", "LLM API"],
+          "lab_task": "Write instructions for an agent that books meetings, with limits, confirmation before actions and stopping rules, and test it on 15 scenarios.",
+          "deliverable": "Agent prompt and scenario results",
+          "checks": [["Run scenarios", "Correct behaviour in most scenarios", "Results table"], ["Test a risky action", "Confirmation requested", "Log"], ["Test an impossible request", "Agent stops and explains", "Log"]],
+          "objectives": ["Write agent prompts", "Set limits", "Test agent behaviour"]
+        },
+        {
+          "topic": "Evaluating Prompts with Test Suites",
+          "subtopics": ["Test cases from real inputs", "Assertions: contains, regex and JSON checks", "Golden answers", "Running suites with promptfoo", "Comparing prompt versions", "Regression tests", "Evaluation in CI", "Reporting results"],
+          "tools": ["promptfoo", "GitHub Actions"],
+          "lab_task": "Build a promptfoo suite with 40 cases and assertions for the support prompt, compare three versions and block a regression in CI.",
+          "deliverable": "Test suite, comparison and CI run",
+          "checks": [["Run the suite", "Pass rate for each version", "promptfoo report"], ["Introduce a regression", "CI fails", "CI log"], ["Compare versions", "Best version chosen", "Report"]],
+          "objectives": ["Test prompts automatically", "Compare versions", "Run tests in CI"]
+        },
+        {
+          "topic": "LLM-as-Judge Evaluation",
+          "subtopics": ["When to use model judges", "Writing judge prompts", "Rubrics for judges", "Pairwise comparison", "Judge bias: position, length and self-preference", "Calibrating judges with human labels", "Cost of judging", "Combining judges with assertions"],
+          "tools": ["LLM API", "promptfoo or a custom script"],
+          "lab_task": "Write a judge prompt for helpfulness and correctness, calibrate it against 30 human labels, test for position bias and use it to compare two prompts.",
+          "deliverable": "Judge prompt, calibration and comparison",
+          "checks": [["Calibrate", "Agreement with humans reported", "Calibration table"], ["Test position bias", "Bias measured by swapping order", "Results table"], ["Compare prompts", "Winner chosen by the judge", "Report"]],
+          "objectives": ["Use model judges", "Calibrate judges", "Control bias"]
+        },
+        {
+          "topic": "Prompt Injection and Defences",
+          "subtopics": ["Direct and indirect injection", "Injected instructions in documents and web pages", "Separating instructions from data", "Least privilege for tools", "Output checks", "Detection models", "Testing defences", "Limits of prompt-only defences"],
+          "tools": ["LLM API", "Injection test sets"],
+          "lab_task": "Attack the support assistant with direct and document-based injections, add separation, tool limits and output checks and measure attack success again.",
+          "deliverable": "Attack results and defences",
+          "checks": [["Run injection tests", "Attack success rate recorded", "Results table"], ["Add defences", "Success rate lower", "Results table"], ["Try a tool misuse attack", "Blocked by tool limits", "Log"]],
+          "objectives": ["Understand injection", "Apply defences", "Test defences"]
+        },
+        {
+          "topic": "Cost and Latency Optimisation for Prompts",
+          "subtopics": ["Token costs", "Shorter prompts with the same quality", "Prompt caching", "Smaller models for simple steps", "Batch APIs", "Output length control", "Streaming for perceived speed", "Measuring cost per task"],
+          "tools": ["LLM API", "Usage reports"],
+          "lab_task": "Cut cost of the support assistant by shortening prompts, turning on prompt caching, using a smaller model for classification and batching offline jobs, keeping quality steady.",
+          "deliverable": "Cost report before and after",
+          "checks": [["Shorten prompts", "Fewer tokens with the same quality score", "Results table"], ["Use prompt caching", "Lower cost for repeated prefixes", "Usage report"], ["Batch offline jobs", "Cost per job lower", "Usage report"]],
+          "objectives": ["Reduce prompt cost", "Use caching and batching", "Keep quality"]
+        },
+        {
+          "topic": "Prompt Versioning and Management in Production",
+          "subtopics": ["Prompts as configuration", "Prompt registries", "Versions and environments", "Approvals for prompt changes", "A/B testing prompts", "Rollbacks", "Linking prompts to traces", "Ownership"],
+          "tools": ["LangSmith, Langfuse or a prompt registry", "Feature flags"],
+          "lab_task": "Move prompts into a registry with versions and environments, run an A/B test between two versions in production traffic and roll back the loser.",
+          "deliverable": "Registry set-up, A/B results and rollback",
+          "checks": [["Promote a version", "Production uses the new version", "Registry history"], ["Run the A/B test", "Metrics per version", "Experiment results"], ["Roll back", "Previous version live", "Registry history"]],
+          "objectives": ["Manage prompts in production", "A/B test prompts", "Roll back safely"]
+        },
+        {
+          "topic": "Prompting for Domain Tasks: Legal, Finance, HR and Healthcare",
+          "subtopics": ["Domain terms and definitions", "Regulatory limits", "Disclaimers", "Expert review steps", "Domain examples", "Tone for sensitive topics", "Accuracy checks for numbers and citations", "Risk ratings for use cases"],
+          "tools": ["LLM API", "Domain documents"],
+          "lab_task": "Build prompts for contract clause review, expense policy questions and HR letters, add expert review and disclaimers and rate each use case's risk.",
+          "deliverable": "Domain prompts, review steps and risk ratings",
+          "checks": [["Review clauses", "Issues found match a lawyer's sample", "Comparison"], ["Answer policy questions", "Answers match the policy", "Evaluation sheet"], ["Rate risks", "Risk and review level for each use case", "Risk table"]],
+          "objectives": ["Prompt for domains", "Add expert review", "Rate risk"]
+        },
+        {
+          "topic": "Prompts for Data Extraction and Classification at Scale",
+          "subtopics": ["Batch extraction", "Consistency across thousands of items", "Labelling with prompts", "Confidence scores", "Human review of low-confidence items", "Measuring agreement with humans", "Cost per item", "Monitoring drift in outputs"],
+          "tools": ["LLM API", "Batch API", "Spreadsheet or database"],
+          "lab_task": "Classify 2,000 tickets with a prompt in batches, send low-confidence items to review, measure agreement with human labels and report cost per item.",
+          "deliverable": "Results, agreement report and cost",
+          "checks": [["Run the batch", "All tickets labelled", "Run log"], ["Measure agreement", "Agreement with human labels reported", "Agreement report"], ["Review low-confidence items", "Items routed and corrected", "Review queue"]],
+          "objectives": ["Prompt at scale", "Measure agreement", "Control cost"]
+        },
+        {
+          "topic": "Automatic Prompt Optimisation",
+          "subtopics": ["Why optimise automatically", "DSPy concepts", "Optimising few-shot examples", "Optimising instructions", "Metrics for optimisation", "Overfitting to the test set", "Comparing with hand-written prompts", "When to use optimisation"],
+          "tools": ["DSPy", "Python"],
+          "lab_task": "Optimise the ticket classifier prompt with DSPy against a metric, compare with the hand-written prompt on a held-out set and check for overfitting.",
+          "deliverable": "Optimised program and comparison",
+          "checks": [["Run optimisation", "Score on the training set improves", "Optimiser output"], ["Test on held-out data", "Score compared with hand-written prompt", "Results table"], ["Check for overfitting", "Gap between sets reported", "Results table"]],
+          "objectives": ["Optimise prompts automatically", "Use DSPy", "Avoid overfitting"]
+        },
+        {
+          "topic": "Prompt Design for Conversational Assistants",
+          "subtopics": ["Conversation design", "Greeting and handover messages", "Clarifying questions", "Handling off-topic requests", "Memory and personalisation", "Escalation to humans", "Tone across long conversations", "Testing conversations"],
+          "tools": ["LLM API", "Conversation test scripts"],
+          "lab_task": "Design prompts for an assistant that asks clarifying questions, stays on topic, remembers preferences and hands over to a human, and test 20 scripted conversations.",
+          "deliverable": "Assistant prompts and test results",
+          "checks": [["Ask a vague question", "Assistant asks a clarifying question", "Transcript"], ["Go off topic", "Polite redirect", "Transcript"], ["Ask for a human", "Handover with a summary", "Transcript"]],
+          "objectives": ["Design conversations", "Handle off-topic requests", "Hand over well"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production Prompt System for a Support Assistant",
+          "subtopics": ["Prompts and context", "Tools and retrieval", "Evaluation and safety", "Production management"],
+          "tools": ["LLM API", "Vector store", "promptfoo", "Prompt registry"],
+          "lab_task": "Build the prompt system for a support assistant: system prompt, templates, structured outputs, tool descriptions, grounded retrieval prompts, an evaluation suite with judges, injection defences, cost controls and a registry with A/B testing, then present results.",
+          "deliverable": "Prompt repository, evaluation reports and presentation",
+          "checks": [["Run the evaluation suite", "Scores meet the targets", "Evaluation report"], ["Run injection tests", "Attack success below the target", "Results table"], ["Present cost and quality", "Cost per conversation and quality shown", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one system", "Run prompts in production", "Show measured results"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For AI engineers, prompt engineers and evaluation leads. Covers prompt architecture for large systems, instruction hierarchies, advanced context engineering, memory design, reasoning and planning patterns, self-consistency and verification, multi-agent prompt design, evaluation science, red teaming, safety policies, prompt-based fine-tuning data, distillation, multilingual prompting, prompts for code agents, prompt security at scale, governance, cost at scale, research methods, prompt platforms and team leadership.",
+      "prerequisites": ["Runs prompts in production with tests and registries", "Uses structured outputs, tools and retrieval", "Understands evaluation with judges and test suites"],
+      "outcomes": ["Design prompt and context architectures for complex systems", "Build verification, multi-agent and memory patterns", "Lead evaluation, red teaming and safety work", "Run prompt platforms and teams"],
+      "days": [
+        {
+          "topic": "Prompt Architecture for Large Systems",
+          "subtopics": ["Prompt components and layering", "Shared and product-specific instructions", "Policy prompts", "Prompt composition at runtime", "Conflicts between layers", "Documentation of prompt systems", "Change impact analysis", "Architecture reviews"],
+          "tools": ["Prompt registry", "Architecture diagrams"],
+          "lab_task": "Design a layered prompt architecture for five assistants sharing company policy, compose prompts at runtime and test for conflicts between layers.",
+          "deliverable": "Architecture, composition code and conflict tests",
+          "checks": [["Compose prompts", "Layers combined in the right order", "Rendered prompt"], ["Test conflicts", "Conflicting instructions found and resolved", "Test results"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design prompt architectures", "Compose prompts", "Resolve conflicts"]
+        },
+        {
+          "topic": "Instruction Hierarchy and Policy Following",
+          "subtopics": ["System, developer and user priority", "Writing policies models follow", "Refusals and safe completions", "Edge cases in policies", "Testing policy following", "Measuring over-refusal", "Policy updates", "Policy documentation"],
+          "tools": ["LLM API", "Policy test sets"],
+          "lab_task": "Write a content policy for an assistant, test it on 60 cases including edge cases, measure under- and over-refusal and revise it.",
+          "deliverable": "Policy, test results and revisions",
+          "checks": [["Measure under-refusal", "Harmful cases allowed counted", "Results table"], ["Measure over-refusal", "Safe cases refused counted", "Results table"], ["Revise the policy", "Both rates improve", "Results table"]],
+          "objectives": ["Write policies", "Test policy following", "Balance refusal rates"]
+        },
+        {
+          "topic": "Advanced Context Engineering",
+          "subtopics": ["Context budgets for agents", "Retrieval, memory and tool results together", "Compression and summarisation", "Structured context formats", "Just-in-time context loading", "Context poisoning", "Measuring context quality", "Debugging context failures"],
+          "tools": ["LLM API", "Tracing tools"],
+          "lab_task": "Build a context manager for a long-running agent that loads context just in time, compresses old steps and blocks poisoned context, and measure task success.",
+          "deliverable": "Context manager and measurements",
+          "checks": [["Run long tasks", "Success rate with the manager", "Results table"], ["Inject poisoned context", "Blocked or flagged", "Log"], ["Compress steps", "Context stays within budget", "Log"]],
+          "objectives": ["Engineer context at scale", "Compress context", "Defend against poisoning"]
+        },
+        {
+          "topic": "Memory Design for Assistants",
+          "subtopics": ["What to remember", "Extracting facts from conversations", "Updating and forgetting", "Memory retrieval prompts", "User control over memory", "Privacy", "Evaluating memory", "Memory failures"],
+          "tools": ["LLM API", "Memory store"],
+          "lab_task": "Design memory prompts that extract preferences, update them when they change, let users view and delete memories and evaluate answer improvement.",
+          "deliverable": "Memory prompts, store and evaluation",
+          "checks": [["Change a preference", "Memory updated, not duplicated", "Memory store"], ["Delete a memory", "Not used again", "Transcript"], ["Evaluate", "Answers better with memory", "Results table"]],
+          "objectives": ["Design memory", "Give users control", "Evaluate memory"]
+        },
+        {
+          "topic": "Reasoning and Planning Patterns",
+          "subtopics": ["Plan-then-execute", "Decomposition prompts", "Tree and graph search patterns", "Tool-assisted reasoning", "Reflection and critique loops", "Budgeted reasoning", "When patterns hurt", "Comparing patterns"],
+          "tools": ["LLM API", "Python"],
+          "lab_task": "Solve a set of planning tasks with direct prompting, plan-then-execute and a critique loop, compare success and cost and pick a default.",
+          "deliverable": "Implementations and comparison",
+          "checks": [["Compare patterns", "Success and cost for each", "Results table"], ["Find failures", "Cases where patterns hurt listed", "Notes"], ["Pick a default", "Choice justified", "Decision record"]],
+          "objectives": ["Use reasoning patterns", "Compare patterns", "Control cost"]
+        },
+        {
+          "topic": "Self-Consistency, Verification and Ensembles",
+          "subtopics": ["Sampling several answers", "Majority voting", "Verifier prompts", "Checking with tools and code", "Ensembles of models", "Confidence estimation", "Cost of verification", "Choosing what to verify"],
+          "tools": ["LLM API", "Python"],
+          "lab_task": "Add self-consistency voting and a code-based verifier to a calculation assistant, estimate confidence and verify only low-confidence answers to save cost.",
+          "deliverable": "Verification pipeline and results",
+          "checks": [["Use voting", "Accuracy improves", "Results table"], ["Verify with code", "Calculation errors caught", "Log"], ["Verify selectively", "Cost lower with accuracy kept", "Results table"]],
+          "objectives": ["Verify answers", "Estimate confidence", "Spend verification wisely"]
+        },
+        {
+          "topic": "Multi-Agent Prompt Design",
+          "subtopics": ["Roles and responsibilities", "Hand-off messages", "Shared and private context", "Supervisor prompts", "Debate and critique agents", "Avoiding loops", "Cost control", "Evaluating multi-agent prompts"],
+          "tools": ["Agent framework", "LLM API"],
+          "lab_task": "Write prompts for a research team of planner, researcher and critic agents, design hand-offs and stopping rules and compare with a single agent.",
+          "deliverable": "Agent prompts and comparison",
+          "checks": [["Run the team", "Report produced within the step budget", "Trace"], ["Test loops", "Stopping rules end loops", "Trace"], ["Compare with one agent", "Quality and cost compared", "Results table"]],
+          "objectives": ["Design multi-agent prompts", "Write hand-offs", "Prevent loops"]
+        },
+        {
+          "topic": "Evaluation Science for Prompts and LLM Systems",
+          "subtopics": ["Validity of evaluations", "Sampling test sets", "Confidence intervals for scores", "Comparing systems properly", "Contamination", "Human evaluation design", "Online and offline evaluation together", "Reporting honestly"],
+          "tools": ["Python", "Statistics libraries", "Evaluation tools"],
+          "lab_task": "Redesign the assistant's evaluation with a sampled test set, confidence intervals and a significance test between two prompts, and report results honestly.",
+          "deliverable": "Evaluation design and report",
+          "checks": [["Report intervals", "Scores with confidence intervals", "Report"], ["Test significance", "Difference tested", "Results"], ["Check contamination", "Test items not in examples", "Check log"]],
+          "objectives": ["Evaluate rigorously", "Compare systems", "Report honestly"]
+        },
+        {
+          "topic": "Red Teaming Prompts and Assistants",
+          "subtopics": ["Red team scope", "Attack categories", "Automated attack generation", "Manual creative attacks", "Multi-turn attacks", "Scoring severity", "Fixing and retesting", "Red team reports"],
+          "tools": ["garak or PyRIT", "LLM API"],
+          "lab_task": "Red-team an assistant with automated and manual multi-turn attacks, score findings by severity, fix the worst and retest.",
+          "deliverable": "Red team report and retest results",
+          "checks": [["Run attacks", "Findings with severity", "Findings log"], ["Fix findings", "Worst findings fixed", "Fix log"], ["Retest", "Attack success lower", "Results table"]],
+          "objectives": ["Red-team assistants", "Score findings", "Fix and retest"]
+        },
+        {
+          "topic": "Safety Policies, Moderation and Guardrail Prompts",
+          "subtopics": ["Safety taxonomies", "Moderation prompts and classifiers", "Input and output checks", "Safe completion styles", "Escalation for risky content", "Measuring guardrails", "Latency of guardrails", "Maintaining policies"],
+          "tools": ["Moderation models", "Guardrail frameworks"],
+          "lab_task": "Build input and output guardrails with moderation prompts and classifiers, measure precision, recall and latency and set escalation rules.",
+          "deliverable": "Guardrails and measurements",
+          "checks": [["Measure precision and recall", "Scores for each guardrail", "Results table"], ["Measure latency", "Added time recorded", "Benchmark"], ["Escalate risky content", "Routed to review", "Log"]],
+          "objectives": ["Build guardrails", "Measure them", "Escalate risk"]
+        },
+        {
+          "topic": "Creating Fine-Tuning Data with Prompts",
+          "subtopics": ["When to move from prompting to fine-tuning", "Generating training examples", "Quality filtering", "Diversity of examples", "Labelling with model judges", "Avoiding contamination", "Data documentation", "Measuring gains"],
+          "tools": ["LLM API", "Data tools", "Fine-tuning service"],
+          "lab_task": "Generate and filter 2,000 training examples for a classification task, fine-tune a small model and compare it with the prompted large model.",
+          "deliverable": "Dataset, tuned model and comparison",
+          "checks": [["Filter examples", "Low-quality examples removed with rules", "Data report"], ["Compare models", "Tuned small model close to the large prompted model", "Results table"], ["Document data", "Sources and methods recorded", "Data card"]],
+          "objectives": ["Generate training data", "Filter for quality", "Decide when to fine-tune"]
+        },
+        {
+          "topic": "Distilling Prompts into Smaller Models",
+          "subtopics": ["Why distil", "Teacher and student models", "Collecting teacher outputs", "Training the student", "Evaluating the student", "Routing between teacher and student", "Cost and latency gains", "Keeping students current"],
+          "tools": ["Fine-tuning service or PEFT", "LLM API"],
+          "lab_task": "Distil the support triage prompt from a large model into a small model, route easy cases to the student and measure savings and quality.",
+          "deliverable": "Student model, router and measurements",
+          "checks": [["Train the student", "Student scores close to the teacher", "Results table"], ["Route cases", "Easy cases handled by the student", "Log"], ["Measure savings", "Cost and latency lower", "Report"]],
+          "objectives": ["Distil prompts", "Route to students", "Measure savings"]
+        },
+        {
+          "topic": "Multilingual and Cross-Cultural Prompting",
+          "subtopics": ["Prompting in Indian and other languages", "Translation inside prompts", "Code-mixed input", "Cultural tone differences", "Evaluating across languages", "Tokens and cost by language", "Local examples", "Language-specific policies"],
+          "tools": ["LLM API", "Multilingual test sets"],
+          "lab_task": "Adapt the assistant for Hindi, Tamil and English with local examples, evaluate per language, compare cost per language and fix tone problems.",
+          "deliverable": "Adapted prompts and per-language results",
+          "checks": [["Evaluate per language", "Scores for each language", "Results table"], ["Compare cost", "Tokens per language recorded", "Usage report"], ["Fix tone", "Tone reviewed by speakers", "Review notes"]],
+          "objectives": ["Prompt across languages", "Evaluate per language", "Respect culture"]
+        },
+        {
+          "topic": "Prompts for Coding Agents and Developer Tools",
+          "subtopics": ["Instructions for coding agents", "Repository context files", "Task specifications for agents", "Tests as acceptance criteria", "Reviewing agent changes", "Safety for code execution", "Measuring coding agent success", "Team conventions for agent use"],
+          "tools": ["Coding agent", "Git", "Test suite"],
+          "lab_task": "Write repository instructions and task specs for a coding agent, give it five issues with tests as acceptance criteria and measure success and review effort.",
+          "deliverable": "Instruction files, task specs and results",
+          "checks": [["Run five tasks", "Tasks passing tests counted", "Results table"], ["Review changes", "Problems found in review recorded", "Review notes"], ["Check safety", "Agent limited to the sandbox", "Configuration"]],
+          "objectives": ["Prompt coding agents", "Specify tasks", "Review agent work"]
+        },
+        {
+          "topic": "Prompt Security at Scale",
+          "subtopics": ["Threat models for prompt systems", "Secrets and data in prompts", "Supply chain of prompts and templates", "Access control for prompt registries", "Logging and redaction", "Monitoring for attacks", "Incident response", "Security reviews"],
+          "tools": ["Prompt registry", "Monitoring", "Security tools"],
+          "lab_task": "Threat-model the prompt system, remove secrets from prompts, restrict registry access, monitor for injection attempts and run an incident drill.",
+          "deliverable": "Threat model, controls and drill report",
+          "checks": [["Search prompts for secrets", "None found", "Scan report"], ["Detect an injection attempt", "Alert raised", "Alert"], ["Run the drill", "Incident handled within the target", "Drill report"]],
+          "objectives": ["Secure prompt systems", "Monitor attacks", "Respond to incidents"]
+        },
+        {
+          "topic": "Governance of Prompts and AI Assistants",
+          "subtopics": ["Inventories of prompts and assistants", "Risk classification", "Approval workflows", "Documentation standards", "Audit trails", "Regulation: EU AI Act and Indian guidance", "Reviews and retirement", "Governance metrics"],
+          "tools": ["Prompt registry", "Governance templates"],
+          "lab_task": "Build an inventory of assistants and prompts with risk ratings, set approval workflows by risk and prepare an audit trail for one assistant.",
+          "deliverable": "Inventory, workflows and audit trail",
+          "checks": [["Rate risks", "Risk level for each assistant", "Inventory"], ["Run an approval", "High-risk change approved before release", "Approval record"], ["Review the audit trail", "Changes traceable", "Audit trail"]],
+          "objectives": ["Govern prompts", "Classify risk", "Keep audit trails"]
+        },
+        {
+          "topic": "Cost Management for Prompt Systems at Scale",
+          "subtopics": ["Cost per feature and user", "Model routing for cost", "Caching strategies", "Batch processing", "Budgets and alerts", "Cost and quality trade-offs", "Forecasting spend", "Reporting to leadership"],
+          "tools": ["Usage data", "Dashboards", "Spreadsheet"],
+          "lab_task": "Build a cost model for five assistants, add routing and caching, forecast next quarter's spend and present cost and quality trade-offs.",
+          "deliverable": "Cost model, changes and forecast",
+          "checks": [["Build the cost model", "Cost per feature calculated", "Cost model"], ["Apply routing and caching", "Cost lower with quality kept", "Comparison"], ["Forecast spend", "Quarterly forecast with assumptions", "Forecast"]],
+          "objectives": ["Manage cost at scale", "Forecast spend", "Balance cost and quality"]
+        },
+        {
+          "topic": "Research Methods for Prompting",
+          "subtopics": ["Reading prompting research", "Reproducing published techniques", "Designing experiments", "Ablations", "Statistical testing", "Writing up results", "Sharing findings internally", "Deciding what to adopt"],
+          "tools": ["arXiv", "Python", "Evaluation tools"],
+          "lab_task": "Reproduce a published prompting technique on your task, run an ablation, test significance and write a recommendation.",
+          "deliverable": "Experiment code, results and recommendation",
+          "checks": [["Reproduce the technique", "Results compared with the paper", "Results table"], ["Run the ablation", "Each part's effect measured", "Ablation table"], ["Write the recommendation", "Adopt or not with evidence", "Report"]],
+          "objectives": ["Read research", "Run experiments", "Recommend techniques"]
+        },
+        {
+          "topic": "Leading Prompt Engineering in an Organisation",
+          "subtopics": ["Prompt engineering as a discipline", "Standards and style guides", "Shared libraries and platforms", "Training programmes", "Measuring value", "Working with product, legal and security", "Roadmaps", "Communicating with leadership"],
+          "tools": ["Standards templates", "Roadmap template"],
+          "lab_task": "Write a prompt style guide, design a training programme and present a 12-month roadmap for prompt engineering to a role-play leadership panel.",
+          "deliverable": "Style guide, training plan and roadmap",
+          "checks": [["Review the style guide", "Clear rules with examples", "Style guide"], ["Review the training plan", "Levels and outcomes defined", "Training plan"], ["Present the roadmap", "Value and measures explained", "Presentation feedback"]],
+          "objectives": ["Lead prompt engineering", "Set standards", "Plan training"]
+        },
+        {
+          "topic": "Advanced Capstone: Prompt and Context Platform for Enterprise Assistants",
+          "subtopics": ["Architecture", "Patterns and evaluation", "Safety and governance", "Operations"],
+          "tools": ["Prompt registry", "Evaluation suite", "Guardrails", "Routing", "Dashboards"],
+          "lab_task": "Design and build a prompt and context platform for several enterprise assistants: layered prompts, context and memory management, verification patterns, rigorous evaluation, red teaming, guardrails, governance and cost routing, then present it to an architecture board.",
+          "deliverable": "Architecture records, platform code, evaluation and red team reports and board presentation",
+          "checks": [["Run the evaluation", "Targets met with confidence intervals", "Evaluation report"], ["Run the red team", "Attack success below the target", "Red team report"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run prompts at enterprise scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}
