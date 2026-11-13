@@ -1,0 +1,573 @@
+{
+  "domain": "Oracle Database",
+  "name": "Oracle Database Administration",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Oracle DBA", "Oracle Database Administration", "Oracle Database Administrator", "Oracle DB", "Oracle 19c", "Oracle 23ai", "Oracle RAC", "Oracle Data Guard", "Oracle Performance Tuning", "Oracle RMAN"],
+  "certifications": ["Oracle Database Administration 2019 Certified Professional (1Z0-082 and 1Z0-083)", "Oracle Database SQL Certified Associate (1Z0-071)", "Oracle Cloud Database Services Certified Professional"],
+  "tools": ["Oracle Database 19c and 23ai", "SQL*Plus", "SQL Developer", "RMAN", "Data Pump", "Oracle Enterprise Manager", "Oracle Linux"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For junior DBAs, developers and support engineers new to Oracle Database. Covers architecture, installation, the multitenant model, instance start-up and shut-down, networking, storage, users and security, schema objects, the data dictionary, undo and redo, transactions and locks, Data Pump, RMAN backups, the scheduler, monitoring and day-to-day DBA tasks.",
+      "prerequisites": ["Writes basic SQL queries", "Comfortable on the Linux command line", "Knows what a relational database is"],
+      "outcomes": ["Install Oracle Database and create container and pluggable databases", "Manage storage, users, privileges and schema objects", "Take and restore backups with RMAN and Data Pump", "Carry out daily DBA checks and fix common problems"],
+      "days": [
+        {
+          "topic": "Oracle Database Architecture Overview and Installation Setup",
+          "subtopics": ["Oracle Database editions and versions: 19c and 23ai", "Instance versus database", "Memory structures: SGA and PGA", "Background processes: DBWn, LGWR, CKPT, SMON and PMON", "Physical files: data files, control files and redo logs", "Preparing Oracle Linux for installation", "Installing the software with the installer and the preinstall package", "Creating a database with DBCA", "Oracle Database Free and container images for practice", "The course lab environment"],
+          "tools": ["Oracle Linux", "Oracle Database 19c", "DBCA", "Docker"],
+          "lab_task": "Prepare an Oracle Linux server with the preinstall package, install Oracle Database software, create a database with DBCA and list its processes, memory areas and files.",
+          "deliverable": "Install notes and an architecture sheet of the lab database",
+          "checks": [["Query v$instance and v$database", "Instance and database names shown", "SQL*Plus output"], ["List background processes", "DBWn, LGWR, SMON and PMON identified", "ps output"], ["Query v$datafile, v$controlfile and v$logfile", "All physical files listed", "SQL*Plus output"]],
+          "objectives": ["Describe Oracle architecture", "Install Oracle Database", "Create a database"]
+        },
+        {
+          "topic": "SQL*Plus, SQL Developer and Connecting",
+          "subtopics": ["SQL*Plus commands and settings", "Connecting as SYSDBA with OS authentication", "Easy Connect strings", "SQL Developer connections", "Running scripts", "Spooling output", "Bind and substitution variables in brief", "The glogin.sql and login.sql files"],
+          "tools": ["SQL*Plus", "SQL Developer", "SQLcl"],
+          "lab_task": "Connect as SYSDBA and as a normal user with SQL*Plus, SQLcl and SQL Developer, run a monitoring script with formatted output and spool it to a file.",
+          "deliverable": "Connection notes, script and spooled report",
+          "checks": [["Connect with Easy Connect", "Session opened to the right service", "SQL*Plus output"], ["Run the script", "Formatted report produced", "Spool file"], ["Show the current user and container", "Values returned with SYS_CONTEXT", "Query result"]],
+          "objectives": ["Use Oracle client tools", "Connect in different ways", "Run and spool scripts"]
+        },
+        {
+          "topic": "Multitenant Architecture: CDBs and PDBs",
+          "subtopics": ["Container databases and pluggable databases", "CDB$ROOT and PDB$SEED", "Common and local users", "Creating, opening and closing PDBs", "Saving PDB open state", "Switching containers", "Unplugging and plugging PDBs", "Cloning a PDB"],
+          "tools": ["SQL*Plus", "DBCA"],
+          "lab_task": "Create two PDBs from the seed, open them and save their state, create a common user and a local user, clone one PDB and unplug and plug another.",
+          "deliverable": "Command log and container list",
+          "checks": [["Query v$pdbs", "Both PDBs open read write", "Query result"], ["Restart the CDB", "PDBs open automatically", "Query result"], ["Connect as the local user to the other PDB", "Login fails", "Error output"]],
+          "objectives": ["Explain multitenant", "Create and manage PDBs", "Use common and local users"]
+        },
+        {
+          "topic": "Starting Up and Shutting Down the Database",
+          "subtopics": ["Start-up stages: NOMOUNT, MOUNT and OPEN", "Parameter files: SPFILE and PFILE", "Shutdown modes: NORMAL, IMMEDIATE, TRANSACTIONAL and ABORT", "Instance recovery after ABORT", "Changing parameters with ALTER SYSTEM", "Scope: MEMORY, SPFILE and BOTH", "The alert log", "Restricted mode"],
+          "tools": ["SQL*Plus", "ADRCI"],
+          "lab_task": "Start the database stage by stage, create a PFILE from the SPFILE, change a parameter with each scope, shut down with ABORT and read instance recovery messages in the alert log.",
+          "deliverable": "Command log and alert log extract",
+          "checks": [["Start in NOMOUNT and query v$instance", "Status STARTED", "Query result"], ["Change a parameter with SCOPE=SPFILE", "New value only after restart", "SHOW PARAMETER output"], ["Read the alert log after ABORT", "Instance recovery recorded", "Alert log extract"]],
+          "objectives": ["Start and stop the database", "Manage parameter files", "Read the alert log"]
+        },
+        {
+          "topic": "Oracle Net: Listener and Service Names",
+          "subtopics": ["The listener", "lsnrctl commands", "Dynamic and static service registration", "tnsnames.ora and sqlnet.ora", "Services for each PDB", "Creating services with DBMS_SERVICE or srvctl", "Testing connections with tnsping", "Common connection errors"],
+          "tools": ["lsnrctl", "Net Manager", "tnsping"],
+          "lab_task": "Configure the listener, create a service for an application in a PDB, add a tnsnames entry, connect through it and diagnose ORA-12514 and ORA-12541 errors.",
+          "deliverable": "Network configuration files and diagnosis notes",
+          "checks": [["Run lsnrctl status", "Application service registered", "Command output"], ["Connect with the tnsnames alias", "Session in the right PDB", "Query result"], ["Stop the listener and connect", "ORA-12541 explained", "Diagnosis notes"]],
+          "objectives": ["Configure Oracle Net", "Create services", "Fix connection errors"]
+        },
+        {
+          "topic": "Tablespaces and Data Files",
+          "subtopics": ["Logical and physical storage", "Permanent, temporary and undo tablespaces", "Segments, extents and blocks", "Bigfile and smallfile tablespaces", "Autoextend", "Adding and resizing data files", "Oracle Managed Files", "Monitoring free space"],
+          "tools": ["SQL*Plus", "SQL Developer"],
+          "lab_task": "Create application data and index tablespaces, add a data file, enable autoextend, fill a tablespace until it errors and fix it, then write a free-space report.",
+          "deliverable": "Tablespace scripts and free-space report",
+          "checks": [["Fill the tablespace", "ORA-01653 raised and fixed by adding space", "Error and fix output"], ["Run the free-space report", "Used and free space per tablespace", "Report output"], ["Query dba_segments", "Table and index segments in their tablespaces", "Query result"]],
+          "objectives": ["Manage tablespaces", "Add and resize data files", "Monitor space"]
+        },
+        {
+          "topic": "Users, Roles and Privileges",
+          "subtopics": ["Creating users and setting quotas", "System and object privileges", "Roles and predefined roles", "Granting with ADMIN and GRANT options", "Profiles and password rules", "Locking and expiring accounts", "Schema-only accounts", "Least privilege for applications"],
+          "tools": ["SQL*Plus", "SQL Developer"],
+          "lab_task": "Create an application schema-only account, a read-only reporting role, a developer role and a profile with password rules, then test what each user can and cannot do.",
+          "deliverable": "Security script and access test results",
+          "checks": [["Log in to the schema-only account", "Login refused", "Error output"], ["Update a table as the reporting user", "ORA-01031 insufficient privileges", "Error output"], ["Fail logins until the limit", "Account locked by the profile", "Query result"]],
+          "objectives": ["Create users", "Grant least privilege", "Use profiles"]
+        },
+        {
+          "topic": "Schema Objects: Tables, Constraints and Sequences",
+          "subtopics": ["Oracle data types", "Creating and altering tables", "Constraints and their states", "Sequences and identity columns", "Synonyms", "Temporary tables", "Invisible columns", "The recycle bin and FLASHBACK TABLE ... TO BEFORE DROP"],
+          "tools": ["SQL Developer", "SQL*Plus"],
+          "lab_task": "Create an orders schema with constraints, identity columns, a sequence and synonyms, drop a table by mistake and recover it from the recycle bin.",
+          "deliverable": "DDL script and recovery output",
+          "checks": [["Insert a duplicate key", "ORA-00001 raised", "Error output"], ["Drop and flash back the table", "Table and rows restored", "Query result"], ["Query through the synonym", "Rows returned", "Query result"]],
+          "objectives": ["Create schema objects", "Use constraints and sequences", "Recover dropped tables"]
+        },
+        {
+          "topic": "Indexes and Views",
+          "subtopics": ["B-tree indexes", "Bitmap indexes and when to use them", "Function-based indexes", "Composite indexes", "Invisible and unusable indexes", "Views and their privileges", "Materialised views in brief", "Checking index use"],
+          "tools": ["SQL Developer", "Autotrace"],
+          "lab_task": "Index the orders schema for common queries, compare plans with Autotrace, make an index invisible to test its effect and create a view for reporting.",
+          "deliverable": "Index scripts, plans and view definition",
+          "checks": [["Run a query before and after the index", "Plan changes to an index range scan", "Autotrace output"], ["Make the index invisible", "Plan goes back to a full scan", "Autotrace output"], ["Query the view as the reporting user", "Rows returned without table grants", "Query result"]],
+          "objectives": ["Create indexes", "Check index use", "Create views"]
+        },
+        {
+          "topic": "The Data Dictionary and Dynamic Performance Views",
+          "subtopics": ["DBA_, ALL_ and USER_ views", "CDB_ views across containers", "V$ views", "Finding objects, owners and sizes", "Finding sessions and what they run", "Invalid objects", "Writing reusable dictionary queries", "Documentation from the dictionary"],
+          "tools": ["SQL*Plus", "SQL Developer"],
+          "lab_task": "Write a set of dictionary queries: largest segments, invalid objects, users and their roles, active sessions with their SQL, and objects across all PDBs.",
+          "deliverable": "Script library with sample output",
+          "checks": [["Query active sessions", "Session, user and SQL text shown", "Query result"], ["List invalid objects and recompile", "Invalid count drops to zero", "Query result"], ["Query CDB_ views from root", "Objects from each PDB listed with CON_ID", "Query result"]],
+          "objectives": ["Use the data dictionary", "Use V$ views", "Build reusable DBA queries"]
+        },
+        {
+          "topic": "Undo, Redo and Archive Logs",
+          "subtopics": ["Purpose of undo", "Undo retention", "ORA-01555 snapshot too old", "Redo log groups and members", "Log switches and checkpoints", "ARCHIVELOG mode", "Archive destinations and the fast recovery area", "Multiplexing redo and control files"],
+          "tools": ["SQL*Plus"],
+          "lab_task": "Put the database in ARCHIVELOG mode, add a redo log member, force log switches, configure the fast recovery area and reproduce and fix ORA-01555.",
+          "deliverable": "Configuration commands and log status output",
+          "checks": [["Query v$database log_mode", "ARCHIVELOG shown", "Query result"], ["Force a log switch", "New archive log created", "v$archived_log output"], ["Increase undo retention", "ORA-01555 no longer raised", "Session output"]],
+          "objectives": ["Manage undo", "Manage redo and archive logs", "Configure the fast recovery area"]
+        },
+        {
+          "topic": "Transactions, Locks and Concurrency",
+          "subtopics": ["Read consistency", "COMMIT, ROLLBACK and SAVEPOINT", "Row locks and table locks", "Blocking sessions", "Deadlocks and ORA-00060", "SELECT FOR UPDATE and NOWAIT", "Killing sessions safely", "Autonomous transactions in brief"],
+          "tools": ["SQL*Plus", "SQL Developer"],
+          "lab_task": "Create blocking between two sessions, find the blocker in v$session, cause a deadlock and read its trace file, and use FOR UPDATE NOWAIT in an application query.",
+          "deliverable": "Session transcripts and trace extract",
+          "checks": [["Find the blocker", "Blocking session ID found", "Query result"], ["Read the deadlock trace", "Statements involved identified", "Trace file extract"], ["Use NOWAIT on a locked row", "ORA-00054 returned immediately", "Error output"]],
+          "objectives": ["Understand read consistency", "Find blocking sessions", "Handle deadlocks"]
+        },
+        {
+          "topic": "Data Pump Export and Import",
+          "subtopics": ["Data Pump architecture", "Directory objects", "Full, schema and table exports", "Import with remapping", "Filtering with INCLUDE, EXCLUDE and QUERY", "Parallel jobs", "Network imports", "Monitoring and restarting jobs"],
+          "tools": ["expdp", "impdp"],
+          "lab_task": "Export a schema, import it into another PDB with a new schema name and tablespace, export one table with a filter and restart an interrupted job.",
+          "deliverable": "Parameter files, logs and verification queries",
+          "checks": [["Import with REMAP_SCHEMA", "Objects created in the new schema", "Query result"], ["Export with a QUERY filter", "Only matching rows exported", "Import log"], ["Stop and restart a job", "Job completes from where it stopped", "Data Pump log"]],
+          "objectives": ["Export and import data", "Remap schemas", "Manage Data Pump jobs"]
+        },
+        {
+          "topic": "Backups with RMAN",
+          "subtopics": ["RMAN concepts", "Connecting to the target", "Full and incremental backups", "Backup sets and image copies", "Backing up archive logs", "Retention policies", "Control file autobackup", "Listing and validating backups"],
+          "tools": ["RMAN"],
+          "lab_task": "Configure RMAN retention and autobackup, take a level 0 and a level 1 backup with archive logs, list and validate them and delete obsolete backups.",
+          "deliverable": "RMAN configuration, scripts and LIST output",
+          "checks": [["Run LIST BACKUP SUMMARY", "Level 0 and level 1 backups shown", "RMAN output"], ["Run VALIDATE DATABASE", "No corrupt blocks", "RMAN output"], ["Run REPORT OBSOLETE", "Old backups listed by the retention policy", "RMAN output"]],
+          "objectives": ["Take RMAN backups", "Configure retention", "Validate backups"]
+        },
+        {
+          "topic": "Restore and Recovery Scenarios",
+          "subtopics": ["Media failure types", "Restoring a lost data file", "Recovering a tablespace", "Restoring the control file", "Recovering a PDB", "Data Recovery Advisor", "Recovery from a lost redo log member", "Practising recovery regularly"],
+          "tools": ["RMAN"],
+          "lab_task": "Delete a data file and recover it, lose a redo member and fix it, restore a control file from autobackup and recover a PDB while the others stay open.",
+          "deliverable": "Recovery logs for each scenario",
+          "checks": [["Recover the lost data file", "Tablespace back online with all rows", "Query result"], ["Restore the control file", "Database opens with RESETLOGS", "RMAN output"], ["Recover one PDB", "Other PDBs stay open throughout", "Query result"]],
+          "objectives": ["Recover from media failures", "Restore control files", "Recover PDBs"]
+        },
+        {
+          "topic": "Automating Tasks with the Scheduler",
+          "subtopics": ["DBMS_SCHEDULER jobs", "Programs, schedules and job classes", "Calendar expressions", "Running OS scripts", "Job logs and history", "Email notifications", "Maintenance windows", "Automated maintenance tasks"],
+          "tools": ["DBMS_SCHEDULER", "SQL Developer"],
+          "lab_task": "Schedule a nightly statistics job, a weekly purge of old audit rows and a shell script job with credentials, and check their logs and failures.",
+          "deliverable": "Job definitions and job log output",
+          "checks": [["Run the purge job", "Old rows removed and the run logged", "Query result"], ["Fail the shell job", "Failure and error shown in the job log", "Query result"], ["Review the calendar expression", "Next run date correct", "dba_scheduler_jobs output"]],
+          "objectives": ["Schedule jobs", "Run OS scripts", "Monitor job runs"]
+        },
+        {
+          "topic": "Monitoring and Daily DBA Checks",
+          "subtopics": ["Daily health checklist", "Alert log and ADRCI", "Tablespace and FRA usage", "Backup status", "Failed jobs", "Long-running sessions", "Listener and service checks", "Writing a health check script"],
+          "tools": ["ADRCI", "SQL*Plus", "Shell scripts"],
+          "lab_task": "Write a daily health check script that reports alert log errors, space, backups, failed jobs and blocking sessions, schedule it and email the report.",
+          "deliverable": "Health check script and a sample report",
+          "checks": [["Insert an ORA- error into the alert log test", "Error appears in the report", "Report"], ["Fill the FRA above 80 percent", "Warning shown in the report", "Report"], ["Run the scheduled script", "Report emailed", "Email"]],
+          "objectives": ["Monitor databases daily", "Use ADRCI", "Automate health checks"]
+        },
+        {
+          "topic": "Statistics and Simple Performance Checks",
+          "subtopics": ["Optimizer statistics", "DBMS_STATS", "Stale statistics", "Automatic statistics gathering", "Reading an execution plan with DBMS_XPLAN", "Top SQL in v$sql", "Waits in v$session", "When to call for deeper tuning"],
+          "tools": ["DBMS_STATS", "DBMS_XPLAN", "SQL Developer"],
+          "lab_task": "Load data so statistics go stale, see the bad plan, gather statistics and see the plan change, then find the top SQL by elapsed time.",
+          "deliverable": "Plans before and after and a top SQL report",
+          "checks": [["Check stale statistics", "Table flagged as stale", "dba_tab_statistics output"], ["Gather statistics", "Plan improves", "DBMS_XPLAN output"], ["Report top SQL", "Ranked by elapsed time", "Query result"]],
+          "objectives": ["Maintain statistics", "Read execution plans", "Find top SQL"]
+        },
+        {
+          "topic": "Patching Awareness and Release Updates",
+          "subtopics": ["Oracle support lifecycle", "Release Updates and Release Update Revisions", "OPatch", "datapatch", "Patching in the multitenant model", "Pre-patch checks and backups", "Rolling back a patch", "Recording patch levels"],
+          "tools": ["OPatch", "datapatch", "My Oracle Support"],
+          "lab_task": "Apply a Release Update to a lab Oracle home with OPatch, run datapatch for all PDBs, confirm the patch level and practise rolling it back.",
+          "deliverable": "Patch log, inventory output and rollback notes",
+          "checks": [["Run opatch lsinventory", "New patch listed", "OPatch output"], ["Query dba_registry_sqlpatch", "Patch applied in every PDB", "Query result"], ["Roll back the patch", "Inventory shows the previous level", "OPatch output"]],
+          "objectives": ["Understand patch types", "Apply and roll back patches", "Record patch levels"]
+        },
+        {
+          "topic": "Beginner Capstone: Building and Protecting an Application Database",
+          "subtopics": ["Design and creation", "Security and storage", "Backups and recovery", "Monitoring"],
+          "tools": ["Oracle Database 19c", "RMAN", "Data Pump", "DBMS_SCHEDULER"],
+          "lab_task": "Create a PDB for an order application with tablespaces, schema and roles, load data with Data Pump, set up RMAN backups and a health check, then recover from a lost data file in front of the group.",
+          "deliverable": "Build scripts, backup configuration, health report and recovery demo",
+          "checks": [["Recover the lost data file", "Application data intact after recovery", "Demo recording"], ["Test the roles", "Reporting role cannot change data", "Test results"], ["Review the health report", "All checks green after the fix", "Report"]],
+          "objectives": ["Combine the beginner topics in one database", "Build a secure, backed-up database", "Recover from failure"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For DBAs who run Oracle databases day to day. Covers RMAN strategies, flashback, memory, AWR, ASH and ADDM, SQL tuning, optimizer statistics, partitioning, Data Guard, ASM, Resource Manager, unified auditing, TDE, PDB cloning and refresh, Enterprise Manager, transportable tablespaces, patching, PL/SQL for DBAs, Autonomous Database on OCI and the 1Z0-083 exam.",
+      "prerequisites": ["Administers Oracle Database with RMAN and Data Pump", "Knows the multitenant model", "Reads basic execution plans"],
+      "outcomes": ["Design backup and recovery with RMAN and flashback", "Diagnose performance with AWR, ASH and SQL tuning tools", "Run Data Guard standbys and ASM storage", "Secure, patch and clone databases and work with Oracle Cloud"],
+      "days": [
+        {
+          "topic": "RMAN Backup Strategies and the Recovery Catalog",
+          "subtopics": ["Recovery objectives for Oracle", "Incrementally updated backups", "Block change tracking", "Compressed and encrypted backups", "Backing up to tape or cloud storage", "The recovery catalog", "Stored scripts", "Duplicating a database with RMAN"],
+          "tools": ["RMAN", "Recovery catalog"],
+          "lab_task": "Set up a recovery catalog, enable block change tracking, run an incrementally updated backup strategy with encryption and duplicate the production database to a test server.",
+          "deliverable": "Catalog setup, scripts and duplication log",
+          "checks": [["Compare level 1 backup times", "Faster with block change tracking", "RMAN output"], ["Restore an encrypted backup without the password", "Restore fails", "RMAN error"], ["Duplicate to test", "Test database open with production data", "Query result"]],
+          "objectives": ["Design backup strategies", "Use the recovery catalog", "Duplicate databases"]
+        },
+        {
+          "topic": "Flashback Technologies",
+          "subtopics": ["Flashback query and version query", "Flashback transaction query", "Flashback table", "Flashback drop", "Flashback database and restore points", "Guaranteed restore points for releases", "Flashback data archive", "Choosing the right flashback feature"],
+          "tools": ["SQL*Plus", "Flashback features"],
+          "lab_task": "Recover wrong updates with flashback query, rewind a table, create a guaranteed restore point before a release and flash the database back after a failed deployment.",
+          "deliverable": "Command log and recovery evidence",
+          "checks": [["Run a version query", "Row history shown", "Query result"], ["Flash back the database to the restore point", "Changes after the restore point gone", "Query result"], ["Pick a feature for three scenarios", "Correct feature chosen for each", "Written note"]],
+          "objectives": ["Use flashback features", "Protect releases with restore points", "Choose a recovery method"]
+        },
+        {
+          "topic": "Memory Management: SGA and PGA",
+          "subtopics": ["Shared pool, buffer cache and redo log buffer", "Large pool and Java pool", "Automatic shared memory management", "PGA aggregate target and limit", "Memory advisors", "Huge pages on Linux", "Result cache", "Memory for many PDBs"],
+          "tools": ["v$ advisors", "SQL*Plus"],
+          "lab_task": "Read the buffer cache and PGA advisors, resize the SGA based on them, configure huge pages on Linux and set per-PDB memory limits.",
+          "deliverable": "Advisor output, configuration changes and reasons",
+          "checks": [["Read the buffer cache advisor", "Estimated physical reads at each size", "Query result"], ["Configure huge pages", "SGA in huge pages after restart", "Alert log"], ["Set a PDB memory limit", "Limit enforced in that PDB", "Query result"]],
+          "objectives": ["Size memory", "Use advisors", "Configure huge pages"]
+        },
+        {
+          "topic": "AWR, ASH and ADDM Performance Diagnosis",
+          "subtopics": ["The Automatic Workload Repository", "Snapshots and baselines", "Reading an AWR report", "Active Session History", "ADDM findings", "Comparing periods", "Wait classes and top events", "Licensing for the Diagnostics Pack"],
+          "tools": ["AWR", "ASH", "ADDM", "Enterprise Manager"],
+          "lab_task": "Run a workload with a bottleneck, take snapshots, read the AWR report, use ASH to find the sessions and SQL behind the top wait and apply the ADDM recommendation.",
+          "deliverable": "AWR report, ASH analysis and fix notes",
+          "checks": [["Read the AWR top events", "Main wait identified", "AWR report"], ["Query ASH for the wait", "SQL ID and sessions found", "Query result"], ["Compare periods after the fix", "Wait reduced", "AWR compare report"]],
+          "objectives": ["Read AWR reports", "Use ASH", "Act on ADDM findings"]
+        },
+        {
+          "topic": "SQL Tuning with Execution Plans and Advisors",
+          "subtopics": ["Reading plans with DBMS_XPLAN", "Actual versus estimated rows", "Join methods and access paths", "SQL Monitor reports", "SQL Tuning Advisor", "SQL profiles", "Hints and when to avoid them", "Rewriting inefficient SQL"],
+          "tools": ["DBMS_XPLAN", "SQL Monitor", "SQL Tuning Advisor"],
+          "lab_task": "Tune five slow statements: compare estimated and actual rows, use SQL Monitor for a long query, accept a SQL profile from the advisor and rewrite one statement.",
+          "deliverable": "Tuning log with plans and timings",
+          "checks": [["Display actual rows with gather_plan_statistics", "Estimate errors found", "DBMS_XPLAN output"], ["Accept a SQL profile", "Plan and time improve", "SQL Monitor report"], ["Rewrite a statement", "Lower elapsed time", "Timing table"]],
+          "objectives": ["Read plans in depth", "Use tuning advisors", "Rewrite slow SQL"]
+        },
+        {
+          "topic": "Optimizer Statistics Management",
+          "subtopics": ["Statistics preferences", "Histograms", "Extended statistics", "Incremental statistics for partitions", "Locking and restoring statistics", "Pending statistics", "Dynamic sampling and statistics feedback", "Statistics on fixed objects and the dictionary"],
+          "tools": ["DBMS_STATS"],
+          "lab_task": "Fix a skewed column estimate with a histogram, add extended statistics for correlated columns, test new statistics as pending before publishing and restore old statistics after a plan regression.",
+          "deliverable": "Statistics scripts and plans before and after",
+          "checks": [["Add a histogram", "Estimate close to actual rows", "DBMS_XPLAN output"], ["Test pending statistics", "Plan checked before publishing", "Session output"], ["Restore old statistics", "Previous plan returns", "DBMS_XPLAN output"]],
+          "objectives": ["Manage statistics", "Fix estimate problems", "Recover from statistics regressions"]
+        },
+        {
+          "topic": "Partitioning Tables and Indexes",
+          "subtopics": ["Range, list, hash and interval partitioning", "Composite partitioning", "Partition pruning", "Local and global indexes", "Partition maintenance: split, merge, exchange and drop", "Online partition operations", "Archiving with partition exchange", "Licensing for the Partitioning option"],
+          "tools": ["SQL*Plus", "DBMS_XPLAN"],
+          "lab_task": "Convert an orders table to interval partitioning online, show partition pruning, exchange an old partition into an archive table and keep global indexes usable.",
+          "deliverable": "Partitioning scripts, plans and maintenance log",
+          "checks": [["Query one month", "Plan shows pruning to one partition", "DBMS_XPLAN output"], ["Exchange a partition", "Data moved instantly to the archive table", "Query result"], ["Drop a partition with UPDATE INDEXES", "Global index stays usable", "dba_indexes output"]],
+          "objectives": ["Partition tables", "Use pruning", "Maintain partitions"]
+        },
+        {
+          "topic": "Data Guard Physical Standby",
+          "subtopics": ["Data Guard concepts", "Physical and logical standbys", "Creating a standby with RMAN", "Redo transport and apply", "Protection modes", "Switchover and failover", "Active Data Guard read-only standbys", "Monitoring lag"],
+          "tools": ["Data Guard", "RMAN", "SQL*Plus"],
+          "lab_task": "Create a physical standby with RMAN duplicate, check redo apply, run a switchover and back, then fail over after stopping the primary.",
+          "deliverable": "Configuration, switchover log and failover notes",
+          "checks": [["Query v$dataguard_stats", "Transport and apply lag shown", "Query result"], ["Run a switchover", "Roles swapped with no data loss", "Alert logs"], ["Fail over", "Standby opens as primary", "Query result"]],
+          "objectives": ["Build standby databases", "Switch roles", "Monitor lag"]
+        },
+        {
+          "topic": "Automatic Storage Management",
+          "subtopics": ["ASM architecture", "Disk groups and redundancy", "ASM instances and Grid Infrastructure", "Adding and dropping disks", "Rebalancing", "ASMCMD", "ASM Filter Driver", "Moving databases into ASM"],
+          "tools": ["Grid Infrastructure", "ASMCMD", "ASMCA"],
+          "lab_task": "Install Grid Infrastructure for a standalone server, create DATA and FRA disk groups, move a database into ASM with RMAN and add a disk while watching the rebalance.",
+          "deliverable": "ASM configuration and move log",
+          "checks": [["List disk groups", "DATA and FRA mounted with the chosen redundancy", "ASMCMD output"], ["Move the database", "Data files now in ASM", "Query result"], ["Add a disk", "Rebalance completes", "v$asm_operation output"]],
+          "objectives": ["Manage ASM", "Move databases to ASM", "Rebalance storage"]
+        },
+        {
+          "topic": "Resource Manager and Workload Control",
+          "subtopics": ["Consumer groups and plans", "CPU allocation", "Limiting runaway queries", "Parallel statement limits", "CDB resource plans for PDBs", "Mapping sessions to groups", "Instance caging", "Monitoring resource use"],
+          "tools": ["DBMS_RESOURCE_MANAGER", "SQL*Plus"],
+          "lab_task": "Create a plan that protects online users from reports, cancels queries over ten minutes, gives each PDB a CPU share and test it with a competing workload.",
+          "deliverable": "Resource plans and test results",
+          "checks": [["Run a long report", "Cancelled after ten minutes", "Session error"], ["Run competing workloads", "Online group keeps its CPU share", "v$rsrc_consumer_group output"], ["Load one PDB heavily", "Other PDBs keep their share", "Monitoring output"]],
+          "objectives": ["Control workloads", "Share CPU between PDBs", "Stop runaway queries"]
+        },
+        {
+          "topic": "Unified Auditing",
+          "subtopics": ["Audit requirements", "Unified audit policies", "Auditing privileged users", "Conditions and exceptions", "The UNIFIED_AUDIT_TRAIL view", "Purging and archiving audit data", "Fine-grained auditing", "Sending audit data to a SIEM"],
+          "tools": ["Unified Auditing", "DBMS_AUDIT_MGMT"],
+          "lab_task": "Create policies that audit logins, DBA actions and access to salary data, run tests, query the trail and set up a purge job with archiving.",
+          "deliverable": "Policies, audit queries and purge job",
+          "checks": [["Read the salary table", "Access recorded in the trail", "Query result"], ["Run a DBA action", "Action audited with the user and time", "Query result"], ["Run the purge job", "Old audit records removed after archiving", "Job log"]],
+          "objectives": ["Audit databases", "Audit privileged users", "Manage the audit trail"]
+        },
+        {
+          "topic": "Transparent Data Encryption and Network Encryption",
+          "subtopics": ["TDE concepts", "Keystores and master keys", "Tablespace and column encryption", "Encrypting existing tablespaces online", "Rotating keys", "Backups of encrypted data", "Native network encryption and TLS", "Licensing for Advanced Security"],
+          "tools": ["TDE", "orapki", "sqlnet.ora"],
+          "lab_task": "Create a keystore, encrypt an application tablespace online, rotate the master key, check that data files are unreadable outside the database and require encrypted client connections.",
+          "deliverable": "Keystore setup, encryption log and connection test",
+          "checks": [["Search a data file for a known value", "Value not found in plain text", "strings output"], ["Rotate the master key", "New key active and data readable", "Query result"], ["Connect without encryption", "Connection refused", "Client error"]],
+          "objectives": ["Encrypt data at rest", "Manage keys", "Encrypt connections"]
+        },
+        {
+          "topic": "PDB Cloning, Refresh and Relocation",
+          "subtopics": ["Local and remote cloning", "Hot cloning", "Refreshable PDBs", "Snapshot copies", "Relocating PDBs online", "Proxy PDBs", "PDB lockdown profiles", "Using clones for testing"],
+          "tools": ["SQL*Plus", "Database links"],
+          "lab_task": "Hot clone a production PDB to a test CDB, make it refreshable and refresh it, relocate a PDB between CDBs with minimal downtime and apply a lockdown profile.",
+          "deliverable": "Clone, refresh and relocation logs",
+          "checks": [["Refresh the clone", "New production rows appear", "Query result"], ["Relocate a PDB", "Downtime measured in seconds", "Client log"], ["Run a blocked statement in the locked-down PDB", "Statement refused", "Error output"]],
+          "objectives": ["Clone PDBs", "Refresh test copies", "Relocate PDBs"]
+        },
+        {
+          "topic": "Oracle Enterprise Manager Cloud Control",
+          "subtopics": ["Cloud Control architecture", "Deploying agents", "Discovering targets", "Monitoring templates and thresholds", "Incident rules and notifications", "Performance hub", "Jobs and patching from Enterprise Manager", "Reports"],
+          "tools": ["Oracle Enterprise Manager Cloud Control"],
+          "lab_task": "Add a database to Enterprise Manager, apply a monitoring template, create incident rules for space and lag and use the performance hub to find a slow SQL statement.",
+          "deliverable": "Monitoring configuration and incident examples",
+          "checks": [["Fill a tablespace", "Incident raised and email sent", "Incident console"], ["Open the performance hub", "Slow SQL identified", "Screenshot"], ["Apply the template", "Thresholds set on the target", "Target settings"]],
+          "objectives": ["Monitor with Enterprise Manager", "Set incident rules", "Use the performance hub"]
+        },
+        {
+          "topic": "Transportable Tablespaces and Cross-Platform Moves",
+          "subtopics": ["Transportable tablespaces", "Full transportable export and import", "Endian conversion", "Cross-platform incremental backups", "Moving large databases with little downtime", "Checking self-contained sets", "Plugging into a PDB", "Choosing between Data Pump and transport"],
+          "tools": ["Data Pump", "RMAN", "DBMS_TTS"],
+          "lab_task": "Move an application's tablespaces to another database with transportable tablespaces, check the set is self-contained and compare time with a normal Data Pump export.",
+          "deliverable": "Transport log and time comparison",
+          "checks": [["Check self-containment", "No violations", "DBMS_TTS output"], ["Plug in the tablespaces", "Objects usable on the target", "Query result"], ["Compare methods", "Times recorded for both", "Comparison table"]],
+          "objectives": ["Transport tablespaces", "Move databases across platforms", "Choose a move method"]
+        },
+        {
+          "topic": "Patching with OPatch, Out-of-Place Homes and Fleet Patching",
+          "subtopics": ["Patching strategy", "In-place versus out-of-place patching", "Gold images", "Rolling patches", "Patching Grid Infrastructure and databases", "Fleet Patching and Provisioning", "Testing patches", "Patch documentation"],
+          "tools": ["OPatch", "AutoUpgrade", "Fleet Patching and Provisioning"],
+          "lab_task": "Build a patched gold image Oracle home, switch a database to it out of place, run datapatch and measure downtime compared with in-place patching.",
+          "deliverable": "Patching runbook and downtime measurements",
+          "checks": [["Switch to the new home", "Database runs from the patched home", "Query result"], ["Compare downtime", "Out-of-place downtime shorter", "Timing table"], ["Review the runbook", "Pre-checks, steps and rollback listed", "Runbook"]],
+          "objectives": ["Patch out of place", "Reduce patch downtime", "Standardise Oracle homes"]
+        },
+        {
+          "topic": "PL/SQL for DBAs",
+          "subtopics": ["Anonymous blocks", "Procedures, functions and packages", "Cursors and bulk collect", "Exception handling", "Dynamic SQL", "Calling DBMS packages", "Invoker and definer rights", "Writing maintenance packages"],
+          "tools": ["PL/SQL", "SQL Developer"],
+          "lab_task": "Write a DBA maintenance package that rebuilds unusable indexes, gathers stale statistics and reports failures, using bulk processing, dynamic SQL and error logging.",
+          "deliverable": "Package code and run log",
+          "checks": [["Make an index unusable and run the package", "Index rebuilt", "Query result"], ["Force an error", "Error logged and processing continues", "Log table"], ["Review the rights model", "Package runs with the intended privileges", "Code review"]],
+          "objectives": ["Write PL/SQL for maintenance", "Use dynamic SQL", "Handle errors"]
+        },
+        {
+          "topic": "Oracle Databases on OCI and Autonomous Database",
+          "subtopics": ["Oracle Cloud database options", "Base Database Service", "Exadata Database Service", "Autonomous Database: serverless and dedicated", "What is automated and what is still yours", "Connecting with wallets", "Loading data into Autonomous Database", "Cost and licensing (BYOL and licence included)"],
+          "tools": ["Oracle Cloud Infrastructure", "Autonomous Database", "SQL Developer Web"],
+          "lab_task": "Create an Autonomous Database, connect with a wallet, load data from object storage, scale CPU and compare tasks the DBA no longer performs with an on-premises database.",
+          "deliverable": "Instance settings, load log and comparison table",
+          "checks": [["Connect with the wallet", "Session opened", "Client output"], ["Scale CPU", "Change applied without downtime", "Console activity log"], ["Write the comparison", "DBA tasks automated and remaining listed", "Comparison table"]],
+          "objectives": ["Use Oracle Cloud databases", "Work with Autonomous Database", "Compare cloud options"]
+        },
+        {
+          "topic": "Database Administration II Certification Preparation (1Z0-083)",
+          "subtopics": ["Exam topics and weighting", "Multitenant questions", "Backup and recovery questions", "Performance and tuning questions", "Upgrade and patching questions", "Common traps", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "Oracle documentation"],
+          "lab_task": "Take a timed practice exam, review each wrong answer against the documentation, practise weak areas in the lab and take a second practice exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Review wrong answers", "Each linked to a documentation section", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close knowledge gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Protected and Tuned Production Database",
+          "subtopics": ["Assessment", "Protection", "Performance", "Report"],
+          "tools": ["RMAN", "Data Guard", "AWR", "TDE", "Enterprise Manager"],
+          "lab_task": "Take over an unprotected, slow order database: add a recovery catalog strategy, a Data Guard standby, TDE and auditing, tune its top SQL with AWR and advisors, then present results and a switchover demo.",
+          "deliverable": "Configuration, tuning log, switchover demo and presentation",
+          "checks": [["Run the switchover demo", "Application reconnects to the new primary", "Demo recording"], ["Compare top SQL", "Elapsed time reduced for each tuned statement", "Tuning log"], ["Present to stakeholders", "Improvements and remaining risks clear", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one database", "Protect and tune production", "Report results"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DBAs and database architects. Covers Real Application Clusters, Data Guard broker and fast-start failover, Maximum Availability Architecture, GoldenGate, Exadata, deep performance troubleshooting, SQL plan management, Database In-Memory, application containers, AutoUpgrade, migration to the cloud, Database Vault and hardening, information lifecycle management, sharding, JSON and AI Vector Search in 23ai, automation, licensing and production incidents.",
+      "prerequisites": ["Runs production Oracle databases with RMAN and Data Guard", "Tunes SQL with AWR and execution plans", "Knows Linux and storage administration"],
+      "outcomes": ["Design highly available Oracle platforms with RAC, Data Guard and GoldenGate", "Solve hard performance problems and keep plans stable", "Upgrade and migrate large databases with little downtime", "Secure, automate and run Oracle estates cost-effectively"],
+      "days": [
+        {
+          "topic": "Real Application Clusters Architecture",
+          "subtopics": ["Why RAC", "Clusterware, voting disks and the OCR", "Cache Fusion and the interconnect", "SCAN listeners", "Services in RAC", "Node eviction", "RAC One Node", "When RAC is not the answer"],
+          "tools": ["Grid Infrastructure", "Oracle RAC", "srvctl"],
+          "lab_task": "Build a two-node RAC lab, create services with preferred and available instances, connect through SCAN and observe interconnect traffic under load.",
+          "deliverable": "Cluster build log, service definitions and traffic notes",
+          "checks": [["Run crsctl stat res -t", "All resources online on both nodes", "Command output"], ["Connect through SCAN", "Sessions spread by service", "Query result"], ["Measure interconnect traffic", "Global cache blocks reported", "AWR RAC section"]],
+          "objectives": ["Explain RAC architecture", "Configure services", "Watch Cache Fusion"]
+        },
+        {
+          "topic": "RAC Administration and Application Continuity",
+          "subtopics": ["Managing instances with srvctl", "Rolling patching in RAC", "Adding and removing nodes", "Fast Application Notification", "Transparent Application Continuity", "Connection draining", "RAC wait events", "Diagnosing node evictions"],
+          "tools": ["srvctl", "Oracle RAC", "UCP"],
+          "lab_task": "Run a rolling patch while an application uses Transparent Application Continuity, drain connections from a node, add a third node and diagnose a simulated eviction.",
+          "deliverable": "Patch log, application logs and eviction diagnosis",
+          "checks": [["Patch node by node under load", "Application sees no errors", "Application log"], ["Add a node", "New instance serving the services", "srvctl output"], ["Diagnose the eviction", "Cause found in the cluster logs", "Diagnosis notes"]],
+          "objectives": ["Administer RAC", "Keep applications running during maintenance", "Diagnose evictions"]
+        },
+        {
+          "topic": "Data Guard Broker and Fast-Start Failover",
+          "subtopics": ["DGMGRL", "Broker configuration", "Fast-start failover and the observer", "Far Sync instances", "Reinstating a failed primary", "Snapshot standbys", "Automatic block repair", "Testing role changes"],
+          "tools": ["DGMGRL", "Data Guard Broker", "Far Sync"],
+          "lab_task": "Configure the broker with fast-start failover and an observer, crash the primary, watch automatic failover and reinstatement, and use a snapshot standby for testing.",
+          "deliverable": "Broker configuration, failover log and test notes",
+          "checks": [["Crash the primary", "Automatic failover within the threshold", "Observer log"], ["Restart the old primary", "Reinstated as a standby", "DGMGRL output"], ["Convert to a snapshot standby and back", "Test changes discarded", "Query result"]],
+          "objectives": ["Use the broker", "Fail over automatically", "Reinstate databases"]
+        },
+        {
+          "topic": "Maximum Availability Architecture Design",
+          "subtopics": ["MAA tiers: bronze, silver, gold and platinum", "Matching tiers to recovery objectives", "Combining RAC, Data Guard and GoldenGate", "Backup and recovery in MAA", "Planned maintenance without downtime", "Application design for availability", "Testing the design", "Cost of each tier"],
+          "tools": ["MAA reference architectures", "Architecture diagrams"],
+          "lab_task": "Design availability for three systems with different targets (internal reporting, online banking and a global payments hub), choose an MAA tier for each and justify cost and risk.",
+          "deliverable": "Three architecture designs with reasoning",
+          "checks": [["Match tiers to targets", "Each tier meets its RTO and RPO", "Design review"], ["Estimate cost", "Infrastructure and licence cost per tier", "Cost table"], ["Plan maintenance", "Patching without downtime explained for each", "Design documents"]],
+          "objectives": ["Design MAA solutions", "Match designs to targets", "Balance cost and availability"]
+        },
+        {
+          "topic": "Oracle GoldenGate Replication",
+          "subtopics": ["GoldenGate architecture", "Extract, trail files and replicat", "Microservices architecture", "Initial loads", "Bidirectional replication and conflicts", "Heterogeneous replication", "Monitoring lag", "Zero-downtime migrations with GoldenGate"],
+          "tools": ["Oracle GoldenGate", "GoldenGate Microservices"],
+          "lab_task": "Replicate an orders schema from Oracle to another Oracle database and to PostgreSQL, run an initial load, handle a conflict in bidirectional mode and monitor lag.",
+          "deliverable": "GoldenGate configuration, conflict notes and lag report",
+          "checks": [["Insert on the source", "Row appears on both targets", "Query results"], ["Cause a conflict", "Resolved by the configured rule", "Replicat report"], ["Check lag", "Lag reported per process", "GoldenGate console"]],
+          "objectives": ["Replicate with GoldenGate", "Handle conflicts", "Replicate across databases"]
+        },
+        {
+          "topic": "Exadata Concepts and Smart Features",
+          "subtopics": ["Exadata architecture", "Smart Scan", "Storage indexes", "Hybrid Columnar Compression", "Flash cache", "IORM", "Exadata in OCI and Cloud at Customer", "Workloads that gain the most"],
+          "tools": ["Exadata Database Service", "AWR", "Cell metrics"],
+          "lab_task": "Run reporting queries on Exadata, show Smart Scan and storage index savings in statistics, compress a historical table with HCC and set IORM shares between databases.",
+          "deliverable": "Statistics, compression results and IORM plan",
+          "checks": [["Run a full scan", "Cell offload shown in statistics", "Session statistics"], ["Compress with HCC", "Space reduction recorded", "Size query result"], ["Load two databases", "IORM shares respected", "Cell metrics"]],
+          "objectives": ["Use Exadata features", "Measure offload", "Manage I/O resources"]
+        },
+        {
+          "topic": "Advanced Performance Troubleshooting: Waits, Latches and Mutexes",
+          "subtopics": ["The wait interface in depth", "Latches and mutexes", "Library cache contention", "Hot blocks and buffer busy waits", "Log file sync problems", "Session tracing with 10046", "tkprof and trace analysis", "OS-level tools alongside the database"],
+          "tools": ["10046 trace", "tkprof", "ASH", "OSWatcher"],
+          "lab_task": "Diagnose three hard problems: hard parsing causing library cache contention, a hot block from a sequence and slow commits, using traces, ASH and OS data, and fix each.",
+          "deliverable": "Trace analysis, fixes and before and after measurements",
+          "checks": [["Find the parsing problem", "Unbound SQL identified in the trace", "tkprof output"], ["Fix the hot block", "Buffer busy waits reduced", "AWR comparison"], ["Diagnose slow commits", "Cause found in log writer and storage data", "Diagnosis notes"]],
+          "objectives": ["Use the wait interface", "Trace sessions", "Fix contention"]
+        },
+        {
+          "topic": "SQL Plan Management and Plan Stability",
+          "subtopics": ["Why plans change", "SQL plan baselines", "Capturing and evolving baselines", "Fixing plans after an upgrade", "SQL patches", "Automatic SQL plan management", "Real-Time SQL Monitoring at scale", "SQL Performance Analyzer"],
+          "tools": ["DBMS_SPM", "SQL Performance Analyzer"],
+          "lab_task": "Capture baselines for key SQL, force a plan regression, show the baseline protecting the plan, evolve a better plan and use SQL Performance Analyzer to test a parameter change.",
+          "deliverable": "Baselines, regression test and SPA report",
+          "checks": [["Force the regression", "Baseline plan still used", "DBMS_XPLAN output"], ["Evolve a better plan", "New plan accepted after verification", "Evolve report"], ["Run SPA", "Regressed statements listed", "SPA report"]],
+          "objectives": ["Stabilise plans", "Evolve baselines", "Test changes before production"]
+        },
+        {
+          "topic": "Database In-Memory",
+          "subtopics": ["Dual-format architecture", "Populating the column store", "Compression levels", "In-memory expressions and joins", "In-memory with RAC and Data Guard", "Sizing the column store", "Measuring benefit", "Licensing"],
+          "tools": ["Database In-Memory", "In-Memory Advisor"],
+          "lab_task": "Enable the column store, populate a sales table, compare analytic query times with and without it and size the store with the advisor.",
+          "deliverable": "Configuration, timing comparison and sizing report",
+          "checks": [["Query v$im_segments", "Table fully populated", "Query result"], ["Compare query times", "Faster with In-Memory", "Timing table"], ["Run the advisor", "Recommended size reported", "Advisor report"]],
+          "objectives": ["Use Database In-Memory", "Measure analytic speed-ups", "Size the column store"]
+        },
+        {
+          "topic": "Multitenant at Scale and Application Containers",
+          "subtopics": ["Hundreds of PDBs in one CDB", "Application containers and application roots", "Application install, upgrade and sync", "PDB snapshots", "Fleet management of PDBs", "Resource isolation at scale", "Backup and recovery for many PDBs", "SaaS designs with PDBs"],
+          "tools": ["Application containers", "SQL*Plus"],
+          "lab_task": "Create an application container for a SaaS app, install version 1, create three tenant PDBs, upgrade the application to version 2 and sync the tenants.",
+          "deliverable": "Application scripts and sync log",
+          "checks": [["Upgrade the application root", "Version 2 installed", "dba_applications output"], ["Sync a tenant", "Tenant on version 2", "Query result"], ["Restore one tenant", "Other tenants unaffected", "RMAN log"]],
+          "objectives": ["Manage many PDBs", "Use application containers", "Design SaaS on multitenant"]
+        },
+        {
+          "topic": "Upgrading to 23ai with AutoUpgrade",
+          "subtopics": ["Upgrade paths and support dates", "AutoUpgrade configuration", "Analyse, fix-ups and deploy modes", "Upgrading and converting non-CDBs to PDBs", "Replay and testing with Real Application Testing", "Fallback with restore points", "Post-upgrade tasks", "Upgrading Data Guard configurations"],
+          "tools": ["AutoUpgrade", "Real Application Testing", "Data Guard"],
+          "lab_task": "Upgrade a 19c non-CDB to 23ai as a PDB with AutoUpgrade, test with a captured workload replay and fall back with a restore point in a second attempt.",
+          "deliverable": "AutoUpgrade configuration, logs, replay report and fallback notes",
+          "checks": [["Run analyse mode", "Issues and fix-ups listed", "AutoUpgrade report"], ["Replay the workload", "Performance compared with 19c", "Replay report"], ["Fall back", "Database back on 19c", "Query result"]],
+          "objectives": ["Upgrade with AutoUpgrade", "Test with workload replay", "Plan fallbacks"]
+        },
+        {
+          "topic": "Migrating Oracle Databases to the Cloud",
+          "subtopics": ["Migration options to OCI, AWS and Azure", "Zero Downtime Migration", "RMAN, Data Pump and GoldenGate methods", "Oracle Database@Azure, @AWS and @Google Cloud", "Licensing in third-party clouds", "Network and latency planning", "Validation and cutover", "Post-migration tuning"],
+          "tools": ["Zero Downtime Migration", "Data Pump", "GoldenGate", "OCI"],
+          "lab_task": "Plan the migration of three databases to the cloud with different methods, run a physical online migration with ZDM to OCI and validate the result.",
+          "deliverable": "Migration plan, ZDM log and validation report",
+          "checks": [["Run the ZDM evaluation", "Pre-checks pass", "ZDM output"], ["Measure cutover downtime", "Within the target", "Migration log"], ["Review the plan", "Method chosen for each database with reasons", "Migration plan"]],
+          "objectives": ["Plan cloud migrations", "Use Zero Downtime Migration", "Validate migrations"]
+        },
+        {
+          "topic": "Database Vault and Security Hardening",
+          "subtopics": ["Database Vault realms", "Command rules", "Separation of duties", "Privilege analysis", "Data Redaction", "Oracle Label Security in brief", "Security assessment with DBSAT", "CIS Benchmark for Oracle"],
+          "tools": ["Database Vault", "DBSAT", "Privilege analysis"],
+          "lab_task": "Protect the HR schema with a realm so DBAs cannot read salaries, find unused privileges with privilege analysis, redact card numbers and fix the top DBSAT findings.",
+          "deliverable": "Vault configuration, privilege report, redaction policy and DBSAT report",
+          "checks": [["Query salaries as a DBA", "Blocked by the realm", "Error output"], ["Run privilege analysis", "Unused privileges listed and revoked", "Analysis report"], ["Re-run DBSAT", "High findings fixed or justified", "DBSAT report"]],
+          "objectives": ["Separate duties", "Remove unneeded privileges", "Harden the database"]
+        },
+        {
+          "topic": "Information Lifecycle Management and Large Data Volumes",
+          "subtopics": ["Heat map", "Automatic Data Optimization", "Compression tiers", "Moving old data to cheaper storage", "Online table and partition moves", "Purging and archiving rules", "Large table maintenance windows", "Legal holds and retention"],
+          "tools": ["Heat Map", "Automatic Data Optimization", "Advanced Compression"],
+          "lab_task": "Enable heat map, create ADO policies that compress partitions unused for 90 days and move them to a low-cost tablespace, and measure space saved.",
+          "deliverable": "Policies, policy run log and space report",
+          "checks": [["Run the ADO policies", "Cold partitions compressed and moved", "dba_ilmresults output"], ["Measure space", "Saving recorded", "Space report"], ["Query cold data", "Still readable after the move", "Query result"]],
+          "objectives": ["Manage data lifecycles", "Automate compression", "Save storage"]
+        },
+        {
+          "topic": "Oracle Sharding and Globally Distributed Databases",
+          "subtopics": ["When sharding fits", "Shard catalog and shard directors", "System-managed and user-defined sharding", "Sharded and duplicated tables", "Routing by shard key", "Adding shards", "Raft replication in 23ai", "Operational trade-offs"],
+          "tools": ["Oracle Globally Distributed Database", "GDSCTL"],
+          "lab_task": "Deploy a small sharded database, create sharded and duplicated tables for a customer schema, route connections by key and add a shard with rebalancing.",
+          "deliverable": "Sharding configuration and routing evidence",
+          "checks": [["Connect with a shard key", "Routed to the right shard", "Query result"], ["Add a shard", "Chunks moved to it", "GDSCTL output"], ["Query a duplicated table on each shard", "Same rows everywhere", "Query results"]],
+          "objectives": ["Design sharded databases", "Route by key", "Scale out"]
+        },
+        {
+          "topic": "JSON, Duality Views and AI Vector Search in 23ai",
+          "subtopics": ["JSON data type", "JSON Relational Duality Views", "SQL/JSON functions", "The VECTOR data type", "Generating embeddings in the database", "Vector indexes: HNSW and IVF", "Similarity search with relational filters", "RAG using Oracle Database"],
+          "tools": ["Oracle Database 23ai", "SQL Developer", "Python"],
+          "lab_task": "Expose orders as a duality view used by a JSON API, store product description embeddings in a VECTOR column, build a vector index and run filtered similarity search for a RAG prototype.",
+          "deliverable": "Duality view, vector schema, queries and prototype",
+          "checks": [["Update through the duality view", "Relational tables updated", "Query result"], ["Run a similarity search with a filter", "Nearest products within the filter returned", "Query result"], ["Compare with and without the vector index", "Index lowers latency", "Timing table"]],
+          "objectives": ["Use JSON in 23ai", "Build duality views", "Use AI Vector Search"]
+        },
+        {
+          "topic": "Automating Oracle Operations",
+          "subtopics": ["Automation goals for DBAs", "Ansible for Oracle installs and patching", "Terraform for OCI databases", "REST APIs with ORDS", "Scripted health checks and reporting", "Self-service provisioning", "Change control", "Measuring time saved"],
+          "tools": ["Ansible", "Terraform", "ORDS", "GitHub Actions"],
+          "lab_task": "Automate creating a patched database from a gold image with Ansible, provision an OCI database with Terraform and publish a health check through an ORDS REST endpoint.",
+          "deliverable": "Ansible playbooks, Terraform code and REST endpoint",
+          "checks": [["Run the playbook on a fresh server", "Database created without manual steps", "Ansible output"], ["Re-run the playbook", "No changes reported", "Ansible output"], ["Call the health endpoint", "JSON health status returned", "curl output"]],
+          "objectives": ["Automate DBA work", "Provision as code", "Expose database services"]
+        },
+        {
+          "topic": "Oracle Licensing, Consolidation and Cost Control",
+          "subtopics": ["Licence metrics: processor and named user plus", "Options and packs and accidental use", "Licensing on virtual machines and in clouds", "Feature usage tracking", "Consolidating with multitenant", "Right-sizing hardware", "Moving workloads to other databases", "Preparing for licence audits"],
+          "tools": ["dba_feature_usage_statistics", "Spreadsheet"],
+          "lab_task": "Review feature usage on three databases, find packs and options used without licences, design a consolidation onto multitenant and estimate savings.",
+          "deliverable": "Usage review, consolidation design and savings estimate",
+          "checks": [["Query feature usage", "Licensable features in use listed", "Query result"], ["Turn off an unlicensed pack", "control_management_pack_access set correctly", "Parameter output"], ["Estimate savings", "Licence and hardware savings calculated", "Savings estimate"]],
+          "objectives": ["Understand licensing", "Avoid accidental use", "Reduce cost"]
+        },
+        {
+          "topic": "Troubleshooting Production Oracle Incidents",
+          "subtopics": ["An incident method for Oracle", "Hangs and hang analysis", "ORA-00600 and ORA-07445 errors", "Space and archiver stuck incidents", "Sudden plan changes", "Standby lag spikes", "Working with Oracle Support and TFA", "Post-incident reviews"],
+          "tools": ["TFA", "ADRCI", "hanganalyze", "AWR"],
+          "lab_task": "Diagnose five injected incidents (a stuck archiver, a hang, a plan flip, an internal error and standby lag), collect diagnostics with TFA and write a post-incident review.",
+          "deliverable": "Diagnosis notes, TFA collection and a post-incident review",
+          "checks": [["Fix the stuck archiver", "Archiving resumes and sessions continue", "Alert log"], ["Analyse the hang", "Final blocker identified", "hanganalyze output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose Oracle incidents", "Collect diagnostics", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Mission-Critical Oracle Platform",
+          "subtopics": ["Architecture", "Availability and replication", "Performance and security", "Operations and cost"],
+          "tools": ["Oracle RAC", "Data Guard", "GoldenGate", "Database Vault", "AutoUpgrade", "Ansible"],
+          "lab_task": "Design and build a platform for a payments system: RAC with Application Continuity, Data Guard with fast-start failover, GoldenGate feed to analytics, Vault and auditing, plan baselines and automation, then run a game day with failover, rolling patching and an upgrade rehearsal.",
+          "deliverable": "Architecture records, build automation, game day report and review presentation",
+          "checks": [["Run the failover in the game day", "Application resumes within the target", "Game day report"], ["Run the rolling patch", "No application errors", "Application log"], ["Present to the review board", "Design and cost choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Oracle at mission-critical standard", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}
