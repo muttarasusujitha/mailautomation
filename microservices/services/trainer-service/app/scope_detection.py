@@ -41,8 +41,8 @@ LEGACY_TECHNOLOGIES = ("DevOps", "AWS", "Azure", "Kubernetes", "Python", "Agenti
 # not in free-text notes, and dropped when a more specific technology of the same
 # family is also requested (for example "cloud" when AWS is named).
 _WEAK_ALIASES = {"cloud", "testing", "qa", "agile", "observability", "monitoring", "automation", "security"}
-_UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP"},
-              "SAP": {"SAP S/4HANA", "SAP BTP", "SAP ABAP", "SAP FICO"}}
+_UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP", "Oracle Cloud"},
+              "SAP": {"SAP S/4HANA", "SAP BTP", "SAP ABAP", "SAP FICO", "SAP SuccessFactors"}}
 # Umbrellas dropped only when written as the bare word: "SAP BTP training" is SAP BTP,
 # but "SAP SD and FICO" keeps SAP for SD, which has no course of its own yet.
 _BARE_WORD_UMBRELLAS = {"SAP"}
@@ -54,6 +54,10 @@ _ABSORBING_COURSES = {"DevOps", "Agentic AI", "Data Engineering", "Full Stack", 
 # topics: "DevOps; AWS; Azure; Git; Docker" is one DevOps block, not DevOps + Git.
 # Legacy technologies such as Kubernetes stay separate.
 _FAMILY_HOSTS = {"DevOps": "DevOps and CI/CD"}
+# Courses from other categories that a host programme already teaches: the DevOps
+# course has its own Prometheus and Grafana days, so "DevOps, Kubernetes, Prometheus,
+# Grafana" stays one DevOps block plus Kubernetes.
+_HOST_EXTRAS = {"DevOps": {"Prometheus and Grafana"}}
 _PRIOR_KNOWLEDGE = re.compile(
     r"\b(?:know|knows|knowledge of|familiar with|experience (?:in|with)|experienced in|"
     r"prerequisites?|prior|already (?:use|using|work with))\s+(?:[a-z0-9+#.]+\s+){0,3}$")
@@ -202,6 +206,8 @@ def detect_technologies(primary_text, secondary_text=""):
         from app.level_curriculum import category_for
         if any(host in detected and host != domain and category_for(domain) == family
                for host, family in _FAMILY_HOSTS.items()):
+            return True
+        if any(host in detected and domain in extras for host, extras in _HOST_EXTRAS.items()):
             return True
         own_name = matched[domain] == _norm(domain)
         hosts = [other for other in detected if other != domain and matched[domain] in raw.get(other, set())]
