@@ -73,6 +73,9 @@ _HOST_EXTRAS = {"DevOps": {"Prometheus and Grafana"},
                 "Hadoop": {"Apache Hive"},
                 "PyTorch": {"Deep Learning"},
                 "TensorFlow": {"Deep Learning"},
+                # PMP preparation teaches project management end to end, so "Project
+                # management with PMP certification" is one PMP block.
+                "PMP Preparation": {"Project Management"},
                 # "Flutter app for Android and iOS": the platforms are targets of the
                 # cross-platform course, not extra native courses.
                 "Flutter": {"Android Development", "iOS Development"},

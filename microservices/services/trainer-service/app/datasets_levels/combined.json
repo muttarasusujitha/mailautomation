@@ -9252,6 +9252,391 @@
           "Deploy models on Google Cloud"
         ]
       }
+    },
+    {
+      "between": [
+        "Business Communication",
+        "Soft Skills"
+      ],
+      "day": {
+        "topic": "Professional Presence in Writing and Speech: Matching Tone, Etiquette and Message",
+        "subtopics": [
+          "How personal presence shows in emails, chat and calls",
+          "Matching tone in writing to the relationship",
+          "Etiquette differences between spoken and written channels",
+          "Listening skills applied to reading messages carefully",
+          "Turning a difficult conversation into a follow-up email",
+          "Body language on video and its effect on the message",
+          "Consistency between what you say and what you write",
+          "Personal style compared with company style"
+        ],
+        "tools": [
+          "Email client",
+          "Microsoft Teams or Zoom",
+          "Video recording",
+          "Feedback rubric"
+        ],
+        "lab_task": "Handle one workplace situation in three channels: a short call, a chat message and a follow-up email, record the call, and have a partner score consistency of tone and message across all three.",
+        "deliverable": "Call recording, chat message, follow-up email and consistency scores",
+        "checks": [
+          [
+            "Keep tone consistent",
+            "The partner rates tone as consistent across all three channels",
+            "Consistency scores"
+          ],
+          [
+            "Follow up in writing",
+            "The email records what was agreed on the call",
+            "Email"
+          ],
+          [
+            "Use the right channel",
+            "Each step uses the channel chosen in advance with a reason",
+            "Channel plan"
+          ]
+        ],
+        "objectives": [
+          "Combine presence and writing",
+          "Keep messages consistent across channels",
+          "Follow up conversations in writing"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Business Communication",
+        "Leadership and People Management"
+      ],
+      "day": {
+        "topic": "Writing as a Manager: Performance Notes, Team Announcements and Upward Reports",
+        "subtopics": [
+          "What changes in your writing when you manage people",
+          "Performance notes that are factual and fair",
+          "Team announcements about changes and decisions",
+          "Upward reports to your own manager",
+          "Recognition messages in writing",
+          "Writing about sensitive people matters",
+          "Records that HR and auditors may read",
+          "Tone that is warm but clear"
+        ],
+        "tools": [
+          "Email client",
+          "Performance note template",
+          "Team announcement template"
+        ],
+        "lab_task": "Write a performance note after a difficult one-to-one, a team announcement about a reorganised rota and a weekly upward report, and have an HR partner review the performance note for fairness.",
+        "deliverable": "Performance note, team announcement and upward report",
+        "checks": [
+          [
+            "Stay factual",
+            "The performance note records facts and agreed actions only",
+            "HR partner review"
+          ],
+          [
+            "Announce clearly",
+            "The announcement states what changes, when and why",
+            "Announcement"
+          ],
+          [
+            "Report upward",
+            "The report states status, risks and decisions needed in one page",
+            "Upward report"
+          ]
+        ],
+        "objectives": [
+          "Write as a people manager",
+          "Record people matters fairly",
+          "Report to senior managers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Leadership and People Management",
+        "Soft Skills"
+      ],
+      "day": {
+        "topic": "From Personal Effectiveness to Leading Others: Soft Skills as a New Manager",
+        "subtopics": [
+          "Which personal skills still matter after promotion",
+          "Time management becomes managing team priorities",
+          "Feedback skills become coaching skills",
+          "Conflict handling becomes mediating others",
+          "Emotional intelligence when you hold authority",
+          "Networking becomes stakeholder management for the team",
+          "Resilience for yourself and your team",
+          "A personal development plan for the transition"
+        ],
+        "tools": [
+          "Self-assessment",
+          "Development plan template",
+          "Role play scripts"
+        ],
+        "lab_task": "Map each soft skill from your own baseline to the version you need as a manager, practise two of them in manager role plays and write a ninety-day development plan for the transition.",
+        "deliverable": "Skill map, role play notes and development plan",
+        "checks": [
+          [
+            "Map skills",
+            "Each soft skill has its manager version and an example",
+            "Skill map"
+          ],
+          [
+            "Practise",
+            "Two manager role plays show the adapted skill",
+            "Observer notes"
+          ],
+          [
+            "Plan development",
+            "The plan has actions, support and dates",
+            "Development plan"
+          ]
+        ],
+        "objectives": [
+          "Adapt soft skills to leadership",
+          "Practise manager versions of core skills",
+          "Plan the move into management"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Leadership and People Management",
+        "Project Management"
+      ],
+      "day": {
+        "topic": "Leading Project Teams Without Line Authority: Motivation, Conflict and Accountability",
+        "subtopics": [
+          "Project managers who do not manage the people",
+          "Agreeing commitments with resource managers",
+          "Motivating people whose manager is someone else",
+          "Accountability without formal power",
+          "Feedback to line managers about project performance",
+          "Conflict between project and line priorities",
+          "Recognising contributions across teams",
+          "When to escalate resourcing problems"
+        ],
+        "tools": [
+          "RACI template",
+          "Resource agreement template",
+          "Stakeholder map"
+        ],
+        "lab_task": "Run a project with three people borrowed from other teams in a simulation, agree their commitments with their line managers, handle a priority conflict and give feedback to one line manager.",
+        "deliverable": "Resource agreements, conflict notes and line manager feedback",
+        "checks": [
+          [
+            "Agree commitments",
+            "Each borrowed person has a written commitment agreed with their manager",
+            "Resource agreements"
+          ],
+          [
+            "Resolve conflict",
+            "The priority conflict ends with a decision both managers accept",
+            "Conflict notes"
+          ],
+          [
+            "Give feedback",
+            "Feedback to the line manager is specific and balanced",
+            "Feedback note"
+          ]
+        ],
+        "objectives": [
+          "Lead without line authority",
+          "Agree resources with line managers",
+          "Handle project and line conflicts"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Leadership and People Management",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Line Management in Self-Organising Agile Teams: What Managers Still Do",
+        "subtopics": [
+          "The manager's role when teams self-organise",
+          "Separating people management from work assignment",
+          "Supporting Scrum Masters and Product Owners",
+          "One-to-ones and growth in agile teams",
+          "Performance reviews without individual task tracking",
+          "Removing organisational impediments",
+          "Hiring and team composition for agile teams",
+          "Avoiding command-and-control habits"
+        ],
+        "tools": [
+          "One-to-one template",
+          "Impediment board",
+          "Team charter template"
+        ],
+        "lab_task": "Redesign a manager's weekly routine for a team moving to Scrum, decide which decisions move to the team, run a one-to-one focused on growth and remove one organisational impediment in a role play.",
+        "deliverable": "Redesigned routine, decision list and one-to-one notes",
+        "checks": [
+          [
+            "Move decisions",
+            "Work assignment decisions move to the team",
+            "Decision list"
+          ],
+          [
+            "Support growth",
+            "The one-to-one covers skills and career, not task status",
+            "One-to-one notes"
+          ],
+          [
+            "Remove impediments",
+            "One organisational impediment is resolved with the right people",
+            "Impediment board"
+          ]
+        ],
+        "objectives": [
+          "Manage people in agile teams",
+          "Support self-organisation",
+          "Remove organisational impediments"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PMP Preparation",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Agile and Hybrid Questions for PMP Candidates: Mapping Scrum Practice to Exam Scenarios",
+        "subtopics": [
+          "How agile and hybrid scenarios appear on the PMP exam",
+          "Scrum roles compared with exam terms such as servant leader and team facilitator",
+          "Backlog, iteration and release questions",
+          "Agile estimation and velocity in exam calculations",
+          "Impediments, retrospectives and continuous improvement questions",
+          "Where real-world Scrum practice and exam answers differ",
+          "Hybrid governance scenarios",
+          "Building an agile terms glossary for the exam"
+        ],
+        "tools": [
+          "Scrum Guide",
+          "PMP practice question bank",
+          "Glossary template"
+        ],
+        "lab_task": "Answer thirty agile and hybrid PMP questions, mark the ones where your workplace Scrum habits pointed to the wrong answer and build a glossary that maps Scrum terms to exam wording.",
+        "deliverable": "Answered questions, marked habit errors and an agile glossary",
+        "checks": [
+          [
+            "Score",
+            "At least twenty-two of thirty questions are correct",
+            "Practice results"
+          ],
+          [
+            "Spot habit errors",
+            "Questions where workplace habits misled are identified",
+            "Annotated questions"
+          ],
+          [
+            "Map terms",
+            "The glossary maps at least twenty Scrum terms to exam wording",
+            "Glossary"
+          ]
+        ],
+        "objectives": [
+          "Apply Scrum knowledge to exam questions",
+          "Separate workplace habits from exam answers",
+          "Learn agile exam terminology"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Product Management",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Product Managers and Product Owners Together: Splitting Ownership Across Teams",
+        "subtopics": [
+          "Product manager and product owner as one or two people",
+          "Who owns vision, roadmap and backlog",
+          "Several Scrum teams on one product",
+          "Shared product goals across teams",
+          "Backlog refinement with product managers present",
+          "Sprint reviews as product feedback sessions",
+          "Decision rights when priorities conflict",
+          "Common anti-patterns such as the proxy product owner"
+        ],
+        "tools": [
+          "Jira or Azure Boards",
+          "Roadmap template",
+          "RACI template"
+        ],
+        "lab_task": "Design product ownership for a product with three Scrum teams, decide who owns vision, roadmap and each backlog, and run a role-played sprint review that changes the roadmap.",
+        "deliverable": "Ownership design, RACI and sprint review notes",
+        "checks": [
+          [
+            "Assign ownership",
+            "Vision, roadmap and each backlog have one owner",
+            "RACI"
+          ],
+          [
+            "Align teams",
+            "All three teams share one product goal",
+            "Ownership design"
+          ],
+          [
+            "Learn from reviews",
+            "Sprint review feedback leads to a roadmap change",
+            "Review notes"
+          ]
+        ],
+        "objectives": [
+          "Split product ownership well",
+          "Coordinate several Scrum teams",
+          "Use sprint reviews for product decisions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Product Management",
+        "Project Management"
+      ],
+      "day": {
+        "topic": "Product and Project Managers Working Together: Roadmaps, Plans and Release Governance",
+        "subtopics": [
+          "Different goals: outcomes compared with delivery",
+          "Turning a roadmap into a delivery plan",
+          "Dates, confidence and commitments",
+          "Release governance and go or no-go decisions",
+          "Shared risk and issue management",
+          "Budgets for products and for projects",
+          "Reporting to executives together",
+          "Avoiding gaps and overlaps in responsibility"
+        ],
+        "tools": [
+          "Roadmap template",
+          "Project plan template",
+          "Release checklist"
+        ],
+        "lab_task": "Turn a product roadmap theme into a delivery plan with a project manager in a role play, agree commitments and confidence levels, and run a go or no-go meeting for the release.",
+        "deliverable": "Delivery plan, commitment agreement and go or no-go record",
+        "checks": [
+          [
+            "Translate the roadmap",
+            "The plan delivers the roadmap outcome with milestones",
+            "Delivery plan"
+          ],
+          [
+            "Agree commitments",
+            "Dates carry agreed confidence levels",
+            "Commitment agreement"
+          ],
+          [
+            "Decide release",
+            "The go or no-go decision uses agreed criteria",
+            "Decision record"
+          ]
+        ],
+        "objectives": [
+          "Connect product and project management",
+          "Plan delivery from roadmaps",
+          "Govern releases together"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -13612,6 +13997,233 @@
           "Train on Vertex AI",
           "Deploy and monitor models",
           "Estimate cloud costs"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Business Communication",
+        "Soft Skills"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Workplace Communication Portfolio with Live Role Plays",
+        "subtopics": [
+          "Written portfolio",
+          "Live role plays",
+          "Presentation",
+          "Feedback and reflection",
+          "Improvement against baseline"
+        ],
+        "tools": [
+          "Email client",
+          "PowerPoint or Google Slides",
+          "Video recording",
+          "Feedback rubric"
+        ],
+        "lab_task": "Present a portfolio of emails, updates and minutes, take part in three live role plays (a client call, a difficult conversation and a team meeting) and give a five-minute presentation, then reflect on progress against your baseline.",
+        "deliverable": "Portfolio, role play recordings, presentation and reflection",
+        "checks": [
+          [
+            "Write well",
+            "The written portfolio meets the rubric threshold",
+            "Rubric scores"
+          ],
+          [
+            "Handle people",
+            "All three role plays reach the agreed outcome",
+            "Observer notes"
+          ],
+          [
+            "Show progress",
+            "Scores improve on the baseline for writing and speaking",
+            "Score comparison"
+          ]
+        ],
+        "objectives": [
+          "Combine communication and soft skills",
+          "Show progress with evidence",
+          "Communicate well in writing and in person"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Leadership and People Management",
+        "Soft Skills"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: New Manager Development Centre",
+        "subtopics": [
+          "One-to-one simulation",
+          "Feedback conversation",
+          "Team meeting simulation",
+          "Prioritisation exercise",
+          "Development plan"
+        ],
+        "tools": [
+          "Role play scripts",
+          "Observer rubric",
+          "Development plan template"
+        ],
+        "lab_task": "Take part in a development centre with a one-to-one, a feedback conversation, a team meeting and a prioritisation exercise, receive observer scores and write a development plan from them.",
+        "deliverable": "Observer scores and a development plan",
+        "checks": [
+          [
+            "Run conversations",
+            "The one-to-one and feedback conversation meet the rubric",
+            "Observer scores"
+          ],
+          [
+            "Lead the meeting",
+            "The team meeting reaches a decision with actions",
+            "Observer notes"
+          ],
+          [
+            "Plan growth",
+            "The development plan targets the two lowest scores",
+            "Development plan"
+          ]
+        ],
+        "objectives": [
+          "Combine soft skills and leadership",
+          "Show manager skills under observation",
+          "Plan further development"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Business Communication",
+        "Leadership and People Management"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Leading and Communicating a Team Change",
+        "subtopics": [
+          "Change decision and rationale",
+          "Communication plan",
+          "Team briefing",
+          "Individual conversations",
+          "Written follow-up and FAQ"
+        ],
+        "tools": [
+          "Communication plan template",
+          "Briefing script template",
+          "FAQ template"
+        ],
+        "lab_task": "Lead a team through a change in a simulation: write the communication plan, brief the team, hold two individual conversations with affected people and publish the written follow-up and FAQ.",
+        "deliverable": "Communication plan, briefing recording, conversation notes and follow-up",
+        "checks": [
+          [
+            "Plan",
+            "The plan sequences who hears what and when",
+            "Communication plan"
+          ],
+          [
+            "Brief",
+            "The team can restate what changes and why",
+            "Observer notes"
+          ],
+          [
+            "Follow up",
+            "The FAQ answers the questions raised in the briefing",
+            "FAQ"
+          ]
+        ],
+        "objectives": [
+          "Lead change through communication",
+          "Brief teams and individuals",
+          "Follow up in writing"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "PMP Preparation",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hybrid Project Simulation with PMP-Style Assessment",
+        "subtopics": [
+          "Hybrid project setup",
+          "Scrum delivery for software work",
+          "Predictive milestones and governance",
+          "Change and risk handling",
+          "PMP-style scenario assessment"
+        ],
+        "tools": [
+          "Scrum board",
+          "Project plan template",
+          "PMP practice question bank"
+        ],
+        "lab_task": "Run a hybrid project simulation with Scrum iterations inside predictive milestones, handle a change request and a risk, then answer twenty PMP-style questions based on the simulation's events.",
+        "deliverable": "Simulation artefacts and assessment results",
+        "checks": [
+          [
+            "Run the hybrid",
+            "Iterations and milestones are both tracked",
+            "Simulation artefacts"
+          ],
+          [
+            "Handle change",
+            "The change request follows the agreed hybrid process",
+            "Change log"
+          ],
+          [
+            "Assess",
+            "At least fifteen of twenty scenario questions are correct",
+            "Assessment results"
+          ]
+        ],
+        "objectives": [
+          "Combine PMP knowledge and Scrum practice",
+          "Run hybrid delivery",
+          "Answer questions from real events"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Product Management",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Product Increment from Discovery to Sprint Review",
+        "subtopics": [
+          "Discovery evidence",
+          "Product goal and backlog",
+          "Sprint planning",
+          "Increment and review",
+          "Roadmap update"
+        ],
+        "tools": [
+          "Miro or FigJam",
+          "Jira or Azure Boards",
+          "Figma",
+          "Product analytics tool"
+        ],
+        "lab_task": "Take a customer problem from discovery evidence to a product goal and ordered backlog, plan and run two simulated sprints, review the increment with stakeholders and update the roadmap from what was learned.",
+        "deliverable": "Discovery evidence, backlog, sprint artefacts and updated roadmap",
+        "checks": [
+          [
+            "Start from evidence",
+            "The product goal is supported by discovery evidence",
+            "Evidence summary"
+          ],
+          [
+            "Deliver",
+            "Each sprint produces a reviewed increment",
+            "Sprint artefacts"
+          ],
+          [
+            "Learn",
+            "The roadmap changes based on review feedback",
+            "Updated roadmap"
+          ]
+        ],
+        "objectives": [
+          "Combine product management and Scrum",
+          "Deliver from discovery to increment",
+          "Update plans from feedback"
         ]
       }
     }
