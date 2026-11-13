@@ -1,0 +1,573 @@
+{
+  "domain": "MERN Stack",
+  "name": "MERN Stack Development (MongoDB, Express, React and Node.js)",
+  "category": "Web and Full Stack Development",
+  "icon": "layers",
+  "aliases": ["MERN", "MERN Stack Development", "MERN Stack Developer", "MERN Developer", "MERN Full Stack", "MERN Stack Training", "MERN Bootcamp", "MongoDB Express React Node"],
+  "certifications": ["MongoDB Associate Developer (Node.js)", "OpenJS Node.js Application Developer (JSNAD)", "Meta Front-End Developer Professional Certificate"],
+  "tools": ["MongoDB Atlas", "Mongoose", "Express", "React", "Node.js", "Vite", "Postman", "Docker", "GitHub Actions"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For freshers and developers who want to build complete JavaScript applications on MongoDB, Express, React and Node.js. Covers the MERN environment, modern JavaScript, a MERN project layout, an Express server, MongoDB data design, Mongoose models, CRUD endpoints, API tests, a React client with Vite, state and effects, routing, forms, calling the API, JWT login, protected routes, image uploads, search and pagination, end-to-end error handling and deployment.",
+      "prerequisites": ["Knows HTML, CSS and JavaScript", "Has written small programs with functions, arrays and objects", "Comfortable with a terminal and Git"],
+      "outcomes": ["Build a complete MERN application from database to user interface", "Design MongoDB data and Express APIs for a React client", "Add login, uploads, search and error handling", "Deploy a MERN application to the cloud"],
+      "days": [
+        {
+          "topic": "MERN Stack Overview and Development Environment Setup",
+          "subtopics": ["What each part of MERN does", "How a request flows from React to MongoDB and back", "MERN compared with MEAN and other stacks", "Installing Node.js with a version manager", "Creating a MongoDB Atlas free cluster", "MongoDB Compass for browsing data", "VS Code extensions for MERN work", "Postman or Bruno for API calls", "Git repository and .gitignore", "Planning the course project"],
+          "tools": ["Node.js", "MongoDB Atlas", "MongoDB Compass", "VS Code", "Postman"],
+          "lab_task": "Install the toolchain, create an Atlas cluster with a database user and IP access list, connect with Compass, create a Git repository and sketch the job board project you will build.",
+          "deliverable": "Working toolchain, Atlas cluster and project sketch",
+          "checks": [["Connect with Compass", "Atlas cluster browsable from Compass", "Compass screenshot"], ["Run Node.js", "node and npm report their versions", "Terminal output"], ["Sketch the project", "Pages, data and API calls listed for the job board", "Project sketch"]],
+          "objectives": ["Explain how MERN parts fit together", "Set up a MERN environment", "Plan a MERN project"]
+        },
+        {
+          "topic": "Modern JavaScript for MERN Developers",
+          "subtopics": ["let, const and arrow functions", "Destructuring and spread", "Modules with import and export", "Promises and async/await", "Array methods for data", "Optional chaining and nullish coalescing", "Error handling with try and catch", "JSON in JavaScript"],
+          "tools": ["Node.js", "VS Code", "ESLint"],
+          "lab_task": "Solve ten small data tasks on a jobs JSON file with modern JavaScript, load the file asynchronously and handle a broken file with try and catch.",
+          "deliverable": "Solutions file with lint report",
+          "checks": [["Solve the tasks", "All ten outputs match the expected results", "Test output"], ["Load asynchronously", "Data loaded with async/await", "Script output"], ["Handle a broken file", "Clear error instead of a crash", "Terminal output"]],
+          "objectives": ["Use modern JavaScript in MERN code", "Work with JSON data", "Handle async errors"]
+        },
+        {
+          "topic": "Project Structure for a MERN Monorepo",
+          "subtopics": ["Client and server folders", "npm workspaces", "Running client and server together", "Shared settings and environment files", "Folder structure for routes, models and controllers", "Folder structure for React features", "Linting and formatting across the repo", "README and onboarding steps"],
+          "tools": ["npm workspaces", "concurrently", "ESLint", "Prettier"],
+          "lab_task": "Create a monorepo with client and server workspaces, run both with one command, share lint and format rules and write a README that gets a new developer running in five minutes.",
+          "deliverable": "Project skeleton with README",
+          "checks": [["Start both apps", "One command starts client and server", "Terminal output"], ["Lint the repo", "One lint command checks both workspaces", "Lint output"], ["Onboard a peer", "Peer runs the project from the README alone", "Peer confirmation"]],
+          "objectives": ["Structure a MERN project", "Run client and server together", "Onboard developers quickly"]
+        },
+        {
+          "topic": "Express Server: Routes, Controllers and Middleware",
+          "subtopics": ["Creating an Express app", "Routers per resource", "Controllers and services", "JSON body parsing", "CORS for the React client", "Request logging", "404 and error middleware", "Environment-based configuration"],
+          "tools": ["Express", "cors", "morgan", "Node.js"],
+          "lab_task": "Build the job board server with routers for jobs and companies, controllers, CORS for the client origin, logging, 404 handling and a central error handler.",
+          "deliverable": "Express server skeleton",
+          "checks": [["Call a route", "Jobs router returns JSON", "Response"], ["Call from another origin", "Only the client origin allowed by CORS", "Browser console"], ["Request a missing route", "JSON 404 response", "Response"]],
+          "objectives": ["Build an Express server", "Organise routes and controllers", "Add middleware"]
+        },
+        {
+          "topic": "Designing MERN Data in MongoDB: Collections and Documents",
+          "subtopics": ["Documents, collections and BSON types", "Modelling jobs, companies and users", "Embedding versus referencing", "Designing for the screens you build", "ObjectIds and dates", "Indexes for common queries", "Sample data with mongosh scripts", "Viewing data in Compass"],
+          "tools": ["MongoDB Atlas", "mongosh", "MongoDB Compass"],
+          "lab_task": "Design the job board collections from the screens in your sketch, choose embedding or references for each relation, load sample data with a mongosh script and add indexes for search fields.",
+          "deliverable": "Data design document and seed script",
+          "checks": [["Load sample data", "Collections populated with realistic documents", "Compass screenshot"], ["Justify relations", "Each embed or reference choice explained", "Design document"], ["Add indexes", "Common queries use an index", "explain output"]],
+          "objectives": ["Design MongoDB data for an app", "Choose embedding or references", "Index common queries"]
+        },
+        {
+          "topic": "Mongoose Models, Validation and Relationships",
+          "subtopics": ["Connecting to Atlas with Mongoose", "Schemas and models", "Built-in and custom validators", "Defaults and timestamps", "References and populate", "Virtuals", "Instance and static methods", "Handling validation errors"],
+          "tools": ["Mongoose", "MongoDB Atlas"],
+          "lab_task": "Create Mongoose models for jobs, companies and users with validation, timestamps and references, populate the company on job queries and return clear validation errors.",
+          "deliverable": "Mongoose models with tests",
+          "checks": [["Save invalid data", "Validation error lists the bad fields", "Error output"], ["Populate references", "Job results include company details", "Response"], ["Use a virtual", "Days-since-posted value calculated", "Response"]],
+          "objectives": ["Model data with Mongoose", "Validate documents", "Use references and populate"]
+        },
+        {
+          "topic": "CRUD REST Endpoints for the App",
+          "subtopics": ["REST routes for jobs", "Create, read, update and delete handlers", "Status codes for each action", "Filtering with query parameters", "Partial updates with PATCH", "Handling invalid ObjectIds", "Async error handling", "Consistent response shapes"],
+          "tools": ["Express", "Mongoose", "Postman"],
+          "lab_task": "Build full CRUD endpoints for jobs and companies with filtering by location and type, PATCH updates, invalid ID handling and consistent JSON responses.",
+          "deliverable": "CRUD API and Postman collection",
+          "checks": [["Run the collection", "Every CRUD request succeeds with the right status", "Collection report"], ["Send an invalid ID", "400 returned instead of a server error", "Response"], ["Filter jobs", "Only matching jobs returned", "Response"]],
+          "objectives": ["Build CRUD APIs", "Return correct status codes", "Handle bad input"]
+        },
+        {
+          "topic": "Testing the API with Postman and Jest",
+          "subtopics": ["Postman collections, environments and tests", "Running collections from the command line", "Jest and Supertest for API tests", "Test databases with mongodb-memory-server", "Seeding and clearing data between tests", "Testing validation and errors", "Code coverage", "Running tests before every commit"],
+          "tools": ["Postman", "Newman", "Jest", "Supertest", "mongodb-memory-server"],
+          "lab_task": "Add Postman tests to the collection and run them with Newman, write Jest and Supertest tests against an in-memory MongoDB and block commits that fail the tests.",
+          "deliverable": "API test suites and pre-commit hook",
+          "checks": [["Run Newman", "All Postman tests pass from the command line", "Newman report"], ["Run Jest", "API tests pass against the in-memory database", "Jest output"], ["Commit a failing change", "Pre-commit hook blocks the commit", "Terminal output"]],
+          "objectives": ["Test APIs with Postman and Jest", "Use a test database", "Automate tests before commits"]
+        },
+        {
+          "topic": "Building the React Client with Vite",
+          "subtopics": ["Creating the client with Vite", "Components and JSX", "Props and composition", "Page layout components", "Styling with CSS modules or Tailwind", "Reusable job card and list components", "Icons and images", "React DevTools"],
+          "tools": ["React", "Vite", "Tailwind CSS", "React DevTools"],
+          "lab_task": "Build the job board pages from the sketch with layout, job card, job list and company components, styled and responsive, using sample data before the API is connected.",
+          "deliverable": "Static React client",
+          "checks": [["Render the pages", "Home, list and detail pages render from sample data", "Screenshots"], ["Resize the screen", "Layout works on mobile and desktop", "Screenshots"], ["Inspect components", "Component tree visible in React DevTools", "Screenshot"]],
+          "objectives": ["Build a React client", "Compose reusable components", "Style responsive pages"]
+        },
+        {
+          "topic": "React State and Effects for API Data",
+          "subtopics": ["useState for UI state", "useEffect for loading data", "Loading, error and empty states", "Dependency arrays", "Avoiding duplicate requests", "Lifting state up", "Derived values instead of extra state", "Custom hooks for data loading"],
+          "tools": ["React", "Vite", "fetch"],
+          "lab_task": "Load jobs from the Express API with a custom hook, show loading, error and empty states, filter jobs on the client with derived values and avoid duplicate requests in development.",
+          "deliverable": "Client connected to live data",
+          "checks": [["Load jobs", "Jobs from MongoDB appear in the list", "Screenshot"], ["Stop the server", "Error message and retry shown", "Screenshot"], ["Filter jobs", "List updates without extra requests", "Network log"]],
+          "objectives": ["Manage state in React", "Load data with effects", "Show data states"]
+        },
+        {
+          "topic": "React Router for MERN Pages",
+          "subtopics": ["Setting up React Router", "Routes for list, detail and forms", "URL parameters for job IDs", "Search parameters for filters", "Nested layouts", "Not found pages", "Navigation after actions", "Lazy loading pages"],
+          "tools": ["React Router", "React"],
+          "lab_task": "Add routes for home, jobs, job detail, post a job and account pages, keep filters in the URL, show a not-found page and lazy-load the account area.",
+          "deliverable": "Routed React client",
+          "checks": [["Open a job URL", "Detail page loads from the URL parameter", "Screenshot"], ["Share a filtered list", "Filters restored from the URL", "Screen recording"], ["Visit a bad URL", "Not-found page shown", "Screenshot"]],
+          "objectives": ["Route a React client", "Keep state in the URL", "Lazy-load pages"]
+        },
+        {
+          "topic": "Forms and Client-Side Validation in React",
+          "subtopics": ["Controlled inputs", "React Hook Form", "Validation with Zod schemas", "Showing field errors", "Select, checkbox and date inputs", "Submitting and disabling during submit", "Showing server validation errors", "Accessible form markup"],
+          "tools": ["React Hook Form", "Zod", "React"],
+          "lab_task": "Build the post a job form with React Hook Form and Zod, show field errors, map server validation errors from Express to fields and make the form accessible.",
+          "deliverable": "Validated job form",
+          "checks": [["Submit empty fields", "Field errors shown before any request", "Screenshot"], ["Trigger a server error", "Server field errors shown on the right inputs", "Screenshot"], ["Use the keyboard", "Form fully usable without a mouse", "Screen recording"]],
+          "objectives": ["Build forms in React", "Validate on the client", "Show server errors"]
+        },
+        {
+          "topic": "Calling the Express API from React",
+          "subtopics": ["An API client module", "Base URLs per environment", "Sending JSON with fetch or axios", "Handling HTTP errors in one place", "Development proxy in Vite", "Cancelling requests on unmount", "Refreshing data after changes", "Sharing types or schemas between client and server"],
+          "tools": ["axios or fetch", "Vite proxy", "Zod"],
+          "lab_task": "Write an API client module used by every page, proxy API calls in development, handle errors centrally, refresh lists after creating or deleting jobs and share Zod schemas with the server.",
+          "deliverable": "API client and shared schemas",
+          "checks": [["Create a job", "New job appears in the list without a reload", "Screen recording"], ["Use the dev proxy", "Client calls the API without CORS errors in development", "Network log"], ["Share schemas", "Client and server validate with the same schema", "Code reference"]],
+          "objectives": ["Connect React to Express", "Handle API errors centrally", "Share validation rules"]
+        },
+        {
+          "topic": "User Registration and Login with JWT",
+          "subtopics": ["User model and password hashing with bcrypt", "Registration and login endpoints", "Issuing JWTs", "Storing tokens on the client", "Sending tokens with requests", "Logout", "Login and signup pages in React", "Common mistakes in token handling"],
+          "tools": ["bcrypt", "jsonwebtoken", "Express", "React"],
+          "lab_task": "Add registration and login with hashed passwords and JWTs, build signup and login pages, send the token with API calls and show the logged-in user in the header.",
+          "deliverable": "Working sign-up and login",
+          "checks": [["Register a user", "Password stored as a hash in MongoDB", "Compass screenshot"], ["Log in", "Token issued and user shown in the header", "Screen recording"], ["Log in with a wrong password", "Generic error message shown", "Screenshot"]],
+          "objectives": ["Store passwords safely", "Issue and send JWTs", "Build login pages"]
+        },
+        {
+          "topic": "Protected Routes on Client and Server",
+          "subtopics": ["Auth middleware in Express", "Ownership checks on resources", "Roles: job seeker, employer and admin", "Protected routes in React Router", "Redirecting to login and back", "Hiding actions the user cannot take", "Handling expired tokens", "Testing access rules"],
+          "tools": ["Express", "React Router", "Jest"],
+          "lab_task": "Protect job creation and editing on the server, allow employers to edit only their own jobs, guard React routes, redirect to login and back, and test the rules.",
+          "deliverable": "Access rules with tests",
+          "checks": [["Edit another employer's job", "Server returns 403", "Response"], ["Open a protected page signed out", "Redirected to login and returned after sign-in", "Screen recording"], ["Expire a token", "User asked to log in again", "Screen recording"]],
+          "objectives": ["Protect APIs and pages", "Check ownership", "Handle expired sessions"]
+        },
+        {
+          "topic": "Image Uploads with Multer and Cloud Storage",
+          "subtopics": ["File uploads in Express with Multer", "Validating file type and size", "Uploading to Cloudinary or S3", "Storing image URLs in MongoDB", "Uploading from React with progress", "Previews before upload", "Deleting old images", "Security risks with uploads"],
+          "tools": ["Multer", "Cloudinary or Amazon S3", "React"],
+          "lab_task": "Add company logo uploads with Multer, validate type and size, store images in cloud storage, save URLs in MongoDB, show previews and progress in React and delete replaced logos.",
+          "deliverable": "Logo upload feature",
+          "checks": [["Upload a logo", "Logo stored in the cloud and shown on job cards", "Screenshot"], ["Upload a bad file", "Wrong type or size rejected", "Screenshot"], ["Replace a logo", "Old image deleted from storage", "Storage listing"]],
+          "objectives": ["Handle uploads in Express", "Store files in the cloud", "Upload from React"]
+        },
+        {
+          "topic": "Pagination, Search and Sorting Across the Stack",
+          "subtopics": ["Skip and limit pagination", "Cursor pagination", "Text search with MongoDB indexes", "Sorting options", "Returning totals and page information", "Pagination controls in React", "Keeping search in the URL", "Debouncing search input"],
+          "tools": ["MongoDB text indexes", "Mongoose", "React"],
+          "lab_task": "Add search by keyword, filters, sorting and paginated results to the jobs API, build matching controls in React with URL state and debounce the search box.",
+          "deliverable": "Searchable, paginated job list",
+          "checks": [["Search jobs", "Keyword search returns relevant jobs", "Screenshot"], ["Page through results", "Pages contain no duplicates or gaps", "Test output"], ["Type quickly", "One request after typing pauses", "Network log"]],
+          "objectives": ["Paginate across the stack", "Search with MongoDB", "Build search UIs"]
+        },
+        {
+          "topic": "Error Handling and Notifications End to End",
+          "subtopics": ["Error types: validation, auth, not found and server", "Consistent error responses from Express", "Logging errors on the server", "Error boundaries in React", "Toast notifications", "Retry for network errors", "Friendly messages for users", "Tracking errors in production"],
+          "tools": ["Express", "React", "react-hot-toast", "Sentry"],
+          "lab_task": "Standardise error responses on the server, show toasts for success and failure, add an error boundary to the client, retry network failures and send errors to Sentry.",
+          "deliverable": "Error handling across the app",
+          "checks": [["Break a component", "Error boundary shows a fallback page", "Screenshot"], ["Fail a request", "Toast shows a friendly message", "Screenshot"], ["Report errors", "Errors from client and server appear in Sentry", "Sentry screenshot"]],
+          "objectives": ["Handle errors across the stack", "Inform users clearly", "Track production errors"]
+        },
+        {
+          "topic": "Deploying a MERN App: Atlas, Render and Vercel",
+          "subtopics": ["Production settings for Atlas", "Deploying the Express API to Render or Railway", "Deploying the React client to Vercel or Netlify", "Environment settings in each service", "CORS in production", "Custom domains and HTTPS", "Health checks and logs", "Redeploying after changes"],
+          "tools": ["MongoDB Atlas", "Render or Railway", "Vercel or Netlify"],
+          "lab_task": "Deploy the API to Render and the client to Vercel, connect them to Atlas with production settings, set CORS for the live domain and redeploy automatically from Git.",
+          "deliverable": "Live application and deployment notes",
+          "checks": [["Open the live site", "Client loads data from the live API", "Browser screenshot"], ["Check CORS", "Only the live client domain allowed", "Response headers"], ["Push a change", "Both apps redeploy from Git", "Deployment logs"]],
+          "objectives": ["Deploy a MERN app", "Configure production settings", "Redeploy from Git"]
+        },
+        {
+          "topic": "Beginner Capstone: MERN Job Board",
+          "subtopics": ["Plan", "Build", "Test", "Deploy"],
+          "tools": ["MongoDB Atlas", "Mongoose", "Express", "React", "Node.js", "Jest"],
+          "lab_task": "Complete the job board with employer and job seeker accounts, job posting with logos, search and pagination, applications, error handling, tests and a live deployment, then demo it.",
+          "deliverable": "Repository, live URL and demo recording",
+          "checks": [["Demo the job board", "Posting, searching and applying work end to end", "Demo recording"], ["Run the tests", "API tests pass", "Test report"], ["Use the live site", "Live site works on mobile and desktop", "Screenshots"]],
+          "objectives": ["Combine the beginner topics in one product", "Build a full MERN application", "Ship it live"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a MERN application. Covers TypeScript and Zod across a MERN codebase, Redux Toolkit and RTK Query, advanced Mongoose, refresh tokens and cookie sessions, role-based access, real-time chat with Socket.IO, queued emails and notifications, Stripe payments, media at scale, moving the front end to Next.js, API and UI testing, performance, security hardening, Docker Compose, CI/CD, monitoring, AWS hosting and team workflow.",
+      "prerequisites": ["Has built and deployed a MERN application", "Comfortable with React hooks, Express routes and Mongoose models", "Uses Git daily"],
+      "outcomes": ["Build typed, secure and tested MERN applications", "Add real-time, payments, media and background work", "Containerise, deploy and monitor MERN apps", "Work effectively in a MERN team"],
+      "days": [
+        {
+          "topic": "Typing a MERN App End to End with TypeScript and Zod",
+          "subtopics": ["TypeScript in the Express server", "TypeScript in the React client", "Typing Mongoose models", "Zod schemas as the single source of types", "Shared types package", "Typed API client", "Strict mode", "Migrating a JavaScript MERN app gradually"],
+          "tools": ["TypeScript", "Zod", "Mongoose", "Vite"],
+          "lab_task": "Convert the job board to TypeScript in strict mode, create a shared package of Zod schemas and inferred types, and use it in Mongoose models, Express handlers and the React client.",
+          "deliverable": "Typed MERN codebase",
+          "checks": [["Type-check both apps", "No type errors in strict mode", "tsc output"], ["Change a schema", "Type errors appear in client and server where needed", "tsc output"], ["Validate at runtime", "Invalid requests rejected by the shared schema", "Response"]],
+          "objectives": ["Use TypeScript across MERN", "Share schemas and types", "Migrate gradually"]
+        },
+        {
+          "topic": "Global State with Redux Toolkit and RTK Query",
+          "subtopics": ["When a MERN app needs global state", "Redux Toolkit store and slices", "RTK Query endpoints", "Caching and tags for invalidation", "Optimistic updates", "Authentication state", "Redux DevTools", "Alternatives such as Zustand and TanStack Query"],
+          "tools": ["Redux Toolkit", "RTK Query", "Redux DevTools"],
+          "lab_task": "Move API calls to RTK Query with cache tags, keep auth state in a slice, add optimistic saved jobs with rollback and inspect actions in Redux DevTools.",
+          "deliverable": "Client using Redux Toolkit and RTK Query",
+          "checks": [["Revisit a page", "Cached jobs shown instantly", "Screen recording"], ["Create a job", "Lists refresh through tag invalidation", "Network log"], ["Fail an optimistic save", "Saved state rolls back", "Screen recording"]],
+          "objectives": ["Manage client state with Redux Toolkit", "Cache server data with RTK Query", "Apply optimistic updates"]
+        },
+        {
+          "topic": "Advanced Mongoose: Aggregation, Population and Indexes for App Queries",
+          "subtopics": ["Aggregation pipelines in Mongoose", "Reports for dashboards", "Population depth and performance", "Lean queries", "Compound and text indexes", "explain plans", "Middleware hooks", "Soft deletes"],
+          "tools": ["Mongoose", "MongoDB Atlas", "Atlas Performance Advisor"],
+          "lab_task": "Build employer dashboards with aggregation pipelines, replace deep population with targeted queries, add compound indexes from explain plans and implement soft deletes.",
+          "deliverable": "Dashboard API with performance notes",
+          "checks": [["Build a report", "Applications per job per week returned correctly", "Response"], ["Use explain", "Dashboard queries use indexes", "explain output"], ["Soft-delete a job", "Job hidden from lists but kept in the database", "Compass screenshot"]],
+          "objectives": ["Report with aggregation", "Tune Mongoose queries", "Model soft deletes"]
+        },
+        {
+          "topic": "Refresh Tokens, HTTP-Only Cookies and Session Security",
+          "subtopics": ["Access and refresh tokens", "HTTP-only, secure and SameSite cookies", "Refresh token rotation", "Revoking sessions", "CSRF protection with cookies", "Logout from all devices", "Token storage trade-offs", "Testing session flows"],
+          "tools": ["Express", "cookie-parser", "jsonwebtoken", "React"],
+          "lab_task": "Replace stored tokens with short-lived access tokens and rotated refresh tokens in HTTP-only cookies, add CSRF protection, session revocation and logout from all devices.",
+          "deliverable": "Secure session implementation",
+          "checks": [["Inspect cookies", "Refresh cookie is HTTP-only, secure and SameSite", "Browser cookie panel"], ["Reuse an old refresh token", "Session revoked on reuse", "Test output"], ["Log out everywhere", "Other devices lose access", "Test output"]],
+          "objectives": ["Manage sessions securely", "Rotate refresh tokens", "Protect cookie sessions"]
+        },
+        {
+          "topic": "Role-Based Access Control in MERN Apps",
+          "subtopics": ["Roles and permissions models", "Permission checks in middleware", "Resource ownership rules", "Admin tools", "Showing UI by permission", "Auditing sensitive actions", "Testing permission matrices", "Avoiding role explosion"],
+          "tools": ["Express", "MongoDB", "React", "Jest"],
+          "lab_task": "Add a permission model for seekers, employers, recruiters and admins, enforce it in middleware and ownership checks, build an admin panel and log sensitive actions.",
+          "deliverable": "RBAC model, admin panel and tests",
+          "checks": [["Test the matrix", "Every role and action combination tested", "Test output"], ["Use the admin panel", "Admin can suspend an employer", "Screen recording"], ["Audit actions", "Sensitive actions recorded with user and time", "Audit log"]],
+          "objectives": ["Design RBAC for MERN", "Enforce permissions everywhere", "Audit sensitive actions"]
+        },
+        {
+          "topic": "Real-Time Chat with Socket.IO",
+          "subtopics": ["Socket.IO server with Express", "Socket.IO client in React", "Authenticating socket connections", "Rooms per conversation", "Saving messages in MongoDB", "Typing indicators and read receipts", "Reconnection", "Scaling with the Redis adapter"],
+          "tools": ["Socket.IO", "Redis adapter", "MongoDB", "React"],
+          "lab_task": "Add chat between employers and candidates with Socket.IO rooms, saved message history, typing indicators, read receipts and reconnection, then scale to two server instances.",
+          "deliverable": "Real-time chat feature",
+          "checks": [["Send a message", "Message appears instantly for the other user", "Screen recording"], ["Reload the page", "History loaded from MongoDB", "Screenshot"], ["Run two instances", "Messages delivered across instances", "Test output"]],
+          "objectives": ["Build real-time features", "Secure socket connections", "Scale Socket.IO"]
+        },
+        {
+          "topic": "Notifications and Emails with Queues",
+          "subtopics": ["Why emails should not block requests", "Job queues with BullMQ and Redis", "Transactional email services", "Email templates", "In-app notifications", "Retries and failures", "Notification preferences", "Digest emails"],
+          "tools": ["BullMQ", "Redis", "Resend or SendGrid", "React Email"],
+          "lab_task": "Send application emails through a BullMQ queue with templates and retries, add in-app notifications with read state, user preferences and a daily digest job.",
+          "deliverable": "Notification system",
+          "checks": [["Apply for a job", "Employer receives an email without slowing the request", "Email and timing log"], ["Fail email delivery", "Job retries and records the failure", "Queue dashboard"], ["Change preferences", "Users who opt out receive no emails", "Test output"]],
+          "objectives": ["Send emails reliably", "Build in-app notifications", "Respect user preferences"]
+        },
+        {
+          "topic": "Payments with Stripe in a MERN App",
+          "subtopics": ["Stripe Checkout for one-off and recurring payments", "Products and prices", "Creating sessions from Express", "Webhooks for payment events", "Storing payment state in MongoDB", "Featured job listings as a paid product", "Refunds", "Testing with the Stripe CLI"],
+          "tools": ["Stripe", "Stripe CLI", "Express", "React"],
+          "lab_task": "Sell featured job listings with Stripe Checkout, confirm payments through webhooks, store payment state in MongoDB, process a refund and test with the Stripe CLI.",
+          "deliverable": "Paid listing feature",
+          "checks": [["Pay for a listing", "Job becomes featured after webhook confirmation", "Screen recording"], ["Replay a webhook", "Duplicate event processed once", "Webhook log"], ["Refund", "Listing unfeatured after refund", "Screenshot"]],
+          "objectives": ["Take payments in MERN apps", "Handle webhooks", "Keep payment state correct"]
+        },
+        {
+          "topic": "File and Media Handling at Scale with S3 and a CDN",
+          "subtopics": ["Direct uploads with pre-signed URLs", "Resumes and private documents", "Image resizing pipelines", "Serving media through a CDN", "Signed URLs for private files", "Virus scanning uploads", "Storage lifecycle rules", "Cost of media storage"],
+          "tools": ["Amazon S3", "CloudFront", "sharp", "ClamAV"],
+          "lab_task": "Move uploads to direct S3 uploads, store resumes privately with signed download links, resize images in a background job, scan files and serve public images through CloudFront.",
+          "deliverable": "Media pipeline and cost estimate",
+          "checks": [["Upload a resume", "File goes straight to S3 and is private", "Bucket policy test"], ["Download a resume", "Signed link works for the employer and expires", "Response after expiry"], ["Scan a test file", "Infected test file rejected", "Scan log"]],
+          "objectives": ["Handle media at scale", "Protect private files", "Serve media efficiently"]
+        },
+        {
+          "topic": "Moving a MERN Front End to Next.js",
+          "subtopics": ["Why teams move from a Vite client to Next.js", "Server-side rendering for SEO pages", "Keeping Express as the API", "Server components that call the API", "Authentication across Next.js and Express", "Incremental migration page by page", "Deployment changes", "Measuring SEO and speed gains"],
+          "tools": ["Next.js", "Express", "MongoDB"],
+          "lab_task": "Move the public job pages to Next.js with server rendering while keeping Express as the API, share login between the two and measure SEO and load-time gains.",
+          "deliverable": "Partially migrated front end with measurements",
+          "checks": [["Render job pages on the server", "Job content present in page source", "Page source"], ["Share login", "Signed-in state works across both apps", "Screen recording"], ["Measure gains", "Lighthouse SEO and performance scores compared", "Lighthouse reports"]],
+          "objectives": ["Add server rendering to MERN", "Migrate incrementally", "Measure the benefit"]
+        },
+        {
+          "topic": "API Testing with Supertest and MongoDB Memory Server",
+          "subtopics": ["Test structure for Express apps", "Factories for test data", "Testing authentication and permissions", "Testing aggregation endpoints", "Mocking email, payments and storage", "Contract tests for the client", "Coverage targets", "Fast and isolated test runs"],
+          "tools": ["Jest or Vitest", "Supertest", "mongodb-memory-server", "nock"],
+          "lab_task": "Build a full API test suite with data factories, permission tests, mocked Stripe and S3, and contract tests that fail when the API breaks the client.",
+          "deliverable": "API test suite with coverage report",
+          "checks": [["Run the suite", "All tests pass in under two minutes", "Test output"], ["Break the contract", "Contract test fails on a response change", "Test output"], ["Measure coverage", "Coverage of 80 percent or more on controllers and services", "Coverage report"]],
+          "objectives": ["Test Express APIs thoroughly", "Mock external services", "Protect the client contract"]
+        },
+        {
+          "topic": "React Testing Library and Playwright for MERN",
+          "subtopics": ["Testing components the way users use them", "Mocking the API with Mock Service Worker", "Testing forms and validation", "Testing protected routes", "End-to-end tests with Playwright", "Seeding data for end-to-end tests", "Visual checks", "Running UI tests in CI"],
+          "tools": ["React Testing Library", "Mock Service Worker", "Playwright"],
+          "lab_task": "Test the job form, job list and protected routes with React Testing Library and Mock Service Worker, and write Playwright tests for sign-up, posting and applying.",
+          "deliverable": "UI and end-to-end test suites",
+          "checks": [["Test the form", "Validation and submit behaviour tested", "Test output"], ["Run Playwright", "Sign-up, post and apply flows pass", "Playwright report"], ["Mock the API", "UI tests run without the server", "Test output"]],
+          "objectives": ["Test React UIs", "Mock APIs in tests", "Write end-to-end tests"]
+        },
+        {
+          "topic": "Performance: Lean Queries, Redis Caching and React Memoisation",
+          "subtopics": ["Measuring API and page performance", "Lean queries and projections", "Caching hot endpoints in Redis", "Compression and HTTP caching", "React re-render analysis", "memo, useMemo and useCallback", "Code splitting in the client", "Load testing"],
+          "tools": ["Redis", "k6", "React Profiler", "Lighthouse"],
+          "lab_task": "Load test the jobs endpoint, add projections, lean queries and Redis caching, cut unnecessary React re-renders found with the Profiler and split the client bundle.",
+          "deliverable": "Performance report with before and after results",
+          "checks": [["Load test the API", "p95 latency lower after changes", "k6 results"], ["Profile React", "Re-renders reduced on the job list", "Profiler screenshots"], ["Split the bundle", "Initial bundle size reduced", "Bundle report"]],
+          "objectives": ["Speed up the API", "Reduce React re-renders", "Measure performance gains"]
+        },
+        {
+          "topic": "Security Hardening: Helmet, Rate Limits, Sanitisation and CORS",
+          "subtopics": ["OWASP risks in MERN apps", "Security headers with Helmet", "Rate limiting and brute-force protection", "NoSQL injection and query sanitisation", "XSS in React and dangerous HTML", "Strict CORS", "Secrets management", "Dependency scanning"],
+          "tools": ["Helmet", "express-rate-limit", "npm audit", "OWASP ZAP"],
+          "lab_task": "Find and fix planted issues: a NoSQL injection in login, missing rate limits, an XSS through rich text and an over-permissive CORS policy, then scan the app with ZAP.",
+          "deliverable": "Security fixes and ZAP report",
+          "checks": [["Block NoSQL injection", "Operator injection in login no longer works", "Test output"], ["Prevent XSS", "Script in rich text is not executed", "Test output"], ["Run ZAP", "No high-risk findings remain", "ZAP report"]],
+          "objectives": ["Find MERN security issues", "Fix common vulnerabilities", "Scan apps automatically"]
+        },
+        {
+          "topic": "Dockerising the MERN Stack with Docker Compose",
+          "subtopics": ["Dockerfiles for the API and client", "Multi-stage builds", "Serving the client with NGINX", "Docker Compose with MongoDB and Redis", "Volumes for data", "Environment settings per environment", "Health checks", "Development containers with live reload"],
+          "tools": ["Docker", "Docker Compose", "NGINX", "MongoDB"],
+          "lab_task": "Containerise the API and client, run the full stack with MongoDB and Redis in Docker Compose with health checks and volumes, and add a development setup with live reload.",
+          "deliverable": "Dockerfiles and Compose files",
+          "checks": [["Start the stack", "All services healthy with one command", "docker compose ps output"], ["Restart MongoDB", "Data persists across restarts", "Compass screenshot"], ["Edit code in development", "Changes reload inside the containers", "Screen recording"]],
+          "objectives": ["Containerise MERN apps", "Run the full stack locally", "Develop inside containers"]
+        },
+        {
+          "topic": "CI/CD with GitHub Actions for MERN",
+          "subtopics": ["Workflow for lint, type check and tests", "Services in CI: MongoDB and Redis", "Building and pushing images", "Deploying the API and client", "Environment secrets", "Preview environments for pull requests", "Branch protection rules", "Rollbacks"],
+          "tools": ["GitHub Actions", "Docker", "GitHub Container Registry"],
+          "lab_task": "Build a GitHub Actions pipeline that tests the API with a MongoDB service, tests the client, builds images, deploys previews for pull requests and deploys to production after approval.",
+          "deliverable": "Pipeline and branch protection settings",
+          "checks": [["Open a pull request", "Tests and preview deploy run automatically", "Pull request checks"], ["Merge with failing tests", "Branch protection blocks the merge", "Screenshot"], ["Roll back", "Previous version restored from the pipeline", "Deployment log"]],
+          "objectives": ["Automate MERN delivery", "Use previews", "Protect the main branch"]
+        },
+        {
+          "topic": "Logging and Monitoring a MERN App",
+          "subtopics": ["Structured logs with Pino", "Request IDs across client and server", "Metrics for the API", "Atlas monitoring and alerts", "Front-end error and performance monitoring", "Uptime checks", "Dashboards", "On-call basics for small teams"],
+          "tools": ["Pino", "Prometheus or Datadog", "Atlas monitoring", "Sentry", "Uptime monitor"],
+          "lab_task": "Add structured logs with request IDs, API metrics, Atlas alerts, front-end monitoring and uptime checks, build one dashboard and respond to a simulated outage.",
+          "deliverable": "Monitoring setup and outage notes",
+          "checks": [["Trace a request", "Same request ID in client and server logs", "Log samples"], ["Trigger an Atlas alert", "Alert fires on high connections", "Alert notification"], ["Respond to an outage", "Outage detected and resolved with notes", "Incident notes"]],
+          "objectives": ["Monitor MERN apps", "Correlate client and server", "Respond to outages"]
+        },
+        {
+          "topic": "Hosting MERN on AWS",
+          "subtopics": ["Hosting options: EC2, Elastic Beanstalk, ECS and App Runner", "Hosting the React client on S3 and CloudFront", "Connecting to Atlas from AWS with private networking", "Load balancers and HTTPS", "Secrets Manager", "Auto scaling", "Costs of each option", "Infrastructure as code basics"],
+          "tools": ["AWS", "Amazon ECS or App Runner", "S3", "CloudFront", "MongoDB Atlas"],
+          "lab_task": "Host the client on S3 with CloudFront and the API on App Runner or ECS behind HTTPS, connect privately to Atlas, store secrets in Secrets Manager and compare monthly costs.",
+          "deliverable": "AWS deployment and cost comparison",
+          "checks": [["Open the AWS site", "Client and API work over HTTPS", "Browser screenshot"], ["Connect privately", "API reaches Atlas over private networking", "Connection test"], ["Compare costs", "Monthly cost estimated for two hosting options", "Cost table"]],
+          "objectives": ["Host MERN on AWS", "Connect securely to Atlas", "Compare hosting costs"]
+        },
+        {
+          "topic": "Code Reviews and Git Workflow in MERN Teams",
+          "subtopics": ["Branching strategies", "Small pull requests", "Review checklists for API and UI changes", "Conventional commits", "Handling merge conflicts", "Database change reviews", "Pairing and knowledge sharing", "Definition of done"],
+          "tools": ["Git", "GitHub", "Conventional Commits", "Husky"],
+          "lab_task": "Work in pairs on two features with feature branches, small pull requests, review checklists and conventional commits, resolve a planted merge conflict and agree a definition of done.",
+          "deliverable": "Team workflow guide and reviewed pull requests",
+          "checks": [["Review a pull request", "Review uses the checklist with specific comments", "Pull request review"], ["Resolve a conflict", "Conflict resolved with tests passing", "Merge commit"], ["Agree done", "Definition of done adopted by the team", "Workflow guide"]],
+          "objectives": ["Work in a MERN team", "Review code well", "Keep a clean Git history"]
+        },
+        {
+          "topic": "Intermediate Capstone: Real-Time Project Management App",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["TypeScript", "Redux Toolkit", "Express", "MongoDB", "Socket.IO", "Docker", "GitHub Actions"],
+          "lab_task": "Build a project management app with teams, roles, real-time boards, chat, notifications, file attachments, payments for paid plans, tests, monitoring and a CI/CD pipeline, then present it.",
+          "deliverable": "Repository, live URL, test reports and presentation",
+          "checks": [["Demo the app", "Boards update live for two users", "Demo recording"], ["Show quality", "Security, performance and test reports meet targets", "Reports"], ["Defend choices", "State, data and hosting choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one product", "Ship a production MERN app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior MERN engineers and leads building high-traffic products. Covers MERN architecture for scale, MongoDB design for heavy traffic, event-driven MERN with change streams and queues, multi-tenant SaaS, horizontal scaling, caching architecture, a GraphQL layer, React client architecture, threat modelling, OpenTelemetry tracing, Kubernetes, serverless options, Atlas Search and Vector Search, cross-tier performance, zero-downtime migrations, quality gates, cost optimisation, cross-tier troubleshooting and technical leadership.",
+      "prerequisites": ["Several years building production MERN applications", "Strong TypeScript, MongoDB and React experience", "Has deployed and operated apps in the cloud"],
+      "outcomes": ["Architect MERN systems for high traffic and many tenants", "Scale, secure and observe every tier", "Run zero-downtime changes and control cost", "Lead MERN teams and technical decisions"],
+      "days": [
+        {
+          "topic": "MERN Architecture for Scale: Modular Services and Boundaries",
+          "subtopics": ["From a single Express app to modules", "Domain boundaries in a MERN product", "Modular monolith first", "Extracting services when needed", "API gateway and BFF for the React client", "Shared libraries and contracts", "Data ownership per module", "Architecture decision records"],
+          "tools": ["Node.js", "Express or Fastify", "MongoDB", "Nx or Turborepo"],
+          "lab_task": "Restructure a large MERN app into modules with clear boundaries and data ownership, extract one module as a service behind a BFF and record the decisions.",
+          "deliverable": "Architecture design and decision records",
+          "checks": [["Enforce boundaries", "Lint fails on a cross-module import", "ESLint output"], ["Extract a service", "Extracted service works behind the BFF", "Integration test output"], ["Record decisions", "Each decision lists options and consequences", "Decision records"]],
+          "objectives": ["Structure large MERN systems", "Extract services carefully", "Record decisions"]
+        },
+        {
+          "topic": "MongoDB Data Design for High-Traffic MERN Apps",
+          "subtopics": ["Access patterns before schemas", "Schema patterns: bucket, computed, subset and outlier", "Avoiding unbounded arrays", "Read and write concerns for app features", "Sharding for growth", "Hot partitions and shard keys", "Archiving old data", "Schema versioning"],
+          "tools": ["MongoDB Atlas", "Atlas Performance Advisor", "mongosh"],
+          "lab_task": "Redesign the data model of a high-traffic feed and messaging feature using schema patterns, choose a shard key, plan archiving and migrate documents between schema versions.",
+          "deliverable": "Data model redesign with load test results",
+          "checks": [["Apply schema patterns", "Feed reads use one query per page", "Query log"], ["Choose a shard key", "Load spread evenly across shards in testing", "Shard distribution output"], ["Version schemas", "Old and new documents both read correctly", "Test output"]],
+          "objectives": ["Design MongoDB for heavy traffic", "Choose shard keys", "Evolve schemas"]
+        },
+        {
+          "topic": "Event-Driven MERN with Change Streams and Message Queues",
+          "subtopics": ["Change streams for reacting to data", "Resume tokens", "Message queues between services", "The outbox pattern with MongoDB transactions", "Idempotent consumers", "Real-time UI from events", "Event schemas and versioning", "Replaying events"],
+          "tools": ["MongoDB change streams", "RabbitMQ or Kafka", "Socket.IO"],
+          "lab_task": "Publish domain events through an outbox, consume them idempotently to update search and analytics, push live updates to React from change streams and resume after a restart.",
+          "deliverable": "Event-driven features and event catalogue",
+          "checks": [["Resume a stream", "Consumer resumes from the token without missing events", "Log output"], ["Replay events", "No duplicates after replay", "Database counts"], ["Push live updates", "React client updates from change events", "Screen recording"]],
+          "objectives": ["Build event-driven MERN features", "Use change streams safely", "Make consumers idempotent"]
+        },
+        {
+          "topic": "Multi-Tenant MERN SaaS Design",
+          "subtopics": ["Tenancy models in MongoDB", "Tenant context in Express", "Tenant-scoped queries and indexes", "Per-tenant configuration and branding", "Tenant limits and quotas", "Tenant onboarding and export", "Isolation testing", "Noisy neighbour protection"],
+          "tools": ["MongoDB", "Express", "AsyncLocalStorage", "Redis"],
+          "lab_task": "Make a MERN product multi-tenant with tenant context, tenant-scoped queries enforced in one place, per-tenant branding and limits, and tests that prove isolation.",
+          "deliverable": "Multi-tenant design and isolation tests",
+          "checks": [["Test isolation", "No cross-tenant data in any endpoint", "Test output"], ["Limit a tenant", "Quota enforced without affecting others", "Load test results"], ["Export a tenant", "Full tenant export produced", "Export file"]],
+          "objectives": ["Design multi-tenant MERN apps", "Enforce isolation", "Manage tenant limits"]
+        },
+        {
+          "topic": "Scaling Express and Node.js Horizontally",
+          "subtopics": ["Stateless API servers", "Sessions and sockets across instances", "Load balancing", "Connection pools to Atlas", "Rate limits across instances", "Autoscaling rules", "Capacity planning", "Load testing at scale"],
+          "tools": ["Docker", "NGINX or a cloud load balancer", "Redis", "k6"],
+          "lab_task": "Scale the API to six instances behind a load balancer with shared sessions, socket scaling, distributed rate limits and tuned Atlas pools, and find the new capacity limit.",
+          "deliverable": "Scaling configuration and capacity report",
+          "checks": [["Scale out", "Throughput grows with instances", "Scaling chart"], ["Share rate limits", "Limits enforced across all instances", "Test output"], ["Tune pools", "No Atlas connection errors at peak", "Load test results"]],
+          "objectives": ["Scale MERN APIs", "Keep instances stateless", "Plan capacity"]
+        },
+        {
+          "topic": "Caching Architecture with Redis and CDNs",
+          "subtopics": ["Layers: browser, CDN, API and database", "Cache keys and personalisation", "Invalidation strategies", "Stampede protection", "Caching aggregation results", "CDN caching for API responses", "Measuring hit rates and freshness", "When not to cache"],
+          "tools": ["Redis", "CDN", "HTTP caching headers"],
+          "lab_task": "Design caching for a high-traffic job search across CDN, API and Redis layers, implement invalidation from events and measure hit rates, freshness and origin load.",
+          "deliverable": "Caching architecture and measurements",
+          "checks": [["Cut origin load", "Origin requests reduced at the same traffic", "Metrics comparison"], ["Invalidate from events", "Updated jobs visible within the agreed time", "Test output"], ["Protect against stampedes", "One rebuild per expired key under load", "Log output"]],
+          "objectives": ["Design caching layers", "Invalidate reliably", "Measure cache value"]
+        },
+        {
+          "topic": "GraphQL Layer for MERN Apps",
+          "subtopics": ["When GraphQL helps a MERN product", "Apollo Server over existing services", "Schema design for the React client", "DataLoader over MongoDB", "Apollo Client caching in React", "Authorisation in resolvers", "Query cost limits", "Running REST and GraphQL together"],
+          "tools": ["Apollo Server", "Apollo Client", "DataLoader", "MongoDB"],
+          "lab_task": "Add a GraphQL layer for the dashboard over existing services, batch MongoDB access with DataLoader, use Apollo Client in React and enforce authorisation and cost limits.",
+          "deliverable": "GraphQL layer and client integration",
+          "checks": [["Batch queries", "Nested dashboard query runs a small fixed number of database queries", "Query log"], ["Limit cost", "Expensive query rejected", "Response"], ["Use Apollo Client", "Dashboard renders from the cached graph", "Screenshot"]],
+          "objectives": ["Add GraphQL to MERN", "Batch database access", "Protect GraphQL endpoints"]
+        },
+        {
+          "topic": "React Client Architecture for Large MERN Products",
+          "subtopics": ["Feature-based client structure", "State architecture: server, client and URL state", "Shared component library", "Code splitting by feature", "Feature flags", "Error and loading boundaries", "Client performance budgets", "Team ownership of features"],
+          "tools": ["React", "TanStack Query", "Storybook", "Vite"],
+          "lab_task": "Restructure a large React client by feature, separate server, client and URL state, publish a shared component library in Storybook and set performance budgets per feature.",
+          "deliverable": "Client architecture guide and component library",
+          "checks": [["Split by feature", "Each feature loads its own code", "Bundle report"], ["Publish components", "Shared components documented in Storybook", "Storybook URL"], ["Enforce budgets", "Build fails when a feature exceeds its budget", "Build output"]],
+          "objectives": ["Architect large React clients", "Separate kinds of state", "Share components"]
+        },
+        {
+          "topic": "Threat Modelling and Security Architecture for MERN",
+          "subtopics": ["Threat modelling a MERN product", "Authentication architecture with an identity provider", "Authorisation as a service", "Secrets and key management", "Securing MongoDB Atlas: network, users and auditing", "Encryption of sensitive fields", "Supply chain security", "Penetration testing and fixes"],
+          "tools": ["OWASP Threat Dragon", "MongoDB Atlas security features", "Snyk or Socket", "OWASP ZAP"],
+          "lab_task": "Threat model the product, move login to an identity provider, encrypt sensitive candidate fields, lock down Atlas network access and auditing, and close findings from a test.",
+          "deliverable": "Threat model, security changes and test report",
+          "checks": [["Model threats", "Threats mapped to every component and data flow", "Threat model"], ["Encrypt fields", "Sensitive fields unreadable in the database", "Compass screenshot"], ["Close findings", "High findings fixed on retest", "Retest report"]],
+          "objectives": ["Threat model MERN apps", "Secure every tier", "Protect sensitive data"]
+        },
+        {
+          "topic": "OpenTelemetry Tracing Across the MERN Stack",
+          "subtopics": ["Tracing from the browser to the database", "OpenTelemetry in React and Express", "MongoDB driver instrumentation", "Context through queues and sockets", "Sampling strategies", "Linking logs and traces", "SLOs for key journeys", "Dashboards and alerts"],
+          "tools": ["OpenTelemetry", "Jaeger or Grafana Tempo", "Grafana"],
+          "lab_task": "Trace a job application from the React click through Express, MongoDB and the email queue, set sampling, define an SLO for applying and alert on error budget burn.",
+          "deliverable": "Tracing setup, SLO and dashboards",
+          "checks": [["Trace end to end", "One trace covers browser, API, database and queue", "Trace screenshot"], ["Define an SLO", "SLO and error budget agreed for applying", "SLO document"], ["Alert on burn", "Alert fires during a simulated failure", "Alert notification"]],
+          "objectives": ["Trace across the MERN stack", "Define SLOs", "Alert on user impact"]
+        },
+        {
+          "topic": "Kubernetes Deployment for MERN Services",
+          "subtopics": ["Deploying API and client containers to Kubernetes", "Config maps and secrets", "Probes and graceful shutdown", "Ingress and TLS", "Horizontal pod autoscaling", "Atlas or MongoDB on Kubernetes", "Helm charts", "Zero-downtime rollouts"],
+          "tools": ["Kubernetes", "Helm", "Ingress controller", "MongoDB Atlas"],
+          "lab_task": "Package the MERN app as a Helm chart, deploy to Kubernetes with probes, TLS ingress and autoscaling, connect to Atlas and prove a rollout drops no requests.",
+          "deliverable": "Helm chart and rollout results",
+          "checks": [["Roll out", "No failed requests during the rollout", "k6 results"], ["Autoscale", "Pods scale with load", "HPA history"], ["Serve over TLS", "Ingress serves the app with a valid certificate", "Browser screenshot"]],
+          "objectives": ["Run MERN on Kubernetes", "Configure probes and autoscaling", "Roll out safely"]
+        },
+        {
+          "topic": "Serverless MERN with AWS Lambda and Vercel Functions",
+          "subtopics": ["Which MERN parts suit serverless", "Express on Lambda", "Connection reuse to Atlas from functions", "Cold starts", "Background functions and schedules", "Costs at different traffic levels", "Local development", "Hybrid serverless and container setups"],
+          "tools": ["AWS Lambda", "Vercel Functions", "MongoDB Atlas", "AWS SAM"],
+          "lab_task": "Move the reporting and webhook parts of the API to serverless functions, reuse Atlas connections, measure cold starts and compare cost with containers at three traffic levels.",
+          "deliverable": "Serverless functions and cost comparison",
+          "checks": [["Reuse connections", "Connection count stays stable under load", "Atlas metrics"], ["Measure cold starts", "Cold start times recorded and reduced", "Measurement table"], ["Compare cost", "Monthly cost compared at three traffic levels", "Cost model"]],
+          "objectives": ["Use serverless in MERN", "Manage database connections", "Compare costs"]
+        },
+        {
+          "topic": "Search and AI Features with Atlas Search and Vector Search",
+          "subtopics": ["Atlas Search indexes and analysers", "Autocomplete and fuzzy matching", "Facets and filters", "Relevance tuning", "Vector Search for semantic matching", "Matching candidates to jobs with embeddings", "Hybrid search", "Evaluating search quality"],
+          "tools": ["Atlas Search", "Atlas Vector Search", "Embedding model", "React"],
+          "lab_task": "Replace text search with Atlas Search autocomplete and facets, add semantic job matching with Vector Search and hybrid ranking, and measure relevance on a labelled query set.",
+          "deliverable": "Search features and relevance report",
+          "checks": [["Autocomplete", "Suggestions appear with typo tolerance", "Screen recording"], ["Match semantically", "Relevant jobs found without shared keywords", "Search results"], ["Measure relevance", "Relevance scores improve on the labelled set", "Evaluation report"]],
+          "objectives": ["Build search with Atlas", "Add semantic matching", "Measure search quality"]
+        },
+        {
+          "topic": "Performance Engineering Across MongoDB, Node.js and React",
+          "subtopics": ["Finding the slowest tier", "MongoDB profiling and index tuning", "Node.js event loop and CPU profiling", "Payload size and serialisation", "React rendering and hydration cost", "Network and CDN tuning", "Performance budgets per journey", "Regression checks in CI"],
+          "tools": ["Atlas Profiler", "Node.js --cpu-prof", "React Profiler", "Lighthouse CI", "k6"],
+          "lab_task": "Find and fix the main bottleneck in each tier for a slow dashboard journey, set a budget for the journey and add a regression check to CI.",
+          "deliverable": "Cross-tier performance report and CI check",
+          "checks": [["Fix the database tier", "Slow queries removed from the profiler", "Profiler output"], ["Fix the client tier", "Render time for the dashboard reduced", "Profiler screenshots"], ["Guard the journey", "CI fails when the journey budget is exceeded", "CI log"]],
+          "objectives": ["Find bottlenecks across tiers", "Fix each tier", "Prevent regressions"]
+        },
+        {
+          "topic": "Data Migrations and Zero-Downtime Releases",
+          "subtopics": ["Expand and contract changes", "Backfilling data in batches", "Dual reads and writes", "Feature flags for releases", "Blue-green and canary releases", "Rolling back data changes", "Migration tooling for MongoDB", "Release checklists"],
+          "tools": ["migrate-mongo", "Feature flag service", "GitHub Actions"],
+          "lab_task": "Rename and restructure a heavily used field with expand and contract, backfill in batches, release behind a flag with a canary and roll back once to prove the plan.",
+          "deliverable": "Migration plan, scripts and release record",
+          "checks": [["Backfill in batches", "Backfill completes without raising latency", "Metrics"], ["Release with a canary", "Canary users get the new version first", "Release log"], ["Roll back", "Rollback restores the old behaviour without data loss", "Test output"]],
+          "objectives": ["Change data without downtime", "Release with flags and canaries", "Roll back safely"]
+        },
+        {
+          "topic": "Testing Strategy and Quality Gates for MERN Teams",
+          "subtopics": ["Risk-based testing across tiers", "Contract testing between client and API", "Test data management", "Flaky test control", "Mutation testing on core logic", "Quality gates in CI", "Synthetic monitoring", "Quality metrics for leaders"],
+          "tools": ["Vitest", "Playwright", "Pact", "Stryker", "Checkly"],
+          "lab_task": "Assess the test suite of a large MERN product, add contract tests and mutation testing, set quality gates in CI and add synthetic checks for the top journeys.",
+          "deliverable": "Test strategy and quality dashboard",
+          "checks": [["Add contract tests", "API change breaks the contract test", "CI log"], ["Run mutation tests", "Mutation score measured for core modules", "Stryker report"], ["Monitor journeys", "Synthetic check alerts on a broken journey", "Alert notification"]],
+          "objectives": ["Design MERN test strategies", "Gate releases on quality", "Monitor production journeys"]
+        },
+        {
+          "topic": "Cost Optimisation for MERN Hosting",
+          "subtopics": ["Cost drivers across Atlas, compute, storage and CDN", "Right-sizing Atlas clusters", "Auto-scaling and scheduling", "Storage and data transfer costs", "Caching to reduce compute", "Cost per tenant and per feature", "Budgets and alerts", "Reporting cost to stakeholders"],
+          "tools": ["Atlas billing", "Cloud cost tools", "Spreadsheet"],
+          "lab_task": "Analyse a month of MERN hosting costs, right-size Atlas and compute, cut transfer and storage costs, report cost per tenant and set budget alerts.",
+          "deliverable": "Cost report and savings plan",
+          "checks": [["Find cost drivers", "Top cost drivers identified with amounts", "Cost analysis"], ["Right-size", "Monthly cost reduced with no SLO breach", "Before and after report"], ["Report per tenant", "Cost per tenant calculated", "Cost report"]],
+          "objectives": ["Understand MERN hosting costs", "Reduce cost safely", "Report cost clearly"]
+        },
+        {
+          "topic": "Production Incidents in MERN Apps: Troubleshooting Across Tiers",
+          "subtopics": ["Triage from alerts and user reports", "Slow pages caused by the database", "Memory leaks in Node.js", "Socket and connection storms", "Broken deployments and version skew", "Client errors after releases", "Collecting evidence without making things worse", "Post-incident reviews"],
+          "tools": ["OpenTelemetry", "Atlas monitoring", "Sentry", "Heap snapshots"],
+          "lab_task": "Work through four incidents: a missing index after a release, a Node.js memory leak, a socket reconnect storm and a client crash, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot across MERN tiers", "Restore service quickly", "Learn from incidents"]
+        },
+        {
+          "topic": "Technical Leadership for MERN Product Teams",
+          "subtopics": ["Setting engineering standards", "Architecture reviews", "Service and app templates", "Mentoring developers", "Planning technical debt", "Estimating and planning with product managers", "Hiring for MERN teams", "Communicating with stakeholders"],
+          "tools": ["Decision records", "Review templates", "App template"],
+          "lab_task": "Run an architecture review of a MERN product, create a project template with standards built in, write a technical debt plan and present a quarterly engineering plan.",
+          "deliverable": "Review report, template and engineering plan",
+          "checks": [["Run the review", "Risks ranked with recommendations", "Review report"], ["Build the template", "New app from the template passes all checks", "Template repository"], ["Present the plan", "Plan accepted with priorities agreed", "Meeting notes"]],
+          "objectives": ["Lead MERN teams", "Set standards", "Plan engineering work"]
+        },
+        {
+          "topic": "Advanced Capstone: Scalable MERN Marketplace",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["MongoDB Atlas", "Node.js", "React", "Redis", "Kubernetes", "OpenTelemetry"],
+          "lab_task": "Design and build a multi-tenant marketplace with event-driven features, caching layers, Atlas Search, zero-downtime migrations, tracing and SLOs, cost controls and a security review, then defend it to a review panel.",
+          "deliverable": "Platform repository, architecture document and defence",
+          "checks": [["Meet the SLOs", "Load test meets the agreed SLOs", "Load test report"], ["Prove isolation", "No cross-tenant data in tests", "Test report"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one product", "Architect high-traffic MERN systems", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}
