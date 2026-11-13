@@ -4048,6 +4048,443 @@
           "Monitor endpoints"
         ]
       }
+    },
+    {
+      "between": [
+        "Apache Spark",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for PySpark Projects",
+        "subtopics": [
+          "Structuring PySpark code as packages",
+          "Pure functions for transformations",
+          "Type hints with DataFrame schemas",
+          "Testing with local Spark and pytest",
+          "Configuration and secrets",
+          "Logging from drivers",
+          "Dependency packaging for clusters",
+          "Code review for PySpark"
+        ],
+        "tools": [
+          "Python",
+          "PySpark",
+          "pytest",
+          "ruff"
+        ],
+        "lab_task": "Turn a PySpark notebook into a package of pure transformation functions with schema checks, pytest tests on local Spark and a packaged wheel that runs on a cluster.",
+        "deliverable": "Package, tests and run log",
+        "checks": [
+          [
+            "Run the tests",
+            "All pass on local Spark",
+            "pytest output"
+          ],
+          [
+            "Pass a DataFrame with a wrong schema",
+            "Schema check fails clearly",
+            "Test output"
+          ],
+          [
+            "Run the wheel on a cluster",
+            "Job completes",
+            "Driver log"
+          ]
+        ],
+        "objectives": [
+          "Structure PySpark projects",
+          "Test transformations",
+          "Package jobs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Apache Spark",
+        "Databricks"
+      ],
+      "day": {
+        "topic": "Running Spark Workloads on Databricks",
+        "subtopics": [
+          "What Databricks adds to open source Spark",
+          "Compute choices for Spark jobs",
+          "Photon",
+          "Delta Lake features used from Spark",
+          "Unity Catalog permissions for Spark code",
+          "Jobs and Asset Bundles for Spark applications",
+          "Spark UI on Databricks",
+          "Cost of Spark jobs on Databricks"
+        ],
+        "tools": [
+          "Databricks",
+          "PySpark",
+          "Photon",
+          "Databricks Asset Bundles"
+        ],
+        "lab_task": "Move the Spark capstone job to Databricks, run it on job compute with and without Photon, secure tables with Unity Catalog and deploy it with an Asset Bundle.",
+        "deliverable": "Bundle, run history and comparison",
+        "checks": [
+          [
+            "Compare with and without Photon",
+            "Time and cost recorded",
+            "Comparison table"
+          ],
+          [
+            "Read a table without permission",
+            "Access denied",
+            "Job error"
+          ],
+          [
+            "Deploy with the bundle",
+            "Job created from code",
+            "Bundle output"
+          ]
+        ],
+        "objectives": [
+          "Run Spark on Databricks",
+          "Use Photon",
+          "Deploy as code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Apache Spark",
+        "Apache Kafka"
+      ],
+      "day": {
+        "topic": "Kafka and Spark Structured Streaming Together",
+        "subtopics": [
+          "Kafka source options in Spark",
+          "Offsets and checkpoints together",
+          "Parsing Avro with Schema Registry in Spark",
+          "Exactly-once from Kafka to Delta",
+          "Writing results back to Kafka",
+          "Handling Kafka rebalances and lag",
+          "Scaling partitions and Spark tasks",
+          "Monitoring both sides"
+        ],
+        "tools": [
+          "Apache Kafka",
+          "Spark Structured Streaming",
+          "Schema Registry",
+          "Delta Lake"
+        ],
+        "lab_task": "Stream Avro order events from Kafka into Spark, upsert into Delta exactly once, write alerts back to Kafka and match Kafka partitions to Spark tasks for throughput.",
+        "deliverable": "Streaming job, configuration and throughput notes",
+        "checks": [
+          [
+            "Kill the Spark job and restart",
+            "No duplicates in Delta",
+            "Row counts"
+          ],
+          [
+            "Add Kafka partitions",
+            "Spark tasks scale with them",
+            "Spark UI"
+          ],
+          [
+            "Compare lag",
+            "Kafka lag and Spark batch time watched together",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Connect Kafka and Spark",
+          "Process exactly once",
+          "Scale streaming"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Apache Kafka",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Event-Driven Spring Boot Services with Kafka",
+        "subtopics": [
+          "Spring for Apache Kafka set-up",
+          "Producing with KafkaTemplate",
+          "Consuming with @KafkaListener",
+          "Avro and Schema Registry in Spring",
+          "Retry topics and dead-letter topics",
+          "Transactions with databases",
+          "Testing with Testcontainers",
+          "Observability with Micrometer"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring for Apache Kafka",
+          "Schema Registry",
+          "Testcontainers"
+        ],
+        "lab_task": "Build order and inventory Spring Boot services that exchange Avro events, retry failures through retry topics, keep database and Kafka writes consistent and test against a Kafka container.",
+        "deliverable": "Services, tests and traces",
+        "checks": [
+          [
+            "Fail inventory processing",
+            "Retries then dead-letter",
+            "Logs"
+          ],
+          [
+            "Roll back the database",
+            "Kafka message not committed",
+            "Test output"
+          ],
+          [
+            "Run tests",
+            "Pass against a Kafka container",
+            "Test report"
+          ]
+        ],
+        "objectives": [
+          "Build event-driven services",
+          "Handle errors",
+          "Test with real Kafka"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Apache Kafka",
+        "Python"
+      ],
+      "day": {
+        "topic": "Kafka Clients and Stream Processing in Python",
+        "subtopics": [
+          "confluent-kafka Python client",
+          "Producers and consumers in Python",
+          "Avro and Schema Registry in Python",
+          "Async consumers",
+          "Faust and Bytewax for stream processing",
+          "Error handling and retries",
+          "Packaging Python consumers",
+          "Testing Python Kafka code"
+        ],
+        "tools": [
+          "confluent-kafka",
+          "Schema Registry",
+          "Bytewax or Faust",
+          "pytest"
+        ],
+        "lab_task": "Write a Python producer and consumer with Avro, build a small windowed aggregation with Bytewax, add retries and test with a Kafka container.",
+        "deliverable": "Python services and tests",
+        "checks": [
+          [
+            "Consume Avro events",
+            "Fields decoded correctly",
+            "Consumer output"
+          ],
+          [
+            "Run the aggregation",
+            "Window counts correct",
+            "Output topic"
+          ],
+          [
+            "Run the tests",
+            "Pass against a container",
+            "pytest output"
+          ]
+        ],
+        "objectives": [
+          "Use Kafka from Python",
+          "Process streams in Python",
+          "Test Python consumers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Tableau",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Writing SQL for Tableau: Custom SQL, Initial SQL and Database Design",
+        "subtopics": [
+          "When to use custom SQL",
+          "Custom SQL performance risks",
+          "Initial SQL",
+          "Views as Tableau sources",
+          "Aggregating in the database",
+          "Indexes for Tableau queries",
+          "Reading Tableau's generated SQL",
+          "Working with database teams"
+        ],
+        "tools": [
+          "Tableau Desktop",
+          "PostgreSQL or SQL Server",
+          "Performance recorder"
+        ],
+        "lab_task": "Replace slow custom SQL with a database view, add indexes for the queries Tableau generates and use initial SQL for session settings, comparing load times.",
+        "deliverable": "Views, indexes and timing comparison",
+        "checks": [
+          [
+            "Read Tableau's SQL",
+            "Generated queries captured",
+            "Performance recording"
+          ],
+          [
+            "Replace custom SQL with a view",
+            "Dashboard faster",
+            "Timing table"
+          ],
+          [
+            "Add an index",
+            "Query plan uses the index",
+            "Query plan"
+          ]
+        ],
+        "objectives": [
+          "Write SQL for Tableau",
+          "Avoid slow custom SQL",
+          "Tune database sources"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Tableau",
+        "Data Analytics"
+      ],
+      "day": {
+        "topic": "Turning Analysis into Tableau Dashboards",
+        "subtopics": [
+          "Choosing what becomes a dashboard",
+          "Moving analysis logic into the data source",
+          "Matching numbers between analysis and dashboard",
+          "KPI definitions in calculated fields",
+          "Dashboards for decision makers",
+          "Refresh and freshness",
+          "Documenting metrics in the dashboard",
+          "Handover to business owners"
+        ],
+        "tools": [
+          "Tableau Desktop",
+          "Tableau Cloud",
+          "SQL",
+          "pandas"
+        ],
+        "lab_task": "Turn the cohort and funnel analyses into Tableau dashboards that reconcile with the analysis, document metric definitions and hand them over with a refresh schedule.",
+        "deliverable": "Dashboards, reconciliation table and handover note",
+        "checks": [
+          [
+            "Reconcile KPIs",
+            "Dashboard values match the analysis",
+            "Reconciliation table"
+          ],
+          [
+            "Schedule refresh",
+            "Refresh succeeds",
+            "Refresh history"
+          ],
+          [
+            "Review the handover note",
+            "Owners, sources and definitions listed",
+            "Handover note"
+          ]
+        ],
+        "objectives": [
+          "Publish analysis in Tableau",
+          "Keep numbers consistent",
+          "Hand over dashboards"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Tableau",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Tableau and Power BI Side by Side: Concepts, Migration and Coexistence",
+        "subtopics": [
+          "Concepts mapped: workbooks and reports, data sources and semantic models",
+          "Calculations: Tableau calculations compared with DAX",
+          "LOD expressions compared with CALCULATE",
+          "Sharing and security in each tool",
+          "Licensing and cost",
+          "Migrating dashboards between tools",
+          "Running both tools in one company",
+          "Choosing a tool per use case"
+        ],
+        "tools": [
+          "Tableau Desktop",
+          "Power BI Desktop"
+        ],
+        "lab_task": "Rebuild one Tableau dashboard in Power BI with matching numbers, convert three LOD calculations to DAX and write a recommendation for when each tool fits.",
+        "deliverable": "Both dashboards, conversion notes and recommendation",
+        "checks": [
+          [
+            "Compare numbers",
+            "Both dashboards show the same totals",
+            "Comparison table"
+          ],
+          [
+            "Convert LODs to DAX",
+            "Same results in both tools",
+            "Comparison table"
+          ],
+          [
+            "Write the recommendation",
+            "Tool chosen per use case with reasons",
+            "Recommendation"
+          ]
+        ],
+        "objectives": [
+          "Compare Tableau and Power BI",
+          "Convert calculations",
+          "Plan coexistence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP SuccessFactors",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Connecting SuccessFactors Employee Central to SAP S/4HANA",
+        "subtopics": [
+          "Integration scenarios between HR and ERP",
+          "Employee and organisational data replication",
+          "Cost centres from S/4HANA to Employee Central",
+          "Business partner and employee records in S/4HANA",
+          "Integration Suite flows",
+          "Replication monitoring",
+          "Error handling",
+          "Testing integrated processes"
+        ],
+        "tools": [
+          "Employee Central",
+          "SAP S/4HANA",
+          "SAP Integration Suite"
+        ],
+        "lab_task": "Replicate cost centres from S/4HANA to Employee Central and employees back to S/4HANA, fix a failed replication and test a hire that is used in a travel expense in S/4HANA.",
+        "deliverable": "Integration configuration, monitoring evidence and test results",
+        "checks": [
+          [
+            "Replicate cost centres",
+            "Available in Employee Central",
+            "Manage Data"
+          ],
+          [
+            "Replicate a hire",
+            "Employee in S/4HANA",
+            "Replication monitor"
+          ],
+          [
+            "Fix the failure",
+            "Error resolved and re-run",
+            "Monitoring log"
+          ]
+        ],
+        "objectives": [
+          "Integrate HR and ERP",
+          "Replicate data",
+          "Monitor integration"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -6337,6 +6774,185 @@
         "objectives": [
           "Combine MLOps and Kubernetes",
           "Run models on a shared platform",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Apache Spark",
+        "Apache Kafka"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Real-Time and Batch Analytics with Kafka and Spark",
+        "subtopics": [
+          "Event design",
+          "Streaming and batch jobs",
+          "Tables and serving",
+          "Demo"
+        ],
+        "tools": [
+          "Apache Kafka",
+          "Spark Structured Streaming",
+          "Delta Lake",
+          "Schema Registry"
+        ],
+        "lab_task": "Build a platform where Kafka carries order events, Spark streams them into Delta exactly once, nightly Spark jobs build reporting tables and alerts go back to Kafka, then demo a crash and recovery.",
+        "deliverable": "Repository, schemas, jobs and demo recording",
+        "checks": [
+          [
+            "Crash the streaming job",
+            "Restarts with no duplicates",
+            "Demo recording"
+          ],
+          [
+            "Reconcile batch and streaming totals",
+            "Totals match",
+            "Reconciliation table"
+          ],
+          [
+            "Answer design questions",
+            "Choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Kafka and Spark",
+          "Build streaming and batch together",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Apache Kafka",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Event-Driven Microservices with Kafka and Spring Boot",
+        "subtopics": [
+          "Services and events",
+          "Reliability",
+          "Testing",
+          "Demo"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring for Apache Kafka",
+          "Schema Registry",
+          "PostgreSQL",
+          "Testcontainers"
+        ],
+        "lab_task": "Build three Spring Boot services that coordinate an order through Kafka events with schemas, retries, dead-letter topics and an outbox, tested with Testcontainers, then demo a service failure.",
+        "deliverable": "Repositories, tests and demo recording",
+        "checks": [
+          [
+            "Stop a service during the demo",
+            "Orders complete when it returns",
+            "Demo recording"
+          ],
+          [
+            "Run the tests",
+            "All pass",
+            "Test report"
+          ],
+          [
+            "Answer design questions",
+            "Event and service choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Kafka and Spring Boot",
+          "Build reliable event-driven services",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Tableau",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Database-Backed Tableau Reporting",
+        "subtopics": [
+          "Database design",
+          "Views and tuning",
+          "Dashboards",
+          "Demo"
+        ],
+        "tools": [
+          "PostgreSQL or SQL Server",
+          "Tableau Desktop",
+          "Tableau Cloud"
+        ],
+        "lab_task": "Design reporting views and indexes in a database, build and publish Tableau dashboards on them with row-level security and show load times within target.",
+        "deliverable": "Database scripts, dashboards and demo recording",
+        "checks": [
+          [
+            "Load the dashboards",
+            "Within the target load time",
+            "Timing table"
+          ],
+          [
+            "Test row-level security",
+            "Each user sees only their data",
+            "Test results"
+          ],
+          [
+            "Answer design questions",
+            "Database and dashboard choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine SQL and Tableau",
+          "Deliver fast reporting",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP SuccessFactors",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hire-to-Pay Across SuccessFactors and S/4HANA",
+        "subtopics": [
+          "Process design",
+          "Configuration",
+          "Integration",
+          "Demo"
+        ],
+        "tools": [
+          "Employee Central",
+          "SAP S/4HANA",
+          "SAP Integration Suite"
+        ],
+        "lab_task": "Design and demo a hire-to-pay flow: hire in Employee Central with cost centres from S/4HANA, replicate the employee to S/4HANA and post a payroll result to finance.",
+        "deliverable": "Process design, configuration notes, integration logs and demo recording",
+        "checks": [
+          [
+            "Hire an employee",
+            "Employee replicated to S/4HANA",
+            "Demo recording"
+          ],
+          [
+            "Post payroll to finance",
+            "Posting visible in S/4HANA",
+            "Demo recording"
+          ],
+          [
+            "Answer design questions",
+            "Integration choices defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine SuccessFactors and S/4HANA",
+          "Run an integrated HR and finance flow",
           "Defend design decisions"
         ]
       }

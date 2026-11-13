@@ -42,7 +42,7 @@ LEGACY_TECHNOLOGIES = ("DevOps", "AWS", "Azure", "Kubernetes", "Python", "Agenti
 # family is also requested (for example "cloud" when AWS is named).
 _WEAK_ALIASES = {"cloud", "testing", "qa", "agile", "observability", "monitoring", "automation", "security"}
 _UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP"},
-              "SAP": {"SAP S/4HANA", "SAP BTP", "SAP ABAP", "SAP FICO"}}
+              "SAP": {"SAP S/4HANA", "SAP BTP", "SAP ABAP", "SAP FICO", "SAP SuccessFactors"}}
 # Umbrellas dropped only when written as the bare word: "SAP BTP training" is SAP BTP,
 # but "SAP SD and FICO" keeps SAP for SD, which has no course of its own yet.
 _BARE_WORD_UMBRELLAS = {"SAP"}
