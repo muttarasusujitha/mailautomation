@@ -1,0 +1,573 @@
+{
+  "domain": "GRC (Governance, Risk and Compliance)",
+  "name": "Governance, Risk and Compliance",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["GRC", "GRC Training", "Governance Risk and Compliance", "Governance, Risk and Compliance", "IT GRC", "Cyber GRC", "GRC Analyst", "IT Risk Management", "Risk and Compliance", "Compliance Management", "Enterprise Risk Management"],
+  "certifications": ["ISACA CRISC", "ISACA CISA", "ISACA CGEIT", "ISO/IEC 27001 Lead Implementer", "ISO/IEC 27001 Lead Auditor", "OCEG GRC Professional (GRCP)"],
+  "tools": ["Risk register template", "Control matrix", "ServiceNow IRM or Archer or OneTrust (demo)", "Excel", "Policy templates", "NIST CSF 2.0 and ISO/IEC 27001 documents"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new GRC analysts, IT and security staff and auditors. Covers governance structures, policies and standards, risk concepts, risk assessment, risk registers and treatment, controls and frameworks, laws and regulations, ISO/IEC 27001, NIST CSF 2.0, third-party risk, audits, evidence, business continuity, incident obligations, privacy compliance, awareness, reporting and GRC tools.",
+      "prerequisites": ["Works in IT, security, audit, finance or operations", "Comfortable with spreadsheets and writing documents", "No previous GRC experience needed"],
+      "outcomes": ["Explain governance, risk and compliance and how they fit together", "Run a simple risk assessment and keep a risk register", "Map controls to ISO/IEC 27001 and NIST CSF and collect audit evidence", "Report risk and compliance status clearly"],
+      "days": [
+        {
+          "topic": "GRC Overview, Roles and Course Setup",
+          "subtopics": ["What governance, risk and compliance mean", "Why organisations need GRC", "GRC roles: analyst, risk manager, compliance officer and auditor", "The three lines model", "Frameworks and standards at a glance", "Laws and regulators in India, the EU and the US", "GRC careers and certifications", "The course case company: a fintech with 800 staff", "Course templates: risk register, control matrix and policy pack", "Setting up a demo GRC tool or spreadsheet workbook"],
+          "tools": ["Risk register template", "Control matrix", "Demo GRC tool"],
+          "lab_task": "Set up the course workbook or demo GRC tool, map the case company's main risks and obligations at a high level and place each GRC role in the three lines model.",
+          "deliverable": "Set-up workbook, obligations list and three lines diagram",
+          "checks": [["List obligations", "At least eight laws and standards with owners", "Obligations list"], ["Place roles", "Each role in the right line", "Three lines diagram"], ["Explain GRC", "Governance, risk and compliance described with examples", "Written note"]],
+          "objectives": ["Explain GRC", "Describe GRC roles", "Set up working tools"]
+        },
+        {
+          "topic": "Corporate and IT Governance Structures",
+          "subtopics": ["Boards and committees", "Risk and audit committees", "IT governance with COBIT", "Roles and responsibilities", "RACI charts", "Decision rights", "Governance documents: charters and terms of reference", "Reporting lines"],
+          "tools": ["COBIT 2019", "RACI template"],
+          "lab_task": "Draw the governance structure for the case company, write terms of reference for an IT risk committee and build a RACI for security decisions.",
+          "deliverable": "Structure diagram, terms of reference and RACI",
+          "checks": [["Review the structure", "Board, committees and management linked", "Diagram"], ["Review the terms of reference", "Purpose, members and duties clear", "Terms of reference"], ["Review the RACI", "One accountable owner per decision", "RACI chart"]],
+          "objectives": ["Describe governance structures", "Write terms of reference", "Assign responsibilities"]
+        },
+        {
+          "topic": "Policies, Standards and Procedures",
+          "subtopics": ["Policy hierarchy", "Writing clear policies", "Standards and baselines", "Procedures and guidelines", "Policy approval", "Exceptions", "Communicating policies", "Policy review cycles"],
+          "tools": ["Policy templates", "Document management"],
+          "lab_task": "Write an acceptable use policy and a password standard for the case company, define an exception process and plan the review cycle.",
+          "deliverable": "Policy, standard and exception process",
+          "checks": [["Review the policy", "Plain language with scope and owner", "Policy document"], ["Review the standard", "Measurable requirements", "Standard document"], ["Request an exception", "Exception approved with an expiry date", "Exception record"]],
+          "objectives": ["Write policies", "Write standards", "Manage exceptions"]
+        },
+        {
+          "topic": "Risk Management Concepts",
+          "subtopics": ["Risk, threat, vulnerability and impact", "Inherent and residual risk", "Likelihood and impact scales", "Risk appetite in simple terms", "Qualitative and quantitative risk", "Risk owners", "ISO 31000 principles", "Common risk mistakes"],
+          "tools": ["ISO 31000", "Risk scales"],
+          "lab_task": "Define likelihood and impact scales for the case company, rate ten example risks inherently and after controls and explain the difference.",
+          "deliverable": "Risk scales and rated examples",
+          "checks": [["Define scales", "Clear definitions for each level", "Scale document"], ["Rate inherent and residual risk", "Ratings consistent with the scales", "Rated examples"], ["Name owners", "Each risk has a business owner", "Rated examples"]],
+          "objectives": ["Explain risk concepts", "Define scales", "Rate risks"]
+        },
+        {
+          "topic": "Running a Risk Assessment",
+          "subtopics": ["Scoping an assessment", "Identifying assets and processes", "Workshops and interviews", "Identifying threats and vulnerabilities", "Rating risks", "Documenting results", "Validating with owners", "Common assessment problems"],
+          "tools": ["Risk assessment template", "Workshop guide"],
+          "lab_task": "Run a role-play risk workshop for the case company's payments process, identify and rate eight risks and validate them with the process owner.",
+          "deliverable": "Workshop notes and risk assessment",
+          "checks": [["Run the workshop", "Risks raised by participants recorded", "Workshop notes"], ["Rate risks", "Ratings justified", "Risk assessment"], ["Validate with the owner", "Owner agrees or changes are recorded", "Sign-off notes"]],
+          "objectives": ["Scope assessments", "Run risk workshops", "Document risks"]
+        },
+        {
+          "topic": "Risk Registers and Risk Treatment",
+          "subtopics": ["Risk register fields", "Treatment options: avoid, reduce, transfer and accept", "Treatment plans", "Risk acceptance", "Cyber insurance as transfer", "Tracking actions", "Reviewing risks", "Closing risks"],
+          "tools": ["Risk register template", "Demo GRC tool"],
+          "lab_task": "Enter the assessed risks into a register, choose a treatment for each, write two treatment plans and document one risk acceptance with sign-off.",
+          "deliverable": "Risk register, treatment plans and acceptance record",
+          "checks": [["Review the register", "Every risk has an owner, rating and treatment", "Risk register"], ["Review treatment plans", "Actions, owners and dates included", "Treatment plans"], ["Review the acceptance", "Signed by an authorised person with an expiry", "Acceptance record"]],
+          "objectives": ["Keep a risk register", "Treat risks", "Accept risks properly"]
+        },
+        {
+          "topic": "Controls and Control Frameworks",
+          "subtopics": ["What a control is", "Preventive, detective and corrective controls", "Manual and automated controls", "Control objectives", "Control owners", "Common frameworks: ISO 27001, NIST, COBIT and CIS Controls", "Mapping risks to controls", "Control documentation"],
+          "tools": ["Control matrix", "CIS Controls v8"],
+          "lab_task": "Build a control matrix for the payments process, classify each control and map controls to the risks they reduce.",
+          "deliverable": "Control matrix with risk mapping",
+          "checks": [["Classify controls", "Type and nature correct for each", "Control matrix"], ["Map to risks", "Each high risk has at least one control", "Mapping"], ["Name owners", "Every control has an owner", "Control matrix"]],
+          "objectives": ["Describe controls", "Use control frameworks", "Map controls to risks"]
+        },
+        {
+          "topic": "Laws, Regulations and Compliance Obligations",
+          "subtopics": ["Compliance obligations", "India: DPDP Act, IT Act, CERT-In directions and RBI guidance", "EU: GDPR, NIS2 and DORA", "US: SOX, HIPAA and state privacy laws", "Industry rules: PCI DSS", "Obligation registers", "Mapping obligations to controls", "Keeping up with change"],
+          "tools": ["Obligation register template", "Regulator websites"],
+          "lab_task": "Build an obligation register for the case company, map each obligation to owners and controls and find two obligations with no control.",
+          "deliverable": "Obligation register and gap list",
+          "checks": [["List obligations", "Laws and rules relevant to the company listed", "Obligation register"], ["Map to controls", "Each obligation linked or flagged", "Mapping"], ["Find gaps", "Two uncovered obligations with actions", "Gap list"]],
+          "objectives": ["Identify obligations", "Map obligations to controls", "Find compliance gaps"]
+        },
+        {
+          "topic": "Information Security Management Systems with ISO/IEC 27001",
+          "subtopics": ["What ISO/IEC 27001 requires", "The ISMS clauses", "Annex A controls in the 2022 version", "Scope", "Statement of Applicability", "Risk assessment in ISO 27001", "Internal audit and management review", "Certification process"],
+          "tools": ["ISO/IEC 27001:2022", "Statement of Applicability template"],
+          "lab_task": "Define an ISMS scope for the case company, draft a Statement of Applicability for ten Annex A controls with reasons and plan the certification steps.",
+          "deliverable": "Scope statement, draft SoA and certification plan",
+          "checks": [["Review the scope", "Boundaries and exclusions clear", "Scope statement"], ["Review the SoA", "Each control included or excluded with a reason", "SoA"], ["Plan certification", "Stage 1 and stage 2 audits explained", "Certification plan"]],
+          "objectives": ["Understand ISO 27001", "Define scope", "Draft a Statement of Applicability"]
+        },
+        {
+          "topic": "The NIST Cybersecurity Framework 2.0",
+          "subtopics": ["Why NIST CSF", "Functions: Govern, Identify, Protect, Detect, Respond and Recover", "Categories and subcategories", "Profiles: current and target", "Implementation tiers", "Mapping CSF to ISO 27001", "Using CSF for gap analysis", "Reporting with CSF"],
+          "tools": ["NIST CSF 2.0", "Gap analysis template"],
+          "lab_task": "Build current and target CSF profiles for the case company, find the largest gaps and present a one-page summary to management.",
+          "deliverable": "Profiles, gap list and summary",
+          "checks": [["Build the current profile", "Each function rated with evidence", "Profile"], ["Find gaps", "Top five gaps prioritised", "Gap list"], ["Present the summary", "Clear to non-technical managers", "Summary"]],
+          "objectives": ["Use NIST CSF", "Build profiles", "Prioritise gaps"]
+        },
+        {
+          "topic": "Third-Party and Vendor Risk",
+          "subtopics": ["Why vendors bring risk", "Vendor inventory", "Tiering vendors by risk", "Due diligence questionnaires", "Contract clauses", "Ongoing monitoring", "Offboarding vendors", "Concentration risk in brief"],
+          "tools": ["Vendor questionnaire", "Vendor register"],
+          "lab_task": "Build a vendor register, tier five vendors, review one vendor's questionnaire answers and write findings and contract requirements.",
+          "deliverable": "Vendor register, tiering and review findings",
+          "checks": [["Tier vendors", "Tiers justified by data access and criticality", "Vendor register"], ["Review answers", "Weak answers found with follow-ups", "Review findings"], ["Write contract requirements", "Security and audit clauses listed", "Requirements"]],
+          "objectives": ["Manage vendor risk", "Tier vendors", "Review vendors"]
+        },
+        {
+          "topic": "How Audits Work: Internal and External Audit",
+          "subtopics": ["Purpose of audit", "Internal and external audit", "Audit planning", "Fieldwork", "Sampling", "Findings and ratings", "Management responses", "Follow-up"],
+          "tools": ["Audit programme template", "Sampling guide"],
+          "lab_task": "Plan an access review audit, test a sample of 25 user accounts, rate the findings and write management responses with dates.",
+          "deliverable": "Audit plan, test results and findings report",
+          "checks": [["Select the sample", "Sample method documented", "Audit plan"], ["Rate findings", "Ratings follow the scale", "Findings report"], ["Write responses", "Actions with owners and dates", "Management responses"]],
+          "objectives": ["Explain audits", "Test controls", "Report findings"]
+        },
+        {
+          "topic": "Evidence Collection and Documentation",
+          "subtopics": ["What good evidence looks like", "Screenshots, reports and logs", "Evidence dates and periods", "Population and samples", "Evidence repositories", "Naming and indexing evidence", "Automated evidence", "Common evidence problems"],
+          "tools": ["Evidence repository", "Demo GRC tool"],
+          "lab_task": "Collect evidence for five controls, index it in a repository, review a colleague's evidence for problems and fix them.",
+          "deliverable": "Evidence index and review notes",
+          "checks": [["Index evidence", "Each item linked to a control and period", "Evidence index"], ["Review a colleague's evidence", "Problems found such as wrong dates", "Review notes"], ["Fix the evidence", "Evidence accepted on re-review", "Review notes"]],
+          "objectives": ["Collect evidence", "Organise evidence", "Check evidence quality"]
+        },
+        {
+          "topic": "Business Continuity and Disaster Recovery Planning",
+          "subtopics": ["Business continuity concepts", "Business impact analysis", "RTO and RPO", "Continuity strategies", "Disaster recovery plans", "Crisis communication", "Testing plans", "ISO 22301 in brief"],
+          "tools": ["BIA template", "BCP template"],
+          "lab_task": "Run a business impact analysis for three processes, set RTO and RPO, write a continuity plan for one and run a tabletop exercise.",
+          "deliverable": "BIA, continuity plan and exercise notes",
+          "checks": [["Complete the BIA", "Impacts and recovery times for each process", "BIA"], ["Write the plan", "Roles, steps and contacts included", "Continuity plan"], ["Run the tabletop", "Gaps found and actions recorded", "Exercise notes"]],
+          "objectives": ["Run a BIA", "Write continuity plans", "Test plans"]
+        },
+        {
+          "topic": "Incident and Breach Notification Obligations",
+          "subtopics": ["Incident management basics", "Severity levels", "Breach notification rules: CERT-In six hours, GDPR 72 hours and others", "Regulators and customers to notify", "Evidence preservation", "Communication templates", "Lessons learned", "Recording incidents"],
+          "tools": ["Incident register", "Notification templates"],
+          "lab_task": "Work through a data breach scenario, decide which regulators and customers to notify and when, draft notifications and record the incident.",
+          "deliverable": "Notification decision log and drafts",
+          "checks": [["Decide notifications", "Regulators and deadlines correct", "Decision log"], ["Draft notifications", "Required information included", "Drafts"], ["Record the incident", "Register complete", "Incident register"]],
+          "objectives": ["Meet incident obligations", "Notify correctly", "Record incidents"]
+        },
+        {
+          "topic": "Privacy Compliance Essentials",
+          "subtopics": ["Personal data and sensitive data", "Principles: purpose, minimisation and retention", "Consent and lawful bases", "Data subject rights", "Records of processing", "Privacy notices", "India's DPDP Act duties", "Privacy by design"],
+          "tools": ["Records of processing template", "Privacy notice template"],
+          "lab_task": "Build records of processing for three activities, review a privacy notice against the DPDP Act and handle a data access request.",
+          "deliverable": "Records, notice review and request record",
+          "checks": [["Build records", "Purpose, data, retention and sharing listed", "Records of processing"], ["Review the notice", "Gaps found against the law", "Review notes"], ["Handle the request", "Response within the deadline", "Request record"]],
+          "objectives": ["Apply privacy rules", "Keep processing records", "Handle data requests"]
+        },
+        {
+          "topic": "Security Awareness and Compliance Culture",
+          "subtopics": ["Why culture matters", "Awareness programmes", "Phishing simulations", "Role-based training", "Measuring behaviour", "Speaking up and whistleblowing", "Consequences and recognition", "Culture surveys"],
+          "tools": ["Training platform", "Phishing simulation tool", "Survey tool"],
+          "lab_task": "Plan a year of awareness activities, run a mock phishing campaign, analyse results and design follow-up training.",
+          "deliverable": "Awareness plan, campaign results and training plan",
+          "checks": [["Plan activities", "Topics and audiences for each quarter", "Awareness plan"], ["Analyse the campaign", "Click and report rates calculated", "Results"], ["Design follow-up", "Training aimed at the weakest groups", "Training plan"]],
+          "objectives": ["Build awareness", "Measure behaviour", "Improve culture"]
+        },
+        {
+          "topic": "Risk and Compliance Metrics and Reporting",
+          "subtopics": ["What leaders need to know", "Key risk indicators", "Compliance status metrics", "Heat maps and their limits", "Trends over time", "Dashboards", "Writing management reports", "Reporting to boards in brief"],
+          "tools": ["Excel or Power BI", "Demo GRC tool"],
+          "lab_task": "Define five key risk indicators, build a dashboard of risk and compliance status and write a one-page management report.",
+          "deliverable": "KRI definitions, dashboard and report",
+          "checks": [["Define KRIs", "Each has a threshold and owner", "KRI definitions"], ["Build the dashboard", "Status and trends shown", "Dashboard"], ["Write the report", "Key messages and decisions needed clear", "Report"]],
+          "objectives": ["Measure risk", "Build dashboards", "Report to management"]
+        },
+        {
+          "topic": "GRC Tools and Platforms",
+          "subtopics": ["Spreadsheets and their limits", "GRC platforms: ServiceNow IRM, Archer, OneTrust and MetricStream", "Risk, control and policy modules", "Workflows and attestations", "Evidence collection features", "Integrations", "Choosing a tool", "Data quality in GRC tools"],
+          "tools": ["ServiceNow IRM or Archer or OneTrust demo"],
+          "lab_task": "Load the risk register and control matrix into a demo GRC tool, run a control attestation workflow and compare the tool with the spreadsheet.",
+          "deliverable": "Loaded tool, attestation results and comparison",
+          "checks": [["Load data", "Risks and controls in the tool", "Screenshot"], ["Run an attestation", "Owners respond through the workflow", "Attestation results"], ["Compare with spreadsheets", "Benefits and costs listed", "Comparison"]],
+          "objectives": ["Use GRC tools", "Run attestations", "Choose tools"]
+        },
+        {
+          "topic": "Beginner Capstone: GRC Starter Programme for the Case Company",
+          "subtopics": ["Governance and policies", "Risk assessment and register", "Controls and compliance", "Reporting"],
+          "tools": ["Risk register", "Control matrix", "Policy templates", "Demo GRC tool"],
+          "lab_task": "Build a starter GRC programme for the case company: governance structure, two policies, a risk assessment and register, a control matrix mapped to ISO 27001 and obligations, evidence for five controls and a management report.",
+          "deliverable": "Programme pack and presentation",
+          "checks": [["Review the pack", "Policies, register, matrix and evidence consistent", "Pack review"], ["Trace a risk", "Risk linked to controls, obligations and evidence", "Trace"], ["Present to management", "Status and decisions clear", "Presentation feedback"]],
+          "objectives": ["Combine the beginner topics in one programme", "Build a working GRC baseline", "Report to management"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For GRC analysts, risk managers and auditors with some experience. Covers risk quantification with FAIR, control design and testing, SOC 2, implementing ISO/IEC 27001, NIST SP 800-53 and unified control frameworks, SOX IT general controls, PCI DSS, privacy programmes, third-party risk programmes, cloud compliance, continuous control monitoring, policy lifecycle, risk appetite, business continuity programmes, regulatory change, audit management, GRC platform implementation, KRIs and AI governance.",
+      "prerequisites": ["Has run risk assessments and kept risk registers", "Knows ISO/IEC 27001 or NIST CSF", "Has collected evidence for audits"],
+      "outcomes": ["Quantify and prioritise risk and set appetite", "Design, test and monitor controls for SOC 2, ISO 27001, SOX and PCI DSS", "Run privacy, vendor, continuity and regulatory change programmes", "Implement GRC platforms and govern AI use"],
+      "days": [
+        {
+          "topic": "Quantifying Risk with FAIR",
+          "subtopics": ["Why quantify risk", "The FAIR model", "Loss event frequency and loss magnitude", "Ranges and estimates", "Monte Carlo simulation", "Loss exceedance curves", "Comparing treatment options in money", "Communicating quantified risk"],
+          "tools": ["FAIR model", "Excel or a FAIR tool"],
+          "lab_task": "Quantify a ransomware risk for the case company with FAIR, run a Monte Carlo simulation and compare the value of two controls.",
+          "deliverable": "FAIR analysis, simulation and recommendation",
+          "checks": [["Build estimates", "Ranges justified with sources", "Analysis"], ["Run the simulation", "Loss exceedance curve produced", "Simulation output"], ["Compare controls", "Risk reduction per rupee spent compared", "Recommendation"]],
+          "objectives": ["Quantify risk", "Simulate losses", "Compare treatments"]
+        },
+        {
+          "topic": "Designing and Testing Controls",
+          "subtopics": ["Control design principles", "Test of design and test of operating effectiveness", "Test procedures: inquiry, observation, inspection and re-performance", "Sample sizes", "Deficiencies and their severity", "Compensating controls", "Remediation", "Retesting"],
+          "tools": ["Control testing templates", "Sampling guide"],
+          "lab_task": "Design three access controls, test their design and operating effectiveness with samples, rate deficiencies and plan remediation.",
+          "deliverable": "Control designs, test workpapers and deficiency ratings",
+          "checks": [["Test operating effectiveness", "Samples tested with results recorded", "Workpapers"], ["Rate deficiencies", "Severity justified", "Deficiency log"], ["Plan remediation", "Actions and retest dates", "Remediation plan"]],
+          "objectives": ["Design controls", "Test controls", "Rate deficiencies"]
+        },
+        {
+          "topic": "SOC 2 Readiness and Audits",
+          "subtopics": ["SOC 2 and the trust services criteria", "Type 1 and type 2 reports", "Scoping systems and criteria", "Readiness assessments", "Control mapping", "Evidence over the period", "Working with the auditor", "Reading SOC 2 reports from vendors"],
+          "tools": ["Trust services criteria", "Readiness checklist", "Evidence repository"],
+          "lab_task": "Run a SOC 2 readiness assessment for the case company's platform, map controls to criteria, fix two gaps and review a vendor's SOC 2 report for exceptions.",
+          "deliverable": "Readiness report, mapping and vendor review",
+          "checks": [["Map controls", "Each in-scope criterion covered", "Mapping"], ["Fix gaps", "Two gaps closed with evidence", "Gap log"], ["Review the vendor report", "Exceptions and complementary controls found", "Review notes"]],
+          "objectives": ["Prepare for SOC 2", "Map criteria", "Read SOC 2 reports"]
+        },
+        {
+          "topic": "Implementing an ISO/IEC 27001 ISMS",
+          "subtopics": ["Implementation plan", "Context and interested parties", "Risk assessment and treatment plan", "Statement of Applicability in full", "Mandatory documents", "Internal audit programme", "Management review", "Certification audit readiness"],
+          "tools": ["ISO/IEC 27001:2022", "ISMS document toolkit"],
+          "lab_task": "Produce the core ISMS documents for the case company, complete the risk treatment plan and SoA, run an internal audit of three clauses and hold a management review.",
+          "deliverable": "ISMS documents, internal audit report and review minutes",
+          "checks": [["Review mandatory documents", "All required documents present", "Document checklist"], ["Run the internal audit", "Nonconformities recorded", "Audit report"], ["Hold the management review", "Required inputs and decisions minuted", "Review minutes"]],
+          "objectives": ["Implement an ISMS", "Run internal audits", "Prepare for certification"]
+        },
+        {
+          "topic": "NIST SP 800-53 and Unified Control Frameworks",
+          "subtopics": ["NIST SP 800-53 control families", "Baselines", "Mapping frameworks to each other", "Unified control frameworks", "Secure Controls Framework", "Testing once and reporting many times", "Keeping mappings current", "Tools for mapping"],
+          "tools": ["NIST SP 800-53", "Secure Controls Framework", "Mapping spreadsheet"],
+          "lab_task": "Build a unified control set covering ISO 27001, SOC 2 and NIST CSF, map existing controls and show one test satisfying three frameworks.",
+          "deliverable": "Unified control framework and mapping",
+          "checks": [["Map frameworks", "Each control linked to all frameworks it meets", "Mapping"], ["Show test reuse", "One test result used for three frameworks", "Evidence record"], ["Find unmapped requirements", "Gaps listed", "Gap list"]],
+          "objectives": ["Use NIST SP 800-53", "Build unified controls", "Reuse testing"]
+        },
+        {
+          "topic": "SOX IT General Controls",
+          "subtopics": ["SOX and financial reporting", "In-scope applications", "ITGC domains: access, change, operations and development", "Key reports and IPE", "Testing ITGCs", "Service organisations and SOC 1 reports", "Deficiencies and material weaknesses", "Working with external auditors"],
+          "tools": ["ITGC test templates", "SOC 1 reports"],
+          "lab_task": "Scope ITGCs for an ERP system, test user access and change management controls, review a SOC 1 report and assess a deficiency.",
+          "deliverable": "Scope, test workpapers and deficiency assessment",
+          "checks": [["Test access controls", "Exceptions found and documented", "Workpapers"], ["Review the SOC 1", "Complementary user entity controls listed", "Review notes"], ["Assess the deficiency", "Severity reasoned", "Assessment"]],
+          "objectives": ["Scope ITGCs", "Test ITGCs", "Assess deficiencies"]
+        },
+        {
+          "topic": "PCI DSS Compliance",
+          "subtopics": ["PCI DSS 4.0 requirements", "Cardholder data environment and scoping", "Segmentation", "Self-assessment questionnaires and reports on compliance", "Customised approach", "Evidence for PCI", "Working with QSAs", "Reducing scope"],
+          "tools": ["PCI DSS 4.0", "Scoping worksheet"],
+          "lab_task": "Scope the case company's card payment environment, find ways to reduce scope, choose the right assessment type and prepare evidence for three requirements.",
+          "deliverable": "Scope diagram, scope reduction plan and evidence",
+          "checks": [["Draw the scope", "Systems in and out of scope correct", "Scope diagram"], ["Reduce scope", "Tokenisation or segmentation plan with effect", "Scope plan"], ["Prepare evidence", "Evidence meets the requirement wording", "Evidence pack"]],
+          "objectives": ["Scope PCI DSS", "Reduce scope", "Prepare evidence"]
+        },
+        {
+          "topic": "Building a Privacy Programme",
+          "subtopics": ["Privacy governance", "Records of processing at scale", "Data protection impact assessments", "Consent management", "Data subject request process", "Cross-border transfers", "Privacy by design in projects", "Privacy metrics"],
+          "tools": ["DPIA template", "Consent management tool", "Privacy register"],
+          "lab_task": "Run a DPIA for a new customer analytics project, design the data subject request process and plan cross-border transfer safeguards.",
+          "deliverable": "DPIA, request process and transfer plan",
+          "checks": [["Complete the DPIA", "Risks and mitigations recorded", "DPIA"], ["Design the request process", "Steps and deadlines meet the law", "Process document"], ["Plan transfers", "Safeguards chosen for each transfer", "Transfer plan"]],
+          "objectives": ["Run privacy programmes", "Do DPIAs", "Manage transfers"]
+        },
+        {
+          "topic": "Third-Party Risk Management Programme",
+          "subtopics": ["Programme design", "Intake and tiering", "Assessment methods", "Continuous monitoring and security ratings", "Fourth parties", "Issue management with vendors", "Exit plans", "Programme metrics"],
+          "tools": ["TPRM platform or template", "Security ratings service"],
+          "lab_task": "Design a vendor risk programme with intake, tiering and assessment by tier, monitor a vendor with security ratings and manage an issue through to closure.",
+          "deliverable": "Programme design, monitoring results and issue record",
+          "checks": [["Review the design", "Activities scale with tier", "Programme design"], ["Monitor a vendor", "Rating changes trigger review", "Monitoring record"], ["Close an issue", "Fix verified", "Issue record"]],
+          "objectives": ["Run vendor risk programmes", "Monitor vendors", "Manage vendor issues"]
+        },
+        {
+          "topic": "Cloud Compliance and Shared Responsibility",
+          "subtopics": ["Shared responsibility models", "Cloud provider attestations", "Cloud control frameworks: CSA CCM", "Configuration compliance with CSPM", "Evidence from cloud services", "Cloud data residency", "Multi-cloud compliance", "Cloud audits"],
+          "tools": ["CSA Cloud Controls Matrix", "AWS Artifact or Azure compliance tools", "CSPM tool"],
+          "lab_task": "Map cloud responsibilities for the case company's platform, collect provider attestations, run a CSPM compliance scan and close three findings.",
+          "deliverable": "Responsibility map, attestations and scan results",
+          "checks": [["Map responsibilities", "Customer and provider duties clear", "Responsibility map"], ["Run the scan", "Findings mapped to controls", "Scan report"], ["Close findings", "Three findings fixed and rescanned", "Scan report"]],
+          "objectives": ["Apply shared responsibility", "Collect cloud evidence", "Monitor cloud compliance"]
+        },
+        {
+          "topic": "Continuous Control Monitoring",
+          "subtopics": ["Why continuous monitoring", "Choosing controls to automate", "Data sources: identity, cloud and tickets", "Rules and thresholds", "Alerting control failures", "Dashboards", "Audit acceptance of automated evidence", "Maintaining monitors"],
+          "tools": ["Scripts or GRC platform", "Identity and cloud data"],
+          "lab_task": "Automate monitoring for three controls (leaver access removal, MFA coverage and patch timeliness), alert on failures and build a dashboard.",
+          "deliverable": "Monitors, alerts and dashboard",
+          "checks": [["Leave a leaver account active", "Control failure alerted", "Alert"], ["Check MFA coverage", "Coverage percentage reported daily", "Dashboard"], ["Review with an auditor", "Evidence acceptance discussed and recorded", "Notes"]],
+          "objectives": ["Monitor controls continuously", "Alert on failures", "Automate evidence"]
+        },
+        {
+          "topic": "Policy Management Lifecycle",
+          "subtopics": ["Policy governance", "Drafting and approval workflows", "Mapping policies to controls and obligations", "Attestation by staff", "Exceptions at scale", "Measuring policy compliance", "Retiring policies", "Policy tools"],
+          "tools": ["Policy management module", "Attestation workflow"],
+          "lab_task": "Move policies into a policy tool, map them to controls, run an attestation campaign and report exceptions and completion.",
+          "deliverable": "Policy library, mapping and attestation report",
+          "checks": [["Map policies", "Each policy linked to controls", "Mapping"], ["Run attestations", "Completion rate reported", "Attestation report"], ["Review exceptions", "Expired exceptions flagged", "Exception report"]],
+          "objectives": ["Manage policies", "Run attestations", "Measure policy compliance"]
+        },
+        {
+          "topic": "Risk Appetite and Tolerance",
+          "subtopics": ["Risk appetite statements", "Tolerances and limits", "Linking appetite to KRIs", "Escalation when limits are breached", "Board approval", "Cascading appetite to departments", "Reviewing appetite", "Common appetite mistakes"],
+          "tools": ["Appetite statement template", "KRI dashboard"],
+          "lab_task": "Draft risk appetite statements for cyber, privacy and third-party risk, set tolerances linked to KRIs and define the escalation for breaches.",
+          "deliverable": "Appetite statements, tolerances and escalation process",
+          "checks": [["Review statements", "Clear and measurable", "Appetite statements"], ["Link to KRIs", "Each tolerance tied to a KRI", "KRI mapping"], ["Test escalation", "Breach routed to the right committee", "Escalation record"]],
+          "objectives": ["Set risk appetite", "Define tolerances", "Escalate breaches"]
+        },
+        {
+          "topic": "Business Continuity Management Programme",
+          "subtopics": ["ISO 22301 requirements", "BIA at scale", "Continuity strategies", "Recovery plans for IT and business", "Testing programmes", "Supplier continuity", "Programme governance", "Continuous improvement"],
+          "tools": ["ISO 22301", "BCM tool or templates"],
+          "lab_task": "Set up a continuity programme with BIAs for ten processes, recovery strategies, a test schedule and supplier continuity checks, and run a recovery test.",
+          "deliverable": "Programme documents, BIAs and test report",
+          "checks": [["Review BIAs", "Recovery times consistent with dependencies", "BIA review"], ["Run a recovery test", "Results against RTO recorded", "Test report"], ["Check suppliers", "Critical suppliers' continuity reviewed", "Supplier review"]],
+          "objectives": ["Run continuity programmes", "Plan recovery", "Test continuity"]
+        },
+        {
+          "topic": "Regulatory Change Management",
+          "subtopics": ["Tracking new laws and rules", "Horizon scanning", "Impact assessment", "Assigning actions", "Tracking implementation", "Evidence of compliance", "Regulatory change tools", "Reporting to leadership"],
+          "tools": ["Regulatory change register", "Regulator feeds"],
+          "lab_task": "Assess the impact of a new regulation such as DPDP rules or DORA on the case company, assign actions and track them to completion.",
+          "deliverable": "Impact assessment and action tracker",
+          "checks": [["Assess impact", "Affected processes and controls listed", "Impact assessment"], ["Assign actions", "Owners and dates for each action", "Action tracker"], ["Report progress", "Status shown to leadership", "Report"]],
+          "objectives": ["Track regulatory change", "Assess impact", "Implement changes"]
+        },
+        {
+          "topic": "Audit Management and Issue Tracking",
+          "subtopics": ["Audit universe", "Risk-based audit plans", "Managing audit requests", "Findings and issues", "Root cause analysis for findings", "Remediation tracking", "Validation of fixes", "Reporting open issues"],
+          "tools": ["Audit management module", "Issue tracker"],
+          "lab_task": "Build a risk-based audit plan, manage an audit request list, find root causes for three findings and track remediation with validation.",
+          "deliverable": "Audit plan, request tracker and issue records",
+          "checks": [["Build the plan", "Audits ranked by risk", "Audit plan"], ["Find root causes", "Causes beyond symptoms identified", "Root cause notes"], ["Validate fixes", "Fixes tested before closure", "Issue records"]],
+          "objectives": ["Plan audits", "Manage findings", "Validate remediation"]
+        },
+        {
+          "topic": "Implementing a GRC Platform",
+          "subtopics": ["Requirements gathering", "Data model: risks, controls, issues and assets", "Workflow configuration", "Integrations with CMDB, identity and ticketing", "Data migration from spreadsheets", "Reporting", "User adoption", "Platform governance"],
+          "tools": ["ServiceNow IRM or Archer or OneTrust", "Integration tools"],
+          "lab_task": "Configure a GRC platform for risks, controls and issues, migrate data from spreadsheets, integrate with the CMDB and build reports for owners.",
+          "deliverable": "Configuration, migrated data and reports",
+          "checks": [["Migrate data", "Records match the spreadsheets", "Reconciliation"], ["Integrate the CMDB", "Assets linked to risks", "Screenshot"], ["Run owner reports", "Owners see their items", "Report"]],
+          "objectives": ["Implement GRC platforms", "Migrate data", "Integrate systems"]
+        },
+        {
+          "topic": "Key Risk Indicators and GRC Dashboards",
+          "subtopics": ["Good KRIs", "Leading and lagging indicators", "Data sources for KRIs", "Thresholds", "Automation", "Dashboards for different audiences", "Storytelling with risk data", "Reviewing KRIs"],
+          "tools": ["Power BI or GRC platform dashboards"],
+          "lab_task": "Build automated KRIs for cyber and third-party risk, dashboards for managers and executives and a monthly review pack.",
+          "deliverable": "KRIs, dashboards and review pack",
+          "checks": [["Automate a KRI", "Value updates from source data", "Dashboard"], ["Build audience views", "Managers and executives see different detail", "Dashboards"], ["Present the review pack", "Key changes and actions clear", "Review pack"]],
+          "objectives": ["Design KRIs", "Automate reporting", "Tailor dashboards"]
+        },
+        {
+          "topic": "AI Governance: EU AI Act, ISO/IEC 42001 and NIST AI RMF",
+          "subtopics": ["AI risks", "The EU AI Act risk categories", "ISO/IEC 42001 AI management system", "NIST AI Risk Management Framework", "AI inventories", "AI impact assessments", "Policies for AI use", "Controls for generative AI tools"],
+          "tools": ["ISO/IEC 42001", "NIST AI RMF", "AI inventory template"],
+          "lab_task": "Build an AI inventory for the case company, classify systems under the EU AI Act, run an AI impact assessment and write an AI use policy.",
+          "deliverable": "Inventory, classifications, impact assessment and policy",
+          "checks": [["Classify systems", "Risk category with reasons for each", "Inventory"], ["Complete the impact assessment", "Risks and controls recorded", "Assessment"], ["Review the policy", "Clear rules for staff", "AI use policy"]],
+          "objectives": ["Govern AI", "Classify AI systems", "Assess AI risks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Integrated Compliance Programme",
+          "subtopics": ["Unified controls", "Testing and monitoring", "Programmes", "Reporting"],
+          "tools": ["GRC platform", "Unified control framework", "FAIR tool", "Dashboards"],
+          "lab_task": "Build an integrated compliance programme for the case company covering ISO 27001, SOC 2 and the DPDP Act: unified controls, testing and continuous monitoring, quantified top risks, vendor and privacy processes and executive dashboards, then present it.",
+          "deliverable": "Programme pack, platform configuration, dashboards and presentation",
+          "checks": [["Trace a requirement", "Requirement linked to control, test and evidence", "Trace"], ["Show monitoring", "Failing control alerted and tracked", "Demo recording"], ["Present to executives", "Risks in money terms with decisions requested", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one programme", "Run compliance efficiently", "Report risk in business terms"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For GRC leaders, chief risk and compliance officers and senior auditors. Covers enterprise risk management, board reporting, GRC operating models, GRC engineering and compliance automation, operational resilience, cyber risk quantification at scale, supervisory engagement, M&A due diligence, AI governance programmes, privacy across borders, supply chain risk, integrated assurance, crisis management, risk analytics, GRC platform architecture, conduct and culture, major regulatory breaches and GRC strategy.",
+      "prerequisites": ["Leads or runs risk, compliance or audit work", "Has implemented frameworks such as ISO 27001, SOC 2 or SOX", "Reports to senior management"],
+      "outcomes": ["Lead enterprise risk and compliance programmes and report to boards", "Automate compliance and quantify risk at scale", "Manage resilience, supply chain, AI and privacy risk across regions", "Handle regulators, crises and major breaches"],
+      "days": [
+        {
+          "topic": "Enterprise Risk Management with COSO and ISO 31000",
+          "subtopics": ["COSO ERM framework", "ISO 31000 at enterprise level", "Linking strategy and risk", "Risk taxonomies", "Aggregating risk across the business", "Emerging risks", "Integrating cyber into ERM", "ERM maturity"],
+          "tools": ["COSO ERM", "ISO 31000", "Risk taxonomy template"],
+          "lab_task": "Build an enterprise risk taxonomy for the case company, link top risks to strategic objectives, aggregate department risks and assess ERM maturity.",
+          "deliverable": "Taxonomy, risk profile and maturity assessment",
+          "checks": [["Link to strategy", "Each top risk tied to an objective", "Risk profile"], ["Aggregate risks", "Department risks rolled up consistently", "Aggregation"], ["Assess maturity", "Level and gaps with evidence", "Maturity assessment"]],
+          "objectives": ["Run ERM", "Link risk to strategy", "Assess maturity"]
+        },
+        {
+          "topic": "Board Reporting and Risk Communication",
+          "subtopics": ["What boards need", "Board risk reports", "Risk in business and money terms", "Presenting bad news", "Answering director questions", "Board training on cyber risk", "Regulatory expectations of boards", "Minutes and evidence of oversight"],
+          "tools": ["Board report template", "Quantified risk data"],
+          "lab_task": "Write a board risk report for the case company, present it to a role-play board and answer challenging questions.",
+          "deliverable": "Board report and presentation recording",
+          "checks": [["Review the report", "Top risks, trends and decisions clear", "Board report"], ["Present to the board", "Hard questions answered honestly", "Recording"], ["Record oversight", "Decisions minuted", "Minutes"]],
+          "objectives": ["Report to boards", "Communicate risk", "Show oversight"]
+        },
+        {
+          "topic": "GRC Operating Models and the Three Lines",
+          "subtopics": ["Centralised, federated and hybrid models", "Roles across the three lines", "GRC team structure", "Skills and hiring", "Working with business units", "Funding GRC", "Measuring GRC performance", "Changing the operating model"],
+          "tools": ["Operating model templates", "RACI"],
+          "lab_task": "Design the GRC operating model for a group with five businesses, define roles across the three lines and plan the move from the current model.",
+          "deliverable": "Operating model, RACI and transition plan",
+          "checks": [["Review the model", "Roles and handoffs clear", "Operating model"], ["Review the RACI", "No gaps or overlaps", "RACI"], ["Review the transition plan", "Steps, risks and timing defined", "Transition plan"]],
+          "objectives": ["Design GRC operating models", "Assign roles", "Plan change"]
+        },
+        {
+          "topic": "GRC Engineering and Compliance Automation",
+          "subtopics": ["Compliance as code", "Policy as code with OPA", "Automated evidence collection", "Control testing pipelines", "Integrations with cloud, identity and code repositories", "Compliance automation platforms", "Audit acceptance", "Building a GRC engineering team"],
+          "tools": ["Open Policy Agent", "Cloud APIs", "Compliance automation platform", "Python"],
+          "lab_task": "Write policies as code for three cloud controls, build a pipeline that collects evidence and tests controls daily and agree the evidence format with an auditor.",
+          "deliverable": "Policies, pipeline and evidence samples",
+          "checks": [["Break a policy in the cloud", "Pipeline flags the failure", "Pipeline log"], ["Collect evidence", "Evidence stored with dates automatically", "Evidence store"], ["Agree with the auditor", "Evidence format accepted", "Meeting notes"]],
+          "objectives": ["Automate compliance", "Write policy as code", "Build evidence pipelines"]
+        },
+        {
+          "topic": "Operational Resilience: DORA, RBI and Global Rules",
+          "subtopics": ["Operational resilience concepts", "Important business services", "Impact tolerances", "Mapping dependencies", "Scenario testing", "DORA requirements", "RBI and other regulator expectations in India", "Third-party ICT risk"],
+          "tools": ["Resilience mapping template", "Scenario test plan"],
+          "lab_task": "Identify important business services for the case company, set impact tolerances, map dependencies, run a severe scenario test and report gaps against DORA.",
+          "deliverable": "Service list, tolerances, maps, test report and gap report",
+          "checks": [["Set tolerances", "Tolerances with reasons", "Tolerance statements"], ["Run the scenario", "Breaches of tolerance found", "Test report"], ["Report DORA gaps", "Gaps with actions", "Gap report"]],
+          "objectives": ["Build operational resilience", "Test scenarios", "Meet resilience rules"]
+        },
+        {
+          "topic": "Cyber Risk Quantification at Scale",
+          "subtopics": ["Quantifying a portfolio of risks", "Data for frequency and loss", "Calibrating experts", "Aggregating risks", "Cyber insurance decisions", "Budget prioritisation", "Tools for quantification", "Limits of quantification"],
+          "tools": ["FAIR tools", "Monte Carlo models", "Loss data"],
+          "lab_task": "Quantify the top ten cyber risks, aggregate them into a portfolio view, decide on insurance limits and prioritise the security budget.",
+          "deliverable": "Portfolio analysis, insurance recommendation and budget priorities",
+          "checks": [["Calibrate estimates", "Calibration exercise completed", "Calibration results"], ["Aggregate risks", "Portfolio loss curve produced", "Model output"], ["Prioritise budget", "Spend ranked by risk reduced", "Budget priorities"]],
+          "objectives": ["Quantify many risks", "Decide on insurance", "Prioritise spending"]
+        },
+        {
+          "topic": "Regulatory Examinations and Supervisory Engagement",
+          "subtopics": ["How regulators examine firms", "Preparing for examinations", "Document requests", "Interviews with regulators", "Findings and remediation plans", "Relationship management with regulators", "Self-reporting", "Lessons from enforcement actions"],
+          "tools": ["Examination preparation checklist", "Remediation plan template"],
+          "lab_task": "Prepare for a role-play regulator inspection on cyber risk, answer document requests, handle an interview and write a remediation plan for findings.",
+          "deliverable": "Preparation pack, interview notes and remediation plan",
+          "checks": [["Answer document requests", "Complete and on time", "Request log"], ["Handle the interview", "Accurate answers without speculation", "Observer notes"], ["Write the remediation plan", "Actions, owners and dates", "Remediation plan"]],
+          "objectives": ["Prepare for examinations", "Engage regulators", "Remediate findings"]
+        },
+        {
+          "topic": "Risk in Mergers, Acquisitions and Divestments",
+          "subtopics": ["GRC due diligence", "Cyber and privacy due diligence", "Red flags", "Integration planning", "Day-one controls", "Divestment separation risks", "Contract protections", "Post-deal reviews"],
+          "tools": ["Due diligence questionnaire", "Integration plan template"],
+          "lab_task": "Run GRC due diligence on a target company, report red flags with deal impact and plan day-one controls after the acquisition.",
+          "deliverable": "Due diligence report and day-one plan",
+          "checks": [["Find red flags", "Material issues identified", "Due diligence report"], ["Estimate deal impact", "Cost to fix estimated", "Report"], ["Plan day one", "Critical controls listed", "Day-one plan"]],
+          "objectives": ["Assess deal risk", "Plan integration", "Protect the deal"]
+        },
+        {
+          "topic": "AI Governance Programmes in Practice",
+          "subtopics": ["Building an AI management system", "ISO/IEC 42001 implementation", "AI risk assessment at scale", "Model risk management links", "Generative AI controls: data, prompts and outputs", "Vendor AI risk", "AI incident handling", "Reporting AI risk to the board"],
+          "tools": ["ISO/IEC 42001", "AI risk register", "AI inventory tooling"],
+          "lab_task": "Implement core ISO 42001 elements for the case company, assess five AI systems, set controls for staff use of generative AI and report AI risk to the board.",
+          "deliverable": "AI management system documents, assessments and board report",
+          "checks": [["Assess AI systems", "Risks and controls for each", "Assessments"], ["Set generative AI controls", "Data, prompt and output controls defined", "Control set"], ["Report to the board", "AI risks and decisions clear", "Board report"]],
+          "objectives": ["Run AI governance", "Implement ISO 42001", "Control generative AI"]
+        },
+        {
+          "topic": "Global Privacy Programmes and Cross-Border Data",
+          "subtopics": ["Privacy laws across regions", "Building one programme for many laws", "Cross-border transfer mechanisms", "Data localisation rules", "Privacy engineering with technical teams", "Privacy incident response", "Regulator relationships for privacy", "Privacy metrics for leaders"],
+          "tools": ["Privacy law comparison", "Transfer impact assessment template"],
+          "lab_task": "Design a privacy programme covering the DPDP Act, GDPR and US state laws, run a transfer impact assessment and handle a cross-border privacy incident.",
+          "deliverable": "Programme design, assessment and incident record",
+          "checks": [["Compare laws", "Common and different requirements mapped", "Comparison"], ["Run the transfer assessment", "Risks and safeguards recorded", "Assessment"], ["Handle the incident", "Notifications correct in each region", "Incident record"]],
+          "objectives": ["Run global privacy", "Manage transfers", "Handle privacy incidents"]
+        },
+        {
+          "topic": "Supply Chain and Concentration Risk",
+          "subtopics": ["Supply chain risk in technology", "Software supply chain and SBOMs", "Critical supplier concentration", "Cloud concentration risk", "Exit strategies", "Supplier stress tests", "Regulatory expectations", "Reporting supply chain risk"],
+          "tools": ["Supplier map", "SBOM tools", "Exit plan template"],
+          "lab_task": "Map critical suppliers and their dependencies, find concentration risks including a cloud provider, write an exit plan and review SBOM practices for key software.",
+          "deliverable": "Supplier map, concentration analysis and exit plan",
+          "checks": [["Map dependencies", "Critical services linked to suppliers", "Supplier map"], ["Find concentration", "Single points of failure listed", "Analysis"], ["Review the exit plan", "Steps, time and cost realistic", "Exit plan"]],
+          "objectives": ["Manage supply chain risk", "Assess concentration", "Plan exits"]
+        },
+        {
+          "topic": "Integrated Assurance and Combined Audits",
+          "subtopics": ["Assurance maps", "Avoiding duplicated assurance", "Combined audits across frameworks", "Relying on others' work", "Assurance coverage gaps", "Reporting combined assurance", "Working with external auditors", "Reducing audit fatigue"],
+          "tools": ["Assurance map template", "Audit plans"],
+          "lab_task": "Build an assurance map for the case company, find duplicated and missing assurance and plan one combined audit for ISO 27001 and SOC 2.",
+          "deliverable": "Assurance map and combined audit plan",
+          "checks": [["Find duplication", "Overlapping reviews listed", "Assurance map"], ["Find gaps", "Risks with no assurance listed", "Assurance map"], ["Plan the combined audit", "One test plan serving both frameworks", "Audit plan"]],
+          "objectives": ["Map assurance", "Remove duplication", "Run combined audits"]
+        },
+        {
+          "topic": "Crisis Management and Executive Response",
+          "subtopics": ["Crisis management teams", "Escalation to crisis", "Decision making under pressure", "Communication with staff, customers, media and regulators", "Legal privilege", "Crisis exercises", "Recovery and reputation", "Lessons learned"],
+          "tools": ["Crisis plan template", "Exercise scenario"],
+          "lab_task": "Run a crisis exercise for a ransomware attack with executives, make decisions on payment, disclosure and recovery and write the after-action report.",
+          "deliverable": "Exercise log, decisions and after-action report",
+          "checks": [["Run the exercise", "Decisions recorded with reasons", "Exercise log"], ["Draft communications", "Messages consistent and timely", "Drafts"], ["Write the after-action report", "Gaps and actions recorded", "Report"]],
+          "objectives": ["Lead crisis response", "Communicate in a crisis", "Learn from exercises"]
+        },
+        {
+          "topic": "Risk Analytics and Data-Driven GRC",
+          "subtopics": ["Data in GRC", "Linking GRC data with operational data", "Trend and correlation analysis", "Predicting control failures", "Text analysis of incidents and findings", "Dashboards for risk insight", "Data quality in GRC", "Using AI in risk analysis"],
+          "tools": ["Python or Power BI", "GRC data exports"],
+          "lab_task": "Analyse two years of incidents, findings and control results to find patterns, predict which controls are likely to fail and present insights.",
+          "deliverable": "Analysis, prediction and insights presentation",
+          "checks": [["Find patterns", "Recurring causes identified", "Analysis"], ["Predict failures", "Controls at risk listed with reasons", "Prediction output"], ["Present insights", "Actions linked to findings", "Presentation"]],
+          "objectives": ["Analyse GRC data", "Predict problems", "Turn data into action"]
+        },
+        {
+          "topic": "GRC Platform Architecture and Integration",
+          "subtopics": ["Platform architecture choices", "Data model design", "Integrations: CMDB, identity, cloud, HR and ticketing", "Single source of truth for risks and controls", "Reporting architecture", "Scaling to many users", "Platform governance", "Replacing or consolidating tools"],
+          "tools": ["GRC platforms", "Integration tools", "Architecture diagrams"],
+          "lab_task": "Design the GRC platform architecture for a group with three existing tools, plan consolidation and integrations and estimate effort and cost.",
+          "deliverable": "Architecture, consolidation plan and estimate",
+          "checks": [["Review the data model", "Risks, controls, assets and issues linked", "Architecture"], ["Plan integrations", "Sources and frequencies defined", "Integration plan"], ["Estimate effort", "Cost and timeline with assumptions", "Estimate"]],
+          "objectives": ["Design GRC platforms", "Plan integrations", "Consolidate tools"]
+        },
+        {
+          "topic": "Conduct, Culture and Ethics Risk",
+          "subtopics": ["Conduct risk", "Culture indicators", "Incentives and risk", "Speak-up programmes", "Investigations", "Ethics in technology decisions", "Measuring culture", "Reporting culture to the board"],
+          "tools": ["Culture survey", "Speak-up case data"],
+          "lab_task": "Design culture indicators for the case company, analyse speak-up and survey data, run a role-play investigation and report culture risk to the board.",
+          "deliverable": "Indicators, analysis, investigation notes and report",
+          "checks": [["Design indicators", "Indicators linked to behaviours", "Indicator set"], ["Run the investigation", "Facts gathered fairly", "Investigation notes"], ["Report culture risk", "Clear message with actions", "Board report"]],
+          "objectives": ["Manage conduct risk", "Measure culture", "Handle investigations"]
+        },
+        {
+          "topic": "Responding to a Major Regulatory Breach",
+          "subtopics": ["Recognising a major breach", "Immediate containment", "Legal and regulatory notification", "Root cause analysis", "Remediation programmes", "Working with regulators after a breach", "Fines and enforcement", "Rebuilding trust"],
+          "tools": ["Breach response plan", "Remediation programme template"],
+          "lab_task": "Lead the response to a simulated major data protection breach: contain, notify, find the root cause, design a remediation programme and brief the regulator.",
+          "deliverable": "Response log, root cause analysis, remediation programme and briefing",
+          "checks": [["Notify on time", "Notifications within the legal deadlines", "Response log"], ["Find the root cause", "Cause beyond the immediate failure", "Root cause analysis"], ["Brief the regulator", "Facts, actions and timeline clear", "Briefing notes"]],
+          "objectives": ["Respond to major breaches", "Remediate systemic causes", "Rebuild trust"]
+        },
+        {
+          "topic": "ESG and Sustainability Reporting Governance",
+          "subtopics": ["ESG risks for technology and services companies", "Reporting standards: BRSR in India, CSRD and ISSB", "Governance of ESG data", "Controls over sustainability reporting", "Climate risk in the risk register", "Supplier ESG risk", "Assurance of ESG reports", "Avoiding greenwashing"],
+          "tools": ["BRSR and ISSB guidance", "ESG data controls template"],
+          "lab_task": "Map the case company's ESG reporting duties, design controls over the emissions and workforce data used in reports and add climate risk to the enterprise risk register.",
+          "deliverable": "Duty map, control design and updated risk register",
+          "checks": [["Map reporting duties", "Required disclosures listed with owners", "Duty map"], ["Design data controls", "Controls cover source to report", "Control design"], ["Add climate risk", "Risk rated with treatment", "Risk register"]],
+          "objectives": ["Govern ESG reporting", "Control ESG data", "Manage climate risk"]
+        },
+        {
+          "topic": "GRC Strategy and Leadership",
+          "subtopics": ["GRC vision and strategy", "Linking GRC to business value", "Roadmaps", "Investment cases", "Talent and skills", "Stakeholder management at senior level", "Measuring programme success", "Leading change"],
+          "tools": ["Strategy templates", "Roadmap template"],
+          "lab_task": "Write a three-year GRC strategy for the case company with a roadmap, investment case and success measures, and present it to a role-play executive committee.",
+          "deliverable": "Strategy, roadmap, investment case and presentation",
+          "checks": [["Link to business value", "Strategy tied to business goals", "Strategy document"], ["Review the investment case", "Costs and benefits estimated", "Investment case"], ["Present to executives", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Set GRC strategy", "Build investment cases", "Lead GRC programmes"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise GRC Transformation",
+          "subtopics": ["Assessment", "Design", "Automation and resilience", "Executive review"],
+          "tools": ["COSO ERM", "FAIR", "GRC platform", "Policy as code", "Resilience mapping"],
+          "lab_task": "For a case financial group, assess GRC maturity, design the operating model and unified controls, automate key controls, quantify top risks, build resilience and AI governance and present a funded transformation plan to the board.",
+          "deliverable": "Assessment, design, automation demo, risk analysis and board presentation",
+          "checks": [["Demo automation", "Control failure detected and tracked automatically", "Demo recording"], ["Present quantified risk", "Top risks in money terms with treatment options", "Presentation"], ["Defend the plan to the board", "Questions answered and decisions obtained", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one transformation", "Lead enterprise GRC", "Secure board support"]
+        }
+      ]
+    }
+  }
+}
