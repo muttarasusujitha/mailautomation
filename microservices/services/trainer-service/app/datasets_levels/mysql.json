@@ -50,7 +50,7 @@
           "objectives": ["Enforce data rules", "Use strict mode", "Relate tables"]
         },
         {
-          "topic": "Querying: SELECT, Filtering and Sorting",
+          "topic": "Querying MySQL with SELECT, WHERE and ORDER BY",
           "subtopics": ["SELECT and aliases", "WHERE and operators", "NULL handling with IFNULL and COALESCE", "LIKE and REGEXP", "ORDER BY and LIMIT", "DISTINCT", "CASE expressions", "String and date functions"],
           "tools": ["MySQL Shell", "MySQL Workbench"],
           "lab_task": "Answer ten questions on Sakila, including paged film lists, customers without email, films matching a pattern and rentals labelled by length with CASE.",
@@ -68,7 +68,7 @@
           "objectives": ["Join tables", "Find missing matches", "Avoid duplicated totals"]
         },
         {
-          "topic": "Aggregation and Window Functions",
+          "topic": "Aggregation and Window Functions in MySQL",
           "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "GROUP BY and HAVING", "WITH ROLLUP", "GROUP_CONCAT", "ROW_NUMBER, RANK and DENSE_RANK", "Running totals", "LAG and LEAD", "ONLY_FULL_GROUP_BY"],
           "tools": ["MySQL Shell"],
           "lab_task": "Report revenue by store and month with ROLLUP, rank films by rentals within categories, compute running totals and fix a query rejected by ONLY_FULL_GROUP_BY.",
@@ -77,7 +77,7 @@
           "objectives": ["Aggregate data", "Use window functions", "Write valid GROUP BY queries"]
         },
         {
-          "topic": "Subqueries and Common Table Expressions",
+          "topic": "Subqueries and Common Table Expressions in MySQL",
           "subtopics": ["Scalar and table subqueries", "IN and EXISTS", "Derived tables", "WITH queries", "Recursive CTEs", "LATERAL derived tables", "Top N per group", "Readable query structure"],
           "tools": ["MySQL Shell"],
           "lab_task": "Walk a category tree with a recursive CTE, get the latest three rentals per customer and rewrite a nested report as a chain of CTEs.",
@@ -95,7 +95,7 @@
           "objectives": ["Change data safely", "Use upserts", "Delete in batches"]
         },
         {
-          "topic": "Views",
+          "topic": "Views in MySQL",
           "subtopics": ["Creating views", "Views for security", "Updatable views", "WITH CHECK OPTION", "SQL SECURITY DEFINER and INVOKER", "View algorithms: MERGE and TEMPTABLE", "View performance", "When to use views"],
           "tools": ["MySQL Shell"],
           "lab_task": "Create a reporting view of sales, grant a reporting user access to the view only, add CHECK OPTION to an updatable view and compare view algorithms in EXPLAIN.",
@@ -122,7 +122,7 @@
           "objectives": ["Use transactions", "Control concurrent access", "Read deadlock reports"]
         },
         {
-          "topic": "Users, Roles and Privileges",
+          "topic": "MySQL Users, Roles and Privileges",
           "subtopics": ["Accounts: user and host", "Authentication plugins", "GRANT and REVOKE", "Roles", "Least privilege for applications", "Password policies", "Locking accounts", "Reviewing privileges"],
           "tools": ["MySQL Shell"],
           "lab_task": "Create an application account limited to the shop database and its subnet, a read-only reporting role, password rules and a locked account for a leaver.",
@@ -131,7 +131,7 @@
           "objectives": ["Create accounts", "Use roles", "Grant least privilege"]
         },
         {
-          "topic": "Stored Procedures and Functions",
+          "topic": "Stored Procedures and Functions in MySQL",
           "subtopics": ["CREATE PROCEDURE", "Parameters: IN, OUT and INOUT", "Local declarations and control flow", "Cursors", "Handlers for errors", "Stored functions and determinism", "Prepared statements in procedures", "When to keep logic in the application"],
           "tools": ["MySQL Shell", "MySQL Workbench"],
           "lab_task": "Write a procedure that places an order with stock checks and error handlers, a function that calculates discounts and a procedure using a prepared statement for searches.",
@@ -345,7 +345,7 @@
           "objectives": ["Monitor MySQL", "Analyse queries", "Alert on key metrics"]
         },
         {
-          "topic": "Managed MySQL: RDS, Aurora, Azure and Cloud SQL",
+          "topic": "Managed MySQL on RDS, Aurora, Azure and Cloud SQL",
           "subtopics": ["What managed services handle", "Amazon RDS for MySQL and Aurora MySQL", "Azure Database for MySQL Flexible Server", "Google Cloud SQL for MySQL", "Parameter groups", "Backups and replicas", "Limits of managed services", "Cost comparison"],
           "tools": ["AWS RDS", "Azure Database for MySQL", "Google Cloud SQL"],
           "lab_task": "Create MySQL on two cloud providers, change parameters, add a replica, restore to a point in time and compare features, limits and cost.",
@@ -442,7 +442,7 @@
           "objectives": ["Run MySQL on Kubernetes", "Use operators", "Back up and restore on Kubernetes"]
         },
         {
-          "topic": "Disaster Recovery Across Regions",
+          "topic": "MySQL Disaster Recovery Across Regions",
           "subtopics": ["Recovery objectives", "Cross-region replicas", "Backup copies in another region", "Delayed replicas for human error", "Runbooks", "DR drills", "Failback", "Testing backups automatically"],
           "tools": ["MySQL replication", "XtraBackup", "Cloud storage"],
           "lab_task": "Add a cross-region replica and copied backups, run a DR drill that promotes the other region, fail back and automate a weekly restore test.",
@@ -478,7 +478,7 @@
           "objectives": ["Manage large tables", "Archive with low impact", "Keep old data available"]
         },
         {
-          "topic": "Security Hardening and Compliance",
+          "topic": "MySQL Security Hardening and Compliance",
           "subtopics": ["Threats to MySQL", "Least privilege at scale", "Separation of duties", "Encryption and key management", "Audit requirements for PCI DSS", "Masking data for test environments", "Patch management", "Evidence for auditors"],
           "tools": ["Audit log", "Keyring", "Data masking functions"],
           "lab_task": "Review a server against the CIS MySQL benchmark, fix failures, build a masked test copy and prepare audit evidence for access to card data.",
@@ -514,7 +514,7 @@
           "objectives": ["Monitor fleets", "Define database SLOs", "Find fleet-wide problems"]
         },
         {
-          "topic": "Capacity Planning and Cost",
+          "topic": "MySQL Capacity Planning and Cost",
           "subtopics": ["Growth forecasting", "Storage, CPU and connections", "Read scaling options", "Instance sizing in clouds", "Reserved capacity", "Archiving to save cost", "Consolidating databases", "Capacity reviews"],
           "tools": ["PMM", "Spreadsheet", "Cloud pricing tools"],
           "lab_task": "Forecast growth for 18 months, decide when to add replicas or shards, plan archiving and estimate savings from consolidating small databases.",

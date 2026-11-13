@@ -469,7 +469,7 @@
           "objectives": ["Use change data capture at scale", "Publish data products", "Protect data contracts"]
         },
         {
-          "topic": "Observability at Scale",
+          "topic": "Observability Across Hundreds of Services",
           "subtopics": ["Telemetry volume and cost", "Sampling strategies at scale", "High-cardinality data", "Service maps and dependency analysis", "Alert design across many teams", "Observability as a platform", "Standards for telemetry", "Using telemetry for architecture decisions"],
           "tools": ["OpenTelemetry Collector", "Grafana stack or a commercial platform", "Tail sampling"],
           "lab_task": "Design telemetry standards for 100 services, set up tail sampling in the collector, cut telemetry cost by half while keeping error traces and build service dependency maps.",

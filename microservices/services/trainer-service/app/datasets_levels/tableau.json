@@ -23,7 +23,7 @@
           "objectives": ["Describe Tableau products", "Navigate the workspace", "Build a first chart"]
         },
         {
-          "topic": "Connecting to Data Sources",
+          "topic": "Connecting Tableau to Data Sources",
           "subtopics": ["File sources: Excel, CSV and text", "Database connections", "The data source page", "Live connections and extracts", "Data interpreter", "Pivoting columns to rows", "Splitting fields", "Renaming and hiding fields"],
           "tools": ["Tableau Desktop", "Excel", "PostgreSQL"],
           "lab_task": "Connect to a messy Excel file with the data interpreter, pivot month columns into rows, split a full name field, then connect to a PostgreSQL table live and as an extract.",
@@ -300,7 +300,7 @@
           "objectives": ["Tune workbooks", "Use the optimiser", "Set performance guidelines"]
         },
         {
-          "topic": "Dashboard Design and Usability",
+          "topic": "Tableau Dashboard Design and Usability",
           "subtopics": ["Users and their questions", "Layout patterns", "Visual hierarchy", "Consistency across dashboards", "Mobile design", "Usability testing", "Measuring use with admin views", "Retiring unused dashboards"],
           "tools": ["Tableau Desktop", "Tableau Cloud admin insights"],
           "lab_task": "Interview two users, redesign a cluttered dashboard, test both versions with three tasks and use admin views to find dashboards nobody uses.",

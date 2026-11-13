@@ -65,7 +65,23 @@ _HOST_EXTRAS = {"DevOps": {"Prometheus and Grafana"},
                 "Full Stack": {"Node.js", "HTML and CSS"},
                 "Java Full Stack": {"HTML and CSS"},
                 "Python Full Stack": {"HTML and CSS", "Django", "FastAPI"},
-                ".NET Full Stack": {"HTML and CSS", "ASP.NET Core"}}
+                ".NET Full Stack": {"HTML and CSS", "ASP.NET Core"},
+                # "Flutter app for Android and iOS": the platforms are targets of the
+                # cross-platform course, not extra native courses.
+                "Flutter": {"Android Development", "iOS Development"},
+                "React Native": {"Android Development", "iOS Development"},
+                "Appium": {"Android Development", "iOS Development"},
+                "Testing & QA": {"Android Development", "iOS Development"}}
+# Mobile platform courses named as targets of another technology: "Firebase for
+# Android and iOS" and "penetration testing on Android and iOS" stay one block. A
+# language used to write native apps keeps both ("Kotlin for Android").
+_PLATFORM_TARGETS = {"Android Development", "iOS Development"}
+_NATIVE_LANGUAGES = {"Kotlin", "Swift", "Java", "Objective-C"}
+# Languages a course teaches as its own part: "Android with Kotlin" and "iOS using
+# Swift" are one block, while a plain list ("Kotlin and Android") keeps both. These
+# are not aliases, because an alias would also send a Kotlin-only request to the
+# Android course.
+_LINKED_PARTS = {"Android Development": {"Kotlin"}, "iOS Development": {"Swift"}}
 _PRIOR_KNOWLEDGE = re.compile(
     r"\b(?:know|knows|knowledge of|familiar with|experience (?:in|with)|experienced in|"
     r"prerequisites?|prior|already (?:use|using|work with))\s+(?:[a-z0-9+#.]+\s+){0,3}$")
@@ -216,6 +232,12 @@ def detect_technologies(primary_text, secondary_text=""):
                for host, family in _FAMILY_HOSTS.items()):
             return True
         if any(host in detected and domain in extras for host, extras in _HOST_EXTRAS.items()):
+            return True
+        if domain in _PLATFORM_TARGETS and linked[domain] and any(
+                other not in _PLATFORM_TARGETS and other not in _NATIVE_LANGUAGES
+                and order[other] < order[domain] for other in detected):
+            return True
+        if linked[domain] and any(host in detected and domain in parts for host, parts in _LINKED_PARTS.items()):
             return True
         own_name = matched[domain] == _norm(domain)
         hosts = [other for other in detected if other != domain and matched[domain] in raw.get(other, set())]

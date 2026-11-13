@@ -95,7 +95,7 @@
           "objectives": ["Understand HTTP in Node.js", "Build a server without a framework", "Explain what frameworks add"]
         },
         {
-          "topic": "REST APIs with Express",
+          "topic": "Building REST APIs with Express",
           "subtopics": ["Express application and routing", "Route parameters and query strings", "Request bodies with express.json", "Response helpers and status codes", "Routers for resources", "REST conventions for resources and verbs", "Express 5 changes from Express 4", "Testing endpoints with an HTTP client"],
           "tools": ["Express", "Postman or Bruno", "curl"],
           "lab_task": "Build a books API in Express with routers for books and authors, full CRUD, filtering by query string and correct REST status codes, tested from an HTTP client collection.",

@@ -7924,6 +7924,642 @@
           "Review service splits"
         ]
       }
+    },
+    {
+      "between": [
+        "REST API Design",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Implementing a Designed REST API in Spring Boot: springdoc, Validation and Problem Details",
+        "subtopics": [
+          "Starting from an OpenAPI description",
+          "Generating interfaces with OpenAPI Generator or writing to the contract",
+          "Bean Validation matching schema constraints",
+          "ProblemDetail responses in Spring",
+          "Pagination and sorting that match the design",
+          "ETags and conditional requests in Spring MVC",
+          "springdoc to compare generated docs with the design",
+          "Contract checks in the Maven or Gradle build"
+        ],
+        "tools": [
+          "Spring Boot",
+          "OpenAPI Generator",
+          "springdoc-openapi",
+          "Schemathesis"
+        ],
+        "lab_task": "Implement a designed orders API in Spring Boot from its OpenAPI description with Bean Validation, ProblemDetail errors, designed pagination and ETags, and fail the build when the implementation drifts.",
+        "deliverable": "Spring Boot API that matches its design",
+        "checks": [
+          [
+            "Compare docs",
+            "Generated docs match the designed description",
+            "oasdiff output"
+          ],
+          [
+            "Return problem details",
+            "Validation errors use the designed error format",
+            "Response"
+          ],
+          [
+            "Fail on drift",
+            "Build fails when an endpoint breaks the contract",
+            "Build log"
+          ]
+        ],
+        "objectives": [
+          "Build Spring Boot APIs from designs",
+          "Match errors and pagination to the design",
+          "Prevent design drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "REST API Design",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Implementing a Designed REST API in Node.js with OpenAPI Validation",
+        "subtopics": [
+          "Loading the OpenAPI description at start-up",
+          "Request and response validation middleware",
+          "Generating types from the description",
+          "Problem Details error handler",
+          "Pagination and filtering that match the design",
+          "ETags and conditional requests in Express or Fastify",
+          "Mock-first development with Prism",
+          "Contract tests in CI"
+        ],
+        "tools": [
+          "Node.js",
+          "Express or Fastify",
+          "express-openapi-validator or Fastify schemas",
+          "openapi-typescript",
+          "Prism"
+        ],
+        "lab_task": "Implement a designed orders API in Node.js with validation middleware driven by the description, generated types, Problem Details errors, designed pagination and contract tests in CI.",
+        "deliverable": "Node.js API that matches its design",
+        "checks": [
+          [
+            "Validate requests",
+            "Invalid requests rejected by the description-driven validator",
+            "Response"
+          ],
+          [
+            "Validate responses",
+            "Response that breaks the schema caught in tests",
+            "Test output"
+          ],
+          [
+            "Run contract tests",
+            "CI fails on a contract mismatch",
+            "CI log"
+          ]
+        ],
+        "objectives": [
+          "Build Node.js APIs from designs",
+          "Validate against OpenAPI",
+          "Keep code and design in step"
+        ]
+      }
+    },
+    {
+      "between": [
+        "REST API Design",
+        "FastAPI"
+      ],
+      "day": {
+        "topic": "Contract-First FastAPI: Matching a Designed OpenAPI Description",
+        "subtopics": [
+          "Design-first compared with FastAPI's code-first schema",
+          "Generating Pydantic models from a description",
+          "Matching paths, parameters and responses",
+          "Problem Details responses in FastAPI",
+          "Pagination and filtering that match the design",
+          "Comparing the generated schema with the design",
+          "Contract tests with Schemathesis",
+          "Keeping both in step over time"
+        ],
+        "tools": [
+          "FastAPI",
+          "datamodel-code-generator",
+          "oasdiff",
+          "Schemathesis"
+        ],
+        "lab_task": "Implement a designed API in FastAPI with Pydantic models generated from the description, compare FastAPI's generated schema with the design and fail CI on differences.",
+        "deliverable": "FastAPI service that matches its design",
+        "checks": [
+          [
+            "Compare schemas",
+            "FastAPI schema matches the designed description",
+            "oasdiff output"
+          ],
+          [
+            "Return problem details",
+            "Errors use the designed format",
+            "Response"
+          ],
+          [
+            "Fuzz the API",
+            "Schemathesis finds no mismatches",
+            "Schemathesis report"
+          ]
+        ],
+        "objectives": [
+          "Build FastAPI services from designs",
+          "Generate models from OpenAPI",
+          "Detect schema drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "REST API Design",
+        "Python"
+      ],
+      "day": {
+        "topic": "Building a Designed REST API in Python: Framework Choice, Validation and Tests",
+        "subtopics": [
+          "Python framework options for REST APIs",
+          "Mapping a design to Flask, FastAPI or Django REST Framework",
+          "Validation libraries and schemas",
+          "Error format and status codes",
+          "Pagination, filtering and sorting in SQLAlchemy or the Django ORM",
+          "Testing against the description",
+          "Packaging and running the service",
+          "Choosing a framework for a team"
+        ],
+        "tools": [
+          "Python",
+          "Flask, FastAPI or Django REST Framework",
+          "pytest",
+          "Schemathesis"
+        ],
+        "lab_task": "Build the same small designed API in two Python frameworks, test both against the description and recommend one for a team with reasons.",
+        "deliverable": "Two implementations and a recommendation",
+        "checks": [
+          [
+            "Pass contract tests",
+            "Both implementations pass description-based tests",
+            "Test output"
+          ],
+          [
+            "Compare frameworks",
+            "Effort, features and performance compared",
+            "Comparison table"
+          ],
+          [
+            "Recommend",
+            "Recommendation fits the team's needs",
+            "Recommendation document"
+          ]
+        ],
+        "objectives": [
+          "Implement designed APIs in Python",
+          "Compare Python frameworks",
+          "Test against API descriptions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "REST API Design",
+        "ASP.NET Core"
+      ],
+      "day": {
+        "topic": "Implementing a Designed REST API in ASP.NET Core: OpenAPI, ProblemDetails and Versioning",
+        "subtopics": [
+          "Starting from an OpenAPI description in .NET",
+          "Generating controllers or writing minimal APIs to the contract",
+          "Validation that matches schema constraints",
+          "ProblemDetails for every error",
+          "Designed pagination and filtering with EF Core",
+          "ETags and conditional requests",
+          "Versioning with Asp.Versioning to match the design",
+          "Comparing the built-in OpenAPI document with the design"
+        ],
+        "tools": [
+          "ASP.NET Core",
+          "NSwag or OpenAPI Generator",
+          "Microsoft.AspNetCore.OpenApi",
+          "oasdiff"
+        ],
+        "lab_task": "Implement a designed orders API in ASP.NET Core with validation, ProblemDetails, designed pagination, ETags and versioning, and fail the build when the generated document drifts from the design.",
+        "deliverable": "ASP.NET Core API that matches its design",
+        "checks": [
+          [
+            "Compare documents",
+            "Generated OpenAPI document matches the design",
+            "oasdiff output"
+          ],
+          [
+            "Use conditional requests",
+            "Stale ETag update returns 412",
+            "Response"
+          ],
+          [
+            "Fail on drift",
+            "Build fails on a contract change",
+            "Build log"
+          ]
+        ],
+        "objectives": [
+          "Build ASP.NET Core APIs from designs",
+          "Match versioning and errors to the design",
+          "Prevent design drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Android Development",
+        "Kotlin"
+      ],
+      "day": {
+        "topic": "Kotlin Language Depth for Android Code: Coroutines, Flows and DSLs",
+        "subtopics": [
+          "Kotlin features that shape Android code",
+          "Scope functions and when to use each",
+          "Sealed interfaces for UI state",
+          "Inline and reified functions",
+          "Delegated properties",
+          "Writing small DSLs",
+          "Coroutine and Flow idioms in apps",
+          "Kotlin style rules and ktlint or detekt"
+        ],
+        "tools": [
+          "Kotlin",
+          "Android Studio",
+          "detekt or ktlint"
+        ],
+        "lab_task": "Refactor an Android feature to idiomatic Kotlin with sealed UI state, delegated properties, a small DSL for test data and clean coroutine code, and enforce style with detekt.",
+        "deliverable": "Refactored feature with lint configuration",
+        "checks": [
+          [
+            "Model UI state",
+            "Sealed interfaces cover every screen state",
+            "Code review"
+          ],
+          [
+            "Write a DSL",
+            "Test data built with the DSL",
+            "Test code"
+          ],
+          [
+            "Enforce style",
+            "detekt reports no issues",
+            "detekt output"
+          ]
+        ],
+        "objectives": [
+          "Write idiomatic Kotlin for Android",
+          "Use advanced language features",
+          "Enforce Kotlin style"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Android Development",
+        "iOS Development"
+      ],
+      "day": {
+        "topic": "Building the Same Feature on Android and iOS: Compose and SwiftUI Side by Side",
+        "subtopics": [
+          "Mapping Compose concepts to SwiftUI",
+          "State management on each platform",
+          "Navigation patterns compared",
+          "Networking and persistence compared",
+          "Platform design guidelines: Material and Human Interface",
+          "Sharing designs and assets",
+          "Sharing logic or keeping it separate",
+          "Planning features for two platforms"
+        ],
+        "tools": [
+          "Android Studio",
+          "Xcode",
+          "Jetpack Compose",
+          "SwiftUI"
+        ],
+        "lab_task": "Build the same feature on both platforms with Compose and SwiftUI following each platform's guidelines, compare the code and decide what, if anything, to share.",
+        "deliverable": "Two implementations with a comparison",
+        "checks": [
+          [
+            "Match behaviour",
+            "Both apps pass the same acceptance checklist",
+            "Checklist"
+          ],
+          [
+            "Follow guidelines",
+            "Each app follows its platform's design guidelines",
+            "Review notes"
+          ],
+          [
+            "Decide on sharing",
+            "Sharing decision recorded with reasons",
+            "Decision record"
+          ]
+        ],
+        "objectives": [
+          "Build features on both platforms",
+          "Map Compose and SwiftUI concepts",
+          "Plan cross-platform work"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Android Development",
+        "Java"
+      ],
+      "day": {
+        "topic": "Java Code in Android Apps: Interop with Kotlin and Legacy Modules",
+        "subtopics": [
+          "Java in today's Android projects",
+          "Calling Java from Kotlin and Kotlin from Java",
+          "Nullability annotations for interop",
+          "Java 8 and later language features on Android",
+          "Maintaining legacy Java modules",
+          "Testing Java code in an Android project",
+          "Converting Java code step by step",
+          "Coding standards for mixed codebases"
+        ],
+        "tools": [
+          "Android Studio",
+          "Java",
+          "Kotlin",
+          "JUnit"
+        ],
+        "lab_task": "Add a Kotlin feature to a Java Android module, fix interop nullability problems with annotations, convert one class to Kotlin and keep all tests passing.",
+        "deliverable": "Mixed-language module with tests",
+        "checks": [
+          [
+            "Call across languages",
+            "Kotlin and Java code call each other cleanly",
+            "Build output"
+          ],
+          [
+            "Fix nullability",
+            "Platform type warnings resolved with annotations",
+            "Lint output"
+          ],
+          [
+            "Convert a class",
+            "Converted class passes the original tests",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Use Java in Android projects",
+          "Handle Kotlin interop",
+          "Convert code safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "iOS Development",
+        "Swift"
+      ],
+      "day": {
+        "topic": "Swift Language Depth for iOS Code: Generics, Protocols and Concurrency",
+        "subtopics": [
+          "Swift features that shape iOS code",
+          "Generics and associated types",
+          "Protocol-oriented design",
+          "Opaque and existential types",
+          "Result builders",
+          "Property wrappers",
+          "Macros",
+          "Swift style rules with SwiftLint"
+        ],
+        "tools": [
+          "Swift",
+          "Xcode",
+          "SwiftLint"
+        ],
+        "lab_task": "Refactor an iOS feature with generic repositories, protocol-oriented services, a small result builder and a property wrapper, and enforce style with SwiftLint.",
+        "deliverable": "Refactored feature with lint configuration",
+        "checks": [
+          [
+            "Use generics",
+            "One generic repository serves three models",
+            "Code review"
+          ],
+          [
+            "Write a result builder",
+            "Builder produces the expected structure",
+            "Test output"
+          ],
+          [
+            "Enforce style",
+            "SwiftLint reports no violations",
+            "SwiftLint output"
+          ]
+        ],
+        "objectives": [
+          "Write idiomatic Swift for iOS",
+          "Use generics and protocols",
+          "Enforce Swift style"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Redis",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Spring Boot with Redis: Spring Data Redis, Caching and Sessions",
+        "subtopics": [
+          "Spring Data Redis set-up with Lettuce",
+          "RedisTemplate and serialisers",
+          "Spring Cache with Redis",
+          "Cache names, TTLs and eviction",
+          "Spring Session with Redis",
+          "Redis repositories and when to avoid them",
+          "Streams and pub/sub with Spring",
+          "Testing with a Redis container"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring Data Redis",
+          "Spring Session",
+          "Testcontainers"
+        ],
+        "lab_task": "Add Redis caching with per-cache TTLs, Spring Session for shared sessions across two instances and a Redis stream listener to a Spring Boot service, tested with Testcontainers.",
+        "deliverable": "Spring Boot service using Redis with tests",
+        "checks": [
+          [
+            "Cache results",
+            "Cached method skips the database on repeat calls",
+            "Log output"
+          ],
+          [
+            "Share sessions",
+            "Session survives switching between two instances",
+            "Test output"
+          ],
+          [
+            "Test with a container",
+            "Tests pass against a Redis container",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Use Redis from Spring Boot",
+          "Configure caching and sessions",
+          "Test Redis integration"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Redis",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Node.js with Redis: Caching, Rate Limits and BullMQ Queues",
+        "subtopics": [
+          "node-redis and ioredis",
+          "Connection handling and reconnection",
+          "Caching API responses",
+          "Rate limiting middleware with Redis",
+          "BullMQ queues and workers",
+          "Pub/sub for real-time updates",
+          "Redis in serverless Node.js",
+          "Testing with a Redis container"
+        ],
+        "tools": [
+          "Node.js",
+          "ioredis or node-redis",
+          "BullMQ",
+          "Testcontainers"
+        ],
+        "lab_task": "Add Redis caching, a Redis-backed rate limiter and a BullMQ email queue to a Node.js API, broadcast updates with pub/sub and test against a Redis container.",
+        "deliverable": "Node.js service using Redis with tests",
+        "checks": [
+          [
+            "Limit requests",
+            "Rate limiter returns 429 across two instances",
+            "Test output"
+          ],
+          [
+            "Process jobs",
+            "BullMQ worker processes queued emails with retries",
+            "Worker log"
+          ],
+          [
+            "Reconnect",
+            "Service recovers after a Redis restart",
+            "Log output"
+          ]
+        ],
+        "objectives": [
+          "Use Redis from Node.js",
+          "Build queues and limits",
+          "Handle reconnection"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Redis",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python with Redis: redis-py, Caching and Celery Brokers",
+        "subtopics": [
+          "redis-py sync and asyncio clients",
+          "Connection pools",
+          "Caching function results",
+          "Redis as a Celery broker and result backend",
+          "Rate limits and locks from Python",
+          "Streams consumers in Python",
+          "Serialisation choices",
+          "Testing with fakeredis or containers"
+        ],
+        "tools": [
+          "Python",
+          "redis-py",
+          "Celery",
+          "fakeredis",
+          "Testcontainers"
+        ],
+        "lab_task": "Add Redis caching to a Python service, run Celery tasks with Redis as broker and backend, consume a Redis stream with asyncio and test with fakeredis and a container.",
+        "deliverable": "Python service using Redis with tests",
+        "checks": [
+          [
+            "Cache results",
+            "Cached function avoids repeated slow calls",
+            "Timing comparison"
+          ],
+          [
+            "Run Celery",
+            "Tasks run through the Redis broker",
+            "Worker log"
+          ],
+          [
+            "Test both ways",
+            "Tests pass with fakeredis and with a container",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Use Redis from Python",
+          "Run Celery on Redis",
+          "Test Redis code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Redis",
+        "Microservices"
+      ],
+      "day": {
+        "topic": "Redis in a Microservice Estate: Shared Caches, Streams and Locks",
+        "subtopics": [
+          "Redis per service compared with shared Redis",
+          "Key ownership and prefixes between services",
+          "Cache invalidation across services",
+          "Streams for events between services",
+          "Distributed locks across services",
+          "Rate limiting at the gateway with Redis",
+          "Failure isolation",
+          "Governance of Redis use"
+        ],
+        "tools": [
+          "Redis",
+          "Microservices sample",
+          "API gateway"
+        ],
+        "lab_task": "Review a service estate's Redis use, separate keys by service, move cross-service events to streams, add gateway rate limits and show that one service's Redis problem no longer spreads.",
+        "deliverable": "Redis architecture changes for the estate",
+        "checks": [
+          [
+            "Separate keys",
+            "No service reads another service's keys",
+            "Configuration review"
+          ],
+          [
+            "Use streams",
+            "Events between services flow through streams",
+            "Log output"
+          ],
+          [
+            "Isolate failures",
+            "A failing Redis for one service leaves others working",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Use Redis across services",
+          "Isolate failures",
+          "Govern Redis use"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -11682,6 +12318,237 @@
           "Combine system design and microservices",
           "Turn a design into running services",
           "Learn from design versus reality"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "REST API Design",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Designed and Built REST API on Spring Boot",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Test",
+          "Present"
+        ],
+        "tools": [
+          "OpenAPI",
+          "Spectral",
+          "Spring Boot",
+          "Schemathesis",
+          "Postman or Bruno"
+        ],
+        "lab_task": "Design a partner API in OpenAPI with style rules, review it with consumers, build it in Spring Boot to match the design, test it with contract and fuzz tests and present the result.",
+        "deliverable": "Description, implementation, test reports and presentation",
+        "checks": [
+          [
+            "Match the design",
+            "Implementation passes all contract checks",
+            "Test reports"
+          ],
+          [
+            "Pass the review",
+            "Consumer review comments resolved",
+            "Review record"
+          ],
+          [
+            "Defend the design",
+            "Design choices explained against REST principles",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine API design and Spring Boot",
+          "Build to a design",
+          "Defend API choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "REST API Design",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Contract-First REST API on Node.js",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Test",
+          "Present"
+        ],
+        "tools": [
+          "OpenAPI",
+          "Prism",
+          "Node.js",
+          "Fastify or Express",
+          "Schemathesis"
+        ],
+        "lab_task": "Design an API in OpenAPI, let a front-end team build against the mock, implement it in Node.js with description-driven validation, test it and present the contract-first process.",
+        "deliverable": "Description, implementation, test reports and presentation",
+        "checks": [
+          [
+            "Build against the mock",
+            "Front end built against the mock before the API existed",
+            "Timeline"
+          ],
+          [
+            "Match the design",
+            "Contract and fuzz tests pass",
+            "Test reports"
+          ],
+          [
+            "Present the process",
+            "Contract-first steps and lessons explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine API design and Node.js",
+          "Work contract-first",
+          "Present the process"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Android Development",
+        "iOS Development"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: One Product on Android and iOS",
+        "subtopics": [
+          "Plan",
+          "Build both apps",
+          "Quality",
+          "Release"
+        ],
+        "tools": [
+          "Android Studio",
+          "Xcode",
+          "Jetpack Compose",
+          "SwiftUI",
+          "Firebase",
+          "TestFlight and Play internal testing"
+        ],
+        "lab_task": "Build one product on Android and iOS with native UIs, a shared back end, push notifications, offline support and tests, release both to testers and compare the work on each platform.",
+        "deliverable": "Two apps, test releases and comparison report",
+        "checks": [
+          [
+            "Demo both apps",
+            "Main journeys work the same on both platforms",
+            "Demo recording"
+          ],
+          [
+            "Release to testers",
+            "Both apps installed by testers",
+            "Tester screenshots"
+          ],
+          [
+            "Compare platforms",
+            "Effort and issues compared for each platform",
+            "Comparison report"
+          ]
+        ],
+        "objectives": [
+          "Combine Android and iOS development",
+          "Ship one product on two platforms",
+          "Compare platform work"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Redis",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Spring Boot Service with a Redis Data Layer",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Operate",
+          "Present"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring Data Redis",
+          "Redis",
+          "Testcontainers",
+          "Prometheus"
+        ],
+        "lab_task": "Build a Spring Boot service that uses Redis for caching, sessions, rate limits, streams and leaderboards with persistence, security and monitoring, then present it.",
+        "deliverable": "Repository, running service and presentation",
+        "checks": [
+          [
+            "Demo the service",
+            "Caching, sessions, limits and leaderboards work",
+            "Demo recording"
+          ],
+          [
+            "Survive a restart",
+            "Service recovers after Redis restarts",
+            "Test record"
+          ],
+          [
+            "Defend choices",
+            "Redis data structure choices explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Redis and Spring Boot",
+          "Build a Redis data layer",
+          "Operate it safely"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Redis",
+        "Node.js"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Real-Time Node.js Service on Redis",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Operate",
+          "Present"
+        ],
+        "tools": [
+          "Node.js",
+          "ioredis",
+          "BullMQ",
+          "Redis Streams",
+          "Prometheus"
+        ],
+        "lab_task": "Build a real-time Node.js service with Redis for caching, queues, streams, pub/sub and rate limits, run it highly available and present it with monitoring.",
+        "deliverable": "Repository, running service and presentation",
+        "checks": [
+          [
+            "Demo real-time updates",
+            "Live updates reach clients through Redis",
+            "Demo recording"
+          ],
+          [
+            "Survive a failover",
+            "Service keeps working through a Redis failover",
+            "Failover record"
+          ],
+          [
+            "Defend choices",
+            "Queue and stream choices explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Redis and Node.js",
+          "Build real-time features",
+          "Run them reliably"
         ]
       }
     }

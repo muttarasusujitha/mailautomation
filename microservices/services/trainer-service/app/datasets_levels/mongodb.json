@@ -424,7 +424,7 @@
           "objectives": ["Plan DR", "Run drills", "Test backups automatically"]
         },
         {
-          "topic": "Performance Engineering at Scale",
+          "topic": "MongoDB Performance Engineering at Scale",
           "subtopics": ["Benchmarking with realistic workloads", "Index strategy for many query shapes", "Aggregation optimisation", "Write-heavy workloads", "Hot documents", "Caching layers", "Hardware and storage choices", "Performance regression testing"],
           "tools": ["Load generators", "Profiler", "Atlas Query Insights"],
           "lab_task": "Benchmark a mixed workload, fix the top bottlenecks including a hot counter document and a slow pipeline, and add a performance regression test.",

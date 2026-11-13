@@ -327,7 +327,7 @@
           "objectives": ["Encrypt data", "Mask and filter rows", "Audit access"]
         },
         {
-          "topic": "Table Partitioning",
+          "topic": "SQL Server Table Partitioning",
           "subtopics": ["Partition functions and schemes", "Aligned indexes", "Partition elimination", "Sliding window with SWITCH, SPLIT and MERGE", "Partitioning and columnstore", "Statistics per partition", "Truncating partitions", "When partitioning helps"],
           "tools": ["T-SQL", "SSMS"],
           "lab_task": "Partition a 100-million-row sales table by month, show partition elimination, run a monthly sliding window that switches out the oldest month and truncate a partition.",
@@ -478,7 +478,7 @@
           "objectives": ["Run SQL Server on Linux", "Run it in Kubernetes", "Decide on containers"]
         },
         {
-          "topic": "Security Hardening and Compliance",
+          "topic": "SQL Server Security Hardening and Compliance",
           "subtopics": ["Attack surface", "Service accounts and least privilege", "Separating DBA duties", "Ledger tables", "Microsoft Defender for SQL", "Vulnerability assessment", "Compliance evidence", "Security baselines"],
           "tools": ["Microsoft Defender for SQL", "Ledger", "SQL vulnerability assessment"],
           "lab_task": "Harden an instance against a baseline, run vulnerability assessment, create a ledger table and prove tampering is detected, and assemble compliance evidence.",

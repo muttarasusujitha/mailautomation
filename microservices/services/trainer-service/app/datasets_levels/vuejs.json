@@ -149,7 +149,7 @@
           "objectives": ["Manage shared state with Pinia", "Write getters and actions", "Debug stores"]
         },
         {
-          "topic": "Fetching Data from APIs",
+          "topic": "Fetching API Data in Vue Components",
           "subtopics": ["fetch and axios in Vue apps", "Loading, error and empty states", "Fetching on mount and on route change", "Cancelling requests", "Handling authentication tokens", "Environment-based API URLs", "Mocking APIs in development", "Optimistic updates in brief"],
           "tools": ["axios or fetch", "Mock Service Worker", "Vue 3"],
           "lab_task": "Connect the shop to a REST API with loading and error states, refetch when the route changes, cancel stale requests and mock the API with Mock Service Worker for offline work.",

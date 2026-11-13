@@ -273,7 +273,7 @@
           "objectives": ["Render on the server", "Hydrate incrementally", "Prerender routes"]
         },
         {
-          "topic": "Internationalisation and Localisation",
+          "topic": "Internationalising Angular Apps with i18n and Locale Data",
           "subtopics": ["Angular i18n", "Marking text for translation", "Extracting messages", "Plurals and select", "Locale data for dates and numbers", "Building per locale", "Runtime translation libraries", "Right-to-left layouts"],
           "tools": ["Angular i18n", "Transloco or ngx-translate"],
           "lab_task": "Translate the app into Hindi and Arabic, handle plurals, format dates and numbers per locale and fix the layout for right-to-left text.",
@@ -496,7 +496,7 @@
           "objectives": ["Add AI features", "Stream responses", "Make AI interfaces accessible"]
         },
         {
-          "topic": "Accessibility Programmes for Product Teams",
+          "topic": "Accessibility Programmes for Angular Product Teams",
           "subtopics": ["Accessibility law: EU Accessibility Act, ADA and India's RPwD Act", "Accessibility standards for teams", "Automated checks in CI", "Manual testing plans", "Testing with disabled users", "Accessibility in design reviews", "Training developers", "Measuring progress"],
           "tools": ["axe-core", "Playwright", "Screen readers"],
           "lab_task": "Write an accessibility standard for the team, add axe checks to CI, run a manual audit of three journeys and plan training and fixes.",

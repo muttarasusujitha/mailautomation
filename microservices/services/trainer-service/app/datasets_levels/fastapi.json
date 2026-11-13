@@ -397,7 +397,7 @@
           "objectives": ["Explain ASGI and FastAPI internals", "Write ASGI middleware", "Understand concurrency in FastAPI"]
         },
         {
-          "topic": "Microservices with FastAPI: Boundaries and Communication",
+          "topic": "Designing Python Service Boundaries with FastAPI, gRPC and Messaging",
           "subtopics": ["Finding service boundaries", "Synchronous calls with HTTPX and gRPC", "Asynchronous messaging", "Data ownership per service", "Sagas across services", "Shared libraries and templates", "Versioned contracts", "When a modular monolith is better"],
           "tools": ["FastAPI", "gRPC", "RabbitMQ or NATS", "Docker Compose"],
           "lab_task": "Split an order monolith into order, payment and stock services with owned data, coordinate checkout with a saga and compare latency and complexity with the monolith.",

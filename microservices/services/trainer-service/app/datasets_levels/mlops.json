@@ -41,7 +41,7 @@
           "objectives": ["Reproduce environments", "Control randomness", "Containerise training"]
         },
         {
-          "topic": "Experiment Tracking with MLflow",
+          "topic": "Tracking Experiments and Runs with MLflow",
           "subtopics": ["Why track experiments", "MLflow tracking server", "Logging parameters, metrics and artefacts", "Autologging", "Comparing runs", "Tags and run names", "Nested runs for tuning", "Sharing results with the team"],
           "tools": ["MLflow", "scikit-learn"],
           "lab_task": "Run an MLflow tracking server, log 20 training runs with different settings, compare them in the UI and pick the best run with a reason.",
@@ -291,7 +291,7 @@
           "objectives": ["Run MLOps on Vertex AI", "Split traffic", "Monitor skew and drift"]
         },
         {
-          "topic": "Distributed Training and GPU Efficiency",
+          "topic": "Running Distributed Training Jobs and Using GPUs Efficiently",
           "subtopics": ["When to distribute training", "Data parallelism", "PyTorch DistributedDataParallel", "Mixed precision", "GPU use and bottlenecks", "Data loading speed", "Checkpointing", "Spot instances for training"],
           "tools": ["PyTorch", "torchrun", "NVIDIA tools"],
           "lab_task": "Train an image model on one and then four GPUs with DDP and mixed precision, fix a data loading bottleneck and resume from a checkpoint after interruption.",
