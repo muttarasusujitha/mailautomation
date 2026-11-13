@@ -1,0 +1,573 @@
+{
+  "domain": "Project Management",
+  "name": "Project Management",
+  "category": "Project Management",
+  "icon": "clipboard-list",
+  "aliases": ["Project Management Fundamentals", "Project Management Training", "Project Manager Training", "IT Project Management", "Program Management", "Programme Management", "PMP", "PMP Exam Preparation", "PRINCE2", "Microsoft Project"],
+  "certifications": ["PMI Certified Associate in Project Management (CAPM)", "PMI Project Management Professional (PMP)", "PRINCE2 Foundation and Practitioner", "PMI Program Management Professional (PgMP)"],
+  "tools": ["Microsoft Project or ProjectLibre", "Excel", "Jira", "Microsoft Teams", "Miro"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new project managers, team leads and coordinators. Covers what projects are, the project life cycle, starting a project, scope, schedule, cost, risk, quality, communication and stakeholders, team leadership, monitoring and closing, using predictive and agile ideas, ending with a complete plan for a small project.",
+      "prerequisites": ["Has worked in a team on any kind of project", "Comfortable with Excel and office tools", "No project management qualification needed"],
+      "outcomes": ["Start, plan, run and close a small project", "Build scope, schedule, budget and risk plans", "Communicate with stakeholders and report progress", "Choose between predictive, agile and hybrid approaches"],
+      "days": [
+        {
+          "topic": "Project Management Overview and Course Setup",
+          "subtopics": ["What a project is and how it differs from operations", "The project manager's role", "Project, programme and portfolio", "Predictive, agile and hybrid approaches", "Project life cycle and phases", "Standards: PMBOK Guide, PRINCE2 and agile frameworks", "Why projects fail", "Tools used in the course", "The course case study", "Personal learning goals"],
+          "tools": ["Excel", "Microsoft Teams", "Miro"],
+          "lab_task": "Analyse a provided failed project case, list the five main causes of failure and map each to a project management practice covered later in the course.",
+          "deliverable": "Failure analysis with causes and matching practices",
+          "checks": [["List the causes", "Five causes, each supported by evidence from the case", "Analysis sheet"], ["Map causes to practices", "Each cause has a matching practice", "Analysis sheet"], ["Explain project versus operations", "Correct explanation with an example", "Written answer"]],
+          "objectives": ["Explain what project management is", "Compare delivery approaches", "Recognise causes of project failure"]
+        },
+        {
+          "topic": "Starting a Project: Business Case and Project Charter",
+          "subtopics": ["Business needs and objectives", "Business case contents", "Benefits and costs", "SMART objectives", "Project charter", "Assumptions and constraints", "High-level risks", "Approval and sponsor role"],
+          "tools": ["Excel", "Word"],
+          "lab_task": "Write a business case and project charter for the case study, with SMART objectives, a cost-benefit summary, assumptions, constraints and high-level risks, and get it signed off in a role play.",
+          "deliverable": "Business case and project charter",
+          "checks": [["Review the objectives", "All are specific and measurable", "Charter"], ["Review the cost-benefit summary", "Payback period calculated", "Business case"], ["Present to the sponsor", "Charter approved or changes recorded", "Sign-off record"]],
+          "objectives": ["Build a business case", "Write a project charter", "Gain sponsor approval"]
+        },
+        {
+          "topic": "Stakeholder Identification and Engagement",
+          "subtopics": ["Who stakeholders are", "Stakeholder register", "Power and interest grid", "Engagement levels", "Engagement strategies", "Managing resistance", "RACI charts", "Updating engagement through the project"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Identify 15 stakeholders for the case study, map them on a power and interest grid, define engagement strategies and build a RACI chart for the main deliverables.",
+          "deliverable": "Stakeholder register, grid and RACI chart",
+          "checks": [["Review the grid", "Each stakeholder placed with a reason", "Grid"], ["Review the RACI", "Exactly one accountable person per deliverable", "RACI chart"], ["Plan for a resistant stakeholder", "Strategy is specific", "Engagement plan"]],
+          "objectives": ["Identify and analyse stakeholders", "Plan engagement", "Clarify roles with RACI"]
+        },
+        {
+          "topic": "Scope Management: Requirements and Work Breakdown Structure",
+          "subtopics": ["Collecting requirements", "Interviews, workshops and surveys", "Requirements traceability", "Scope statement", "In scope and out of scope", "Work breakdown structure", "WBS dictionary", "Scope baseline"],
+          "tools": ["Excel", "Miro", "Microsoft Project or ProjectLibre"],
+          "lab_task": "Run a requirements workshop role play, write the scope statement and build a three-level WBS with a dictionary for the case study.",
+          "deliverable": "Requirements list, scope statement and WBS",
+          "checks": [["Review the WBS", "Every deliverable broken down to work packages", "WBS"], ["Trace requirements to deliverables", "Every requirement traced", "Traceability matrix"], ["Review the out-of-scope list", "At least five clear exclusions", "Scope statement"]],
+          "objectives": ["Gather requirements", "Define scope", "Build a WBS"]
+        },
+        {
+          "topic": "Schedule Planning: Activities, Dependencies and the Critical Path",
+          "subtopics": ["Defining activities", "Sequencing and dependency types", "Estimating durations", "Network diagrams", "Critical path method", "Float", "Milestones", "Gantt charts"],
+          "tools": ["Microsoft Project or ProjectLibre", "Excel"],
+          "lab_task": "Turn the WBS into activities with dependencies and estimates, build the schedule in a scheduling tool, find the critical path and float, and set milestones.",
+          "deliverable": "Schedule file with critical path and milestones",
+          "checks": [["Show the critical path", "Critical tasks highlighted with zero float", "Gantt chart"], ["Delay a non-critical task within its float", "End date unchanged", "Gantt chart"], ["Delay a critical task by two days", "End date moves by two days", "Gantt chart"]],
+          "objectives": ["Build a schedule", "Find the critical path", "Use float"]
+        },
+        {
+          "topic": "Estimating Time and Cost",
+          "subtopics": ["Analogous estimating", "Parametric estimating", "Three-point estimates", "Bottom-up estimating", "Contingency reserves", "Cost baseline", "Budget phasing", "Estimate accuracy ranges"],
+          "tools": ["Excel"],
+          "lab_task": "Estimate the case study's work packages with three methods, build a time-phased budget with contingency and compare the estimates.",
+          "deliverable": "Estimates and budget workbook",
+          "checks": [["Calculate three-point estimates", "PERT values correct", "Workbook"], ["Phase the budget by month", "Totals equal the baseline", "Workbook"], ["Compare methods", "Differences explained", "Note"]],
+          "objectives": ["Estimate time and cost", "Build a budget", "Plan reserves"]
+        },
+        {
+          "topic": "Resource Planning and Team Building",
+          "subtopics": ["Resource needs", "Skills matrix", "Resource histograms", "Resource levelling", "Team charter", "Team development stages", "Motivation", "Remote and hybrid teams"],
+          "tools": ["Microsoft Project or ProjectLibre", "Excel"],
+          "lab_task": "Assign resources to the schedule, find over-allocations, level them and write a team charter for a hybrid team.",
+          "deliverable": "Resourced schedule and team charter",
+          "checks": [["Show over-allocation", "Over-allocated people identified", "Resource view"], ["Level resources", "Over-allocations removed with the new end date shown", "Gantt chart"], ["Review the team charter", "Working hours, tools and decision rules included", "Team charter"]],
+          "objectives": ["Plan resources", "Level workloads", "Build a team charter"]
+        },
+        {
+          "topic": "Risk Management",
+          "subtopics": ["Risk and issue differences", "Identifying risks", "Risk register", "Probability and impact assessment", "Risk responses for threats and opportunities", "Risk owners", "Contingency and fallback plans", "Reviewing risks"],
+          "tools": ["Excel"],
+          "lab_task": "Identify 15 risks for the case study, assess them on a probability and impact matrix, plan responses with owners and calculate the contingency they need.",
+          "deliverable": "Risk register and contingency calculation",
+          "checks": [["Review the matrix", "Top five risks identified", "Matrix"], ["Review the responses", "Each high risk has a specific response and owner", "Risk register"], ["Calculate expected monetary value", "Contingency calculated correctly", "Workbook"]],
+          "objectives": ["Identify and assess risks", "Plan responses", "Size contingency"]
+        },
+        {
+          "topic": "Quality Management",
+          "subtopics": ["Quality versus grade", "Quality planning", "Acceptance criteria", "Quality assurance and quality control", "Reviews and inspections", "Checklists", "Root cause analysis with fishbone diagrams", "Continuous improvement"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Write acceptance criteria and a quality checklist for three deliverables, run a review role play and do a fishbone analysis of a quality problem.",
+          "deliverable": "Quality plan, checklist, review record and fishbone diagram",
+          "checks": [["Review the acceptance criteria", "Each is testable", "Quality plan"], ["Run the review", "Defects recorded against the checklist", "Review record"], ["Review the fishbone", "Root cause supported by evidence", "Diagram"]],
+          "objectives": ["Plan quality", "Run reviews", "Find root causes"]
+        },
+        {
+          "topic": "Communication Planning and Reporting",
+          "subtopics": ["Communication needs", "Communication plan", "Status reports", "RAG status", "Meetings that work", "Escalation paths", "Dashboards", "Writing clearly for executives"],
+          "tools": ["Excel", "Microsoft Teams", "PowerPoint"],
+          "lab_task": "Build a communication plan, write a one-page status report with RAG status for the sponsor and run a 15-minute status meeting with an agenda and actions.",
+          "deliverable": "Communication plan, status report and meeting notes",
+          "checks": [["Review the status report", "Fits on one page with clear RAG reasons", "Report"], ["Review meeting notes", "Every action has an owner and date", "Notes"], ["Review the escalation path", "Thresholds defined", "Communication plan"]],
+          "objectives": ["Plan communication", "Report status", "Run effective meetings"]
+        },
+        {
+          "topic": "Procurement and Vendor Management",
+          "subtopics": ["Make or buy", "Contract types", "Statements of work", "Requests for proposal", "Evaluating bids", "Vendor management", "Contract changes", "Closing contracts"],
+          "tools": ["Excel", "Word"],
+          "lab_task": "Write a statement of work for an outsourced part of the case study, score three provided vendor bids with weighted criteria and pick a contract type.",
+          "deliverable": "Statement of work, bid evaluation and contract choice",
+          "checks": [["Score the bids", "Weighted scores calculated", "Evaluation sheet"], ["Review the statement of work", "Deliverables, acceptance and timeline clear", "Statement of work"], ["Justify the contract type", "Risk sharing explained", "Note"]],
+          "objectives": ["Plan procurement", "Evaluate vendors", "Choose contract types"]
+        },
+        {
+          "topic": "Executing the Project and Managing Work",
+          "subtopics": ["Directing work", "Kick-off meetings", "Task tracking", "Managing issues", "Decision logs", "Lessons learned during the project", "Managing project knowledge", "Daily and weekly routines"],
+          "tools": ["Jira", "Microsoft Teams", "Excel"],
+          "lab_task": "Run a kick-off meeting, track two weeks of simulated work in a task board, log and resolve three issues and keep a decision log.",
+          "deliverable": "Kick-off pack, task board, issue log and decision log",
+          "checks": [["Review the issue log", "Each issue has an owner, action and status", "Issue log"], ["Review the task board", "Status matches the simulation", "Board screenshot"], ["Review the decision log", "Decisions with date, owner and reason", "Decision log"]],
+          "objectives": ["Run project execution", "Manage issues", "Record decisions"]
+        },
+        {
+          "topic": "Monitoring and Controlling with Earned Value",
+          "subtopics": ["Baselines", "Planned value, earned value and actual cost", "Schedule and cost variance", "SPI and CPI", "Forecasting with EAC and ETC", "Trend charts", "Corrective actions", "Reporting performance"],
+          "tools": ["Excel"],
+          "lab_task": "Calculate earned value for the case study at month three, forecast the final cost and date, and recommend corrective actions to the sponsor.",
+          "deliverable": "Earned value workbook and recommendation",
+          "checks": [["Calculate SPI and CPI", "Values correct against the answer sheet", "Workbook"], ["Forecast EAC", "Calculated with the stated method", "Workbook"], ["Present corrective actions", "Actions linked to the variances", "Recommendation"]],
+          "objectives": ["Measure performance with earned value", "Forecast outcomes", "Recommend actions"]
+        },
+        {
+          "topic": "Change Control",
+          "subtopics": ["Why change control", "Change requests", "Impact analysis", "Change control board", "Updating baselines", "Scope creep", "Change log", "Communicating changes"],
+          "tools": ["Excel", "Jira"],
+          "lab_task": "Process three change requests through impact analysis and a change board role play, update the baselines for the approved one and log all three.",
+          "deliverable": "Change requests, impact analyses and change log",
+          "checks": [["Review the impact analysis", "Scope, time, cost and risk covered", "Change request"], ["Update baselines", "Schedule and budget reflect the approved change", "Schedule and budget"], ["Review the change log", "All three requests recorded with decisions", "Change log"]],
+          "objectives": ["Control changes", "Analyse impact", "Prevent scope creep"]
+        },
+        {
+          "topic": "Leadership, Conflict and Negotiation",
+          "subtopics": ["Leadership styles", "Emotional intelligence", "Conflict sources", "Conflict resolution techniques", "Negotiation basics", "Giving feedback", "Influencing without authority", "Ethics and professional conduct"],
+          "tools": ["Microsoft Teams", "Role play scripts"],
+          "lab_task": "Handle three role-play situations (a resource conflict, an unhappy stakeholder and a team member missing deadlines) and write a reflection on the techniques used.",
+          "deliverable": "Role-play observer notes and reflection",
+          "checks": [["Resolve the resource conflict", "Agreement reached and recorded", "Observer notes"], ["Give feedback to the team member", "Specific, behaviour-based feedback given", "Observer notes"], ["Write the reflection", "Techniques named and evaluated", "Reflection"]],
+          "objectives": ["Lead project teams", "Resolve conflict", "Negotiate and influence"]
+        },
+        {
+          "topic": "Agile Ideas for Project Managers",
+          "subtopics": ["Agile values and principles", "Iterations and increments", "Backlogs and user stories", "Scrum and Kanban in brief", "Agile roles", "Agile planning and velocity", "Hybrid approaches", "Choosing an approach"],
+          "tools": ["Jira", "Miro"],
+          "lab_task": "Rework one phase of the case study as two sprints with a backlog of user stories, estimate them and compare the plan with the predictive version.",
+          "deliverable": "Backlog, sprint plan and comparison",
+          "checks": [["Write user stories", "Each has acceptance criteria", "Backlog"], ["Plan two sprints", "Stories fit the team's capacity", "Sprint plan"], ["Compare approaches", "Pros and cons for the case given", "Comparison"]],
+          "objectives": ["Apply agile ideas", "Write user stories", "Choose between predictive, agile and hybrid"]
+        },
+        {
+          "topic": "Project Tools: Microsoft Project, Jira and Dashboards",
+          "subtopics": ["Scheduling tools", "Baselines in tools", "Tracking progress in Microsoft Project", "Jira projects and boards", "Reports and dashboards", "Collaboration in Teams", "Tool selection", "Keeping tools in sync with reality"],
+          "tools": ["Microsoft Project or ProjectLibre", "Jira", "Excel"],
+          "lab_task": "Baseline the schedule, record progress for four weeks, compare actual to baseline and build a dashboard that combines schedule and Jira status.",
+          "deliverable": "Tracked schedule and dashboard",
+          "checks": [["Compare actual to baseline", "Variances shown", "Tracking Gantt"], ["Open the dashboard", "Schedule and task status shown together", "Screenshot"], ["Update a delayed task", "Dependent tasks move", "Gantt chart"]],
+          "objectives": ["Use project tools", "Track against baselines", "Build dashboards"]
+        },
+        {
+          "topic": "Closing a Project",
+          "subtopics": ["Acceptance and handover", "Closing contracts", "Releasing resources", "Lessons learned", "Final report", "Benefits handover", "Celebrating success", "Archiving records"],
+          "tools": ["Word", "Excel"],
+          "lab_task": "Run a lessons learned workshop for the case study, write the closure report with acceptance evidence and plan the handover of benefits to the business owner.",
+          "deliverable": "Lessons learned log, closure report and handover plan",
+          "checks": [["Review the lessons learned", "Each lesson has a recommended action", "Lessons log"], ["Review the closure report", "Objectives compared with results", "Report"], ["Review the handover plan", "Benefit owner and measures named", "Handover plan"]],
+          "objectives": ["Close projects properly", "Capture lessons", "Hand over benefits"]
+        },
+        {
+          "topic": "Certification Paths: CAPM, PMP and PRINCE2",
+          "subtopics": ["Certification options", "Eligibility requirements", "Exam formats", "Study plans", "Situational questions", "Agile and hybrid in the PMP exam", "Practice exam technique", "Maintaining certifications"],
+          "tools": ["Practice question bank", "Excel"],
+          "lab_task": "Take a 50-question practice test, analyse wrong answers by topic and write a personal study plan for the chosen certification.",
+          "deliverable": "Practice test results, analysis and study plan",
+          "checks": [["Complete the practice test", "Score recorded", "Test results"], ["Analyse wrong answers", "Weak topics identified", "Analysis sheet"], ["Review the study plan", "Weekly topics and practice tests planned", "Study plan"]],
+          "objectives": ["Choose a certification", "Plan exam preparation", "Practise exam questions"]
+        },
+        {
+          "topic": "Beginner Capstone: Complete Plan for a Small Project",
+          "subtopics": ["Charter and stakeholders", "Scope and WBS", "Schedule and budget", "Risk, quality and communication plans", "Tracking and change control", "Presentation to the sponsor"],
+          "tools": ["Microsoft Project or ProjectLibre", "Excel", "Jira"],
+          "lab_task": "Plan an office relocation or software roll-out project from charter to closure plan, track a simulated month with one change request and present the plan and status to a sponsor panel.",
+          "deliverable": "Project management plan, schedule, budget, logs and a 10-minute presentation",
+          "checks": [["Review the schedule", "Critical path and milestones shown", "Gantt chart"], ["Process the change request", "Impact analysed and baselines updated", "Change log"], ["Present to the sponsor panel", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one project plan", "Track and control a project", "Present to sponsors"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For project managers running real projects. Covers tailoring approaches, complex scheduling, advanced estimating and cost control, quantitative risk, stakeholder and change management, agile and hybrid delivery at scale, vendor management, governance, PMO practices and PMP-level situational judgement.",
+      "prerequisites": ["Has managed or coordinated at least one project", "Knows scope, schedule, cost and risk planning", "Uses a scheduling tool and a task board"],
+      "outcomes": ["Tailor delivery approaches to project needs", "Control complex schedules, budgets and risks with data", "Lead hybrid and agile teams and manage vendors", "Prepare for the PMP exam with confidence"],
+      "days": [
+        {
+          "topic": "Tailoring the Delivery Approach",
+          "subtopics": ["Project complexity and uncertainty", "Choosing predictive, agile or hybrid", "Tailoring processes and artefacts", "The PMBOK Guide performance domains", "Principles over processes", "Governance needs by project type", "Documenting tailoring decisions", "Common tailoring mistakes"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Assess three provided projects for complexity and uncertainty, choose and tailor an approach for each and document the decisions.",
+          "deliverable": "Assessment and tailoring decisions",
+          "checks": [["Score complexity for each project", "Scores justified", "Assessment"], ["Review the tailoring decisions", "Each process kept or dropped with a reason", "Decision log"], ["Defend one choice", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Tailor delivery approaches", "Apply performance domains", "Document tailoring"]
+        },
+        {
+          "topic": "Advanced Scheduling: Resource Constraints, Compression and Critical Chain",
+          "subtopics": ["Resource-constrained scheduling", "Crashing", "Fast tracking", "Critical chain and buffers", "Schedule risk", "Rolling wave planning", "Integrated master schedules", "Schedule health checks"],
+          "tools": ["Microsoft Project or ProjectLibre", "Excel"],
+          "lab_task": "Shorten a 40-week schedule by six weeks with crashing and fast tracking at least cost, then build a critical chain version with buffers and compare.",
+          "deliverable": "Compressed schedules and comparison",
+          "checks": [["Crash the schedule", "Six weeks saved at the lowest extra cost", "Crashing table"], ["Fast-track two activities", "Added risk documented", "Risk notes"], ["Run a schedule health check", "Missing links and constraints found", "Health check report"]],
+          "objectives": ["Compress schedules", "Use critical chain", "Check schedule quality"]
+        },
+        {
+          "topic": "Advanced Estimating and Cost Control",
+          "subtopics": ["Estimating for uncertain work", "Estimate ranges and confidence", "Cost breakdown structures", "Management reserves", "Cost control thresholds", "Earned value in depth", "To-complete performance index", "Variance analysis reports"],
+          "tools": ["Excel"],
+          "lab_task": "Build a cost breakdown structure with ranges for a 12-month project, run earned value for three months and write a variance analysis with TCPI.",
+          "deliverable": "Cost model, earned value analysis and variance report",
+          "checks": [["Calculate TCPI", "Correct value and meaning explained", "Workbook"], ["Review the variance report", "Causes and actions for each variance", "Report"], ["Check reserves", "Contingency and management reserve separated", "Cost model"]],
+          "objectives": ["Estimate under uncertainty", "Control costs with earned value", "Report variances"]
+        },
+        {
+          "topic": "Quantitative Risk Analysis",
+          "subtopics": ["Qualitative versus quantitative analysis", "Expected monetary value", "Decision trees", "Monte Carlo simulation", "Schedule risk analysis", "Sensitivity and tornado charts", "Setting confidence levels", "Communicating risk numbers"],
+          "tools": ["Excel", "Monte Carlo add-in or spreadsheet simulation"],
+          "lab_task": "Run a Monte Carlo simulation of the project schedule and cost, find the P80 dates and costs, build a tornado chart and use a decision tree for a make-or-buy choice.",
+          "deliverable": "Simulation workbook, decision tree and risk report",
+          "checks": [["Report P50 and P80 dates", "Both reported from the simulation", "Risk report"], ["Build the tornado chart", "Top drivers ranked", "Chart"], ["Solve the decision tree", "Best option with expected value", "Decision tree"]],
+          "objectives": ["Quantify project risk", "Use simulation and decision trees", "Communicate confidence levels"]
+        },
+        {
+          "topic": "Stakeholder Management in Complex Projects",
+          "subtopics": ["Stakeholder networks", "Salience model", "Political dynamics", "Engagement assessment matrix", "Managing executives", "Managing customers and users", "Cross-cultural stakeholders", "Measuring engagement"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Analyse a complex programme's stakeholders with the salience model and an engagement matrix, plan moves from current to desired engagement and role-play a difficult executive meeting.",
+          "deliverable": "Stakeholder analysis, engagement plan and meeting notes",
+          "checks": [["Review the engagement matrix", "Current and desired levels shown", "Matrix"], ["Review the plan", "Specific actions for each gap", "Engagement plan"], ["Run the executive meeting", "Agreement or clear next steps recorded", "Notes"]],
+          "objectives": ["Manage complex stakeholders", "Plan engagement changes", "Handle executives"]
+        },
+        {
+          "topic": "Organisational Change Management",
+          "subtopics": ["Why people resist change", "ADKAR model", "Kotter's eight steps", "Change impact assessment", "Sponsorship and change agents", "Training plans", "Measuring adoption", "Reinforcing change"],
+          "tools": ["Excel", "PowerPoint"],
+          "lab_task": "Write a change management plan for a new system roll-out with an impact assessment, ADKAR-based actions, a training plan and adoption measures.",
+          "deliverable": "Change management plan",
+          "checks": [["Review the impact assessment", "Each group and its changes listed", "Assessment"], ["Review the ADKAR actions", "Actions for each stage", "Plan"], ["Review adoption measures", "Measurable with targets", "Plan"]],
+          "objectives": ["Plan organisational change", "Apply ADKAR and Kotter", "Measure adoption"]
+        },
+        {
+          "topic": "Hybrid Delivery: Combining Predictive and Agile",
+          "subtopics": ["When hybrid makes sense", "Agile teams inside predictive programmes", "Release planning with milestones", "Integrating backlogs with schedules", "Reporting across both styles", "Contracts for hybrid work", "Governance gates", "Common hybrid pitfalls"],
+          "tools": ["Jira", "Microsoft Project or ProjectLibre"],
+          "lab_task": "Design a hybrid plan where two agile teams deliver software inside a predictive hardware programme, link releases to milestones and build one progress report.",
+          "deliverable": "Hybrid plan and integrated report",
+          "checks": [["Link sprints to milestones", "Each milestone has supporting sprints", "Plan"], ["Produce the integrated report", "Shows schedule and sprint progress together", "Report"], ["Review the governance gates", "Clear criteria for each gate", "Plan"]],
+          "objectives": ["Run hybrid projects", "Integrate agile and predictive plans", "Report across both"]
+        },
+        {
+          "topic": "Agile Project Management at Team Level",
+          "subtopics": ["Scrum roles and events for project managers", "Backlog refinement", "Story points and velocity", "Release burn-up charts", "Kanban flow metrics", "Servant leadership", "Agile contracts", "Agile in the PMP exam"],
+          "tools": ["Jira", "Excel"],
+          "lab_task": "Run three simulated sprints in Jira, track velocity and a release burn-up, forecast the release date and measure cycle time on a Kanban board.",
+          "deliverable": "Sprint data, burn-up chart and forecast",
+          "checks": [["Forecast the release", "Date range based on velocity", "Burn-up chart"], ["Measure cycle time", "Average and 85th percentile reported", "Kanban report"], ["Review the refined backlog", "Top stories ready by the agreed definition", "Backlog"]],
+          "objectives": ["Manage agile projects", "Forecast with velocity", "Use flow metrics"]
+        },
+        {
+          "topic": "Requirements Management and Business Analysis for Project Managers",
+          "subtopics": ["Working with business analysts", "Elicitation techniques at scale", "Process maps for current and future state", "Use cases and user stories", "Prioritisation with MoSCoW", "Requirements baselines and traceability", "Managing requirement changes", "Acceptance and sign-off"],
+          "tools": ["Miro", "Excel", "Jira"],
+          "lab_task": "Map the current and future process for an order-handling project, prioritise 30 requirements with MoSCoW, baseline them with traceability and process two requirement changes.",
+          "deliverable": "Process maps, prioritised requirements, traceability matrix and change records",
+          "checks": [["Review the future-state map", "Every pain point in the current map is addressed or listed", "Process maps"], ["Review the MoSCoW split", "Must-haves fit the fixed budget", "Prioritised list"], ["Process the two changes", "Traceability and baseline updated", "Traceability matrix and change log"]],
+          "objectives": ["Manage requirements at scale", "Prioritise with stakeholders", "Keep requirements traceable"]
+        },
+        {
+          "topic": "Vendor and Contract Management",
+          "subtopics": ["Contract types in depth", "Negotiating contracts", "Service level agreements", "Vendor performance management", "Claims and disputes", "Managing offshore vendors", "Contract change control", "Vendor exit"],
+          "tools": ["Excel", "Word"],
+          "lab_task": "Negotiate a fixed-price contract change in a role play, build a vendor scorecard with SLAs and handle a claim for extra work.",
+          "deliverable": "Negotiation notes, vendor scorecard and claim decision",
+          "checks": [["Negotiate the change", "Agreement within the budget limit", "Negotiation notes"], ["Build the scorecard", "SLAs measurable with targets", "Scorecard"], ["Decide the claim", "Decision based on the contract terms", "Claim decision"]],
+          "objectives": ["Manage vendors", "Negotiate contract changes", "Handle claims"]
+        },
+        {
+          "topic": "Project Governance and Decision Rights",
+          "subtopics": ["Governance structures", "Steering committees", "Stage gates", "Decision rights and delegation", "Escalation thresholds", "Assurance and audits", "Governance for agile projects", "Governance documentation"],
+          "tools": ["Word", "PowerPoint"],
+          "lab_task": "Design governance for a 15-million project with a steering committee, stage gates, delegation limits and escalation thresholds, and run a gate review role play.",
+          "deliverable": "Governance design and gate review record",
+          "checks": [["Review delegation limits", "Clear limits for time, cost and scope", "Governance design"], ["Run the gate review", "Decision recorded with conditions", "Gate review record"], ["Review escalation thresholds", "Thresholds tied to tolerances", "Governance design"]],
+          "objectives": ["Design project governance", "Run stage gates", "Set decision rights"]
+        },
+        {
+          "topic": "Benefits Realisation Management",
+          "subtopics": ["Benefits identification", "Benefits maps", "Measures and baselines", "Benefit owners", "Tracking benefits after delivery", "Dis-benefits", "Benefits reviews", "Linking benefits to the business case"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Build a benefits map for the case study, define measures with baselines and targets, assign owners and plan the post-delivery benefits reviews.",
+          "deliverable": "Benefits map and realisation plan",
+          "checks": [["Review the benefits map", "Each benefit linked to an outcome and an objective", "Benefits map"], ["Review the measures", "Baseline and target for each", "Plan"], ["Review owners", "Every benefit has a business owner", "Plan"]],
+          "objectives": ["Plan benefits realisation", "Measure benefits", "Assign benefit owners"]
+        },
+        {
+          "topic": "Quality and Process Improvement in Projects",
+          "subtopics": ["Cost of quality", "Statistical process control basics", "Pareto analysis", "Six Sigma DMAIC in brief", "Lean waste in project work", "Retrospectives", "Process improvement plans", "Audits"],
+          "tools": ["Excel", "Minitab or spreadsheet charts"],
+          "lab_task": "Analyse defect data from a project with Pareto and control charts, run a DMAIC improvement on the top cause and measure the expected gain.",
+          "deliverable": "Quality analysis and improvement plan",
+          "checks": [["Build the Pareto chart", "Top causes cover about 80 percent of defects", "Chart"], ["Build the control chart", "Out-of-control points identified", "Chart"], ["Review the DMAIC plan", "Each phase completed with evidence", "Improvement plan"]],
+          "objectives": ["Analyse quality data", "Improve processes", "Apply lean and Six Sigma ideas"]
+        },
+        {
+          "topic": "Managing Virtual, Distributed and Cross-Cultural Teams",
+          "subtopics": ["Virtual team challenges", "Time zones and working agreements", "Communication tools and norms", "Building trust remotely", "Cultural dimensions", "Inclusive meetings", "Performance in distributed teams", "Wellbeing"],
+          "tools": ["Microsoft Teams", "Miro", "Slack"],
+          "lab_task": "Write working agreements for a team spread over three time zones and two cultures, plan an inclusive meeting rhythm and handle a cultural misunderstanding in a role play.",
+          "deliverable": "Working agreements, meeting rhythm and role-play notes",
+          "checks": [["Review the meeting rhythm", "No region always meets out of hours", "Schedule"], ["Review the working agreements", "Response times and tools defined", "Agreement"], ["Resolve the misunderstanding", "Agreed actions recorded", "Notes"]],
+          "objectives": ["Lead distributed teams", "Build trust remotely", "Work across cultures"]
+        },
+        {
+          "topic": "Project Recovery and Troubled Projects",
+          "subtopics": ["Signs of a troubled project", "Project health checks", "Root cause analysis", "Recovery options", "Re-baselining", "Communicating bad news", "Stopping a project", "Preventing repeat problems"],
+          "tools": ["Excel", "Word"],
+          "lab_task": "Carry out a health check on a provided failing project, find the root causes, choose a recovery option and present a recovery plan or a recommendation to stop.",
+          "deliverable": "Health check report and recovery plan",
+          "checks": [["Complete the health check", "Problems found across scope, time, cost and people", "Report"], ["Choose a recovery option", "Choice justified with numbers", "Recovery plan"], ["Present to the sponsor", "Bad news communicated clearly", "Presentation"]],
+          "objectives": ["Diagnose troubled projects", "Plan recovery", "Communicate bad news"]
+        },
+        {
+          "topic": "PMO Practices and Project Standards",
+          "subtopics": ["Types of PMO", "Standards and templates", "Methodology design", "Project reporting at portfolio level", "Resource management across projects", "Project manager development", "PMO metrics", "PMO value"],
+          "tools": ["Excel", "Power BI or Excel dashboards"],
+          "lab_task": "Design a PMO for a 30-project organisation with templates, reporting cadence, a portfolio dashboard and metrics that show its value.",
+          "deliverable": "PMO design, templates and dashboard",
+          "checks": [["Build the portfolio dashboard", "RAG and key metrics for all projects", "Dashboard"], ["Review the templates", "Cover charter, status, risk and closure", "Templates"], ["Review PMO metrics", "Show value, not just activity", "Metrics list"]],
+          "objectives": ["Design a PMO", "Standardise practices", "Report at portfolio level"]
+        },
+        {
+          "topic": "Project Finance and Business Case Appraisal",
+          "subtopics": ["Cash flow forecasting", "Net present value", "Internal rate of return", "Payback", "Sensitivity analysis", "Total cost of ownership", "Capital versus operating costs", "Presenting financial cases"],
+          "tools": ["Excel"],
+          "lab_task": "Appraise two project options with NPV, IRR, payback and total cost of ownership, run a sensitivity analysis and recommend one to a finance panel.",
+          "deliverable": "Appraisal workbook and recommendation",
+          "checks": [["Calculate NPV and IRR", "Values correct", "Workbook"], ["Run the sensitivity analysis", "Key assumptions tested", "Workbook"], ["Present the recommendation", "Supported by the numbers", "Presentation"]],
+          "objectives": ["Appraise projects financially", "Test assumptions", "Present financial cases"]
+        },
+        {
+          "topic": "Legal, Compliance and Ethics in Projects",
+          "subtopics": ["Contracts and liability basics", "Intellectual property", "Data protection in projects", "Health and safety duties", "Regulatory compliance", "Ethical decision making", "PMI Code of Ethics", "Whistleblowing and escalation"],
+          "tools": ["Word", "Case studies"],
+          "lab_task": "Work through four ethics and compliance scenarios, including a data protection issue and a conflict of interest, and decide actions with reasons from the code of ethics.",
+          "deliverable": "Scenario decisions with reasons",
+          "checks": [["Decide the data protection scenario", "Action meets the law and policy", "Decision sheet"], ["Decide the conflict of interest scenario", "Disclosure and action are correct", "Decision sheet"], ["Cite the code of ethics", "Correct values cited for each decision", "Decision sheet"]],
+          "objectives": ["Recognise legal and compliance duties", "Make ethical decisions", "Escalate correctly"]
+        },
+        {
+          "topic": "PMP Exam Preparation: People, Process and Business Environment",
+          "subtopics": ["Exam content outline", "People domain", "Process domain", "Business environment domain", "Situational question technique", "Agile and hybrid questions", "Time management in the exam", "Practice exams"],
+          "tools": ["Practice question bank", "Excel"],
+          "lab_task": "Take a 180-question practice exam under timed conditions, analyse results by domain and approach, and update the study plan.",
+          "deliverable": "Practice exam results, analysis and study plan",
+          "checks": [["Complete the practice exam", "Score and time recorded", "Test results"], ["Analyse by domain", "Weakest domain identified", "Analysis sheet"], ["Review the study plan", "Targets for each weak area", "Study plan"]],
+          "objectives": ["Prepare for the PMP exam", "Answer situational questions", "Manage exam time"]
+        },
+        {
+          "topic": "Intermediate Capstone: Rescue and Run a Hybrid Project",
+          "subtopics": ["Health check and recovery plan", "Tailored hybrid approach", "Integrated schedule and backlog", "Quantitative risk and cost control", "Stakeholder and change management", "Steering committee presentation"],
+          "tools": ["Microsoft Project or ProjectLibre", "Jira", "Excel"],
+          "lab_task": "Take over a troubled hybrid project, run a health check, re-plan with a tailored approach, run earned value and Monte Carlo analysis, manage a vendor claim and a change request, and present to a steering committee.",
+          "deliverable": "Health check, recovery plan, analyses and a 15-minute steering committee presentation",
+          "checks": [["Present the P80 forecast", "Supported by the simulation", "Risk report"], ["Decide the vendor claim", "Based on the contract", "Claim decision"], ["Answer steering committee questions", "Plan defended with evidence", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one project", "Recover a troubled project", "Defend decisions to a steering committee"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior project and programme managers, PMO leads and portfolio managers. Covers programme management, portfolio management and prioritisation, enterprise PMO design, strategic alignment, large-scale agile and hybrid delivery, advanced risk and governance, transformation programmes, executive leadership, data-driven project management and AI in project management.",
+      "prerequisites": ["Has managed several projects or a programme", "Uses earned value, risk analysis and governance in practice", "Holds or is preparing for PMP or a similar certification"],
+      "outcomes": ["Lead programmes and manage portfolios aligned to strategy", "Design enterprise PMOs and governance", "Lead large transformations and complex stakeholders", "Use data and AI to improve project delivery"],
+      "days": [
+        {
+          "topic": "Programme Management: Structure and Life Cycle",
+          "subtopics": ["Programmes versus projects", "Programme life cycle", "Programme vision and roadmap", "Benefits-led programmes", "Programme organisation", "Interdependencies between projects", "Tranches", "Standard for Program Management and MSP"],
+          "tools": ["Miro", "Microsoft Project or ProjectLibre"],
+          "lab_task": "Turn a set of six related projects into a programme with a vision, benefits map, roadmap in tranches and a dependency map, and present it to a sponsor group.",
+          "deliverable": "Programme definition, roadmap and dependency map",
+          "checks": [["Review the dependency map", "Every cross-project dependency shown with an owner", "Map"], ["Review tranches", "Each delivers measurable benefits", "Roadmap"], ["Present to the sponsor group", "Vision and roadmap approved or changes recorded", "Presentation"]],
+          "objectives": ["Structure programmes", "Plan tranches", "Manage interdependencies"]
+        },
+        {
+          "topic": "Portfolio Management and Prioritisation",
+          "subtopics": ["Portfolio management purpose", "Strategic alignment", "Scoring models", "Weighted shortest job first", "Capacity-based portfolio planning", "Balancing the portfolio", "Portfolio reviews", "Stopping projects"],
+          "tools": ["Excel", "Power BI or Excel dashboards"],
+          "lab_task": "Score 20 proposed initiatives against strategy, prioritise them within a capacity limit, balance risk and value, and recommend which to start, delay or stop.",
+          "deliverable": "Scoring model, prioritised portfolio and recommendation",
+          "checks": [["Apply the scoring model", "Scores consistent and justified", "Scoring sheet"], ["Fit within capacity", "Selected work fits the capacity limit", "Capacity plan"], ["Recommend stops", "Each stop decision explained", "Recommendation"]],
+          "objectives": ["Manage portfolios", "Prioritise by value and capacity", "Make stop decisions"]
+        },
+        {
+          "topic": "Strategy Execution and OKRs",
+          "subtopics": ["From strategy to initiatives", "Objectives and key results", "Strategy maps", "Balanced scorecard", "Linking portfolios to OKRs", "Quarterly business reviews", "Adjusting plans to results", "Common OKR mistakes"],
+          "tools": ["Excel", "Miro"],
+          "lab_task": "Translate a company strategy into OKRs and a strategy map, link portfolio initiatives to key results and run a quarterly review with adjustments.",
+          "deliverable": "OKRs, strategy map and review record",
+          "checks": [["Review the OKRs", "Key results measurable and outcome-based", "OKR sheet"], ["Link initiatives", "Every initiative supports a key result", "Mapping"], ["Run the quarterly review", "Adjustments based on results", "Review record"]],
+          "objectives": ["Link projects to strategy", "Use OKRs", "Run quarterly reviews"]
+        },
+        {
+          "topic": "Enterprise PMO Design and Maturity",
+          "subtopics": ["PMO operating models", "Enterprise PMO and transformation office", "Maturity models: OPM3 and P3M3", "Assessing maturity", "PMO services catalogue", "PMO staffing", "Funding the PMO", "PMO roadmap"],
+          "tools": ["Excel", "PowerPoint"],
+          "lab_task": "Assess a provided organisation's project maturity, design an enterprise PMO with a services catalogue and staffing, and build a two-year PMO roadmap.",
+          "deliverable": "Maturity assessment, PMO design and roadmap",
+          "checks": [["Score maturity", "Scores supported by evidence", "Assessment"], ["Review the services catalogue", "Each service has a customer and measure", "Catalogue"], ["Review the roadmap", "Steps raise maturity with milestones", "Roadmap"]],
+          "objectives": ["Assess project maturity", "Design an enterprise PMO", "Plan PMO growth"]
+        },
+        {
+          "topic": "Large-Scale Agile and Hybrid Delivery",
+          "subtopics": ["Scaling frameworks: SAFe, LeSS and Disciplined Agile", "Agile release trains", "Programme increment planning", "Dependencies at scale", "Lean portfolio management", "Hybrid governance at scale", "Metrics at scale", "Choosing a scaling approach"],
+          "tools": ["Jira Align or Jira", "Miro"],
+          "lab_task": "Plan a programme increment for three teams with a dependency board, map it to a predictive governance gate and compare SAFe and LeSS for the organisation.",
+          "deliverable": "Increment plan, dependency board and framework comparison",
+          "checks": [["Review the dependency board", "Every dependency has a date and owner", "Board"], ["Map to the gate", "Gate criteria met by planned features", "Mapping"], ["Review the framework comparison", "Fit to the organisation explained", "Comparison"]],
+          "objectives": ["Deliver at scale", "Plan programme increments", "Choose scaling frameworks"]
+        },
+        {
+          "topic": "Advanced Risk Management and Resilience",
+          "subtopics": ["Enterprise risk links", "Risk appetite and tolerance", "Integrated cost and schedule risk analysis", "Black swans and resilience", "Scenario planning", "Risk culture", "Risk reporting to boards", "Lessons from major project failures"],
+          "tools": ["Excel", "Monte Carlo simulation tool"],
+          "lab_task": "Run an integrated cost and schedule risk analysis for a large programme, define risk appetite, plan two disruptive scenarios and write a board risk report.",
+          "deliverable": "Risk analysis, appetite statement, scenarios and board report",
+          "checks": [["Report integrated P80", "Combined cost and schedule result reported", "Risk report"], ["Review the appetite statement", "Clear and measurable", "Statement"], ["Review the scenarios", "Responses and triggers defined", "Scenario plans"]],
+          "objectives": ["Manage programme risk", "Set risk appetite", "Report risk to boards"]
+        },
+        {
+          "topic": "Governance and Assurance for Major Programmes",
+          "subtopics": ["Integrated assurance", "Independent reviews", "Gateway reviews", "Audit readiness", "Board reporting", "Programme controls functions", "Assurance for agile programmes", "Acting on assurance findings"],
+          "tools": ["Word", "PowerPoint"],
+          "lab_task": "Design an integrated assurance plan for a major programme, run a gateway review role play and turn the findings into an action plan.",
+          "deliverable": "Assurance plan, review report and action plan",
+          "checks": [["Review the assurance plan", "Lines of assurance and timings clear", "Plan"], ["Run the gateway review", "Rating and findings recorded", "Review report"], ["Review the action plan", "Each finding has an owner and date", "Action plan"]],
+          "objectives": ["Assure major programmes", "Run gateway reviews", "Act on findings"]
+        },
+        {
+          "topic": "Leading Transformation Programmes",
+          "subtopics": ["Transformation versus change projects", "Operating model change", "Culture change", "Leadership alignment", "Communication at scale", "Measuring transformation", "Sustaining momentum", "Case studies"],
+          "tools": ["Miro", "PowerPoint"],
+          "lab_task": "Plan a digital transformation programme with a target operating model, leadership alignment plan, communication campaign and transformation scorecard.",
+          "deliverable": "Transformation plan and scorecard",
+          "checks": [["Review the target operating model", "Changes to people, process and technology shown", "Model"], ["Review the scorecard", "Leading and lagging measures included", "Scorecard"], ["Present to leadership", "Plan defended with evidence", "Presentation"]],
+          "objectives": ["Lead transformations", "Change operating models", "Measure transformation"]
+        },
+        {
+          "topic": "Multi-Organisation Programmes: Mergers, Joint Ventures and Partnerships",
+          "subtopics": ["Programmes across several organisations", "Integration management after mergers", "Day-one readiness", "Joint governance boards", "Aligning cultures and processes", "Shared funding and benefits", "Information sharing rules", "Exit and separation planning"],
+          "tools": ["Miro", "Excel", "Word"],
+          "lab_task": "Plan the integration programme for a merger of two companies with a day-one readiness checklist, joint governance, a synergy tracker and a culture integration plan.",
+          "deliverable": "Integration plan, day-one checklist, governance model and synergy tracker",
+          "checks": [["Review the day-one checklist", "Covers people, systems, customers and legal duties", "Checklist"], ["Review the synergy tracker", "Each synergy has an owner, value and date", "Tracker"], ["Review joint governance", "Decision rights agreed by both sides", "Governance model"]],
+          "objectives": ["Run multi-organisation programmes", "Plan merger integration", "Track synergies"]
+        },
+        {
+          "topic": "Executive Communication and Board Reporting",
+          "subtopics": ["What executives need", "Pyramid principle", "One-page summaries", "Visualising programme status", "Bad news and options", "Decision papers", "Handling tough questions", "Building credibility"],
+          "tools": ["PowerPoint", "Word"],
+          "lab_task": "Write a decision paper and a one-page board summary for a programme facing a 20 percent overrun, present options and handle questions from a mock board.",
+          "deliverable": "Decision paper, board summary and presentation",
+          "checks": [["Review the decision paper", "Options with costs, risks and a recommendation", "Paper"], ["Review the one-page summary", "Main message first and fits one page", "Summary"], ["Handle board questions", "Answers clear and consistent with the data", "Presentation"]],
+          "objectives": ["Communicate with executives", "Write decision papers", "Present to boards"]
+        },
+        {
+          "topic": "Negotiation and Influence at Senior Level",
+          "subtopics": ["Interest-based negotiation", "BATNA and ZOPA", "Multi-party negotiations", "Coalition building", "Influencing peers and executives", "Managing politics", "Cross-functional agreements", "Ethics in negotiation"],
+          "tools": ["Role play scripts"],
+          "lab_task": "Negotiate a shared budget between three programme sponsors in a role play using interest-based techniques, then build a coalition for a cross-functional change.",
+          "deliverable": "Negotiation preparation, outcome notes and coalition plan",
+          "checks": [["Prepare BATNA and ZOPA", "Defined for each party", "Preparation sheet"], ["Reach an agreement", "Agreement meets all parties' key interests", "Outcome notes"], ["Review the coalition plan", "Allies and actions identified", "Plan"]],
+          "objectives": ["Negotiate at senior level", "Build coalitions", "Manage organisational politics"]
+        },
+        {
+          "topic": "Data-Driven Project Management and Analytics",
+          "subtopics": ["Project data sources", "Metrics and KPIs for delivery", "Predictive analytics for delays", "Dashboards in Power BI", "Portfolio analytics", "Data quality in project tools", "Benchmarking", "Making decisions with data"],
+          "tools": ["Power BI", "Excel", "Jira"],
+          "lab_task": "Build a Power BI portfolio dashboard from project data, find which factors predict schedule slippage and recommend changes to delivery practices.",
+          "deliverable": "Dashboard, analysis and recommendations",
+          "checks": [["Build the dashboard", "Status, trends and risks for all projects", "Dashboard"], ["Analyse slippage factors", "Top predictors identified with evidence", "Analysis"], ["Review the recommendations", "Linked to the findings", "Recommendation"]],
+          "objectives": ["Use data in project management", "Build portfolio dashboards", "Find delay predictors"]
+        },
+        {
+          "topic": "AI and Automation in Project Management",
+          "subtopics": ["AI assistants for planning and reporting", "Generating schedules and risk lists with AI", "Automating status reports", "Predictive scheduling tools", "Meeting summaries and action extraction", "Data privacy with AI tools", "Checking AI output", "Changing PM roles"],
+          "tools": ["Microsoft Copilot or ChatGPT", "Power Automate", "Jira automation"],
+          "lab_task": "Use AI to draft a risk register and status report, automate a weekly report from Jira with Power Automate, check every AI output and write rules for the team's AI use.",
+          "deliverable": "AI drafts with checks, automated report and team AI rules",
+          "checks": [["Check the AI risk register", "Wrong or missing risks identified and fixed", "Check sheet"], ["Run the automated report", "Weekly report produced from live data", "Report"], ["Review the AI rules", "Data, checking and approval rules included", "Rules document"]],
+          "objectives": ["Use AI in project work", "Automate reporting", "Govern AI use"]
+        },
+        {
+          "topic": "Resource and Capacity Management Across the Enterprise",
+          "subtopics": ["Enterprise resource pools", "Capacity versus demand", "Skills and role-based planning", "Resource conflicts across projects", "Scenario planning for capacity", "Contractor and vendor capacity", "Tools for resource management", "Reporting capacity"],
+          "tools": ["Excel", "Microsoft Project for the web or a resource tool"],
+          "lab_task": "Build a capacity model for 120 people across 25 projects, find the bottleneck skills, run two scenarios and recommend hiring or reprioritising.",
+          "deliverable": "Capacity model, scenarios and recommendation",
+          "checks": [["Find bottleneck skills", "Top three identified with numbers", "Capacity model"], ["Run the scenarios", "Effect on delivery dates shown", "Scenario results"], ["Review the recommendation", "Supported by the model", "Recommendation"]],
+          "objectives": ["Manage enterprise capacity", "Find skill bottlenecks", "Plan with scenarios"]
+        },
+        {
+          "topic": "Commercial Management of Large Contracts",
+          "subtopics": ["Commercial strategy", "Complex contract forms: NEC, FIDIC in brief", "Target cost and incentive contracts", "Partnering and alliances", "Commercial risk", "Change and claims at scale", "Commercial reporting", "Dispute resolution"],
+          "tools": ["Excel", "Contract templates"],
+          "lab_task": "Model a target cost contract with pain and gain sharing, assess three claims against the contract and recommend a dispute resolution path for one.",
+          "deliverable": "Contract model, claim assessments and recommendation",
+          "checks": [["Calculate pain and gain shares", "Correct for three cost outcomes", "Contract model"], ["Assess the claims", "Each decision based on contract clauses", "Assessment"], ["Recommend a path", "Fits the contract and the relationship", "Recommendation"]],
+          "objectives": ["Manage commercial contracts", "Model incentive contracts", "Handle claims and disputes"]
+        },
+        {
+          "topic": "Sustainability and ESG in Projects",
+          "subtopics": ["Sustainability in project goals", "Carbon accounting for projects", "Social value", "Sustainable procurement", "ESG reporting", "Regulations and standards", "Trade-offs between cost and sustainability", "Measuring outcomes"],
+          "tools": ["Excel", "Carbon calculators"],
+          "lab_task": "Calculate the carbon footprint of a project's options, add sustainability criteria to procurement and write an ESG section for the business case.",
+          "deliverable": "Carbon calculation, procurement criteria and ESG section",
+          "checks": [["Calculate carbon for two options", "Totals calculated with sources", "Workbook"], ["Review procurement criteria", "Measurable sustainability criteria included", "Criteria"], ["Review the ESG section", "Benefits and trade-offs stated", "Business case section"]],
+          "objectives": ["Include sustainability in projects", "Measure carbon", "Report ESG outcomes"]
+        },
+        {
+          "topic": "Mentoring and Developing Project Managers",
+          "subtopics": ["Competency frameworks", "Assessing project managers", "Coaching techniques", "Mentoring programmes", "Career paths", "Communities of practice", "Learning from projects", "Measuring development"],
+          "tools": ["Competency framework template", "Excel"],
+          "lab_task": "Assess two project managers against a competency framework, write development plans, run a coaching conversation role play and design a community of practice.",
+          "deliverable": "Assessments, development plans and community design",
+          "checks": [["Complete the assessments", "Strengths and gaps backed by evidence", "Assessment"], ["Review the development plans", "Specific actions with dates", "Plans"], ["Run the coaching conversation", "Open questions and agreed actions", "Observer notes"]],
+          "objectives": ["Develop project managers", "Coach effectively", "Build communities of practice"]
+        },
+        {
+          "topic": "Programme and Portfolio Troubleshooting",
+          "subtopics": ["Early warning signs at programme level", "Benefit erosion", "Dependency failures", "Funding cuts", "Leadership change", "Portfolio overload", "Recovery playbooks", "Post-mortems at scale"],
+          "tools": ["Excel", "Word"],
+          "lab_task": "Respond to three injected programme crises (a key dependency failure, a 25 percent funding cut and a sponsor change), re-plan and communicate each.",
+          "deliverable": "Crisis responses, revised plans and communications",
+          "checks": [["Re-plan after the funding cut", "Benefits protected as far as possible with trade-offs stated", "Revised plan"], ["Handle the dependency failure", "Alternative path with new dates", "Revised plan"], ["Brief the new sponsor", "Situation and decisions needed are clear", "Briefing"]],
+          "objectives": ["Respond to programme crises", "Re-plan under pressure", "Communicate changes"]
+        },
+        {
+          "topic": "PgMP and Portfolio Certification Preparation",
+          "subtopics": ["PgMP and PfMP overview", "Eligibility and application", "Programme strategy alignment", "Programme life cycle questions", "Benefits management questions", "Stakeholder engagement questions", "Governance questions", "Practice exams"],
+          "tools": ["Practice question bank", "Excel"],
+          "lab_task": "Take a timed practice exam for PgMP or PfMP, analyse results by domain and write a study and application plan.",
+          "deliverable": "Practice results, analysis and plan",
+          "checks": [["Complete the practice exam", "Score and time recorded", "Test results"], ["Analyse by domain", "Weakest domain identified", "Analysis"], ["Review the plan", "Application and study steps with dates", "Plan"]],
+          "objectives": ["Prepare for advanced certifications", "Practise programme questions", "Plan applications"]
+        },
+        {
+          "topic": "Advanced Capstone: Portfolio and Programme Leadership Simulation",
+          "subtopics": ["Strategy, OKRs and portfolio prioritisation", "Programme design and governance", "Risk, assurance and capacity", "Transformation and change", "Data and AI for delivery", "Board presentation and defence"],
+          "tools": ["Excel", "Power BI", "Microsoft Project or ProjectLibre", "Miro"],
+          "lab_task": "Lead a simulated organisation for four quarters: set OKRs, prioritise the portfolio, design and run a programme, respond to crises, use a portfolio dashboard and present results and decisions to a mock board.",
+          "deliverable": "Portfolio decisions, programme plan, dashboard, crisis responses and a 20-minute board presentation",
+          "checks": [["Review portfolio decisions", "Aligned to OKRs and capacity", "Decision log"], ["Show the dashboard", "Status, benefits and risks for the portfolio", "Dashboard"], ["Answer board questions", "Decisions defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one simulation", "Lead portfolios and programmes", "Defend decisions to a board"]
+        }
+      ]
+    }
+  }
+}
