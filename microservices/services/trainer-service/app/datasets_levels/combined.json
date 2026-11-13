@@ -8560,6 +8560,698 @@
           "Govern Redis use"
         ]
       }
+    },
+    {
+      "between": [
+        "Hadoop",
+        "Apache Spark"
+      ],
+      "day": {
+        "topic": "Tuning Spark on a Shared Hadoop Cluster: YARN Queues, Executors and HDFS Locality",
+        "subtopics": [
+          "How Spark executors map to YARN containers",
+          "Sizing executors against NodeManager memory and cores",
+          "Dynamic allocation and the external shuffle service on YARN",
+          "Queue placement and preemption for Spark jobs",
+          "Data locality levels when reading HDFS blocks",
+          "Reading ORC and Parquet tables through the Hive metastore",
+          "Spark history server and YARN logs together",
+          "Agreeing resource limits with the Hadoop operations team"
+        ],
+        "tools": [
+          "Apache Spark",
+          "Hadoop YARN",
+          "HDFS",
+          "Spark History Server"
+        ],
+        "lab_task": "Run the same Spark aggregation on a shared cluster with default settings, then size executors to the NodeManagers, enable dynamic allocation with the shuffle service, place the job in its own queue and compare run time, locality and the effect on other tenants.",
+        "deliverable": "Tuned Spark job configuration with a before-and-after comparison",
+        "checks": [
+          [
+            "Size executors",
+            "Executors fit NodeManager memory without container kills",
+            "YARN application report"
+          ],
+          [
+            "Improve locality",
+            "Most tasks run at NODE_LOCAL or better",
+            "Spark UI stage summary"
+          ],
+          [
+            "Protect tenants",
+            "Other queues keep their guaranteed share while the job runs",
+            "Scheduler page screenshot"
+          ]
+        ],
+        "objectives": [
+          "Size Spark jobs for YARN",
+          "Use HDFS locality",
+          "Share a cluster fairly"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Hadoop",
+        "Apache Kafka"
+      ],
+      "day": {
+        "topic": "Kafka Retention and HDFS Archives: Long-Term Event Storage and Replays",
+        "subtopics": [
+          "Why Kafka retention is not an archive",
+          "Landing topics in HDFS by date and hour partitions",
+          "File formats and compaction for archived events",
+          "Schema evolution between Kafka and archived files",
+          "Replaying history from HDFS back into a topic",
+          "Backfilling a new consumer from the archive",
+          "Kafka tiered storage compared with an HDFS archive",
+          "Retention and deletion rules for regulated data"
+        ],
+        "tools": [
+          "Apache Kafka",
+          "Kafka Connect HDFS sink",
+          "HDFS",
+          "Apache Hive"
+        ],
+        "lab_task": "Archive a busy topic to HDFS in date partitions with a sink connector, cut Kafka retention to three days, then rebuild a new consumer's state by replaying a week of events from HDFS and confirm the counts match the original stream.",
+        "deliverable": "Event archive with a tested replay procedure",
+        "checks": [
+          [
+            "Archive events",
+            "Every hour of the topic has a matching HDFS partition",
+            "HDFS listing"
+          ],
+          [
+            "Replay history",
+            "The replayed event count equals the archived count",
+            "Count comparison"
+          ],
+          [
+            "Apply retention",
+            "Partitions older than the policy are removed by the scheduled job",
+            "Job log"
+          ]
+        ],
+        "objectives": [
+          "Archive event streams in HDFS",
+          "Replay history into Kafka",
+          "Apply retention rules"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Hadoop",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Hadoop Workloads on Amazon EMR: S3 Storage, Instance Fleets and Spot Capacity",
+        "subtopics": [
+          "EMR on EC2, EMR on EKS and EMR Serverless",
+          "S3 in place of HDFS for persistent data",
+          "Instance fleets with primary, core and task nodes",
+          "Spot instances for task nodes",
+          "Running Hive and Spark steps",
+          "AWS Glue Data Catalog as the metastore",
+          "IAM roles for EMR and data access",
+          "Transient compared with long-running clusters"
+        ],
+        "tools": [
+          "Amazon EMR",
+          "Amazon S3",
+          "AWS Glue Data Catalog",
+          "AWS IAM",
+          "AWS CLI"
+        ],
+        "lab_task": "Launch a transient EMR cluster with spot task nodes, run a Hive step and a Spark step against data in S3 using the Glue Data Catalog, let the cluster terminate itself and compare the cost with a long-running cluster.",
+        "deliverable": "Automated transient EMR job with a cost comparison",
+        "checks": [
+          [
+            "Run steps",
+            "Hive and Spark steps finish and write results to S3",
+            "EMR step history"
+          ],
+          [
+            "Use the catalog",
+            "Tables created on EMR are visible in the Glue Data Catalog",
+            "Catalog listing"
+          ],
+          [
+            "Control cost",
+            "The cluster terminates itself after the last step",
+            "Cluster event log"
+          ]
+        ],
+        "objectives": [
+          "Run Hadoop workloads on EMR",
+          "Use S3 and the Glue Data Catalog",
+          "Control EMR cost"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft Fabric",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Moving Power BI Estates onto Fabric: Capacities, Dataflows and Direct Lake Conversion",
+        "subtopics": [
+          "Power BI Premium capacities and Fabric F SKUs",
+          "Assigning existing workspaces to a Fabric capacity",
+          "Which import models suit Direct Lake",
+          "Converting an import model to Direct Lake on a lakehouse",
+          "Dataflows Gen1 compared with Dataflows Gen2",
+          "Refresh schedules after the move",
+          "Report and app links that must keep working",
+          "Communicating the change to report owners"
+        ],
+        "tools": [
+          "Power BI Service",
+          "Microsoft Fabric",
+          "Tabular Editor",
+          "Fabric Capacity Metrics app"
+        ],
+        "lab_task": "Move a workspace with three import-mode reports onto a Fabric capacity, rebuild its dataflow as Dataflows Gen2 writing to a lakehouse, convert one semantic model to Direct Lake and show that the reports, links and row-level security still work.",
+        "deliverable": "Migrated workspace with a conversion log",
+        "checks": [
+          [
+            "Keep reports working",
+            "All three reports open with the same visuals and numbers",
+            "Side-by-side screenshots"
+          ],
+          [
+            "Convert the model",
+            "The converted model reads the lakehouse in Direct Lake mode",
+            "Model properties"
+          ],
+          [
+            "Keep security",
+            "Row-level security roles return the same rows as before",
+            "Test-as-role output"
+          ]
+        ],
+        "objectives": [
+          "Move Power BI content to Fabric",
+          "Convert models to Direct Lake",
+          "Keep reports and security intact"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft Fabric",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Fabric Inside an Azure Estate: ADLS Shortcuts, Private Endpoints and Workspace Identity",
+        "subtopics": [
+          "Where Fabric sits relative to Azure subscriptions",
+          "Shortcuts to ADLS Gen2 containers",
+          "Workspace identity and trusted workspace access",
+          "Managed private endpoints to Azure SQL and storage",
+          "Reading Event Hubs streams into eventstreams",
+          "Connections and secrets with Azure Key Vault",
+          "Entra ID groups for Fabric roles",
+          "Cost views across Azure and Fabric capacity"
+        ],
+        "tools": [
+          "Microsoft Fabric",
+          "Azure Data Lake Storage Gen2",
+          "Azure Event Hubs",
+          "Microsoft Entra ID",
+          "Azure Key Vault"
+        ],
+        "lab_task": "Connect a Fabric workspace to a firewall-protected ADLS Gen2 account through a shortcut and workspace identity, read an Azure SQL database through a managed private endpoint and stream Event Hubs data into an eventhouse, all without public network access.",
+        "deliverable": "Fabric workspace connected to Azure services with a network diagram",
+        "checks": [
+          [
+            "Reach protected storage",
+            "The shortcut reads the ADLS container with public access disabled",
+            "Storage firewall settings and query output"
+          ],
+          [
+            "Use private endpoints",
+            "The Azure SQL connection goes through the approved managed private endpoint",
+            "Endpoint status"
+          ],
+          [
+            "Stream events",
+            "Event Hubs messages appear in the eventhouse within a minute",
+            "KQL query result"
+          ]
+        ],
+        "objectives": [
+          "Connect Fabric to Azure data",
+          "Keep traffic private",
+          "Manage access with Entra ID"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft Fabric",
+        "Databricks"
+      ],
+      "day": {
+        "topic": "Sharing Delta Tables Between Databricks and Fabric: Mirrored Catalogs, Shortcuts and Ownership",
+        "subtopics": [
+          "Why both platforms often exist in one organisation",
+          "Delta Lake as the shared table format",
+          "Mirroring an Azure Databricks Unity Catalog into Fabric",
+          "OneLake shortcuts to Databricks-managed storage",
+          "Which team writes each table and which only reads",
+          "Permissions in Unity Catalog compared with Fabric item permissions",
+          "Power BI Direct Lake reports on shared tables",
+          "Avoiding two copies of the same data"
+        ],
+        "tools": [
+          "Azure Databricks",
+          "Unity Catalog",
+          "Microsoft Fabric",
+          "OneLake"
+        ],
+        "lab_task": "Mirror a Unity Catalog schema into Fabric, build a Direct Lake report on the mirrored tables, update a table in Databricks and confirm the change reaches the report without a copy job, then record which team owns each table.",
+        "deliverable": "Shared table setup with an ownership register",
+        "checks": [
+          [
+            "Mirror the catalog",
+            "Unity Catalog tables appear in Fabric without a copy job",
+            "Fabric item list"
+          ],
+          [
+            "See changes",
+            "A Databricks update shows in the Fabric report after refresh",
+            "Before-and-after report"
+          ],
+          [
+            "Control access",
+            "Only the approved Fabric workspace roles can read the mirrored tables",
+            "Access test result"
+          ]
+        ],
+        "objectives": [
+          "Share Delta tables across platforms",
+          "Keep one copy of data",
+          "Assign table ownership"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PyTorch",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for PyTorch Projects: Configs, Packaging and Typed Training Code",
+        "subtopics": [
+          "Project layout for training code",
+          "Configuration with dataclasses or Hydra",
+          "Type hints for tensors and modules",
+          "Packaging models and training code with pyproject.toml",
+          "Pinning PyTorch and CUDA versions",
+          "Logging instead of print in training loops",
+          "Command-line entry points for training and evaluation",
+          "Unit tests for data transforms and model output shapes"
+        ],
+        "tools": [
+          "Python",
+          "PyTorch",
+          "Hydra",
+          "pytest",
+          "uv or pip-tools"
+        ],
+        "lab_task": "Turn a notebook that trains an image model into a package with a typed config, train and evaluate commands, pinned dependencies and tests for the data transforms and output shapes, then reproduce the notebook's accuracy from the command line.",
+        "deliverable": "Installable training package with tests",
+        "checks": [
+          [
+            "Package the code",
+            "A fresh environment installs the package and runs the train command",
+            "Terminal log"
+          ],
+          [
+            "Reproduce results",
+            "Command-line accuracy is within half a point of the notebook",
+            "Metrics comparison"
+          ],
+          [
+            "Test the code",
+            "Transform and shape tests pass in CI",
+            "Test report"
+          ]
+        ],
+        "objectives": [
+          "Structure PyTorch projects",
+          "Package training code",
+          "Test model code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PyTorch",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Classical Models or Neural Networks: Tabular Baselines Against PyTorch Models",
+        "subtopics": [
+          "When gradient-boosted trees usually win on tabular data",
+          "Building a strong scikit-learn baseline first",
+          "Encoding categorical features as embeddings in PyTorch",
+          "A multilayer perceptron for tabular data",
+          "Same splits and metrics for a fair comparison",
+          "Training cost and inference latency",
+          "Explaining both models to stakeholders",
+          "Choosing and documenting the winner"
+        ],
+        "tools": [
+          "scikit-learn",
+          "XGBoost or LightGBM",
+          "PyTorch",
+          "pandas"
+        ],
+        "lab_task": "Train a gradient-boosted baseline and a PyTorch network with categorical embeddings on the same tabular dataset and splits, compare accuracy, training time and latency, and write a one-page recommendation.",
+        "deliverable": "Model comparison with a recommendation",
+        "checks": [
+          [
+            "Compare fairly",
+            "Both models use the same splits and metric code",
+            "Code review"
+          ],
+          [
+            "Measure cost",
+            "Training time and latency are reported for both models",
+            "Benchmark table"
+          ],
+          [
+            "Recommend a model",
+            "The recommendation follows from the measured results",
+            "One-page summary"
+          ]
+        ],
+        "objectives": [
+          "Compare classical and deep models",
+          "Use embeddings for categories",
+          "Choose models on evidence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PyTorch",
+        "Natural Language Processing"
+      ],
+      "day": {
+        "topic": "Text Models in Plain PyTorch: Tokenised Batches, Padding Masks and Custom Heads",
+        "subtopics": [
+          "Pretrained tokenizers and vocabularies",
+          "Collate functions for variable-length text",
+          "Padding, attention masks and truncation",
+          "Loading a pretrained encoder as an nn.Module",
+          "Adding a custom classification or tagging head",
+          "Class weights for imbalanced labels",
+          "Precision, recall and F1 per class",
+          "Error analysis on misclassified texts"
+        ],
+        "tools": [
+          "PyTorch",
+          "Hugging Face Tokenizers",
+          "Hugging Face Transformers",
+          "scikit-learn"
+        ],
+        "lab_task": "Fine-tune a pretrained encoder with a custom PyTorch training loop and a new classification head on an imbalanced support-ticket dataset, handle padding correctly and report per-class F1 with an error analysis.",
+        "deliverable": "Fine-tuned text classifier with an error analysis",
+        "checks": [
+          [
+            "Handle padding",
+            "Predictions do not change when the padding length changes",
+            "Test output"
+          ],
+          [
+            "Handle imbalance",
+            "Minority-class F1 improves over an unweighted run",
+            "Metrics table"
+          ],
+          [
+            "Analyse errors",
+            "Twenty misclassified examples are grouped by cause",
+            "Error analysis notes"
+          ]
+        ],
+        "objectives": [
+          "Write text pipelines in PyTorch",
+          "Fine-tune encoders with custom heads",
+          "Evaluate text models per class"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PyTorch",
+        "MLOps"
+      ],
+      "day": {
+        "topic": "PyTorch Models Through an MLOps Pipeline: Registry, Triton Serving and Drift Checks",
+        "subtopics": [
+          "Logging PyTorch runs and artefacts to MLflow",
+          "Registering models with signatures",
+          "Exporting for serving with TorchScript, ONNX or torch.export",
+          "Serving with NVIDIA Triton or a FastAPI wrapper",
+          "Pinning PyTorch, CUDA and driver versions in images",
+          "Canary rollout of a new model version",
+          "Input and prediction drift checks",
+          "Retraining triggers"
+        ],
+        "tools": [
+          "PyTorch",
+          "MLflow",
+          "NVIDIA Triton Inference Server",
+          "Docker",
+          "Evidently"
+        ],
+        "lab_task": "Log a PyTorch training run to MLflow, register the model, export it to ONNX, serve it with Triton in a container, roll out a second version to ten percent of traffic and set up a drift report on live inputs.",
+        "deliverable": "Served PyTorch model with registry entry and drift report",
+        "checks": [
+          [
+            "Register the model",
+            "The registry holds the model with its signature and metrics",
+            "MLflow screenshot"
+          ],
+          [
+            "Serve the model",
+            "Triton returns the same predictions as offline evaluation",
+            "Comparison output"
+          ],
+          [
+            "Watch drift",
+            "The drift report flags a deliberately shifted test batch",
+            "Drift report"
+          ]
+        ],
+        "objectives": [
+          "Move PyTorch models to production",
+          "Serve with Triton",
+          "Monitor drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "PyTorch",
+        "TensorFlow"
+      ],
+      "day": {
+        "topic": "PyTorch and TensorFlow Side by Side: Porting Models and Sharing ONNX Artefacts",
+        "subtopics": [
+          "Mapping concepts between nn.Module and keras.Model",
+          "Hand-written training loops compared with model.fit",
+          "DataLoader compared with tf.data",
+          "Porting trained weights between frameworks",
+          "Keras 3 with the PyTorch backend",
+          "Exporting both models to ONNX",
+          "Checking numerical parity",
+          "Choosing one framework for a team"
+        ],
+        "tools": [
+          "PyTorch",
+          "TensorFlow",
+          "Keras 3",
+          "ONNX Runtime"
+        ],
+        "lab_task": "Build the same small image model in PyTorch and Keras, port the trained weights from one to the other, export both to ONNX and show that ONNX Runtime gives matching predictions within a set tolerance.",
+        "deliverable": "Ported model with a parity test",
+        "checks": [
+          [
+            "Port weights",
+            "The ported model reaches the same test accuracy",
+            "Evaluation output"
+          ],
+          [
+            "Export both",
+            "Both ONNX files load and run in ONNX Runtime",
+            "Runtime log"
+          ],
+          [
+            "Prove parity",
+            "Prediction differences stay below the agreed tolerance",
+            "Parity test result"
+          ]
+        ],
+        "objectives": [
+          "Map concepts between frameworks",
+          "Port models",
+          "Verify numerical parity"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TensorFlow",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for TensorFlow Projects: Configs, Packaging and Reproducible Runs",
+        "subtopics": [
+          "Project structure for Keras projects",
+          "Configuration files and command-line overrides",
+          "Seeds and deterministic operations",
+          "Packaging with pyproject.toml and pinned TensorFlow versions",
+          "Separate GPU and CPU environments",
+          "Logging and experiment metadata",
+          "Tests for preprocessing layers and model output shapes",
+          "Linting and type checks in CI"
+        ],
+        "tools": [
+          "Python",
+          "TensorFlow",
+          "Keras",
+          "pytest",
+          "Ruff"
+        ],
+        "lab_task": "Refactor a Keras notebook into a package with a config file, train and evaluate commands, fixed seeds, pinned dependencies and tests, then run it twice and show that the metrics match.",
+        "deliverable": "Packaged Keras project with reproducible runs",
+        "checks": [
+          [
+            "Reproduce runs",
+            "Two runs with the same seed give matching metrics",
+            "Run logs"
+          ],
+          [
+            "Install cleanly",
+            "A fresh environment installs and trains with one command",
+            "Terminal log"
+          ],
+          [
+            "Test preprocessing",
+            "Preprocessing and shape tests pass in CI",
+            "Test report"
+          ]
+        ],
+        "objectives": [
+          "Structure TensorFlow projects",
+          "Make runs reproducible",
+          "Test Keras code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TensorFlow",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "From scikit-learn Pipelines to Keras Models: Preprocessing Layers and Fair Comparisons",
+        "subtopics": [
+          "What preprocessing moves into the model",
+          "Normalization, StringLookup and Discretization layers",
+          "Keras FeatureSpace for structured data",
+          "A scikit-learn pipeline as the baseline",
+          "Same splits, metrics and seeds for both models",
+          "Exporting a model that accepts raw features",
+          "Training and serving skew",
+          "Choosing the model to deploy"
+        ],
+        "tools": [
+          "scikit-learn",
+          "TensorFlow",
+          "Keras",
+          "pandas"
+        ],
+        "lab_task": "Build a scikit-learn pipeline baseline and a Keras model with preprocessing layers on the same tabular data, export the Keras model so it accepts raw feature values, and compare accuracy and serving simplicity.",
+        "deliverable": "Baseline and Keras model comparison with an exported model",
+        "checks": [
+          [
+            "Compare fairly",
+            "Both models use identical splits and metrics",
+            "Code review"
+          ],
+          [
+            "Accept raw input",
+            "The exported model scores raw records without separate preprocessing",
+            "Prediction output"
+          ],
+          [
+            "Choose a model",
+            "The chosen model is justified by the measured results",
+            "Comparison summary"
+          ]
+        ],
+        "objectives": [
+          "Move preprocessing into models",
+          "Compare against baselines",
+          "Avoid training and serving skew"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TensorFlow",
+        "GCP"
+      ],
+      "day": {
+        "topic": "TensorFlow on Google Cloud: Vertex AI Custom Training, TPUs and Model Registry",
+        "subtopics": [
+          "Packaging training code for Vertex AI custom jobs",
+          "Prebuilt TensorFlow training containers",
+          "Reading Cloud Storage data with tf.data",
+          "Training on GPUs and Cloud TPUs",
+          "Hyperparameter tuning jobs",
+          "Vertex AI Model Registry and versions",
+          "Online prediction endpoints and autoscaling",
+          "Cost controls and quotas"
+        ],
+        "tools": [
+          "TensorFlow",
+          "Vertex AI",
+          "Cloud Storage",
+          "Cloud TPU",
+          "gcloud CLI"
+        ],
+        "lab_task": "Submit a Keras training job to Vertex AI that reads TFRecords from Cloud Storage, run a small tuning job, register the best model, deploy it to an autoscaling endpoint and send test predictions.",
+        "deliverable": "Trained and deployed model on Vertex AI",
+        "checks": [
+          [
+            "Train in the cloud",
+            "The custom job completes and writes the model to Cloud Storage",
+            "Job details"
+          ],
+          [
+            "Register the model",
+            "The best trial's model is in Model Registry with its metrics",
+            "Registry entry"
+          ],
+          [
+            "Serve predictions",
+            "The endpoint returns predictions for test requests",
+            "Response output"
+          ]
+        ],
+        "objectives": [
+          "Train TensorFlow models on Vertex AI",
+          "Use TPUs and tuning jobs",
+          "Deploy models on Google Cloud"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -12549,6 +13241,377 @@
           "Combine Redis and Node.js",
           "Build real-time features",
           "Run them reliably"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Hadoop",
+        "Apache Spark"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hadoop Data Lake with Spark Processing",
+        "subtopics": [
+          "Raw, clean and curated zones in HDFS",
+          "Spark jobs for cleaning and aggregation",
+          "Hive tables over curated data",
+          "Queue and resource plan for the jobs",
+          "Operations runbook"
+        ],
+        "tools": [
+          "HDFS",
+          "Apache Spark",
+          "Apache Hive",
+          "Hadoop YARN"
+        ],
+        "lab_task": "Build a data lake on Hadoop with raw, clean and curated zones, process daily files with Spark on YARN, expose curated Hive tables for analysts and hand over a runbook covering reruns, failures and capacity.",
+        "deliverable": "Working data lake with jobs, tables and a runbook",
+        "checks": [
+          [
+            "Process daily data",
+            "A day's files flow from raw to curated in one scheduled run",
+            "Job history"
+          ],
+          [
+            "Serve analysts",
+            "Analysts query curated Hive tables with correct results",
+            "Query output"
+          ],
+          [
+            "Hand over",
+            "A colleague reruns a failed day using only the runbook",
+            "Rerun log"
+          ]
+        ],
+        "objectives": [
+          "Combine Hadoop storage and Spark processing",
+          "Serve curated data",
+          "Operate the platform"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Hadoop",
+        "Apache Spark",
+        "Apache Kafka"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Streaming and Batch Big Data Platform on Hadoop, Kafka and Spark",
+        "subtopics": [
+          "Kafka topics for incoming events",
+          "Spark Structured Streaming into HDFS tables",
+          "Nightly batch correction of late data",
+          "Hive tables for reporting",
+          "Monitoring and recovery"
+        ],
+        "tools": [
+          "Apache Kafka",
+          "Apache Spark",
+          "HDFS",
+          "Apache Hive"
+        ],
+        "lab_task": "Stream events from Kafka into partitioned HDFS tables with Spark Structured Streaming, run a nightly batch job that corrects late data, publish Hive tables for reports and show recovery after a stopped stream.",
+        "deliverable": "Streaming and batch platform with recovery evidence",
+        "checks": [
+          [
+            "Stream events",
+            "Events reach HDFS tables within five minutes",
+            "Latency report"
+          ],
+          [
+            "Correct late data",
+            "The nightly job updates totals for late events",
+            "Before-and-after query"
+          ],
+          [
+            "Recover the stream",
+            "The stream restarts from its checkpoint without duplicates",
+            "Count comparison"
+          ]
+        ],
+        "objectives": [
+          "Combine streaming and batch on Hadoop",
+          "Handle late data",
+          "Recover streaming jobs"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Microsoft Fabric",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Fabric Lakehouse to Power BI Executive Reporting",
+        "subtopics": [
+          "Medallion lakehouse in Fabric",
+          "Semantic model in Direct Lake mode",
+          "Executive report and app",
+          "Row-level security and sharing",
+          "Refresh and capacity monitoring"
+        ],
+        "tools": [
+          "Microsoft Fabric",
+          "Power BI",
+          "OneLake",
+          "Fabric Capacity Metrics app"
+        ],
+        "lab_task": "Load sales and finance data into a Fabric lakehouse through bronze, silver and gold layers, build a Direct Lake semantic model and an executive Power BI app with row-level security, and show capacity use over a week.",
+        "deliverable": "Lakehouse, semantic model and published app",
+        "checks": [
+          [
+            "Load data",
+            "Gold tables reconcile with source totals",
+            "Reconciliation query"
+          ],
+          [
+            "Secure the report",
+            "Each executive sees only their region's figures in the app",
+            "Role test"
+          ],
+          [
+            "Monitor capacity",
+            "Capacity use stays below the agreed threshold",
+            "Capacity Metrics screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build reporting on Fabric",
+          "Secure reports",
+          "Monitor capacity"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Microsoft Fabric",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Fabric Analytics Platform Connected to an Azure Estate",
+        "subtopics": [
+          "Private connections to Azure data sources",
+          "Lakehouse and warehouse design",
+          "Entra ID groups and workspace roles",
+          "Deployment pipelines between environments",
+          "Cost and capacity review"
+        ],
+        "tools": [
+          "Microsoft Fabric",
+          "Azure Data Lake Storage Gen2",
+          "Azure SQL Database",
+          "Microsoft Entra ID"
+        ],
+        "lab_task": "Build a Fabric analytics platform that reads protected Azure storage and Azure SQL privately, separates development and production workspaces with deployment pipelines, and grants access only through Entra ID groups.",
+        "deliverable": "Connected Fabric platform with an access and cost review",
+        "checks": [
+          [
+            "Connect privately",
+            "All Azure sources are reached without public network access",
+            "Network settings"
+          ],
+          [
+            "Promote changes",
+            "A change moves from development to production through the pipeline",
+            "Deployment history"
+          ],
+          [
+            "Control access",
+            "Access is granted only through Entra ID groups",
+            "Role assignment export"
+          ]
+        ],
+        "objectives": [
+          "Integrate Fabric with Azure",
+          "Promote changes safely",
+          "Govern access"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "PyTorch",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Packaged PyTorch Training and Inference Project",
+        "subtopics": [
+          "Installable training package",
+          "Typed configuration",
+          "Tests and CI",
+          "Inference API",
+          "Reproducibility report"
+        ],
+        "tools": [
+          "Python",
+          "PyTorch",
+          "pytest",
+          "FastAPI",
+          "GitHub Actions"
+        ],
+        "lab_task": "Deliver a PyTorch project as an installable package with typed configs, tests in CI, a command-line trainer and a FastAPI inference service, and show that another engineer reproduces the reported metrics.",
+        "deliverable": "Packaged project, inference service and reproducibility report",
+        "checks": [
+          [
+            "Reproduce metrics",
+            "Another engineer reproduces the metrics within tolerance",
+            "Reproduction log"
+          ],
+          [
+            "Test in CI",
+            "CI runs the tests on every push and passes",
+            "CI run"
+          ],
+          [
+            "Serve the model",
+            "The inference service returns predictions matching offline evaluation",
+            "Comparison output"
+          ]
+        ],
+        "objectives": [
+          "Engineer PyTorch projects in Python",
+          "Serve models",
+          "Make results reproducible"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "PyTorch",
+        "TensorFlow"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: One Model Built in PyTorch and TensorFlow, Compared and Served",
+        "subtopics": [
+          "Same task in both frameworks",
+          "Shared data splits and metrics",
+          "Performance and developer experience comparison",
+          "ONNX export and serving",
+          "Framework recommendation"
+        ],
+        "tools": [
+          "PyTorch",
+          "TensorFlow",
+          "Keras",
+          "ONNX Runtime"
+        ],
+        "lab_task": "Build and train the same model for one task in PyTorch and TensorFlow, compare accuracy, training speed and code complexity, serve the better model through ONNX Runtime and write a framework recommendation for the team.",
+        "deliverable": "Two trained models, a served model and a recommendation",
+        "checks": [
+          [
+            "Compare models",
+            "Both models are evaluated on identical splits",
+            "Evaluation report"
+          ],
+          [
+            "Serve the winner",
+            "The chosen model serves predictions through ONNX Runtime",
+            "Service output"
+          ],
+          [
+            "Recommend a framework",
+            "The recommendation cites the measured results",
+            "Recommendation document"
+          ]
+        ],
+        "objectives": [
+          "Work in both frameworks",
+          "Compare on evidence",
+          "Serve the chosen model"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "PyTorch",
+        "MLOps"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: PyTorch Model Through a Full MLOps Lifecycle",
+        "subtopics": [
+          "Tracked training runs",
+          "Registered and versioned models",
+          "Containerised serving",
+          "Canary rollout",
+          "Drift monitoring and a retraining trigger"
+        ],
+        "tools": [
+          "PyTorch",
+          "MLflow",
+          "NVIDIA Triton Inference Server",
+          "Docker",
+          "Evidently"
+        ],
+        "lab_task": "Train a PyTorch model with tracked runs, register and serve it in a container, roll out a new version as a canary, and trigger retraining when the drift report crosses a threshold.",
+        "deliverable": "Operated PyTorch model with lifecycle evidence",
+        "checks": [
+          [
+            "Track versions",
+            "Every model version links to its training run",
+            "Registry entries"
+          ],
+          [
+            "Roll out safely",
+            "The canary receives the planned share of traffic before full rollout",
+            "Traffic metrics"
+          ],
+          [
+            "Retrain on drift",
+            "A drift breach starts the retraining pipeline",
+            "Pipeline log"
+          ]
+        ],
+        "objectives": [
+          "Run PyTorch models through MLOps",
+          "Release models safely",
+          "Automate retraining"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "TensorFlow",
+        "GCP"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: TensorFlow Model Trained and Served on Vertex AI",
+        "subtopics": [
+          "Training data in Cloud Storage",
+          "Custom training job",
+          "Model Registry entry",
+          "Endpoint with model monitoring",
+          "Cost report"
+        ],
+        "tools": [
+          "TensorFlow",
+          "Vertex AI",
+          "Cloud Storage",
+          "Cloud Monitoring"
+        ],
+        "lab_task": "Train a TensorFlow model on Vertex AI from Cloud Storage data, register it, deploy it behind an endpoint with model monitoring and report training and serving costs for a month of expected traffic.",
+        "deliverable": "Deployed model with monitoring and a cost report",
+        "checks": [
+          [
+            "Train on Vertex AI",
+            "The training job completes from Cloud Storage data",
+            "Job details"
+          ],
+          [
+            "Monitor the endpoint",
+            "Model monitoring reports on live requests",
+            "Monitoring dashboard"
+          ],
+          [
+            "Estimate cost",
+            "The monthly estimate matches the Google Cloud pricing calculator",
+            "Cost report"
+          ]
+        ],
+        "objectives": [
+          "Train on Vertex AI",
+          "Deploy and monitor models",
+          "Estimate cloud costs"
         ]
       }
     }

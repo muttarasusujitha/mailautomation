@@ -66,6 +66,13 @@ _HOST_EXTRAS = {"DevOps": {"Prometheus and Grafana"},
                 "Java Full Stack": {"HTML and CSS"},
                 "Python Full Stack": {"HTML and CSS", "Django", "FastAPI"},
                 ".NET Full Stack": {"HTML and CSS", "ASP.NET Core"},
+                # The Hadoop course teaches Hive at all three levels, and the PyTorch and
+                # TensorFlow courses teach deep learning itself: "Hadoop with Hive" is one
+                # Hadoop block, "Deep Learning using PyTorch and TensorFlow" is PyTorch
+                # plus TensorFlow.
+                "Hadoop": {"Apache Hive"},
+                "PyTorch": {"Deep Learning"},
+                "TensorFlow": {"Deep Learning"},
                 # "Flutter app for Android and iOS": the platforms are targets of the
                 # cross-platform course, not extra native courses.
                 "Flutter": {"Android Development", "iOS Development"},
