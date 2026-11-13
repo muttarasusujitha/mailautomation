@@ -10851,6 +10851,784 @@
           "Control load testing cost"
         ]
       }
+    },
+    {
+      "between": [
+        "Performance Testing",
+        "JMeter"
+      ],
+      "day": {
+        "topic": "Turning a Performance Plan into JMeter: Workload Models, Thread Groups and Timers",
+        "subtopics": [
+          "Reading the workload model as a script specification",
+          "Journeys as thread groups or controllers",
+          "Arrival rates with plugin thread groups",
+          "Think time and pacing with timers",
+          "Data needs as CSV configuration",
+          "Objectives as assertions and dashboard thresholds",
+          "Checking that the script matches the model",
+          "Recording the mapping for reviewers"
+        ],
+        "tools": [
+          "Apache JMeter",
+          "JMeter Plugins",
+          "Workload model"
+        ],
+        "lab_task": "Take a tool-neutral workload model with three journeys and peak arrival rates, implement it in JMeter with plugin thread groups and timers, and prove the run matches the model.",
+        "deliverable": "JMeter implementation with a model-to-script mapping",
+        "checks": [
+          [
+            "Map",
+            "Every journey and rate in the model has a JMeter element",
+            "Mapping table"
+          ],
+          [
+            "Implement",
+            "The test plan reproduces the arrival rates",
+            "Results"
+          ],
+          [
+            "Prove",
+            "Measured mix and rates match the model within limits",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Implement workload models in JMeter",
+          "Use timers and plugins",
+          "Validate scripts against models"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Performance Testing",
+        "LoadRunner"
+      ],
+      "day": {
+        "topic": "Delivering a Performance Plan in LoadRunner: Protocols, Scenarios and SLAs",
+        "subtopics": [
+          "Choosing protocols from the plan",
+          "Journeys as scripts and actions",
+          "Workload as Controller scenario schedules",
+          "Objectives as SLAs in Analysis",
+          "Data needs as parameters",
+          "Monitors from the monitoring plan",
+          "Checking scenario realism",
+          "Reporting back against the plan"
+        ],
+        "tools": [
+          "VuGen",
+          "Controller",
+          "Analysis",
+          "Workload model"
+        ],
+        "lab_task": "Implement a tool-neutral performance plan in LoadRunner with scripts, a scenario schedule matching the workload, SLAs from the objectives and monitors, and report results against the plan.",
+        "deliverable": "LoadRunner implementation and plan-based report",
+        "checks": [
+          [
+            "Map",
+            "Every journey and objective maps to a script or SLA",
+            "Mapping table"
+          ],
+          [
+            "Run",
+            "The scenario produces the planned load",
+            "Results"
+          ],
+          [
+            "Report",
+            "Results are reported against the plan's objectives",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Implement performance plans in LoadRunner",
+          "Turn objectives into SLAs",
+          "Report against the plan"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Performance Testing",
+        "Prometheus and Grafana"
+      ],
+      "day": {
+        "topic": "Server-Side Metrics for Performance Tests: Exporters, Recording Rules and Grafana Panels",
+        "subtopics": [
+          "Metrics a performance test needs from servers",
+          "Node, database and application exporters",
+          "Recording rules for rates and percentiles",
+          "Histograms and quantiles in PromQL",
+          "Grafana panels for saturation",
+          "Annotating test phases",
+          "Comparing runs in Grafana",
+          "Alerting during tests"
+        ],
+        "tools": [
+          "Prometheus",
+          "Grafana",
+          "Exporters",
+          "k6 or JMeter"
+        ],
+        "lab_task": "Add node, database and application exporters, write recording rules for request rates and latency quantiles, build saturation panels and annotate a load test.",
+        "deliverable": "Exporters, recording rules and a test dashboard",
+        "checks": [
+          [
+            "Collect",
+            "Server, database and application metrics are scraped",
+            "Prometheus targets"
+          ],
+          [
+            "Compute",
+            "Recording rules produce rates and quantiles",
+            "PromQL results"
+          ],
+          [
+            "Show",
+            "Panels show saturation during the annotated test",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Collect server metrics for tests",
+          "Write recording rules",
+          "Visualise saturation"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Performance Testing",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Load Testing Services on Kubernetes: Autoscaling, Resource Limits and Pod Metrics",
+        "subtopics": [
+          "Requests and limits and their effect on latency",
+          "CPU throttling",
+          "Horizontal Pod Autoscaler behaviour under load",
+          "Scale-up delays and readiness",
+          "Pod and node metrics during tests",
+          "Running load generators inside or outside the cluster",
+          "Cluster autoscaler effects",
+          "Reporting for platform teams"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Horizontal Pod Autoscaler",
+          "k6",
+          "Prometheus and Grafana"
+        ],
+        "lab_task": "Load test a service on Kubernetes with a ramp and a spike, record HPA scale-up delays and CPU throttling, adjust requests and limits and measure the improvement.",
+        "deliverable": "Kubernetes load results and tuning effect",
+        "checks": [
+          [
+            "Observe scaling",
+            "HPA scale-up times are recorded",
+            "Monitoring data"
+          ],
+          [
+            "Find throttling",
+            "CPU throttling is measured",
+            "Metrics"
+          ],
+          [
+            "Improve",
+            "The resource change improves latency",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Test services on Kubernetes",
+          "Measure autoscaling",
+          "Tune resources with evidence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Performance Testing",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Performance Testing AWS Workloads: Auto Scaling, RDS and Lambda Under Load",
+        "subtopics": [
+          "Auto Scaling groups and warm-up",
+          "Application Load Balancer metrics",
+          "RDS connections and performance insights",
+          "Lambda concurrency and cold starts",
+          "Service quotas and throttling",
+          "CloudWatch metrics during tests",
+          "Cost of tests and of the system under test",
+          "Reporting for cloud teams"
+        ],
+        "tools": [
+          "AWS Auto Scaling",
+          "Amazon RDS",
+          "AWS Lambda",
+          "Amazon CloudWatch",
+          "k6"
+        ],
+        "lab_task": "Load test an AWS application with Auto Scaling, RDS and Lambda, record scaling, connection and cold start behaviour, hit one service quota on purpose and report findings and cost.",
+        "deliverable": "AWS load test findings and cost note",
+        "checks": [
+          [
+            "Measure scaling",
+            "Scaling and warm-up times are recorded",
+            "CloudWatch data"
+          ],
+          [
+            "Find limits",
+            "Connection, cold start and quota limits are recorded",
+            "Findings"
+          ],
+          [
+            "Cost",
+            "Test and system costs are estimated",
+            "Cost note"
+          ]
+        ],
+        "objectives": [
+          "Test AWS workloads",
+          "Find cloud limits",
+          "Report cost and performance"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Test Automation with Python",
+        "Python"
+      ],
+      "day": {
+        "topic": "Applying General Python Skills to Test Code: Idioms, Typing and Packaging",
+        "subtopics": [
+          "Pythonic code in tests",
+          "Comprehensions, unpacking and context managers",
+          "Type hints for fixtures and helpers",
+          "Dataclasses and enums for test data",
+          "Packaging helper code",
+          "Virtual environments and dependency pinning",
+          "Readable test names and structure",
+          "Refactoring tests safely"
+        ],
+        "tools": [
+          "Python",
+          "pytest",
+          "Ruff",
+          "mypy"
+        ],
+        "lab_task": "Refactor a working but clumsy test module using Python idioms, type hints, dataclasses and context managers, keep all tests passing and package the helpers.",
+        "deliverable": "Refactored, typed tests and packaged helpers",
+        "checks": [
+          [
+            "Refactor",
+            "All tests pass after refactoring",
+            "Test output"
+          ],
+          [
+            "Type",
+            "mypy passes on the helpers",
+            "Check output"
+          ],
+          [
+            "Package",
+            "Helpers install as a package",
+            "Install log"
+          ]
+        ],
+        "objectives": [
+          "Apply Python skills to tests",
+          "Type and package test code",
+          "Refactor safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Test Automation with Python",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Selenium in Java and Python: Porting Suites and Shared WebDriver Concepts",
+        "subtopics": [
+          "WebDriver concepts in both languages",
+          "Locators and waits compared",
+          "Page objects in Java and Python",
+          "TestNG compared with pytest",
+          "Porting tests step by step",
+          "Running both suites on one grid",
+          "Choosing a language for a team",
+          "Keeping practices consistent"
+        ],
+        "tools": [
+          "Selenium for Java",
+          "Selenium for Python",
+          "pytest",
+          "Selenium Grid"
+        ],
+        "lab_task": "Port five Java Selenium tests and their page objects to Python with pytest, run both suites on the same grid and compare readability and run time.",
+        "deliverable": "Ported tests and comparison",
+        "checks": [
+          [
+            "Port",
+            "Five Python tests pass",
+            "Test output"
+          ],
+          [
+            "Share the grid",
+            "Both suites run on one grid",
+            "Grid console"
+          ],
+          [
+            "Compare",
+            "Readability and run time are compared",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Port Selenium suites between languages",
+          "Map frameworks",
+          "Choose a language"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Test Automation with Python",
+        "Playwright"
+      ],
+      "day": {
+        "topic": "Playwright in Python and TypeScript Teams: Sharing Practices Across Languages",
+        "subtopics": [
+          "Same browser engine, different runners",
+          "pytest-playwright compared with Playwright Test",
+          "Fixtures and test isolation in both",
+          "Locator standards for both teams",
+          "Shared CI templates",
+          "Traces and reports in both",
+          "Moving people between teams",
+          "When one language should win"
+        ],
+        "tools": [
+          "Playwright for Python",
+          "Playwright Test",
+          "CI templates"
+        ],
+        "lab_task": "Write shared locator and structure standards for a Python and a TypeScript Playwright team, implement one journey in both and run them from one CI template.",
+        "deliverable": "Shared standards, two implementations and a CI template",
+        "checks": [
+          [
+            "Standardise",
+            "Both implementations follow the shared standards",
+            "Code review"
+          ],
+          [
+            "Implement",
+            "The journey passes in both languages",
+            "Test output"
+          ],
+          [
+            "Share CI",
+            "One template runs both suites",
+            "Pipeline runs"
+          ]
+        ],
+        "objectives": [
+          "Share Playwright practices",
+          "Compare runners",
+          "Standardise across languages"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Test Automation with Python",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "From Postman Collections to pytest API Suites: Converting Requests, Tests and Environments",
+        "subtopics": [
+          "What to move and what to keep in Postman",
+          "Converting requests to requests or httpx calls",
+          "Converting pm.test checks to assertions",
+          "Environments to configuration and fixtures",
+          "Pre-request scripts to fixtures",
+          "Data files to parametrisation",
+          "Running both suites during transition",
+          "Retiring converted Postman checks"
+        ],
+        "tools": [
+          "Postman",
+          "pytest",
+          "requests or httpx"
+        ],
+        "lab_task": "Convert a Postman collection folder with environments, pre-request scripts and data files into a pytest suite, run both side by side and retire the converted Postman checks.",
+        "deliverable": "Converted pytest suite and retirement record",
+        "checks": [
+          [
+            "Convert",
+            "The pytest suite covers the folder's checks",
+            "Test inventory"
+          ],
+          [
+            "Match",
+            "Both suites give the same results for one run",
+            "Comparison"
+          ],
+          [
+            "Retire",
+            "Converted Postman checks are removed",
+            "Collection history"
+          ]
+        ],
+        "objectives": [
+          "Move API checks to pytest",
+          "Map Postman features to Python",
+          "Avoid duplicate suites"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Test Automation with Python",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "pytest for Data Scientists: Testing Feature Code, Training Pipelines and Model APIs",
+        "subtopics": [
+          "Why ML code needs tests",
+          "Unit tests for feature engineering",
+          "Testing data validation steps",
+          "Small fixed datasets for training tests",
+          "Testing model APIs",
+          "Regression tests for model metrics",
+          "Running tests in notebooks and CI",
+          "Working with data scientists on tests"
+        ],
+        "tools": [
+          "pytest",
+          "pandas",
+          "scikit-learn",
+          "FastAPI"
+        ],
+        "lab_task": "Add pytest tests for a feature engineering module, a training pipeline on a tiny dataset and the model's prediction API, and run them in CI on every change.",
+        "deliverable": "ML code test suite in CI",
+        "checks": [
+          [
+            "Test features",
+            "Feature functions have unit tests",
+            "Test output"
+          ],
+          [
+            "Test training",
+            "The pipeline trains on the tiny dataset in tests",
+            "Test output"
+          ],
+          [
+            "Test the API",
+            "Prediction API tests pass",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Test machine learning code",
+          "Use small fixed datasets",
+          "Run ML tests in CI"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TestNG",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Selenium Frameworks on TestNG: Lifecycle, Parallel Browsers and Listeners for UI Suites",
+        "subtopics": [
+          "Driver lifecycle with TestNG annotations",
+          "ThreadLocal drivers for parallel browsers",
+          "Browser parameters from suites",
+          "Listeners for screenshots and logs",
+          "Retry analysers for UI tests",
+          "Groups for UI suites",
+          "Data providers for UI journeys",
+          "Reporting UI results"
+        ],
+        "tools": [
+          "Selenium WebDriver",
+          "TestNG",
+          "Selenium Grid 4"
+        ],
+        "lab_task": "Build the UI layer of a framework on TestNG with ThreadLocal drivers, suite browser parameters, a screenshot listener and a limited retry, and run it in parallel on a grid.",
+        "deliverable": "Selenium framework on TestNG with parallel runs",
+        "checks": [
+          [
+            "Manage drivers",
+            "Each thread has its own driver",
+            "Logs"
+          ],
+          [
+            "Capture evidence",
+            "The listener attaches screenshots on failure",
+            "Report"
+          ],
+          [
+            "Run in parallel",
+            "Tests pass in parallel on the grid",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Build Selenium frameworks on TestNG",
+          "Run browsers in parallel",
+          "Use listeners for evidence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TestNG",
+        "REST Assured"
+      ],
+      "day": {
+        "topic": "Running API and UI Suites Together on TestNG: Shared Lifecycle, Groups and Reporting",
+        "subtopics": [
+          "One TestNG project for API and UI tests",
+          "Shared configuration and environments",
+          "Groups for API, UI and smoke",
+          "Using API calls to prepare UI tests",
+          "Separate and combined suites",
+          "One report for both layers",
+          "Pipeline stages by group",
+          "Ownership of shared code"
+        ],
+        "tools": [
+          "TestNG",
+          "REST Assured",
+          "Selenium WebDriver",
+          "Allure"
+        ],
+        "lab_task": "Combine API and UI tests in one TestNG project with shared configuration, API-based data setup for UI tests, groups per layer and one Allure report.",
+        "deliverable": "Combined project, suites and report",
+        "checks": [
+          [
+            "Share",
+            "Configuration is shared by both layers",
+            "Code review"
+          ],
+          [
+            "Prepare",
+            "UI tests use API-created data",
+            "Test code"
+          ],
+          [
+            "Report",
+            "One report covers both layers",
+            "Allure report"
+          ]
+        ],
+        "objectives": [
+          "Combine API and UI suites",
+          "Share TestNG lifecycle",
+          "Report both layers together"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TestNG",
+        "Java"
+      ],
+      "day": {
+        "topic": "Modern Java in TestNG Projects: Records, Streams and Lambdas in Test Code",
+        "subtopics": [
+          "Records for test data",
+          "Streams for building data providers",
+          "Lambdas for retries and waits",
+          "Optional in helpers",
+          "Text blocks for payloads",
+          "var and readability",
+          "Java versions for test projects",
+          "Refactoring older TestNG code"
+        ],
+        "tools": [
+          "Java 21",
+          "TestNG",
+          "IntelliJ IDEA"
+        ],
+        "lab_task": "Refactor an older TestNG project with records, stream-built data providers, lambda-based wait helpers and text blocks, keeping all tests passing.",
+        "deliverable": "Refactored project with comparison",
+        "checks": [
+          [
+            "Refactor",
+            "All tests pass after refactoring",
+            "Test output"
+          ],
+          [
+            "Modernise",
+            "Records and streams replace older patterns",
+            "Code review"
+          ],
+          [
+            "Compare",
+            "Readability is compared before and after",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Use modern Java in tests",
+          "Refactor TestNG code",
+          "Keep tests readable"
+        ]
+      }
+    },
+    {
+      "between": [
+        "TestNG",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "TestNG Suites in Jenkins: Parameterised Jobs, Result Trends and Flaky Test Tracking",
+        "subtopics": [
+          "Pipeline stages for TestNG suites",
+          "Parameterised jobs for suites and environments",
+          "Publishing TestNG and JUnit-format results",
+          "Trends across builds",
+          "Flaky test tracking in Jenkins",
+          "Parallel stages and agents",
+          "Notifications",
+          "Archiving artefacts"
+        ],
+        "tools": [
+          "Jenkins",
+          "TestNG",
+          "Maven",
+          "Jenkins test result plugins"
+        ],
+        "lab_task": "Build a Jenkins pipeline with parameters for suite and environment, publish results and trends, track flaky tests across builds and notify the team on failures.",
+        "deliverable": "Jenkins pipeline with trends and flaky tracking",
+        "checks": [
+          [
+            "Parameterise",
+            "Suite and environment are chosen at build time",
+            "Build parameters"
+          ],
+          [
+            "Trend",
+            "Results trends show across builds",
+            "Jenkins page"
+          ],
+          [
+            "Track flakes",
+            "Flaky tests are identified across builds",
+            "Flaky report"
+          ]
+        ],
+        "objectives": [
+          "Run TestNG in Jenkins",
+          "Track trends",
+          "Find flaky tests"
+        ]
+      }
+    },
+    {
+      "between": [
+        "LoadRunner",
+        "JMeter"
+      ],
+      "day": {
+        "topic": "LoadRunner and JMeter Side by Side: Converting Scripts and Comparing Results",
+        "subtopics": [
+          "Concepts mapped between the tools",
+          "VuGen actions and JMeter controllers",
+          "Correlation in both tools",
+          "Parameters and CSV data",
+          "Scenarios and thread groups",
+          "Running JMeter scripts in the Controller",
+          "Comparing results fairly",
+          "Choosing a tool per application"
+        ],
+        "tools": [
+          "VuGen",
+          "Controller",
+          "Apache JMeter"
+        ],
+        "lab_task": "Convert a VuGen web script into a JMeter test plan, run both against the same environment and load, and compare results and effort.",
+        "deliverable": "Converted script and comparison",
+        "checks": [
+          [
+            "Convert",
+            "The JMeter plan reproduces the VuGen journey",
+            "Results"
+          ],
+          [
+            "Compare",
+            "Results under the same load are compared",
+            "Comparison"
+          ],
+          [
+            "Recommend",
+            "A tool choice for the application is justified",
+            "Recommendation"
+          ]
+        ],
+        "objectives": [
+          "Map LoadRunner and JMeter concepts",
+          "Convert scripts",
+          "Compare tools fairly"
+        ]
+      }
+    },
+    {
+      "between": [
+        "LoadRunner",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Performance Testing SAP S/4HANA with LoadRunner: Fiori and GUI Transactions Under Load",
+        "subtopics": [
+          "S/4HANA user interfaces: Fiori and SAP GUI",
+          "Choosing protocols for Fiori apps",
+          "Scripting Fiori OData calls",
+          "SAP GUI transactions alongside Fiori",
+          "Correlation for SAP sessions",
+          "Monitoring HANA and application servers",
+          "Batch jobs during online load",
+          "Working with Basis and functional teams"
+        ],
+        "tools": [
+          "VuGen",
+          "SAP S/4HANA test system",
+          "SAP monitoring"
+        ],
+        "lab_task": "Script a Fiori app and an SAP GUI transaction for an S/4HANA process, run them together with a background job and review HANA and server metrics with the Basis team.",
+        "deliverable": "SAP scripts, results and Basis review",
+        "checks": [
+          [
+            "Script",
+            "Fiori and GUI scripts replay for many users",
+            "Replay logs"
+          ],
+          [
+            "Run",
+            "Online users and the background job run together",
+            "Results"
+          ],
+          [
+            "Review",
+            "Basis reviews HANA and server metrics",
+            "Review notes"
+          ]
+        ],
+        "objectives": [
+          "Test S/4HANA performance",
+          "Script Fiori and GUI",
+          "Work with SAP teams"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -15941,6 +16719,236 @@
           "Combine functional and load testing",
           "Reuse requests and data",
           "Report API quality and performance"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Performance Testing",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Load and Scaling Test of a Kubernetes Service",
+        "subtopics": [
+          "Workload model",
+          "Load scripts",
+          "Autoscaling observation",
+          "Resource tuning",
+          "Report for the platform team"
+        ],
+        "tools": [
+          "k6 or JMeter",
+          "Kubernetes",
+          "Prometheus and Grafana"
+        ],
+        "lab_task": "Plan and run load and spike tests of a Kubernetes service, observe autoscaling and throttling, tune requests and limits and report the before-and-after results to the platform team.",
+        "deliverable": "Plan, results, tuning record and report",
+        "checks": [
+          [
+            "Run",
+            "Load and spike tests complete with monitoring",
+            "Results"
+          ],
+          [
+            "Tune",
+            "Tuning improves latency or cost",
+            "Comparison"
+          ],
+          [
+            "Report",
+            "The platform team receives clear findings",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Combine performance testing and Kubernetes",
+          "Measure scaling",
+          "Tune with evidence"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Test Automation with Python",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python Selenium Framework for a Web Application",
+        "subtopics": [
+          "pytest structure",
+          "Page objects",
+          "Fixtures and data",
+          "Parallel runs on a grid",
+          "Reports and CI"
+        ],
+        "tools": [
+          "Python",
+          "pytest",
+          "Selenium",
+          "Selenium Grid",
+          "Allure"
+        ],
+        "lab_task": "Build a Python Selenium framework for a web application with page objects, fixtures, data-driven tests, parallel grid runs and Allure reports in CI.",
+        "deliverable": "Framework, reports and pipeline",
+        "checks": [
+          [
+            "Structure",
+            "Page objects and fixtures are used",
+            "Code review"
+          ],
+          [
+            "Run in parallel",
+            "Tests pass on the grid in parallel",
+            "Test output"
+          ],
+          [
+            "Run in CI",
+            "The pipeline publishes reports",
+            "Pipeline run"
+          ]
+        ],
+        "objectives": [
+          "Combine Python and Selenium",
+          "Build a UI framework",
+          "Run it in CI"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Test Automation with Python",
+        "Postman API Testing"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: API Test Suite Moved from Postman to pytest",
+        "subtopics": [
+          "Inventory of the collection",
+          "Conversion plan",
+          "pytest suite",
+          "Side-by-side runs",
+          "Retirement of duplicates"
+        ],
+        "tools": [
+          "Postman",
+          "pytest",
+          "requests or httpx",
+          "CI pipeline"
+        ],
+        "lab_task": "Inventory a Postman collection, convert its regression checks into a pytest suite, run both side by side in CI and retire the duplicated Postman checks.",
+        "deliverable": "Converted suite, comparison and retirement record",
+        "checks": [
+          [
+            "Convert",
+            "The pytest suite covers the regression checks",
+            "Test inventory"
+          ],
+          [
+            "Compare",
+            "Both suites agree for a full run",
+            "Comparison"
+          ],
+          [
+            "Retire",
+            "Duplicates are removed from Postman",
+            "Collection history"
+          ]
+        ],
+        "objectives": [
+          "Combine Postman and Python",
+          "Move regression checks to code",
+          "Avoid duplication"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "TestNG",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Parallel Selenium Suite on TestNG with Listeners and Reports",
+        "subtopics": [
+          "Suite design",
+          "Thread-safe drivers",
+          "Listeners and retries",
+          "Grid runs",
+          "Reports and CI"
+        ],
+        "tools": [
+          "TestNG",
+          "Selenium WebDriver",
+          "Selenium Grid 4",
+          "Allure"
+        ],
+        "lab_task": "Build a parallel Selenium suite on TestNG with suite design, ThreadLocal drivers, listeners, limited retries and grid runs, publishing Allure reports from CI.",
+        "deliverable": "Suite, reports and pipeline",
+        "checks": [
+          [
+            "Design",
+            "Suites and groups select tests correctly",
+            "Suite files"
+          ],
+          [
+            "Run",
+            "Parallel grid runs pass",
+            "Test output"
+          ],
+          [
+            "Report",
+            "Allure reports are published from CI",
+            "Report link"
+          ]
+        ],
+        "objectives": [
+          "Combine TestNG and Selenium",
+          "Run UI suites in parallel",
+          "Publish evidence"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "LoadRunner",
+        "Performance Testing"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Planned Performance Test Delivered with LoadRunner",
+        "subtopics": [
+          "Tool-neutral plan",
+          "LoadRunner scripts",
+          "Scenario and monitors",
+          "SLA analysis",
+          "Report against the plan"
+        ],
+        "tools": [
+          "VuGen",
+          "Controller",
+          "Analysis",
+          "Workload model"
+        ],
+        "lab_task": "Write a tool-neutral performance plan, deliver it with LoadRunner scripts and a monitored scenario, analyse SLAs and report results against the plan's objectives.",
+        "deliverable": "Plan, scripts, results and report",
+        "checks": [
+          [
+            "Plan",
+            "Objectives and workload are documented",
+            "Test plan"
+          ],
+          [
+            "Deliver",
+            "The scenario reproduces the planned workload",
+            "Results"
+          ],
+          [
+            "Report",
+            "Results are reported against each objective",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Combine planning and LoadRunner delivery",
+          "Turn plans into scenarios",
+          "Report against objectives"
         ]
       }
     }

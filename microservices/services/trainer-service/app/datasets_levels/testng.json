@@ -1,0 +1,573 @@
+{
+  "domain": "TestNG",
+  "name": "TestNG Test Framework for Java",
+  "category": "Testing and QA",
+  "icon": "check-square",
+  "aliases": ["TestNG Framework", "Java Test Automation", "TestNG Training", "TestNG Annotations", "TestNG Data Provider", "TestNG Parallel Execution"],
+  "certifications": ["No official TestNG certification; assessed by capstone projects", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)", "Oracle Certified Professional Java SE Developer (optional)"],
+  "tools": ["TestNG", "Java 17 or 21", "Maven or Gradle", "IntelliJ IDEA or Eclipse", "Selenium WebDriver", "REST Assured", "Allure"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For testers and Java developers learning TestNG as the runner for automated tests. Covers TestNG with Maven, Java essentials for tests, annotations and the test lifecycle, hard and soft assertions, testng.xml suites, groups, dependencies and priorities, parameters, DataProvider, timeouts and expected exceptions, enabling and skipping tests, default reports, running from the IDE and Maven, Selenium and REST Assured with TestNG, logging, debugging and a first framework.",
+      "prerequisites": ["Basic Java or another programming language", "Understands test cases and test design", "Can install a JDK and an IDE"],
+      "outcomes": ["Write and organise TestNG tests with annotations, groups and suites", "Drive tests with parameters and data providers", "Run suites from the IDE and Maven and read TestNG reports", "Use TestNG as the runner for Selenium and REST Assured tests"],
+      "days": [
+        {
+          "topic": "TestNG Overview, Installation and Project Setup",
+          "subtopics": ["What TestNG is and where it fits", "TestNG compared with JUnit 5", "Installing a JDK and IntelliJ IDEA or Eclipse", "Creating a Maven project", "Adding the TestNG dependency", "The TestNG IDE plugin", "Writing and running a first test", "Reading the console output", "Default report folders", "Course project overview"],
+          "tools": ["Java", "Maven", "IntelliJ IDEA or Eclipse", "TestNG"],
+          "lab_task": "Create a Maven project with TestNG, write a first test class with two tests, run it from the IDE and from Maven and open the default report.",
+          "deliverable": "Maven project with a first passing test class",
+          "checks": [["Build", "mvn test runs the tests", "Terminal output"], ["Run in the IDE", "Tests run from the IDE plugin", "Screenshot"], ["Read reports", "The default report opens and shows results", "Report screenshot"]],
+          "objectives": ["Set up TestNG", "Run tests from the IDE and Maven", "Read TestNG output"]
+        },
+        {
+          "topic": "Java Essentials for TestNG Users",
+          "subtopics": ["Classes, methods and access modifiers", "Static and instance members", "Collections for test data", "Exceptions and stack traces", "Packages and imports", "Static imports for assertions", "Inheritance for base test classes", "Common Java mistakes in tests"],
+          "tools": ["Java", "IntelliJ IDEA or Eclipse"],
+          "lab_task": "Write a base test class and two test classes that extend it, use collections for test data and fix three compile and runtime errors.",
+          "deliverable": "Base and test classes with fixed examples",
+          "checks": [["Inherit", "Test classes reuse the base class", "Code"], ["Use collections", "Test data is held in lists and maps", "Code"], ["Fix errors", "All three broken examples run", "Terminal output"]],
+          "objectives": ["Write Java for tests", "Use base classes", "Read Java errors"]
+        },
+        {
+          "topic": "Annotations and the Test Lifecycle",
+          "subtopics": ["@Test and its attributes", "@BeforeMethod and @AfterMethod", "@BeforeClass and @AfterClass", "@BeforeTest and @AfterTest", "@BeforeSuite and @AfterSuite", "@BeforeGroups and @AfterGroups", "Execution order", "alwaysRun and when to use it"],
+          "tools": ["TestNG", "IntelliJ IDEA or Eclipse"],
+          "lab_task": "Add print statements to every lifecycle annotation across two classes and a suite, predict the order, run it and explain any differences.",
+          "deliverable": "Lifecycle demo with explained order",
+          "checks": [["Predict", "The predicted order is written before running", "Notes"], ["Run", "The actual order is captured from output", "Terminal output"], ["Explain", "Differences from the prediction are explained", "Notes"]],
+          "objectives": ["Use TestNG annotations", "Understand the lifecycle", "Control setup and teardown"]
+        },
+        {
+          "topic": "Assertions: Hard and Soft",
+          "subtopics": ["The Assert class", "assertEquals, assertTrue and assertNotNull", "Assertion messages", "Collections and arrays in assertions", "SoftAssert and assertAll", "When soft assertions help", "Assertion libraries such as AssertJ with TestNG", "Avoiding assertions that always pass"],
+          "tools": ["TestNG Assert", "SoftAssert", "AssertJ"],
+          "lab_task": "Write tests with hard and soft assertions for a page of results, show the difference when several checks fail and rewrite two assertions that could never fail.",
+          "deliverable": "Assertion tests with a comparison",
+          "checks": [["Use both", "Hard and soft assertions are both used", "Test code"], ["Compare", "The report shows the difference in failure output", "Test output"], ["Fix weak checks", "Two always-passing assertions now fail when they should", "Test output"]],
+          "objectives": ["Write assertions", "Use soft assertions", "Avoid weak checks"]
+        },
+        {
+          "topic": "testng.xml: Suites, Tests and Classes",
+          "subtopics": ["Why testng.xml exists", "Suite, test and class elements", "Including and excluding methods", "Packages in suites", "Several suites and suite files", "Preserve order", "Running a suite file from the IDE and Maven", "Organising suites for a project"],
+          "tools": ["testng.xml", "Maven Surefire", "IntelliJ IDEA or Eclipse"],
+          "lab_task": "Create smoke and regression suite files that include and exclude methods and packages, and run each from the IDE and from Maven.",
+          "deliverable": "Two suite files with run results",
+          "checks": [["Define suites", "Smoke and regression suites include the right tests", "Suite files"], ["Exclude", "Excluded methods do not run", "Terminal output"], ["Run with Maven", "Maven runs each suite file", "Terminal output"]],
+          "objectives": ["Write testng.xml", "Organise suites", "Run suites with Maven"]
+        },
+        {
+          "topic": "Groups for Organising and Selecting Tests",
+          "subtopics": ["Assigning groups to tests", "Groups at class level", "Including and excluding groups in suites", "Groups of groups", "Running groups from Maven", "Naming conventions for groups", "Groups compared with separate suites", "Avoiding group sprawl"],
+          "tools": ["TestNG groups", "testng.xml", "Maven"],
+          "lab_task": "Tag tests with smoke, regression and module groups, define a metagroup, and run combinations of groups from suite files and Maven.",
+          "deliverable": "Grouped tests and group runs",
+          "checks": [["Tag", "Every test has a type group and a module group", "Test code"], ["Combine", "A metagroup runs its member groups", "Terminal output"], ["Run", "Group runs from Maven select the right tests", "Terminal output"]],
+          "objectives": ["Use groups", "Select tests by group", "Keep group naming clear"]
+        },
+        {
+          "topic": "Dependencies and Priorities",
+          "subtopics": ["dependsOnMethods", "dependsOnGroups", "Soft dependencies with alwaysRun", "priority and its effect on order", "Why independent tests are usually better", "Skipped tests after failed dependencies", "Ordering in suites", "When dependencies make sense"],
+          "tools": ["TestNG", "IntelliJ IDEA or Eclipse"],
+          "lab_task": "Build a login, create and delete flow with method dependencies, see how a failed step skips the rest, then rewrite one flow as independent tests and compare.",
+          "deliverable": "Dependent and independent versions with comparison",
+          "checks": [["Depend", "Later steps skip when an earlier one fails", "Test output"], ["Prioritise", "Priorities change the run order as expected", "Test output"], ["Compare", "Independent tests are compared with the dependent flow", "Comparison note"]],
+          "objectives": ["Use dependencies carefully", "Control order with priorities", "Prefer independent tests"]
+        },
+        {
+          "topic": "Parameters from testng.xml and the Command Line",
+          "subtopics": ["@Parameters and suite parameters", "@Optional default values", "Parameters per test element", "System properties from Maven", "Browser and environment parameters", "Combining parameters with configuration files", "Parameters in CI", "Common parameter mistakes"],
+          "tools": ["TestNG @Parameters", "Maven", "testng.xml"],
+          "lab_task": "Pass browser and environment parameters from testng.xml and override them from the Maven command line, with optional defaults for local runs.",
+          "deliverable": "Parameterised suite configuration",
+          "checks": [["Pass parameters", "Tests read parameters from the suite file", "Test output"], ["Override", "Maven command-line values override the suite", "Terminal output"], ["Default", "Optional defaults apply when nothing is passed", "Test output"]],
+          "objectives": ["Use suite parameters", "Override from the command line", "Provide defaults"]
+        },
+        {
+          "topic": "DataProvider for Data-Driven Tests",
+          "subtopics": ["@DataProvider methods", "Returning Object arrays and iterators", "Data providers in other classes", "Reading CSV, JSON and Excel data", "Naming data-driven runs", "Parallel data providers", "Lazy data with iterators", "Keeping data readable"],
+          "tools": ["TestNG DataProvider", "Apache POI", "Jackson"],
+          "lab_task": "Drive a login test from a data provider reading Excel, a pricing test from JSON and a search test from CSV, with clear names for each run.",
+          "deliverable": "Data providers and data files",
+          "checks": [["Drive", "Each data row runs as a separate test", "Test report"], ["Read files", "Data loads from Excel, JSON and CSV", "Test output"], ["Name", "Failing rows are identifiable in the report", "Report screenshot"]],
+          "objectives": ["Write data providers", "Read external data", "Name data-driven runs"]
+        },
+        {
+          "topic": "Timeouts, Expected Exceptions and Invocation Counts",
+          "subtopics": ["timeOut on tests and suites", "expectedExceptions", "expectedExceptionsMessageRegExp", "invocationCount and threadPoolSize", "successPercentage", "Using these for reliability checks", "Avoiding misuse", "Reading results"],
+          "tools": ["TestNG", "IntelliJ IDEA or Eclipse"],
+          "lab_task": "Add timeouts to slow tests, test expected exceptions with message checks and run one test many times with invocationCount to measure its stability.",
+          "deliverable": "Tests using timeouts, exceptions and invocation counts",
+          "checks": [["Time out", "Slow tests fail at the timeout", "Test output"], ["Expect exceptions", "Exception tests check type and message", "Test code"], ["Repeat", "The repeated test reports a stability rate", "Test output"]],
+          "objectives": ["Use timeouts", "Test exceptions", "Repeat tests for stability"]
+        },
+        {
+          "topic": "Enabling, Skipping and Ignoring Tests",
+          "subtopics": ["enabled=false", "@Ignore", "SkipException at run time", "Conditional skipping by environment", "Reporting skipped tests", "Known bugs and skipped tests", "Cleaning up skipped tests", "A team rule for skipping"],
+          "tools": ["TestNG", "Jira"],
+          "lab_task": "Skip tests by environment at run time, ignore a known-bug test with a ticket reference and produce a report that lists all skipped tests with reasons.",
+          "deliverable": "Skip rules and a skipped-tests report",
+          "checks": [["Skip at run time", "Environment-specific tests skip with a reason", "Test output"], ["Reference bugs", "Ignored tests reference tickets", "Test code"], ["Report", "Skipped tests and reasons are listed", "Report"]],
+          "objectives": ["Skip tests deliberately", "Record reasons", "Keep skipped tests under control"]
+        },
+        {
+          "topic": "TestNG Reports and Logging",
+          "subtopics": ["Default HTML and emailable reports", "testng-results.xml", "Reporter.log", "Logging with SLF4J and Logback", "Screenshots and attachments", "ExtentReports in brief", "Allure with TestNG", "Choosing reports for readers"],
+          "tools": ["TestNG reports", "Logback", "Allure"],
+          "lab_task": "Add logging to tests, write Reporter.log messages, produce the emailable report and an Allure report with attachments, and compare them for a manager and a developer.",
+          "deliverable": "Reports and logging setup",
+          "checks": [["Log", "Logs show test steps at the right levels", "Log output"], ["Report", "Emailable and Allure reports are produced", "Report files"], ["Compare", "Reports are matched to their readers", "Comparison note"]],
+          "objectives": ["Use TestNG reports", "Add logging", "Produce readable reports"]
+        },
+        {
+          "topic": "Maven and Surefire for TestNG",
+          "subtopics": ["Surefire plugin configuration", "Running suite files with Surefire", "Groups and parameters from Maven", "Profiles for environments", "Failing the build on test failures", "Rerunning failed tests", "Reports in the target folder", "Common Surefire problems"],
+          "tools": ["Maven Surefire", "TestNG", "testng.xml"],
+          "lab_task": "Configure Surefire to run suites by profile, pass groups and parameters, rerun failures once and make the build fail when tests fail.",
+          "deliverable": "Surefire configuration with profiles",
+          "checks": [["Run by profile", "Profiles select suites and environments", "Terminal output"], ["Pass options", "Groups and parameters come from Maven", "Terminal output"], ["Fail builds", "Test failures fail the build", "Build output"]],
+          "objectives": ["Configure Surefire", "Use Maven profiles", "Control builds from tests"]
+        },
+        {
+          "topic": "Selenium WebDriver with TestNG",
+          "subtopics": ["Browser setup in @BeforeMethod", "Closing browsers in @AfterMethod", "Base test classes for Selenium", "Data providers for UI tests", "Screenshots on failure", "Groups for UI suites", "Parallel browsers in brief", "Selenium Manager and drivers"],
+          "tools": ["Selenium WebDriver", "TestNG", "Chrome or Firefox"],
+          "lab_task": "Build a Selenium base test with TestNG lifecycle methods, write data-driven login tests and capture screenshots on failure.",
+          "deliverable": "Selenium tests on TestNG",
+          "checks": [["Manage browsers", "Browsers start and stop through lifecycle methods", "Test output"], ["Drive data", "Login runs from a data provider", "Test report"], ["Capture evidence", "Failed tests save screenshots", "Screenshot files"]],
+          "objectives": ["Run Selenium with TestNG", "Manage browsers with lifecycle methods", "Capture failure evidence"]
+        },
+        {
+          "topic": "REST Assured with TestNG",
+          "subtopics": ["API tests in TestNG classes", "Base classes with specifications", "Data providers for API inputs", "Groups for API suites", "Dependencies in API flows", "Soft assertions for responses", "Reporting API calls", "Running API and UI suites together"],
+          "tools": ["REST Assured", "TestNG", "Allure"],
+          "lab_task": "Write API tests with REST Assured on TestNG with a base specification class, data providers and soft assertions, and run them with the UI suite.",
+          "deliverable": "API tests on TestNG",
+          "checks": [["Use specifications", "Base specifications are shared", "Code review"], ["Drive data", "API inputs come from data providers", "Test report"], ["Run together", "API and UI suites run in one Maven build", "Terminal output"]],
+          "objectives": ["Run REST Assured with TestNG", "Share API setup", "Combine suites"]
+        },
+        {
+          "topic": "Page Objects and Base Classes in TestNG Projects",
+          "subtopics": ["Page objects with Selenium", "Base page and base test classes", "Driver handling in base classes", "Utilities for waits and screenshots", "Package structure", "Keeping tests short", "Avoiding giant base classes", "Refactoring tests"],
+          "tools": ["Selenium WebDriver", "TestNG", "IntelliJ IDEA or Eclipse"],
+          "lab_task": "Refactor UI tests into page objects with a base page and base test, move waits and screenshots into utilities and show a locator change needs one edit.",
+          "deliverable": "Refactored framework structure",
+          "checks": [["Create pages", "Each page has a class", "Code review"], ["Share utilities", "Waits and screenshots live in utilities", "Code review"], ["Prove the benefit", "A locator change is fixed in one place", "Commit diff"]],
+          "objectives": ["Structure TestNG projects", "Use page objects", "Keep base classes small"]
+        },
+        {
+          "topic": "Configuration and Environments for TestNG Suites",
+          "subtopics": ["Properties files per environment", "Reading configuration in base classes", "Suite parameters compared with properties", "Secrets from environment variables", "Switching environments", "Validating configuration at start", "Avoiding hard-coded values", "Configuration in CI"],
+          "tools": ["Properties files", "TestNG", "Maven profiles"],
+          "lab_task": "Move URLs and credentials into environment properties and environment variables, switch environments by profile and fail fast on missing settings.",
+          "deliverable": "Configuration setup with two environments",
+          "checks": [["Configure", "No URLs or credentials are hard-coded", "Code search"], ["Switch", "Profiles select the environment", "Terminal output"], ["Fail fast", "Missing settings stop the run clearly", "Terminal output"]],
+          "objectives": ["Manage configuration", "Switch environments", "Protect secrets"]
+        },
+        {
+          "topic": "Debugging TestNG Tests",
+          "subtopics": ["Running one test or method", "Debugging in the IDE", "Reading TestNG failure output", "Configuration method failures", "Skipped tests and why they skip", "Data provider errors", "Classpath and dependency problems", "A debugging checklist"],
+          "tools": ["IntelliJ IDEA or Eclipse debugger", "TestNG", "Maven"],
+          "lab_task": "Diagnose four broken suites (a failing @BeforeClass, a data provider error, a missing dependency and a wrong suite path), fix them and write a debugging checklist.",
+          "deliverable": "Diagnoses, fixes and checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All four suites run", "Terminal output"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug TestNG tests", "Fix configuration failures", "Share debugging practice"]
+        },
+        {
+          "topic": "Running TestNG Suites in CI",
+          "subtopics": ["Jenkins or GitHub Actions for Maven projects", "Running suites by profile and group", "Publishing TestNG and Allure reports", "Headless browsers in CI", "Secrets in pipelines", "Failing builds", "Scheduling regression runs", "Reading CI failures"],
+          "tools": ["Jenkins or GitHub Actions", "Maven", "Allure"],
+          "lab_task": "Run smoke suites on pull requests and regression nightly in CI with headless browsers, publish reports and fix one CI-only failure.",
+          "deliverable": "CI pipeline with reports",
+          "checks": [["Run in CI", "Smoke runs on pull requests", "Pipeline run"], ["Schedule", "Regression runs nightly", "Pipeline schedule"], ["Publish", "Reports are available from runs", "Report link"]],
+          "objectives": ["Run TestNG in CI", "Tier suites by trigger", "Publish reports"]
+        },
+        {
+          "topic": "Beginner Capstone: TestNG Framework for UI and API Tests",
+          "subtopics": ["Project structure", "Suites and groups", "Data providers", "Selenium and REST Assured tests", "Reports", "CI pipeline"],
+          "tools": ["TestNG", "Selenium WebDriver", "REST Assured", "Maven", "Allure"],
+          "lab_task": "Build a TestNG framework for a web shop with UI and API tests, suites and groups, data providers, configuration for two environments and reports, running in CI.",
+          "deliverable": "Framework, suites, reports and pipeline",
+          "checks": [["Organise", "Suites and groups select tests correctly", "Terminal output"], ["Cover", "UI and API journeys have passing tests", "Report"], ["Run in CI", "The pipeline runs and publishes reports", "Pipeline run"]],
+          "objectives": ["Combine beginner TestNG skills", "Build a UI and API framework", "Run it in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and SDETs who use TestNG daily and now build team frameworks. Covers listeners, retry analysers, parallel execution and thread safety, factories, annotation transformers, method interceptors, custom reporters, Allure and Extent reporting in depth, data sources, Selenium Grid runs, BDD with Cucumber on TestNG, test data management, flaky tests, suite design for large projects, Maven and Gradle in depth, Docker, JUnit 5 comparison and code quality.",
+      "prerequisites": ["Writes TestNG tests with groups, suites and data providers", "Comfortable with Java and Maven", "Has run TestNG suites in CI"],
+      "outcomes": ["Extend TestNG with listeners, transformers and interceptors", "Run large suites in parallel safely with clear reports", "Design suites and data for many tests and environments", "Keep frameworks stable, fast and maintainable"],
+      "days": [
+        {
+          "topic": "Listeners: ITestListener, ISuiteListener and Others",
+          "subtopics": ["What listeners are for", "ITestListener events", "ISuiteListener and IInvokedMethodListener", "Registering listeners in code, XML and services", "Screenshots and logs from listeners", "Listener order", "Testing listeners", "Common listener mistakes"],
+          "tools": ["TestNG listeners", "Selenium WebDriver", "Logback"],
+          "lab_task": "Write a listener that logs test start and end, attaches screenshots on failure and writes a summary at suite end, and register it three different ways.",
+          "deliverable": "Listener class and registration examples",
+          "checks": [["React to events", "Logs and screenshots are produced at the right events", "Output"], ["Register", "The listener works when registered in code, XML and services", "Test output"], ["Summarise", "The suite summary is written at the end", "Summary file"]],
+          "objectives": ["Write TestNG listeners", "Register listeners", "Capture evidence automatically"]
+        },
+        {
+          "topic": "Retry Analysers and Handling Intermittent Failures",
+          "subtopics": ["IRetryAnalyzer", "Applying retries globally with a transformer", "Limiting retries", "Reporting retried tests", "When retries hide real problems", "Combining retries with diagnostics", "Quarantine groups", "A team retry policy"],
+          "tools": ["TestNG IRetryAnalyzer", "IAnnotationTransformer", "Reports"],
+          "lab_task": "Add a retry analyser applied to all tests through a transformer, limit it to one retry, report retried tests separately and write a retry policy.",
+          "deliverable": "Retry setup, report and policy",
+          "checks": [["Retry", "Failed tests retry once", "Test output"], ["Report", "Retried tests appear separately in the report", "Report"], ["Set policy", "The policy limits retries and requires diagnosis", "Policy document"]],
+          "objectives": ["Use retry analysers", "Report retries", "Set a retry policy"]
+        },
+        {
+          "topic": "Parallel Execution: Methods, Classes, Tests and Instances",
+          "subtopics": ["parallel modes in testng.xml", "thread-count and data provider thread count", "Parallel at suite level", "Thread safety of tests", "ThreadLocal for drivers", "Shared static state problems", "Measuring gains", "Debugging parallel failures"],
+          "tools": ["TestNG parallel", "Selenium WebDriver", "ThreadLocal"],
+          "lab_task": "Run the suite in parallel by methods and by classes, make drivers thread-safe with ThreadLocal, fix two shared-state bugs and compare durations.",
+          "deliverable": "Parallel-safe suite with timing comparison",
+          "checks": [["Run in parallel", "Both parallel modes pass", "Test output"], ["Make safe", "Drivers are held in ThreadLocal", "Code review"], ["Measure", "Durations are compared with serial runs", "Timing comparison"]],
+          "objectives": ["Run tests in parallel", "Make tests thread-safe", "Choose parallel modes"]
+        },
+        {
+          "topic": "Factories and Dynamic Test Creation",
+          "subtopics": ["@Factory methods", "Factories with data providers", "Creating test instances per browser or environment", "Factories compared with data providers", "Naming factory instances", "Combining factories with parallel runs", "Use cases for dynamic tests", "Keeping factories simple"],
+          "tools": ["TestNG @Factory", "Data providers", "Selenium WebDriver"],
+          "lab_task": "Use a factory to create test class instances for three browsers, combine it with a data provider and run the instances in parallel.",
+          "deliverable": "Factory-based tests",
+          "checks": [["Create instances", "One instance runs per browser", "Test output"], ["Combine", "The factory uses a data provider", "Code"], ["Run in parallel", "Instances run in parallel", "Test output"]],
+          "objectives": ["Use factories", "Create tests dynamically", "Combine factories and parallel runs"]
+        },
+        {
+          "topic": "Annotation Transformers and Method Interceptors",
+          "subtopics": ["IAnnotationTransformer", "Changing timeouts, retries and enabled flags at run time", "IMethodInterceptor", "Reordering and filtering tests", "Selecting tests by custom metadata", "Combining with groups", "Risks of hidden behaviour", "Documenting extensions"],
+          "tools": ["TestNG IAnnotationTransformer", "IMethodInterceptor"],
+          "lab_task": "Write a transformer that sets timeouts by group and an interceptor that runs smoke tests first and filters tests by a custom annotation.",
+          "deliverable": "Transformer and interceptor with documentation",
+          "checks": [["Transform", "Timeouts change by group at run time", "Test output"], ["Intercept", "Smoke tests run first", "Test output"], ["Filter", "Tests are filtered by the custom annotation", "Test output"]],
+          "objectives": ["Transform annotations", "Intercept method order", "Document hidden behaviour"]
+        },
+        {
+          "topic": "Custom Reporters with IReporter",
+          "subtopics": ["The IReporter interface", "Reading suite results", "Writing HTML, CSV or JSON reports", "Adding environment and build information", "Sending summaries to chat or email", "Combining with other reports", "Performance of reporters", "Testing reporters"],
+          "tools": ["TestNG IReporter", "Jackson", "Webhook"],
+          "lab_task": "Write a reporter that produces a JSON summary with environment and build data and posts pass, fail and skip counts to a chat webhook.",
+          "deliverable": "Custom reporter and chat summary",
+          "checks": [["Report", "The JSON summary includes results and build data", "JSON file"], ["Notify", "The chat summary posts counts", "Chat message"], ["Test", "The reporter has unit tests", "Test output"]],
+          "objectives": ["Write custom reporters", "Add build context", "Share summaries"]
+        },
+        {
+          "topic": "Allure and Extent Reports in Depth",
+          "subtopics": ["Allure TestNG integration", "Steps, attachments and severity", "Features and stories", "Links to tickets", "Extent Reports configuration", "Screenshots in both tools", "History and trends", "Choosing one tool for the team"],
+          "tools": ["Allure", "ExtentReports", "TestNG"],
+          "lab_task": "Configure Allure and Extent for the suite with steps, attachments and ticket links, publish both from CI and recommend one for the team.",
+          "deliverable": "Two configured reports and a recommendation",
+          "checks": [["Configure", "Both reports show steps and screenshots", "Report screenshots"], ["Link", "Tests link to tickets", "Reports"], ["Recommend", "The recommendation states reasons", "Recommendation note"]],
+          "objectives": ["Use Allure and Extent", "Attach evidence", "Choose a reporting tool"]
+        },
+        {
+          "topic": "Data Sources: Excel, JSON, Databases and APIs",
+          "subtopics": ["Reading Excel with Apache POI", "JSON data with Jackson", "Databases as data sources", "APIs that supply test data", "Data provider utilities", "Caching data", "Data per environment", "Validating data before tests"],
+          "tools": ["Apache POI", "Jackson", "JDBC", "TestNG"],
+          "lab_task": "Build a data utility that loads data from Excel, JSON and a database by environment, validates it before tests and feeds three data providers.",
+          "deliverable": "Data utility and data-driven tests",
+          "checks": [["Load", "Data comes from all three sources", "Test output"], ["Validate", "Bad data is rejected before tests run", "Test output"], ["Feed", "Three data providers use the utility", "Code"]],
+          "objectives": ["Load data from many sources", "Validate test data", "Reuse data utilities"]
+        },
+        {
+          "topic": "Selenium Grid and Cross-Browser Runs with TestNG",
+          "subtopics": ["Selenium Grid 4 setup with Docker", "RemoteWebDriver in base classes", "Browser parameters from suites", "Parallel runs on the grid", "Cloud grids", "Video and logs from grids", "Grid capacity", "Debugging grid failures"],
+          "tools": ["Selenium Grid 4", "Docker", "TestNG"],
+          "lab_task": "Run the UI suite on a Docker Selenium Grid with three browsers in parallel from one suite file and collect videos for failures.",
+          "deliverable": "Grid runs with evidence",
+          "checks": [["Connect", "Tests run on grid nodes", "Grid console"], ["Cover browsers", "Three browsers run in parallel", "Test output"], ["Collect evidence", "Failures have videos", "Video files"]],
+          "objectives": ["Run TestNG suites on a grid", "Test across browsers", "Collect grid evidence"]
+        },
+        {
+          "topic": "Cucumber BDD on the TestNG Runner",
+          "subtopics": ["Cucumber with TestNG", "AbstractTestNGCucumberTests", "Data provider parallelism for scenarios", "Tags and TestNG groups", "Hooks and TestNG lifecycle", "Reports from both tools", "When to use BDD with TestNG", "Mixing scenario and plain tests"],
+          "tools": ["Cucumber-JVM", "TestNG", "Selenium WebDriver"],
+          "lab_task": "Run Cucumber features through a TestNG runner in parallel, map tags to groups and produce Cucumber and Allure reports.",
+          "deliverable": "Cucumber features on TestNG with reports",
+          "checks": [["Run", "Features run through the TestNG runner", "Test output"], ["Parallelise", "Scenarios run in parallel", "Test output"], ["Report", "Both reports are produced", "Report files"]],
+          "objectives": ["Run Cucumber with TestNG", "Parallelise scenarios", "Combine reports"]
+        },
+        {
+          "topic": "Test Data Management for TestNG Suites",
+          "subtopics": ["Data builders", "Unique data per run", "Data creation through APIs", "Cleanup in lifecycle methods", "Data for parallel tests", "Reference data", "Masked data", "Data problems as failure causes"],
+          "tools": ["Data builders", "REST Assured", "Datafaker"],
+          "lab_task": "Replace static data with builders and API-created data, isolate data for parallel threads and clean up in @AfterMethod even after failures.",
+          "deliverable": "Data builders and cleanup logic",
+          "checks": [["Build", "Tests use builders", "Code"], ["Isolate", "Parallel threads use separate data", "Test output"], ["Clean up", "Data is removed after failures", "Application check"]],
+          "objectives": ["Manage test data", "Isolate parallel data", "Clean up reliably"]
+        },
+        {
+          "topic": "Flaky Tests: Diagnosis and Fixes",
+          "subtopics": ["Common causes in UI and API suites", "invocationCount for repeat runs", "Diagnosing with logs, screenshots and videos", "Timing and synchronisation fixes", "Data and order fixes", "Environment problems", "Quarantine groups", "Tracking flakiness"],
+          "tools": ["TestNG", "Reports", "Issue tracker"],
+          "lab_task": "Repeat suspected flaky tests with invocationCount, diagnose three, fix them and move one unfixable test to a quarantine group with an owner.",
+          "deliverable": "Flaky report, fixes and quarantine",
+          "checks": [["Detect", "Flaky tests are listed with failure rates", "Flaky report"], ["Fix", "Three tests pass fifty runs after fixes", "Test output"], ["Quarantine", "The quarantined test has an owner and date", "Test code"]],
+          "objectives": ["Diagnose flaky tests", "Fix causes", "Manage quarantine"]
+        },
+        {
+          "topic": "Suite Design for Large Projects",
+          "subtopics": ["Suites by layer, module and priority", "Smoke, sanity, regression and nightly suites", "Suite inheritance and includes", "Avoiding duplicated suites", "Run time targets per suite", "Ownership of suites", "Documentation of suites", "Reviewing suites regularly"],
+          "tools": ["testng.xml", "Groups", "Test inventory"],
+          "lab_task": "Redesign the suite files for a large project into smoke, regression and nightly suites by module, remove duplicates and set run time targets.",
+          "deliverable": "Suite design and run times",
+          "checks": [["Organise", "Suites follow the agreed design", "Suite files"], ["Remove duplicates", "No test is run twice in one pipeline", "Analysis"], ["Meet targets", "Suites meet their run time targets", "Timing table"]],
+          "objectives": ["Design suites for large projects", "Avoid duplication", "Set run time targets"]
+        },
+        {
+          "topic": "Gradle with TestNG",
+          "subtopics": ["Gradle test task with TestNG", "Groups and suites in Gradle", "Parallel forks", "System properties", "Reports in Gradle", "Gradle compared with Maven for test projects", "Migrating a Maven test project to Gradle", "Build caching"],
+          "tools": ["Gradle", "TestNG", "IntelliJ IDEA"],
+          "lab_task": "Run the TestNG suite with Gradle using groups, suite files and parallel forks, and compare build time and configuration with Maven.",
+          "deliverable": "Gradle build and comparison",
+          "checks": [["Configure", "Gradle runs suites and groups", "Terminal output"], ["Fork", "Parallel forks cut build time", "Timing comparison"], ["Compare", "Maven and Gradle are compared for the team", "Comparison note"]],
+          "objectives": ["Use Gradle with TestNG", "Run parallel forks", "Compare build tools"]
+        },
+        {
+          "topic": "Running TestNG Suites in Docker",
+          "subtopics": ["Docker images for Java test projects", "Running Maven tests in containers", "Docker Compose with the app and grid", "Passing parameters and secrets", "Collecting reports from containers", "Resource limits", "Running in CI", "Fixing container-only failures"],
+          "tools": ["Docker", "Docker Compose", "Maven"],
+          "lab_task": "Run the suite in a container with the app and a Selenium Grid from Docker Compose, collect reports and fix one failure that appears only in containers.",
+          "deliverable": "Containerised test run",
+          "checks": [["Compose", "App, grid and tests start together", "Terminal output"], ["Collect", "Reports are copied out of the container", "Report files"], ["Fix", "The container-only failure has a cause and fix", "Notes"]],
+          "objectives": ["Run TestNG in containers", "Compose test environments", "Fix container issues"]
+        },
+        {
+          "topic": "TestNG and JUnit 5 Compared",
+          "subtopics": ["Feature comparison", "Annotations mapping", "Parameterised tests in JUnit 5", "Extensions compared with listeners", "Parallel execution in both", "Ecosystem and tool support", "Migration effort", "Choosing for a team"],
+          "tools": ["TestNG", "JUnit 5", "Maven"],
+          "lab_task": "Port ten TestNG tests to JUnit 5, map listeners to extensions and write a recommendation for a new project.",
+          "deliverable": "Ported tests and recommendation",
+          "checks": [["Port", "Ten tests pass on JUnit 5", "Test output"], ["Map", "Listeners are mapped to extensions", "Mapping table"], ["Recommend", "The recommendation states trade-offs", "Recommendation note"]],
+          "objectives": ["Compare TestNG and JUnit 5", "Map concepts", "Choose a framework"]
+        },
+        {
+          "topic": "Mocking and Unit-Level Tests with TestNG",
+          "subtopics": ["Unit tests with TestNG", "Mockito with TestNG", "MockitoTestNGListener", "Testing utilities in the framework", "Fast tests compared with integration tests", "Coverage with JaCoCo", "Keeping unit and integration suites separate", "Running unit tests first"],
+          "tools": ["TestNG", "Mockito", "JaCoCo"],
+          "lab_task": "Write unit tests with Mockito for the framework's utilities, measure coverage with JaCoCo and run unit tests before integration suites.",
+          "deliverable": "Unit tests and coverage report",
+          "checks": [["Mock", "Dependencies are mocked with Mockito", "Test code"], ["Measure", "Coverage is reported", "JaCoCo report"], ["Order", "Unit tests run before integration suites", "Build output"]],
+          "objectives": ["Write unit tests with TestNG", "Use Mockito", "Measure coverage"]
+        },
+        {
+          "topic": "Code Quality for TestNG Frameworks",
+          "subtopics": ["Coding standards for tests", "Static analysis with SonarQube or SpotBugs", "Duplicate code in tests", "Review checklists", "Dependency updates", "Removing low-value tests", "Documentation", "Measuring framework health"],
+          "tools": ["SonarQube or SpotBugs", "Checkstyle", "Code review tools"],
+          "lab_task": "Run static analysis on the framework, fix the main issues, write a review checklist and remove two low-value tests.",
+          "deliverable": "Analysis results, fixes and checklist",
+          "checks": [["Analyse", "Static analysis issues are reduced", "Analysis report"], ["Review", "The checklist is used on a pull request", "Review comments"], ["Clean up", "Two low-value tests are removed with reasons", "Commit diff"]],
+          "objectives": ["Keep test code healthy", "Review consistently", "Remove low-value tests"]
+        },
+        {
+          "topic": "Integrating TestNG with Test Management Tools",
+          "subtopics": ["Linking tests to test cases", "Custom annotations for case IDs", "Publishing results to Xray, Zephyr or TestRail", "Listeners for result upload", "Coverage reports by requirement", "Keeping IDs in step", "Handling manual and automated cases", "Reporting to managers"],
+          "tools": ["TestNG listeners", "Xray, Zephyr or TestRail API", "Jira"],
+          "lab_task": "Add case ID annotations, upload results to a test management tool with a listener and produce a requirement coverage report.",
+          "deliverable": "Result upload and coverage report",
+          "checks": [["Link", "Tests carry case IDs", "Test code"], ["Upload", "Results appear in the tool after a run", "Tool screenshot"], ["Report", "Coverage by requirement is shown", "Report"]],
+          "objectives": ["Connect TestNG to test management", "Upload results", "Report coverage"]
+        },
+        {
+          "topic": "Intermediate Capstone: Extensible TestNG Framework with Parallel Runs",
+          "subtopics": ["Listeners and retries", "Transformers and interceptors", "Parallel grid runs", "Data utilities", "Reports and tool integration", "Handover"],
+          "tools": ["TestNG", "Selenium Grid 4", "REST Assured", "Allure", "Docker"],
+          "lab_task": "Build a team-ready TestNG framework with listeners, controlled retries, a transformer and interceptor, thread-safe parallel grid runs, data utilities, Allure and test management integration, and hand it to a colleague to extend.",
+          "deliverable": "Framework, pipeline and handover notes",
+          "checks": [["Extend", "Listeners, transformer and interceptor work together", "Test output"], ["Run in parallel", "Grid runs pass in parallel", "Test output"], ["Hand over", "A colleague adds a test without help", "Pull request"]],
+          "objectives": ["Combine intermediate TestNG skills", "Build an extensible framework", "Run it at scale"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For automation leads and SDETs who own Java test automation across teams. Covers framework architecture for many teams, TestNG internals and extension points, configuration as code, orchestration of very large suites, test impact analysis, distributed execution, observability, contract and integration testing alongside TestNG, test data platforms, containers and ephemeral environments, AI-assisted test generation, governance, migration strategies, performance of the framework itself, security of test code, contributing to TestNG, team enablement, strategy and troubleshooting.",
+      "prerequisites": ["Has built and maintained a TestNG framework used by a team", "Strong Java and CI skills", "Understands test strategy and large codebases"],
+      "outcomes": ["Architect TestNG-based automation for many teams", "Orchestrate and observe very large suites efficiently", "Extend TestNG safely and keep frameworks secure and fast", "Lead Java automation governance, migrations and capability"],
+      "days": [
+        {
+          "topic": "Modular TestNG Architecture for Many Teams",
+          "subtopics": ["Shared core libraries and team modules", "Maven multi-module or Gradle composite builds", "Versioning and releasing the core", "Ownership and support model", "Templates for new teams", "Keeping teams independent"],
+          "tools": ["Maven multi-module or Gradle", "Internal artifact repository", "Project templates"],
+          "lab_task": "Split a large framework into a shared core and team modules, release the core with a version and onboard a new team with a template.",
+          "deliverable": "Modular architecture, released core and onboarding record",
+          "checks": [["Split", "Team modules depend only on the released core", "Build files"], ["Release", "The core is published with a version", "Repository"], ["Onboard", "A new team runs tests from the template", "Onboarding record"]],
+          "objectives": ["Architect frameworks for many teams", "Release shared cores", "Onboard teams with templates"]
+        },
+        {
+          "topic": "TestNG Internals and Extension Points",
+          "subtopics": ["How TestNG builds and runs a suite", "IHookable and IConfigurable", "IExecutionListener and IAlterSuiteListener", "IDataProviderListener", "Service loader registration", "Extension order and interactions", "Debugging TestNG internals", "Risks of deep extensions"],
+          "tools": ["TestNG source code", "IntelliJ IDEA debugger", "TestNG"],
+          "lab_task": "Trace a suite run through TestNG's internals in the debugger, implement an IHookable that wraps tests with timing and an IAlterSuiteListener that changes suites at start.",
+          "deliverable": "Internal trace notes and two extensions",
+          "checks": [["Trace", "The run path is explained from the debugger", "Trace notes"], ["Wrap", "IHookable records timing for every test", "Output"], ["Alter", "Suites change at start as designed", "Test output"]],
+          "objectives": ["Understand TestNG internals", "Use deep extension points", "Manage extension risks"]
+        },
+        {
+          "topic": "Configuration as Code for Suites",
+          "subtopics": ["Generating suites programmatically", "XmlSuite and XmlTest APIs", "Suites from YAML or databases", "Dynamic selection by risk or change", "Version control of configuration", "Validating generated suites", "Debugging generated runs", "When generated suites help"],
+          "tools": ["TestNG XmlSuite API", "YAML", "Java"],
+          "lab_task": "Generate suites from a YAML file of modules and tiers with the XmlSuite API, validate them before running and run a generated smoke suite.",
+          "deliverable": "Suite generator and generated runs",
+          "checks": [["Generate", "Suites are built from YAML", "Generated suite"], ["Validate", "Invalid configuration is rejected", "Test output"], ["Run", "The generated smoke suite runs", "Test output"]],
+          "objectives": ["Generate suites in code", "Validate configuration", "Keep suites flexible"]
+        },
+        {
+          "topic": "Orchestrating Very Large Suites",
+          "subtopics": ["Thousands of tests across modules", "Splitting suites across machines", "Balancing by historical duration", "Merging results", "Fail-fast strategies", "Resource limits and queues", "Feedback time targets", "Cost of large runs"],
+          "tools": ["TestNG", "CI matrix", "Duration history"],
+          "lab_task": "Split a large suite across six machines balanced by historical duration, merge results into one report and add a fail-fast smoke stage.",
+          "deliverable": "Orchestrated pipeline with merged results",
+          "checks": [["Balance", "Machines finish within a small time range", "Pipeline timings"], ["Merge", "One report covers all machines", "Report"], ["Fail fast", "Smoke failures stop the pipeline early", "Pipeline run"]],
+          "objectives": ["Orchestrate large suites", "Balance work", "Merge results"]
+        },
+        {
+          "topic": "Test Impact Analysis for Java Suites",
+          "subtopics": ["Mapping tests to code with coverage", "Change-based selection", "Selecting by module and dependency graph", "Risk tiers", "Tools for impact analysis", "Nightly full runs as a safety net", "Measuring missed defects", "Communicating selection rules"],
+          "tools": ["JaCoCo", "Dependency graph tools", "CI pipelines"],
+          "lab_task": "Build change-based selection from coverage data and the module graph, run only affected tests on pull requests and report feedback time and missed defects over two weeks.",
+          "deliverable": "Selection rules, pipeline and report",
+          "checks": [["Map", "Tests map to classes and modules", "Mapping data"], ["Select", "Pull requests run affected tests plus smoke", "Pipeline run"], ["Report", "Feedback time and missed defects are reported", "Report"]],
+          "objectives": ["Select tests by impact", "Use coverage data", "Balance speed and safety"]
+        },
+        {
+          "topic": "Distributed Execution on Grids and Clouds",
+          "subtopics": ["Selenium Grid at scale", "Cloud browser and device providers", "Kubernetes for test runners", "Capacity planning for test infrastructure", "Network and data locality", "Costs and limits", "Monitoring test infrastructure", "Choosing self-hosted or cloud"],
+          "tools": ["Selenium Grid 4", "Kubernetes", "Cloud grid provider"],
+          "lab_task": "Run the suite on a Kubernetes-hosted grid and a cloud grid, compare speed, reliability and cost and plan capacity for peak runs.",
+          "deliverable": "Infrastructure comparison and capacity plan",
+          "checks": [["Run", "The suite runs on both infrastructures", "Run logs"], ["Compare", "Speed, reliability and cost are compared", "Comparison"], ["Plan", "Peak capacity is planned", "Capacity plan"]],
+          "objectives": ["Run tests on distributed infrastructure", "Compare options", "Plan test capacity"]
+        },
+        {
+          "topic": "Exporting TestNG Results for Dashboards and Alerts",
+          "subtopics": ["Test results as data", "Listeners that export results", "Correlation IDs into services", "Dashboards for pass rate, duration and flakiness", "Linking failures to service traces", "Alerts on quality trends", "Retention of artefacts", "Using data in release decisions"],
+          "tools": ["TestNG listeners", "Results database", "Grafana"],
+          "lab_task": "Export results with a listener to a database, add correlation IDs to requests, build a dashboard and alert on rising failure rates.",
+          "deliverable": "Results pipeline, dashboard and alert",
+          "checks": [["Export", "Every run is stored", "Database records"], ["Correlate", "Failures link to service traces", "Trace screenshot"], ["Alert", "A rising failure rate triggers the alert", "Alert test"]],
+          "objectives": ["Observe test runs", "Link tests to services", "Alert on trends"]
+        },
+        {
+          "topic": "Contract and Integration Testing Alongside TestNG",
+          "subtopics": ["Where end-to-end tests are too expensive", "Pact JVM with TestNG or JUnit", "OpenAPI validation in API suites", "WireMock for dependencies", "Testcontainers for integration tests", "Mapping coverage across layers", "Reducing end-to-end tests", "Ownership with service teams"],
+          "tools": ["Pact JVM", "WireMock", "Testcontainers", "TestNG"],
+          "lab_task": "Replace ten end-to-end checks with contract and integration tests using Pact, WireMock and Testcontainers, and show the coverage map before and after.",
+          "deliverable": "New tests and coverage map",
+          "checks": [["Add contracts", "Contract tests run for two services", "CI runs"], ["Isolate", "Integration tests run against stubs and containers", "Test output"], ["Map", "The coverage map shows each behaviour at one main layer", "Coverage map"]],
+          "objectives": ["Balance test layers", "Add contract tests", "Reduce end-to-end tests"]
+        },
+        {
+          "topic": "Test Data Platforms for Large Organisations",
+          "subtopics": ["Data needs across teams", "Data services and APIs for tests", "Synthetic data generation", "Masking and privacy", "Data reservation for parallel runs", "Data refresh and reset", "Ownership and support", "Measuring data-related failures"],
+          "tools": ["Test data service", "Data generation tools", "Masking tools"],
+          "lab_task": "Design a test data service with synthetic data, reservation for parallel runs and masking rules, connect the framework to it and measure data failures before and after.",
+          "deliverable": "Data service design, integration and comparison",
+          "checks": [["Design", "The service covers generation, reservation and masking", "Design document"], ["Integrate", "The framework requests data from the service", "Test code"], ["Improve", "Data-related failures drop", "Comparison"]],
+          "objectives": ["Build test data platforms", "Reserve data for parallel runs", "Protect privacy"]
+        },
+        {
+          "topic": "Containers and Ephemeral Environments for Test Runs",
+          "subtopics": ["Preview environments per change", "Running the suite against previews", "Readiness checks", "Seeding environments", "Cleaning up", "Costs", "When shared environments are still needed", "Reliability of ephemeral environments"],
+          "tools": ["Preview environment platform", "Docker", "TestNG"],
+          "lab_task": "Run the suite against a preview environment created per pull request with readiness checks and seeded data, then remove the environment.",
+          "deliverable": "Preview environment pipeline",
+          "checks": [["Create", "Each pull request gets an environment", "Pipeline log"], ["Check readiness", "Tests start only after readiness passes", "Pipeline log"], ["Clean up", "Environments are removed", "Platform dashboard"]],
+          "objectives": ["Test against ephemeral environments", "Seed data", "Control environment cost"]
+        },
+        {
+          "topic": "AI-Assisted Test Generation for Java Suites",
+          "subtopics": ["AI assistants for TestNG tests", "Generating tests from requirements and code", "Reviewing generated tests", "Mutation testing with PIT to check test strength", "Data privacy and code confidentiality", "Team rules for AI use", "Measuring effort and quality", "Keeping humans accountable"],
+          "tools": ["AI coding assistant", "PIT mutation testing", "TestNG"],
+          "lab_task": "Generate tests for a service class with an AI assistant, measure their strength with PIT, improve weak ones and record effort and results.",
+          "deliverable": "Reviewed tests, mutation results and effort record",
+          "checks": [["Generate", "Generated tests compile and run", "Test output"], ["Measure", "Mutation scores are recorded before and after review", "PIT report"], ["Record", "Effort and improvements are recorded", "Effort record"]],
+          "objectives": ["Use AI for Java tests", "Check test strength", "Set rules for AI use"]
+        },
+        {
+          "topic": "Governance for Java Test Automation",
+          "subtopics": ["Standards for structure, naming and data", "Review checklists", "Ownership metadata in tests", "Coverage maps", "Removing obsolete tests", "Dependency and Java version policy", "Exceptions and waivers", "Reporting governance status"],
+          "tools": ["Code review tools", "Test inventory", "Dashboard tool"],
+          "lab_task": "Write standards and a dependency policy, build a coverage map, review twenty tests, remove obsolete ones and report status to leads.",
+          "deliverable": "Standards, coverage map, review records and report",
+          "checks": [["Set standards", "Standards cover structure, data and ownership", "Standards document"], ["Map", "Coverage is mapped by module", "Coverage map"], ["Report", "Leads receive the status report", "Report"]],
+          "objectives": ["Govern Java automation", "Map coverage", "Remove obsolete tests"]
+        },
+        {
+          "topic": "Migration Strategies: TestNG, JUnit 5 and Beyond",
+          "subtopics": ["Reasons to migrate or stay", "Mixed TestNG and JUnit 5 projects", "Mapping listeners to extensions", "Migrating suites and groups to tags", "Running both side by side", "Prioritising migration", "Measuring results", "Retiring the old runner"],
+          "tools": ["TestNG", "JUnit 5", "Migration tracker"],
+          "lab_task": "Plan the migration of a module from TestNG to JUnit 5 or the reverse, migrate a slice with listeners and groups, run both side by side and report the results.",
+          "deliverable": "Migration plan, migrated slice and report",
+          "checks": [["Migrate", "The migrated slice passes", "Test output"], ["Map", "Listeners and groups are mapped", "Mapping table"], ["Report", "Side-by-side results are compared", "Report"]],
+          "objectives": ["Plan runner migrations", "Map framework features", "Measure migration results"]
+        },
+        {
+          "topic": "Performance of the Framework Itself",
+          "subtopics": ["Where framework time goes", "Slow setup and teardown", "Expensive listeners and reporters", "Logging overhead", "Driver start-up costs", "Profiling test runs", "Caching and reuse", "Setting framework performance targets"],
+          "tools": ["Java profiler", "TestNG", "Timing listener"],
+          "lab_task": "Profile a slow suite, find framework overhead in setup, listeners and logging, fix the top three causes and measure the improvement.",
+          "deliverable": "Profiling results and improvements",
+          "checks": [["Profile", "Framework overhead is measured by area", "Profiling notes"], ["Fix", "The top three causes are fixed", "Commit diff"], ["Measure", "Suite duration improves", "Timing comparison"]],
+          "objectives": ["Profile test frameworks", "Remove overhead", "Set performance targets"]
+        },
+        {
+          "topic": "Security of Test Code and Test Infrastructure",
+          "subtopics": ["Secrets in test code and logs", "Dependency vulnerabilities in test projects", "Access to test environments", "Test accounts and their permissions", "Securing grids and runners", "Scanning test repositories", "Incident response for leaked secrets", "A security checklist for test teams"],
+          "tools": ["Secret scanner", "Dependency scanner", "CI secrets"],
+          "lab_task": "Scan the test repository and dependencies, move secrets into CI or a vault, reduce test account permissions and write a security checklist.",
+          "deliverable": "Scan results, fixes and checklist",
+          "checks": [["Scan", "Secrets and vulnerable dependencies are found", "Scan reports"], ["Fix", "No secrets remain in code or logs", "Rescan output"], ["Reduce access", "Test accounts have least privilege", "Access review"]],
+          "objectives": ["Secure test code", "Protect test infrastructure", "Respond to leaks"]
+        },
+        {
+          "topic": "Enabling Teams in Java Test Automation",
+          "subtopics": ["Skills needed for TestNG frameworks", "Assessing skills", "Learning paths for manual testers", "Pairing and code reviews", "Starter projects", "Communities of practice", "Measuring growth", "Supporting developers who write tests"],
+          "tools": ["Skills matrix", "Starter template", "Team wiki"],
+          "lab_task": "Assess a team's Java automation skills, design a learning path, provide a starter project and coach a manual tester to a first merged test.",
+          "deliverable": "Skills assessment, learning path and first merged test",
+          "checks": [["Assess", "Each person has a skills rating", "Skills matrix"], ["Enable", "The starter project builds on a new machine", "Run log"], ["Coach", "A manual tester merges a first test", "Pull request"]],
+          "objectives": ["Grow automation skills", "Provide starter projects", "Coach new automators"]
+        },
+        {
+          "topic": "Strategy for Java Test Automation",
+          "subtopics": ["Linking automation to risk", "Test layers and frameworks", "TestNG's role in the strategy", "Ownership between QA and development", "Investment and return", "Roadmap", "Communicating strategy", "Reviewing strategy each year"],
+          "tools": ["Strategy template", "Risk map", "Test inventory"],
+          "lab_task": "Write a Java automation strategy with risks, layers, frameworks, ownership and a one-year roadmap, and present it to engineering leaders.",
+          "deliverable": "Strategy and roadmap with presentation notes",
+          "checks": [["Link to risk", "Each layer addresses named risks", "Strategy"], ["Assign", "Ownership is clear", "Strategy"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Set automation strategy", "Assign ownership", "Plan improvement"]
+        },
+        {
+          "topic": "Release Quality Gates from TestNG Results",
+          "subtopics": ["Gates for pull requests and releases", "Pass rate, flakiness and coverage thresholds", "Blocking and advisory checks", "Readiness reports", "Exceptions and overrides", "Linking gates to risk", "Communicating gate results", "Reviewing gates"],
+          "tools": ["CI pipelines", "TestNG results", "Dashboard tool"],
+          "lab_task": "Define quality gates from TestNG results, implement them in the pipeline and produce a release readiness report for a sample release.",
+          "deliverable": "Gate definitions, pipeline changes and readiness report",
+          "checks": [["Define", "Each gate has a threshold and reason", "Gate definitions"], ["Enforce", "A failing gate blocks the pipeline", "Pipeline run"], ["Report", "The readiness report shows gates and risks", "Readiness report"]],
+          "objectives": ["Define quality gates", "Enforce them", "Support release decisions"]
+        },
+        {
+          "topic": "Troubleshooting Large TestNG Frameworks",
+          "subtopics": ["Failures only in CI", "Listener and extension conflicts", "Parallel execution problems", "Classpath and dependency issues", "Environment and data problems", "Reproducing failures locally"],
+          "tools": ["TestNG", "IntelliJ IDEA debugger", "CI logs"],
+          "lab_task": "Diagnose four failures in a large framework (a listener conflict, a parallel state leak, a dependency clash and an environment issue), reproduce two locally and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "Two failures are reproduced locally", "Test output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot large frameworks", "Reproduce CI failures", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Java Test Automation Platform for Several Teams",
+          "subtopics": ["Modular architecture", "Orchestration and impact analysis", "Observability", "Contract and integration layers", "Governance and security", "Strategy presentation"],
+          "tools": ["TestNG", "Maven or Gradle", "Selenium Grid", "Pact JVM", "Grafana"],
+          "lab_task": "Design and build a Java automation platform for three teams with a shared core, orchestrated and impact-selected runs, observability, contract and integration layers, governance and security, and present it to engineering leadership.",
+          "deliverable": "Platform, dashboards and strategy presentation",
+          "checks": [["Share", "All teams build on the shared core", "Repositories"], ["Run efficiently", "Pull request feedback meets the target", "Pipeline timings"], ["Win support", "Leadership approves the plan", "Presentation notes"]],
+          "objectives": ["Combine advanced TestNG skills", "Build a platform for many teams", "Lead Java automation"]
+        }
+      ]
+    }
+  }
+}
