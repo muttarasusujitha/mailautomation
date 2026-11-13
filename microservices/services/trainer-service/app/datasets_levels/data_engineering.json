@@ -1,0 +1,573 @@
+{
+  "domain": "Data Engineering",
+  "name": "Data Engineering",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["Data Engineer", "Data Engineering with Python", "Data Pipelines", "Data Pipeline Development", "ETL Development", "Big Data Engineering", "Modern Data Engineering", "Data Engineering Bootcamp"],
+  "certifications": ["Databricks Certified Data Engineer Associate", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)", "AWS Certified Data Engineer - Associate (DEA-C01)", "Google Cloud Professional Data Engineer"],
+  "tools": ["Python 3.12", "PostgreSQL", "Apache Spark", "Apache Airflow", "dbt", "Docker", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, developers and graduates moving into data engineering. Covers the role, Python and SQL for data, file formats, data modelling, building batch ETL pipelines, loading databases, scheduling, data quality, a first look at Spark, Airflow and cloud storage, ending with a working end-to-end pipeline.",
+      "prerequisites": ["Basic Python: variables, loops, functions and lists", "Basic SQL: SELECT, WHERE, JOIN and GROUP BY", "Comfortable with a terminal and installing software"],
+      "outcomes": ["Build batch pipelines that extract, clean, transform and load data", "Choose file formats and model data for analytics", "Schedule pipelines and check data quality", "Use Spark and Airflow for simple jobs"],
+      "days": [
+        {
+          "topic": "Data Engineering Overview and Environment Setup",
+          "subtopics": ["What data engineers do and how the role differs from analysts and data scientists", "The data lifecycle: sources, ingestion, storage, transformation, serving", "Batch and streaming", "Data warehouse, data lake and lakehouse in plain terms", "The modern data stack", "Installing Python, VS Code, Git and Docker", "Running PostgreSQL in Docker", "Project folder structure for pipelines", "Virtual environments and requirements files", "Course project overview"],
+          "tools": ["Python 3.12", "Docker", "PostgreSQL", "Git", "VS Code"],
+          "lab_task": "Set up the course environment with PostgreSQL in Docker and a Python project in Git, and draw the data flow for the course project from source files to a reporting table.",
+          "deliverable": "Working environment, Git repository and data flow diagram",
+          "checks": [["Run docker ps", "PostgreSQL container is running", "Terminal output"], ["Connect to PostgreSQL from Python", "Query returns the server version", "Script output"], ["Review the data flow diagram", "Sources, storage, transformations and outputs are labelled", "Diagram"]],
+          "objectives": ["Explain the data engineering role", "Set up a data engineering environment", "Describe a data pipeline"]
+        },
+        {
+          "topic": "Python for Data Engineering",
+          "subtopics": ["Reading and writing files with pathlib", "Working with CSV and JSON", "Dictionaries and lists for records", "Functions and modules for pipeline steps", "Error handling for bad records", "Logging instead of print", "Command-line arguments", "Environment variables for settings"],
+          "tools": ["Python 3.12", "VS Code"],
+          "lab_task": "Write a Python script that reads a folder of daily CSV order files, validates each row, writes valid rows to one JSON file and bad rows with reasons to a rejects file, with logging.",
+          "deliverable": "Script, output files and log",
+          "checks": [["Run on the sample folder", "Valid and rejected counts match the answer sheet", "Log output"], ["Include a row with a negative amount", "Row appears in the rejects file with the reason", "Rejects file"], ["Run with a missing folder argument", "Clear error and exit code 1", "Terminal output"]],
+          "objectives": ["Process files with Python", "Handle bad data", "Log pipeline runs"]
+        },
+        {
+          "topic": "pandas for Data Transformation",
+          "subtopics": ["DataFrames and Series", "Reading CSV, JSON and Excel", "Selecting, filtering and sorting", "Missing values", "Joins and merges", "Grouping and aggregation", "Data types and dates", "Writing results"],
+          "tools": ["Python 3.12", "pandas"],
+          "lab_task": "Clean the orders data with pandas, join it to customers and products, compute daily revenue by region and save the result, and check totals against a reference.",
+          "deliverable": "Notebook or script and result file",
+          "checks": [["Compare revenue totals with the reference", "Totals match", "Comparison output"], ["Count rows after the join", "No rows lost or duplicated", "Script output"], ["Convert order dates", "Column type is datetime", "Script output"]],
+          "objectives": ["Transform data with pandas", "Join and aggregate data", "Check results"]
+        },
+        {
+          "topic": "SQL for Data Engineers",
+          "subtopics": ["Creating tables and choosing types", "INSERT, UPDATE and DELETE", "Joins and aggregations", "Window functions", "Common table expressions", "Upserts with ON CONFLICT", "Indexes in brief", "Transactions"],
+          "tools": ["PostgreSQL", "DBeaver"],
+          "lab_task": "Load the cleaned orders into PostgreSQL, write SQL for revenue by month with running totals, upsert a corrected batch and run it inside a transaction.",
+          "deliverable": "SQL scripts and query results",
+          "checks": [["Run the running-total query", "Last value equals the yearly total", "Query result"], ["Load the corrected batch twice", "No duplicate rows", "Row counts"], ["Fail the batch halfway", "Transaction rolls back", "Row counts"]],
+          "objectives": ["Use SQL in pipelines", "Write analytical queries", "Load data safely"]
+        },
+        {
+          "topic": "File Formats: CSV, JSON, Parquet and Avro",
+          "subtopics": ["Row and column formats", "CSV pitfalls: quoting, encoding, delimiters", "JSON and nested data", "Parquet and compression", "Avro and schemas", "Schema evolution", "Partitioned folders", "Choosing a format"],
+          "tools": ["Python 3.12", "pandas", "pyarrow"],
+          "lab_task": "Save the same 5 million rows as CSV, JSON and Parquet, compare file sizes and read times, query one column from each and write a partitioned Parquet dataset by date.",
+          "deliverable": "Comparison table and partitioned dataset",
+          "checks": [["Compare file sizes", "Parquet is the smallest", "Comparison table"], ["Read one column from Parquet", "Much faster than reading the CSV", "Timing output"], ["Read one date partition", "Only that partition's files are read", "Script output"]],
+          "objectives": ["Choose file formats", "Use Parquet and partitions", "Explain schema evolution"]
+        },
+        {
+          "topic": "Data Modelling for Analytics",
+          "subtopics": ["Operational and analytical models", "Normalisation in brief", "Facts and dimensions", "Star schema", "Grain", "Surrogate keys", "Slowly changing dimensions in brief", "Date dimensions"],
+          "tools": ["PostgreSQL", "dbdiagram.io"],
+          "lab_task": "Design a star schema for the sales data with a fact table at order line grain and customer, product and date dimensions, then create and load it.",
+          "deliverable": "Model diagram, DDL and loaded tables",
+          "checks": [["State the grain", "One row per order line", "Model document"], ["Join facts to all dimensions", "No orphan rows", "Query result"], ["Total revenue from the fact table", "Matches the source", "Query result"]],
+          "objectives": ["Model data for analytics", "Build a star schema", "Set the grain"]
+        },
+        {
+          "topic": "Building a Batch ETL Pipeline",
+          "subtopics": ["Extract, transform and load steps", "ETL versus ELT", "Full and incremental loads", "Watermarks for incremental loads", "Idempotent pipelines", "Staging tables", "Re-running failed loads", "Pipeline configuration"],
+          "tools": ["Python 3.12", "pandas", "PostgreSQL"],
+          "lab_task": "Build an incremental pipeline that loads only new orders since the last run using a watermark, stages them, merges into the fact table and can be re-run safely.",
+          "deliverable": "Pipeline code and run logs for three runs",
+          "checks": [["Run twice with no new data", "Second run loads zero rows", "Run log"], ["Add new files and run", "Only new rows are loaded", "Run log and counts"], ["Fail mid-run and re-run", "Final table has no duplicates", "Row counts"]],
+          "objectives": ["Build batch pipelines", "Load incrementally", "Make pipelines idempotent"]
+        },
+        {
+          "topic": "Ingesting Data from APIs and Databases",
+          "subtopics": ["REST APIs with requests", "Pagination", "Authentication with API keys and tokens", "Rate limits and retries", "Reading from source databases", "Extracting changes with timestamps", "Saving raw data before transforming", "Secrets handling"],
+          "tools": ["Python 3.12", "requests", "SQLAlchemy"],
+          "lab_task": "Ingest all pages from a public test API with retries and rate limiting, store the raw JSON by date, and extract changed customers from a source database since the last run.",
+          "deliverable": "Ingestion scripts, raw files and run logs",
+          "checks": [["Ingest a 50-page API result", "All pages saved", "Raw files and log"], ["Return HTTP 429 from the test server", "Script waits and retries", "Log"], ["Search the code for credentials", "None found; they come from environment variables", "Search output"]],
+          "objectives": ["Ingest from APIs and databases", "Handle pagination and limits", "Keep raw data"]
+        },
+        {
+          "topic": "Data Quality Checks",
+          "subtopics": ["Why data quality matters", "Completeness, uniqueness and validity checks", "Referential checks", "Freshness checks", "Row count reconciliation", "Failing a pipeline on bad data", "Quarantining bad records", "Reporting quality"],
+          "tools": ["Python 3.12", "Great Expectations or pandera", "PostgreSQL"],
+          "lab_task": "Add quality checks for nulls, duplicates, valid ranges, foreign keys and freshness to the pipeline, quarantine failing rows and stop the load when too many fail.",
+          "deliverable": "Check suite, quarantine table and quality report",
+          "checks": [["Load a file with duplicate order IDs", "Duplicates are quarantined", "Quarantine table"], ["Load a file where 20 percent of rows fail", "Pipeline stops with a clear error", "Run log"], ["Run the freshness check on old data", "Check fails with the age", "Check output"]],
+          "objectives": ["Check data quality", "Quarantine bad data", "Stop bad loads"]
+        },
+        {
+          "topic": "Scheduling and Running Pipelines",
+          "subtopics": ["Running scripts on a schedule with cron", "Dependencies between steps", "Retries and alerts", "Logging and run history", "Backfills", "Why workflow tools exist", "Simple run metadata tables", "Monitoring basics"],
+          "tools": ["cron", "Python 3.12", "PostgreSQL"],
+          "lab_task": "Schedule the pipeline with cron, record each run in a run history table, send an alert email on failure and backfill one missed week.",
+          "deliverable": "Cron configuration, run history and backfill log",
+          "checks": [["Let the scheduled run happen", "Run recorded with status and row counts", "Run history table"], ["Break the source path", "Failure alert is sent", "Email"], ["Backfill one week", "Each day is loaded once", "Run history"]],
+          "objectives": ["Schedule pipelines", "Track runs", "Backfill missed data"]
+        },
+        {
+          "topic": "Apache Airflow Essentials",
+          "subtopics": ["DAGs, tasks and operators", "Scheduling and catchup", "Task dependencies", "Retries and timeouts", "Variables and connections", "The Airflow UI", "Running Airflow in Docker", "Backfilling with Airflow"],
+          "tools": ["Apache Airflow", "Docker", "Python 3.12"],
+          "lab_task": "Rebuild the pipeline as an Airflow DAG with extract, quality, load and report tasks, retries and a connection to PostgreSQL, and backfill one month.",
+          "deliverable": "DAG code, UI screenshots and backfill run",
+          "checks": [["Trigger the DAG", "All tasks succeed in order", "Airflow UI screenshot"], ["Make the extract task fail once", "Task is retried and succeeds", "Task log"], ["Backfill one month", "One run per day", "Airflow UI screenshot"]],
+          "objectives": ["Orchestrate pipelines with Airflow", "Configure retries and connections", "Backfill with Airflow"]
+        },
+        {
+          "topic": "Distributed Processing with PySpark",
+          "subtopics": ["Why distributed processing", "Spark architecture: driver, executors, partitions", "SparkSession", "DataFrames in PySpark", "Reading and writing Parquet", "Transformations and actions", "Lazy evaluation", "The Spark UI"],
+          "tools": ["Apache Spark", "PySpark", "Jupyter"],
+          "lab_task": "Process 50 million order rows with PySpark: filter, join with products, aggregate revenue by category and day, write partitioned Parquet and inspect the job in the Spark UI.",
+          "deliverable": "PySpark script, output dataset and Spark UI screenshots",
+          "checks": [["Compare results with a pandas run on a sample", "Same totals", "Comparison output"], ["Open the Spark UI", "Stages and tasks are visible", "Screenshot"], ["Explain why nothing ran until write", "Lazy evaluation explained", "Written answer"]],
+          "objectives": ["Process large data with PySpark", "Read the Spark UI", "Explain lazy evaluation"]
+        },
+        {
+          "topic": "Cloud Storage and Data Lakes",
+          "subtopics": ["Object storage: S3, ADLS and GCS", "Buckets, containers and paths", "Raw, cleaned and curated zones", "Access keys versus roles", "Lifecycle rules", "Reading and writing from Python and Spark", "Cost of storage and requests", "Local emulators: MinIO"],
+          "tools": ["MinIO", "AWS S3 or Azure Data Lake Storage", "boto3"],
+          "lab_task": "Create a data lake with raw, clean and curated zones in MinIO or S3, move the pipeline's files through the zones and set a lifecycle rule for raw data.",
+          "deliverable": "Lake structure, pipeline changes and lifecycle rule",
+          "checks": [["List the zones", "Files appear in raw, clean and curated paths", "Listing output"], ["Read curated Parquet from Spark", "Data loads", "Script output"], ["Review the lifecycle rule", "Raw data expires after the set days", "Rule configuration"]],
+          "objectives": ["Use object storage for data", "Organise a data lake", "Control storage cost"]
+        },
+        {
+          "topic": "Data Warehouse Concepts and Loading",
+          "subtopics": ["OLTP versus OLAP", "Columnar warehouses", "Loading with COPY", "Staging and merge", "Slowly changing dimension type 2", "Partitioning and clustering", "Warehouse security basics", "Cloud warehouses overview"],
+          "tools": ["PostgreSQL", "DuckDB", "Snowflake or BigQuery trial"],
+          "lab_task": "Load the star schema into DuckDB and a cloud warehouse trial with COPY, implement a type 2 customer dimension and compare query speed with PostgreSQL.",
+          "deliverable": "Load scripts, dimension history and timing comparison",
+          "checks": [["Change a customer's city and reload", "New dimension row with validity dates", "Dimension table"], ["Run the revenue query on PostgreSQL and DuckDB", "DuckDB is faster", "Timing output"], ["Load with COPY", "Faster than row inserts", "Timing output"]],
+          "objectives": ["Load data warehouses", "Track history with type 2 dimensions", "Compare warehouse engines"]
+        },
+        {
+          "topic": "Transformations in SQL with dbt Essentials",
+          "subtopics": ["What dbt does", "Models and ref", "Sources", "Materialisations: view, table, incremental", "Tests", "Documentation", "Running dbt", "Project structure"],
+          "tools": ["dbt", "PostgreSQL or DuckDB"],
+          "lab_task": "Move the warehouse transformations into a dbt project with sources, staging and mart models, tests for keys and relationships, and generated documentation.",
+          "deliverable": "dbt project, test results and documentation site",
+          "checks": [["Run dbt build", "Models build and tests pass", "dbt output"], ["Insert a duplicate key in the source", "Unique test fails", "dbt output"], ["Open the docs", "Lineage graph shows sources to marts", "Screenshot"]],
+          "objectives": ["Transform data with dbt", "Test data models", "Document lineage"]
+        },
+        {
+          "topic": "Containers for Data Pipelines",
+          "subtopics": ["Docker images for pipelines", "Dockerfiles for Python jobs", "Environment variables and secrets", "Docker Compose for local stacks", "Volumes for data", "Image size", "Running jobs in containers", "Pushing images to a registry"],
+          "tools": ["Docker", "Docker Compose"],
+          "lab_task": "Package the pipeline as a Docker image, run it with PostgreSQL and Airflow in Docker Compose and push the image to a registry.",
+          "deliverable": "Dockerfile, Compose file and registry image",
+          "checks": [["Run the container with docker run", "Pipeline completes", "Container logs"], ["Start the Compose stack", "Airflow runs the containerised task", "Airflow UI"], ["Inspect the image", "No secrets inside", "docker history and inspection"]],
+          "objectives": ["Containerise pipelines", "Run local data stacks", "Publish images"]
+        },
+        {
+          "topic": "Testing Data Pipelines",
+          "subtopics": ["Unit tests for transformation functions", "Test fixtures with small data", "Testing SQL", "Integration tests with a database container", "Schema tests", "Testing idempotency", "Running tests in CI", "Test data management"],
+          "tools": ["pytest", "Testcontainers", "GitHub Actions"],
+          "lab_task": "Write unit tests for the transformation functions, an integration test that runs the pipeline against a PostgreSQL container and a CI workflow that runs them on every push.",
+          "deliverable": "Test suite and CI run",
+          "checks": [["Break a transformation rule", "Unit test fails", "pytest output"], ["Run the integration test twice", "Same result both times", "pytest output"], ["Push a change", "CI runs the tests", "CI log"]],
+          "objectives": ["Test pipelines", "Use real databases in tests", "Run tests in CI"]
+        },
+        {
+          "topic": "Logging, Monitoring and Alerting for Pipelines",
+          "subtopics": ["Structured logs", "Run metrics: rows, duration, failures", "Data freshness monitoring", "Alerts in email and chat", "Dashboards for pipeline health", "SLAs for data delivery", "Incident handling basics", "Runbooks"],
+          "tools": ["Python logging", "Airflow", "Grafana or a simple dashboard"],
+          "lab_task": "Add structured logs and run metrics to the pipeline, build a pipeline health dashboard, set a freshness SLA alert and write a runbook for the most common failure.",
+          "deliverable": "Logging set-up, dashboard, alert and runbook",
+          "checks": [["Delay the data by a day", "Freshness alert fires", "Alert message"], ["Open the dashboard", "Rows, duration and status per run shown", "Screenshot"], ["Follow the runbook for the failure", "Pipeline recovered", "Run log"]],
+          "objectives": ["Monitor pipelines", "Alert on late data", "Write runbooks"]
+        },
+        {
+          "topic": "Data Security and Privacy Basics",
+          "subtopics": ["Personal and sensitive data", "Access control in databases", "Masking and pseudonymisation", "Encryption at rest and in transit", "Secrets management", "Data retention", "India's DPDP Act and GDPR in brief", "Auditing access"],
+          "tools": ["PostgreSQL", "Python 3.12", "Vault or cloud secret manager"],
+          "lab_task": "Classify the columns in the customer data, mask emails and phone numbers in the curated zone, create read-only analyst roles and move credentials to a secret manager.",
+          "deliverable": "Classification sheet, masked data, roles and secret configuration",
+          "checks": [["Query customers as an analyst", "Emails and phones are masked", "Query result"], ["Try to write as an analyst", "Permission denied", "Error message"], ["Search the repository for passwords", "None found", "Search output"]],
+          "objectives": ["Protect sensitive data", "Control data access", "Handle secrets"]
+        },
+        {
+          "topic": "Beginner Capstone: End-to-End Sales Data Pipeline",
+          "subtopics": ["Requirements and design", "Ingestion from files and an API", "Transformation and modelling", "Orchestration with Airflow", "Quality checks and tests", "Demo"],
+          "tools": ["Python 3.12", "PostgreSQL or DuckDB", "Apache Airflow", "dbt", "Docker"],
+          "lab_task": "Build a containerised pipeline that ingests sales files and an API, loads a star schema incrementally with dbt, runs in Airflow with quality checks, tests and alerts, then demo it.",
+          "deliverable": "Repository, Airflow DAG, dbt project, test report and a 10-minute demo",
+          "checks": [["Run the DAG for three days of data", "Fact table totals match the sources", "Query results"], ["Feed a bad file", "Quality check stops the load and alerts", "Airflow log and alert"], ["Re-run a day", "No duplicates", "Row counts"]],
+          "objectives": ["Combine the beginner topics in one pipeline", "Prove correctness with checks and tests", "Explain the design"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers who have built batch pipelines. Covers lakehouse architecture, Spark in depth, Delta Lake and table formats, production Airflow and dbt, streaming with Kafka and Spark, change data capture, cloud data platforms, data quality at scale, CI/CD, governance and cost.",
+      "prerequisites": ["Has built batch pipelines with Python and SQL", "Has used Airflow or another orchestrator", "Knows the basics of Spark and data modelling"],
+      "outcomes": ["Design lakehouse platforms and build pipelines with Spark and Delta Lake", "Build streaming and change data capture pipelines", "Run production orchestration, dbt and data quality", "Deploy pipelines on a cloud data platform with CI/CD"],
+      "days": [
+        {
+          "topic": "Data Platform Architecture: Warehouse, Lake and Lakehouse",
+          "subtopics": ["Architecture patterns compared", "Medallion architecture: bronze, silver, gold", "Separation of storage and compute", "Batch and streaming in one platform", "Choosing tools for each layer", "Reference architectures on AWS, Azure and GCP", "Non-functional requirements", "Architecture decision records"],
+          "tools": ["Diagramming tool", "Databricks or Microsoft Fabric reference architectures"],
+          "lab_task": "Design a lakehouse for a retail company with batch and streaming sources, medallion layers, serving to BI and ML, and record the main tool decisions.",
+          "deliverable": "Architecture diagram and decision records",
+          "checks": [["Review the medallion design", "Each layer has a purpose and quality rules", "Diagram"], ["Review the decisions", "Options and trade-offs recorded", "Decision records"], ["Map requirements to components", "Every requirement is covered", "Mapping sheet"]],
+          "objectives": ["Design data platforms", "Apply the medallion pattern", "Record architecture decisions"]
+        },
+        {
+          "topic": "Spark DataFrames in Depth",
+          "subtopics": ["Schemas and data types", "Complex types: arrays, maps and structs", "Joins and join types", "Window functions", "User-defined functions and their cost", "Spark SQL", "Handling nulls and bad records", "Reading many formats"],
+          "tools": ["Apache Spark", "PySpark"],
+          "lab_task": "Transform nested clickstream JSON into session tables with explode, windows and joins, replace a slow Python UDF with built-in functions and compare runtimes.",
+          "deliverable": "Spark job, output tables and timing comparison",
+          "checks": [["Build sessions per user", "Session counts match the reference", "Query result"], ["Replace the UDF", "Same results and faster", "Timing output"], ["Read a file with bad records", "Bad records captured in a separate path", "Output listing"]],
+          "objectives": ["Transform complex data in Spark", "Use windows and joins", "Avoid slow UDFs"]
+        },
+        {
+          "topic": "Spark Performance Tuning",
+          "subtopics": ["Partitions and parallelism", "Shuffles", "Broadcast joins", "Data skew and salting", "Caching", "Adaptive query execution", "File sizes and small files", "Reading plans with explain"],
+          "tools": ["Apache Spark", "Spark UI"],
+          "lab_task": "Tune a slow job that joins 200 million events to customers: fix skew, use a broadcast join, set partitions and compact small files, and show the runtime drop.",
+          "deliverable": "Plans and Spark UI evidence before and after, and timings",
+          "checks": [["Find the skewed stage in the Spark UI", "Skewed task identified", "Screenshot"], ["Rerun after tuning", "Runtime at least 50 percent lower", "Timing output"], ["Count output files", "Small files compacted to the target size", "Listing"]],
+          "objectives": ["Diagnose Spark performance", "Fix skew and shuffles", "Tune file layout"]
+        },
+        {
+          "topic": "Delta Lake and Open Table Formats",
+          "subtopics": ["Why table formats exist", "ACID transactions on a lake", "Delta Lake MERGE", "Time travel", "Schema enforcement and evolution", "OPTIMIZE and Z-ordering", "VACUUM", "Apache Iceberg and Hudi compared"],
+          "tools": ["Delta Lake", "Apache Spark", "Apache Iceberg"],
+          "lab_task": "Convert the silver tables to Delta, upsert daily changes with MERGE, restore yesterday's version with time travel, evolve the schema and optimise the table.",
+          "deliverable": "Delta tables, MERGE job and history output",
+          "checks": [["Run MERGE with updates and inserts", "Row counts and values correct", "Query result"], ["Query an earlier version", "Old values returned", "Query result"], ["Write a column of the wrong type", "Schema enforcement rejects it", "Error message"]],
+          "objectives": ["Build reliable tables on a lake", "Upsert with MERGE", "Use time travel and schema evolution"]
+        },
+        {
+          "topic": "Production Orchestration with Airflow",
+          "subtopics": ["DAG design patterns", "TaskFlow API", "Sensors and deferrable operators", "Dynamic task mapping", "Datasets and data-aware scheduling", "Pools and concurrency", "Testing DAGs", "Deploying Airflow"],
+          "tools": ["Apache Airflow", "Docker", "pytest"],
+          "lab_task": "Refactor the DAG with the TaskFlow API, map tasks over a list of source systems, trigger downstream DAGs on dataset updates and add DAG tests.",
+          "deliverable": "DAG code, tests and run screenshots",
+          "checks": [["Add a new source to the list", "A task is created for it with no code change", "Airflow UI"], ["Update the upstream dataset", "Downstream DAG starts", "Airflow UI"], ["Run DAG tests", "Import and structure tests pass", "pytest output"]],
+          "objectives": ["Design production DAGs", "Use dynamic mapping and datasets", "Test Airflow code"]
+        },
+        {
+          "topic": "Advanced dbt: Incremental Models, Macros and Packages",
+          "subtopics": ["Incremental strategies: append, merge, insert overwrite", "Snapshots", "Macros and Jinja", "Packages: dbt-utils and dbt-expectations", "Seeds and exposures", "Model contracts", "Slim CI with state", "Project conventions"],
+          "tools": ["dbt", "PostgreSQL or Snowflake or Databricks"],
+          "lab_task": "Convert the fact model to incremental merge, add a snapshot for products, write a macro for currency conversion, add contracts and set up slim CI.",
+          "deliverable": "dbt project changes and CI results",
+          "checks": [["Run the incremental model twice", "Second run processes only new rows", "dbt logs"], ["Change a contracted column type", "Build fails on the contract", "dbt output"], ["Open a pull request touching one model", "Slim CI builds only changed models", "CI log"]],
+          "objectives": ["Build advanced dbt projects", "Use incremental models and snapshots", "Run efficient CI"]
+        },
+        {
+          "topic": "Managed Ingestion Tools: Airbyte, Fivetran and Azure Data Factory",
+          "subtopics": ["Build versus buy for ingestion", "Connectors for SaaS and databases", "Sync modes: full refresh, incremental, CDC", "Normalisation and raw tables", "Schema change handling", "Scheduling and monitoring syncs", "Pricing models", "When to write custom ingestion"],
+          "tools": ["Airbyte", "Fivetran trial", "Azure Data Factory"],
+          "lab_task": "Ingest a SaaS source and a PostgreSQL source with Airbyte using incremental sync, add a new column at the source, and compare effort and cost with the custom ingestion scripts.",
+          "deliverable": "Connector configuration, sync logs and comparison",
+          "checks": [["Run an incremental sync after new rows arrive", "Only new rows are loaded", "Sync log"], ["Add a column at the source", "Column appears in the destination as configured", "Destination schema"], ["Compare with custom scripts", "Effort, cost and limits recorded", "Comparison sheet"]],
+          "objectives": ["Use managed ingestion tools", "Handle schema changes", "Decide when to build or buy"]
+        },
+        {
+          "topic": "Data Modelling at Scale: Data Vault, Wide Tables and Semantic Layers",
+          "subtopics": ["When star schemas strain", "Data Vault hubs, links and satellites", "Wide denormalised tables for lakehouses", "One big table patterns", "Semantic layers and metrics definitions", "Modelling for BI versus ML", "Naming and documentation standards", "Choosing a modelling approach"],
+          "tools": ["dbt", "dbt semantic layer or Cube", "PostgreSQL or Snowflake"],
+          "lab_task": "Model the customer and order domain as a Data Vault in dbt, build a wide gold table from it and define three metrics in a semantic layer, then compare query effort for analysts.",
+          "deliverable": "Data Vault models, gold table, metric definitions and comparison",
+          "checks": [["Load a changed customer", "New satellite row with load date", "Query result"], ["Query a metric through the semantic layer", "Matches the SQL answer", "Query results"], ["Compare analyst queries", "Gold table query is simpler with the same result", "Comparison"]],
+          "objectives": ["Apply Data Vault and wide-table modelling", "Define shared metrics", "Choose a modelling approach"]
+        },
+        {
+          "topic": "Streaming with Apache Kafka",
+          "subtopics": ["Topics, partitions and offsets", "Producers and consumers", "Consumer groups", "Delivery guarantees", "Schemas with Schema Registry", "Kafka Connect", "Retention and compaction", "Monitoring lag"],
+          "tools": ["Apache Kafka", "Schema Registry", "Kafka Connect", "Python 3.12"],
+          "lab_task": "Produce order events with an Avro schema, consume them in a group of three consumers, add a sink connector to the lake and watch consumer lag under load.",
+          "deliverable": "Producer and consumer code, connector configuration and lag graph",
+          "checks": [["Stop one consumer", "Partitions are rebalanced to the others", "Consumer logs"], ["Send an event that breaks the schema", "Rejected by Schema Registry", "Producer error"], ["Check the sink", "Events land in the lake", "Listing"]],
+          "objectives": ["Build Kafka pipelines", "Use schemas", "Monitor consumer lag"]
+        },
+        {
+          "topic": "Stream Processing with Spark Structured Streaming",
+          "subtopics": ["Streaming DataFrames", "Sources and sinks", "Triggers", "Watermarks and late data", "Windowed aggregations", "Stateful processing", "Checkpoints and exactly-once", "Streaming into Delta"],
+          "tools": ["Apache Spark", "Kafka", "Delta Lake"],
+          "lab_task": "Build a streaming job that reads orders from Kafka, computes revenue per five-minute window with a watermark, writes to Delta and recovers from a restart.",
+          "deliverable": "Streaming job, output table and restart test",
+          "checks": [["Send late events within the watermark", "Included in the right window", "Query result"], ["Send events past the watermark", "Dropped", "Query result"], ["Restart the job", "Continues from the checkpoint without duplicates", "Row counts"]],
+          "objectives": ["Process streams with Spark", "Handle late data", "Recover streaming jobs"]
+        },
+        {
+          "topic": "Change Data Capture",
+          "subtopics": ["Why CDC", "Log-based CDC", "Debezium", "Change event structure", "Applying changes to the lake", "Deletes and soft deletes", "Initial snapshots", "Ordering and idempotency"],
+          "tools": ["Debezium", "Kafka", "PostgreSQL", "Delta Lake"],
+          "lab_task": "Capture inserts, updates and deletes from a PostgreSQL source with Debezium, apply them to a Delta table and prove the lake matches the source.",
+          "deliverable": "CDC configuration, apply job and reconciliation",
+          "checks": [["Update a row in the source", "Change appears in the lake within a minute", "Query result"], ["Delete a row", "Row is deleted or marked deleted as designed", "Query result"], ["Reconcile source and lake", "Counts and checksums match", "Reconciliation output"]],
+          "objectives": ["Capture database changes", "Apply changes to the lake", "Reconcile CDC pipelines"]
+        },
+        {
+          "topic": "Cloud Data Platforms: Databricks, Microsoft Fabric and AWS Glue",
+          "subtopics": ["Managed Spark platforms", "Workspaces and compute", "Notebooks versus jobs", "Unity Catalog and OneLake", "AWS Glue jobs and crawlers", "Azure Data Factory and Fabric pipelines", "Pricing models", "Choosing a platform"],
+          "tools": ["Databricks", "Microsoft Fabric", "AWS Glue", "Azure Data Factory"],
+          "lab_task": "Run the silver-to-gold job on two managed platforms as scheduled jobs, compare set-up effort, runtime and cost, and recommend one for the company.",
+          "deliverable": "Two implementations and a comparison report",
+          "checks": [["Run the job on both platforms", "Same output on both", "Comparison output"], ["Record runtime and cost", "Both recorded", "Comparison report"], ["Review the recommendation", "Supported by the measurements", "Report"]],
+          "objectives": ["Use managed data platforms", "Compare cloud options", "Recommend a platform"]
+        },
+        {
+          "topic": "Cloud Data Warehouses: Snowflake and BigQuery",
+          "subtopics": ["Architecture of Snowflake and BigQuery", "Virtual warehouses and slots", "Loading and external tables", "Clustering and partitioning", "Semi-structured data", "Time travel and cloning", "Cost controls", "Performance tuning"],
+          "tools": ["Snowflake", "BigQuery"],
+          "lab_task": "Load the gold tables into Snowflake or BigQuery, add clustering, query semi-structured data, clone a database for testing and set a cost monitor.",
+          "deliverable": "Load scripts, query results and cost settings",
+          "checks": [["Query with and without clustering on date", "Scanned data drops with clustering", "Query statistics"], ["Clone the database", "Clone is ready in seconds", "Screenshot"], ["Exceed the cost monitor", "Warehouse is suspended or alerted", "Monitor log"]],
+          "objectives": ["Use cloud warehouses", "Tune for cost and speed", "Use cloning and time travel"]
+        },
+        {
+          "topic": "Data Quality and Observability at Scale",
+          "subtopics": ["Data contracts in brief", "Great Expectations or Soda in pipelines", "Anomaly detection on metrics", "Freshness, volume and schema monitors", "Incident triage for data", "Lineage for impact analysis", "Data observability tools", "Quality reporting to owners"],
+          "tools": ["Great Expectations", "Soda", "OpenLineage"],
+          "lab_task": "Add expectation suites to bronze, silver and gold, monitor volume anomalies and schema changes, and use lineage to find every dashboard affected by a bad source.",
+          "deliverable": "Expectation suites, monitors and impact analysis",
+          "checks": [["Drop a column in the source", "Schema monitor alerts", "Alert"], ["Halve the daily volume", "Volume anomaly detected", "Alert"], ["Use lineage to find affected assets", "All downstream tables and dashboards listed", "Lineage output"]],
+          "objectives": ["Monitor data quality at scale", "Detect anomalies", "Analyse impact with lineage"]
+        },
+        {
+          "topic": "Infrastructure as Code for Data Platforms",
+          "subtopics": ["Why IaC for data", "Terraform for storage, compute and warehouses", "Databricks and Snowflake Terraform providers", "Environments: dev, test, prod", "Secrets and identities", "State management", "Policy checks", "Drift detection"],
+          "tools": ["Terraform", "Databricks or Snowflake provider"],
+          "lab_task": "Define the lake storage, a warehouse, roles and a job cluster in Terraform for dev and prod, apply it through a pipeline and detect a manual change.",
+          "deliverable": "Terraform modules, plans and drift report",
+          "checks": [["Apply to dev and prod", "Both environments match", "Terraform output"], ["Change a setting by hand", "Plan shows drift", "Plan output"], ["Search the code for secrets", "None", "Search output"]],
+          "objectives": ["Manage data infrastructure as code", "Keep environments consistent", "Detect drift"]
+        },
+        {
+          "topic": "CI/CD for Data Pipelines",
+          "subtopics": ["Branching for data code", "Linting SQL and Python", "Unit and integration tests in CI", "Deploying DAGs, jobs and dbt", "Environment promotion", "Data diff before release", "Rollback", "Release notes"],
+          "tools": ["GitHub Actions", "sqlfluff", "dbt", "Databricks Asset Bundles"],
+          "lab_task": "Build a pipeline that lints, tests and deploys the dbt project and Spark jobs to dev, shows a data diff on a pull request and promotes to prod with approval.",
+          "deliverable": "Workflow files and a release record",
+          "checks": [["Push SQL that breaks the lint rules", "CI fails at lint", "CI log"], ["Open a pull request that changes a model", "Data diff is posted", "Pull request comment"], ["Promote to prod", "Deployment waits for approval", "Workflow log"]],
+          "objectives": ["Automate data deployments", "Review data changes", "Promote safely"]
+        },
+        {
+          "topic": "Data Governance, Catalogues and Access Control",
+          "subtopics": ["Data ownership and stewardship", "Catalogues: Unity Catalog, Purview, DataHub", "Classification and tags", "Row and column level security", "Access requests", "Lineage for governance", "Audit logs", "Policy as code"],
+          "tools": ["Unity Catalog", "Microsoft Purview", "DataHub"],
+          "lab_task": "Register the gold tables in a catalogue with owners and descriptions, tag personal data, add row-level security by region and review the access audit log.",
+          "deliverable": "Catalogue entries, policies and audit review",
+          "checks": [["Query as a regional analyst", "Only that region's rows are returned", "Query result"], ["Search the catalogue for personal data", "Tagged tables are listed", "Catalogue search"], ["Review the audit log", "Queries on sensitive tables are recorded", "Audit log"]],
+          "objectives": ["Govern data", "Control access by row and column", "Audit data use"]
+        },
+        {
+          "topic": "Batch and Streaming Serving for BI and Applications",
+          "subtopics": ["Serving layers", "Aggregation tables", "Semantic models", "Real-time dashboards", "APIs over data", "Caching", "Freshness versus cost", "Service levels for data products"],
+          "tools": ["Power BI or Superset", "DuckDB", "FastAPI"],
+          "lab_task": "Serve gold data to a BI dashboard through a semantic model and to an application through a small API with caching, and measure freshness and query time.",
+          "deliverable": "Dashboard, API and measurements",
+          "checks": [["Open the dashboard", "Loads in under three seconds", "Timing"], ["Call the API twice", "Second call served from the cache", "Response headers"], ["Measure freshness", "Within the agreed service level", "Freshness metric"]],
+          "objectives": ["Serve data to BI and apps", "Balance freshness and cost", "Meet data service levels"]
+        },
+        {
+          "topic": "Cost Management for Data Platforms",
+          "subtopics": ["Where data platform money goes", "Compute sizing and auto-termination", "Spot and reserved capacity", "Storage tiers", "Query cost in warehouses", "Tagging and chargeback", "Cost dashboards", "Optimisation playbook"],
+          "tools": ["Cloud cost tools", "Databricks or Snowflake usage views"],
+          "lab_task": "Analyse a month of platform usage, find the five most expensive jobs and queries, cut their cost and build a cost dashboard by team.",
+          "deliverable": "Cost analysis, changes and dashboard",
+          "checks": [["Rank the top five cost items", "Ranked with amounts", "Analysis"], ["Rerun after changes", "Combined cost at least 30 percent lower", "Comparison"], ["Open the dashboard", "Cost shown by team", "Screenshot"]],
+          "objectives": ["Analyse data platform costs", "Reduce compute and storage spend", "Report costs by team"]
+        },
+        {
+          "topic": "Intermediate Capstone: Lakehouse with Batch and Streaming Pipelines",
+          "subtopics": ["Requirements and architecture", "CDC and streaming ingestion", "Spark and Delta transformations", "dbt models and quality", "Orchestration, CI/CD and governance", "Demo and design defence"],
+          "tools": ["Apache Spark", "Delta Lake", "Kafka", "Debezium", "dbt", "Apache Airflow", "Terraform", "GitHub Actions"],
+          "lab_task": "Build a lakehouse that ingests a database by CDC and events by Kafka, transforms through medallion layers with Spark and dbt, enforces quality and access rules, deploys by CI/CD and serves a dashboard, then present it.",
+          "deliverable": "Repositories, pipeline runs, quality reports, dashboard and a 15-minute demo",
+          "checks": [["Update a source row", "Change reaches the gold table and dashboard within the target time", "Demo and query"], ["Push a failing quality rule", "Pipeline blocks promotion", "CI log"], ["Query as a restricted user", "Only allowed rows and columns", "Query result"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Prove freshness, quality and control", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers and data architects. Covers platform architecture at scale, data mesh and data products, Spark and table format internals, real-time systems with Flink, data contracts, metadata and lineage, privacy engineering, ML and AI data pipelines, reliability, migration from legacy platforms and data strategy.",
+      "prerequisites": ["Has run production data pipelines on a cloud platform", "Knows Spark, a table format, streaming and orchestration", "Leads design work on a data team"],
+      "outcomes": ["Architect data platforms and data products for many teams", "Tune engines and table formats at scale", "Build real-time, ML and AI data systems", "Govern, secure and run data platforms reliably and cost-effectively"],
+      "days": [
+        {
+          "topic": "Enterprise Data Platform Architecture",
+          "subtopics": ["Centralised, federated and hybrid models", "Multi-region and multi-cloud data", "Workload isolation", "Platform as a product", "Self-service capabilities", "Reference architectures at scale", "Non-functional requirements", "Architecture decision records"],
+          "tools": ["Diagramming tool", "Architecture decision record template"],
+          "lab_task": "Design the target data platform for a group with ten business units and three regions, covering isolation, self-service, residency and disaster recovery, and record the decisions.",
+          "deliverable": "Target architecture, decision records and requirements",
+          "checks": [["Review residency handling", "Data stays in its required region", "Architecture document"], ["Review the decision records", "Options and trade-offs recorded", "Decision records"], ["Review recovery targets", "RPO and RTO stated per tier", "Requirements list"]],
+          "objectives": ["Architect enterprise data platforms", "Plan isolation and residency", "Record decisions"]
+        },
+        {
+          "topic": "Data Mesh and Data Products",
+          "subtopics": ["Data mesh principles", "Domain ownership", "Data products and their interfaces", "Self-serve platform", "Federated computational governance", "Product discovery and quality scores", "Organisational change", "When mesh does not fit"],
+          "tools": ["DataHub or Unity Catalog", "dbt", "Data contract templates"],
+          "lab_task": "Define three data products for sales, inventory and customer domains with owners, interfaces, service levels and quality scores, publish them and consume one in another domain.",
+          "deliverable": "Product definitions, published products and a consumer example",
+          "checks": [["Publish a product", "Discoverable with owner, schema and service level", "Catalogue entry"], ["Consume it from another domain", "Works through the published interface only", "Query"], ["Review quality scores", "Scores computed from checks", "Product page"]],
+          "objectives": ["Design data products", "Apply data mesh principles", "Judge when mesh fits"]
+        },
+        {
+          "topic": "Data Contracts and Schema Management",
+          "subtopics": ["Producer and consumer agreements", "Contract specification formats", "Schema registries", "Compatibility rules", "Contract tests in CI", "Breaking change workflows", "Versioning datasets", "Enforcement at ingestion"],
+          "tools": ["Data Contract CLI", "Schema Registry", "GitHub Actions"],
+          "lab_task": "Write contracts for two event streams and one table, enforce them in CI and at ingestion, and run a breaking change through a versioned migration.",
+          "deliverable": "Contracts, CI checks and migration record",
+          "checks": [["Push a producer change that breaks the contract", "CI fails", "CI log"], ["Send a non-conforming event", "Rejected at ingestion", "Logs"], ["Release version 2", "Consumers move with no outage", "Migration record"]],
+          "objectives": ["Use data contracts", "Enforce schemas", "Manage breaking changes"]
+        },
+        {
+          "topic": "Spark Internals and Advanced Optimisation",
+          "subtopics": ["Catalyst optimiser", "Tungsten execution", "Adaptive query execution in depth", "Dynamic partition pruning", "Memory management and spills", "Photon and vectorised engines", "Cluster sizing", "Benchmarking jobs"],
+          "tools": ["Apache Spark", "Spark UI", "Databricks"],
+          "lab_task": "Analyse the physical plans of three heavy jobs, fix spills and missed pruning, size clusters from measurements and benchmark the improvements.",
+          "deliverable": "Plan analysis, fixes, sizing and benchmark results",
+          "checks": [["Find a spill in the Spark UI", "Stage and cause identified", "Screenshot"], ["Enable pruning through a rewrite", "Plan shows dynamic partition pruning", "Explain output"], ["Benchmark after tuning", "Cost per run lower", "Benchmark table"]],
+          "objectives": ["Read Spark plans deeply", "Fix advanced performance issues", "Size clusters"]
+        },
+        {
+          "topic": "Table Format Internals: Delta Lake and Apache Iceberg at Scale",
+          "subtopics": ["Transaction logs and metadata", "Compaction and clustering strategies", "Liquid clustering and hidden partitioning", "Deletion vectors", "Concurrent writers", "Catalogues: Unity, Glue, Nessie, Polaris", "Interoperability with UniForm", "Maintenance at scale"],
+          "tools": ["Delta Lake", "Apache Iceberg", "Spark", "Trino"],
+          "lab_task": "Run concurrent writers on one table, compare clustering strategies on query time, set up maintenance jobs and read the same table from Spark and Trino.",
+          "deliverable": "Experiment results, maintenance jobs and interoperability demo",
+          "checks": [["Run two concurrent writers", "Conflicts handled as documented", "Logs"], ["Compare clustering strategies", "Query time and files scanned recorded", "Results table"], ["Query from Trino", "Same results as Spark", "Query output"]],
+          "objectives": ["Understand table format internals", "Maintain large tables", "Share tables across engines"]
+        },
+        {
+          "topic": "Real-Time Data Systems with Apache Flink",
+          "subtopics": ["Flink architecture", "DataStream and Table APIs", "Event time and watermarks", "State backends and checkpoints", "Exactly-once sinks", "Complex event processing", "Scaling and savepoints", "Flink versus Spark streaming"],
+          "tools": ["Apache Flink", "Kafka"],
+          "lab_task": "Build a Flink job that detects payment fraud patterns in real time with keyed state, exactly-once writes to Kafka and a savepoint upgrade without data loss.",
+          "deliverable": "Flink job, test results and upgrade record",
+          "checks": [["Replay a fraud pattern", "Alert raised within one second", "Output topic"], ["Kill a task manager", "Job recovers from the checkpoint with no duplicates", "Output counts"], ["Upgrade with a savepoint", "State kept after the upgrade", "Logs"]],
+          "objectives": ["Build real-time systems with Flink", "Manage state", "Upgrade streaming jobs safely"]
+        },
+        {
+          "topic": "Real-Time Analytics Stores",
+          "subtopics": ["Use cases for real-time OLAP", "ClickHouse, Apache Druid and Apache Pinot", "Ingesting from Kafka", "Rollups and materialised views", "Query performance", "Retention and tiering", "Serving dashboards", "Choosing a store"],
+          "tools": ["ClickHouse", "Apache Pinot", "Kafka", "Grafana"],
+          "lab_task": "Stream events into ClickHouse with materialised rollups, serve a sub-second dashboard and compare it with querying the lakehouse.",
+          "deliverable": "Ingestion set-up, dashboard and comparison",
+          "checks": [["Query the last 5 minutes", "Results in under one second", "Timing"], ["Compare with the lakehouse query", "Real-time store is much faster", "Comparison"], ["Check freshness", "Events visible within seconds", "Measurement"]],
+          "objectives": ["Use real-time analytics stores", "Serve fast dashboards", "Choose stores by need"]
+        },
+        {
+          "topic": "Distributed Query Engines and Federation with Trino",
+          "subtopics": ["Trino architecture: coordinator and workers", "Connectors for lakes, databases and warehouses", "Federated joins and their cost", "Query planning and pushdown", "Resource groups and queues", "Caching", "Security and access control", "Trino versus warehouse engines"],
+          "tools": ["Trino", "Iceberg", "PostgreSQL", "Kafka"],
+          "lab_task": "Run Trino over an Iceberg lake, PostgreSQL and Kafka, write a federated report query, tune pushdown, set resource groups for two teams and compare cost with copying the data.",
+          "deliverable": "Trino configuration, queries, plans and comparison",
+          "checks": [["Run the federated query", "Correct result from three sources", "Query output"], ["Check the plan", "Filters pushed down to PostgreSQL", "EXPLAIN output"], ["Run two teams' heavy queries together", "Resource groups limit each team as configured", "Query history"]],
+          "objectives": ["Use distributed query engines", "Federate queries safely", "Manage shared query resources"]
+        },
+        {
+          "topic": "Metadata, Lineage and Observability Platforms",
+          "subtopics": ["Active metadata", "OpenLineage", "Column-level lineage", "Impact analysis", "Usage analytics", "Data observability at scale", "Incident management for data", "Metadata-driven automation"],
+          "tools": ["OpenLineage", "Marquez or DataHub", "Monte Carlo or open-source monitors"],
+          "lab_task": "Collect lineage from Airflow, Spark and dbt into one catalogue, trace column-level lineage for a KPI and automate alerts to owners of affected products.",
+          "deliverable": "Lineage set-up, KPI lineage and automated alerts",
+          "checks": [["Trace the KPI column", "Path from source columns shown", "Lineage graph"], ["Break a source", "Owners of affected products are alerted", "Alert log"], ["Rank unused tables from usage", "List with last access dates", "Usage report"]],
+          "objectives": ["Build metadata platforms", "Trace column-level lineage", "Automate data incident response"]
+        },
+        {
+          "topic": "Privacy Engineering for Data Platforms",
+          "subtopics": ["Privacy by design", "Tokenisation and format-preserving encryption", "Differential privacy in analytics", "Consent and purpose tracking", "Right to erasure in lakes and warehouses", "Data residency enforcement", "Privacy risk assessments", "Audits"],
+          "tools": ["Presidio", "Delta Lake", "Unity Catalog or Purview"],
+          "lab_task": "Tokenise personal identifiers at ingestion, enforce purpose-based access, carry out an erasure request across bronze to gold with table history, and pass an audit checklist.",
+          "deliverable": "Tokenisation set-up, access policies, erasure record and audit checklist",
+          "checks": [["Query identifiers as an analyst", "Only tokens visible", "Query result"], ["Run the erasure request", "Person's data gone from every layer and from history after vacuum", "Search outputs"], ["Complete the audit checklist", "Every item has evidence", "Checklist"]],
+          "objectives": ["Engineer privacy into pipelines", "Handle erasure in lakes", "Prove compliance"]
+        },
+        {
+          "topic": "Data Engineering for Machine Learning",
+          "subtopics": ["Feature engineering pipelines", "Feature stores", "Point-in-time correct joins", "Training and serving skew", "Batch and online features", "Data versioning for models", "Labelling pipelines", "Monitoring feature drift"],
+          "tools": ["Feast or Databricks Feature Store", "Delta Lake", "MLflow"],
+          "lab_task": "Build point-in-time correct features for a churn model in a feature store, serve them online and offline, and show that a naive join leaks future data.",
+          "deliverable": "Feature pipelines, feature store set-up and leakage demonstration",
+          "checks": [["Compare naive and point-in-time joins", "Naive join leaks future values", "Comparison output"], ["Read the same feature online and offline", "Values match", "Comparison"], ["Detect drift in a feature", "Drift alert raised", "Monitor output"]],
+          "objectives": ["Build ML data pipelines", "Avoid leakage", "Serve features consistently"]
+        },
+        {
+          "topic": "Data Pipelines for Generative AI",
+          "subtopics": ["Document ingestion at scale", "Chunking and embedding pipelines", "Vector stores in the lakehouse", "Incremental re-embedding", "Metadata and permissions for retrieval", "Quality checks for AI data", "Lineage from documents to answers", "Cost of embedding at scale"],
+          "tools": ["Spark", "Delta Lake", "Vector search (Databricks, pgvector or Qdrant)"],
+          "lab_task": "Build a pipeline that parses 100,000 documents, chunks and embeds only changed ones, stores vectors with permissions and lineage, and reports embedding cost.",
+          "deliverable": "Pipeline, vector index and cost report",
+          "checks": [["Change 100 documents and rerun", "Only those are re-embedded", "Run log"], ["Search as a restricted user", "Restricted chunks are not returned", "Query result"], ["Report cost per 1,000 documents", "Cost calculated from usage", "Cost report"]],
+          "objectives": ["Build AI data pipelines", "Re-embed incrementally", "Govern AI data"]
+        },
+        {
+          "topic": "Reliability Engineering for Data Platforms",
+          "subtopics": ["Service level objectives for data", "Error budgets", "Designing for failure", "Backfills and replays at scale", "Disaster recovery for lakes and warehouses", "Chaos testing pipelines", "On-call for data teams", "Post-incident reviews"],
+          "tools": ["Airflow", "Delta Lake", "Grafana", "PagerDuty"],
+          "lab_task": "Define SLOs for three data products, inject failures in sources and compute, replay a week of data within the recovery target and run a post-incident review.",
+          "deliverable": "SLO definitions, chaos test results, replay record and review",
+          "checks": [["Inject a source outage", "SLO burn alert fires", "Alert"], ["Replay one week", "Completed within the recovery target with correct totals", "Replay record"], ["Run the review", "Actions with owners recorded", "Review document"]],
+          "objectives": ["Run data platforms reliably", "Use SLOs and error budgets", "Recover with replays"]
+        },
+        {
+          "topic": "Migrating Legacy Data Platforms",
+          "subtopics": ["Assessing Hadoop, Informatica and on-premise warehouses", "Migration strategies: lift, re-platform, rebuild", "Converting ETL jobs", "Data validation during migration", "Parallel runs", "Cut-over", "Decommissioning", "Lessons from failed migrations"],
+          "tools": ["Data validation tools", "Spark", "dbt"],
+          "lab_task": "Plan the migration of a provided Informatica and Hadoop estate, convert three jobs to Spark and dbt, validate outputs in a parallel run and write the cut-over plan.",
+          "deliverable": "Migration plan, converted jobs, validation report and cut-over plan",
+          "checks": [["Validate converted jobs", "Row counts and checksums match the legacy outputs", "Validation report"], ["Review the wave plan", "Dependencies and risks addressed", "Plan"], ["Review the cut-over plan", "Includes rollback", "Cut-over plan"]],
+          "objectives": ["Plan legacy migrations", "Convert ETL", "Validate with parallel runs"]
+        },
+        {
+          "topic": "DataOps and Platform Engineering for Data Teams",
+          "subtopics": ["DataOps principles", "Golden paths for pipelines", "Templates and scaffolding", "Self-service environments", "Developer experience for data engineers", "Platform metrics", "Documentation portals", "Platform roadmap"],
+          "tools": ["Backstage", "Terraform", "GitHub templates", "dbt"],
+          "lab_task": "Build a golden path that gives a new domain team a repository, CI/CD, orchestration and catalogue entries for a new data product in under an hour, and measure it with a pilot team.",
+          "deliverable": "Golden path, templates and pilot measurements",
+          "checks": [["Run the golden path", "Working product skeleton in under one hour", "Pilot record"], ["Review the template", "Tests, quality checks and lineage included", "Template repository"], ["Gather pilot feedback", "Issues listed with fixes", "Feedback summary"]],
+          "objectives": ["Apply DataOps", "Build golden paths", "Measure developer experience"]
+        },
+        {
+          "topic": "Performance and Cost at Petabyte Scale",
+          "subtopics": ["Workload analysis", "Storage layout for huge tables", "Query federation costs", "Caching layers", "Compute scheduling and queues", "Commitments and discounts", "Cost allocation at scale", "FinOps for data"],
+          "tools": ["Spark", "Trino", "Cloud cost tools"],
+          "lab_task": "Analyse a petabyte-scale workload profile, redesign layouts and scheduling for the top workloads and build a cost model that shows savings and commitments.",
+          "deliverable": "Workload analysis, redesign and cost model",
+          "checks": [["Rank workloads by cost", "Top workloads identified with numbers", "Analysis"], ["Model the redesign", "Savings estimated with assumptions", "Cost model"], ["Recommend commitments", "Based on steady usage", "Recommendation"]],
+          "objectives": ["Optimise at very large scale", "Model data platform costs", "Apply FinOps"]
+        },
+        {
+          "topic": "Multi-Cloud and Hybrid Data Architectures",
+          "subtopics": ["Reasons for multi-cloud data", "Data sharing across clouds: Delta Sharing, Snowflake sharing", "Network costs and egress", "Identity across clouds", "Query federation", "On-premise integration", "Consistency and replication", "Avoiding lock-in"],
+          "tools": ["Delta Sharing", "Trino", "Snowflake"],
+          "lab_task": "Share a gold table from one cloud to a consumer in another with Delta Sharing, query across clouds with Trino and measure egress cost and latency.",
+          "deliverable": "Sharing set-up, federated queries and measurements",
+          "checks": [["Read the shared table from the other cloud", "Data available without copying pipelines", "Query output"], ["Revoke the share", "Consumer loses access", "Error message"], ["Measure egress", "Cost estimated per month", "Measurement"]],
+          "objectives": ["Design multi-cloud data", "Share data securely", "Control egress cost"]
+        },
+        {
+          "topic": "Troubleshooting Production Data Platforms",
+          "subtopics": ["Late and missing data", "Duplicates and double loads", "Skewed and stuck jobs", "Schema drift incidents", "Corrupt files and tables", "Warehouse contention", "Root cause analysis", "Runbooks"],
+          "tools": ["Spark UI", "Airflow", "Delta Lake", "warehouse query history"],
+          "lab_task": "Resolve four injected incidents (a double load, a stuck skewed job, schema drift and a corrupt table version), restore correct data and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Fix the double load", "Totals match the source", "Reconciliation"], ["Restore the corrupt table", "Correct version restored with time travel", "Query result"], ["Write a runbook for schema drift", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot data incidents", "Restore correct data", "Write runbooks"]
+        },
+        {
+          "topic": "Data Strategy and Architecture Reviews",
+          "subtopics": ["Data strategy and business goals", "Capability maps", "Build, buy and partner choices", "Team topology for data", "Roadmaps", "Reviewing designs", "Decision records", "Presenting to leadership"],
+          "tools": ["Architecture decision record template", "Capability map template"],
+          "lab_task": "Review two proposed data platform designs from a case study, find risks, write decision records and present a data strategy and roadmap to a mock leadership team.",
+          "deliverable": "Review notes, decision records, strategy and presentation",
+          "checks": [["List risks in each design", "Main risks found with evidence", "Review notes"], ["Write decision records", "Options and trade-offs recorded", "Decision records"], ["Answer leadership questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Review data architectures", "Build a data strategy", "Communicate to leadership"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Data Platform with Real-Time and AI Products",
+          "subtopics": ["Target architecture and data products", "Contracts, lineage and governance", "Real-time and batch processing", "ML and AI data pipelines", "Reliability, privacy and cost model", "Board presentation and design defence"],
+          "tools": ["Spark", "Delta Lake or Iceberg", "Flink", "Kafka", "dbt", "OpenLineage", "Terraform"],
+          "lab_task": "Deliver a platform with three contracted data products, real-time fraud detection, a feature store and an AI document pipeline, with lineage, privacy controls, SLOs and a cost model, then present it to a mock board.",
+          "deliverable": "Platform repositories, SLO dashboards, privacy evidence, cost model and a 20-minute presentation",
+          "checks": [["Push a contract-breaking change", "Blocked before release", "CI log"], ["Inject a source outage", "SLO alert fires and replay recovers within the target", "Alert and replay record"], ["Run an erasure request", "Data removed from every layer", "Search outputs"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove reliability, privacy and cost control", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

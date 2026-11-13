@@ -1,0 +1,573 @@
+{
+  "domain": "Power BI",
+  "name": "Power BI",
+  "category": "Data Engineering and Analytics",
+  "icon": "bar-chart",
+  "aliases": ["Microsoft Power BI", "Power BI Desktop", "Power BI Developer", "Power BI Dashboards", "Power BI Reporting", "Power BI Training", "Power BI and DAX", "PL-300"],
+  "certifications": ["Microsoft Certified: Power BI Data Analyst Associate (PL-300)", "Microsoft Certified: Fabric Analytics Engineer Associate (DP-600)", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)"],
+  "tools": ["Power BI Desktop", "Power BI Service", "Excel", "DAX Studio", "Tabular Editor"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For business users and analysts new to Power BI. Covers connecting to data, cleaning it with Power Query, building a data model, writing first DAX measures, designing reports and dashboards, and publishing and sharing in the Power BI service, ending with a complete sales report.",
+      "prerequisites": ["Comfortable with Excel: tables, filters and simple formulas", "Understands basic business measures such as revenue and margin", "Power BI Desktop installed and a work or trial account for the service"],
+      "outcomes": ["Import and clean data with Power Query", "Build a star-schema data model with relationships", "Write basic DAX measures and time intelligence", "Design, publish and share clear reports and dashboards"],
+      "days": [
+        {
+          "topic": "Power BI Overview, Setup and First Report",
+          "subtopics": ["What Power BI is used for", "Power BI Desktop, Service and Mobile", "Licences: Free, Pro, Premium Per User and Fabric capacity", "Installing Power BI Desktop", "The Report, Data and Model views", "Connecting to an Excel file", "Building a first visual", "Saving a PBIX file", "Publishing to a workspace", "Course project overview"],
+          "tools": ["Power BI Desktop", "Power BI Service", "Excel"],
+          "lab_task": "Install Power BI Desktop, load the sample sales workbook, build a page with a revenue card, a bar chart by region and a slicer for year, and publish it to a workspace.",
+          "deliverable": "PBIX file and published report link",
+          "checks": [["Select a year in the slicer", "Card and chart update", "Screenshot"], ["Open the report in the service", "Same visuals appear", "Screenshot"], ["Explain Desktop versus Service", "Correct explanation", "Written answer"]],
+          "objectives": ["Explain the Power BI parts and licences", "Build a first report", "Publish to the service"]
+        },
+        {
+          "topic": "Connecting to Data Sources",
+          "subtopics": ["Import versus DirectQuery", "Excel, CSV and folders", "SQL Server and other databases", "SharePoint and OneDrive files", "Web and API sources", "Credentials and privacy levels", "Refreshing data in Desktop", "Choosing a connection mode"],
+          "tools": ["Power BI Desktop", "SQL Server or Azure SQL"],
+          "lab_task": "Connect to an Excel workbook, a folder of monthly CSV files, a SQL database table and a SharePoint list, and explain which connection mode suits each.",
+          "deliverable": "PBIX with four sources and a connection mode note",
+          "checks": [["Add a new CSV to the folder and refresh", "New month appears", "Screenshot"], ["Connect to SQL with DirectQuery", "Visual queries the database live", "Performance analyser output"], ["Review the mode note", "Choice justified for each source", "Note"]],
+          "objectives": ["Connect to common sources", "Choose import or DirectQuery", "Refresh data"]
+        },
+        {
+          "topic": "Cleaning Data with Power Query",
+          "subtopics": ["The Power Query editor", "Applied steps", "Changing data types", "Removing rows and columns", "Splitting and merging columns", "Replacing values and handling errors", "Trimming and cleaning text", "Promoting headers"],
+          "tools": ["Power BI Desktop", "Power Query"],
+          "lab_task": "Clean a messy sales export with wrong types, blank rows, merged name columns and error values, so it loads with no errors and correct totals.",
+          "deliverable": "Cleaned query with documented steps",
+          "checks": [["Load the cleaned query", "No errors in the load", "Load summary"], ["Compare total sales with the reference", "Totals match", "Screenshot"], ["Read the applied steps", "Each step has a clear name", "Screenshot"]],
+          "objectives": ["Clean data in Power Query", "Fix types and errors", "Keep steps understandable"]
+        },
+        {
+          "topic": "Shaping Data: Merge, Append, Pivot and Unpivot",
+          "subtopics": ["Appending tables", "Merging queries and join kinds", "Unpivoting wide tables", "Pivoting", "Grouping rows", "Conditional columns", "Custom columns", "Reference versus duplicate queries"],
+          "tools": ["Power BI Desktop", "Power Query"],
+          "lab_task": "Append twelve monthly sheets, unpivot a budget table from wide months to rows, merge in product categories and group sales by category and month.",
+          "deliverable": "Shaped queries and result tables",
+          "checks": [["Append the twelve months", "Row count equals the sum of the sheets", "Screenshot"], ["Unpivot the budget", "One row per product and month", "Screenshot"], ["Merge with a left outer join", "No sales rows lost", "Row counts"]],
+          "objectives": ["Combine and reshape data", "Choose join kinds", "Prepare tables for modelling"]
+        },
+        {
+          "topic": "Data Modelling: Star Schema and Relationships",
+          "subtopics": ["Fact and dimension tables", "Star schema", "Relationships: one-to-many and cardinality", "Filter direction", "Active and inactive relationships", "Hiding columns and tables", "A date table", "Why a flat table causes problems"],
+          "tools": ["Power BI Desktop"],
+          "lab_task": "Turn a single flat sales table into a star schema with Sales, Customer, Product and Date tables, create relationships and show a total that is wrong in the flat model and right in the star.",
+          "deliverable": "PBIX with the star schema and a before and after comparison",
+          "checks": [["Open the model view", "One-to-many relationships from dimensions to the fact", "Screenshot"], ["Count customers in both models", "Flat model is wrong, star model is right", "Comparison"], ["Mark the date table", "Date table is marked", "Screenshot"]],
+          "objectives": ["Build star-schema models", "Set relationships correctly", "Explain why modelling matters"]
+        },
+        {
+          "topic": "DAX Essentials: Calculated Columns and Measures",
+          "subtopics": ["What DAX is", "Calculated columns versus measures", "SUM, AVERAGE, COUNT and DISTINCTCOUNT", "DIVIDE for safe division", "Simple filter context", "Formatting measures", "Organising measures in a table", "Common beginner mistakes"],
+          "tools": ["Power BI Desktop"],
+          "lab_task": "Create measures for revenue, cost, margin, margin percent and order count, a calculated column for price band, and show how the measures change by region and year.",
+          "deliverable": "PBIX with measures and a test page",
+          "checks": [["Compare margin percent with a spreadsheet", "Values match", "Comparison"], ["Divide by zero for a region with no sales", "DIVIDE returns blank, not an error", "Screenshot"], ["Explain why margin percent should be a measure", "Correct explanation", "Written answer"]],
+          "objectives": ["Write basic DAX", "Choose measures or columns", "Avoid common DAX mistakes"]
+        },
+        {
+          "topic": "DAX with CALCULATE and Filter Context",
+          "subtopics": ["Row context and filter context", "CALCULATE", "Filter arguments", "ALL and REMOVEFILTERS", "Percent of total", "FILTER in brief", "Context transition in brief", "Testing measures in a table visual"],
+          "tools": ["Power BI Desktop", "DAX Studio"],
+          "lab_task": "Write measures for sales in a chosen region, percent of total sales, sales for all products ignoring the slicer and high-value order count, and test each in a table.",
+          "deliverable": "Measures and a test table",
+          "checks": [["Compute percent of total by region", "Percentages add up to 100", "Screenshot"], ["Change the product slicer", "\"All products\" measure does not change", "Screenshot"], ["Count orders over 10,000", "Matches the reference", "Screenshot"]],
+          "objectives": ["Use CALCULATE", "Control filter context", "Write comparison measures"]
+        },
+        {
+          "topic": "Time Intelligence in DAX",
+          "subtopics": ["Requirements for a date table", "Year-to-date and month-to-date", "Same period last year", "Year-over-year growth", "Moving averages", "Fiscal years", "DATEADD and PARALLELPERIOD", "Handling incomplete periods"],
+          "tools": ["Power BI Desktop"],
+          "lab_task": "Add year-to-date, previous year, year-over-year growth and a three-month moving average for revenue, using an April-to-March fiscal year.",
+          "deliverable": "Time intelligence measures and a trend page",
+          "checks": [["Check fiscal year-to-date at the end of June", "Equals April to June revenue", "Comparison"], ["Check year-over-year growth for one month", "Matches a manual calculation", "Comparison"], ["Show the moving average on a line chart", "Smooth line over monthly values", "Screenshot"]],
+          "objectives": ["Build time intelligence", "Handle fiscal years", "Compare periods"]
+        },
+        {
+          "topic": "Report Design: Visuals and Layout",
+          "subtopics": ["Choosing the right visual", "Cards, bar, line and combo charts", "Tables and matrices", "Maps", "Layout and alignment", "Colour and themes", "Titles and labels", "Avoiding clutter"],
+          "tools": ["Power BI Desktop"],
+          "lab_task": "Redesign a cluttered provided report into a clear one-page sales overview using a theme, a consistent layout and the right visual for each question.",
+          "deliverable": "Before and after report pages and a design note",
+          "checks": [["Ask a colleague three questions using the new page", "All answered in under a minute", "Test notes"], ["Check colours", "Theme applied consistently", "Screenshot"], ["Review the design note", "Each visual linked to a question", "Design note"]],
+          "objectives": ["Choose visuals for questions", "Lay out clear pages", "Apply themes"]
+        },
+        {
+          "topic": "Interactivity: Slicers, Filters, Drill-Through and Bookmarks",
+          "subtopics": ["Slicers and sync slicers", "Visual, page and report filters", "Cross-filtering and edit interactions", "Drill-down hierarchies", "Drill-through pages", "Tooltips pages", "Bookmarks and buttons", "Navigation between pages"],
+          "tools": ["Power BI Desktop"],
+          "lab_task": "Add synced slicers, a product drill-through page, a tooltip page, a date hierarchy drill-down and bookmark buttons that switch between chart and table views.",
+          "deliverable": "Interactive report",
+          "checks": [["Drill through from a product", "Details page filtered to that product", "Screenshot"], ["Click the bookmark buttons", "View switches between chart and table", "Screenshot"], ["Change a slicer on page 1", "Synced slicer on page 2 matches", "Screenshot"]],
+          "objectives": ["Add interactivity", "Build drill-through and tooltips", "Use bookmarks for navigation"]
+        },
+        {
+          "topic": "Publishing and the Power BI Service",
+          "subtopics": ["Workspaces and roles", "Publishing reports", "Semantic models in the service", "Dashboards and pinning tiles", "Apps for distribution", "Sharing and permissions", "Comments and subscriptions", "Viewing on mobile"],
+          "tools": ["Power BI Service", "Power BI Mobile"],
+          "lab_task": "Publish the report to a workspace, pin key visuals to a dashboard, publish an app to a test audience and set up an email subscription.",
+          "deliverable": "Workspace, dashboard, app and subscription",
+          "checks": [["Open the app as a viewer", "Viewer sees the report but cannot edit", "Screenshot"], ["Receive the subscription email", "Email with a snapshot arrives", "Email"], ["Open on a phone", "Mobile layout works", "Screenshot"]],
+          "objectives": ["Publish and share reports", "Build dashboards", "Distribute with apps"]
+        },
+        {
+          "topic": "Scheduled Refresh and Gateways",
+          "subtopics": ["How refresh works", "Scheduled refresh settings", "On-premises data gateway", "Gateway data sources", "Refresh failures and notifications", "Incremental refresh in brief", "Refresh limits by licence", "Refresh history"],
+          "tools": ["Power BI Service", "On-premises data gateway"],
+          "lab_task": "Install a gateway, configure a SQL source, schedule refresh twice a day, break the credentials to cause a failure and fix it from the refresh history.",
+          "deliverable": "Gateway configuration, schedule and refresh history",
+          "checks": [["Run a scheduled refresh", "Completes successfully", "Refresh history"], ["Break the credentials", "Failure notification is received", "Email"], ["Fix and refresh", "Data is current", "Refresh history"]],
+          "objectives": ["Keep data current", "Configure gateways", "Troubleshoot refresh"]
+        },
+        {
+          "topic": "Row-Level Security",
+          "subtopics": ["Why row-level security", "Roles and DAX filters", "Dynamic security with USERPRINCIPALNAME", "Testing with View as", "Assigning users and groups", "Security in apps", "Object-level security in brief", "Common mistakes"],
+          "tools": ["Power BI Desktop", "Power BI Service"],
+          "lab_task": "Add dynamic row-level security so each regional manager sees only their region using a user mapping table, test with View as and assign groups in the service.",
+          "deliverable": "Security roles, mapping table and test screenshots",
+          "checks": [["View as the North manager", "Only North data shown", "Screenshot"], ["View as a user not in the mapping", "No data shown", "Screenshot"], ["Open the app as a regional manager", "Sees only their region", "Screenshot"]],
+          "objectives": ["Secure data with row-level security", "Use dynamic rules", "Test security"]
+        },
+        {
+          "topic": "Excel and Power BI Together",
+          "subtopics": ["Analyse in Excel", "Connecting Excel to a semantic model", "Exporting data and its limits", "Power BI visuals in PowerPoint and Teams", "Excel-based sources and refresh", "Sharing with Excel users", "Featured tables", "When to use Excel or Power BI"],
+          "tools": ["Power BI Service", "Excel", "Microsoft Teams"],
+          "lab_task": "Build a pivot table in Excel on the published semantic model, add a live Power BI page to a PowerPoint deck and a Teams channel, and explain when Excel is the better tool.",
+          "deliverable": "Excel workbook, PowerPoint deck and Teams tab",
+          "checks": [["Refresh the Excel pivot", "Values match the report", "Screenshot"], ["Open the PowerPoint slide", "Live data shown", "Screenshot"], ["Review the note on Excel versus Power BI", "Clear criteria given", "Note"]],
+          "objectives": ["Use Power BI with Excel and Office", "Share with Excel users", "Choose the right tool"]
+        },
+        {
+          "topic": "Performance Essentials for Reports",
+          "subtopics": ["Why reports are slow", "Performance analyser", "Model size and column cardinality", "Removing unused columns", "Visual count per page", "Measures versus calculated columns for size", "DirectQuery performance", "Quick fixes"],
+          "tools": ["Power BI Desktop", "Performance analyser", "DAX Studio"],
+          "lab_task": "Measure a slow report with the performance analyser, cut model size by removing columns and reducing cardinality, reduce visuals and show the load time drop.",
+          "deliverable": "Performance results before and after",
+          "checks": [["Measure page load before and after", "At least 50 percent faster", "Performance analyser output"], ["Compare file size", "Smaller after the changes", "File properties"], ["Identify the slowest visual", "Visual and cause named", "Notes"]],
+          "objectives": ["Diagnose slow reports", "Reduce model size", "Speed up pages"]
+        },
+        {
+          "topic": "Data Storytelling and Dashboard Design",
+          "subtopics": ["Knowing the audience", "Leading with the key message", "KPI cards and targets", "Variance and conditional formatting", "Annotations and narratives", "Smart narrative and Q&A", "Executive dashboards", "Testing with users"],
+          "tools": ["Power BI Desktop", "Power BI Service"],
+          "lab_task": "Build an executive dashboard that shows performance against target with conditional formatting, a narrative summary and a Q&A visual, and test it with two users.",
+          "deliverable": "Dashboard and user test notes",
+          "checks": [["Show revenue against target", "Variance coloured red or green by rule", "Screenshot"], ["Ask Q&A \"sales by region last year\"", "Correct visual returned", "Screenshot"], ["Test with two users", "Both find the main message in under 30 seconds", "Test notes"]],
+          "objectives": ["Tell stories with data", "Design executive dashboards", "Test with users"]
+        },
+        {
+          "topic": "Copilot in Power BI",
+          "subtopics": ["What Copilot can do in Power BI", "Requirements and licensing", "Creating report pages with Copilot", "Summaries and narratives", "Asking questions of the data", "Writing DAX with Copilot", "Checking Copilot output", "Preparing models for Copilot"],
+          "tools": ["Power BI Service", "Copilot in Power BI"],
+          "lab_task": "Use Copilot to draft a report page, write two DAX measures and summarise a page, then check every result against your own measures and fix the errors.",
+          "deliverable": "Copilot outputs, checks and corrections",
+          "checks": [["Check a Copilot DAX measure", "Verified or corrected against a known value", "Comparison"], ["Review the Copilot summary", "Every claim matches the data or is corrected", "Review notes"], ["Improve model descriptions and rerun", "Copilot answers improve", "Before and after notes"]],
+          "objectives": ["Use Copilot in Power BI", "Verify AI output", "Prepare models for Copilot"]
+        },
+        {
+          "topic": "Organising and Governing Power BI Content",
+          "subtopics": ["Workspace strategy", "Naming conventions", "Endorsement: promoted and certified", "Sensitivity labels", "Usage metrics", "Who can publish and share", "Documenting reports", "Retiring old content"],
+          "tools": ["Power BI Service", "Microsoft Purview sensitivity labels"],
+          "lab_task": "Organise a messy workspace into development and production workspaces, certify the main semantic model, apply sensitivity labels and use usage metrics to retire unused reports.",
+          "deliverable": "Workspace plan, labelled content and retirement list",
+          "checks": [["Apply a confidential label", "Label shows and carries into exported files", "Screenshot"], ["Certify the semantic model", "Certified badge appears", "Screenshot"], ["Review usage metrics", "Unused reports identified", "Usage report"]],
+          "objectives": ["Organise Power BI content", "Label sensitive data", "Use usage metrics"]
+        },
+        {
+          "topic": "Paginated Reports with Report Builder",
+          "subtopics": ["When to use paginated reports", "Power BI Report Builder", "Data sources and datasets", "Tables and grouping", "Parameters", "Headers, footers and page breaks", "Exporting to PDF and Excel", "Publishing and subscriptions"],
+          "tools": ["Power BI Report Builder", "Power BI Service"],
+          "lab_task": "Build a printable invoice-style paginated report with parameters for customer and month, grouping by order and page breaks, then publish and export it to PDF.",
+          "deliverable": "Paginated report and exported PDF",
+          "checks": [["Run for one customer and month", "Only that customer's orders appear", "PDF"], ["Check page breaks", "Each order starts on a new page", "PDF"], ["Schedule a subscription", "PDF email arrives", "Email"]],
+          "objectives": ["Build paginated reports", "Use parameters", "Export and distribute"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Performance Report Suite",
+          "subtopics": ["Requirements and sources", "Power Query and the data model", "DAX measures and time intelligence", "Report pages and interactivity", "Security, publishing and refresh", "Demo"],
+          "tools": ["Power BI Desktop", "Power BI Service"],
+          "lab_task": "Build a sales report suite from three sources with a star schema, measures with time intelligence, overview and detail pages, drill-through, row-level security, scheduled refresh and an app, then demo it.",
+          "deliverable": "PBIX, published app, refresh history and a 10-minute demo",
+          "checks": [["Compare yearly revenue with the source", "Totals match", "Comparison"], ["View as a regional manager", "Sees only their region", "Screenshot"], ["Run scheduled refresh", "Completes successfully", "Refresh history"]],
+          "objectives": ["Combine the beginner topics in one report suite", "Prove accuracy and security", "Present insights"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For analysts who build Power BI reports. Covers advanced Power Query and M, data modelling patterns, deeper DAX including context transition and iterators, calculation groups, composite models, incremental refresh, deployment pipelines, Fabric integration, performance tuning and governance.",
+      "prerequisites": ["Builds Power BI reports with a star schema and basic DAX", "Uses CALCULATE and time intelligence", "Publishes reports to the Power BI service"],
+      "outcomes": ["Write advanced M and DAX with confidence", "Design scalable models with composite and incremental refresh", "Tune model and report performance", "Manage the lifecycle of Power BI content with deployment pipelines and Git"],
+      "days": [
+        {
+          "topic": "Advanced Power Query and the M Language",
+          "subtopics": ["M syntax: let, in and steps", "Custom functions", "Parameters", "Lists, records and tables", "Error handling with try otherwise", "Query folding", "Combining files with functions", "Documenting M code"],
+          "tools": ["Power BI Desktop", "Power Query"],
+          "lab_task": "Write a custom M function that cleans one monthly file, apply it to a folder with parameters, handle files with errors and check which steps fold to the source.",
+          "deliverable": "Function, queries and folding notes",
+          "checks": [["Add a corrupt file to the folder", "Load continues and the file is reported", "Error table"], ["Change the folder parameter", "Queries use the new folder", "Screenshot"], ["View native query on a SQL source", "Folded steps shown", "Screenshot"]],
+          "objectives": ["Write M code", "Build reusable functions", "Keep query folding"]
+        },
+        {
+          "topic": "Data Modelling Patterns",
+          "subtopics": ["Role-playing dimensions", "Many-to-many relationships and bridge tables", "Snowflake versus star", "Junk and degenerate dimensions", "Slowly changing dimensions in Power BI", "Header and detail facts", "Budget and actual at different grains", "Model documentation"],
+          "tools": ["Power BI Desktop", "Tabular Editor"],
+          "lab_task": "Model order date and ship date as role-playing dates, a many-to-many customer segment bridge and budget at month grain against daily actuals, and test each pattern.",
+          "deliverable": "Model and test page",
+          "checks": [["Show sales by ship date", "Uses the inactive relationship correctly", "Screenshot"], ["Filter by segment", "Customers in several segments counted once in totals", "Screenshot"], ["Compare budget and actual by month", "Both at month level", "Screenshot"]],
+          "objectives": ["Apply advanced modelling patterns", "Handle different grains", "Model many-to-many safely"]
+        },
+        {
+          "topic": "DAX Context Transition and Iterators",
+          "subtopics": ["Row context and filter context in depth", "Context transition", "Iterators: SUMX, AVERAGEX, MAXX", "RANKX", "Measures inside iterators", "Variables", "Debugging with DAX Studio", "Common context errors"],
+          "tools": ["Power BI Desktop", "DAX Studio"],
+          "lab_task": "Write measures for weighted average price, rank of customers by revenue, average monthly sales per customer and top-customer flags, and debug one wrong measure.",
+          "deliverable": "Measures and debug notes",
+          "checks": [["Rank customers", "Ranks match the reference including ties", "Screenshot"], ["Compute average monthly sales", "Matches a manual calculation", "Comparison"], ["Fix the planted wrong measure", "Cause explained as context transition", "Debug notes"]],
+          "objectives": ["Master filter and row context", "Use iterators", "Debug DAX"]
+        },
+        {
+          "topic": "Advanced DAX Patterns",
+          "subtopics": ["Dynamic segmentation", "ABC and Pareto analysis", "New and returning customers", "Basket analysis", "Running totals", "Parent-child hierarchies", "Disconnected tables for what-if", "Semi-additive measures"],
+          "tools": ["Power BI Desktop", "DAX Studio"],
+          "lab_task": "Build ABC classification, new versus returning customers, inventory closing balances and a what-if price change parameter, and validate each against reference numbers.",
+          "deliverable": "Measures and analysis page",
+          "checks": [["Classify products into ABC", "Class counts match the reference", "Screenshot"], ["Count new customers in a month", "Matches the reference", "Screenshot"], ["Show closing inventory for a quarter", "Uses the last date, not the sum", "Screenshot"]],
+          "objectives": ["Apply advanced DAX patterns", "Model semi-additive data", "Build what-if analysis"]
+        },
+        {
+          "topic": "Financial Reporting in Power BI: P&L, Balance Sheet and Variance Analysis",
+          "subtopics": ["Chart of accounts as a dimension", "Account hierarchies and sign handling", "Profit and loss layouts with a matrix", "Balance sheet with semi-additive balances", "Budget, forecast and actual versions", "Variance and variance percent", "Custom subtotals and calculated lines", "Reconciling to the general ledger"],
+          "tools": ["Power BI Desktop", "Tabular Editor", "Excel"],
+          "lab_task": "Build a P&L and balance sheet from general ledger data with an account hierarchy, correct signs, custom subtotal lines and budget variance, and reconcile both to the trial balance.",
+          "deliverable": "Finance report pages and reconciliation sheet",
+          "checks": [["Reconcile net profit with the trial balance", "Values agree", "Reconciliation sheet"], ["Show the balance sheet for a quarter", "Closing balances used, not sums", "Screenshot"], ["Show budget variance percent by account", "Signs and percentages correct for income and expense lines", "Screenshot"]],
+          "objectives": ["Model financial statements", "Handle signs and balances", "Report variance against budget"]
+        },
+        {
+          "topic": "Calculation Groups and Field Parameters",
+          "subtopics": ["Calculation groups", "Time intelligence with calculation groups", "Format strings", "Precedence", "Field parameters", "Dynamic measure and axis switching", "Tabular Editor for calculation groups", "Limits and trade-offs"],
+          "tools": ["Tabular Editor", "Power BI Desktop"],
+          "lab_task": "Replace 30 time intelligence measures with one calculation group, add dynamic format strings and a field parameter that switches the chart's measure and axis.",
+          "deliverable": "Model with calculation group and field parameters",
+          "checks": [["Apply YTD from the calculation group to three measures", "All show correct YTD values", "Screenshot"], ["Switch the field parameter", "Chart changes measure and axis", "Screenshot"], ["Count measures before and after", "Measure count reduced", "Model statistics"]],
+          "objectives": ["Use calculation groups", "Build dynamic reports with field parameters", "Reduce measure sprawl"]
+        },
+        {
+          "topic": "Composite Models, DirectQuery and Aggregations",
+          "subtopics": ["Storage modes: import, DirectQuery, dual", "Composite models", "User-defined aggregations", "Automatic aggregations", "DirectQuery limitations", "Chaining semantic models", "Performance of composite models", "Choosing a design"],
+          "tools": ["Power BI Desktop", "Azure SQL or Snowflake"],
+          "lab_task": "Build a composite model with a DirectQuery fact of 500 million rows, an import aggregation table and dual dimensions, and show which queries hit the aggregation.",
+          "deliverable": "Composite model and query evidence",
+          "checks": [["Run a summary visual", "Served by the aggregation", "DAX Studio or performance analyser"], ["Run a detail visual", "Goes to DirectQuery", "Performance analyser"], ["Compare times", "Aggregated visual much faster", "Timing"]],
+          "objectives": ["Build composite models", "Use aggregations", "Design for large data"]
+        },
+        {
+          "topic": "Incremental Refresh and Large Models",
+          "subtopics": ["Incremental refresh policies", "RangeStart and RangeEnd parameters", "Detect data changes", "Real-time with DirectQuery partition", "Large model storage format", "Partitions in the service", "Refreshing with XMLA", "Monitoring refresh"],
+          "tools": ["Power BI Desktop", "Power BI Service", "SQL Server Management Studio"],
+          "lab_task": "Configure incremental refresh for five years of history with daily refresh of the last ten days, add a real-time partition and inspect partitions through the XMLA endpoint.",
+          "deliverable": "Refresh policy, partitions and refresh times",
+          "checks": [["Run refresh", "Only recent partitions are refreshed", "Refresh history and partitions"], ["Compare refresh time with full refresh", "Much shorter", "Timing"], ["Insert a new row in the source", "Shows in the real-time partition without refresh", "Screenshot"]],
+          "objectives": ["Configure incremental refresh", "Manage large models", "Use the XMLA endpoint"]
+        },
+        {
+          "topic": "Performance Tuning Models and DAX",
+          "subtopics": ["VertiPaq engine", "VertiPaq Analyzer", "Column encoding and cardinality", "Storage engine versus formula engine", "Server timings in DAX Studio", "Optimising DAX", "Optimising relationships", "Report-level optimisation"],
+          "tools": ["DAX Studio", "VertiPaq Analyzer", "Power BI Desktop"],
+          "lab_task": "Analyse a slow model with VertiPaq Analyzer and server timings, fix two expensive columns and three slow measures, and show the query time and size improvement.",
+          "deliverable": "Analysis before and after and changes",
+          "checks": [["Identify the largest columns", "Listed with sizes", "VertiPaq Analyzer output"], ["Rewrite a slow measure", "Formula engine time reduced", "Server timings"], ["Compare model size", "Smaller after changes", "Model statistics"]],
+          "objectives": ["Tune models", "Optimise DAX", "Read engine timings"]
+        },
+        {
+          "topic": "Deployment Pipelines and Lifecycle Management",
+          "subtopics": ["Development, test and production workspaces", "Deployment pipelines", "Deployment rules for parameters and sources", "Comparing stages", "Power BI Projects (PBIP) and Git integration", "Reviewing changes in Git", "Release process", "Rollback"],
+          "tools": ["Power BI Service", "Power BI Desktop (PBIP)", "Git", "Azure DevOps or GitHub"],
+          "lab_task": "Save the report as a PBIP project in Git, deploy through dev, test and prod with rules that switch the database, review a change in a pull request and roll it back.",
+          "deliverable": "Pipeline, Git repository and release record",
+          "checks": [["Deploy to test", "Test points to the test database", "Deployment history"], ["Review a pull request", "Model and report changes visible as text", "Pull request"], ["Roll back a bad change", "Previous version restored in production", "Deployment history"]],
+          "objectives": ["Manage Power BI lifecycle", "Use deployment pipelines", "Version reports in Git"]
+        },
+        {
+          "topic": "Power BI with Microsoft Fabric",
+          "subtopics": ["What Fabric adds", "Lakehouses and warehouses in Fabric", "Direct Lake mode", "Dataflows Gen2", "Notebooks in brief", "OneLake shortcuts", "Capacity and licences", "When to use Fabric for BI"],
+          "tools": ["Microsoft Fabric", "Power BI Service"],
+          "lab_task": "Load sales data into a Fabric lakehouse with a Dataflow Gen2, build a Direct Lake semantic model on it and compare speed and refresh needs with an import model.",
+          "deliverable": "Lakehouse, Direct Lake model and comparison",
+          "checks": [["Build a report on Direct Lake", "Loads without scheduled import refresh", "Screenshot"], ["Add rows to the lakehouse", "Report shows them after framing", "Screenshot"], ["Compare with import", "Speed and refresh compared", "Comparison"]],
+          "objectives": ["Use Power BI in Fabric", "Build Direct Lake models", "Choose storage modes"]
+        },
+        {
+          "topic": "Dataflows and Shared Semantic Models",
+          "subtopics": ["Dataflows for reusable preparation", "Shared semantic models", "Live connections", "Thin reports", "Certified models", "Impact analysis", "Lineage view", "Reducing duplicate models"],
+          "tools": ["Power BI Service", "Dataflows Gen2"],
+          "lab_task": "Move shared preparation into a dataflow, publish one certified semantic model, rebuild three reports as thin reports on it and check impact before a model change.",
+          "deliverable": "Dataflow, shared model, thin reports and impact analysis",
+          "checks": [["Open the lineage view", "Dataflow, model and thin reports linked", "Screenshot"], ["Run impact analysis before a change", "Affected reports listed", "Screenshot"], ["Count semantic models before and after", "Fewer duplicates", "Workspace inventory"]],
+          "objectives": ["Share preparation and models", "Build thin reports", "Analyse impact"]
+        },
+        {
+          "topic": "Advanced Row-Level and Object-Level Security",
+          "subtopics": ["Complex RLS rules", "Many-to-many security tables", "Manager hierarchies with PATH", "Object-level security", "RLS with DirectQuery and SSO", "Testing at scale", "Performance of security rules", "Security documentation"],
+          "tools": ["Power BI Desktop", "Tabular Editor", "Power BI Service"],
+          "lab_task": "Implement hierarchy-based RLS where managers see their whole team, hide salary columns with object-level security and test ten users.",
+          "deliverable": "Security model, test results and documentation",
+          "checks": [["View as a middle manager", "Sees their team and below only", "Screenshot"], ["View as a non-HR user", "Salary columns hidden", "Screenshot"], ["Test ten users", "All see the expected data", "Test sheet"]],
+          "objectives": ["Build complex security", "Use object-level security", "Test security at scale"]
+        },
+        {
+          "topic": "Custom Visuals and Advanced Visualisation",
+          "subtopics": ["AppSource visuals and certification", "Deneb and Vega-Lite", "Python and R visuals", "SVG measures for sparklines", "Small multiples", "Decomposition tree and key influencers", "Accessibility", "Visual governance"],
+          "tools": ["Power BI Desktop", "Deneb"],
+          "lab_task": "Build a custom bullet chart with Deneb, SVG sparklines in a table, a key influencers analysis of churn and check the page for accessibility.",
+          "deliverable": "Report page and accessibility check",
+          "checks": [["Show the bullet chart", "Actual, target and bands shown", "Screenshot"], ["Run key influencers", "Top factors listed", "Screenshot"], ["Check accessibility", "Alt text and tab order set", "Accessibility checklist"]],
+          "objectives": ["Build advanced visuals", "Use AI visuals", "Design accessibly"]
+        },
+        {
+          "topic": "Embedding Power BI in Applications",
+          "subtopics": ["Embedding options: secure embed, embed for your organisation, embed for your customers", "Power BI Embedded capacity", "Service principals", "Embed tokens", "RLS with embedding", "JavaScript API", "Cost of embedding", "Security considerations"],
+          "tools": ["Power BI Embedded", "Power BI JavaScript SDK", "Azure"],
+          "lab_task": "Embed a report in a small web app using a service principal and embed tokens with RLS per customer, and set filters from the app with the JavaScript API.",
+          "deliverable": "Web app with embedded report",
+          "checks": [["Log on as customer A", "Only customer A's data appears", "Demo"], ["Change a filter from the app", "Report updates", "Demo"], ["Expire the embed token", "App refreshes the token", "Logs"]],
+          "objectives": ["Embed Power BI", "Secure embedded reports", "Control reports from code"]
+        },
+        {
+          "topic": "Power BI Administration and Tenant Settings",
+          "subtopics": ["Admin portal", "Tenant settings", "Capacity settings", "Workspace administration", "Audit logs and activity events", "Admin APIs", "Usage reporting", "Common admin tasks"],
+          "tools": ["Power BI Admin portal", "Power BI REST APIs", "PowerShell"],
+          "lab_task": "Review and set ten tenant settings for a company policy, extract a week of activity events with the admin API and report who shared content externally.",
+          "deliverable": "Settings record and activity report",
+          "checks": [["Disable publish to web", "Option no longer available to users", "Screenshot"], ["Extract activity events", "Events for the week returned", "Script output"], ["Report external sharing", "Users and items listed", "Report"]],
+          "objectives": ["Administer Power BI", "Use admin APIs", "Report on activity"]
+        },
+        {
+          "topic": "Capacity Management and Monitoring",
+          "subtopics": ["Premium and Fabric capacity units", "Capacity metrics app", "Throttling and smoothing", "Interactive versus background operations", "Workload settings", "Autoscale", "Finding expensive items", "Capacity planning"],
+          "tools": ["Fabric Capacity Metrics app", "Power BI Service"],
+          "lab_task": "Use the capacity metrics app to find the items using most capacity, reduce their usage, and produce a capacity plan for 30 percent growth.",
+          "deliverable": "Capacity analysis, fixes and plan",
+          "checks": [["Find the top three items", "Listed with capacity use", "Screenshot"], ["Rerun after fixes", "Their usage falls", "Screenshot"], ["Review the plan", "Size and cost estimated", "Capacity plan"]],
+          "objectives": ["Monitor capacity", "Reduce heavy usage", "Plan capacity"]
+        },
+        {
+          "topic": "Testing and Validating Reports",
+          "subtopics": ["Why reports need tests", "Reconciling measures to sources", "DAX query tests", "Best Practice Analyzer rules", "Visual and layout checks", "Regression tests after changes", "User acceptance testing", "Sign-off"],
+          "tools": ["Tabular Editor Best Practice Analyzer", "DAX Studio", "Excel"],
+          "lab_task": "Write DAX query tests that compare key measures to source totals, run Best Practice Analyzer, fix the findings and run a user acceptance test with sign-off.",
+          "deliverable": "Test queries, analyser results, UAT record and sign-off",
+          "checks": [["Run the DAX tests", "All match the source totals", "Test output"], ["Run Best Practice Analyzer", "No error-level findings", "Analyzer output"], ["Complete UAT", "Each test case passed or fixed", "UAT record"]],
+          "objectives": ["Test Power BI content", "Validate measures", "Run acceptance tests"]
+        },
+        {
+          "topic": "Automation with Power Automate and the REST API",
+          "subtopics": ["Refresh from Power Automate", "Data alerts to Power Automate", "Exporting reports by API", "Power BI REST API basics", "Service principals for automation", "Automating workspace tasks", "Teams notifications", "Error handling"],
+          "tools": ["Power Automate", "Power BI REST APIs", "PowerShell"],
+          "lab_task": "Trigger a refresh after a source file lands, send a Teams message when a KPI breaches its alert, and export a report to PDF by API every Monday.",
+          "deliverable": "Flows, scripts and evidence of runs",
+          "checks": [["Drop a new file", "Refresh starts automatically", "Refresh history"], ["Push a KPI below its threshold", "Teams message posted", "Teams screenshot"], ["Run the Monday export", "PDF delivered", "Email"]],
+          "objectives": ["Automate Power BI tasks", "Use alerts", "Call the REST API"]
+        },
+        {
+          "topic": "Intermediate Capstone: Enterprise Sales Analytics Solution",
+          "subtopics": ["Requirements and architecture", "Dataflows and shared semantic model", "Advanced DAX and calculation groups", "Large-model refresh and performance", "Security, deployment and automation", "Demo and design defence"],
+          "tools": ["Power BI Desktop", "Power BI Service", "Tabular Editor", "DAX Studio", "Git"],
+          "lab_task": "Deliver a shared semantic model with calculation groups, incremental refresh, hierarchy RLS and OLS, three thin reports, deployment pipelines with Git, tests and automated alerts, then present it.",
+          "deliverable": "PBIP repository, deployed workspaces, test results and a 15-minute demo",
+          "checks": [["Run the DAX tests", "Measures match source totals", "Test output"], ["Deploy a change through the pipeline", "Reaches production with the right sources", "Deployment history"], ["View as three users", "Each sees the correct rows and columns", "Screenshots"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Prove accuracy, security and lifecycle", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Power BI developers, BI architects and Fabric analytics engineers. Covers BI architecture at enterprise scale, tabular model internals, advanced DAX optimisation, semantic model engineering with external tools and Git, Fabric and Direct Lake design, governance, security, embedding at scale, AI and a BI centre of excellence.",
+      "prerequisites": ["Builds enterprise Power BI models with advanced DAX", "Uses deployment pipelines, Tabular Editor and DAX Studio", "Has managed shared models for many users"],
+      "outcomes": ["Architect enterprise BI on Power BI and Fabric", "Engineer and optimise large tabular models", "Govern, secure and automate BI at scale", "Lead a BI centre of excellence"],
+      "days": [
+        {
+          "topic": "Enterprise BI Architecture with Power BI and Fabric",
+          "subtopics": ["Centralised, self-service and managed self-service BI", "Semantic layer design", "Lakehouse, warehouse and semantic model layers", "Workspace and domain strategy", "Capacity strategy", "Multi-geo and residency", "Integration with other BI tools", "Architecture decision records"],
+          "tools": ["Microsoft Fabric", "Power BI Service", "Diagramming tool"],
+          "lab_task": "Design the BI architecture for a group with eight business units, covering semantic layers, domains, workspaces, capacities and residency, and record the decisions.",
+          "deliverable": "Architecture and decision records",
+          "checks": [["Review the semantic layer design", "Shared and local models clearly separated", "Architecture document"], ["Review capacity strategy", "Workloads isolated as required", "Architecture document"], ["Review decision records", "Options and trade-offs recorded", "Decision records"]],
+          "objectives": ["Architect enterprise BI", "Plan domains and capacities", "Record decisions"]
+        },
+        {
+          "topic": "Tabular Model Internals",
+          "subtopics": ["VertiPaq storage and compression", "Dictionary and value encoding", "Segments and partitions", "Relationships in memory", "Formula and storage engine queries", "xmSQL", "Materialisation", "Callbacks"],
+          "tools": ["DAX Studio", "VertiPaq Analyzer"],
+          "lab_task": "Explain the query plans and xmSQL of five measures, find callbacks and materialisation, and change model design to remove them.",
+          "deliverable": "Query plan analysis and changes",
+          "checks": [["Read xmSQL for a measure", "Storage engine queries explained", "Analysis notes"], ["Find a callback", "Measure and cause identified", "Server timings"], ["Remove materialisation", "Formula engine time drops", "Server timings"]],
+          "objectives": ["Explain tabular internals", "Read query plans", "Design models for the engine"]
+        },
+        {
+          "topic": "Advanced DAX Optimisation",
+          "subtopics": ["Optimising filter arguments", "Avoiding FILTER on tables", "SUMMARIZECOLUMNS", "Variables and short-circuiting", "Optimising iterators", "Time intelligence at scale", "Measure dependencies", "Benchmarking measures"],
+          "tools": ["DAX Studio", "DAX Optimizer"],
+          "lab_task": "Optimise the ten slowest measures of a provided model, benchmark each before and after with cold and warm cache and document the patterns used.",
+          "deliverable": "Benchmark results and pattern notes",
+          "checks": [["Benchmark the ten measures", "Before and after times recorded", "Benchmark table"], ["Check results are unchanged", "Values identical", "Comparison"], ["Review the pattern notes", "Each optimisation explained", "Notes"]],
+          "objectives": ["Optimise DAX at scale", "Benchmark measures", "Teach optimisation patterns"]
+        },
+        {
+          "topic": "Semantic Model Engineering with Tabular Editor and C# Scripts",
+          "subtopics": ["Tabular Editor 3 features", "C# scripts for bulk changes", "Best Practice Analyzer custom rules", "Model metadata and descriptions", "Translations", "Perspectives", "Model documentation generation", "Team conventions"],
+          "tools": ["Tabular Editor", "C# scripts"],
+          "lab_task": "Write C# scripts that create standard measures for every numeric column, add descriptions and display folders, add custom BPA rules and generate model documentation.",
+          "deliverable": "Scripts, BPA rules and generated documentation",
+          "checks": [["Run the measure script", "Measures created with format strings", "Model view"], ["Run the custom BPA rules", "Violations listed", "BPA output"], ["Generate documentation", "Every table and measure documented", "Documentation file"]],
+          "objectives": ["Automate model development", "Enforce conventions", "Document models"]
+        },
+        {
+          "topic": "Version Control and CI/CD for Semantic Models",
+          "subtopics": ["PBIP and TMDL formats", "Branching strategies", "Fabric Git integration", "Automated BPA and DAX tests in CI", "Deploying with Fabric APIs or Tabular Editor CLI", "Environment variables and parameters", "Release approvals", "Rollback and hotfixes"],
+          "tools": ["Fabric Git integration", "Azure DevOps or GitHub Actions", "Tabular Editor CLI"],
+          "lab_task": "Build a CI pipeline that runs BPA and DAX tests on every pull request and a release pipeline that deploys models to test and production with approvals.",
+          "deliverable": "Pipeline definitions and release records",
+          "checks": [["Open a pull request that breaks a BPA rule", "CI fails", "CI log"], ["Release to production", "Waits for approval and then deploys", "Release log"], ["Hotfix production", "Fix deployed and merged back", "Git history"]],
+          "objectives": ["Apply CI/CD to semantic models", "Gate quality in pipelines", "Manage releases"]
+        },
+        {
+          "topic": "Direct Lake and Fabric Semantic Model Design",
+          "subtopics": ["Direct Lake internals: framing and transcoding", "Fallback to DirectQuery", "Guardrails by capacity", "V-Order and table design in the lakehouse", "Composite models with Direct Lake", "Refresh and framing control", "Performance tuning", "Migration from import models"],
+          "tools": ["Microsoft Fabric", "DAX Studio", "Semantic Link"],
+          "lab_task": "Migrate an import model to Direct Lake, design lakehouse tables to avoid fallback, measure performance and control framing after loads.",
+          "deliverable": "Migrated model, table design and measurements",
+          "checks": [["Run reports after migration", "No DirectQuery fallback", "Trace or DAX Studio output"], ["Compare speed with the import model", "Recorded for key reports", "Comparison"], ["Load new data", "Framing updates the model as scheduled", "Screenshot"]],
+          "objectives": ["Design Direct Lake models", "Avoid fallback", "Migrate import models"]
+        },
+        {
+          "topic": "Fabric Analytics Engineering: Lakehouse, Warehouse and Notebooks for BI",
+          "subtopics": ["Medallion design in Fabric", "Warehouse T-SQL for BI", "Notebooks with PySpark for preparation", "Data pipelines in Fabric", "Semantic Link from notebooks", "OneLake security", "Monitoring hub", "DP-600 exam topics"],
+          "tools": ["Microsoft Fabric", "PySpark", "T-SQL", "Semantic Link"],
+          "lab_task": "Build bronze, silver and gold layers in Fabric with a pipeline and notebook, expose gold through a warehouse and Direct Lake model and validate measures from a notebook with Semantic Link.",
+          "deliverable": "Fabric items, pipeline runs and validation notebook",
+          "checks": [["Run the pipeline", "Gold tables refreshed", "Monitoring hub"], ["Validate measures with Semantic Link", "Measure values match SQL totals", "Notebook output"], ["Query as a restricted user", "OneLake security applied", "Query result"]],
+          "objectives": ["Engineer analytics in Fabric", "Connect notebooks and models", "Validate models with code"]
+        },
+        {
+          "topic": "Large-Scale Model Design and Partitioning",
+          "subtopics": ["Model size limits and planning", "Custom partitioning", "Hybrid tables", "Refresh orchestration with XMLA and APIs", "Parallel refresh", "Query scale-out", "Monitoring large refresh", "Cost of large models"],
+          "tools": ["SQL Server Management Studio", "Tabular Editor", "Power BI REST APIs"],
+          "lab_task": "Partition a 2-billion-row model by month with custom partitions, refresh partitions in parallel from a script, enable query scale-out and measure the effect.",
+          "deliverable": "Partition design, refresh script and measurements",
+          "checks": [["Refresh three partitions in parallel", "Completes faster than one by one", "Timing"], ["Enable query scale-out", "Read replicas serve queries", "Monitoring"], ["Monitor refresh memory", "Stays within capacity", "Capacity metrics"]],
+          "objectives": ["Design very large models", "Orchestrate refresh", "Scale query capacity"]
+        },
+        {
+          "topic": "Real-Time Analytics with Power BI and Fabric",
+          "subtopics": ["Real-time options: Direct Lake, DirectQuery, eventstreams", "Fabric Real-Time Intelligence and KQL", "Eventhouses", "Real-time dashboards", "Activator alerts", "Latency targets", "Cost of real-time", "Choosing a real-time design"],
+          "tools": ["Microsoft Fabric Real-Time Intelligence", "KQL", "Power BI"],
+          "lab_task": "Stream order events into a Fabric eventhouse, build a real-time dashboard with KQL and an Activator alert for failed payments, and measure end-to-end latency.",
+          "deliverable": "Eventstream, dashboard, alert and latency measurement",
+          "checks": [["Send an event", "Appears on the dashboard within seconds", "Measurement"], ["Send failed payments over the threshold", "Activator alert fires", "Alert"], ["Write a KQL query for the last hour", "Correct counts", "Query result"]],
+          "objectives": ["Build real-time BI", "Use KQL and eventhouses", "Alert on events"]
+        },
+        {
+          "topic": "Advanced Security: SSO, Data Masking and Zero Trust for BI",
+          "subtopics": ["SSO to data sources", "RLS and OLS with service principals", "Sensitivity labels and DLP policies", "Private links for Power BI and Fabric", "Customer-managed keys", "Guest access", "Auditing access to sensitive data", "Security reviews"],
+          "tools": ["Power BI Service", "Microsoft Purview", "Azure Private Link"],
+          "lab_task": "Set up SSO from a DirectQuery model to the database, apply DLP policies for personal data, restrict access through a private link and audit sensitive report views.",
+          "deliverable": "Security configuration and audit evidence",
+          "checks": [["Query as two users through SSO", "Database applies each user's permissions", "Database logs"], ["Upload a model with card numbers", "DLP policy flags it", "Policy alert"], ["Search audit logs for views of a sensitive report", "Views listed", "Audit log"]],
+          "objectives": ["Secure BI end to end", "Apply DLP", "Audit sensitive access"]
+        },
+        {
+          "topic": "Governance at Scale and the BI Centre of Excellence",
+          "subtopics": ["Governance operating models", "Content certification process", "Data domains and stewards", "Training and community", "Standards and templates", "Monitoring adoption", "Managing self-service risk", "Roadmaps"],
+          "tools": ["Power BI Service", "Fabric admin monitoring", "Microsoft Purview"],
+          "lab_task": "Design a BI centre of excellence with roles, certification process, templates and adoption metrics, and pilot the certification process on two semantic models.",
+          "deliverable": "Centre of excellence design, templates and pilot results",
+          "checks": [["Run the certification process on two models", "Both assessed with evidence", "Pilot records"], ["Review adoption metrics", "Measurable and tracked", "Metrics dashboard"], ["Review roles", "Responsibilities clear for each role", "Operating model"]],
+          "objectives": ["Govern BI at scale", "Run a centre of excellence", "Measure adoption"]
+        },
+        {
+          "topic": "Monitoring, Auditing and Usage Analytics at Scale",
+          "subtopics": ["Activity events and admin monitoring", "Building a usage analytics model", "Scanner API for metadata", "Lineage at tenant level", "Finding unused and duplicate content", "Cost per report", "Automated clean-up", "Reporting to leadership"],
+          "tools": ["Power BI Admin APIs", "Scanner API", "Fabric admin monitoring"],
+          "lab_task": "Build a tenant monitoring model from activity events and the scanner API, find duplicate and unused content and automate archiving of reports unused for 90 days.",
+          "deliverable": "Monitoring model, findings and archive automation",
+          "checks": [["Load a month of activity", "Views per report shown", "Report"], ["Find duplicate semantic models", "Duplicates listed with owners", "Report"], ["Run the archive automation", "Unused reports are moved and owners notified", "Logs"]],
+          "objectives": ["Monitor a Power BI tenant", "Find waste", "Automate clean-up"]
+        },
+        {
+          "topic": "Embedding at Scale for Multi-Tenant Applications",
+          "subtopics": ["Tenancy models for embedding", "Workspace per tenant versus RLS", "Service principal profiles", "Automating tenant onboarding", "Capacity planning for embedding", "Custom branding", "Performance at scale", "Cost per tenant"],
+          "tools": ["Power BI Embedded", "Power BI REST APIs", "Azure"],
+          "lab_task": "Build automated tenant onboarding that creates a workspace, deploys a report and sets security for each new customer, then load-test 50 concurrent tenant users.",
+          "deliverable": "Onboarding automation, load test results and cost per tenant",
+          "checks": [["Onboard a new tenant", "Workspace and report ready automatically", "Logs"], ["Load-test 50 users", "Response times within the target", "Load test report"], ["Calculate cost per tenant", "Based on capacity use", "Cost sheet"]],
+          "objectives": ["Embed BI for many tenants", "Automate onboarding", "Plan capacity and cost"]
+        },
+        {
+          "topic": "AI and Copilot in Enterprise BI",
+          "subtopics": ["Copilot for report authors and consumers", "Preparing semantic models for AI: descriptions, synonyms, linguistic schema", "Q&A tuning", "Fabric data agents", "Evaluating AI answers on BI data", "Governance of AI features", "Licensing and capacity cost", "User adoption"],
+          "tools": ["Copilot in Power BI", "Fabric data agents", "Power BI Q&A"],
+          "lab_task": "Prepare a semantic model for AI with descriptions and synonyms, build a data agent on it, evaluate 30 business questions and set rules for AI use.",
+          "deliverable": "Prepared model, agent, evaluation and usage rules",
+          "checks": [["Run the 30 questions", "Accuracy recorded before and after model preparation", "Evaluation sheet"], ["Ask a question needing a filter", "Correct filter applied", "Agent output"], ["Review the usage rules", "Covers data access and verification", "Rules document"]],
+          "objectives": ["Use AI with BI data", "Prepare models for AI", "Govern AI features"]
+        },
+        {
+          "topic": "Migrating from Other BI Tools to Power BI",
+          "subtopics": ["Assessing Tableau, Qlik, SSRS and Excel estates", "Mapping features", "Rebuilding versus converting", "Semantic model consolidation", "Report rationalisation", "Parallel runs and validation", "Training and adoption", "Decommissioning"],
+          "tools": ["Power BI", "Migration assessment templates"],
+          "lab_task": "Assess a provided Tableau and SSRS estate, rationalise 50 reports into a migration plan, rebuild two and validate them against the originals.",
+          "deliverable": "Assessment, plan, rebuilt reports and validation",
+          "checks": [["Map the 50 reports", "Each migrated, merged or retired with a reason", "Mapping sheet"], ["Validate the rebuilt reports", "Numbers match the originals", "Validation report"], ["Review the adoption plan", "Training and support covered", "Plan"]],
+          "objectives": ["Plan BI migrations", "Rationalise reports", "Validate migrated content"]
+        },
+        {
+          "topic": "Advanced Data Visualisation and Report Engineering",
+          "subtopics": ["Report themes as JSON", "Templates", "Visual calculations", "Report-level measures", "Performance of complex pages", "Mobile and accessibility design at scale", "Report standards", "Design reviews"],
+          "tools": ["Power BI Desktop", "Theme JSON", "Deneb"],
+          "lab_task": "Build a corporate theme and template, a report using visual calculations, an accessible mobile layout and a design review checklist, and review two existing reports.",
+          "deliverable": "Theme, template, report and design reviews",
+          "checks": [["Apply the theme to a report", "All visuals follow the standard", "Screenshot"], ["Use a visual calculation for a running total", "Correct values", "Screenshot"], ["Review two reports with the checklist", "Issues found and listed", "Review notes"]],
+          "objectives": ["Engineer report standards", "Use visual calculations", "Run design reviews"]
+        },
+        {
+          "topic": "Troubleshooting Production Power BI Issues",
+          "subtopics": ["Refresh failures", "Gateway problems", "Throttled capacity", "Slow reports after changes", "Wrong numbers reported by users", "Permission and RLS problems", "Root cause analysis", "Runbooks"],
+          "tools": ["Power BI Service", "DAX Studio", "Capacity Metrics app", "Gateway logs"],
+          "lab_task": "Resolve four injected issues (a gateway failure, a throttled capacity, an RLS leak and a wrong measure), find root causes and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Restore refresh through the gateway", "Refresh succeeds", "Refresh history"], ["Fix the RLS leak", "Users see only their data", "View as test"], ["Write a runbook for throttling", "Another developer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot production BI", "Find root causes", "Write runbooks"]
+        },
+        {
+          "topic": "BI Strategy and Business Value",
+          "subtopics": ["Linking BI to business goals", "KPI frameworks", "Measuring value from BI", "Licensing and cost strategy", "Build versus buy for analytics", "Data literacy programmes", "Roadmaps", "Presenting to leadership"],
+          "tools": ["Capability map template", "Spreadsheet"],
+          "lab_task": "Build a BI strategy for a provided company with a KPI framework, licensing and capacity plan, data literacy programme and roadmap, and present it to a mock leadership team.",
+          "deliverable": "Strategy document, cost plan and presentation",
+          "checks": [["Review the KPI framework", "KPIs tied to goals with owners", "Strategy document"], ["Review the cost plan", "Licences and capacity costed", "Cost plan"], ["Answer leadership questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Build a BI strategy", "Plan BI costs", "Communicate value"]
+        },
+        {
+          "topic": "BI Architecture Reviews and Design Authority",
+          "subtopics": ["Reviewing semantic model designs", "Reviewing report designs", "Common enterprise anti-patterns", "Decision records", "Design authority processes", "Exceptions and waivers", "Mentoring developers", "Presenting to architecture boards"],
+          "tools": ["Architecture decision record template", "Tabular Editor BPA"],
+          "lab_task": "Review two provided enterprise models and their reports, find anti-patterns, write decision records and defend recommendations to a mock design authority.",
+          "deliverable": "Review notes, decision records and presentation",
+          "checks": [["List anti-patterns in each model", "Main issues found with evidence", "Review notes"], ["Write decision records", "Options and trade-offs recorded", "Decision records"], ["Answer design authority questions", "Recommendations defended", "Presentation"]],
+          "objectives": ["Review BI designs", "Run a design authority", "Mentor developers"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise BI Platform on Fabric",
+          "subtopics": ["Architecture, domains and capacities", "Fabric lakehouse and Direct Lake models", "Engineered semantic models with CI/CD", "Security, governance and monitoring", "Real-time, embedding and AI features", "Board presentation and design defence"],
+          "tools": ["Microsoft Fabric", "Power BI", "Tabular Editor", "Fabric Git integration", "Microsoft Purview"],
+          "lab_task": "Deliver an enterprise BI platform with medallion layers in Fabric, Direct Lake semantic models under CI/CD, real-time dashboards, security and DLP, tenant monitoring, embedded reports and an AI data agent, then present it to a mock board.",
+          "deliverable": "Fabric workspaces, repositories, monitoring model and a 20-minute presentation",
+          "checks": [["Open a pull request that breaks a model rule", "CI blocks it", "CI log"], ["Send a real-time event", "Dashboard updates within the target", "Measurement"], ["Answer board questions", "Architecture defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove quality, security and scale", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}
