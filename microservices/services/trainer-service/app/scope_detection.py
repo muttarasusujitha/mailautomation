@@ -41,7 +41,11 @@ LEGACY_TECHNOLOGIES = ("DevOps", "AWS", "Azure", "Kubernetes", "Python", "Agenti
 # not in free-text notes, and dropped when a more specific technology of the same
 # family is also requested (for example "cloud" when AWS is named).
 _WEAK_ALIASES = {"cloud", "testing", "qa", "agile", "observability", "monitoring", "automation", "security"}
-_UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP"}}
+_UMBRELLAS = {"Cloud": {"AWS", "Azure", "AWS AI", "Azure AI", "GCP"},
+              "SAP": {"SAP S/4HANA", "SAP BTP", "SAP ABAP", "SAP FICO"}}
+# Umbrellas dropped only when written as the bare word: "SAP BTP training" is SAP BTP,
+# but "SAP SD and FICO" keeps SAP for SD, which has no course of its own yet.
+_BARE_WORD_UMBRELLAS = {"SAP"}
 # Programme courses whose listed tools stay inside them when both are requested:
 # "DevOps; AWS; Azure; Git; Docker" keeps Docker as a DevOps topic even though
 # Docker now has its own course. Requested alone, Docker uses that course.
@@ -168,6 +172,8 @@ def detect_technologies(primary_text, secondary_text=""):
     detected = sorted(order, key=order.get)
     for umbrella, specifics in _UMBRELLAS.items():
         if umbrella in detected and any(item in specifics for item in detected):
+            if umbrella in _BARE_WORD_UMBRELLAS and matched[umbrella] != _norm(umbrella):
+                continue
             detected.remove(umbrella)
     # "Agentic AI with LangGraph": LangGraph is also listed as part of Agentic AI and is
     # introduced with "with", so it stays a topic inside Agentic AI. A tool word such as

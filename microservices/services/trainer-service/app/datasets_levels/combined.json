@@ -1459,6 +1459,103 @@
                                                             "Filter retrieval with metadata"
                                                         ]
                                      }
+                         },
+                         {
+                             "between":  [
+                                             "SAP ABAP",
+                                             "SAP BTP"
+                                         ],
+                             "day":  {
+                                         "topic":  "ABAP and BTP Together: Choosing On-Stack ABAP Cloud or Side-by-Side CAP",
+                                         "subtopics":  [
+                                                           "The clean core extension decision framework",
+                                                           "On-stack developer extensibility with ABAP Cloud",
+                                                           "Side-by-side extensions with CAP on BTP",
+                                                           "Calling S/4HANA released APIs from both",
+                                                           "RAP business events consumed on BTP",
+                                                           "Shared identity and principal propagation",
+                                                           "Transport and lifecycle differences",
+                                                           "Cost and skills comparison"
+                                                       ],
+                                         "tools":  [
+                                                       "ABAP Development Tools (Eclipse)",
+                                                       "CAP (Node.js)",
+                                                       "SAP Event Mesh",
+                                                       "SAP BTP cockpit"
+                                                   ],
+                                         "lab_task":  "Build the same approval extension twice, as an on-stack RAP object and as a CAP app on BTP that consumes a RAP business event, and decide which to keep using the decision framework.",
+                                         "deliverable":  "Two implementations, event flow evidence and a decision note",
+                                         "checks":  [
+                                                        [
+                                                            "Approve in the RAP version",
+                                                            "Business event is raised and consumed by the CAP app",
+                                                            "Event logs"
+                                                        ],
+                                                        [
+                                                            "Open the CAP app as a business user",
+                                                            "User\u0027s identity reaches S/4HANA through principal propagation",
+                                                            "Change log"
+                                                        ],
+                                                        [
+                                                            "Write the decision note",
+                                                            "Choice follows the framework with effort and cost compared",
+                                                            "Decision note"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Compare on-stack and side-by-side extensions",
+                                                            "Connect RAP and CAP through events",
+                                                            "Choose an extension approach"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "SAP S/4HANA",
+                                             "SAP FICO"
+                                         ],
+                             "day":  {
+                                         "topic":  "S/4HANA Finance End to End: From Logistics Postings to the Universal Journal",
+                                         "subtopics":  [
+                                                           "How purchasing, sales and production post to finance",
+                                                           "Account determination across modules",
+                                                           "The Universal Journal as the single source",
+                                                           "Profit centre and segment derivation from logistics",
+                                                           "Margin analysis from billing and settlement",
+                                                           "Month-end tasks owned by logistics and finance",
+                                                           "Reconciling logistics and finance reports",
+                                                           "Common cross-module errors"
+                                                       ],
+                                         "tools":  [
+                                                       "SAP S/4HANA training system",
+                                                       "SAP GUI",
+                                                       "Universal Journal reports"
+                                                   ],
+                                         "lab_task":  "Run a purchase, a production order and a sale end to end, trace every posting into ACDOCA with profit centre and margin characteristics, and reconcile stock and margin reports with finance.",
+                                         "deliverable":  "Posting map, ACDOCA extracts and reconciliation sheet",
+                                         "checks":  [
+                                                        [
+                                                            "Display the sale in ACDOCA",
+                                                            "Revenue and cost of goods sold carry profit centre and segment",
+                                                            "Data preview"
+                                                        ],
+                                                        [
+                                                            "Reconcile the stock report with the inventory accounts",
+                                                            "Values agree",
+                                                            "Reconciliation sheet"
+                                                        ],
+                                                        [
+                                                            "Reconcile margin analysis with the G/L",
+                                                            "Contribution margin agrees with revenue less cost of sales",
+                                                            "Reconciliation sheet"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Trace logistics postings into finance",
+                                                            "Reconcile across modules",
+                                                            "Explain the Universal Journal end to end"
+                                                        ]
+                                     }
                          }
                      ],
     "capstones":  [
