@@ -1,0 +1,573 @@
+{
+  "domain": "MySQL",
+  "name": "MySQL",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["MySQL Database", "MySQL DBA", "MySQL Administration", "MySQL Developer", "MySQL Training", "MySQL 8", "MySQL Performance Tuning", "MySQL Replication", "InnoDB Cluster", "Percona Server"],
+  "certifications": ["Oracle MySQL 8.0 Database Administrator (1Z0-908)", "Oracle MySQL 8.0 Database Developer (1Z0-909)", "Oracle MySQL HeatWave Implementation Associate"],
+  "tools": ["MySQL 8.4 LTS", "MySQL Shell", "MySQL Workbench", "Percona XtraBackup", "Percona Toolkit", "ProxySQL", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and junior DBAs new to MySQL. Covers installation and tools, databases and storage engines, data types, constraints, queries, joins, aggregation and window functions, subqueries and CTEs, data changes and upserts, views, indexes, InnoDB transactions, users and privileges, stored programs, triggers and events, JSON, loading data, logical backups and connecting applications.",
+      "prerequisites": ["Knows what tables, rows and columns are", "Comfortable on a command line", "No previous MySQL experience needed"],
+      "outcomes": ["Install MySQL and work in MySQL Shell and Workbench", "Design tables and write SQL with joins, aggregates, CTEs and JSON", "Secure databases with users, roles and privileges", "Back up, restore and connect applications safely"],
+      "days": [
+        {
+          "topic": "MySQL Overview, Versions and Installation Setup",
+          "subtopics": ["What MySQL is and where it is used", "MySQL Community, Enterprise, MariaDB and Percona Server", "Release model: LTS and innovation releases", "Installing MySQL 8.4 on Linux, Windows and Docker", "Securing the installation", "The mysql client and MySQL Shell", "MySQL Workbench", "The data directory and configuration files", "Starting, stopping and checking the server", "Loading the Sakila sample database"],
+          "tools": ["MySQL 8.4 LTS", "MySQL Shell", "MySQL Workbench", "Docker"],
+          "lab_task": "Install MySQL natively and in Docker, secure the root account, connect with the client, MySQL Shell and Workbench, load Sakila and record the version, data directory and configuration file.",
+          "deliverable": "Install notes and a server information sheet",
+          "checks": [["Run SELECT VERSION()", "MySQL 8.4 reported for both installs", "Query result"], ["Run SHOW DATABASES", "Sakila listed", "Query result"], ["Find the configuration file", "Path and main settings recorded", "Information sheet"]],
+          "objectives": ["Describe MySQL", "Install it securely", "Use the main tools"]
+        },
+        {
+          "topic": "Databases, Tables and Storage Engines",
+          "subtopics": ["Creating databases and choosing character sets", "utf8mb4 and collations", "CREATE TABLE", "InnoDB and other storage engines", "AUTO_INCREMENT keys", "ALTER TABLE", "SHOW CREATE TABLE and information_schema", "Naming conventions"],
+          "tools": ["MySQL Shell", "MySQL Workbench"],
+          "lab_task": "Create a shop database with utf8mb4, build customers, products and orders tables in InnoDB, alter them as requirements change and inspect them through information_schema.",
+          "deliverable": "DDL script and schema description",
+          "checks": [["Insert an emoji in a name", "Stored and returned correctly with utf8mb4", "Query result"], ["Insert without an ID", "AUTO_INCREMENT value assigned", "Query result"], ["Query information_schema.tables", "Engine and row format shown for each table", "Query result"]],
+          "objectives": ["Create databases and tables", "Choose character sets", "Use InnoDB"]
+        },
+        {
+          "topic": "MySQL Data Types",
+          "subtopics": ["Integer types and UNSIGNED", "DECIMAL for money", "FLOAT and DOUBLE", "CHAR, VARCHAR and TEXT", "DATE, DATETIME and TIMESTAMP", "Time zones in MySQL", "ENUM and SET", "Choosing types for size and correctness"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Store prices as DECIMAL and FLOAT and compare totals, store event times in DATETIME and TIMESTAMP across time zones and replace an ENUM with a lookup table.",
+          "deliverable": "Script with results and a type choice note",
+          "checks": [["Sum prices in DECIMAL and FLOAT", "DECIMAL exact and FLOAT shows rounding", "Query result"], ["Change the session time zone", "TIMESTAMP shifts and DATETIME does not", "Query result"], ["Review the lookup table", "ENUM values moved to a referenced table", "DDL script"]],
+          "objectives": ["Choose data types", "Handle money and time correctly", "Avoid type traps"]
+        },
+        {
+          "topic": "Constraints, Keys and SQL Modes",
+          "subtopics": ["Primary keys", "Foreign keys and ON DELETE actions", "UNIQUE constraints", "CHECK constraints", "NOT NULL and DEFAULT", "Strict SQL mode", "What happens without strict mode", "Naming constraints"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Add keys, foreign keys and checks to the shop schema, insert bad data with strict mode off and on and record the difference.",
+          "deliverable": "Constraint script and test results",
+          "checks": [["Insert an order for a missing customer", "Rejected by the foreign key", "Error message"], ["Insert a too-long name without strict mode", "Value truncated with a warning", "Query result"], ["Insert the same name with strict mode", "Insert rejected", "Error message"]],
+          "objectives": ["Enforce data rules", "Use strict mode", "Relate tables"]
+        },
+        {
+          "topic": "Querying: SELECT, Filtering and Sorting",
+          "subtopics": ["SELECT and aliases", "WHERE and operators", "NULL handling with IFNULL and COALESCE", "LIKE and REGEXP", "ORDER BY and LIMIT", "DISTINCT", "CASE expressions", "String and date functions"],
+          "tools": ["MySQL Shell", "MySQL Workbench"],
+          "lab_task": "Answer ten questions on Sakila, including paged film lists, customers without email, films matching a pattern and rentals labelled by length with CASE.",
+          "deliverable": "Query file and results",
+          "checks": [["Page through films", "Correct rows on page three", "Query result"], ["Match with REGEXP", "Expected titles returned", "Query result"], ["Find customers without email", "NULLs handled correctly", "Query result"]],
+          "objectives": ["Write queries", "Handle NULLs", "Use built-in functions"]
+        },
+        {
+          "topic": "Joins in MySQL",
+          "subtopics": ["INNER JOIN", "LEFT and RIGHT joins", "Emulating FULL OUTER JOIN with UNION", "Self joins", "Joining many tables", "Anti-joins", "Join row count checks", "Readable join queries"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Report rentals with customer, film and store, list films never rented, emulate a full outer join between two lists and fix a join that doubles payments.",
+          "deliverable": "Query file and results",
+          "checks": [["List films never rented", "Correct films returned", "Query result"], ["Emulate a full outer join", "All rows from both sides", "Query result"], ["Fix the doubling join", "Totals match the payment table", "Query result"]],
+          "objectives": ["Join tables", "Find missing matches", "Avoid duplicated totals"]
+        },
+        {
+          "topic": "Aggregation and Window Functions",
+          "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "GROUP BY and HAVING", "WITH ROLLUP", "GROUP_CONCAT", "ROW_NUMBER, RANK and DENSE_RANK", "Running totals", "LAG and LEAD", "ONLY_FULL_GROUP_BY"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Report revenue by store and month with ROLLUP, rank films by rentals within categories, compute running totals and fix a query rejected by ONLY_FULL_GROUP_BY.",
+          "deliverable": "Query file and results",
+          "checks": [["Check ROLLUP", "Subtotals and grand total correct", "Query result"], ["Rank within categories", "Ranks restart per category", "Query result"], ["Fix the GROUP BY error", "Query valid and correct", "Query result"]],
+          "objectives": ["Aggregate data", "Use window functions", "Write valid GROUP BY queries"]
+        },
+        {
+          "topic": "Subqueries and Common Table Expressions",
+          "subtopics": ["Scalar and table subqueries", "IN and EXISTS", "Derived tables", "WITH queries", "Recursive CTEs", "LATERAL derived tables", "Top N per group", "Readable query structure"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Walk a category tree with a recursive CTE, get the latest three rentals per customer and rewrite a nested report as a chain of CTEs.",
+          "deliverable": "Query file and results",
+          "checks": [["Walk the category tree", "All levels returned with depth", "Query result"], ["Get latest rentals", "Up to three per customer", "Query result"], ["Compare versions", "CTE version returns the same rows", "Query results"]],
+          "objectives": ["Use subqueries", "Write CTEs", "Solve per-group problems"]
+        },
+        {
+          "topic": "Changing Data: INSERT, UPDATE, DELETE and Upserts",
+          "subtopics": ["INSERT with several rows", "INSERT ... SELECT", "INSERT ... ON DUPLICATE KEY UPDATE", "REPLACE and why to be careful", "UPDATE and DELETE with joins", "LIMIT on UPDATE and DELETE", "Safe updates mode", "Changes inside transactions"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Upsert a product feed with ON DUPLICATE KEY UPDATE, show how REPLACE deletes and reinserts rows, update prices with a join and delete old carts in batches.",
+          "deliverable": "DML script and results",
+          "checks": [["Run the upsert twice", "No duplicates and values updated", "Query result"], ["Use REPLACE on a row with children", "Cascade effect shown", "Query result"], ["Delete in batches", "All old carts removed in small batches", "Row counts"]],
+          "objectives": ["Change data safely", "Use upserts", "Delete in batches"]
+        },
+        {
+          "topic": "Views",
+          "subtopics": ["Creating views", "Views for security", "Updatable views", "WITH CHECK OPTION", "SQL SECURITY DEFINER and INVOKER", "View algorithms: MERGE and TEMPTABLE", "View performance", "When to use views"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Create a reporting view of sales, grant a reporting user access to the view only, add CHECK OPTION to an updatable view and compare view algorithms in EXPLAIN.",
+          "deliverable": "View definitions and tests",
+          "checks": [["Query the base table as the reporting user", "Access denied", "Error message"], ["Update through the view outside its filter", "Rejected by CHECK OPTION", "Error message"], ["Compare algorithms", "Plans differ as expected", "EXPLAIN output"]],
+          "objectives": ["Create views", "Secure data with views", "Understand view algorithms"]
+        },
+        {
+          "topic": "Indexes in MySQL",
+          "subtopics": ["B-tree indexes in InnoDB", "The clustered primary key", "Secondary indexes and lookups", "Composite indexes and the leftmost prefix", "Covering indexes", "Prefix indexes", "Reading EXPLAIN output", "Cost of too many indexes"],
+          "tools": ["MySQL Shell", "EXPLAIN"],
+          "lab_task": "Load a million orders, time three slow queries, read their EXPLAIN output, add composite and covering indexes and compare.",
+          "deliverable": "Before and after EXPLAIN output and timings",
+          "checks": [["Run EXPLAIN before indexing", "Full table scan shown", "EXPLAIN output"], ["Add a covering index", "\"Using index\" shown", "EXPLAIN output"], ["Compare times", "Queries faster after indexing", "Timing table"]],
+          "objectives": ["Create indexes", "Read EXPLAIN", "Design composite indexes"]
+        },
+        {
+          "topic": "Transactions and InnoDB Locking",
+          "subtopics": ["ACID in InnoDB", "START TRANSACTION, COMMIT and ROLLBACK", "Autocommit", "Isolation levels", "Row locks and gap locks", "SELECT ... FOR UPDATE and SKIP LOCKED", "Deadlocks", "Lock wait timeouts"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Show uncommitted changes staying invisible in another session, reserve stock with FOR UPDATE, build a job queue with SKIP LOCKED and read a deadlock report.",
+          "deliverable": "Session transcripts and deadlock report",
+          "checks": [["Read before commit", "Change not visible", "Session transcript"], ["Run four queue workers", "Each job processed once", "Query result"], ["Read the deadlock report", "Transactions and locks identified", "SHOW ENGINE INNODB STATUS output"]],
+          "objectives": ["Use transactions", "Control concurrent access", "Read deadlock reports"]
+        },
+        {
+          "topic": "Users, Roles and Privileges",
+          "subtopics": ["Accounts: user and host", "Authentication plugins", "GRANT and REVOKE", "Roles", "Least privilege for applications", "Password policies", "Locking accounts", "Reviewing privileges"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Create an application account limited to the shop database and its subnet, a read-only reporting role, password rules and a locked account for a leaver.",
+          "deliverable": "Security script and access tests",
+          "checks": [["Delete as the reporting user", "Access denied", "Error message"], ["Connect from another host", "Login refused", "Error message"], ["Set a weak password", "Rejected by the password policy", "Error message"]],
+          "objectives": ["Create accounts", "Use roles", "Grant least privilege"]
+        },
+        {
+          "topic": "Stored Procedures and Functions",
+          "subtopics": ["CREATE PROCEDURE", "Parameters: IN, OUT and INOUT", "Local declarations and control flow", "Cursors", "Handlers for errors", "Stored functions and determinism", "Prepared statements in procedures", "When to keep logic in the application"],
+          "tools": ["MySQL Shell", "MySQL Workbench"],
+          "lab_task": "Write a procedure that places an order with stock checks and error handlers, a function that calculates discounts and a procedure using a prepared statement for searches.",
+          "deliverable": "Procedure and function code and tests",
+          "checks": [["Order more than stock", "Error raised and nothing changed", "Query result"], ["Call the discount function", "Correct discounts for three cases", "Query result"], ["Pass an injection string to the search", "Treated as data", "Query result"]],
+          "objectives": ["Write stored procedures", "Handle errors", "Use prepared statements"]
+        },
+        {
+          "topic": "Triggers and Scheduled Events",
+          "subtopics": ["BEFORE and AFTER triggers", "NEW and OLD", "Audit triggers", "Trigger limits", "The event scheduler", "One-off and recurring events", "Events for cleanup", "Monitoring events"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Add an audit trigger for price changes, a trigger that keeps stock counts current and a nightly event that removes expired carts.",
+          "deliverable": "Trigger and event code and results",
+          "checks": [["Change a price", "Audit row written", "Audit table"], ["Place an order", "Stock count reduced", "Query result"], ["Wait for the event", "Expired carts removed", "Query result"]],
+          "objectives": ["Write triggers", "Schedule events", "Avoid trigger pitfalls"]
+        },
+        {
+          "topic": "Working with JSON in MySQL",
+          "subtopics": ["The JSON data type", "JSON_EXTRACT and the -> operators", "JSON_TABLE", "Updating JSON values", "Generated columns from JSON", "Multi-valued indexes", "JSON schema validation", "When to use columns instead"],
+          "tools": ["MySQL Shell"],
+          "lab_task": "Store product attributes as JSON, query nested values, turn JSON arrays into rows with JSON_TABLE, index tags with a multi-valued index and validate documents.",
+          "deliverable": "Queries, indexes and results",
+          "checks": [["Query a nested value", "Correct values returned", "Query result"], ["Use JSON_TABLE", "One row per array element", "Query result"], ["Insert an invalid document", "Rejected by schema validation", "Error message"]],
+          "objectives": ["Store JSON", "Query and index JSON", "Validate JSON"]
+        },
+        {
+          "topic": "Loading and Exporting Data",
+          "subtopics": ["LOAD DATA INFILE and LOCAL", "secure_file_priv", "CSV options", "Staging tables", "SELECT ... INTO OUTFILE", "MySQL Shell parallel import", "Handling bad rows", "Load speed"],
+          "tools": ["MySQL Shell", "LOAD DATA"],
+          "lab_task": "Load a 2-million-row CSV with LOAD DATA and with MySQL Shell parallel import, clean it in staging, export a report and compare load times.",
+          "deliverable": "Load scripts, export file and timing table",
+          "checks": [["Load the CSV", "Row count matches the file", "Query result"], ["Compare load methods", "Parallel import faster", "Timing table"], ["Load a file with bad rows", "Bad rows found and handled", "Load notes"]],
+          "objectives": ["Bulk load data", "Export results", "Clean data in staging"]
+        },
+        {
+          "topic": "Logical Backups and Restores",
+          "subtopics": ["mysqldump", "Consistent dumps with --single-transaction", "MySQL Shell dump and load utilities", "Dumping one schema or table", "Restoring dumps", "Backing up users and grants", "Testing restores", "Logical compared with physical backups"],
+          "tools": ["mysqldump", "MySQL Shell dump utilities"],
+          "lab_task": "Back up the shop database with mysqldump and MySQL Shell, restore into a new server, restore one table after a mistake and compare speed.",
+          "deliverable": "Backup files, restore commands and timings",
+          "checks": [["Restore into a new server", "Row counts match", "Query result"], ["Restore one table", "Deleted rows back", "Query result"], ["Compare tools", "Times recorded for both", "Timing table"]],
+          "objectives": ["Take logical backups", "Restore databases and tables", "Test restores"]
+        },
+        {
+          "topic": "Connecting Applications to MySQL",
+          "subtopics": ["Connectors for Python, Java, PHP and Node.js", "Connection strings and TLS", "Parameterised queries", "SQL injection", "Connection pooling", "Transactions from code", "Handling errors and retries", "Credentials in the environment"],
+          "tools": ["Python", "mysql-connector-python or PyMySQL", "Docker"],
+          "lab_task": "Write a small service that lists products and places orders with parameterised queries, a pool and a transaction, and demonstrate why string-built SQL is unsafe.",
+          "deliverable": "Application code and injection demonstration",
+          "checks": [["Try an injection string", "Parameterised query treats it as data", "Application output"], ["Fail half-way through an order", "Transaction rolled back", "Query result"], ["Search the code for passwords", "Credentials read from the environment", "Code search output"]],
+          "objectives": ["Connect from code", "Prevent SQL injection", "Use pools and transactions"]
+        },
+        {
+          "topic": "Beginner Capstone: Online Shop Database",
+          "subtopics": ["Design", "Queries and stored code", "Security and backups", "Application access"],
+          "tools": ["MySQL 8.4", "MySQL Shell", "Python"],
+          "lab_task": "Build an online shop database with constraints, indexes, views, procedures, triggers, JSON attributes and roles, write ten reports, connect a small application, back it up and restore it.",
+          "deliverable": "Scripts, reports, application code and restore evidence",
+          "checks": [["Run the reports", "Correct results within one second each", "Query results and timings"], ["Restore on a new server", "Application works on the restored database", "Demo recording"], ["Test the roles", "Reporting role cannot change data", "Test results"]],
+          "objectives": ["Combine the beginner topics in one database", "Build a secure, tested schema", "Back up and restore it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For DBAs and developers who run MySQL. Covers configuration and the buffer pool, EXPLAIN ANALYZE, index design, the slow query log, Performance Schema and sys, InnoDB internals, locking, replication with GTIDs, semi-synchronous and multi-source replication, XtraBackup and point-in-time recovery, partitioning, online schema changes, security, ProxySQL, InnoDB Cluster, monitoring with PMM, managed MySQL, upgrades and MySQL Shell utilities.",
+      "prerequisites": ["Writes SQL with joins, CTEs and window functions in MySQL", "Creates users, indexes and logical backups", "Comfortable on Linux"],
+      "outcomes": ["Tune queries and configuration from evidence", "Run replication, physical backups and point-in-time recovery", "Change schemas online and route traffic with ProxySQL", "Run InnoDB Cluster and managed MySQL and upgrade safely"],
+      "days": [
+        {
+          "topic": "Server Configuration and the InnoDB Buffer Pool",
+          "subtopics": ["my.cnf structure", "Dynamic and static variables", "SET PERSIST", "innodb_buffer_pool_size and instances", "Redo log capacity", "max_connections and per-connection memory", "Logging settings", "Checking configuration"],
+          "tools": ["MySQL Shell", "Performance Schema"],
+          "lab_task": "Size the buffer pool and redo log for a 16 GB server, persist a dynamic change, measure buffer pool hit rate under load and turn on the slow query log.",
+          "deliverable": "Configuration changes with reasons and measurements",
+          "checks": [["Persist a setting", "Value kept after restart", "SHOW VARIABLES output"], ["Measure hit rate", "Hit rate calculated under load", "Status counters"], ["Run a slow query", "Logged in the slow log", "Slow log extract"]],
+          "objectives": ["Configure MySQL", "Size the buffer pool", "Turn on useful logging"]
+        },
+        {
+          "topic": "EXPLAIN and EXPLAIN ANALYZE",
+          "subtopics": ["EXPLAIN columns", "EXPLAIN FORMAT=TREE and JSON", "EXPLAIN ANALYZE", "Access types", "Using filesort and temporary", "Join order", "Optimizer trace", "Finding the expensive step"],
+          "tools": ["EXPLAIN", "Optimizer trace"],
+          "lab_task": "Read the plans of five slow queries with EXPLAIN ANALYZE, find a filesort, a temporary table and a bad join order, and use the optimizer trace to see why an index was skipped.",
+          "deliverable": "Annotated plans",
+          "checks": [["Find the filesort", "Filesort removed with an index", "EXPLAIN output"], ["Read actual rows", "Estimate errors identified", "EXPLAIN ANALYZE output"], ["Read the optimizer trace", "Reason for skipping the index found", "Trace output"]],
+          "objectives": ["Read plans", "Use EXPLAIN ANALYZE", "Use the optimizer trace"]
+        },
+        {
+          "topic": "Index Design and Query Tuning",
+          "subtopics": ["Index selectivity", "Column order for composite indexes", "Indexes for ORDER BY and GROUP BY", "Functional indexes", "Invisible indexes for safe testing", "Descending indexes", "Rewriting queries", "Keyset pagination"],
+          "tools": ["MySQL Shell", "EXPLAIN"],
+          "lab_task": "Tune five queries with composite, functional and descending indexes, test dropping an index safely by making it invisible and replace OFFSET pagination with keyset pagination.",
+          "deliverable": "Tuning log with plans and timings",
+          "checks": [["Make an index invisible", "Effect measured before dropping", "EXPLAIN output"], ["Compare page 1000 times", "Keyset page fast and OFFSET slow", "Timing table"], ["Add a functional index", "Query on an expression uses it", "EXPLAIN output"]],
+          "objectives": ["Design indexes", "Tune queries", "Test index changes safely"]
+        },
+        {
+          "topic": "The Slow Query Log and pt-query-digest",
+          "subtopics": ["Slow log settings", "long_query_time and log_queries_not_using_indexes", "Reading slow log entries", "pt-query-digest reports", "Query fingerprints", "Ranking by total time", "Sampling on busy servers", "Building a tuning backlog"],
+          "tools": ["Slow query log", "Percona Toolkit"],
+          "lab_task": "Capture an hour of workload in the slow log, analyse it with pt-query-digest, rank queries by total time and build a tuning backlog for the top five.",
+          "deliverable": "Digest report and tuning backlog",
+          "checks": [["Run pt-query-digest", "Top queries ranked by total time", "Digest report"], ["Review fingerprints", "Similar queries grouped", "Digest report"], ["Write the backlog", "Fix proposed for each top query", "Backlog"]],
+          "objectives": ["Capture workload", "Analyse slow queries", "Prioritise tuning"]
+        },
+        {
+          "topic": "Performance Schema and the sys Schema",
+          "subtopics": ["What Performance Schema records", "Statement and stage events", "Wait events", "sys schema views", "Finding full table scans", "Unused and redundant indexes", "Memory use by component", "Overhead"],
+          "tools": ["Performance Schema", "sys schema"],
+          "lab_task": "Use sys views to find the heaviest statements, tables with full scans, unused and redundant indexes and the biggest memory users.",
+          "deliverable": "Findings report",
+          "checks": [["List statements by latency", "Top statements shown", "sys view output"], ["List unused indexes", "Indexes listed", "sys view output"], ["List memory by component", "Top memory users shown", "sys view output"]],
+          "objectives": ["Use Performance Schema", "Use sys views", "Find problems quickly"]
+        },
+        {
+          "topic": "InnoDB Internals for Administrators",
+          "subtopics": ["Pages and the clustered index", "Redo log and undo log", "Doublewrite buffer", "Change buffer", "Adaptive hash index", "Purge and history list length", "Flushing and checkpoints", "Reading InnoDB status"],
+          "tools": ["SHOW ENGINE INNODB STATUS", "Performance Schema"],
+          "lab_task": "Grow the history list with a long transaction, watch purge catch up when it ends, compare flushing under two settings and explain each section of InnoDB status.",
+          "deliverable": "Status output and notes",
+          "checks": [["Hold a long transaction", "History list length grows", "InnoDB status"], ["End the transaction", "Purge reduces the history list", "InnoDB status"], ["Compare flushing settings", "Write latency difference recorded", "Benchmark results"]],
+          "objectives": ["Understand InnoDB", "Watch purge", "Read InnoDB status"]
+        },
+        {
+          "topic": "Locking, Deadlocks and Contention",
+          "subtopics": ["Record, gap and next-key locks", "Insert intention locks", "Locks from foreign keys", "performance_schema.data_locks", "Finding blockers", "Deadlock logging", "Reducing deadlocks", "Isolation level choices"],
+          "tools": ["Performance Schema", "sys.innodb_lock_waits"],
+          "lab_task": "Reproduce gap lock blocking under repeatable read, find blockers with sys.innodb_lock_waits, log every deadlock and remove one by changing access order.",
+          "deliverable": "Session transcripts, lock output and fixes",
+          "checks": [["Find the blocker", "Blocking statement identified", "sys view output"], ["Log all deadlocks", "Deadlocks written to the error log", "Error log"], ["Change access order", "Deadlock no longer occurs under load", "Load test output"]],
+          "objectives": ["Understand InnoDB locks", "Find blockers", "Reduce deadlocks"]
+        },
+        {
+          "topic": "Replication with GTIDs",
+          "subtopics": ["Binary log formats", "Source and replica set-up", "GTIDs", "Cloning a replica with the clone plugin", "Replication threads", "Monitoring lag", "Read-only replicas", "Switching the source"],
+          "tools": ["MySQL Shell", "Clone plugin"],
+          "lab_task": "Build a source and two replicas with GTIDs using the clone plugin, run reads on a replica, measure lag under load and promote a replica.",
+          "deliverable": "Configuration, lag measurements and switch steps",
+          "checks": [["Write on the source", "Row on both replicas", "Query result"], ["Measure lag under load", "Lag reported", "Replica status"], ["Promote a replica", "Other replica follows the new source", "Replica status"]],
+          "objectives": ["Set up replication", "Monitor lag", "Switch sources"]
+        },
+        {
+          "topic": "Semi-Synchronous, Multi-Source and Delayed Replication",
+          "subtopics": ["Semi-synchronous replication", "Durability trade-offs", "Multi-source replication", "Replication filters", "Delayed replicas", "Parallel replication", "Replication errors and skipping", "Checking consistency with pt-table-checksum"],
+          "tools": ["MySQL replication", "Percona Toolkit"],
+          "lab_task": "Turn on semi-synchronous replication, combine two sources into one reporting replica, add a one-hour delayed replica, recover a dropped table from it and check consistency.",
+          "deliverable": "Configuration, recovery evidence and checksum report",
+          "checks": [["Recover the dropped table", "Table copied from the delayed replica", "Query result"], ["Run pt-table-checksum", "No differences after the fix", "Checksum report"], ["Stop the semi-sync replica", "Source falls back as configured", "Error log"]],
+          "objectives": ["Use semi-sync", "Use multi-source and delayed replicas", "Check consistency"]
+        },
+        {
+          "topic": "Physical Backups with XtraBackup and Point-in-Time Recovery",
+          "subtopics": ["Physical backups", "Percona XtraBackup", "Incremental backups", "Preparing and restoring", "Binary logs for point-in-time recovery", "mysqlbinlog", "MySQL Enterprise Backup in brief", "Restore testing"],
+          "tools": ["Percona XtraBackup", "mysqlbinlog"],
+          "lab_task": "Take full and incremental backups with XtraBackup, drop a table by mistake and restore to one second before the drop using binary logs.",
+          "deliverable": "Backup scripts and recovery evidence",
+          "checks": [["Restore to before the drop", "Table and rows back", "Query result"], ["Prepare an incremental chain", "Restore succeeds", "XtraBackup output"], ["Time the restore", "Restore time recorded against the target", "Recovery notes"]],
+          "objectives": ["Take physical backups", "Recover to a point in time", "Test restores"]
+        },
+        {
+          "topic": "Partitioning Tables",
+          "subtopics": ["Range, list, hash and key partitioning", "Partition pruning", "Partitioning and primary keys", "Adding and dropping partitions", "Exchanging partitions", "Archiving with partitions", "Partition limits", "When partitioning helps"],
+          "tools": ["MySQL Shell", "EXPLAIN"],
+          "lab_task": "Partition an events table by month, show pruning, drop the oldest month instantly and exchange a partition into an archive table.",
+          "deliverable": "Partition scripts and plans",
+          "checks": [["Query one month", "Only one partition scanned", "EXPLAIN output"], ["Drop the oldest partition", "Data removed in seconds", "Timing output"], ["Exchange a partition", "Data moved to the archive table", "Query result"]],
+          "objectives": ["Partition tables", "Use pruning", "Archive with partitions"]
+        },
+        {
+          "topic": "Online Schema Changes",
+          "subtopics": ["Online DDL algorithms: INSTANT, INPLACE and COPY", "Metadata locks", "gh-ost", "pt-online-schema-change", "Throttling changes", "Changes on replicated servers", "Rollback plans", "Testing changes"],
+          "tools": ["gh-ost", "Percona Toolkit"],
+          "lab_task": "Add a column instantly, add an index in place, change a column type on a 20-million-row table with gh-ost under load and resolve a metadata lock queue.",
+          "deliverable": "Change scripts and load test results",
+          "checks": [["Add a column with ALGORITHM=INSTANT", "Completes in milliseconds", "Timing output"], ["Run gh-ost under load", "No write errors", "Load test output"], ["Find the metadata lock blocker", "Blocking session found", "Performance Schema output"]],
+          "objectives": ["Change schemas online", "Avoid metadata lock queues", "Use online tools"]
+        },
+        {
+          "topic": "Securing MySQL",
+          "subtopics": ["TLS connections", "Requiring TLS for accounts", "Encryption at rest with keyrings", "Binary log and redo encryption", "Audit logging", "Password and lockout policies", "Removing default risks", "Hardening checklist"],
+          "tools": ["MySQL", "Audit log plugin or Percona audit"],
+          "lab_task": "Require TLS for remote accounts, encrypt tablespaces and binary logs, log access to a sensitive table and review the server against a hardening checklist.",
+          "deliverable": "Security configuration, audit log and checklist",
+          "checks": [["Connect without TLS", "Refused", "Error message"], ["Search a data file for a known value", "Not found in plain text", "strings output"], ["Read the sensitive table", "Access logged", "Audit log"]],
+          "objectives": ["Encrypt connections and data", "Audit access", "Harden servers"]
+        },
+        {
+          "topic": "Connection Routing and Query Rules with ProxySQL",
+          "subtopics": ["Why a proxy", "ProxySQL architecture", "Hostgroups", "Read and write splitting", "Query rules", "Connection multiplexing", "Query caching", "ProxySQL monitoring"],
+          "tools": ["ProxySQL", "MySQL replication"],
+          "lab_task": "Put ProxySQL in front of a source and replicas, route reads to replicas, block a dangerous query pattern, cache a hot query and fail a replica.",
+          "deliverable": "ProxySQL configuration and test results",
+          "checks": [["Run reads through ProxySQL", "Reads go to replicas", "Query digest stats"], ["Run the blocked pattern", "Query rejected", "Client error"], ["Stop a replica", "Traffic moves to the remaining replica", "ProxySQL stats"]],
+          "objectives": ["Route traffic", "Use query rules", "Handle replica failures"]
+        },
+        {
+          "topic": "InnoDB Cluster and MySQL Router",
+          "subtopics": ["Group Replication", "Single-primary mode", "MySQL Shell AdminAPI", "MySQL Router", "Automatic failover", "Adding and removing members", "Monitoring cluster state", "InnoDB ReplicaSet"],
+          "tools": ["MySQL Shell", "MySQL Router", "Group Replication"],
+          "lab_task": "Build a three-node InnoDB Cluster with MySQL Shell, connect through MySQL Router, kill the primary under load and add a new member.",
+          "deliverable": "Cluster configuration and failover results",
+          "checks": [["Run cluster.status()", "All members ONLINE", "Shell output"], ["Kill the primary", "New primary elected and writes resume", "Client log"], ["Add a member", "Member joins and catches up", "Shell output"]],
+          "objectives": ["Build InnoDB Cluster", "Route with MySQL Router", "Test failover"]
+        },
+        {
+          "topic": "Monitoring MySQL with PMM",
+          "subtopics": ["Percona Monitoring and Management", "Query analytics", "Dashboards", "Alerting", "Advisors", "Monitoring replication and clusters", "Prometheus exporters", "Alerts worth having"],
+          "tools": ["Percona Monitoring and Management", "mysqld_exporter"],
+          "lab_task": "Monitor the cluster and replicas with PMM, find the top query in query analytics, act on advisor findings and alert on lag and connection use.",
+          "deliverable": "Dashboards, findings and alerts",
+          "checks": [["Find the top query", "Query and its load shown", "Query analytics screenshot"], ["Raise lag", "Alert fires", "Alert notification"], ["Review advisors", "Findings fixed or explained", "Advisor report"]],
+          "objectives": ["Monitor MySQL", "Analyse queries", "Alert on key metrics"]
+        },
+        {
+          "topic": "Managed MySQL: RDS, Aurora, Azure and Cloud SQL",
+          "subtopics": ["What managed services handle", "Amazon RDS for MySQL and Aurora MySQL", "Azure Database for MySQL Flexible Server", "Google Cloud SQL for MySQL", "Parameter groups", "Backups and replicas", "Limits of managed services", "Cost comparison"],
+          "tools": ["AWS RDS", "Azure Database for MySQL", "Google Cloud SQL"],
+          "lab_task": "Create MySQL on two cloud providers, change parameters, add a replica, restore to a point in time and compare features, limits and cost.",
+          "deliverable": "Settings, test results and comparison",
+          "checks": [["Restore to a point in time", "New instance with data from that time", "Query result"], ["Try SUPER privilege", "Blocked and the managed alternative used", "Error message"], ["Compare costs", "Monthly cost for the same size", "Comparison table"]],
+          "objectives": ["Use managed MySQL", "Know the limits", "Compare providers"]
+        },
+        {
+          "topic": "Upgrading MySQL: 5.7 to 8.0 to 8.4",
+          "subtopics": ["Release support periods", "Upgrade checker in MySQL Shell", "In-place and logical upgrades", "Upgrading with replication", "Changes in 8.0 and 8.4 that break applications", "Authentication plugin changes", "Testing an upgrade", "Rollback plans"],
+          "tools": ["MySQL Shell upgrade checker", "MySQL replication"],
+          "lab_task": "Run the upgrade checker on a 5.7 server, fix its findings, upgrade through a replica to 8.4 and switch the application with little downtime.",
+          "deliverable": "Checker report, upgrade log and rollback plan",
+          "checks": [["Run the checker", "Errors listed and fixed", "Checker report"], ["Switch to the upgraded replica", "Downtime under one minute", "Client log"], ["Test the application", "No authentication or SQL mode errors", "Test results"]],
+          "objectives": ["Plan upgrades", "Upgrade through replicas", "Plan rollbacks"]
+        },
+        {
+          "topic": "MySQL Shell Utilities and Automation",
+          "subtopics": ["MySQL Shell modes: SQL, Python and JavaScript", "Dump and load utilities", "Copy utilities between servers", "Shell scripting", "Checking for problems with util.checkForServerUpgrade", "Plugins", "Automating with Ansible", "Reusable admin scripts"],
+          "tools": ["MySQL Shell", "Ansible"],
+          "lab_task": "Copy a schema between servers with Shell utilities, write a Python Shell script that reports table sizes and missing primary keys and install MySQL with an Ansible role.",
+          "deliverable": "Scripts, Ansible role and outputs",
+          "checks": [["Copy the schema", "Target matches the source", "Row counts"], ["Run the report script", "Tables without primary keys listed", "Script output"], ["Run the Ansible role twice", "Second run makes no changes", "Ansible output"]],
+          "objectives": ["Use MySQL Shell utilities", "Script administration", "Automate installs"]
+        },
+        {
+          "topic": "Intermediate Capstone: Replicated and Tuned Shop Platform",
+          "subtopics": ["Assessment", "Replication and backups", "Tuning", "Report"],
+          "tools": ["InnoDB Cluster", "ProxySQL", "XtraBackup", "PMM", "gh-ost"],
+          "lab_task": "Take over a slow, unprotected shop database: build an InnoDB Cluster behind ProxySQL, add XtraBackup with point-in-time recovery, tune the top queries from the slow log, make a schema change online and present results with a failover demo.",
+          "deliverable": "Configuration, tuning log, recovery test and presentation",
+          "checks": [["Run the failover demo", "Application continues after failover", "Demo recording"], ["Run a point-in-time recovery", "Recovery succeeds within the target", "Recovery notes"], ["Compare top queries", "Each tuned query faster", "Tuning log"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Protect and tune production", "Report results"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DBAs and architects running MySQL at scale. Covers InnoDB internals, high-concurrency tuning, multi-primary and ClusterSet designs, Orchestrator failover, Vitess sharding, Kubernetes operators, cross-region disaster recovery, schema changes at scale, advanced optimisation, large tables, hardening, HeatWave, migrations, fleet observability, capacity planning, automation, multi-tenant design, production incidents and running a MySQL platform.",
+      "prerequisites": ["Runs MySQL replication or InnoDB Cluster in production", "Tunes queries and configuration from evidence", "Takes physical backups and runs point-in-time recovery"],
+      "outcomes": ["Design highly available and sharded MySQL platforms", "Tune heavy workloads and change schemas safely at scale", "Migrate, secure and observe MySQL fleets", "Diagnose incidents and run MySQL as a platform"],
+      "days": [
+        {
+          "topic": "InnoDB Internals in Depth",
+          "subtopics": ["Page structure and B-tree splits", "Undo tablespaces", "Redo log design in 8.0 and later", "Buffer pool LRU and flushing algorithms", "Lock system internals", "Adaptive flushing", "Temporary tablespaces", "Reading InnoDB metrics"],
+          "tools": ["Performance Schema", "innodb_metrics", "innodb_ruby or similar"],
+          "lab_task": "Measure page splits from random and sequential keys, watch adaptive flushing under a write spike and explain buffer pool behaviour from metrics.",
+          "deliverable": "Measurements and notes",
+          "checks": [["Compare key types", "More page splits with random keys", "innodb_metrics output"], ["Cause a write spike", "Flushing adapts and the change is recorded", "Metrics graph"], ["Explain LRU behaviour", "Young and old sublists explained with data", "Notes"]],
+          "objectives": ["Understand InnoDB internals", "Measure page splits", "Read flushing behaviour"]
+        },
+        {
+          "topic": "Tuning for High Concurrency and Write-Heavy Workloads",
+          "subtopics": ["Benchmarking with sysbench", "Thread concurrency and connection limits", "Redo and flushing settings", "Durability settings: sync_binlog and flush_log_at_trx_commit", "Hot rows", "Primary key design for inserts", "Operating system and storage settings", "Reading results"],
+          "tools": ["sysbench", "PMM", "Linux tools"],
+          "lab_task": "Benchmark a write-heavy workload, tune redo, flushing and durability settings, redesign a hot counter and report throughput and latency for each change.",
+          "deliverable": "Benchmark report",
+          "checks": [["Compare durability settings", "Throughput gain and data loss risk stated", "Benchmark report"], ["Redesign the hot counter", "Contention removed", "Benchmark report"], ["Review the final settings", "Each change justified by a measurement", "Report"]],
+          "objectives": ["Tune heavy workloads", "Balance durability and speed", "Remove hot spots"]
+        },
+        {
+          "topic": "Multi-Primary Group Replication and InnoDB ClusterSet",
+          "subtopics": ["Multi-primary mode and conflicts", "Flow control", "Consistency levels", "InnoDB ClusterSet for regions", "Region failover", "Network requirements", "Choosing single or multi-primary", "Testing failure scenarios"],
+          "tools": ["Group Replication", "InnoDB ClusterSet", "MySQL Shell"],
+          "lab_task": "Run multi-primary Group Replication and create a write conflict, then build a ClusterSet across two regions and fail over to the second region.",
+          "deliverable": "Configuration, conflict evidence and failover log",
+          "checks": [["Create a write conflict", "One transaction rolled back", "Error message"], ["Fail over the ClusterSet", "Secondary region becomes primary", "Shell output"], ["Write the recommendation", "Single or multi-primary chosen with reasons", "Written note"]],
+          "objectives": ["Use multi-primary safely", "Span regions", "Choose a topology"]
+        },
+        {
+          "topic": "Failover Management with Orchestrator",
+          "subtopics": ["Topology discovery", "Failure detection", "Automated recovery", "Anti-flapping", "Hooks for DNS and proxies", "Orchestrator in raft mode", "Planned switchovers", "Testing failover"],
+          "tools": ["Orchestrator", "ProxySQL"],
+          "lab_task": "Manage replication with Orchestrator, kill the source, watch automatic promotion update ProxySQL through a hook and run a planned switchover.",
+          "deliverable": "Orchestrator configuration and failover results",
+          "checks": [["Kill the source", "Replica promoted automatically", "Orchestrator log"], ["Check ProxySQL", "Writer hostgroup updated by the hook", "ProxySQL stats"], ["Run a planned switchover", "Completed with no lost writes", "Query result"]],
+          "objectives": ["Automate failover", "Integrate with proxies", "Test switchovers"]
+        },
+        {
+          "topic": "Sharding MySQL with Vitess",
+          "subtopics": ["When one server is not enough", "Vitess architecture: VTGate, VTTablet and topology", "Keyspaces and shards", "VSchema and vindexes", "Resharding", "Cross-shard queries", "Online DDL in Vitess", "Alternatives to sharding"],
+          "tools": ["Vitess", "Kubernetes"],
+          "lab_task": "Deploy Vitess, shard a customer schema by customer ID, reshard from two to four shards online and compare single-shard and cross-shard query costs.",
+          "deliverable": "Vitess configuration, resharding log and query comparison",
+          "checks": [["Query one customer", "Routed to a single shard", "VTGate plan"], ["Reshard online", "Traffic continues during resharding", "Client log"], ["Run a cross-shard query", "Cost compared with a single-shard query", "Timing table"]],
+          "objectives": ["Shard MySQL", "Reshard online", "Design for sharding"]
+        },
+        {
+          "topic": "MySQL on Kubernetes with Operators",
+          "subtopics": ["Running databases on Kubernetes", "MySQL Operator and Percona Operator", "Storage classes", "Backups to object storage", "Failover in Kubernetes", "Upgrades through the operator", "Monitoring", "When to run MySQL on Kubernetes"],
+          "tools": ["Kubernetes", "Percona Operator for MySQL or MySQL Operator"],
+          "lab_task": "Deploy a three-node cluster with an operator, schedule backups to object storage, delete the primary pod under load and restore a new cluster from backup.",
+          "deliverable": "Manifests, failover evidence and restore log",
+          "checks": [["Delete the primary pod", "Writes resume on a new primary", "Kubernetes events"], ["Restore from backup", "New cluster with the data", "Query result"], ["Run an operator upgrade", "Rolling upgrade without client errors", "Client log"]],
+          "objectives": ["Run MySQL on Kubernetes", "Use operators", "Back up and restore on Kubernetes"]
+        },
+        {
+          "topic": "Disaster Recovery Across Regions",
+          "subtopics": ["Recovery objectives", "Cross-region replicas", "Backup copies in another region", "Delayed replicas for human error", "Runbooks", "DR drills", "Failback", "Testing backups automatically"],
+          "tools": ["MySQL replication", "XtraBackup", "Cloud storage"],
+          "lab_task": "Add a cross-region replica and copied backups, run a DR drill that promotes the other region, fail back and automate a weekly restore test.",
+          "deliverable": "DR plan, drill report and restore test job",
+          "checks": [["Run the DR drill", "Service restored within the target", "Drill report"], ["Fail back", "Original region primary again", "Drill report"], ["Run the restore test", "Backup restored and verified", "Job log"]],
+          "objectives": ["Plan DR", "Run DR drills", "Test backups automatically"]
+        },
+        {
+          "topic": "Schema Changes at Scale",
+          "subtopics": ["Change processes for many teams", "Linting schema changes", "Online change tools at scale", "Throttling on replica lag", "Changes across many shards", "Backwards-compatible changes", "Expand and contract", "Rollback"],
+          "tools": ["gh-ost", "Skeema or Atlas", "Vitess online DDL"],
+          "lab_task": "Set up a schema change pipeline with linting and gh-ost throttled on replica lag, run an expand and contract column rename over three releases and roll back a bad change.",
+          "deliverable": "Pipeline, change records and rollback evidence",
+          "checks": [["Submit a change without a primary key", "Linter rejects it", "Pipeline log"], ["Run the change under replication", "Throttles when lag rises", "gh-ost log"], ["Rename with expand and contract", "No failed requests at any step", "Load test output"]],
+          "objectives": ["Run schema changes at scale", "Throttle safely", "Rename without downtime"]
+        },
+        {
+          "topic": "Advanced Query Optimisation",
+          "subtopics": ["Cost model", "Histograms", "Optimizer hints", "Hash joins", "Derived table merging and condition pushdown", "Index merge", "Plan stability across upgrades", "Query rewrite plugin"],
+          "tools": ["EXPLAIN ANALYZE", "Optimizer trace", "Histograms"],
+          "lab_task": "Fix a bad join with a histogram, force a plan with an optimizer hint as a last resort, rewrite a query in the application with the rewrite plugin and compare plans before and after an upgrade.",
+          "deliverable": "Plans, fixes and notes",
+          "checks": [["Add a histogram", "Estimate and plan improve", "EXPLAIN ANALYZE output"], ["Use the rewrite plugin", "Query rewritten without code changes", "Query log"], ["Compare plans across versions", "Differences found and handled", "Plan comparison"]],
+          "objectives": ["Use histograms and hints", "Rewrite queries", "Keep plans stable"]
+        },
+        {
+          "topic": "Large Tables and Data Archiving",
+          "subtopics": ["Problems with very large tables", "Archiving strategies", "pt-archiver", "Partition-based archiving", "Cold storage for old data", "Purging with low impact", "Querying archived data", "Retention rules"],
+          "tools": ["Percona Toolkit", "Partitioning", "Object storage"],
+          "lab_task": "Archive two years of old orders from a 500-million-row table with pt-archiver under load, move archives to object storage and keep them queryable.",
+          "deliverable": "Archive process, impact measurements and query examples",
+          "checks": [["Run the archiver under load", "Latency stays within the target", "Monitoring graph"], ["Measure table size", "Size reduced", "Size query result"], ["Query archived data", "Old orders still retrievable", "Query result"]],
+          "objectives": ["Manage large tables", "Archive with low impact", "Keep old data available"]
+        },
+        {
+          "topic": "Security Hardening and Compliance",
+          "subtopics": ["Threats to MySQL", "Least privilege at scale", "Separation of duties", "Encryption and key management", "Audit requirements for PCI DSS", "Masking data for test environments", "Patch management", "Evidence for auditors"],
+          "tools": ["Audit log", "Keyring", "Data masking functions"],
+          "lab_task": "Review a server against the CIS MySQL benchmark, fix failures, build a masked test copy and prepare audit evidence for access to card data.",
+          "deliverable": "Benchmark results, masked database and evidence pack",
+          "checks": [["Re-run the benchmark", "Failures fixed or justified", "Benchmark report"], ["Query the masked copy", "No real personal data", "Query result"], ["Review the evidence", "Access traceable to people", "Evidence pack"]],
+          "objectives": ["Harden MySQL", "Meet compliance needs", "Mask test data"]
+        },
+        {
+          "topic": "MySQL HeatWave for Analytics and Machine Learning",
+          "subtopics": ["HeatWave architecture", "Loading data into HeatWave", "Analytics queries on HeatWave", "HeatWave AutoML", "HeatWave Lakehouse", "Vector store and generative AI features", "Cost and sizing", "When to use HeatWave"],
+          "tools": ["MySQL HeatWave on OCI or AWS"],
+          "lab_task": "Load sales data into HeatWave, compare analytic query times with InnoDB, train a churn model with AutoML and estimate monthly cost.",
+          "deliverable": "Timing comparison, model results and cost estimate",
+          "checks": [["Compare query times", "HeatWave much faster for the analytic query", "Timing table"], ["Train with AutoML", "Model and accuracy reported", "AutoML output"], ["Estimate cost", "Monthly cost for the workload", "Cost estimate"]],
+          "objectives": ["Use HeatWave", "Run analytics and ML in MySQL", "Weigh cost"]
+        },
+        {
+          "topic": "Migrating to and Between MySQL Platforms",
+          "subtopics": ["Migration assessment", "Oracle and SQL Server to MySQL", "Schema and code conversion", "Data migration with DMS or MySQL Shell", "MySQL to Aurora or HeatWave", "Validating migrations", "Cutover with replication", "Post-migration tuning"],
+          "tools": ["AWS DMS", "MySQL Shell", "pt-table-checksum"],
+          "lab_task": "Migrate a SQL Server schema to MySQL, then move a MySQL database to Aurora using replication for cutover, validating data and measuring downtime.",
+          "deliverable": "Assessment, converted schema, validation and cutover log",
+          "checks": [["Validate data", "Row counts and checksums match", "Validation report"], ["Cut over to Aurora", "Downtime within the target", "Cutover log"], ["Compare performance", "Key queries within agreed limits", "Timing table"]],
+          "objectives": ["Plan migrations", "Convert schemas", "Cut over safely"]
+        },
+        {
+          "topic": "Observability for MySQL Fleets",
+          "subtopics": ["Fleet monitoring", "Query analytics across servers", "Error log aggregation", "Replication health across many clusters", "SLOs for databases", "Alert design", "Dashboards for teams", "Using data in capacity reviews"],
+          "tools": ["PMM", "Prometheus", "Grafana", "Loki"],
+          "lab_task": "Monitor 20 servers with PMM and Grafana, aggregate error logs, define database SLOs and alerts and find the worst query across the fleet.",
+          "deliverable": "Dashboards, SLOs and alerts",
+          "checks": [["Find the worst query", "Query and servers identified", "Query analytics"], ["Break replication on one server", "Alert fires for that cluster", "Alert notification"], ["Review SLOs", "Availability and latency targets defined", "SLO document"]],
+          "objectives": ["Monitor fleets", "Define database SLOs", "Find fleet-wide problems"]
+        },
+        {
+          "topic": "Capacity Planning and Cost",
+          "subtopics": ["Growth forecasting", "Storage, CPU and connections", "Read scaling options", "Instance sizing in clouds", "Reserved capacity", "Archiving to save cost", "Consolidating databases", "Capacity reviews"],
+          "tools": ["PMM", "Spreadsheet", "Cloud pricing tools"],
+          "lab_task": "Forecast growth for 18 months, decide when to add replicas or shards, plan archiving and estimate savings from consolidating small databases.",
+          "deliverable": "Forecast, scaling plan and savings estimate",
+          "checks": [["Review the forecast", "Based on at least three months of data", "Forecast chart"], ["Set scaling triggers", "Thresholds and lead times stated", "Scaling plan"], ["Estimate savings", "Consolidation savings calculated", "Savings estimate"]],
+          "objectives": ["Forecast capacity", "Plan scaling", "Reduce cost"]
+        },
+        {
+          "topic": "Automating MySQL Operations",
+          "subtopics": ["Infrastructure as code for databases", "Ansible roles", "Terraform for managed MySQL", "Automated failover tests", "Automated backup checks", "Self-service provisioning", "Change management", "Runbook automation"],
+          "tools": ["Ansible", "Terraform", "GitHub Actions"],
+          "lab_task": "Automate a full cluster build with Ansible, provision managed MySQL with Terraform and schedule an automated failover test and restore test.",
+          "deliverable": "Ansible roles, Terraform code and test pipelines",
+          "checks": [["Build a cluster from scratch", "Cluster ready with no manual steps", "Ansible output"], ["Run the failover test pipeline", "Failover verified and reported", "Pipeline log"], ["Run the restore test pipeline", "Restore verified and reported", "Pipeline log"]],
+          "objectives": ["Automate operations", "Provision as code", "Test failover and restores automatically"]
+        },
+        {
+          "topic": "Multi-Tenant MySQL Design",
+          "subtopics": ["Shared schema, schema per tenant and database per tenant", "Tenant isolation", "Noisy neighbours", "Moving tenants", "Migrations across many schemas", "Backups per tenant", "Sharding by tenant", "Choosing a model"],
+          "tools": ["MySQL", "Vitess", "Ansible"],
+          "lab_task": "Build a SaaS schema in shared and per-tenant models, migrate 500 tenant schemas, move a large tenant to its own server and compare operational effort.",
+          "deliverable": "Two designs, migration timings and comparison",
+          "checks": [["Migrate 500 schemas", "All migrated with time recorded", "Migration log"], ["Move a tenant", "Tenant moved with little downtime", "Cutover log"], ["Compare models", "Effort and risk compared", "Comparison table"]],
+          "objectives": ["Design multi-tenant systems", "Move tenants", "Choose a model"]
+        },
+        {
+          "topic": "Troubleshooting Production MySQL Incidents",
+          "subtopics": ["An incident method", "Sudden slow queries", "Connection storms", "Replication breaks and lag", "Disk full from binary logs", "Metadata lock pile-ups", "Crash recovery", "Post-incident reviews"],
+          "tools": ["Performance Schema", "PMM", "Error logs", "pt-stalk"],
+          "lab_task": "Diagnose five injected incidents (a metadata lock pile-up, a connection storm, broken replication from a duplicate key, binary logs filling the disk and a plan change), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix broken replication", "Replica consistent and running again", "Replica status and checksum"], ["Free disk space", "Binary log retention fixed", "Disk usage output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Running MySQL as a Database Platform",
+          "subtopics": ["Platform responsibilities", "Standard builds", "Service levels", "Onboarding teams", "Schema review rules", "Developer training", "Platform health measures", "Roadmap"],
+          "tools": ["Internal developer portal", "Terraform", "Documentation templates"],
+          "lab_task": "Design a MySQL platform for 30 teams with standard builds, service levels, an onboarding guide, schema review rules and a 12-month roadmap.",
+          "deliverable": "Platform design, onboarding guide and roadmap",
+          "checks": [["Review service levels", "Availability, recovery and support times defined", "Platform design"], ["Review the onboarding guide", "Teams can get a database without asking DBAs", "Onboarding guide"], ["Present the roadmap", "Priorities linked to platform measures", "Presentation"]],
+          "objectives": ["Run a MySQL platform", "Support many teams", "Plan the platform"]
+        },
+        {
+          "topic": "Advanced Capstone: Large-Scale MySQL Platform",
+          "subtopics": ["Architecture", "Availability and scale", "Operations", "Game day"],
+          "tools": ["InnoDB ClusterSet or Vitess", "Orchestrator", "ProxySQL", "PMM", "Ansible"],
+          "lab_task": "Design and build a MySQL platform for a high-traffic shop: a cross-region topology, sharding or ClusterSet, proxies, online schema change pipeline, archiving, hardening and automation, then run a game day with region failover, a schema change and an incident.",
+          "deliverable": "Architecture records, automation, game day report and review presentation",
+          "checks": [["Fail over the region in the game day", "Service restored within the target", "Game day report"], ["Run a schema change under load", "No failed requests", "Load test output"], ["Present to the review board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run MySQL at scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}
