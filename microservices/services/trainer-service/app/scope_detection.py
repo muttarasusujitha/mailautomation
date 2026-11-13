@@ -57,11 +57,15 @@ _FAMILY_HOSTS = {"DevOps": "DevOps and CI/CD"}
 # Courses that a host programme already teaches: the DevOps course has its own
 # Prometheus and Grafana days, so "DevOps, Kubernetes, Prometheus, Grafana" stays one
 # DevOps block plus Kubernetes. "MERN Stack: React, Node.js, Express and MongoDB" is
-# one MERN block, and Node.js next to Full Stack stays inside Full Stack as it did
-# before Node.js had its own course.
+# one MERN block. The full stack programmes teach HTML and CSS themselves, and Node.js,
+# Django and FastAPI listed next to them stay inside them as they did before those
+# technologies had their own courses.
 _HOST_EXTRAS = {"DevOps": {"Prometheus and Grafana"},
                 "MERN Stack": {"MongoDB", "React", "Node.js"},
-                "Full Stack": {"Node.js"}}
+                "Full Stack": {"Node.js", "HTML and CSS"},
+                "Java Full Stack": {"HTML and CSS"},
+                "Python Full Stack": {"HTML and CSS", "Django", "FastAPI"},
+                ".NET Full Stack": {"HTML and CSS"}}
 _PRIOR_KNOWLEDGE = re.compile(
     r"\b(?:know|knows|knowledge of|familiar with|experience (?:in|with)|experienced in|"
     r"prerequisites?|prior|already (?:use|using|work with))\s+(?:[a-z0-9+#.]+\s+){0,3}$")

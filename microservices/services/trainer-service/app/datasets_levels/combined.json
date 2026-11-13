@@ -6493,6 +6493,603 @@
           "Add search with Atlas"
         ]
       }
+    },
+    {
+      "between": [
+        "HTML and CSS",
+        "React"
+      ],
+      "day": {
+        "topic": "From Static HTML and CSS to React Components",
+        "subtopics": [
+          "Finding components in a static page",
+          "Turning HTML into JSX: attributes, self-closing tags and className",
+          "Moving page styles into CSS Modules or Tailwind classes",
+          "Keeping semantic landmarks and headings in components",
+          "Props for repeated markup",
+          "Forms with labels and accessible errors in React",
+          "Global styles, resets and design tokens in a React app",
+          "Checking the result against the original page"
+        ],
+        "tools": [
+          "React",
+          "Vite",
+          "CSS Modules",
+          "Tailwind CSS",
+          "axe DevTools"
+        ],
+        "lab_task": "Convert a finished static HTML and CSS landing page into React components with CSS Modules, keep its semantics and accessibility, replace repeated markup with props and compare the result with the original.",
+        "deliverable": "Component version of the page with a comparison report",
+        "checks": [
+          [
+            "Compare with the original",
+            "React page matches the static page visually",
+            "Screenshot comparison"
+          ],
+          [
+            "Keep semantics",
+            "Landmarks and heading order unchanged",
+            "axe and outline reports"
+          ],
+          [
+            "Reuse markup",
+            "Repeated cards rendered from one component with props",
+            "Code review"
+          ]
+        ],
+        "objectives": [
+          "Turn static pages into React components",
+          "Keep semantics and accessibility",
+          "Organise styles in React"
+        ]
+      }
+    },
+    {
+      "between": [
+        "HTML and CSS",
+        "Angular"
+      ],
+      "day": {
+        "topic": "From Static HTML and CSS to Angular Components: Templates, View Encapsulation and Styles",
+        "subtopics": [
+          "Splitting a static page into Angular components",
+          "Moving markup into templates with control flow",
+          "Component styles and view encapsulation",
+          "Global styles, themes and design tokens",
+          "Host styles and :host selectors",
+          "Accessible forms with reactive forms",
+          "Using Angular Material or CDK without losing semantics",
+          "Checking the result against the original page"
+        ],
+        "tools": [
+          "Angular",
+          "Angular CLI",
+          "Sass",
+          "axe DevTools"
+        ],
+        "lab_task": "Convert a static HTML and CSS dashboard into Angular components with encapsulated styles and global tokens, rebuild its form with reactive forms and confirm the result matches the original.",
+        "deliverable": "Angular version of the page with a comparison report",
+        "checks": [
+          [
+            "Compare with the original",
+            "Angular page matches the static page visually",
+            "Screenshot comparison"
+          ],
+          [
+            "Check encapsulation",
+            "Component styles do not leak to other components",
+            "DOM inspection"
+          ],
+          [
+            "Run axe",
+            "No new accessibility issues after conversion",
+            "axe report"
+          ]
+        ],
+        "objectives": [
+          "Turn static pages into Angular components",
+          "Use view encapsulation",
+          "Keep pages accessible"
+        ]
+      }
+    },
+    {
+      "between": [
+        "HTML and CSS",
+        "Vue.js"
+      ],
+      "day": {
+        "topic": "From Static HTML and CSS to Vue Single-File Components",
+        "subtopics": [
+          "Splitting a static page into single-file components",
+          "Template syntax compared with plain HTML",
+          "Scoped styles and CSS modules in .vue files",
+          "Props and slots for repeated layouts",
+          "Global styles and design tokens",
+          "Accessible forms with v-model",
+          "Transitions in place of CSS-only effects",
+          "Checking the result against the original page"
+        ],
+        "tools": [
+          "Vue 3",
+          "Vite",
+          "Scoped CSS",
+          "axe DevTools"
+        ],
+        "lab_task": "Convert a static HTML and CSS product page into Vue single-file components with scoped styles, slots for layouts and an accessible v-model form, and compare the result with the original.",
+        "deliverable": "Vue version of the page with a comparison report",
+        "checks": [
+          [
+            "Compare with the original",
+            "Vue page matches the static page visually",
+            "Screenshot comparison"
+          ],
+          [
+            "Use slots",
+            "Layout component reused by three sections through slots",
+            "Code review"
+          ],
+          [
+            "Check scoping",
+            "Scoped styles stay inside their components",
+            "DOM inspection"
+          ]
+        ],
+        "objectives": [
+          "Turn static pages into Vue components",
+          "Use scoped styles and slots",
+          "Keep forms accessible"
+        ]
+      }
+    },
+    {
+      "between": [
+        "HTML and CSS",
+        "MERN Stack"
+      ],
+      "day": {
+        "topic": "Styling the MERN Client: Responsive Layouts and Accessible Forms",
+        "subtopics": [
+          "A design system for the MERN client",
+          "Responsive layouts with Grid and Flexbox in React",
+          "Tailwind CSS or CSS Modules in a Vite client",
+          "Accessible forms that show Express validation errors",
+          "Loading, empty and error states",
+          "Dark mode with custom properties",
+          "Images from cloud storage with responsive sizes",
+          "Lighthouse and axe checks on the client"
+        ],
+        "tools": [
+          "React",
+          "Tailwind CSS",
+          "CSS Modules",
+          "Lighthouse",
+          "axe DevTools"
+        ],
+        "lab_task": "Style the MERN job board client with a responsive layout, a token-based theme with dark mode, accessible forms that show server errors and responsive images, then pass Lighthouse and axe checks.",
+        "deliverable": "Styled MERN client with audit reports",
+        "checks": [
+          [
+            "Resize the client",
+            "Layout works at phone and desktop widths",
+            "Screenshots"
+          ],
+          [
+            "Show server errors",
+            "Express validation errors appear beside the fields",
+            "Screenshot"
+          ],
+          [
+            "Audit the client",
+            "Lighthouse accessibility score of 95 or more",
+            "Lighthouse report"
+          ]
+        ],
+        "objectives": [
+          "Style a MERN client",
+          "Build accessible forms",
+          "Audit quality"
+        ]
+      }
+    },
+    {
+      "between": [
+        "HTML and CSS",
+        "Django"
+      ],
+      "day": {
+        "topic": "Django Templates with Modern HTML and CSS: Layouts, Forms and Static Assets",
+        "subtopics": [
+          "Base templates with semantic landmarks",
+          "Template blocks for page sections",
+          "Rendering Django forms with accessible markup",
+          "Styling form errors and help text",
+          "Static files, Sass and Tailwind with Django",
+          "Responsive layouts in templates",
+          "Template partials for components",
+          "Checking pages with axe and Lighthouse"
+        ],
+        "tools": [
+          "Django templates",
+          "Tailwind CSS or Sass",
+          "django-widget-tweaks",
+          "axe DevTools"
+        ],
+        "lab_task": "Rebuild the Django site's templates with semantic layouts, accessible form rendering with styled errors, a Tailwind build wired into static files and reusable partials, then audit the pages.",
+        "deliverable": "Restyled templates with audit reports",
+        "checks": [
+          [
+            "Render a form with errors",
+            "Errors linked to their fields and announced",
+            "Screen reader notes"
+          ],
+          [
+            "Build the CSS",
+            "Tailwind output collected as a static file",
+            "collectstatic output"
+          ],
+          [
+            "Audit the pages",
+            "No serious axe issues on any page",
+            "axe reports"
+          ]
+        ],
+        "objectives": [
+          "Write modern HTML in Django templates",
+          "Style Django forms",
+          "Manage CSS assets in Django"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Django",
+        "React"
+      ],
+      "day": {
+        "topic": "React Front End on a Django REST API: Auth, CSRF and Deployment",
+        "subtopics": [
+          "Choosing session or token authentication for a React client",
+          "CSRF with session-authenticated DRF views",
+          "CORS settings for development and production",
+          "A typed client from the drf-spectacular schema",
+          "Mapping DRF validation errors to React forms",
+          "Pagination and filters between DRF and React",
+          "Serving the React build with Django or a CDN",
+          "Running both in Docker Compose"
+        ],
+        "tools": [
+          "Django REST Framework",
+          "drf-spectacular",
+          "React",
+          "Vite",
+          "Docker Compose"
+        ],
+        "lab_task": "Connect a React client to a DRF API with session authentication and CSRF, generate a typed client from the schema, map validation errors to fields and run both in Docker Compose.",
+        "deliverable": "Django and React application with deployment configuration",
+        "checks": [
+          [
+            "Sign in",
+            "Session login works and CSRF-protected writes succeed",
+            "Screen recording"
+          ],
+          [
+            "Show validation errors",
+            "DRF field errors appear on the matching inputs",
+            "Screenshot"
+          ],
+          [
+            "Regenerate the client",
+            "Schema change updates the TypeScript client",
+            "Generated file diff"
+          ]
+        ],
+        "objectives": [
+          "Connect React to Django APIs",
+          "Handle sessions and CSRF",
+          "Share API contracts"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Django",
+        "PostgreSQL"
+      ],
+      "day": {
+        "topic": "PostgreSQL Features from Django: JSONB, Arrays, Ranges and Exclusion Constraints",
+        "subtopics": [
+          "JSONField and JSONB queries",
+          "ArrayField and its lookups",
+          "Range fields for bookings and prices",
+          "ExclusionConstraint to prevent overlaps",
+          "GIN and GiST indexes from Django",
+          "Database functions and expressions",
+          "Raw SQL when the ORM is not enough",
+          "Checking plans with EXPLAIN"
+        ],
+        "tools": [
+          "django.contrib.postgres",
+          "PostgreSQL",
+          "psql"
+        ],
+        "lab_task": "Store event metadata in JSONB, tags in arrays and bookings as date ranges, block overlapping room bookings with an exclusion constraint, index each with GIN or GiST and check the plans.",
+        "deliverable": "PostgreSQL-backed features with query plans",
+        "checks": [
+          [
+            "Prevent overlaps",
+            "Overlapping room booking rejected by the database",
+            "Error output"
+          ],
+          [
+            "Query JSONB",
+            "Events filtered by a JSON attribute",
+            "Query results"
+          ],
+          [
+            "Check the plans",
+            "Queries use the GIN or GiST indexes",
+            "EXPLAIN output"
+          ]
+        ],
+        "objectives": [
+          "Use PostgreSQL features from Django",
+          "Enforce rules with exclusion constraints",
+          "Index advanced data types"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Django",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for Django Projects: Typing, Tooling and Management Commands",
+        "subtopics": [
+          "Project layout and pyproject.toml for Django",
+          "Type hints with django-stubs and mypy",
+          "Ruff for linting and formatting",
+          "Custom management commands",
+          "Reusable service functions in plain Python",
+          "Logging configuration",
+          "Dependency management with uv",
+          "Pre-commit hooks for a Django team"
+        ],
+        "tools": [
+          "Python",
+          "uv",
+          "mypy",
+          "django-stubs",
+          "Ruff",
+          "pre-commit"
+        ],
+        "lab_task": "Add pyproject-based tooling to a Django project, type-check it with django-stubs, write a management command for nightly clean-up and enforce Ruff and mypy with pre-commit.",
+        "deliverable": "Project tooling and a management command",
+        "checks": [
+          [
+            "Type-check the project",
+            "mypy passes with django-stubs",
+            "mypy output"
+          ],
+          [
+            "Run the command",
+            "Clean-up command reports what it removed",
+            "Command output"
+          ],
+          [
+            "Commit bad code",
+            "Pre-commit hook blocks the commit",
+            "Terminal output"
+          ]
+        ],
+        "objectives": [
+          "Apply Python engineering practices to Django",
+          "Type-check Django code",
+          "Write management commands"
+        ]
+      }
+    },
+    {
+      "between": [
+        "FastAPI",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for FastAPI Services: Typing, Async Patterns and Packaging",
+        "subtopics": [
+          "Type hints that drive FastAPI validation",
+          "mypy and Pyright for API code",
+          "Async patterns: gather, timeouts and task groups",
+          "Context managers for resources",
+          "Packaging a service with pyproject.toml and uv",
+          "Configuration and logging modules",
+          "Pytest fixtures for async code",
+          "Pre-commit with Ruff and type checks"
+        ],
+        "tools": [
+          "Python",
+          "uv",
+          "mypy or Pyright",
+          "Ruff",
+          "pytest-asyncio"
+        ],
+        "lab_task": "Restructure a FastAPI service as a typed package with uv, use task groups and timeouts for concurrent calls, manage resources with context managers and enforce types and lint in pre-commit.",
+        "deliverable": "Packaged service with tooling",
+        "checks": [
+          [
+            "Type-check the service",
+            "Type checker passes with no ignores",
+            "Type checker output"
+          ],
+          [
+            "Run concurrent calls",
+            "Task group cancels the rest when one call fails",
+            "Test output"
+          ],
+          [
+            "Build the package",
+            "Wheel builds and installs cleanly",
+            "Build output"
+          ]
+        ],
+        "objectives": [
+          "Apply Python engineering to FastAPI",
+          "Use async patterns correctly",
+          "Package services"
+        ]
+      }
+    },
+    {
+      "between": [
+        "FastAPI",
+        "React"
+      ],
+      "day": {
+        "topic": "React Front End on a FastAPI Back End: Typed Clients, Auth and CORS",
+        "subtopics": [
+          "Project layout for a React client and a FastAPI service",
+          "A typed client generated from the OpenAPI schema",
+          "JWT or cookie sessions for the browser",
+          "CORS settings that match the deployment",
+          "Mapping 422 validation errors to React forms",
+          "TanStack Query for server state",
+          "File uploads from React to FastAPI",
+          "Serving both behind one domain"
+        ],
+        "tools": [
+          "FastAPI",
+          "React",
+          "Vite",
+          "openapi-typescript",
+          "TanStack Query"
+        ],
+        "lab_task": "Connect a React client to a FastAPI service with a generated typed client, cookie sessions, CORS, field-level 422 errors, TanStack Query caching and uploads, served behind one domain.",
+        "deliverable": "FastAPI and React application with deployment configuration",
+        "checks": [
+          [
+            "Regenerate the client",
+            "Schema change updates the TypeScript types",
+            "Generated file diff"
+          ],
+          [
+            "Show validation errors",
+            "422 errors appear on the matching inputs",
+            "Screenshot"
+          ],
+          [
+            "Call from another origin",
+            "Unlisted origin blocked by CORS",
+            "Browser console"
+          ]
+        ],
+        "objectives": [
+          "Connect React to FastAPI",
+          "Generate typed clients",
+          "Configure auth and CORS"
+        ]
+      }
+    },
+    {
+      "between": [
+        "FastAPI",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Packaging a Trained Model as a FastAPI Prediction Service",
+        "subtopics": [
+          "Saving and loading trained models",
+          "Feature schemas with Pydantic",
+          "Preprocessing inside the service",
+          "Single and batch prediction endpoints",
+          "Model version in every response",
+          "Logging inputs and predictions for monitoring",
+          "Load testing inference",
+          "Shipping the service in a container"
+        ],
+        "tools": [
+          "scikit-learn",
+          "joblib or ONNX",
+          "FastAPI",
+          "Pydantic",
+          "Docker",
+          "Locust"
+        ],
+        "lab_task": "Take a trained scikit-learn model, serve it with FastAPI using Pydantic feature schemas, shared preprocessing, single and batch endpoints and version tags, then load test and containerise it.",
+        "deliverable": "Prediction service with load test results",
+        "checks": [
+          [
+            "Predict",
+            "Response includes the prediction and model version",
+            "Response"
+          ],
+          [
+            "Send bad features",
+            "Invalid features rejected by the schema",
+            "Response"
+          ],
+          [
+            "Load test",
+            "Service meets the agreed requests per second",
+            "Locust report"
+          ]
+        ],
+        "objectives": [
+          "Serve trained models with FastAPI",
+          "Validate model inputs",
+          "Prepare inference for production"
+        ]
+      }
+    },
+    {
+      "between": [
+        "FastAPI",
+        "Agentic AI"
+      ],
+      "day": {
+        "topic": "Serving Agents Behind FastAPI: Streaming, Sessions and Tool Permissions",
+        "subtopics": [
+          "Exposing an agent as an API",
+          "Streaming agent steps and answers with server-sent events",
+          "Conversation sessions and memory storage",
+          "Per-user tool permissions",
+          "Human approval endpoints for risky actions",
+          "Timeouts and cancellation of long runs",
+          "Cost and token limits per user",
+          "Tracing agent runs from the API"
+        ],
+        "tools": [
+          "FastAPI",
+          "LangGraph or the OpenAI Agents SDK",
+          "Redis",
+          "sse-starlette",
+          "LangSmith or OpenTelemetry"
+        ],
+        "lab_task": "Wrap an existing agent in a FastAPI service that streams steps, stores sessions in Redis, checks tool permissions per user, pauses for approval on risky actions and enforces token limits.",
+        "deliverable": "Agent API with tests and traces",
+        "checks": [
+          [
+            "Stream a run",
+            "Steps and final answer arrive as events",
+            "Client output"
+          ],
+          [
+            "Request approval",
+            "Risky tool call waits for an approval endpoint",
+            "API log"
+          ],
+          [
+            "Exceed the limit",
+            "Run stopped when the user's token limit is reached",
+            "Response"
+          ]
+        ],
+        "objectives": [
+          "Serve agents through FastAPI",
+          "Control tools and approvals",
+          "Limit agent cost"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -9692,6 +10289,240 @@
           "Combine TypeScript and Node.js",
           "Share contracts between services",
           "Defend design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "HTML and CSS",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Accessible React Site from a Static Design",
+        "subtopics": [
+          "Static build",
+          "React conversion",
+          "Quality",
+          "Launch"
+        ],
+        "tools": [
+          "HTML",
+          "CSS",
+          "React",
+          "Vite",
+          "axe DevTools",
+          "Lighthouse"
+        ],
+        "lab_task": "Build a static, accessible site from a design, convert it into React components without losing semantics or performance, and launch it with audit reports.",
+        "deliverable": "Live site, repository and audit reports",
+        "checks": [
+          [
+            "Show both versions",
+            "Static and React versions match the design",
+            "Screenshots"
+          ],
+          [
+            "Prove accessibility",
+            "No serious axe issues in the React version",
+            "axe report"
+          ],
+          [
+            "Prove performance",
+            "Lighthouse scores of 90 or more",
+            "Lighthouse report"
+          ]
+        ],
+        "objectives": [
+          "Combine HTML, CSS and React",
+          "Keep quality through conversion",
+          "Launch a real site"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Django",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Django API with a React Front End",
+        "subtopics": [
+          "API",
+          "Client",
+          "Tests",
+          "Ship"
+        ],
+        "tools": [
+          "Django REST Framework",
+          "React",
+          "PostgreSQL",
+          "Playwright",
+          "Docker"
+        ],
+        "lab_task": "Build a product with a DRF API and a React client, session authentication, typed contracts, uploads, background jobs, tests across both and a container deployment, then demo it.",
+        "deliverable": "Repository, live URL and demo recording",
+        "checks": [
+          [
+            "Demo the product",
+            "Main journeys work end to end",
+            "Demo recording"
+          ],
+          [
+            "Run the tests",
+            "API and end-to-end tests pass",
+            "Test reports"
+          ],
+          [
+            "Change a contract",
+            "Typed client catches the breaking change",
+            "CI log"
+          ]
+        ],
+        "objectives": [
+          "Combine Django and React",
+          "Keep API and client in step",
+          "Ship a tested product"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "FastAPI",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: FastAPI and React Product",
+        "subtopics": [
+          "API",
+          "Client",
+          "Tests",
+          "Ship"
+        ],
+        "tools": [
+          "FastAPI",
+          "React",
+          "PostgreSQL",
+          "TanStack Query",
+          "Playwright",
+          "Docker"
+        ],
+        "lab_task": "Build a product with a FastAPI service and a React client, typed contracts, sessions, uploads, real-time updates, tests across both and a container deployment, then demo it.",
+        "deliverable": "Repository, live URL and demo recording",
+        "checks": [
+          [
+            "Demo the product",
+            "Main journeys work end to end",
+            "Demo recording"
+          ],
+          [
+            "Run the tests",
+            "API and end-to-end tests pass",
+            "Test reports"
+          ],
+          [
+            "Show live updates",
+            "Real-time updates reach the client",
+            "Screen recording"
+          ]
+        ],
+        "objectives": [
+          "Combine FastAPI and React",
+          "Build a typed full stack product",
+          "Ship a tested product"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Django",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python and Django Web Application",
+        "subtopics": [
+          "Python foundations in the project",
+          "Django build",
+          "Tests and tooling",
+          "Deploy"
+        ],
+        "tools": [
+          "Python",
+          "Django",
+          "PostgreSQL",
+          "pytest",
+          "Ruff",
+          "Docker"
+        ],
+        "lab_task": "Build a Django web application with well-structured Python service code, typed modules, management commands, tests, linting and a production deployment, then present it.",
+        "deliverable": "Repository, live URL and presentation",
+        "checks": [
+          [
+            "Demo the application",
+            "Features work end to end",
+            "Demo recording"
+          ],
+          [
+            "Run quality checks",
+            "Tests, Ruff and mypy pass",
+            "CI run"
+          ],
+          [
+            "Explain the code",
+            "Python and Django design choices explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Python and Django",
+          "Deliver a well-engineered web app",
+          "Explain design choices"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "FastAPI",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python Service Built on FastAPI",
+        "subtopics": [
+          "Design",
+          "Build",
+          "Quality",
+          "Ship"
+        ],
+        "tools": [
+          "Python",
+          "FastAPI",
+          "SQLAlchemy",
+          "pytest",
+          "Ruff",
+          "Docker"
+        ],
+        "lab_task": "Build a typed Python service on FastAPI with a clean package layout, async data access, background work, tests, linting and type checks, and ship it in a container, then present it.",
+        "deliverable": "Repository, container image and presentation",
+        "checks": [
+          [
+            "Demo the service",
+            "Endpoints work from the docs page",
+            "Demo recording"
+          ],
+          [
+            "Run quality checks",
+            "Tests, Ruff and type checks pass",
+            "CI run"
+          ],
+          [
+            "Explain the design",
+            "Package and async choices explained",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Python and FastAPI",
+          "Deliver a production-style service",
+          "Explain design choices"
         ]
       }
     }

@@ -1,0 +1,573 @@
+{
+  "domain": "FastAPI",
+  "name": "FastAPI for Production Python APIs",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "zap",
+  "aliases": ["Fast API", "FastAPI Developer", "FastAPI Development", "FastAPI Training", "FastAPI Framework", "FastAPI Microservices", "FastAPI REST API", "FastAPI and Pydantic", "SQLModel"],
+  "certifications": ["No vendor certification; assessed by capstone project", "Python Institute PCAP: Certified Associate Python Programmer (Python foundation)"],
+  "tools": ["Python", "FastAPI", "Pydantic", "Uvicorn", "SQLAlchemy", "Alembic", "pytest", "HTTPX", "Docker", "Redis"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers building their first APIs. Covers FastAPI projects, path and query parameters, Pydantic request and response models, status codes and errors, automatic OpenAPI docs, dependency injection, SQLAlchemy and SQLModel, Alembic migrations, CRUD routers, async endpoints, OAuth2 password flow with JWT, settings, uploads, background tasks, middleware and CORS, testing, calling other APIs with HTTPX, pagination and running in Docker.",
+      "prerequisites": ["Writes Python functions, classes and modules", "Understands HTTP and JSON at a basic level", "Knows what a database table is"],
+      "outcomes": ["Build documented REST APIs with FastAPI and Pydantic", "Store data with SQLAlchemy and Alembic", "Secure endpoints with OAuth2 and JWT", "Test and containerise FastAPI services"],
+      "days": [
+        {
+          "topic": "FastAPI Overview and Project Setup",
+          "subtopics": ["What FastAPI is: Starlette, Pydantic and type hints", "Where FastAPI fits compared with Flask and Django", "Creating a virtual environment with uv or venv", "Installing FastAPI and the fastapi CLI", "A first endpoint and fastapi dev", "Uvicorn and ASGI in simple terms", "Automatic interactive docs", "Project folder layout", "Type hints refresher", "Calling the API from a browser, curl and HTTPie"],
+          "tools": ["Python", "FastAPI", "Uvicorn", "uv", "VS Code", "HTTPie"],
+          "lab_task": "Create a FastAPI project for a library service, write a health endpoint and a hello endpoint with type hints, run it with fastapi dev and call it from the docs page, curl and HTTPie.",
+          "deliverable": "Running project skeleton in a Git repository",
+          "checks": [["Run the dev server", "Server reloads on code changes", "Terminal output"], ["Open the docs", "Swagger UI lists both endpoints", "Browser screenshot"], ["Call with curl", "JSON response returned with status 200", "curl output"]],
+          "objectives": ["Explain how FastAPI works", "Create and run a FastAPI project", "Use the automatic docs"]
+        },
+        {
+          "topic": "Path Operations, Path and Query Parameters",
+          "subtopics": ["Path operation decorators for HTTP methods", "Path parameters with types", "Query parameters, defaults and optional values", "Validation with Path and Query", "Enums for fixed choices", "Multiple parameters together", "Order of routes", "Reading the generated schema"],
+          "tools": ["FastAPI", "Swagger UI"],
+          "lab_task": "Build endpoints to fetch books by ID, list books by genre with an enum, search by title with a length-checked query and page with limit and offset defaults.",
+          "deliverable": "Book lookup endpoints",
+          "checks": [["Send a non-numeric ID", "422 response explains the type error", "Response"], ["Use the genre enum", "Only allowed genres accepted", "Response"], ["Check the schema", "Parameters and limits shown in the docs", "Swagger UI screenshot"]],
+          "objectives": ["Define path operations", "Validate path and query parameters", "Read the generated schema"]
+        },
+        {
+          "topic": "Request Bodies with Pydantic Models",
+          "subtopics": ["Pydantic BaseModel", "Field types, defaults and constraints", "Nested models and lists", "Optional and required fields", "Field aliases and examples", "Validation errors", "Model configuration", "Converting models to dicts and JSON"],
+          "tools": ["Pydantic", "FastAPI"],
+          "lab_task": "Define Pydantic models for creating and updating books with constraints, nested author data and examples, and test validation errors from the docs page.",
+          "deliverable": "Request models with examples",
+          "checks": [["Send invalid data", "422 lists each invalid field", "Response"], ["Send nested data", "Nested author validated and returned", "Response"], ["View examples", "Example bodies shown in the docs", "Swagger UI screenshot"]],
+          "objectives": ["Model request bodies with Pydantic", "Add constraints", "Document examples"]
+        },
+        {
+          "topic": "Response Models, Status Codes and Errors",
+          "subtopics": ["response_model and filtering output", "Separate input and output models", "Status codes for create, update and delete", "HTTPException", "Custom exception handlers", "Consistent error bodies", "Response headers", "Documenting error responses"],
+          "tools": ["FastAPI", "Pydantic"],
+          "lab_task": "Return books through output models that hide internal fields, set correct status codes, raise HTTPException for missing books and add a handler that formats domain errors consistently.",
+          "deliverable": "Endpoints with clean responses and errors",
+          "checks": [["Create a book", "201 returned with the output model", "Response"], ["Request a missing book", "404 with a consistent error body", "Response"], ["Check hidden fields", "Internal fields never appear in responses", "Response"]],
+          "objectives": ["Shape responses with models", "Use correct status codes", "Handle errors consistently"]
+        },
+        {
+          "topic": "Automatic Docs: OpenAPI, Swagger UI and ReDoc",
+          "subtopics": ["How FastAPI builds the OpenAPI schema", "Tags, summaries and descriptions", "Documenting parameters and bodies", "Response examples and error responses", "ReDoc", "Hiding internal endpoints", "Exporting the OpenAPI document", "Generating clients from the schema"],
+          "tools": ["FastAPI", "Swagger UI", "ReDoc", "openapi-python-client"],
+          "lab_task": "Organise endpoints with tags, add summaries, descriptions and error responses, hide an internal endpoint, export the OpenAPI document and generate a Python client from it.",
+          "deliverable": "Documented API and generated client",
+          "checks": [["Read the docs", "Every endpoint has a summary and error responses", "ReDoc screenshot"], ["Hide an endpoint", "Internal endpoint absent from the schema", "Schema file"], ["Use the generated client", "Client calls the API successfully", "Script output"]],
+          "objectives": ["Document APIs with OpenAPI", "Organise docs", "Generate clients"]
+        },
+        {
+          "topic": "Dependency Injection with Depends",
+          "subtopics": ["What dependencies are", "Function dependencies", "Class dependencies", "Sub-dependencies", "Dependencies with yield for clean-up", "Shared dependencies for routers", "Overriding dependencies in tests", "Common uses: database sessions, users and settings"],
+          "tools": ["FastAPI Depends"],
+          "lab_task": "Write dependencies for pagination parameters, a database session with clean-up, the current user and a feature flag, share them across routers and override one in a test.",
+          "deliverable": "Dependency module with tests",
+          "checks": [["Reuse pagination", "Three endpoints share one pagination dependency", "Code review"], ["Clean up sessions", "Session closed after every request", "Log output"], ["Override in a test", "Test replaces the current user dependency", "Test output"]],
+          "objectives": ["Use dependency injection", "Share logic across endpoints", "Override dependencies in tests"]
+        },
+        {
+          "topic": "Databases with SQLAlchemy and SQLModel",
+          "subtopics": ["SQLAlchemy 2.0 models and sessions", "SQLModel as a combined option", "Connecting to PostgreSQL", "Creating, reading, updating and deleting rows", "Relationships between tables", "Session per request", "Separating database models from API models", "Avoiding common session mistakes"],
+          "tools": ["SQLAlchemy", "SQLModel", "PostgreSQL", "Docker"],
+          "lab_task": "Store books and authors in PostgreSQL with SQLAlchemy 2.0 models, use a session per request, load related authors and keep database and API models separate.",
+          "deliverable": "Database-backed endpoints",
+          "checks": [["Create and read books", "Data persists in PostgreSQL", "Query output"], ["Load relations", "Book responses include author names", "Response"], ["Separate models", "API models differ from database models where needed", "Code review"]],
+          "objectives": ["Use SQLAlchemy with FastAPI", "Manage sessions per request", "Model relationships"]
+        },
+        {
+          "topic": "Migrations with Alembic",
+          "subtopics": ["Why migrations matter", "Setting up Alembic with SQLAlchemy models", "Autogenerating migrations", "Reviewing migration scripts", "Upgrading and downgrading", "Data migrations", "Migrations in a team", "Running migrations at deployment"],
+          "tools": ["Alembic", "SQLAlchemy", "PostgreSQL"],
+          "lab_task": "Set up Alembic, autogenerate the first migration, add and rename columns with reviewed migrations, write a data migration and practise downgrading.",
+          "deliverable": "Migration history",
+          "checks": [["Autogenerate a migration", "Migration matches the model change", "Migration file"], ["Downgrade", "Database returns to the previous schema", "Command output"], ["Run a data migration", "Existing rows updated correctly", "Query output"]],
+          "objectives": ["Manage schema changes with Alembic", "Review generated migrations", "Run data migrations"]
+        },
+        {
+          "topic": "CRUD APIs with Routers",
+          "subtopics": ["APIRouter for grouping endpoints", "Prefixes, tags and shared dependencies", "CRUD for a resource", "PATCH with partial updates", "Service and repository functions", "Organising files by feature", "Including routers in the app", "Consistent naming for endpoints"],
+          "tools": ["FastAPI APIRouter", "SQLAlchemy"],
+          "lab_task": "Build books, authors and loans routers with full CRUD, partial updates with PATCH, service functions for business rules and a feature-based folder layout.",
+          "deliverable": "Complete CRUD API",
+          "checks": [["Patch a book", "Only sent fields change", "Response and database row"], ["Borrow a book", "Business rule blocks lending an unavailable book", "Response"], ["Review the layout", "Each feature has its router, models and services", "Folder structure"]],
+          "objectives": ["Structure APIs with routers", "Build CRUD endpoints", "Keep business rules in services"]
+        },
+        {
+          "topic": "Async Endpoints and When to Use Them",
+          "subtopics": ["async def and def endpoints", "How FastAPI runs sync endpoints", "Blocking calls inside async code", "Async database drivers", "Concurrent calls with asyncio.gather", "Timeouts with asyncio", "Measuring with simple load tests", "Choosing sync or async per endpoint"],
+          "tools": ["FastAPI", "asyncio", "HTTPX", "Locust or hey"],
+          "lab_task": "Compare sync and async versions of an endpoint that calls two slow services, find a blocking call inside async code, fix it and measure throughput under load.",
+          "deliverable": "Endpoint comparison with measurements",
+          "checks": [["Call services concurrently", "Latency close to the slower call", "Timing results"], ["Find blocking code", "Blocking call identified and moved off the event loop", "Code diff"], ["Measure throughput", "Throughput compared for both versions", "Load test output"]],
+          "objectives": ["Write async endpoints", "Avoid blocking the event loop", "Choose sync or async"]
+        },
+        {
+          "topic": "Authentication with OAuth2 Password Flow and JWT",
+          "subtopics": ["OAuth2PasswordBearer", "Hashing passwords with pwdlib or passlib", "Issuing JWTs", "Getting the current user from a token", "Token expiry", "Active and disabled users", "Scopes in brief", "Testing authenticated endpoints"],
+          "tools": ["FastAPI security", "PyJWT", "pwdlib"],
+          "lab_task": "Add user registration and login with hashed passwords and JWTs, protect loan endpoints, reject disabled users and test protected endpoints with tokens.",
+          "deliverable": "Authenticated API",
+          "checks": [["Call without a token", "401 returned", "Response"], ["Log in from the docs", "Authorize button works and calls succeed", "Swagger UI screenshot"], ["Use an expired token", "Request rejected with 401", "Response"]],
+          "objectives": ["Secure FastAPI endpoints", "Issue and verify JWTs", "Test authentication"]
+        },
+        {
+          "topic": "Settings and Secrets with pydantic-settings",
+          "subtopics": ["BaseSettings and environment variables", ".env files for development", "Typed and validated settings", "Settings as a dependency", "Different settings per environment", "Secrets outside the code", "Caching settings", "Overriding settings in tests"],
+          "tools": ["pydantic-settings", "FastAPI"],
+          "lab_task": "Move database URLs, secrets and feature flags into typed settings, fail fast on missing values, load per-environment files and override settings in tests.",
+          "deliverable": "Settings module with tests",
+          "checks": [["Start without a secret", "App refuses to start with a clear error", "Terminal output"], ["Switch environments", "Each environment loads its own values", "Terminal output"], ["Override in a test", "Test uses its own settings", "Test output"]],
+          "objectives": ["Manage configuration with pydantic-settings", "Validate settings", "Keep secrets out of code"]
+        },
+        {
+          "topic": "File Uploads and Form Data",
+          "subtopics": ["Form fields with Form", "UploadFile and File", "Validating size and type", "Saving files to disk or object storage", "Multiple uploads", "Streaming downloads with FileResponse and StreamingResponse", "Protecting downloads", "Cleaning up temporary files"],
+          "tools": ["FastAPI", "python-multipart", "MinIO or Amazon S3"],
+          "lab_task": "Add book cover uploads with type and size checks, store files in object storage, return covers through a download endpoint and stream a CSV export of the catalogue.",
+          "deliverable": "Upload and download endpoints",
+          "checks": [["Upload a cover", "File stored and linked to the book", "Response"], ["Upload a bad file", "Wrong type or size rejected", "Response"], ["Stream an export", "CSV download starts immediately", "Network timing"]],
+          "objectives": ["Handle uploads in FastAPI", "Store files safely", "Stream downloads"]
+        },
+        {
+          "topic": "Background Tasks and Simple Scheduling",
+          "subtopics": ["BackgroundTasks in FastAPI", "Sending emails after a response", "Limits of in-process tasks", "Lifespan events for start-up and shutdown", "Scheduling with APScheduler", "Avoiding duplicate schedules with several workers", "Logging background work", "When to move to a task queue"],
+          "tools": ["FastAPI BackgroundTasks", "APScheduler", "Lifespan events"],
+          "lab_task": "Send loan confirmation emails as background tasks, schedule a daily overdue check with APScheduler started in the lifespan, and explain what breaks with several workers.",
+          "deliverable": "Background work with notes on limits",
+          "checks": [["Borrow a book", "Response returns before the email is sent", "Timing log"], ["Run the schedule", "Overdue check runs at the set time", "Log output"], ["Run two workers", "Duplicate schedule problem shown and a fix proposed", "Notes"]],
+          "objectives": ["Run background work in FastAPI", "Use lifespan events", "Know when to use a queue"]
+        },
+        {
+          "topic": "Middleware, CORS and Request Logging",
+          "subtopics": ["How middleware works in FastAPI", "CORS for browser clients", "Request IDs and timing", "Structured logging", "Trusted hosts and HTTPS redirects", "GZip compression", "Order of middleware", "Not logging secrets"],
+          "tools": ["FastAPI middleware", "Starlette middleware", "structlog or loguru"],
+          "lab_task": "Add CORS for a web client, request ID and timing middleware, structured request logs without secrets, compression and trusted host checks.",
+          "deliverable": "Middleware setup and logging guide",
+          "checks": [["Call from the browser", "Allowed origin works and others are blocked", "Browser console"], ["Read the logs", "Each request logged with ID and duration", "Log sample"], ["Check redaction", "No tokens or passwords in logs", "Log search output"]],
+          "objectives": ["Add middleware", "Configure CORS", "Log requests safely"]
+        },
+        {
+          "topic": "Testing FastAPI with pytest and TestClient",
+          "subtopics": ["TestClient and HTTPX AsyncClient", "pytest fixtures for the app and database", "Test databases and transactions", "Overriding dependencies", "Testing authentication", "Testing errors and validation", "Coverage reports", "Running tests in CI"],
+          "tools": ["pytest", "TestClient", "HTTPX", "coverage.py"],
+          "lab_task": "Write tests for every endpoint with fixtures for a test database, override the current user, test validation and error responses and reach 80 percent coverage.",
+          "deliverable": "Test suite with coverage report",
+          "checks": [["Run the suite", "All tests pass", "pytest output"], ["Test as different users", "Dependency overrides switch users per test", "Test output"], ["Measure coverage", "Coverage of 80 percent or more", "Coverage report"]],
+          "objectives": ["Test FastAPI apps", "Use fixtures and overrides", "Measure coverage"]
+        },
+        {
+          "topic": "Calling Other APIs with HTTPX",
+          "subtopics": ["HTTPX sync and async clients", "Reusing a client across requests", "Timeouts and retries", "Handling error responses", "Authentication headers", "Mocking HTTP calls in tests", "Rate limits of external APIs", "Wrapping an external API in a client class"],
+          "tools": ["HTTPX", "respx", "tenacity"],
+          "lab_task": "Build a client for a public book data API with a shared async client, timeouts, retries with tenacity and error handling, use it to enrich books and mock it in tests.",
+          "deliverable": "External API client with tests",
+          "checks": [["Simulate a slow API", "Call stops at the timeout", "Log output"], ["Simulate failures", "Client retries and then returns a clear error", "Test output"], ["Mock in tests", "Tests pass without network access", "Test output"]],
+          "objectives": ["Call external APIs safely", "Handle timeouts and retries", "Mock HTTP in tests"]
+        },
+        {
+          "topic": "Pagination, Filtering and Sorting",
+          "subtopics": ["Offset and limit pagination", "Cursor pagination", "Returning totals and next links", "Filtering with query parameters", "Safe sorting by allowed fields", "Search with ILIKE or full-text search", "fastapi-pagination", "Performance of list endpoints"],
+          "tools": ["FastAPI", "SQLAlchemy", "fastapi-pagination"],
+          "lab_task": "Add cursor pagination, filters by genre and year, safe sorting and title search to the books list, return next links and check query performance.",
+          "deliverable": "List endpoints with pagination and filters",
+          "checks": [["Page through results", "Pages have no duplicates or gaps", "Test output"], ["Sort safely", "Unknown sort fields rejected", "Response"], ["Search titles", "Matching books returned quickly", "Timing output"]],
+          "objectives": ["Paginate APIs", "Filter and sort safely", "Keep list endpoints fast"]
+        },
+        {
+          "topic": "Running FastAPI in Docker with Uvicorn",
+          "subtopics": ["Dockerfile for FastAPI", "Uvicorn workers and the fastapi run command", "Multi-stage builds with uv", "Running as a non-root user", "Health checks", "Docker Compose with PostgreSQL", "Running migrations on start-up safely", "Graceful shutdown"],
+          "tools": ["Docker", "Docker Compose", "Uvicorn", "uv"],
+          "lab_task": "Containerise the API with a multi-stage build, run it with PostgreSQL in Docker Compose, apply migrations before start, add a health check and stop it gracefully.",
+          "deliverable": "Dockerfile and Compose setup",
+          "checks": [["Build the image", "Image runs as a non-root user", "docker inspect output"], ["Start with Compose", "API and database healthy with one command", "docker compose ps output"], ["Stop gracefully", "In-flight requests finish before exit", "Log output"]],
+          "objectives": ["Containerise FastAPI", "Run it with a database", "Shut down gracefully"]
+        },
+        {
+          "topic": "Beginner Capstone: Library Management API",
+          "subtopics": ["Plan", "Build", "Test", "Ship"],
+          "tools": ["FastAPI", "Pydantic", "SQLAlchemy", "Alembic", "pytest", "Docker"],
+          "lab_task": "Complete a library API with books, authors, members and loans, validation, JWT authentication, uploads, pagination, background emails, tests and Docker Compose, then demo it.",
+          "deliverable": "Repository, API docs and demo recording",
+          "checks": [["Demo the API", "All features work from the docs page", "Demo recording"], ["Run the tests", "Test suite passes with coverage", "Test report"], ["Start with one command", "docker compose up runs the full service", "Terminal recording"]],
+          "objectives": ["Combine the beginner topics in one project", "Build a complete FastAPI service", "Present working software"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already build FastAPI services. Covers project layout for larger services, Pydantic v2 validators and serializers, async SQLAlchemy 2.0, repository and service layers, authorisation with scopes and roles, OAuth2 and OpenID Connect providers, WebSockets and server-sent events, task queues, Redis caching, rate limiting and API keys, error standards, versioning, integration testing, observability, performance, the OWASP API Top 10, serving ML models, GraphQL with Strawberry and CI/CD.",
+      "prerequisites": ["Has built a FastAPI service with a database and authentication", "Comfortable with Python type hints and async/await", "Knows SQL basics"],
+      "outcomes": ["Structure FastAPI services for teams and growth", "Secure APIs with roles, scopes, identity providers and limits", "Add real-time, background, caching and ML features", "Test, observe, tune and deliver services through CI/CD"],
+      "days": [
+        {
+          "topic": "Project Layout for Larger FastAPI Services",
+          "subtopics": ["Feature-based package structure", "Separating API, domain and infrastructure code", "Application factory pattern", "Lifespan for start-up and shutdown resources", "Shared dependencies and settings", "Import rules between packages", "Templates for new services", "Documenting conventions"],
+          "tools": ["FastAPI", "import-linter", "cookiecutter or copier"],
+          "lab_task": "Restructure a growing service into feature packages with an application factory and lifespan-managed resources, enforce import rules and turn it into a service template.",
+          "deliverable": "Restructured service and template",
+          "checks": [["Enforce import rules", "Lint fails when the domain imports FastAPI", "Lint output"], ["Create from the template", "New service generated and running in minutes", "Terminal output"], ["Manage resources", "Database pool opened and closed in the lifespan", "Log output"]],
+          "objectives": ["Structure larger FastAPI services", "Separate layers", "Create service templates"]
+        },
+        {
+          "topic": "Advanced Pydantic v2: Validators, Serializers and Custom Types",
+          "subtopics": ["Field and model validators", "Before, after and wrap validators", "Computed fields", "Custom serializers", "Annotated types and reusable constraints", "Discriminated unions", "Strict mode", "Validation performance"],
+          "tools": ["Pydantic v2", "FastAPI"],
+          "lab_task": "Model an order API with discriminated unions for payment types, cross-field validators, reusable annotated types, computed totals and custom serialisation for money values.",
+          "deliverable": "Order models with tests",
+          "checks": [["Send each payment type", "Discriminated union picks the right model", "Response"], ["Break a cross-field rule", "Validator rejects the order with a clear message", "Response"], ["Serialise money", "Amounts returned in the agreed format", "Response"]],
+          "objectives": ["Use advanced Pydantic validation", "Model complex payloads", "Control serialisation"]
+        },
+        {
+          "topic": "Async SQLAlchemy 2.0 and Session Management",
+          "subtopics": ["Async engines and sessions", "asyncpg driver", "Session per request with dependencies", "Eager loading to avoid lazy-load errors", "Transactions and savepoints", "Connection pool settings", "Running sync code safely", "Testing with async sessions"],
+          "tools": ["SQLAlchemy 2.0 asyncio", "asyncpg", "PostgreSQL", "pytest-asyncio"],
+          "lab_task": "Move the service to async SQLAlchemy with asyncpg, load relations eagerly, wrap order placement in a transaction with a savepoint and tune the pool under load.",
+          "deliverable": "Async data layer with load results",
+          "checks": [["Load relations", "No lazy-load errors in async code", "Test output"], ["Roll back to a savepoint", "Partial failure undone while the order continues", "Test output"], ["Tune the pool", "No pool timeouts at the target load", "Load test results"]],
+          "objectives": ["Use async SQLAlchemy", "Manage async sessions and transactions", "Tune connection pools"]
+        },
+        {
+          "topic": "Repository and Service Layers with Dependency Overrides",
+          "subtopics": ["Why separate data access from endpoints", "Repository interfaces", "Service functions with business rules", "Unit of work pattern", "Wiring with Depends", "Fake repositories for tests", "Avoiding over-abstraction", "Mapping domain errors to HTTP"],
+          "tools": ["FastAPI Depends", "SQLAlchemy", "pytest"],
+          "lab_task": "Introduce repositories, services and a unit of work for orders, wire them with Depends, test services with fake repositories and map domain errors to HTTP codes.",
+          "deliverable": "Layered service with tests",
+          "checks": [["Test services alone", "Service tests use fake repositories and no database", "Test output"], ["Map domain errors", "Out-of-stock error becomes 409", "Response"], ["Commit once", "Unit of work commits all changes together", "Test output"]],
+          "objectives": ["Separate layers in FastAPI", "Test business logic in isolation", "Map errors cleanly"]
+        },
+        {
+          "topic": "Authorisation: Scopes, Roles and Row-Level Rules",
+          "subtopics": ["Authentication compared with authorisation", "OAuth2 scopes in FastAPI", "Role-based checks as dependencies", "Ownership and row-level rules", "Policy functions", "Admin overrides with audit", "Testing permission matrices", "Avoiding scattered checks"],
+          "tools": ["FastAPI security", "SQLAlchemy", "pytest"],
+          "lab_task": "Add scopes for read and write access, roles for customers, staff and admins, row-level rules so customers see only their orders, and a full permission test matrix.",
+          "deliverable": "Authorisation model and tests",
+          "checks": [["Read another customer's order", "404 or 403 returned", "Response"], ["Call with a read-only scope", "Write endpoints rejected", "Response"], ["Run the matrix", "Every role and endpoint combination tested", "Test output"]],
+          "objectives": ["Design API authorisation", "Enforce row-level rules", "Test permissions"]
+        },
+        {
+          "topic": "OAuth2 and OpenID Connect with External Identity Providers",
+          "subtopics": ["Identity providers: Keycloak, Auth0 and Microsoft Entra ID", "Validating access tokens with JWKS", "Audience and issuer checks", "Mapping claims to roles", "Client credentials for services", "Token caching for outgoing calls", "Swagger UI sign-in with OIDC", "Moving from local users to an identity provider"],
+          "tools": ["Keycloak or Auth0", "PyJWT or Authlib", "FastAPI"],
+          "lab_task": "Protect the API with tokens from Keycloak, validate signatures with JWKS, map claims to roles, sign in from Swagger UI and call another service with client credentials.",
+          "deliverable": "Identity provider integration",
+          "checks": [["Use a valid token", "Request accepted with mapped roles", "Response"], ["Use a token for another audience", "Request rejected", "Response"], ["Call a service", "Client credentials token used for the outgoing call", "Log output"]],
+          "objectives": ["Integrate identity providers", "Validate tokens correctly", "Secure service-to-service calls"]
+        },
+        {
+          "topic": "WebSockets and Server-Sent Events in FastAPI",
+          "subtopics": ["WebSocket endpoints", "Connection managers and rooms", "Authenticating WebSocket connections", "Server-sent events for one-way updates", "Broadcasting across workers with Redis", "Heartbeats and reconnection", "Backpressure for slow clients", "Testing real-time endpoints"],
+          "tools": ["FastAPI WebSockets", "sse-starlette", "Redis pub/sub"],
+          "lab_task": "Add live order status over WebSockets with per-customer rooms, a server-sent events feed for staff, broadcasting across two workers with Redis and tests for both.",
+          "deliverable": "Real-time endpoints with tests",
+          "checks": [["Track an order", "Customer sees status changes instantly", "Screen recording"], ["Run two workers", "Updates reach clients on both workers", "Test output"], ["Connect without a token", "WebSocket connection closed with a policy error", "Client output"]],
+          "objectives": ["Build real-time APIs", "Scale updates across workers", "Secure WebSocket connections"]
+        },
+        {
+          "topic": "Task Queues with FastAPI: Celery, ARQ and Dramatiq",
+          "subtopics": ["When BackgroundTasks is not enough", "Celery with Redis or RabbitMQ", "ARQ for async tasks", "Enqueuing tasks from endpoints", "Retries, timeouts and idempotency", "Task status endpoints", "Scheduled jobs", "Monitoring workers"],
+          "tools": ["Celery or ARQ", "Redis", "Flower"],
+          "lab_task": "Move report generation and email sending to a task queue, return a task ID and status endpoint, make tasks idempotent with retries and schedule a nightly job.",
+          "deliverable": "Task queue integration",
+          "checks": [["Request a report", "API returns a task ID and the status endpoint shows progress", "Responses"], ["Fail a task", "Task retries and records the failure", "Worker log"], ["Retry safely", "Retried tasks produce no duplicate emails", "Test output"]],
+          "objectives": ["Run background work with queues", "Report task status", "Make tasks reliable"]
+        },
+        {
+          "topic": "Caching with Redis in FastAPI",
+          "subtopics": ["What to cache in an API", "Cache-aside with redis-py asyncio", "Cache keys and expiry", "Invalidation after writes", "Caching dependencies and expensive calls", "ETags and conditional requests", "Stampede protection", "Measuring hit rates"],
+          "tools": ["Redis", "redis-py asyncio", "Locust"],
+          "lab_task": "Cache the product catalogue and an expensive pricing call in Redis, invalidate on updates, support ETags, protect against stampedes and measure latency and hit rates.",
+          "deliverable": "Caching implementation with measurements",
+          "checks": [["Measure latency", "Cached endpoints faster under load", "Load test results"], ["Update a product", "Next read returns fresh data", "Test output"], ["Send If-None-Match", "304 returned for unchanged data", "Response"]],
+          "objectives": ["Cache API data with Redis", "Invalidate correctly", "Use conditional requests"]
+        },
+        {
+          "topic": "Rate Limiting and API Keys",
+          "subtopics": ["Why APIs need rate limits", "Fixed and sliding window limits", "Limits per user, key and IP", "slowapi or custom Redis limits", "API keys for partners", "Hashing and rotating keys", "Usage tracking", "Returning limit headers"],
+          "tools": ["slowapi", "Redis", "FastAPI security"],
+          "lab_task": "Add per-user and per-key rate limits with Redis, issue hashed API keys to partners with rotation, return limit headers and track usage per key.",
+          "deliverable": "Rate limiting and partner key system",
+          "checks": [["Exceed the limit", "429 returned with retry information", "Response"], ["Rotate a key", "Old key stops working after the grace period", "Responses"], ["Report usage", "Calls per key reported per day", "Usage report"]],
+          "objectives": ["Rate-limit APIs", "Manage partner API keys", "Track usage"]
+        },
+        {
+          "topic": "Error Handling Standards and Problem Details",
+          "subtopics": ["Error design for API clients", "RFC 9457 problem details", "Custom exception classes", "Global exception handlers", "Validation error formatting", "Error codes and documentation", "Logging errors with context", "Testing error responses"],
+          "tools": ["FastAPI exception handlers", "Pydantic"],
+          "lab_task": "Standardise every error as problem details with stable error codes, format validation errors consistently, log errors with request context and document the error catalogue.",
+          "deliverable": "Error standard and catalogue",
+          "checks": [["Trigger a validation error", "Response follows the problem details format", "Response"], ["Trigger a domain error", "Stable error code returned", "Response"], ["Read the catalogue", "Every error code documented", "Error catalogue"]],
+          "objectives": ["Design API errors", "Use problem details", "Document error codes"]
+        },
+        {
+          "topic": "API Versioning and Evolving OpenAPI Schemas",
+          "subtopics": ["When to version an API", "URL and header versioning in FastAPI", "Backward-compatible changes", "Deprecating fields and endpoints", "Several OpenAPI documents", "Breaking change detection in CI", "Client generation per version", "Communicating changes"],
+          "tools": ["FastAPI", "oasdiff", "openapi-python-client"],
+          "lab_task": "Release a v2 of the orders endpoints alongside v1, deprecate a field with warnings, generate clients per version and fail CI when a breaking change reaches v1.",
+          "deliverable": "Versioned API and contract pipeline",
+          "checks": [["Call both versions", "v1 and v2 return their own contracts", "Responses"], ["Break v1", "CI fails on the breaking change", "CI log"], ["Deprecate a field", "Deprecation shown in the schema and headers", "Schema and headers"]],
+          "objectives": ["Version FastAPI APIs", "Evolve schemas safely", "Protect clients from breaking changes"]
+        },
+        {
+          "topic": "Integration Testing with Testcontainers and Async Tests",
+          "subtopics": ["Test layers for API services", "Testcontainers for PostgreSQL and Redis", "Async tests with pytest-asyncio and HTTPX", "Transaction rollback per test", "Factories for test data", "Mocking external services with respx", "Contract tests with consumers", "Fast, parallel test runs"],
+          "tools": ["Testcontainers", "pytest-asyncio", "HTTPX", "respx", "factory-boy or polyfactory"],
+          "lab_task": "Write async integration tests against PostgreSQL and Redis containers with factories, mocked payment calls and rollback per test, and run them in parallel in CI.",
+          "deliverable": "Integration test suite",
+          "checks": [["Run with containers", "Tests pass against real PostgreSQL and Redis", "Test output"], ["Mock payments", "Payment failures handled in tests", "Test output"], ["Run in parallel", "No shared-state failures across ten runs", "Run history"]],
+          "objectives": ["Test against real dependencies", "Write async tests", "Keep tests reliable"]
+        },
+        {
+          "topic": "Observability with Structured Logs, Metrics and OpenTelemetry",
+          "subtopics": ["Structured logging with context", "OpenTelemetry instrumentation for FastAPI", "Tracing SQLAlchemy, Redis and HTTPX calls", "Prometheus metrics", "Correlating logs and traces", "Health and readiness endpoints", "Dashboards", "Alerts on symptoms"],
+          "tools": ["OpenTelemetry", "Prometheus", "Grafana", "Jaeger or Tempo"],
+          "lab_task": "Instrument the service with OpenTelemetry, trace a request through the database, Redis and an external API, expose Prometheus metrics and alert on error rate.",
+          "deliverable": "Instrumented service and dashboard",
+          "checks": [["Trace a request", "One trace shows API, database, cache and HTTP spans", "Trace screenshot"], ["Link logs", "Log lines carry trace IDs", "Log sample"], ["Fire an alert", "Alert triggers on a raised error rate", "Alert notification"]],
+          "objectives": ["Instrument FastAPI services", "Correlate logs and traces", "Alert on problems"]
+        },
+        {
+          "topic": "Performance: Profiling, Uvicorn Workers and Gunicorn",
+          "subtopics": ["Load testing with Locust", "Profiling with py-spy and pyinstrument", "Serialisation cost and response models", "ORJSON responses", "Database query tuning", "Uvicorn workers and Gunicorn with Uvicorn workers", "CPU-bound work and process pools", "Setting performance budgets"],
+          "tools": ["Locust", "py-spy", "pyinstrument", "Gunicorn"],
+          "lab_task": "Load test the slowest endpoint, profile it, cut serialisation and query cost, tune the number of workers and record before and after results.",
+          "deliverable": "Performance report",
+          "checks": [["Profile the endpoint", "Hot spots identified in the profile", "Profiler output"], ["Tune workers", "Throughput measured for three worker counts", "Results table"], ["Meet the budget", "p95 latency within the budget after changes", "Locust report"]],
+          "objectives": ["Profile FastAPI services", "Remove bottlenecks", "Tune workers"]
+        },
+        {
+          "topic": "Securing FastAPI Services Against the OWASP API Top 10",
+          "subtopics": ["Broken object level authorisation", "Broken authentication", "Excessive data exposure", "Unrestricted resource consumption", "Server-side request forgery", "Security misconfiguration", "Injection", "Security tests in CI"],
+          "tools": ["OWASP ZAP", "Bandit", "pip-audit", "Schemathesis"],
+          "lab_task": "Find and fix planted issues: an object-level authorisation gap, excessive fields in responses, an SSRF in an import endpoint and unlimited page sizes, then fuzz the API with Schemathesis.",
+          "deliverable": "Security fixes and test reports",
+          "checks": [["Fix object access", "Users cannot read other users' records", "Test output"], ["Block SSRF", "Import refuses internal addresses", "Test output"], ["Fuzz the API", "Schemathesis finds no server errors", "Schemathesis report"]],
+          "objectives": ["Recognise API security risks", "Fix them in FastAPI", "Test APIs automatically"]
+        },
+        {
+          "topic": "Serving ML Models with FastAPI",
+          "subtopics": ["Loading models at start-up", "Input and output schemas for predictions", "Batch prediction endpoints", "Running CPU-heavy inference safely", "Model versioning", "Monitoring predictions", "Streaming responses from language models", "Scaling inference services"],
+          "tools": ["FastAPI", "scikit-learn or ONNX Runtime", "Pydantic", "Locust"],
+          "lab_task": "Serve a trained model with typed prediction endpoints, load it in the lifespan, add batch predictions, run inference in a worker pool, version models and log prediction metrics.",
+          "deliverable": "Model serving API with load results",
+          "checks": [["Predict", "Valid inputs return predictions with model version", "Response"], ["Send bad input", "Invalid features rejected by the schema", "Response"], ["Load test inference", "Throughput meets the target", "Locust report"]],
+          "objectives": ["Serve ML models with FastAPI", "Validate prediction inputs", "Scale inference"]
+        },
+        {
+          "topic": "GraphQL with Strawberry on FastAPI",
+          "subtopics": ["When to add GraphQL", "Strawberry types and resolvers", "Mounting a GraphQL router in FastAPI", "DataLoaders for batching", "Authentication in context", "Mutations and input types", "Depth and complexity limits", "Running REST and GraphQL together"],
+          "tools": ["Strawberry", "FastAPI", "DataLoader"],
+          "lab_task": "Add a GraphQL endpoint for the order dashboard with Strawberry, batch database access with DataLoaders, authenticate through context and limit query depth.",
+          "deliverable": "GraphQL endpoint alongside REST",
+          "checks": [["Batch loading", "Nested query runs a fixed small number of database queries", "Query log"], ["Limit depth", "Overly deep query rejected", "Response"], ["Authenticate", "Unauthenticated queries for private data refused", "Response"]],
+          "objectives": ["Add GraphQL to FastAPI", "Batch data loading", "Protect GraphQL endpoints"]
+        },
+        {
+          "topic": "CI/CD and Container Deployment for FastAPI",
+          "subtopics": ["Pipeline stages: lint, type check, test and build", "Ruff and mypy in CI", "Building and scanning images", "Running migrations in deployments", "Deploying to a container platform", "Environment configuration", "Smoke tests after deploy", "Rollbacks"],
+          "tools": ["GitHub Actions", "Ruff", "mypy", "Docker", "Trivy"],
+          "lab_task": "Build a GitHub Actions pipeline that lints, type-checks and tests the service, builds and scans the image, deploys to staging with migrations, runs smoke tests and rolls back once.",
+          "deliverable": "Pipeline definition and runbook",
+          "checks": [["Run the pipeline", "All stages pass on a pull request", "Pipeline run"], ["Run smoke tests", "Smoke tests pass after deployment", "Pipeline log"], ["Roll back", "Previous version restored", "Deployment log"]],
+          "objectives": ["Automate FastAPI delivery", "Gate releases on quality", "Roll back safely"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Tenant Booking API",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["FastAPI", "async SQLAlchemy", "Redis", "Celery or ARQ", "Keycloak", "OpenTelemetry"],
+          "lab_task": "Build a booking API with tenants, roles, identity provider sign-in, real-time availability, queued notifications, caching, rate limits, versioned docs, tests, tracing and CI/CD, then present it.",
+          "deliverable": "Repository, API docs, reports and presentation",
+          "checks": [["Demo bookings", "Bookings flow end to end with live availability", "Demo recording"], ["Show quality", "Tests, security scans and performance results meet targets", "Reports"], ["Defend choices", "Layering, data and security choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one service", "Ship a production FastAPI service", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Python API engineers and technical leads. Covers ASGI internals, microservice boundaries, event-driven services with Kafka and RabbitMQ, high-throughput concurrency and backpressure, resilient service calls, multi-tenant platforms, gateways and service mesh, Kubernetes, serverless FastAPI, LLM APIs, mTLS and supply chain security, contract testing and governance, data-intensive streaming APIs, database scaling, performance engineering, internal libraries, migrations from Flask and DRF, zero-downtime releases and production troubleshooting.",
+      "prerequisites": ["Several years building production Python APIs", "Strong async Python, SQLAlchemy and FastAPI skills", "Has run services in containers in production"],
+      "outcomes": ["Architect distributed FastAPI platforms", "Engineer throughput, resilience and security at scale", "Govern APIs and migrations across teams", "Lead troubleshooting and technical decisions"],
+      "days": [
+        {
+          "topic": "ASGI Internals: Starlette, Uvicorn and the Event Loop",
+          "subtopics": ["The ASGI specification: scope, receive and send", "How Uvicorn serves requests", "Starlette routing and middleware", "How FastAPI builds on Starlette", "The asyncio event loop and uvloop", "Thread pools for sync endpoints", "Lifespan protocol", "Writing raw ASGI middleware"],
+          "tools": ["Uvicorn", "Starlette", "uvloop", "Python debugger"],
+          "lab_task": "Write a raw ASGI app and middleware, trace a FastAPI request through Uvicorn and Starlette in the debugger, and show how sync endpoints use the thread pool.",
+          "deliverable": "ASGI notebook with raw middleware",
+          "checks": [["Write raw middleware", "Middleware adds timing without Starlette helpers", "Response headers"], ["Trace a request", "Each layer from server to endpoint identified", "Debugger notes"], ["Exhaust the thread pool", "Sync endpoint queueing shown and explained", "Timing results"]],
+          "objectives": ["Explain ASGI and FastAPI internals", "Write ASGI middleware", "Understand concurrency in FastAPI"]
+        },
+        {
+          "topic": "Microservices with FastAPI: Boundaries and Communication",
+          "subtopics": ["Finding service boundaries", "Synchronous calls with HTTPX and gRPC", "Asynchronous messaging", "Data ownership per service", "Sagas across services", "Shared libraries and templates", "Versioned contracts", "When a modular monolith is better"],
+          "tools": ["FastAPI", "gRPC", "RabbitMQ or NATS", "Docker Compose"],
+          "lab_task": "Split an order monolith into order, payment and stock services with owned data, coordinate checkout with a saga and compare latency and complexity with the monolith.",
+          "deliverable": "Service map, saga and comparison",
+          "checks": [["Run the saga", "Failed payment releases reserved stock", "Test output"], ["Check data ownership", "No service reads another service's database", "Architecture review"], ["Compare designs", "Latency and complexity compared", "Comparison report"]],
+          "objectives": ["Draw service boundaries", "Coordinate services", "Choose monolith or microservices"]
+        },
+        {
+          "topic": "Event-Driven FastAPI with Kafka and RabbitMQ",
+          "subtopics": ["Events, commands and messages", "aiokafka and aio-pika clients", "Consumers alongside the API", "Idempotent consumers", "The outbox pattern with SQLAlchemy", "Dead letter queues", "Schema evolution with JSON Schema or Avro", "FastStream for message-driven services"],
+          "tools": ["Kafka", "RabbitMQ", "aiokafka", "aio-pika", "FastStream"],
+          "lab_task": "Publish order events through an outbox to Kafka, consume them idempotently in two services, route failures to a dead letter queue and evolve an event schema safely.",
+          "deliverable": "Event-driven services with an event catalogue",
+          "checks": [["Replay events", "No duplicates after replay", "Database counts"], ["Fail a consumer", "Message lands in the dead letter queue", "Queue screenshot"], ["Evolve the schema", "Old and new consumers keep working", "Test output"]],
+          "objectives": ["Build event-driven FastAPI services", "Publish events reliably", "Evolve events safely"]
+        },
+        {
+          "topic": "High-Throughput APIs: Concurrency Limits, Pools and Backpressure",
+          "subtopics": ["Little's law and capacity", "Limiting concurrency with semaphores", "Connection pools for databases and HTTP", "Queue-based load levelling", "Backpressure at the edge", "Timeouts as budgets", "Graceful degradation under load", "Capacity tests"],
+          "tools": ["asyncio", "HTTPX", "Locust", "Prometheus"],
+          "lab_task": "Find the saturation point of an API that calls a database and two services, add concurrency limits, pool sizing and load shedding, and show stable latency at overload.",
+          "deliverable": "Capacity model and load test results",
+          "checks": [["Find saturation", "Throughput and latency curve recorded", "Load test charts"], ["Shed load", "Priority traffic served during overload", "Load test results"], ["Size pools", "No pool waits at the target load", "Pool metrics"]],
+          "objectives": ["Model API capacity", "Control concurrency", "Apply backpressure"]
+        },
+        {
+          "topic": "Resilient Service Calls in FastAPI: Timeouts, Retries and Circuit Breakers",
+          "subtopics": ["Failure modes in distributed calls", "Timeouts on every outgoing call", "Retries with jitter and retry budgets", "Circuit breakers", "Bulkheads per dependency", "Fallback responses", "Idempotency keys", "Chaos testing with Toxiproxy"],
+          "tools": ["tenacity", "aiobreaker or purgatory", "Toxiproxy", "Locust"],
+          "lab_task": "Inject latency and errors into a dependency, add timeouts, retry budgets, a circuit breaker, bulkheads and idempotency keys, and show the API degrades gracefully.",
+          "deliverable": "Resilience changes with chaos results",
+          "checks": [["Inject latency", "Calls stop at the timeout", "Test output"], ["Open the breaker", "Calls fail fast while the dependency is down", "Breaker metrics"], ["Retry with idempotency", "Retried payments charge once", "Test output"]],
+          "objectives": ["Make service calls resilient", "Test failure handling", "Protect against duplicate actions"]
+        },
+        {
+          "topic": "Multi-Tenant Architecture for FastAPI Platforms",
+          "subtopics": ["Tenancy models for APIs", "Tenant resolution from tokens or domains", "Tenant context with contextvars", "PostgreSQL row-level security", "Per-tenant limits and quotas", "Tenant-aware caching and queues", "Onboarding and offboarding", "Isolation testing"],
+          "tools": ["FastAPI", "PostgreSQL row-level security", "contextvars", "Redis"],
+          "lab_task": "Make a platform multi-tenant with tenant context from tokens, row-level security in PostgreSQL, per-tenant rate limits and tenant-aware cache keys, and prove isolation.",
+          "deliverable": "Multi-tenant design and isolation tests",
+          "checks": [["Test isolation", "No cross-tenant data in any endpoint", "Test output"], ["Limit a noisy tenant", "Other tenants unaffected during a flood", "Load test results"], ["Offboard a tenant", "Tenant data removed and verified", "Offboarding log"]],
+          "objectives": ["Design tenancy for APIs", "Enforce isolation", "Protect tenants from each other"]
+        },
+        {
+          "topic": "API Gateways and Service Mesh for FastAPI Services",
+          "subtopics": ["Gateway responsibilities", "Kong, Envoy and cloud gateways", "Authentication at the gateway", "Rate limiting and quotas at the edge", "Service mesh basics with Istio or Linkerd", "mTLS between services", "Traffic splitting for releases", "What stays in the service"],
+          "tools": ["Kong or Envoy", "Istio or Linkerd", "Kubernetes"],
+          "lab_task": "Put services behind a gateway with token checks and quotas, enable mTLS through a mesh, split traffic for a canary and decide which concerns stay in FastAPI.",
+          "deliverable": "Gateway and mesh configuration with a responsibilities map",
+          "checks": [["Check at the gateway", "Requests without valid tokens stopped at the edge", "Gateway log"], ["Enable mTLS", "Service traffic encrypted and verified", "Mesh dashboard"], ["Run a canary", "Canary receives a share of traffic and is promoted", "Traffic metrics"]],
+          "objectives": ["Use gateways for FastAPI services", "Secure service traffic", "Release with traffic splitting"]
+        },
+        {
+          "topic": "FastAPI on Kubernetes: Probes, Autoscaling and Graceful Shutdown",
+          "subtopics": ["Container images for Kubernetes", "Liveness, readiness and start-up probes", "Graceful shutdown with preStop hooks", "Workers per pod", "Resource requests and limits", "Horizontal autoscaling on custom metrics", "Migrations as jobs", "Zero-downtime rollouts"],
+          "tools": ["Kubernetes", "Helm", "KEDA", "k6 or Locust"],
+          "lab_task": "Deploy the service to Kubernetes with probes, graceful shutdown, tuned workers and resources, migration jobs and autoscaling, and prove a rollout drops no requests.",
+          "deliverable": "Helm chart and rollout results",
+          "checks": [["Roll out", "No failed requests during the rollout", "Load test output"], ["Autoscale", "Pods scale on the custom metric", "HPA history"], ["Run migrations", "Migration job completes before new pods take traffic", "Job events"]],
+          "objectives": ["Run FastAPI on Kubernetes", "Shut down without dropping requests", "Autoscale correctly"]
+        },
+        {
+          "topic": "Serverless FastAPI on AWS Lambda and Azure Functions",
+          "subtopics": ["When serverless fits an API", "Mangum and the Lambda adapter", "Azure Functions with ASGI", "Cold starts and package size", "Database connections from functions", "API Gateway and authorisers", "Local testing", "Cost at different traffic levels"],
+          "tools": ["AWS Lambda", "Mangum", "AWS SAM", "Azure Functions"],
+          "lab_task": "Run part of the API on AWS Lambda with Mangum behind API Gateway, reduce cold starts, manage database connections and compare cost with containers at three traffic levels.",
+          "deliverable": "Serverless deployment and cost comparison",
+          "checks": [["Reduce cold starts", "Cold start time lower after packaging changes", "Measurement table"], ["Manage connections", "Connection count stays stable under load", "Database metrics"], ["Compare cost", "Monthly cost compared at three traffic levels", "Cost model"]],
+          "objectives": ["Run FastAPI serverless", "Handle cold starts and connections", "Compare hosting costs"]
+        },
+        {
+          "topic": "LLM and AI APIs with FastAPI: Streaming, Tools and Cost Controls",
+          "subtopics": ["AI features behind an API", "Streaming responses with server-sent events", "Tool calling from the API", "Retrieval with pgvector or a vector database", "Guardrails and moderation", "Token budgets and rate limits per user", "Caching AI responses", "Evaluating AI endpoints"],
+          "tools": ["FastAPI", "OpenAI or Azure OpenAI", "pgvector", "Redis"],
+          "lab_task": "Build an assistant endpoint that streams answers, calls tools to read order data, grounds answers in documents with pgvector, enforces token budgets and logs cost per user.",
+          "deliverable": "AI endpoint with evaluation results",
+          "checks": [["Stream answers", "Tokens arrive as server-sent events", "Client output"], ["Call a tool", "Assistant returns the user's real order status", "Conversation log"], ["Enforce budgets", "Requests beyond the budget refused", "Response"]],
+          "objectives": ["Build AI APIs with FastAPI", "Stream and ground answers", "Control AI cost and abuse"]
+        },
+        {
+          "topic": "Advanced Security: mTLS, Secrets and Supply Chain",
+          "subtopics": ["Threat modelling an API platform", "mTLS for partner connections", "Secrets from a vault at runtime", "Signed images and SBOMs", "Dependency pinning and hash checking", "Least-privilege service accounts", "Audit logging", "Security reviews and penetration tests"],
+          "tools": ["HashiCorp Vault", "Sigstore cosign", "CycloneDX", "pip-audit"],
+          "lab_task": "Threat model the platform, require mTLS for a partner endpoint, load secrets from Vault, sign images and produce SBOMs, and pin dependencies with hashes.",
+          "deliverable": "Threat model and hardened platform configuration",
+          "checks": [["Require mTLS", "Partner calls without a valid certificate refused", "Response"], ["Sign images", "Unsigned images blocked from deployment", "Admission log"], ["Produce an SBOM", "SBOM lists every package with versions", "SBOM file"]],
+          "objectives": ["Threat model API platforms", "Secure partner connections", "Secure the supply chain"]
+        },
+        {
+          "topic": "Contract Testing and API Governance",
+          "subtopics": ["API design guidelines for many teams", "Linting OpenAPI with Spectral", "Consumer-driven contracts with Pact", "Schema-based testing with Schemathesis", "Breaking change detection", "Deprecation policies", "API catalogues and ownership", "Review process for new APIs"],
+          "tools": ["Spectral", "Pact", "Schemathesis", "oasdiff"],
+          "lab_task": "Write API guidelines as Spectral rules, add Pact contracts between two services, fuzz endpoints with Schemathesis and block breaking changes in CI.",
+          "deliverable": "Governance rules and contract pipeline",
+          "checks": [["Lint the schema", "Spectral rules pass for all services", "Lint output"], ["Break a contract", "Pact verification fails before deployment", "CI log"], ["Fuzz endpoints", "No server errors found", "Schemathesis report"]],
+          "objectives": ["Govern APIs across teams", "Test contracts", "Prevent breaking changes"]
+        },
+        {
+          "topic": "Data-Intensive APIs: Streaming Responses and Large Uploads",
+          "subtopics": ["Streaming large query results", "NDJSON and CSV streaming", "Chunked and resumable uploads", "Direct uploads to object storage", "Processing uploads in the background", "Memory limits and backpressure", "Progress reporting", "Timeouts for long requests"],
+          "tools": ["FastAPI StreamingResponse", "aioboto3", "PostgreSQL server-side cursors"],
+          "lab_task": "Stream a ten-million-row export as NDJSON with a server-side cursor, accept resumable multi-gigabyte uploads directly to object storage and process them in the background with progress.",
+          "deliverable": "Streaming export and upload pipeline",
+          "checks": [["Stream the export", "Memory stays flat during the export", "Memory graph"], ["Resume an upload", "Interrupted upload resumes from the last part", "Upload log"], ["Report progress", "Processing progress visible to the client", "Response"]],
+          "objectives": ["Stream large data through APIs", "Handle very large uploads", "Keep memory under control"]
+        },
+        {
+          "topic": "Database Scaling for FastAPI: Read Replicas, Pooling and Sharding",
+          "subtopics": ["Read replicas and routing", "Read-after-write consistency", "PgBouncer with async drivers", "Partitioning large tables", "Sharding strategies", "Caching layers above the database", "Connection limits across many pods", "Load testing the data tier"],
+          "tools": ["PostgreSQL", "PgBouncer", "SQLAlchemy", "Locust"],
+          "lab_task": "Route reads to replicas with read-after-write consistency, put PgBouncer in front of PostgreSQL for async connections, partition the orders table and find the new capacity limit.",
+          "deliverable": "Data tier scaling configuration and results",
+          "checks": [["Route reads", "Reads go to replicas except after the user's own writes", "Query log"], ["Pool connections", "No connection errors with many pods", "Load test results"], ["Partition a table", "Recent order queries scan only recent partitions", "EXPLAIN output"]],
+          "objectives": ["Scale databases behind FastAPI", "Use replicas safely", "Manage connections at scale"]
+        },
+        {
+          "topic": "Performance Engineering: Profiling with py-spy and Load Testing",
+          "subtopics": ["Performance budgets for APIs", "Continuous profiling in production", "py-spy flame graphs", "Memory profiling with memray", "Serialisation and validation costs", "Python version and runtime improvements", "Load testing at scale", "Performance regression checks in CI"],
+          "tools": ["py-spy", "memray", "Pyroscope", "Locust"],
+          "lab_task": "Profile a production-like service under load, fix CPU and memory hot spots, compare Python versions, set budgets and add a performance regression check to CI.",
+          "deliverable": "Performance programme report",
+          "checks": [["Find hot spots", "CPU and memory hot spots identified", "Flame graphs"], ["Fix memory use", "Peak memory lower after the fix", "memray reports"], ["Guard performance", "CI fails when latency exceeds the budget", "CI log"]],
+          "objectives": ["Profile Python services deeply", "Fix CPU and memory problems", "Prevent regressions"]
+        },
+        {
+          "topic": "Building Reusable Internal Libraries and Templates",
+          "subtopics": ["When to share code between services", "Internal packages for auth, logging and clients", "Service templates with copier", "Versioning and changelogs", "Backward compatibility rules", "Testing libraries across services", "Publishing to a private index", "Ownership and support"],
+          "tools": ["copier", "uv", "Private package index", "Renovate"],
+          "lab_task": "Extract auth, logging and error handling into internal packages, build a service template with copier, publish packages and update three services with Renovate.",
+          "deliverable": "Internal packages and service template",
+          "checks": [["Generate a service", "New service from the template passes all checks", "Pipeline run"], ["Publish a package", "New version released with a changelog", "Index listing"], ["Update services", "Three services updated by Renovate pull requests", "Pull request list"]],
+          "objectives": ["Share code safely across services", "Build service templates", "Version internal libraries"]
+        },
+        {
+          "topic": "Migrating from Flask or Django REST Framework to FastAPI",
+          "subtopics": ["Reasons to migrate and reasons not to", "Mapping Flask and DRF concepts to FastAPI", "Running old and new side by side", "Moving endpoints one at a time behind a proxy", "Replacing serializers with Pydantic models", "Keeping authentication compatible", "Testing parity", "Planning and tracking migration"],
+          "tools": ["FastAPI", "Flask or DRF", "NGINX or a gateway", "pytest"],
+          "lab_task": "Migrate five endpoints from a Flask or DRF service to FastAPI behind a proxy, keep tokens compatible, prove response parity with tests and plan the rest of the migration.",
+          "deliverable": "Partly migrated service and migration plan",
+          "checks": [["Route through the proxy", "Old and new endpoints work for clients", "Request log"], ["Prove parity", "Parity tests show identical responses", "Test output"], ["Plan the rest", "Plan lists endpoints, risks and order", "Migration plan"]],
+          "objectives": ["Plan framework migrations", "Migrate incrementally", "Prove behaviour parity"]
+        },
+        {
+          "topic": "Zero-Downtime Releases and Database Migrations",
+          "subtopics": ["Expand and contract schema changes", "Backfilling in batches", "Alembic migrations that avoid locks", "Feature flags for releases", "Blue-green and canary releases", "Compatibility between versions during rollout", "Rollback of code and data", "Release checklists"],
+          "tools": ["Alembic", "Feature flag service", "Kubernetes or a container platform"],
+          "lab_task": "Restructure a heavily used column with expand and contract, backfill in batches during traffic, release behind a flag with a canary and roll back once.",
+          "deliverable": "Release plan, migrations and release record",
+          "checks": [["Backfill in batches", "Backfill completes without a latency spike", "Metrics"], ["Release a canary", "Canary users get the new version first", "Release log"], ["Roll back", "Rollback restores old behaviour without data loss", "Test output"]],
+          "objectives": ["Change schemas without downtime", "Release with flags and canaries", "Roll back safely"]
+        },
+        {
+          "topic": "Troubleshooting Production FastAPI Incidents",
+          "subtopics": ["Incident triage for API platforms", "Event loop blocking and latency spikes", "Memory growth in workers", "Connection pool exhaustion", "Cascading failures from dependencies", "Errors after releases", "Collecting evidence safely", "Post-incident reviews"],
+          "tools": ["py-spy", "memray", "OpenTelemetry", "Grafana"],
+          "lab_task": "Work through four incidents: a blocked event loop, worker memory growth, pool exhaustion and a cascading dependency failure, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by profiles, traces or metrics", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot FastAPI in production", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Event-Driven API Platform on FastAPI",
+          "subtopics": ["Architecture", "Build", "Reliability and security", "Defence"],
+          "tools": ["FastAPI", "Kafka", "PostgreSQL", "Redis", "Kubernetes", "OpenTelemetry"],
+          "lab_task": "Build an event-driven platform with three FastAPI services, an outbox, idempotent consumers, multi-tenancy, resilience patterns, contract tests, an AI endpoint, Kubernetes deployment and full tracing, then defend it to a review panel.",
+          "deliverable": "Platform repository, runbooks and architecture defence",
+          "checks": [["Survive failures", "Platform recovers from broker and service failures", "Chaos test report"], ["Prove isolation", "No cross-tenant data in tests", "Test report"], ["Defend the design", "Panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Build reliable distributed Python APIs", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}
