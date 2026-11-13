@@ -1,0 +1,573 @@
+{
+  "domain": "HTML and CSS",
+  "name": "HTML and CSS for Modern Websites",
+  "category": "Web and Full Stack Development",
+  "icon": "palette",
+  "aliases": ["HTML", "CSS", "HTML5", "CSS3", "HTML5 and CSS3", "HTML CSS", "HTML & CSS", "HTML and CSS3", "Web Design", "Web Designing", "Responsive Web Design", "Tailwind CSS", "Bootstrap CSS", "Bootstrap 5", "Sass", "SCSS"],
+  "certifications": ["W3Schools HTML and CSS Certificates", "freeCodeCamp Responsive Web Design Certification", "Meta Front-End Developer Professional Certificate"],
+  "tools": ["VS Code", "Chrome DevTools", "Firefox DevTools", "Tailwind CSS", "Bootstrap", "Sass", "Stylelint", "Lighthouse", "axe DevTools"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For freshers, designers and back-end developers who need to build web pages. Covers HTML document structure, text, links, images and media, lists and tables, forms, semantic landmarks, CSS selectors and the cascade, the box model, colour and typography, Flexbox, Grid, responsive design, positioning, decoration, transitions and animations, accessibility, custom properties and theming, Bootstrap and publishing a site.",
+      "prerequisites": ["Comfortable using a computer, files and folders", "No coding experience needed", "A laptop with a modern browser and VS Code"],
+      "outcomes": ["Write valid, semantic and accessible HTML", "Style pages with modern CSS, Flexbox and Grid", "Build responsive layouts that work on phones and desktops", "Publish a complete website"],
+      "days": [
+        {
+          "topic": "HTML and CSS Overview and Developer Setup",
+          "subtopics": ["How browsers turn HTML and CSS into pages", "What HTML does and what CSS does", "Elements, tags and attributes", "Installing VS Code and useful extensions", "Live Server for instant previews", "Opening and using browser DevTools", "Folder structure for a website project", "File naming and paths", "Validating HTML with the W3C validator", "Using MDN Web Docs as a reference"],
+          "tools": ["VS Code", "Live Server", "Chrome DevTools", "W3C validator", "MDN Web Docs"],
+          "lab_task": "Set up VS Code with Live Server, create a project folder with an HTML page and a stylesheet, change text and colours with live reload, inspect elements in DevTools and validate the page.",
+          "deliverable": "Project folder with a first page that passes validation",
+          "checks": [["Preview with Live Server", "Page reloads automatically on save", "Screen recording"], ["Inspect an element", "HTML and applied CSS shown in DevTools", "Screenshot"], ["Validate the page", "W3C validator reports no errors", "Validator report"]],
+          "objectives": ["Explain how HTML and CSS work together", "Set up a web development environment", "Inspect and validate pages"]
+        },
+        {
+          "topic": "HTML Document Structure and Text Elements",
+          "subtopics": ["The doctype, html, head and body", "Character encoding and the viewport meta tag", "Headings and the document outline", "Paragraphs, line breaks and horizontal rules", "Emphasis, strong, quotes and code text", "Block and inline elements", "Comments in HTML", "Common nesting mistakes"],
+          "tools": ["VS Code", "Chrome DevTools", "W3C validator"],
+          "lab_task": "Mark up a two-page company profile with correct document structure, a logical heading order, paragraphs, quotes and code samples, then fix every validator warning.",
+          "deliverable": "Two valid content pages",
+          "checks": [["Check heading order", "Headings follow a logical order with one h1 per page", "HeadingsMap or outline screenshot"], ["Validate the pages", "No validation errors or warnings", "Validator report"], ["Test on a phone width", "Text readable without zooming thanks to the viewport tag", "Device toolbar screenshot"]],
+          "objectives": ["Structure HTML documents correctly", "Use text elements for their meaning", "Avoid nesting errors"]
+        },
+        {
+          "topic": "Links, Images and Media",
+          "subtopics": ["Absolute and relative links", "Linking to sections, email and phone numbers", "Opening links in new tabs safely", "Images with alt text", "Image formats: JPEG, PNG, SVG, WebP and AVIF", "Figures and captions", "Audio and video elements", "Embedding maps and videos with iframes"],
+          "tools": ["VS Code", "Squoosh", "Chrome DevTools"],
+          "lab_task": "Add navigation links between pages, in-page links to sections, optimised images with useful alt text, a captioned figure, a video with captions and an embedded map.",
+          "deliverable": "Linked pages with media",
+          "checks": [["Click every link", "No broken links across the pages", "Link checker report"], ["Read the alt text", "Alt text describes each image's purpose", "Alt text review"], ["Compress images", "Images under 200 KB each with no visible quality loss", "File size list"]],
+          "objectives": ["Link pages and sections", "Add accessible images and media", "Choose image formats"]
+        },
+        {
+          "topic": "Lists and Tables",
+          "subtopics": ["Unordered and ordered lists", "Nested lists for navigation", "Description lists", "Table structure: thead, tbody and tfoot", "Table headers and scope", "Captions for tables", "Merging cells with colspan and rowspan", "When not to use tables"],
+          "tools": ["VS Code", "Chrome DevTools"],
+          "lab_task": "Build a price list with nested lists, a timetable table with headers, scope and a caption, and a merged-cell summary row, then explain why the page layout must not use tables.",
+          "deliverable": "Lists and accessible tables",
+          "checks": [["Build the timetable", "Header cells use th with scope", "Code review"], ["Read with a screen reader", "Table headers announced with each cell", "Screen reader notes"], ["Merge cells", "Summary row spans the right columns", "Screenshot"]],
+          "objectives": ["Use lists for grouped content", "Build accessible tables", "Avoid tables for layout"]
+        },
+        {
+          "topic": "Forms and Input Types",
+          "subtopics": ["The form element, action and method", "Labels and why every input needs one", "Text, email, number, date and tel inputs", "Checkboxes, radio buttons and selects", "Textareas and fieldsets with legends", "Required fields and built-in validation", "Autocomplete hints", "Buttons and form submission"],
+          "tools": ["VS Code", "Chrome DevTools", "Formspree or a test endpoint"],
+          "lab_task": "Build a registration form with labelled inputs of the right types, grouped radio buttons, built-in validation, autocomplete hints and a submit button that posts to a test endpoint.",
+          "deliverable": "Working registration form",
+          "checks": [["Submit empty required fields", "Browser blocks submission and shows messages", "Screenshot"], ["Click a label", "Matching input receives focus", "Screen recording"], ["Use a phone keyboard", "Email and phone inputs show suitable keyboards", "Device screenshots"]],
+          "objectives": ["Build HTML forms", "Choose input types", "Use built-in validation"]
+        },
+        {
+          "topic": "Semantic HTML and Page Landmarks",
+          "subtopics": ["header, nav, main, footer and aside", "section and article", "Landmarks for screen reader navigation", "Choosing between div and semantic elements", "Time, address and other meaningful elements", "Buttons versus links", "Skip links", "Semantic HTML for search engines"],
+          "tools": ["VS Code", "axe DevTools", "NVDA or VoiceOver"],
+          "lab_task": "Rewrite a page built only from divs into semantic HTML with landmarks, a skip link and correct buttons and links, then compare navigation with a screen reader before and after.",
+          "deliverable": "Semantic page with before and after notes",
+          "checks": [["List landmarks", "Screen reader lists header, navigation, main and footer", "Screen reader notes"], ["Use the skip link", "Keyboard users jump straight to main content", "Screen recording"], ["Run axe", "No landmark or button and link issues", "axe report"]],
+          "objectives": ["Write semantic HTML", "Add page landmarks", "Help screen reader users navigate"]
+        },
+        {
+          "topic": "CSS Selectors, Specificity and the Cascade",
+          "subtopics": ["Linking stylesheets and inline styles", "Element, class and ID selectors", "Descendant, child and sibling combinators", "Attribute selectors", "Pseudo-classes and pseudo-elements", "Specificity and how it is calculated", "The cascade and inheritance", "Debugging which rule wins in DevTools"],
+          "tools": ["VS Code", "Chrome DevTools", "Specificity calculator"],
+          "lab_task": "Style the company pages with an external stylesheet using class selectors and combinators, solve five specificity puzzles and use DevTools to explain why each winning rule wins.",
+          "deliverable": "Stylesheet and specificity puzzle answers",
+          "checks": [["Solve the puzzles", "Winning rule predicted correctly in all five puzzles", "Puzzle answers"], ["Trace a rule", "DevTools shows the overridden and winning declarations", "Screenshot"], ["Avoid IDs for styling", "Stylesheet uses classes instead of ID selectors", "Code review"]],
+          "objectives": ["Write CSS selectors", "Understand specificity and the cascade", "Debug styles in DevTools"]
+        },
+        {
+          "topic": "The Box Model, Spacing and Sizing",
+          "subtopics": ["Content, padding, border and margin", "box-sizing: border-box", "Margin collapsing", "Width, height, min and max sizes", "CSS units: px, rem, em, percent and viewport units", "Overflow and scrolling", "display: block, inline and inline-block", "Inspecting boxes in DevTools"],
+          "tools": ["Chrome DevTools", "VS Code"],
+          "lab_task": "Build a set of cards with consistent spacing using rem units and border-box sizing, fix a margin collapsing bug, constrain content width and handle overflowing text.",
+          "deliverable": "Card layout with spacing rules",
+          "checks": [["Inspect a card", "Box model values match the design", "DevTools box model screenshot"], ["Fix margin collapse", "Gap between sections matches the design", "Before and after screenshots"], ["Change the root font size", "Spacing scales with the font size", "Screenshots"]],
+          "objectives": ["Apply the box model", "Use relative units", "Control overflow"]
+        },
+        {
+          "topic": "Colours, Typography and Web Fonts",
+          "subtopics": ["Colour formats: hex, rgb, hsl and oklch", "Colour contrast for readability", "Font families and fallbacks", "Loading web fonts with font-display", "Font size, weight, line height and letter spacing", "Text alignment, wrapping and truncation", "A simple type scale", "Readable line lengths"],
+          "tools": ["Google Fonts", "WebAIM contrast checker", "Chrome DevTools"],
+          "lab_task": "Choose a palette that passes contrast checks, load two web fonts with fallbacks, build a type scale for headings and body text and limit line length for comfortable reading.",
+          "deliverable": "Colour and typography styles with a contrast report",
+          "checks": [["Check contrast", "Body text meets WCAG AA contrast", "Contrast checker results"], ["Block web fonts", "Page stays readable with fallback fonts", "Screenshot"], ["Measure line length", "Body text lines between 45 and 80 characters", "Measurement screenshot"]],
+          "objectives": ["Use colour accessibly", "Style text for readability", "Load fonts efficiently"]
+        },
+        {
+          "topic": "Flexbox Layout",
+          "subtopics": ["Flex containers and flex items", "Main and cross axes", "justify-content and align-items", "flex-wrap and gap", "flex-grow, flex-shrink and flex-basis", "Ordering items", "Common patterns: navigation bars, cards and centring", "Debugging with the Flexbox inspector"],
+          "tools": ["Chrome DevTools Flexbox inspector", "Flexbox Froggy"],
+          "lab_task": "Build a navigation bar, a wrapping card row with equal heights, a centred hero section and a media object with Flexbox, and debug a broken layout with the Flexbox inspector.",
+          "deliverable": "Four Flexbox components",
+          "checks": [["Resize the card row", "Cards wrap and keep equal heights", "Screenshots"], ["Centre the hero", "Content centred both ways at every width", "Screenshots"], ["Fix the broken layout", "Layout fixed with the cause explained", "Before and after notes"]],
+          "objectives": ["Lay out components with Flexbox", "Control sizing and wrapping", "Debug Flexbox layouts"]
+        },
+        {
+          "topic": "CSS Grid Layout",
+          "subtopics": ["Grid containers, rows and columns", "The fr unit and repeat()", "Placing items by line numbers", "Named grid areas", "auto-fit, auto-fill and minmax()", "Gaps and alignment in Grid", "Choosing Grid or Flexbox", "Debugging with the Grid inspector"],
+          "tools": ["Chrome DevTools Grid inspector", "Grid Garden"],
+          "lab_task": "Build a full page layout with named grid areas, a gallery that adds columns as space grows with auto-fit and minmax, and a dashboard with items spanning rows and columns.",
+          "deliverable": "Page layout, gallery and dashboard grids",
+          "checks": [["Resize the gallery", "Columns added and removed without media queries", "Screenshots"], ["Rearrange areas", "Layout changes by editing only grid-template-areas", "Code diff"], ["Inspect the grid", "Grid lines and areas shown in DevTools", "Screenshot"]],
+          "objectives": ["Lay out pages with Grid", "Build responsive grids", "Choose between Grid and Flexbox"]
+        },
+        {
+          "topic": "Responsive Design with Media Queries",
+          "subtopics": ["Mobile-first design", "The viewport and device widths", "Media queries and breakpoints", "Fluid layouts with percentages and max-width", "Responsive navigation patterns", "Responsive typography with clamp()", "Testing with the device toolbar", "Respecting user preferences such as reduced motion"],
+          "tools": ["Chrome DevTools device toolbar", "Real phones", "Responsively App"],
+          "lab_task": "Make the company site mobile first with two breakpoints, a navigation menu that collapses on small screens, fluid typography with clamp() and a reduced-motion preference.",
+          "deliverable": "Responsive website",
+          "checks": [["Test three widths", "Layout works at phone, tablet and desktop widths", "Screenshots"], ["Use the small-screen menu", "Menu opens and closes with mouse and keyboard", "Screen recording"], ["Set reduced motion", "Animations stop when reduced motion is on", "Screen recording"]],
+          "objectives": ["Design mobile first", "Write media queries", "Test responsive pages"]
+        },
+        {
+          "topic": "Positioning, Z-Index and Stacking",
+          "subtopics": ["Static, relative, absolute, fixed and sticky positioning", "Offsets: top, right, bottom and left", "Containing blocks", "z-index and stacking contexts", "Sticky headers and table headers", "Overlays and badges", "Common positioning bugs", "Avoiding position for page layout"],
+          "tools": ["Chrome DevTools", "VS Code"],
+          "lab_task": "Add a sticky header, a notification badge on an icon, a full-screen overlay and a sticky table header, then fix a dropdown hidden behind content by finding the stacking context.",
+          "deliverable": "Positioned components with notes on stacking",
+          "checks": [["Scroll the page", "Header stays at the top without covering content", "Screen recording"], ["Fix the hidden dropdown", "Dropdown appears above content after the fix", "Screenshot"], ["Explain the bug", "Stacking context that caused it identified", "Notes"]],
+          "objectives": ["Use CSS positioning", "Understand stacking contexts", "Fix layering bugs"]
+        },
+        {
+          "topic": "Backgrounds, Borders, Shadows and Gradients",
+          "subtopics": ["Background colours and images", "Background size, position and repeat", "Borders and border-radius", "Box and text shadows", "Linear, radial and conic gradients", "Opacity and transparent colours", "Filters such as blur and grayscale", "Keeping decoration subtle and readable"],
+          "tools": ["Chrome DevTools", "CSS gradient tools"],
+          "lab_task": "Style a hero banner with a background image and gradient overlay that keeps text readable, rounded cards with soft shadows and buttons with hover states.",
+          "deliverable": "Decorated hero, cards and buttons",
+          "checks": [["Check text on the banner", "Text contrast passes over the image", "Contrast checker results"], ["Hover the buttons", "Clear hover and focus styles shown", "Screen recording"], ["Resize the banner", "Background image covers the area without distortion", "Screenshots"]],
+          "objectives": ["Decorate elements with CSS", "Keep text readable on images", "Style interactive states"]
+        },
+        {
+          "topic": "Transitions, Transforms and Animations",
+          "subtopics": ["Transitions on hover and focus", "Transforms: translate, scale and rotate", "Keyframe animations", "Timing functions and durations", "Animating only cheap properties", "Loading spinners and attention effects", "Respecting reduced motion", "Checking animation performance"],
+          "tools": ["Chrome DevTools Animations panel", "Performance panel"],
+          "lab_task": "Add smooth hover transitions to cards, an animated loading spinner, a fade-in for page sections and a reduced-motion alternative, and check that animations run at 60 frames per second.",
+          "deliverable": "Animated components with performance notes",
+          "checks": [["Hover a card", "Card lifts smoothly with a transition", "Screen recording"], ["Check performance", "Animations use transform and opacity without layout work", "Performance trace"], ["Turn on reduced motion", "Animations replaced by instant changes", "Screen recording"]],
+          "objectives": ["Animate with CSS", "Keep animations smooth", "Respect motion preferences"]
+        },
+        {
+          "topic": "Accessibility Essentials for HTML and CSS",
+          "subtopics": ["Who benefits from accessibility", "WCAG principles in plain language", "Keyboard access and visible focus", "Text alternatives and accessible names", "Colour is not the only signal", "Zoom and text resizing", "Hiding content correctly", "Testing with axe and a screen reader"],
+          "tools": ["axe DevTools", "Lighthouse", "NVDA or VoiceOver"],
+          "lab_task": "Audit the company site with axe and a screen reader, fix focus styles, missing names, colour-only signals and zoom problems, and retest until no serious issues remain.",
+          "deliverable": "Accessibility audit and fixes",
+          "checks": [["Run axe", "No serious or critical issues", "axe report"], ["Zoom to 200 percent", "Content readable without horizontal scrolling", "Screenshot"], ["Navigate by keyboard", "Every link and control reachable with visible focus", "Screen recording"]],
+          "objectives": ["Apply accessibility basics", "Test pages for accessibility", "Fix common issues"]
+        },
+        {
+          "topic": "CSS Custom Properties and Theming",
+          "subtopics": ["Declaring and using custom properties", "Scope and inheritance of custom properties", "Fallback values", "Theme tokens for colours, spacing and fonts", "Dark mode with prefers-color-scheme", "A theme switch with a data attribute", "Updating custom properties in DevTools", "Organising tokens in one file"],
+          "tools": ["Chrome DevTools", "VS Code"],
+          "lab_task": "Move the site's colours, spacing and fonts into custom properties, add a dark theme that follows the system setting and a theme switch that overrides it.",
+          "deliverable": "Token file and themed site",
+          "checks": [["Change one token", "Every use of the colour updates across the site", "Screenshots"], ["Switch to dark mode", "Site follows the system dark setting", "Screenshots"], ["Use the theme switch", "Choice overrides the system setting", "Screen recording"]],
+          "objectives": ["Use custom properties", "Build light and dark themes", "Organise design tokens"]
+        },
+        {
+          "topic": "Bootstrap for Rapid Layouts",
+          "subtopics": ["Adding Bootstrap 5 to a page", "The Bootstrap grid and breakpoints", "Utility classes for spacing and display", "Components: navbar, cards, modals and forms", "Customising Bootstrap with Sass or CSS custom properties", "Removing unused CSS", "Accessibility in Bootstrap components", "When to use a framework and when not to"],
+          "tools": ["Bootstrap 5", "Sass", "PurgeCSS"],
+          "lab_task": "Build a landing page with the Bootstrap grid, navbar, cards, a modal and a form, customise the brand colours and remove unused CSS to cut file size.",
+          "deliverable": "Bootstrap landing page with size comparison",
+          "checks": [["Resize the page", "Bootstrap grid stacks correctly on small screens", "Screenshots"], ["Apply brand colours", "Buttons and links use the brand palette", "Screenshot"], ["Remove unused CSS", "CSS file size reduced", "File size comparison"]],
+          "objectives": ["Build pages quickly with Bootstrap", "Customise a CSS framework", "Keep framework CSS small"]
+        },
+        {
+          "topic": "Publishing a Site: Hosting, Domains and Page Speed",
+          "subtopics": ["Static hosting options: GitHub Pages, Netlify and Cloudflare Pages", "Publishing from a Git repository", "Custom domains and HTTPS", "Favicons and social sharing tags", "Compressing images and minifying files", "Measuring with Lighthouse", "Fixing common Lighthouse issues", "Updating a live site safely"],
+          "tools": ["GitHub Pages or Netlify", "Git", "Lighthouse"],
+          "lab_task": "Publish the company site from GitHub to a static host with HTTPS, add favicons and sharing tags, and raise Lighthouse scores to 90 or more in every category.",
+          "deliverable": "Live website with Lighthouse report",
+          "checks": [["Open the live URL", "Site loads over HTTPS", "Browser screenshot"], ["Share a link", "Social preview shows title, description and image", "Preview screenshot"], ["Run Lighthouse", "Scores of 90 or more in all categories", "Lighthouse report"]],
+          "objectives": ["Publish a website", "Use custom domains and HTTPS", "Improve page speed"]
+        },
+        {
+          "topic": "Beginner Capstone: Responsive Business Website",
+          "subtopics": ["Plan", "Build", "Test", "Publish"],
+          "tools": ["HTML", "CSS", "Flexbox", "Grid", "Lighthouse", "axe DevTools"],
+          "lab_task": "Build and publish a five-page responsive website for a local business with semantic HTML, a contact form, Flexbox and Grid layouts, a dark theme, accessibility fixes and good Lighthouse scores, then present it.",
+          "deliverable": "Live website, source repository and presentation",
+          "checks": [["Present the site", "All five pages work on phone and desktop", "Demo recording"], ["Check accessibility", "No serious axe issues on any page", "axe reports"], ["Check quality", "HTML validates and Lighthouse scores are 90 or more", "Validator and Lighthouse reports"]],
+          "objectives": ["Combine the beginner topics in one website", "Build a complete responsive site", "Publish it for real users"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For front-end developers and designers who already build pages with HTML and CSS. Covers CSS architecture with BEM, utilities and cascade layers, advanced Grid and subgrid, container queries, modern selectors and nesting, Sass, Tailwind CSS, accessible forms and ARIA patterns, responsive images, web typography, motion with scroll-driven animations and view transitions, theming with tokens, CSS performance, SEO markup, HTML email, cross-browser testing, print styles, Figma to code and CSS tooling.",
+      "prerequisites": ["Builds responsive pages with Flexbox and Grid", "Understands the cascade and specificity", "Has published at least one website"],
+      "outcomes": ["Structure and scale stylesheets for teams", "Use modern CSS layout, selectors and motion features", "Build accessible components, emails and SEO-friendly pages", "Turn designs into fast, tested, cross-browser HTML and CSS"],
+      "days": [
+        {
+          "topic": "Modern CSS Architecture: BEM, Utility Classes and Cascade Layers",
+          "subtopics": ["Why stylesheets become hard to maintain", "BEM naming", "Utility-first styling", "Cascade layers with @layer", "Ordering resets, base, components and utilities", "Scoping with @scope", "Avoiding specificity wars", "Documenting CSS conventions"],
+          "tools": ["VS Code", "Chrome DevTools", "Stylelint"],
+          "lab_task": "Refactor a messy 2,000-line stylesheet into cascade layers with BEM components and a small utility set, remove every !important and write the team's CSS conventions.",
+          "deliverable": "Refactored stylesheet and conventions guide",
+          "checks": [["Remove !important", "No !important declarations remain", "Code search output"], ["Override a component", "Utility layer overrides components without specificity hacks", "Code review"], ["Measure size", "Stylesheet smaller with the same visual result", "Size and screenshot comparison"]],
+          "objectives": ["Organise CSS for maintenance", "Use cascade layers", "Agree team conventions"]
+        },
+        {
+          "topic": "Advanced Grid: Subgrid, Named Lines and Intrinsic Layouts",
+          "subtopics": ["Named lines and areas", "Subgrid for aligned nested content", "Implicit grids and auto placement", "Dense packing", "Intrinsic sizing: min-content, max-content and fit-content", "Overlapping items in a grid", "Grid for editorial layouts", "Accessibility of visual reordering"],
+          "tools": ["Chrome DevTools Grid inspector", "Firefox Grid inspector"],
+          "lab_task": "Build an editorial article layout with named lines and full-bleed images, product cards aligned with subgrid, and a dense image mosaic, and check that visual order matches reading order.",
+          "deliverable": "Three advanced Grid layouts",
+          "checks": [["Align card contents", "Titles and prices line up across cards with subgrid", "Screenshot"], ["Make full-bleed images", "Images span the full width inside the article grid", "Screenshot"], ["Check reading order", "Keyboard and screen reader order matches visual order", "Screen reader notes"]],
+          "objectives": ["Use advanced Grid features", "Align nested content with subgrid", "Keep layouts accessible"]
+        },
+        {
+          "topic": "Container Queries and Fluid Responsive Design",
+          "subtopics": ["Why components need container queries", "container-type and container names", "Container query units", "Style queries", "Fluid sizing with clamp()", "Combining media and container queries", "Responsive components in design systems", "Testing components in many containers"],
+          "tools": ["Chrome DevTools", "Utopia fluid type and space calculator"],
+          "lab_task": "Build a card component that changes layout by container width, use container units for its type, place it in a sidebar, a main column and a grid, and remove the page-level breakpoints it no longer needs.",
+          "deliverable": "Container-aware components",
+          "checks": [["Place the card in three containers", "Card picks the right layout in each container", "Screenshots"], ["Remove breakpoints", "Page media queries reduced without breaking layouts", "Code diff"], ["Use fluid sizes", "Type and spacing scale smoothly between sizes", "Screen recording"]],
+          "objectives": ["Build container-aware components", "Use fluid sizing", "Reduce breakpoint code"]
+        },
+        {
+          "topic": "Modern Selectors and Nesting: :has(), :is(), :where() and Native Nesting",
+          "subtopics": ["The :has() relational selector", ":is() and :where() for shorter selectors", "Specificity of :is() and :where()", ":focus-visible and :focus-within", "Form state selectors such as :user-invalid", "Native CSS nesting", "Feature queries with @supports", "Browser support checks"],
+          "tools": ["Chrome DevTools", "Can I Use", "Baseline status"],
+          "lab_task": "Replace JavaScript-driven styling with :has() for form and card states, simplify selectors with :is() and :where(), style focus with :focus-visible and convert a Sass file to native nesting.",
+          "deliverable": "Modernised stylesheet with removed scripts",
+          "checks": [["Style with :has()", "Card highlights when its checkbox is checked without JavaScript", "Screen recording"], ["Style focus", "Focus ring shows for keyboard users only", "Screen recording"], ["Convert nesting", "Native nesting produces the same output as the Sass file", "Screenshot comparison"]],
+          "objectives": ["Use modern CSS selectors", "Replace scripts with CSS", "Write nested CSS"]
+        },
+        {
+          "topic": "Sass for Large Stylesheets",
+          "subtopics": ["Sass and SCSS syntax", "Partials and the module system with @use and @forward", "Mixins and functions", "Maps and loops for utilities", "Placeholder selectors and @extend", "Organising a Sass project", "Compiling with Dart Sass or Vite", "When native CSS replaces Sass features"],
+          "tools": ["Dart Sass", "Vite", "VS Code"],
+          "lab_task": "Organise a site's styles into Sass modules, generate spacing and colour utilities from maps, write mixins for breakpoints and compile with source maps.",
+          "deliverable": "Sass project structure and compiled CSS",
+          "checks": [["Generate utilities", "Spacing utilities generated from one map", "Compiled CSS"], ["Use modules", "No global @import left in the project", "Code search output"], ["Debug with source maps", "DevTools shows the original SCSS line", "Screenshot"]],
+          "objectives": ["Structure Sass projects", "Generate CSS with mixins and maps", "Decide when Sass is still needed"]
+        },
+        {
+          "topic": "Tailwind CSS in Practice",
+          "subtopics": ["Utility-first workflow", "Installing Tailwind with Vite or the CLI", "Theme customisation and design tokens", "Responsive, state and dark variants", "Extracting components without repetition", "Plugins and arbitrary values", "Keeping markup readable", "Production build size"],
+          "tools": ["Tailwind CSS", "Vite", "Tailwind CSS IntelliSense"],
+          "lab_task": "Rebuild the landing page in Tailwind with the brand theme, responsive and dark variants and extracted components, and compare build size and development time with the hand-written version.",
+          "deliverable": "Tailwind version with a comparison note",
+          "checks": [["Apply the brand theme", "Brand colours and fonts come from the theme", "Configuration and screenshot"], ["Use variants", "Layout, hover and dark styles work from utility classes", "Screenshots"], ["Compare sizes", "Production CSS size recorded for both versions", "Size comparison"]],
+          "objectives": ["Build with Tailwind CSS", "Customise the theme", "Keep utility markup maintainable"]
+        },
+        {
+          "topic": "Accessible Forms and Custom Controls",
+          "subtopics": ["Labels, descriptions and grouping", "Error messages linked with aria-describedby", "Required, optional and format hints", "Custom checkboxes and radios with real inputs underneath", "Accessible select replacements", "Date and file inputs", "Error summaries", "Testing forms with keyboard and screen readers"],
+          "tools": ["axe DevTools", "NVDA or VoiceOver", "Chrome DevTools"],
+          "lab_task": "Rebuild a checkout form with linked hints and errors, an error summary, custom-styled checkboxes and radios that keep native inputs, and test it with a keyboard and screen reader.",
+          "deliverable": "Accessible checkout form",
+          "checks": [["Submit with errors", "Error summary appears and links to each field", "Screen recording"], ["Read a field", "Screen reader announces label, hint and error", "Screen reader notes"], ["Use custom controls", "Styled checkboxes work with keyboard and screen reader", "Screen recording"]],
+          "objectives": ["Build accessible forms", "Style controls without losing accessibility", "Present errors clearly"]
+        },
+        {
+          "topic": "Accessible Components with ARIA Patterns",
+          "subtopics": ["The first rule of ARIA", "Roles, states and properties", "Disclosure and accordion patterns", "Tabs pattern", "Menu buttons and navigation menus", "Modal dialogs with the dialog element", "Live regions for updates", "Using the ARIA Authoring Practices Guide"],
+          "tools": ["ARIA Authoring Practices Guide", "axe DevTools", "NVDA or VoiceOver"],
+          "lab_task": "Build an accordion, tabs, a navigation menu button and a modal dialog following the ARIA Authoring Practices Guide, with full keyboard support and screen reader testing.",
+          "deliverable": "Four accessible components",
+          "checks": [["Use tabs by keyboard", "Arrow keys move between tabs as the pattern describes", "Screen recording"], ["Open the dialog", "Focus moves into the dialog and returns on close", "Screen recording"], ["Announce updates", "Live region announces status messages", "Screen reader notes"]],
+          "objectives": ["Apply ARIA correctly", "Build keyboard-accessible widgets", "Test with assistive technology"]
+        },
+        {
+          "topic": "Responsive Images and Art Direction",
+          "subtopics": ["srcset and sizes", "The picture element", "Art direction for different screens", "Modern formats with fallbacks", "Lazy loading and fetch priority", "Width and height to prevent layout shift", "Responsive background images", "Image CDNs"],
+          "tools": ["Squoosh", "Chrome DevTools", "Lighthouse"],
+          "lab_task": "Serve hero and product images with srcset, sizes and picture for art direction, provide AVIF and WebP with fallbacks, lazy-load below-the-fold images and remove layout shift.",
+          "deliverable": "Responsive image setup with measurements",
+          "checks": [["Load on a phone", "Smaller image file served on small screens", "Network log"], ["Measure layout shift", "Cumulative Layout Shift below 0.1", "Lighthouse report"], ["Lazy-load images", "Below-the-fold images load only when scrolled near", "Network log"]],
+          "objectives": ["Serve responsive images", "Use art direction", "Prevent layout shift"]
+        },
+        {
+          "topic": "Web Typography in Depth: Font Loading and Fluid Type",
+          "subtopics": ["Choosing typefaces for interfaces", "Font loading strategies and font-display", "Preloading and subsetting fonts", "Fluid type scales", "Line height and vertical rhythm", "Balanced and pretty text wrapping", "Font metrics overrides to reduce layout shift", "Typography for different languages"],
+          "tools": ["Google Fonts", "glyphhanger or fonttools", "Chrome DevTools"],
+          "lab_task": "Subset and self-host the brand fonts, preload the critical one, build a fluid type scale, balance headline wrapping and remove font-swap layout shift with metric overrides.",
+          "deliverable": "Typography system with performance notes",
+          "checks": [["Subset fonts", "Font files smaller after subsetting", "File size list"], ["Remove font shift", "No layout shift when fonts swap", "Performance trace"], ["Balance headings", "Headlines wrap into even lines", "Screenshots"]],
+          "objectives": ["Load fonts efficiently", "Build fluid type scales", "Improve text layout"]
+        },
+        {
+          "topic": "Motion Design with CSS: Keyframes, Scroll-Driven Animations and View Transitions",
+          "subtopics": ["Purposeful motion in interfaces", "Keyframe sequences and animation properties", "Scroll-driven animations with scroll and view timelines", "View transitions for page and state changes", "Entry and exit animations with @starting-style", "Progressive enhancement for newer features", "Reduced motion alternatives", "Measuring animation performance"],
+          "tools": ["Chrome DevTools Animations panel", "View Transitions API", "Can I Use"],
+          "lab_task": "Add a reading progress bar with a scroll timeline, reveal sections as they enter view, animate page changes with view transitions and provide reduced-motion and unsupported-browser fallbacks.",
+          "deliverable": "Motion-enhanced site with fallbacks",
+          "checks": [["Scroll the article", "Progress bar follows scroll position without JavaScript", "Screen recording"], ["Change pages", "View transition animates between pages", "Screen recording"], ["Use an unsupported browser", "Site works without the effects", "Screenshot"]],
+          "objectives": ["Design purposeful motion", "Use scroll-driven animations and view transitions", "Enhance progressively"]
+        },
+        {
+          "topic": "Theming and Dark Mode with Design Tokens",
+          "subtopics": ["Primitive and semantic tokens", "Token naming", "color-mix() and light-dark()", "Dark themes that keep contrast", "High-contrast and forced colours modes", "Brand themes from one token set", "Token files from design tools", "Testing themes"],
+          "tools": ["Style Dictionary", "Figma variables", "Chrome DevTools"],
+          "lab_task": "Build primitive and semantic token files, generate light, dark and high-contrast themes, support forced colours mode and test contrast in every theme.",
+          "deliverable": "Token set and three themes",
+          "checks": [["Switch themes", "All components restyle from tokens only", "Screenshots"], ["Check contrast", "Every theme meets WCAG AA for text", "Contrast report"], ["Use forced colours", "Controls stay visible in Windows high contrast", "Screenshot"]],
+          "objectives": ["Design token systems", "Build accessible themes", "Support forced colours"]
+        },
+        {
+          "topic": "CSS Performance: Critical CSS, Containment and Rendering Cost",
+          "subtopics": ["How CSS blocks rendering", "Critical CSS and deferred styles", "Removing unused CSS", "Expensive selectors and properties", "content-visibility and containment", "Layout thrashing caused by styles", "Measuring with the Performance panel", "Performance budgets for CSS"],
+          "tools": ["Chrome DevTools Performance and Coverage panels", "Lighthouse", "Critical"],
+          "lab_task": "Measure a slow page, inline critical CSS, defer the rest, remove unused rules, apply content-visibility to long sections and record before and after metrics.",
+          "deliverable": "CSS performance report",
+          "checks": [["Inline critical CSS", "First Contentful Paint improves", "Lighthouse reports"], ["Remove unused CSS", "Coverage shows less unused CSS", "Coverage screenshots"], ["Use content-visibility", "Rendering time for the long page drops", "Performance traces"]],
+          "objectives": ["Find CSS performance problems", "Load CSS efficiently", "Reduce rendering cost"]
+        },
+        {
+          "topic": "SEO-Friendly HTML: Metadata, Structured Data and Open Graph",
+          "subtopics": ["Title and meta description", "Headings and content structure for search", "Canonical links", "Structured data with JSON-LD", "Open Graph and social cards", "Sitemaps and robots files", "Image alt text and file names for search", "Checking with Search Console and validators"],
+          "tools": ["Google Rich Results Test", "Schema.org", "Lighthouse"],
+          "lab_task": "Add titles, descriptions, canonical links, JSON-LD for organisation, articles and products, social cards and a sitemap to the site, and validate rich results.",
+          "deliverable": "SEO-ready pages with validation results",
+          "checks": [["Test rich results", "Product and article markup valid", "Rich Results Test report"], ["Share a page", "Social card shows the right title and image", "Preview screenshot"], ["Run Lighthouse SEO", "SEO score of 95 or more", "Lighthouse report"]],
+          "objectives": ["Write SEO-friendly HTML", "Add structured data", "Prepare pages for sharing"]
+        },
+        {
+          "topic": "HTML Email Development",
+          "subtopics": ["Why email HTML is different", "Table-based layouts for email", "Inline styles and supported CSS", "Responsive email techniques", "Dark mode in email clients", "Images, alt text and accessibility in email", "Testing across email clients", "Email frameworks such as MJML"],
+          "tools": ["MJML", "Litmus or Email on Acid", "Gmail and Outlook test accounts"],
+          "lab_task": "Build a responsive order confirmation email with MJML, check rendering in Gmail, Outlook and Apple Mail, support dark mode and keep it accessible with images turned off.",
+          "deliverable": "Tested email template",
+          "checks": [["Render in three clients", "Email looks correct in Gmail, Outlook and Apple Mail", "Test screenshots"], ["Turn images off", "Message still readable with alt text", "Screenshot"], ["Open in dark mode", "Colours stay readable in dark mode", "Screenshot"]],
+          "objectives": ["Build HTML emails", "Test across email clients", "Make emails accessible"]
+        },
+        {
+          "topic": "Cross-Browser Testing and Progressive Enhancement",
+          "subtopics": ["Browser engines and market share", "Baseline and feature support data", "Progressive enhancement and graceful degradation", "Feature queries and fallbacks", "Vendor prefixes and Autoprefixer", "Testing on real devices and cloud browsers", "Common Safari and Firefox differences", "Writing a browser support policy"],
+          "tools": ["BrowserStack or LambdaTest", "Autoprefixer", "Can I Use"],
+          "lab_task": "Test the site in Chrome, Firefox, Safari and a mobile browser, fix three engine-specific bugs, add fallbacks for two new features and write a browser support policy.",
+          "deliverable": "Test matrix, fixes and support policy",
+          "checks": [["Test four browsers", "Pages work in every browser in the matrix", "Test matrix"], ["Add fallbacks", "Older browsers get a working fallback", "Screenshots"], ["Write the policy", "Supported browsers and the reason for each listed", "Support policy"]],
+          "objectives": ["Test across browsers", "Enhance progressively", "Set browser support policies"]
+        },
+        {
+          "topic": "Print Styles and PDF Output",
+          "subtopics": ["Print media queries", "Hiding navigation and showing link URLs", "Page breaks and orphans", "Page size and margins with @page", "Printing tables across pages", "Generating PDFs from HTML", "Headers and footers in printed output", "Testing print previews"],
+          "tools": ["Chrome print preview", "Paged.js or Playwright PDF output"],
+          "lab_task": "Write print styles for an invoice and a report page with clean page breaks, repeated table headers and page numbers, and generate PDFs from the HTML.",
+          "deliverable": "Print stylesheet and sample PDFs",
+          "checks": [["Print the invoice", "Navigation hidden and content fits the page", "Print preview screenshot"], ["Print a long table", "Table headers repeat on each page", "PDF pages"], ["Generate a PDF", "PDF matches the print preview", "PDF file"]],
+          "objectives": ["Style pages for print", "Control page breaks", "Produce PDFs from HTML"]
+        },
+        {
+          "topic": "Converting Figma Designs to HTML and CSS",
+          "subtopics": ["Reading a design: grids, spacing and type", "Inspecting values in Figma Dev Mode", "Exporting assets correctly", "Translating auto layout into Flexbox and Grid", "Building components before pages", "Handling states the design does not show", "Pixel-perfect versus robust", "Reviewing the build with the designer"],
+          "tools": ["Figma Dev Mode", "VS Code", "Pixel comparison tools"],
+          "lab_task": "Build a three-page site from a Figma file, translate auto layout into Flexbox and Grid, export assets, add missing states and review the result against the design with a designer.",
+          "deliverable": "Built pages and a design review log",
+          "checks": [["Compare with the design", "Spacing and type match the design within agreed tolerance", "Overlay comparison"], ["Add missing states", "Hover, focus, empty and error states built", "Screenshots"], ["Review with the designer", "Review comments resolved", "Review log"]],
+          "objectives": ["Turn designs into code", "Map design tools to CSS layout", "Work with designers"]
+        },
+        {
+          "topic": "Linting, Formatting and Build Tools for CSS: Stylelint, PostCSS and Vite",
+          "subtopics": ["Stylelint rules and configurations", "Prettier for HTML and CSS", "PostCSS and Autoprefixer", "Bundling and minifying with Vite", "HTML validation in CI", "Pre-commit hooks", "Source maps", "A simple front-end pipeline"],
+          "tools": ["Stylelint", "Prettier", "PostCSS", "Vite", "GitHub Actions"],
+          "lab_task": "Add Stylelint, Prettier, PostCSS and a Vite build to the site, run HTML validation and linting in GitHub Actions and block commits that break the rules.",
+          "deliverable": "Front-end pipeline configuration",
+          "checks": [["Run Stylelint", "No lint errors in the stylesheets", "Stylelint output"], ["Run CI", "Validation, lint and build pass in GitHub Actions", "CI run"], ["Commit bad CSS", "Pre-commit hook blocks the commit", "Terminal output"]],
+          "objectives": ["Lint and format HTML and CSS", "Build CSS with modern tools", "Automate quality checks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Accessible Multi-Page Marketing Site",
+          "subtopics": ["Design to code", "Components and themes", "Quality", "Launch"],
+          "tools": ["Figma", "Tailwind CSS or Sass", "Vite", "axe DevTools", "Lighthouse", "BrowserStack"],
+          "lab_task": "Build a marketing site from a Figma design with layered CSS architecture, container-query components, light and dark themes, accessible forms, motion, SEO markup, print styles and a CI pipeline, then launch it.",
+          "deliverable": "Live site, repository and quality reports",
+          "checks": [["Present the site", "Pages match the design across devices", "Demo recording"], ["Show accessibility", "No serious axe issues and keyboard flows work", "Audit report"], ["Show quality gates", "CI runs lint, validation and Lighthouse checks", "CI run"]],
+          "objectives": ["Combine the intermediate topics in one site", "Ship production-quality HTML and CSS", "Prove quality with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior front-end developers, UI engineers and design system teams. Covers the browser rendering pipeline, CSS architecture for many teams, design tokens across platforms, web components and shadow DOM styling, logical properties and right-to-left layouts, WCAG 2.2 audits, animation and the compositor, Core Web Vitals, fluid design systems, dialogs, popovers and anchor positioning, visual regression testing, legacy CSS migration, styling approaches, multi-brand theming, CSS security, SVG, front-end tooling, quality leadership and a multi-brand design system.",
+      "prerequisites": ["Several years building production front ends", "Strong knowledge of modern CSS and accessibility", "Works with a design system or component library"],
+      "outcomes": ["Explain and optimise how browsers render HTML and CSS", "Architect CSS and tokens for many teams and brands", "Lead accessibility, performance and visual quality programmes", "Build and govern a multi-brand design system"],
+      "days": [
+        {
+          "topic": "How Browsers Render: Parsing, Style, Layout, Paint and Composite",
+          "subtopics": ["HTML parsing and the DOM", "CSSOM and style calculation", "Layout and reflow triggers", "Paint and layers", "Compositing and the GPU", "Render-blocking resources", "Reading Performance panel flame charts", "Writing CSS that renders cheaply"],
+          "tools": ["Chrome DevTools Performance panel", "Layers panel", "Rendering tools"],
+          "lab_task": "Trace a slow page through parsing, style, layout, paint and composite, find the costliest stage, fix forced reflows and excessive paint areas and prove the gains.",
+          "deliverable": "Rendering analysis with traces",
+          "checks": [["Find the costly stage", "Main cost identified in the flame chart", "Annotated trace"], ["Fix forced reflow", "No forced reflow warnings after the fix", "Performance trace"], ["Reduce paint", "Paint areas smaller with paint flashing", "Screen recordings"]],
+          "objectives": ["Explain the rendering pipeline", "Find rendering bottlenecks", "Write render-friendly CSS"]
+        },
+        {
+          "topic": "CSS Architecture for Large Teams and Design Systems",
+          "subtopics": ["Ownership and boundaries between teams", "Global, component and utility layers", "Naming and scoping strategies", "Preventing style leaks across features", "Deprecating and removing CSS safely", "Measuring CSS health", "Architecture decision records", "Reviewing CSS in pull requests"],
+          "tools": ["Stylelint", "CSS stats tools", "Cascade layers"],
+          "lab_task": "Assess the CSS of a large product, design a layer and ownership model, remove dead CSS safely with coverage data and record the architecture decisions.",
+          "deliverable": "CSS architecture proposal and clean-up results",
+          "checks": [["Measure CSS health", "Size, specificity and duplication reported", "CSS stats report"], ["Remove dead CSS", "Unused rules removed with no visual change", "Visual comparison"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Architect CSS for many teams", "Remove CSS safely", "Measure stylesheet health"]
+        },
+        {
+          "topic": "Design Tokens Across Platforms",
+          "subtopics": ["Token tiers: primitive, semantic and component", "The W3C design tokens format", "Generating CSS, iOS and Android outputs", "Syncing tokens with Figma variables", "Versioning tokens", "Token documentation", "Testing token changes", "Governance for token requests"],
+          "tools": ["Style Dictionary", "Figma variables", "Tokens Studio"],
+          "lab_task": "Build a token pipeline from a W3C-format token file to CSS, iOS and Android outputs, sync with Figma variables and ship a versioned token change with visual tests.",
+          "deliverable": "Token pipeline and governance guide",
+          "checks": [["Generate outputs", "CSS, iOS and Android files generated from one source", "Build output"], ["Sync with Figma", "Figma variables match the token source", "Comparison screenshot"], ["Ship a change", "Versioned release passes visual tests", "Release notes and test report"]],
+          "objectives": ["Build cross-platform token pipelines", "Sync design and code", "Govern token changes"]
+        },
+        {
+          "topic": "Web Components and Shadow DOM Styling",
+          "subtopics": ["Custom elements and templates", "Shadow DOM and style encapsulation", "Styling from outside with custom properties and ::part", "Slots and ::slotted", "Constructable stylesheets", "Form-associated custom elements", "Accessibility across shadow boundaries", "Using web components in frameworks"],
+          "tools": ["Lit", "Chrome DevTools", "Storybook"],
+          "lab_task": "Build a button, input and card as web components with shadow DOM, theme them from outside with custom properties and parts, and use them in a React and a plain HTML page.",
+          "deliverable": "Web component set with theming guide",
+          "checks": [["Theme from outside", "Components restyle through custom properties and parts", "Screenshots"], ["Submit a form", "Form-associated input submits its value", "Network log"], ["Use in React", "Components work inside a React app", "Screenshot"]],
+          "objectives": ["Style web components", "Encapsulate and expose styling", "Share components across frameworks"]
+        },
+        {
+          "topic": "Internationalisation in CSS: Logical Properties, Writing Modes and RTL Layouts",
+          "subtopics": ["Logical properties and values", "Right-to-left layouts", "Mirroring icons and animations", "Vertical writing modes", "Text expansion in translations", "Language-specific typography", "The lang and dir attributes", "Testing layouts in many languages"],
+          "tools": ["Chrome DevTools", "Pseudo-localisation tools"],
+          "lab_task": "Convert a site to logical properties, support Arabic right-to-left layout and a vertical Japanese headline, test with pseudo-localised long text and fix overflow problems.",
+          "deliverable": "Internationalised layout and test report",
+          "checks": [["Switch to Arabic", "Layout mirrors correctly with dir set to rtl", "Screenshots"], ["Test long text", "No overflow with pseudo-localised strings", "Screenshots"], ["Use logical properties", "No physical left or right properties left in components", "Code search output"]],
+          "objectives": ["Use logical properties", "Support right-to-left and vertical text", "Test international layouts"]
+        },
+        {
+          "topic": "Accessibility Engineering: WCAG 2.2 Audits and Remediation",
+          "subtopics": ["WCAG 2.2 success criteria new since 2.1", "Audit methods: automated, manual and assistive technology", "Focus appearance and target size", "Accessible authentication and dragging alternatives", "Writing audit reports with severity", "Remediation planning", "Accessibility regression tests", "Working with disabled users in testing"],
+          "tools": ["axe DevTools", "Accessibility Insights", "NVDA", "VoiceOver", "Playwright with axe"],
+          "lab_task": "Run a full WCAG 2.2 AA audit of a product flow, write a report with severities, fix the top issues and add automated accessibility tests to prevent regressions.",
+          "deliverable": "Audit report, fixes and regression tests",
+          "checks": [["Audit the flow", "Every WCAG 2.2 AA criterion assessed", "Audit report"], ["Fix top issues", "High-severity issues pass on retest", "Retest report"], ["Prevent regressions", "CI fails when an accessibility test breaks", "CI log"]],
+          "objectives": ["Audit against WCAG 2.2", "Plan remediation", "Automate accessibility checks"]
+        },
+        {
+          "topic": "Animation Performance and the Compositor",
+          "subtopics": ["Which properties trigger layout, paint or composite", "will-change and layer promotion", "Memory cost of layers", "Animating with the Web Animations API", "Scroll performance and passive listeners", "Jank on low-end devices", "Testing on throttled CPUs", "Motion budgets"],
+          "tools": ["Chrome DevTools Performance and Layers panels", "Web Animations API"],
+          "lab_task": "Fix a janky carousel and a sticky header animation on a throttled CPU by moving work to the compositor, measure layer memory and set motion budgets.",
+          "deliverable": "Animation performance report",
+          "checks": [["Fix the carousel", "Frames hold at 60 per second on a 4x throttled CPU", "Performance trace"], ["Check layer memory", "Layer count and memory reduced", "Layers panel screenshot"], ["Set budgets", "Motion budget documented and applied", "Budget document"]],
+          "objectives": ["Animate on the compositor", "Manage layer cost", "Keep motion smooth on slow devices"]
+        },
+        {
+          "topic": "Core Web Vitals Engineering for HTML and CSS",
+          "subtopics": ["Largest Contentful Paint and its parts", "Cumulative Layout Shift causes", "Interaction to Next Paint and styling work", "Resource hints: preload, preconnect and fetchpriority", "Critical rendering path optimisation", "Field data from CrUX and RUM", "Lab and field differences", "Setting and enforcing budgets"],
+          "tools": ["Lighthouse CI", "CrUX dashboard", "web-vitals library", "WebPageTest"],
+          "lab_task": "Improve a slow landing page's LCP, CLS and INP using HTML and CSS changes only, confirm with lab and field data and add Lighthouse CI budgets.",
+          "deliverable": "Web Vitals improvement report",
+          "checks": [["Improve LCP", "LCP below 2.5 seconds in lab tests", "WebPageTest results"], ["Remove layout shift", "CLS below 0.1", "Lighthouse report"], ["Enforce budgets", "Lighthouse CI fails when budgets are exceeded", "CI log"]],
+          "objectives": ["Optimise Core Web Vitals", "Use resource hints", "Enforce performance budgets"]
+        },
+        {
+          "topic": "Fluid Design Systems: clamp(), Container Units and Type Scales",
+          "subtopics": ["Fluid type and space scales", "clamp() maths", "Container units in components", "Fluid grids", "Minimum and maximum bounds for accessibility", "Fluid scales and zoom", "Generating fluid tokens", "Documenting fluid systems"],
+          "tools": ["Utopia", "Style Dictionary", "Chrome DevTools"],
+          "lab_task": "Replace fixed breakpoints in a design system with fluid type and space scales, use container units in components, check zoom accessibility and publish the fluid tokens.",
+          "deliverable": "Fluid token set and documentation",
+          "checks": [["Resize smoothly", "Type and spacing scale without jumps", "Screen recording"], ["Zoom to 200 percent", "Text still enlarges as required", "Screenshot"], ["Publish tokens", "Fluid tokens available to all components", "Token files"]],
+          "objectives": ["Build fluid design systems", "Use clamp() and container units", "Keep fluid sizing accessible"]
+        },
+        {
+          "topic": "Native UI Patterns: Dialogs, Popovers and Anchor Positioning",
+          "subtopics": ["The dialog element and modal behaviour", "The popover attribute", "Anchor positioning for tooltips and menus", "Top layer and stacking", "Light dismiss behaviour", "Accessibility of native patterns", "Fallbacks for older browsers", "Replacing JavaScript positioning libraries"],
+          "tools": ["Chrome DevTools", "Can I Use", "Floating UI as a fallback"],
+          "lab_task": "Replace a JavaScript tooltip, dropdown and modal with dialog, popover and anchor positioning, add fallbacks for unsupported browsers and measure the JavaScript removed.",
+          "deliverable": "Native UI components and comparison",
+          "checks": [["Open the popover", "Popover opens in the top layer and closes on outside click", "Screen recording"], ["Position a tooltip", "Tooltip follows its anchor and flips at the viewport edge", "Screenshots"], ["Measure the saving", "JavaScript bundle reduced", "Bundle comparison"]],
+          "objectives": ["Use native dialogs and popovers", "Position with CSS anchors", "Reduce JavaScript"]
+        },
+        {
+          "topic": "Visual Regression Testing for CSS",
+          "subtopics": ["Why CSS changes break things silently", "Screenshot testing tools", "Stable test pages and fixtures", "Handling fonts, animations and dynamic data", "Thresholds and diff review", "Testing themes and breakpoints", "Running visual tests in CI", "Approving intentional changes"],
+          "tools": ["Playwright", "Chromatic or Percy", "Storybook"],
+          "lab_task": "Add visual regression tests for components across themes and three breakpoints, make them stable, run them in CI and approve one intentional change.",
+          "deliverable": "Visual test suite and review workflow",
+          "checks": [["Catch a regression", "Unintended spacing change fails the test", "Visual diff"], ["Keep tests stable", "Ten repeated runs pass without flakes", "Run history"], ["Approve a change", "Intentional change approved and baseline updated", "Review record"]],
+          "objectives": ["Test CSS visually", "Keep screenshot tests stable", "Review visual changes"]
+        },
+        {
+          "topic": "Refactoring and Migrating Legacy Stylesheets",
+          "subtopics": ["Auditing legacy CSS and frameworks", "Strangler approach for stylesheets", "Moving from Bootstrap 3 or 4 to modern CSS", "Replacing floats and table layouts", "Wrapping legacy CSS in a layer", "Codemods and search-and-replace safely", "Visual tests as a safety net", "Planning and tracking migration"],
+          "tools": ["Cascade layers", "Visual regression tools", "Stylelint"],
+          "lab_task": "Migrate a page from Bootstrap 3 and float layouts to modern Grid and Flexbox with legacy styles wrapped in a layer, protected by visual tests, and plan the remaining migration.",
+          "deliverable": "Migrated page and migration plan",
+          "checks": [["Contain legacy CSS", "Legacy rules no longer override new components", "Screenshots"], ["Migrate a page", "Page matches the old design with modern layout", "Visual diff"], ["Plan the rest", "Plan lists pages, risks and order", "Migration plan"]],
+          "objectives": ["Migrate legacy CSS safely", "Use layers to contain old styles", "Plan large migrations"]
+        },
+        {
+          "topic": "Styling Approaches: CSS Modules, CSS-in-JS and Zero-Runtime Options",
+          "subtopics": ["Global CSS, CSS Modules and scoped styles", "Runtime CSS-in-JS costs", "Zero-runtime libraries", "Utility-first frameworks", "Server rendering and styling", "Interoperability with design tokens", "Migration between approaches", "Choosing an approach for a product"],
+          "tools": ["CSS Modules", "vanilla-extract", "Tailwind CSS", "Panda CSS"],
+          "lab_task": "Build the same component in CSS Modules, a runtime CSS-in-JS library and a zero-runtime library, measure bundle and runtime costs and recommend an approach.",
+          "deliverable": "Comparison and recommendation",
+          "checks": [["Measure runtime cost", "Style injection time compared", "Performance traces"], ["Measure bundle cost", "CSS and JavaScript sizes compared", "Bundle reports"], ["Recommend", "Recommendation covers performance, team skills and tooling", "Recommendation document"]],
+          "objectives": ["Compare styling approaches", "Measure their costs", "Choose an approach for a product"]
+        },
+        {
+          "topic": "Multi-Brand and White-Label Theming",
+          "subtopics": ["Brand layers on top of shared tokens", "Runtime and build-time theming", "Brand-specific components and overrides", "Fonts and assets per brand", "Accessibility across brands", "Testing many brands", "Delivering brand themes to apps", "Governance for brand requests"],
+          "tools": ["Style Dictionary", "CSS custom properties", "Visual regression tools"],
+          "lab_task": "Add two brands to a shared design system with brand token layers, runtime switching, brand fonts and assets, and test all brands for contrast and visual regressions.",
+          "deliverable": "Multi-brand theming system",
+          "checks": [["Switch brands", "All components restyle per brand", "Screenshots"], ["Check contrast per brand", "Every brand meets WCAG AA", "Contrast report"], ["Test brands", "Visual tests run for each brand", "Test report"]],
+          "objectives": ["Build multi-brand themes", "Keep brands accessible", "Govern brand changes"]
+        },
+        {
+          "topic": "Security in HTML and CSS: CSP, Sanitisation and CSS Injection",
+          "subtopics": ["Cross-site scripting through HTML", "Sanitising user HTML", "Content Security Policy for styles and scripts", "CSS injection and data exfiltration", "Clickjacking and frame protection", "Subresource integrity for CDN files", "Safe use of target and rel attributes", "Security reviews for front-end changes"],
+          "tools": ["DOMPurify", "CSP Evaluator", "Chrome DevTools"],
+          "lab_task": "Find and fix planted issues: unsanitised user HTML, a CSS injection that leaks data, missing frame protection and unpinned CDN files, then apply a strict CSP.",
+          "deliverable": "Security fixes and CSP",
+          "checks": [["Sanitise HTML", "Script and style injection blocked", "Test output"], ["Block CSS injection", "Injected selector no longer leaks values", "Test output"], ["Apply CSP", "Strict CSP active with no violations in normal use", "Console and headers"]],
+          "objectives": ["Find front-end security issues", "Sanitise and restrict content", "Apply CSP"]
+        },
+        {
+          "topic": "SVG in Depth: Icons, Illustrations and Animation",
+          "subtopics": ["SVG structure and viewBox", "Inline SVG, sprites and img", "Accessible SVG with titles and roles", "Styling SVG with CSS and currentColor", "Optimising SVG files", "Animating SVG paths and strokes", "Responsive illustrations", "Icon systems"],
+          "tools": ["SVGO", "Figma", "Chrome DevTools"],
+          "lab_task": "Build an accessible icon system with a sprite and currentColor, optimise a set of illustrations, animate a line drawing with stroke offsets and make an illustration responsive.",
+          "deliverable": "Icon system and animated illustration",
+          "checks": [["Recolour icons", "Icons follow text colour with currentColor", "Screenshots"], ["Optimise files", "SVG file sizes reduced with no visual change", "Size comparison"], ["Announce icons", "Meaningful icons announced and decorative ones hidden", "Screen reader notes"]],
+          "objectives": ["Use SVG well", "Build icon systems", "Animate SVG"]
+        },
+        {
+          "topic": "Accessible Data Visualisation with HTML, SVG and CSS",
+          "subtopics": ["Choosing chart types for the message", "Building simple charts with HTML, CSS and SVG", "Colour palettes that work for colour blindness", "Patterns and labels instead of colour alone", "Text alternatives and data tables for charts", "Keyboard and screen reader access to chart data", "Responsive charts", "Testing charts with users of assistive technology"],
+          "tools": ["SVG", "CSS", "Colour blindness simulators", "NVDA or VoiceOver"],
+          "lab_task": "Build a bar chart and a line chart with SVG and CSS, add direct labels and patterns, provide data tables and descriptions, make them responsive and test them with a screen reader and colour blindness simulation.",
+          "deliverable": "Accessible charts with a test report",
+          "checks": [["Simulate colour blindness", "Series still distinguishable without colour", "Simulation screenshots"], ["Read with a screen reader", "Chart description and data table announced", "Screen reader notes"], ["Resize the charts", "Charts stay readable on a phone", "Screenshots"]],
+          "objectives": ["Build accessible charts", "Avoid relying on colour", "Provide text alternatives for data"]
+        },
+        {
+          "topic": "Front-End Tooling: Lightning CSS, PostCSS Plugins and Build Pipelines",
+          "subtopics": ["CSS processing pipelines", "Lightning CSS and PostCSS compared", "Writing a PostCSS plugin", "Targets and browser lists", "CSS bundling and code splitting", "Linting rules for a design system", "Build performance", "Keeping tooling maintainable"],
+          "tools": ["Lightning CSS", "PostCSS", "Vite", "Stylelint"],
+          "lab_task": "Compare Lightning CSS and PostCSS on a large stylesheet, write a PostCSS plugin that enforces token use, set browser targets and split CSS per route.",
+          "deliverable": "Build pipeline with a custom plugin",
+          "checks": [["Compare tools", "Build time and output size compared", "Benchmark table"], ["Enforce tokens", "Plugin fails the build on hard-coded colours", "Build output"], ["Split CSS", "Each route loads only its CSS", "Network log"]],
+          "objectives": ["Build CSS pipelines", "Extend tooling with plugins", "Speed up builds"]
+        },
+        {
+          "topic": "Leading Front-End Quality: Standards, Reviews and Style Guides",
+          "subtopics": ["Front-end standards for HTML and CSS", "Review checklists", "Living style guides", "Quality metrics: accessibility, performance and visual stability", "Training and mentoring", "Working with design and product teams", "Handling exceptions to standards", "Reporting quality to leaders"],
+          "tools": ["Review templates", "Storybook", "Quality dashboards"],
+          "lab_task": "Write HTML and CSS standards and a review checklist, set up a living style guide, define quality metrics and present a quarterly quality report.",
+          "deliverable": "Standards, checklist and quality report",
+          "checks": [["Publish standards", "Standards reviewed by developers and designers", "Review notes"], ["Use the checklist", "Two pull requests reviewed with the checklist", "Pull request reviews"], ["Report quality", "Metrics trend shown to leaders", "Quality report"]],
+          "objectives": ["Set front-end standards", "Run quality reviews", "Report quality"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Brand Design System in HTML and CSS",
+          "subtopics": ["Architecture and tokens", "Components", "Quality programme", "Defence"],
+          "tools": ["Style Dictionary", "Web components", "Storybook", "Playwright", "Lighthouse CI"],
+          "lab_task": "Build a multi-brand design system with cross-platform tokens, fluid scales, web components, native popovers and dialogs, right-to-left support, WCAG 2.2 compliance and visual and performance tests, then defend it to a review panel.",
+          "deliverable": "Design system repository, documentation and defence",
+          "checks": [["Prove accessibility", "WCAG 2.2 AA audit passes for all components", "Audit report"], ["Prove quality", "Visual and performance tests pass in CI for every brand", "CI run"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one system", "Lead a design system build", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}

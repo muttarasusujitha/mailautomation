@@ -1,0 +1,573 @@
+{
+  "domain": ".NET Full Stack",
+  "name": ".NET Full Stack Development (ASP.NET Core, Angular or React, SQL Server and Azure)",
+  "category": "Web and Full Stack Development",
+  "icon": "boxes",
+  "aliases": ["Dot Net Full Stack", "DotNet Full Stack", ".NET Full Stack Developer", ".NET Full Stack Development", "Dot Net Full Stack Developer", "Full Stack .NET", "Full Stack .NET Developer", "Full Stack Dot Net", "ASP.NET Full Stack", "C# Full Stack", ".NET Core Full Stack", ".NET Angular Full Stack", ".NET React Full Stack"],
+  "certifications": ["Microsoft Certified: Azure Developer Associate (AZ-204)", "Microsoft Certified: Azure Fundamentals (AZ-900)", "Foundational C# with Microsoft (freeCodeCamp)"],
+  "tools": [".NET SDK", "C#", "ASP.NET Core", "Entity Framework Core", "SQL Server", "Angular", "React", "Visual Studio", "Azure App Service", "Azure DevOps", "GitHub Actions"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For freshers and developers joining .NET project teams. Covers the full stack toolchain, C# and LINQ for application code, HTML, CSS and Bootstrap, JavaScript and TypeScript, SQL Server design for a project, an ASP.NET Core Web API with controllers, EF Core data access, DTOs and validation, an Angular client with routing, reactive forms and HttpClient, Identity and JWT login, role-based access, file handling, paging and search, logging, testing, React as an alternative client and deployment to Azure.",
+      "prerequisites": ["Knows programming basics in any language", "Understands what a database table is", "A laptop that can run Visual Studio or VS Code with the .NET SDK"],
+      "outcomes": ["Build a complete business application with ASP.NET Core, EF Core, SQL Server and Angular", "Secure the application with Identity, JWT and roles", "Test, log and troubleshoot across the stack", "Deploy the application to Azure"],
+      "days": [
+        {
+          "topic": ".NET Full Stack Overview and Developer Setup",
+          "subtopics": ["What a .NET full stack developer builds", "How Angular, ASP.NET Core and SQL Server fit together", "Installing the .NET SDK and checking versions", "Visual Studio, VS Code and Rider", "SQL Server Developer Edition or LocalDB and SSMS", "Node.js and the Angular CLI", "Git and the solution folder layout", "Postman or the HTTP files feature for API calls", "Running the API and client together", "The course project: a clinic appointment system"],
+          "tools": [".NET SDK", "Visual Studio", "SQL Server Developer Edition", "SSMS", "Node.js", "Angular CLI", "Git"],
+          "lab_task": "Install the full toolchain, create a solution with an ASP.NET Core API and an Angular client in one repository, connect SSMS to a local SQL Server and run the API and client side by side.",
+          "deliverable": "Running solution skeleton in a Git repository",
+          "checks": [["Run the API", "Swagger page opens for the template API", "Browser screenshot"], ["Run the client", "Angular app opens and calls the template API", "Screenshot"], ["Connect SSMS", "Local SQL Server instance browsable", "SSMS screenshot"]],
+          "objectives": ["Explain the parts of a .NET full stack application", "Set up the toolchain", "Run client and API together"]
+        },
+        {
+          "topic": "C# for Full Stack Developers: Types, Classes and LINQ",
+          "subtopics": ["Value and reference types", "Classes, records and properties", "Nullable reference types", "Collections and generics for application code", "LINQ queries over collections", "async and await in web applications", "Exceptions in business logic", "Coding conventions for team projects"],
+          "tools": ["C#", ".NET SDK", "Visual Studio"],
+          "lab_task": "Model patients, doctors and appointments in C# with records and classes, query sample data with LINQ for daily schedules and free slots, and handle invalid bookings with exceptions.",
+          "deliverable": "Domain model library with unit tests",
+          "checks": [["Query schedules", "LINQ returns each doctor's daily appointments correctly", "Test output"], ["Enable nullable checks", "No nullable warnings in the library", "Build output"], ["Reject a double booking", "Exception raised with a clear message", "Test output"]],
+          "objectives": ["Write C# for business applications", "Query data with LINQ", "Handle errors in domain code"]
+        },
+        {
+          "topic": "HTML, CSS and Bootstrap for .NET Developers",
+          "subtopics": ["HTML page structure and semantic elements", "Forms and input types", "CSS selectors, box model and Flexbox", "Bootstrap grid and components", "Responsive layouts", "Accessible forms and buttons", "Using Bootstrap with Angular", "Browser DevTools for layout debugging"],
+          "tools": ["HTML", "CSS", "Bootstrap 5", "Chrome DevTools"],
+          "lab_task": "Build static pages for the clinic's login, dashboard and booking form with semantic HTML and Bootstrap, make them responsive and fix accessibility issues found by axe.",
+          "deliverable": "Responsive static pages for the project",
+          "checks": [["Resize the pages", "Layout adapts at phone and desktop widths", "Screenshots"], ["Run axe", "No serious accessibility issues on the form", "axe report"], ["Use the keyboard", "Booking form usable without a mouse", "Screen recording"]],
+          "objectives": ["Write HTML and CSS for business apps", "Use Bootstrap layouts", "Build accessible forms"]
+        },
+        {
+          "topic": "JavaScript and TypeScript for .NET Developers",
+          "subtopics": ["JavaScript types and functions compared with C#", "Arrays, objects and array methods", "Promises and async/await in the browser", "Modules and imports", "TypeScript types, interfaces and generics", "Classes in TypeScript", "Strict mode and common compiler errors", "Debugging TypeScript in the browser"],
+          "tools": ["TypeScript", "Node.js", "VS Code", "Chrome DevTools"],
+          "lab_task": "Rewrite the C# appointment rules as typed TypeScript functions, call a public API with async/await, debug them in the browser and fix the strict mode errors.",
+          "deliverable": "TypeScript utility module with tests",
+          "checks": [["Port the rules", "TypeScript rules give the same results as the C# tests", "Test output"], ["Compile in strict mode", "No TypeScript errors", "tsc output"], ["Debug in the browser", "Breakpoint hit in the original TypeScript source", "DevTools screenshot"]],
+          "objectives": ["Map C# knowledge to TypeScript", "Write async browser code", "Debug TypeScript"]
+        },
+        {
+          "topic": "SQL Server Database Design for the Clinic Project",
+          "subtopics": ["Tables, keys and relationships for the project", "Choosing data types", "Normalisation for business data", "Constraints for business rules", "Indexes for expected queries", "Writing queries with joins and aggregates", "Seed data scripts", "Database diagrams in SSMS"],
+          "tools": ["SQL Server", "SSMS", "T-SQL"],
+          "lab_task": "Design the clinic database with patients, doctors, departments and appointments, enforce business rules with constraints, add indexes for schedule queries and write seed scripts.",
+          "deliverable": "Database design, scripts and diagram",
+          "checks": [["Enforce rules", "Overlapping appointments rejected by a constraint or unique index", "Error output"], ["Query schedules", "Join query returns each doctor's schedule", "Query results"], ["Seed data", "Script loads realistic sample data", "Row counts"]],
+          "objectives": ["Design a relational database for an app", "Enforce rules in the database", "Write queries for app screens"]
+        },
+        {
+          "topic": "Building the Web API with ASP.NET Core Controllers",
+          "subtopics": ["Project structure of an ASP.NET Core API", "Controllers, actions and routing", "Model binding from route, query and body", "Returning ActionResult and status codes", "Dependency injection for services", "Configuration with appsettings and environments", "OpenAPI documentation", "CORS for the Angular client"],
+          "tools": ["ASP.NET Core", "Swagger UI", "Visual Studio", "HTTP files"],
+          "lab_task": "Build controllers for patients, doctors and appointments with correct routes and status codes, inject services, document the API with OpenAPI and allow the Angular client through CORS.",
+          "deliverable": "Documented Web API",
+          "checks": [["Call each endpoint", "Correct status codes for success, not found and bad input", "HTTP file results"], ["Read the docs", "Every endpoint documented in Swagger UI", "Screenshot"], ["Call from Angular", "Client origin allowed and other origins blocked", "Browser console"]],
+          "objectives": ["Build REST APIs with ASP.NET Core", "Use dependency injection", "Document APIs"]
+        },
+        {
+          "topic": "Data Access with EF Core: DbContext, Migrations and Relationships",
+          "subtopics": ["DbContext and DbSet", "Code-first models and configuration", "Migrations and updating the database", "One-to-many and many-to-many relationships", "Loading related data", "Tracking and no-tracking queries", "Saving changes and transactions", "Seeding with EF Core"],
+          "tools": ["Entity Framework Core", "SQL Server", "dotnet-ef CLI"],
+          "lab_task": "Map the clinic model with EF Core, create migrations, load appointments with patients and doctors, use no-tracking for read pages and save bookings inside a transaction.",
+          "deliverable": "EF Core data layer with migrations",
+          "checks": [["Apply migrations", "Database schema created from migrations", "Migration output"], ["Load related data", "Appointment list includes patient and doctor names in one query", "SQL log"], ["Book in a transaction", "Booking and slot update saved together or not at all", "Test output"]],
+          "objectives": ["Access SQL Server with EF Core", "Manage schema with migrations", "Load related data efficiently"]
+        },
+        {
+          "topic": "DTOs, Mapping and Validation with FluentValidation",
+          "subtopics": ["Why APIs should not expose entities", "Request and response DTOs", "Mapping with Mapster or manual mappers", "FluentValidation rules", "Validation responses with ProblemDetails", "Cross-field and database-backed validation", "Keeping validation rules testable", "Matching validation in the client"],
+          "tools": ["FluentValidation", "Mapster", "ASP.NET Core"],
+          "lab_task": "Replace entity responses with DTOs, map them with Mapster, validate bookings with FluentValidation including cross-field and slot availability rules, and return ProblemDetails errors.",
+          "deliverable": "Validated API with DTOs",
+          "checks": [["Submit an invalid booking", "ProblemDetails response lists each field error", "Response"], ["Inspect a response", "No internal entity fields exposed", "Response body"], ["Test validators", "Validation rules covered by unit tests", "Test output"]],
+          "objectives": ["Shape API contracts with DTOs", "Validate requests", "Return standard error responses"]
+        },
+        {
+          "topic": "Starting the Angular Client for the .NET API",
+          "subtopics": ["Creating the Angular workspace for the project", "Standalone components for clinic screens", "Services for API calls", "Environment files for API URLs", "Displaying lists and details", "Signals for page state", "Bootstrap or Angular Material styling", "Proxying API calls during development"],
+          "tools": ["Angular", "Angular CLI", "Bootstrap or Angular Material"],
+          "lab_task": "Create the Angular client with components for doctor lists, patient details and the dashboard, call the API through services, hold page state in signals and proxy calls in development.",
+          "deliverable": "Angular client showing live API data",
+          "checks": [["Load doctors", "Doctor list shows data from SQL Server through the API", "Screenshot"], ["Use the dev proxy", "API calls work without CORS errors in development", "Network log"], ["Update state", "Dashboard counts update from signals", "Screen recording"]],
+          "objectives": ["Build an Angular client for a .NET API", "Organise API calls in services", "Manage page state"]
+        },
+        {
+          "topic": "Angular Routing and Reactive Forms Against the API",
+          "subtopics": ["Routes for list, detail and edit pages", "Route parameters and resolvers", "Reactive forms for bookings", "Validators that mirror the API rules", "Showing server validation errors", "Save, cancel and unsaved changes warnings", "Navigation after saving", "Lazy-loaded admin area"],
+          "tools": ["Angular Router", "Angular reactive forms", "ASP.NET Core"],
+          "lab_task": "Add routes for patients and appointments, a reactive booking form with client validators, map ProblemDetails errors from the API to form fields and warn about unsaved changes.",
+          "deliverable": "Routed client with booking forms",
+          "checks": [["Save a booking", "Booking saved and user returned to the list", "Screen recording"], ["Trigger a server error", "API field errors shown on the matching form controls", "Screenshot"], ["Leave with unsaved changes", "Warning shown before navigation", "Screenshot"]],
+          "objectives": ["Route an Angular client", "Build reactive forms", "Show API validation errors"]
+        },
+        {
+          "topic": "Calling ASP.NET Core APIs from Angular with HttpClient",
+          "subtopics": ["HttpClient with typed responses", "Generating TypeScript clients from OpenAPI", "Interceptors for headers and errors", "Loading and error states", "Retrying failed requests", "Cancelling requests on navigation", "Caching reference data", "Debugging calls in the browser and the API"],
+          "tools": ["Angular HttpClient", "NSwag or openapi-typescript", "ASP.NET Core"],
+          "lab_task": "Generate a typed TypeScript client from the API's OpenAPI document, add an interceptor for errors, show loading states, cache department lists and trace one call from browser to SQL.",
+          "deliverable": "Typed API client and interceptor",
+          "checks": [["Regenerate the client", "Changed API contract updates the TypeScript types", "Generated file diff"], ["Fail a request", "Interceptor shows a friendly message", "Screenshot"], ["Trace a call", "Same request seen in the browser, API log and SQL log", "Screenshots"]],
+          "objectives": ["Call .NET APIs from Angular", "Generate typed clients", "Handle HTTP errors centrally"]
+        },
+        {
+          "topic": "Authentication with ASP.NET Core Identity, JWT and Angular Guards",
+          "subtopics": ["ASP.NET Core Identity users and passwords", "Issuing JWTs from the API", "Validating JWTs in the API", "Login and registration screens in Angular", "Storing tokens and attaching them with an interceptor", "Route guards for signed-in users", "Token expiry and sign-out", "Password reset by email"],
+          "tools": ["ASP.NET Core Identity", "JWT bearer authentication", "Angular guards and interceptors"],
+          "lab_task": "Add registration and login with Identity and JWTs, protect API endpoints, attach tokens in Angular with an interceptor, guard routes and handle expiry and sign-out.",
+          "deliverable": "Authenticated application",
+          "checks": [["Call a protected endpoint", "401 without a token and success with one", "Responses"], ["Open a guarded route signed out", "Redirected to login", "Screen recording"], ["Let the token expire", "User asked to sign in again", "Screen recording"]],
+          "objectives": ["Add authentication to a .NET full stack app", "Protect APIs and routes", "Handle token expiry"]
+        },
+        {
+          "topic": "Role-Based Authorisation Across API and UI",
+          "subtopics": ["Roles and claims in Identity", "Authorize attributes and policies", "Resource-based authorisation", "Admin, doctor and receptionist roles", "Showing and hiding UI by role", "Role guards in Angular", "Auditing sensitive actions", "Testing authorisation rules"],
+          "tools": ["ASP.NET Core authorisation", "Angular", "xUnit"],
+          "lab_task": "Add admin, doctor and receptionist roles with policies, let doctors see only their own appointments, hide admin screens from other roles and test the rules on the API.",
+          "deliverable": "Authorisation policies and tests",
+          "checks": [["View another doctor's appointments", "API returns 403", "Response"], ["Sign in as receptionist", "Admin menu hidden and admin routes blocked", "Screenshots"], ["Run authorisation tests", "Every role and endpoint combination tested", "Test output"]],
+          "objectives": ["Design roles and policies", "Enforce authorisation on the server", "Reflect permissions in the UI"]
+        },
+        {
+          "topic": "File Uploads and Downloads in a .NET Full Stack App",
+          "subtopics": ["IFormFile uploads in ASP.NET Core", "Validating size and file type", "Storing files on disk, in SQL Server or in Azure Blob Storage", "Upload progress in Angular", "Secure downloads", "Generating PDFs for appointment letters", "Cleaning up orphaned files", "Virus scanning considerations"],
+          "tools": ["ASP.NET Core", "Azure Blob Storage or Azurite", "QuestPDF", "Angular"],
+          "lab_task": "Upload patient documents from Angular with progress, validate them in the API, store them in Blob Storage, allow authorised downloads only and generate an appointment letter PDF.",
+          "deliverable": "Document upload and letter feature",
+          "checks": [["Upload a document", "File stored and listed for the patient", "Screenshot"], ["Upload a bad file", "Wrong type or size rejected", "Screenshot"], ["Download as another user", "Unauthorised download blocked", "Response"]],
+          "objectives": ["Handle files across the stack", "Store files securely", "Generate documents"]
+        },
+        {
+          "topic": "Paging, Sorting and Search Across EF Core and the UI",
+          "subtopics": ["Server-side paging with Skip and Take", "Sorting by user-selected columns safely", "Filtering with optional criteria", "Search with LIKE and full-text search", "Returning paged results with totals", "Angular tables with paging and sorting", "Keeping filters in the URL", "Query performance checks"],
+          "tools": ["EF Core", "SQL Server full-text search", "Angular Material table or a grid component"],
+          "lab_task": "Add server-side paging, sorting and filtering to the appointment list, search patients by name with full-text search, show it in an Angular table with URL state and check the generated SQL.",
+          "deliverable": "Paged, searchable lists",
+          "checks": [["Page through results", "Pages have no gaps or duplicates", "Test output"], ["Sort by a column", "Results sorted on the server", "SQL log"], ["Search patients", "Matching patients returned quickly", "Query timing"]],
+          "objectives": ["Page and sort on the server", "Search with SQL Server", "Build data tables in Angular"]
+        },
+        {
+          "topic": "Error Handling, Logging with Serilog and User Messages",
+          "subtopics": ["Global exception handling in ASP.NET Core", "ProblemDetails for all errors", "Structured logging with Serilog", "Correlation IDs across client and API", "Logging EF Core queries carefully", "Angular global error handler", "Toast messages for users", "Not logging personal data"],
+          "tools": ["Serilog", "Seq", "ASP.NET Core", "Angular"],
+          "lab_task": "Add global exception handling with ProblemDetails, structured logs to Seq with correlation IDs, an Angular error handler with toasts, and redact patient data from logs.",
+          "deliverable": "Error handling and logging setup",
+          "checks": [["Throw an unhandled error", "Client receives ProblemDetails and the log has full details", "Response and Seq screenshot"], ["Follow a request", "Same correlation ID in client and API logs", "Log entries"], ["Check redaction", "No patient names or phone numbers in logs", "Log search output"]],
+          "objectives": ["Handle errors consistently", "Log in a structured way", "Protect personal data in logs"]
+        },
+        {
+          "topic": "Testing the Stack: xUnit, Moq and Angular Unit Tests",
+          "subtopics": ["Unit tests with xUnit", "Mocking dependencies with Moq or NSubstitute", "Testing controllers and services", "In-memory or SQLite tests for EF Core", "Angular component and service tests", "Mocking HttpClient in Angular tests", "Code coverage for both projects", "Running all tests from one command"],
+          "tools": ["xUnit", "Moq", "Angular testing tools", "Coverlet"],
+          "lab_task": "Write xUnit tests for booking services and controllers with mocks, test EF Core queries against SQLite, write Angular tests for the booking form and service and report coverage.",
+          "deliverable": "Test suites with coverage reports",
+          "checks": [["Run API tests", "Service and controller tests pass", "Test output"], ["Run Angular tests", "Booking form and service tests pass", "Test output"], ["Measure coverage", "Coverage of 70 percent or more in both projects", "Coverage reports"]],
+          "objectives": ["Test ASP.NET Core code", "Test Angular code", "Measure coverage"]
+        },
+        {
+          "topic": "React as an Alternative Front End for ASP.NET Core",
+          "subtopics": ["When teams choose React instead of Angular", "Creating a React client with Vite", "Components and hooks for the clinic screens", "Calling the API with fetch and TanStack Query", "Forms with React Hook Form", "Authentication with the same JWT API", "Routing with React Router", "Comparing the two clients"],
+          "tools": ["React", "Vite", "TanStack Query", "React Hook Form"],
+          "lab_task": "Build the patient list and booking form again in React against the same API and JWT login, then compare code size, learning effort and features with the Angular client.",
+          "deliverable": "React screens and comparison notes",
+          "checks": [["Sign in from React", "Same API login works in the React client", "Screen recording"], ["Book from React", "Booking saved through the same endpoint", "Screenshot"], ["Compare clients", "Differences listed with a recommendation", "Comparison notes"]],
+          "objectives": ["Connect React to ASP.NET Core", "Reuse one API for two clients", "Compare Angular and React"]
+        },
+        {
+          "topic": "Deploying to Azure App Service and Azure SQL",
+          "subtopics": ["Publishing the API to Azure App Service", "Hosting the Angular build on Azure Static Web Apps or App Service", "Azure SQL Database and connection strings", "Applying EF Core migrations in deployment", "App settings and Key Vault references", "HTTPS, custom domains and CORS in production", "Application logs in Azure", "Deploying from GitHub Actions"],
+          "tools": ["Azure App Service", "Azure Static Web Apps", "Azure SQL Database", "Azure Key Vault", "GitHub Actions"],
+          "lab_task": "Deploy the API to App Service and the Angular client to Static Web Apps, move the database to Azure SQL with migrations, store secrets in Key Vault and deploy on every push.",
+          "deliverable": "Live application on Azure with a pipeline",
+          "checks": [["Open the live app", "Client and API work together over HTTPS", "Browser screenshot"], ["Check secrets", "Connection string read from Key Vault, not from files", "App settings screenshot"], ["Push a change", "Pipeline deploys the change automatically", "Pipeline run"]],
+          "objectives": ["Deploy .NET full stack apps to Azure", "Manage secrets in Azure", "Automate deployment"]
+        },
+        {
+          "topic": "Beginner Capstone: Clinic Appointment System",
+          "subtopics": ["Plan", "Build", "Test", "Deploy"],
+          "tools": ["ASP.NET Core", "EF Core", "SQL Server", "Angular", "Azure"],
+          "lab_task": "Complete the clinic system with patients, doctors, bookings, roles, documents, search, logging, tests and an Azure deployment, then demo it to a mock client.",
+          "deliverable": "Repository, live URL and demo recording",
+          "checks": [["Demo the system", "Booking, roles and documents work end to end", "Demo recording"], ["Run the tests", "API and Angular tests pass", "Test reports"], ["Use the live site", "Deployed system works on desktop and phone", "Screenshots"]],
+          "objectives": ["Combine the beginner topics in one application", "Build a full .NET business app", "Deploy it to Azure"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For .NET developers who have built and deployed a full stack application. Covers solution layout across API, domain, infrastructure and client, advanced EF Core for business apps, CQRS with MediatR, client state with signals and NgRx, SignalR, Hangfire and hosted services, reports and exports, Redis and output caching, Entra ID sign-in, API versioning and generated clients, integration and end-to-end testing, performance tuning, OWASP risks, Docker Compose, Azure DevOps pipelines, Azure services, Application Insights, multi-language apps and Blazor.",
+      "prerequisites": ["Has built an ASP.NET Core API with EF Core and an Angular or React client", "Comfortable with C#, TypeScript and SQL", "Has deployed an application once"],
+      "outcomes": ["Structure and build maintainable .NET full stack solutions", "Add real-time, background, reporting and caching features", "Secure, test and tune applications across tiers", "Containerise, deploy and monitor applications on Azure"],
+      "days": [
+        {
+          "topic": "Solution Layout for Full Stack .NET: API, Domain, Infrastructure and Client",
+          "subtopics": ["Splitting a solution into projects", "Domain, application, infrastructure and API layers", "Where the Angular client lives in the repository", "Shared contracts between API and client", "Dependency rules between projects", "Architecture tests with NetArchTest", "Configuration per environment", "Onboarding documentation"],
+          "tools": [".NET solution files", "NetArchTest", "Angular workspace"],
+          "lab_task": "Restructure the clinic system into domain, application, infrastructure, API and client projects, enforce dependency rules with architecture tests and document how to run everything.",
+          "deliverable": "Restructured solution with architecture tests",
+          "checks": [["Enforce layers", "Architecture test fails when the domain references EF Core", "Test output"], ["Run from the README", "A new developer runs the solution in under 15 minutes", "Peer confirmation"], ["Share contracts", "API and client use the same generated contract types", "Generated file"]],
+          "objectives": ["Structure full stack .NET solutions", "Enforce dependency rules", "Onboard developers quickly"]
+        },
+        {
+          "topic": "Advanced EF Core for Business Apps: Concurrency, Soft Deletes and Auditing",
+          "subtopics": ["Optimistic concurrency with row versions", "Handling concurrency conflicts in the UI", "Soft deletes with global query filters", "Audit trails with interceptors", "Owned types and value objects", "Raw SQL and stored procedures from EF Core", "Bulk updates with ExecuteUpdate and ExecuteDelete", "Compiled queries for hot paths"],
+          "tools": ["EF Core", "SQL Server", "Angular"],
+          "lab_task": "Add row-version concurrency with a conflict dialog in Angular, soft deletes with query filters, an audit trail interceptor and bulk updates for end-of-day processing.",
+          "deliverable": "Data layer features with tests",
+          "checks": [["Edit concurrently", "Second user sees a conflict dialog instead of overwriting", "Screen recording"], ["Soft-delete a record", "Record hidden from queries but kept in the table", "SQL query output"], ["Review the audit trail", "Every change recorded with user and time", "Audit table rows"]],
+          "objectives": ["Handle concurrency", "Implement soft deletes and audits", "Use advanced EF Core features"]
+        },
+        {
+          "topic": "CQRS with MediatR in a Full Stack App",
+          "subtopics": ["Commands and queries", "Handlers with MediatR", "Pipeline behaviours for validation and logging", "Read models for list screens", "Transactions per command", "Mapping commands to Angular actions", "Testing handlers", "When CQRS is too much"],
+          "tools": ["MediatR", "FluentValidation", "EF Core"],
+          "lab_task": "Move booking and reporting logic into MediatR commands and queries with validation and logging behaviours, build a fast read model for the dashboard and test the handlers.",
+          "deliverable": "CQRS implementation with tests",
+          "checks": [["Send an invalid command", "Validation behaviour rejects it before the handler", "Test output"], ["Load the dashboard", "Read model query faster than the old version", "Timing comparison"], ["Test handlers", "Commands and queries tested without the web host", "Test output"]],
+          "objectives": ["Apply CQRS where it helps", "Use MediatR behaviours", "Build read models"]
+        },
+        {
+          "topic": "Client State for Line-of-Business Apps: Signals, NgRx and Caching API Data",
+          "subtopics": ["Local, shared and server state", "Signal stores for feature state", "NgRx for complex workflows", "Caching API responses in the client", "Invalidating cached data after saves", "Optimistic updates for quick actions", "State for multi-step forms", "Debugging state changes"],
+          "tools": ["Angular signals", "NgRx SignalStore", "Redux DevTools"],
+          "lab_task": "Move appointment and patient state into signal stores, cache reference data with invalidation after saves, add optimistic check-in updates and inspect state with DevTools.",
+          "deliverable": "Client state design and implementation",
+          "checks": [["Revisit a screen", "Cached data shown instantly and refreshed in the background", "Screen recording"], ["Save a change", "Related lists refresh through invalidation", "Network log"], ["Fail an optimistic update", "Change rolls back with a message", "Screen recording"]],
+          "objectives": ["Manage client state in business apps", "Cache and invalidate API data", "Apply optimistic updates"]
+        },
+        {
+          "topic": "Real-Time Updates with SignalR and Angular",
+          "subtopics": ["SignalR hubs in ASP.NET Core", "Connecting from Angular", "Groups for departments and users", "Authenticating hub connections", "Pushing updates after commands", "Reconnection and missed updates", "Scaling SignalR with Azure SignalR Service", "Testing real-time features"],
+          "tools": ["ASP.NET Core SignalR", "@microsoft/signalr", "Azure SignalR Service"],
+          "lab_task": "Push live queue and appointment updates to reception and doctor screens with SignalR groups, authenticate connections, handle reconnection and scale with Azure SignalR Service.",
+          "deliverable": "Real-time queue board",
+          "checks": [["Check in a patient", "Doctor screen updates instantly", "Screen recording"], ["Drop the connection", "Client reconnects and reloads missed changes", "Screen recording"], ["Join groups", "Each department sees only its own queue", "Screenshots"]],
+          "objectives": ["Add real-time features with SignalR", "Secure hub connections", "Scale real-time updates"]
+        },
+        {
+          "topic": "Background Processing with Hangfire and Hosted Services",
+          "subtopics": ["Hosted services and BackgroundService", "Hangfire jobs: fire-and-forget, delayed and recurring", "Reminder emails and SMS", "Retries and failure handling", "Idempotent jobs", "The Hangfire dashboard and security", "Long-running imports", "Choosing between hosted services, Hangfire and queues"],
+          "tools": ["Hangfire", "ASP.NET Core hosted services", "SQL Server"],
+          "lab_task": "Send appointment reminders with recurring Hangfire jobs, import a patient CSV in the background with progress, make jobs idempotent and secure the dashboard.",
+          "deliverable": "Background job setup with dashboard",
+          "checks": [["Schedule reminders", "Reminders sent at the configured time", "Job history"], ["Fail a job", "Job retries and records the failure", "Dashboard screenshot"], ["Rerun an import", "No duplicate patients after a rerun", "Row counts"]],
+          "objectives": ["Run background work in .NET", "Make jobs reliable", "Choose a background approach"]
+        },
+        {
+          "topic": "Reporting and Exports: PDF, Excel and Charts",
+          "subtopics": ["Report requirements from business users", "SQL views and queries for reports", "Excel exports with ClosedXML", "PDF reports with QuestPDF", "Charts in Angular with Chart.js or ngx-charts", "Large exports without timeouts", "Scheduled reports by email", "Report permissions"],
+          "tools": ["ClosedXML", "QuestPDF", "Chart.js", "SQL Server"],
+          "lab_task": "Build a monthly appointments report with charts in Angular, Excel and PDF exports, a streamed export for large date ranges and a scheduled email report for managers.",
+          "deliverable": "Reporting module",
+          "checks": [["Export to Excel", "Workbook totals match the screen", "Workbook and screenshot"], ["Export a large range", "Export completes without a timeout", "Timing log"], ["Schedule a report", "Managers receive the emailed report", "Email screenshot"]],
+          "objectives": ["Build business reports", "Export to Excel and PDF", "Deliver scheduled reports"]
+        },
+        {
+          "topic": "Caching with Redis and Output Caching",
+          "subtopics": ["What to cache in a business app", "IMemoryCache and IDistributedCache", "Redis with StackExchange.Redis", "Output caching in ASP.NET Core", "HybridCache", "Cache invalidation after updates", "HTTP caching for the Angular client", "Measuring cache benefit"],
+          "tools": ["Redis", "ASP.NET Core output caching", "HybridCache"],
+          "lab_task": "Cache reference data and dashboard queries with HybridCache and Redis, add output caching to public endpoints, invalidate on updates and measure response times under load.",
+          "deliverable": "Caching implementation with measurements",
+          "checks": [["Measure latency", "Cached endpoints respond faster under load", "Load test results"], ["Update data", "Next read returns fresh data after invalidation", "Test output"], ["Use output caching", "Public endpoint served from the output cache", "Response headers"]],
+          "objectives": ["Cache data in .NET apps", "Invalidate correctly", "Measure caching gains"]
+        },
+        {
+          "topic": "Microsoft Entra ID Sign-In for Angular and ASP.NET Core",
+          "subtopics": ["App registrations for an API and a single-page app", "MSAL Angular sign-in", "Protecting the API with Microsoft.Identity.Web", "Scopes and app roles", "Calling Microsoft Graph for user details", "Conditional access effects on the app", "Guest users and multi-tenant apps", "Moving from local Identity to Entra ID"],
+          "tools": ["Microsoft Entra ID", "MSAL Angular", "Microsoft.Identity.Web", "Microsoft Graph"],
+          "lab_task": "Register the API and client in Entra ID, sign in with MSAL Angular, protect the API with scopes and app roles, show user details from Graph and plan the move from local Identity.",
+          "deliverable": "Entra ID-secured application and migration plan",
+          "checks": [["Sign in with Entra ID", "User signs in and calls the API with a token", "Screen recording"], ["Check app roles", "Role claims control access to admin endpoints", "Responses"], ["Read user details", "Profile shown from Microsoft Graph", "Screenshot"]],
+          "objectives": ["Use Entra ID for sign-in", "Protect APIs with scopes and roles", "Call Microsoft Graph"]
+        },
+        {
+          "topic": "API Versioning, OpenAPI and Generated TypeScript Clients",
+          "subtopics": ["Why APIs need versions", "URL, header and media type versioning", "Asp.Versioning for ASP.NET Core", "OpenAPI documents per version", "Generating clients in the build", "Deprecating versions", "Breaking change checks in CI", "Communicating changes to client teams"],
+          "tools": ["Asp.Versioning", "ASP.NET Core OpenAPI", "NSwag or Kiota", "oasdiff"],
+          "lab_task": "Version the API, publish OpenAPI documents per version, generate the Angular client during the build, deprecate v1 with headers and fail CI on breaking changes.",
+          "deliverable": "Versioned API and contract pipeline",
+          "checks": [["Call two versions", "v1 and v2 return their own contracts", "Responses"], ["Break the contract", "CI fails on the breaking change", "CI log"], ["Deprecate v1", "Responses carry deprecation headers", "Response headers"]],
+          "objectives": ["Version APIs", "Generate clients automatically", "Protect clients from breaking changes"]
+        },
+        {
+          "topic": "Integration and End-to-End Testing Across the Stack",
+          "subtopics": ["WebApplicationFactory for API integration tests", "Testcontainers for SQL Server", "Resetting data with Respawn", "Testing authentication in integration tests", "Playwright end-to-end tests for the Angular client", "Seeding data for end-to-end tests", "Running tests in parallel", "Test reports in pipelines"],
+          "tools": ["WebApplicationFactory", "Testcontainers", "Respawn", "Playwright"],
+          "lab_task": "Write API integration tests against a SQL Server container with authenticated users and Playwright tests for booking and check-in, and run both in the pipeline with reports.",
+          "deliverable": "Integration and end-to-end suites",
+          "checks": [["Run integration tests", "Tests pass against a real SQL Server container", "Test output"], ["Run Playwright tests", "Booking and check-in flows pass", "Playwright report"], ["Run in the pipeline", "Test reports published in the pipeline", "Pipeline run"]],
+          "objectives": ["Test APIs against real databases", "Test the UI end to end", "Automate tests in pipelines"]
+        },
+        {
+          "topic": "Performance Tuning: SQL Server Queries, EF Core and Angular Bundles",
+          "subtopics": ["Finding slow requests with tracing", "Reading execution plans for EF Core queries", "Fixing N+1 queries and missing indexes", "Split queries and projections", "Response compression", "Angular bundle analysis and lazy loading", "Change detection costs in Angular", "Load testing the stack"],
+          "tools": ["SQL Server execution plans", "MiniProfiler", "Angular build stats", "k6"],
+          "lab_task": "Load test the dashboard, fix an N+1 query and a missing index, project only needed columns, lazy-load heavy Angular modules and record before and after numbers.",
+          "deliverable": "Performance report with before and after results",
+          "checks": [["Fix the slow query", "Query time drops after the index and projection", "Execution plans"], ["Cut the bundle", "Initial Angular bundle smaller", "Build stats"], ["Load test", "p95 response time meets the target", "k6 results"]],
+          "objectives": ["Tune SQL and EF Core", "Optimise Angular builds", "Load test the stack"]
+        },
+        {
+          "topic": "Securing the Full Stack: OWASP Risks in ASP.NET Core and Angular",
+          "subtopics": ["Broken access control in APIs", "Injection risks with raw SQL", "Cross-site scripting and Angular sanitisation", "CSRF and cookie settings", "Security headers and HTTPS", "Rate limiting in ASP.NET Core", "Secrets and configuration", "Dependency scanning for NuGet and npm"],
+          "tools": ["ASP.NET Core rate limiting", "OWASP ZAP", "dotnet list package --vulnerable", "npm audit"],
+          "lab_task": "Find and fix planted issues: an IDOR on appointments, raw SQL injection, unsafe HTML binding in Angular and missing rate limits, then scan both projects for vulnerable packages.",
+          "deliverable": "Security fixes and scan reports",
+          "checks": [["Fix the IDOR", "Users cannot open other patients' records", "Test output"], ["Block injection", "Injection attempt no longer changes the query", "Test output"], ["Scan packages", "No high-severity vulnerable packages remain", "Scan output"]],
+          "objectives": ["Find OWASP risks across the stack", "Fix them in .NET and Angular", "Scan dependencies"]
+        },
+        {
+          "topic": "Docker Compose for API, Client and SQL Server",
+          "subtopics": ["Dockerfiles for ASP.NET Core", "Building and serving the Angular client with NGINX", "SQL Server in a container", "Docker Compose services and networks", "Running migrations on start-up safely", "Health checks", "Development containers", "Image size and security"],
+          "tools": ["Docker", "Docker Compose", "NGINX", "SQL Server container"],
+          "lab_task": "Containerise the API and Angular client, run them with SQL Server and Redis in Docker Compose with health checks and migrations, and shrink the API image.",
+          "deliverable": "Dockerfiles and Compose setup",
+          "checks": [["Start the stack", "All containers healthy with one command", "docker compose ps output"], ["Run migrations", "Database ready before the API accepts traffic", "Container logs"], ["Shrink the image", "API image smaller after a multi-stage build", "Image sizes"]],
+          "objectives": ["Containerise .NET full stack apps", "Run the full stack locally", "Build small, safe images"]
+        },
+        {
+          "topic": "CI/CD with Azure DevOps Pipelines for Full Stack .NET",
+          "subtopics": ["YAML pipelines in Azure DevOps", "Building and testing the API and client", "Publishing artefacts", "Environments and approvals", "Deploying to Azure App Service with slots", "Running EF Core migrations in the pipeline", "Variable groups and Key Vault", "Release notes and rollbacks"],
+          "tools": ["Azure DevOps Pipelines", "Azure App Service deployment slots", "EF Core bundles"],
+          "lab_task": "Build a multi-stage Azure DevOps pipeline that tests both projects, deploys to a staging slot with migrations, waits for approval, swaps to production and rolls back once.",
+          "deliverable": "Pipeline definition and release runbook",
+          "checks": [["Run the pipeline", "All stages pass and staging is deployed", "Pipeline run"], ["Swap slots", "Production updated with no downtime", "Availability log"], ["Roll back", "Previous version restored by swapping back", "Pipeline run"]],
+          "objectives": ["Automate .NET full stack delivery", "Use slots and approvals", "Roll back safely"]
+        },
+        {
+          "topic": "Azure Services for Full Stack Apps: Blob Storage, Key Vault and Service Bus",
+          "subtopics": ["Blob Storage for documents", "Key Vault for secrets and certificates", "Managed identities instead of connection strings", "Service Bus queues for reliable messages", "Azure Functions for background work", "Azure Communication Services for email and SMS", "Local development with Azurite and emulators", "Cost of each service"],
+          "tools": ["Azure Blob Storage", "Azure Key Vault", "Azure Service Bus", "Azure Functions", "Managed identities"],
+          "lab_task": "Move documents to Blob Storage, secrets to Key Vault and reminders to Service Bus with an Azure Function, connect everything with managed identities and estimate monthly cost.",
+          "deliverable": "Azure-integrated application and cost estimate",
+          "checks": [["Use managed identities", "No connection strings or keys in configuration", "Configuration review"], ["Send a reminder through Service Bus", "Function processes the message and sends the reminder", "Function log"], ["Estimate cost", "Monthly cost listed per service", "Cost estimate"]],
+          "objectives": ["Use Azure services from .NET apps", "Remove secrets with managed identities", "Estimate cloud costs"]
+        },
+        {
+          "topic": "Monitoring with Application Insights",
+          "subtopics": ["Application Insights for ASP.NET Core", "Browser monitoring for Angular", "Dependency tracking for SQL and HTTP", "Custom events and metrics", "Distributed tracing across client and API", "Availability tests", "Alerts and dashboards", "Sampling and cost control"],
+          "tools": ["Application Insights", "Azure Monitor", "KQL"],
+          "lab_task": "Add Application Insights to the API and Angular client, trace a booking from browser to SQL, track custom booking events, create availability tests and alert on failure rates.",
+          "deliverable": "Monitoring setup with dashboard and alerts",
+          "checks": [["Trace a booking", "End-to-end transaction shows browser, API and SQL", "Transaction screenshot"], ["Query with KQL", "Bookings per hour charted from custom events", "KQL chart"], ["Fire an alert", "Alert triggers on a raised failure rate", "Alert notification"]],
+          "objectives": ["Monitor .NET full stack apps", "Trace across tiers", "Alert on problems"]
+        },
+        {
+          "topic": "Multi-Language and Multi-Currency Business Apps",
+          "subtopics": ["Localisation in ASP.NET Core", "Angular internationalisation", "Culture-aware dates, numbers and currencies", "Time zones for appointments", "Storing translated data", "Right-to-left support", "Currency conversion and rounding rules", "Testing localised apps"],
+          "tools": ["ASP.NET Core localisation", "Angular i18n", "NodaTime"],
+          "lab_task": "Localise the app into English, Hindi and Arabic, store appointments in UTC with clinic time zones, show prices in local currency with correct rounding and test right-to-left layout.",
+          "deliverable": "Localised application",
+          "checks": [["Switch language", "UI and API messages appear in the chosen language", "Screenshots"], ["Book across time zones", "Appointment shows the correct local time for each clinic", "Test output"], ["Use Arabic", "Layout switches to right-to-left", "Screenshot"]],
+          "objectives": ["Localise .NET full stack apps", "Handle time zones", "Format currencies correctly"]
+        },
+        {
+          "topic": "Blazor for Full Stack .NET Teams",
+          "subtopics": ["Blazor render modes: static, server and WebAssembly", "Components and parameters", "Forms and validation in Blazor", "Calling the API from Blazor", "Authentication in Blazor", "Component libraries such as MudBlazor", "Blazor compared with Angular for business apps", "Mixing Blazor screens into an existing app"],
+          "tools": ["Blazor", "MudBlazor", "ASP.NET Core"],
+          "lab_task": "Build the admin settings screens in Blazor against the same API with authentication and validation, then compare development speed and user experience with the Angular version.",
+          "deliverable": "Blazor admin screens and comparison",
+          "checks": [["Sign in to Blazor", "Same users and roles work in Blazor", "Screen recording"], ["Validate a form", "Validation errors shown from data annotations", "Screenshot"], ["Compare frameworks", "Recommendation for when to use Blazor", "Comparison notes"]],
+          "objectives": ["Build screens with Blazor", "Reuse the API and security", "Choose between Blazor and Angular"]
+        },
+        {
+          "topic": "Intermediate Capstone: Inventory and Order Management Platform",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["ASP.NET Core", "EF Core", "SQL Server", "Angular", "SignalR", "Hangfire", "Azure"],
+          "lab_task": "Build an inventory and order platform with layered architecture, CQRS, real-time stock updates, background jobs, reports, Entra ID sign-in, tests, containers, an Azure DevOps pipeline and monitoring, then present it.",
+          "deliverable": "Repository, live URL, reports and presentation",
+          "checks": [["Demo the platform", "Orders, stock updates and reports work end to end", "Demo recording"], ["Show quality", "Tests, security scans and performance results meet targets", "Reports"], ["Defend choices", "Architecture and Azure choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one product", "Ship a production .NET full stack app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior .NET full stack engineers and technical leads. Covers enterprise architecture, modular monoliths, splitting services with .NET Aspire and YARP, long-running workflows with sagas, multi-tenant SaaS on Azure SQL, Angular micro-frontends, zero-trust security, data architecture and reporting databases, Native AOT and start-up performance, Container Apps and AKS hosting, Bicep and Terraform, observability with OpenTelemetry, migration from Web Forms and AngularJS, testing strategy, AI features with Semantic Kernel, Azure cost optimisation, compliance, production troubleshooting and leadership.",
+      "prerequisites": ["Several years building .NET full stack applications in production", "Strong ASP.NET Core, EF Core, SQL Server and Angular or React skills", "Has deployed and operated apps on Azure"],
+      "outcomes": ["Architect enterprise and multi-tenant .NET full stack platforms", "Scale, secure and observe every tier on Azure", "Lead modernisation and migration programmes", "Make and defend technical decisions for .NET teams"],
+      "days": [
+        {
+          "topic": "Architecture for Enterprise .NET Full Stack Systems",
+          "subtopics": ["Quality attributes and architecture drivers", "Layered, clean and vertical slice architectures", "Front-end and back-end boundaries", "Integration with enterprise systems", "Data ownership", "Architecture decision records", "Reference architectures on Azure", "Reviewing architecture with stakeholders"],
+          "tools": ["C4 model", "Architecture decision records", "Azure Architecture Center"],
+          "lab_task": "Produce C4 diagrams and decision records for an enterprise HR platform, compare clean and vertical slice architectures for it and run a review with mock stakeholders.",
+          "deliverable": "Architecture pack with diagrams and decisions",
+          "checks": [["Draw C4 diagrams", "Context, container and component views complete", "Diagrams"], ["Compare architectures", "Trade-offs recorded for both options", "Decision record"], ["Run the review", "Stakeholder questions answered and actions recorded", "Review notes"]],
+          "objectives": ["Design enterprise .NET systems", "Record architecture decisions", "Review architecture with stakeholders"]
+        },
+        {
+          "topic": "Modular Monoliths in .NET Full Stack Products",
+          "subtopics": ["Why start with a modular monolith", "Modules with their own data and APIs", "Module communication through contracts and events", "Enforcing module boundaries", "Matching Angular feature areas to modules", "Testing modules in isolation", "Preparing modules for extraction", "Common mistakes"],
+          "tools": [".NET", "NetArchTest", "MediatR or Wolverine", "Angular"],
+          "lab_task": "Turn a tangled application into three modules with separate schemas, contract-based calls and in-process events, enforce boundaries in tests and align Angular feature areas.",
+          "deliverable": "Modular monolith with boundary tests",
+          "checks": [["Enforce boundaries", "Test fails when a module reads another module's tables", "Test output"], ["Publish an event", "Other modules react through the event only", "Test output"], ["Align the client", "Each Angular feature area maps to one module", "Folder structure"]],
+          "objectives": ["Build modular monoliths", "Keep module data separate", "Prepare for service extraction"]
+        },
+        {
+          "topic": "Splitting Services with .NET Aspire and YARP",
+          "subtopics": ["When to extract a service", ".NET Aspire for local orchestration", "Service discovery and configuration", "YARP as a reverse proxy and backend for frontend", "Strangler fig migration", "Resilience between services", "Distributed tracing across services", "Deployment of extracted services"],
+          "tools": [".NET Aspire", "YARP", "OpenTelemetry", "Azure Container Apps"],
+          "lab_task": "Extract the billing module into a service behind YARP using the strangler pattern, orchestrate everything with .NET Aspire locally and trace calls across services.",
+          "deliverable": "Extracted service with proxy configuration",
+          "checks": [["Route through YARP", "Old and new endpoints served through one proxy", "Request log"], ["Run with Aspire", "Dashboard shows all services and traces", "Aspire dashboard screenshot"], ["Fail the new service", "Resilience policies return a controlled error", "Test output"]],
+          "objectives": ["Extract services safely", "Use YARP and Aspire", "Trace calls across services"]
+        },
+        {
+          "topic": "Long-Running Business Workflows with Sagas in MassTransit",
+          "subtopics": ["Business processes that span days", "Saga state machines", "Persisting saga state", "Timeouts and scheduled messages", "Compensation steps", "Idempotency and the outbox", "Monitoring sagas", "Testing sagas"],
+          "tools": ["MassTransit", "Azure Service Bus or RabbitMQ", "EF Core"],
+          "lab_task": "Implement an employee onboarding saga across HR, IT and payroll with timeouts, compensation and the transactional outbox, and test it with the MassTransit test harness.",
+          "deliverable": "Saga implementation with tests",
+          "checks": [["Run the happy path", "Saga completes all steps in order", "Saga state history"], ["Time out a step", "Reminder and escalation sent on timeout", "Message log"], ["Compensate", "Earlier steps undone when payroll setup fails", "Test output"]],
+          "objectives": ["Model workflows as sagas", "Handle timeouts and compensation", "Test long-running processes"]
+        },
+        {
+          "topic": "Multi-Tenant SaaS on .NET and Azure SQL",
+          "subtopics": ["Tenancy models: shared, schema and database per tenant", "Resolving tenants in middleware", "EF Core global filters per tenant", "Elastic pools for many databases", "Tenant onboarding automation", "Tenant branding in Angular", "Per-tenant limits and billing data", "Isolation testing"],
+          "tools": ["ASP.NET Core", "EF Core", "Azure SQL elastic pools", "Angular"],
+          "lab_task": "Make the platform multi-tenant with tenant resolution, EF Core filters, database-per-tenant for premium customers in an elastic pool, automated onboarding and branding in Angular.",
+          "deliverable": "Multi-tenant platform with isolation tests",
+          "checks": [["Test isolation", "No cross-tenant data in any endpoint", "Test output"], ["Onboard a tenant", "New tenant database created and ready automatically", "Onboarding log"], ["Brand a tenant", "Tenant logo and colours applied in the client", "Screenshot"]],
+          "objectives": ["Choose tenancy models", "Enforce tenant isolation", "Automate tenant onboarding"]
+        },
+        {
+          "topic": "Angular Micro-Frontends with Module Federation for .NET Products",
+          "subtopics": ["When micro-frontends make sense for .NET teams", "Native Federation in Angular", "Shell and remote applications", "Shared libraries and versions", "Authentication across remotes", "Independent deployment from pipelines", "Matching remotes to back-end services", "Performance and complexity costs"],
+          "tools": ["Angular", "Native Federation", "Azure Static Web Apps", "Azure DevOps"],
+          "lab_task": "Split the client into a shell and two remotes owned by different teams, share authentication and a design library, deploy one remote independently and measure the cost.",
+          "deliverable": "Micro-frontend setup and cost analysis",
+          "checks": [["Deploy a remote", "Remote updated without redeploying the shell", "Deployment log"], ["Share sign-in", "Users stay signed in across remotes", "Screen recording"], ["Measure the cost", "Bundle and load time overhead recorded", "Analysis report"]],
+          "objectives": ["Build Angular micro-frontends", "Align teams with front-end and back-end slices", "Judge the trade-offs"]
+        },
+        {
+          "topic": "Zero Trust Security for .NET Full Stack Platforms",
+          "subtopics": ["Zero trust principles for web platforms", "Managed identities everywhere", "Private endpoints for databases and storage", "Web Application Firewall and DDoS protection", "Token handling: BFF pattern for single-page apps", "Secrets rotation", "Threat modelling the platform", "Security testing in pipelines"],
+          "tools": ["Azure Front Door WAF", "Private endpoints", "Duende BFF or YARP", "Microsoft Threat Modeling Tool"],
+          "lab_task": "Threat model the platform, move the Angular client to a BFF token pattern, put databases behind private endpoints, add WAF rules and rotate secrets without downtime.",
+          "deliverable": "Threat model and hardened platform",
+          "checks": [["Move to a BFF", "No tokens stored in the browser", "Browser storage inspection"], ["Use private endpoints", "Database unreachable from the public internet", "Connection test"], ["Rotate secrets", "Secrets rotated with no outage", "Availability log"]],
+          "objectives": ["Apply zero trust to .NET platforms", "Protect tokens in single-page apps", "Lock down Azure resources"]
+        },
+        {
+          "topic": "Data Architecture: SQL Server, Read Models and Reporting Databases",
+          "subtopics": ["Operational and reporting workloads", "Read replicas and read scale-out", "Read models built from events", "Change data capture to a reporting store", "Temporal tables for history", "Archiving and partitioning old data", "Fabric or Synapse for analytics", "Data ownership and governance"],
+          "tools": ["Azure SQL", "Change data capture", "Temporal tables", "Microsoft Fabric"],
+          "lab_task": "Move heavy reports off the operational database with read scale-out and a CDC-fed reporting store, add temporal tables for audit history and archive old records.",
+          "deliverable": "Data architecture design and implementation",
+          "checks": [["Move reports", "Operational database load drops during reporting", "Monitoring charts"], ["Query history", "Temporal query returns a record's past values", "Query results"], ["Archive data", "Old records moved with counts reconciled", "Reconciliation report"]],
+          "objectives": ["Separate operational and reporting data", "Keep history", "Manage data growth"]
+        },
+        {
+          "topic": "Native AOT, Trimming and Start-Up Performance for .NET APIs",
+          "subtopics": ["Why start-up time and memory matter", "Native AOT for ASP.NET Core", "Minimal APIs and source generators", "Trimming warnings and fixes", "JSON source generation", "Benchmarking with BenchmarkDotNet", "Memory and CPU profiling", "When AOT is not worth it"],
+          "tools": [".NET Native AOT", "BenchmarkDotNet", "dotnet-counters", "dotnet-trace"],
+          "lab_task": "Publish a lookup API with Native AOT, fix trimming warnings, use JSON source generation, compare start-up time, memory and throughput with the JIT version and decide where AOT fits.",
+          "deliverable": "AOT build and benchmark report",
+          "checks": [["Publish with AOT", "Native AOT build runs without trimming warnings", "Build output"], ["Compare start-up", "Start-up time and memory compared with the JIT build", "Measurements"], ["Benchmark throughput", "Throughput difference recorded", "BenchmarkDotNet results"]],
+          "objectives": ["Use Native AOT where it helps", "Fix trimming issues", "Measure performance changes"]
+        },
+        {
+          "topic": "Container Apps and AKS Hosting Choices for .NET Full Stack Products",
+          "subtopics": ["App Service, Container Apps and AKS compared", "Scaling rules and KEDA", "Revisions and traffic splitting", "Ingress and custom domains", "Running background workers", "Secrets and identity in containers", "Cost at different scales", "Choosing a hosting platform"],
+          "tools": ["Azure Container Apps", "Azure Kubernetes Service", "KEDA", "Azure Container Registry"],
+          "lab_task": "Deploy the API, workers and client to Azure Container Apps with scaling rules and revisions, run the same on AKS, compare operations effort and cost and write a recommendation.",
+          "deliverable": "Hosting comparison and recommendation",
+          "checks": [["Split traffic", "New revision gets 10 percent of traffic and is promoted", "Revision history"], ["Scale workers", "Workers scale with queue length", "Scaling metrics"], ["Recommend hosting", "Recommendation covers cost, effort and features", "Recommendation document"]],
+          "objectives": ["Host .NET containers on Azure", "Scale with KEDA", "Choose a hosting platform"]
+        },
+        {
+          "topic": "Infrastructure as Code with Bicep and Terraform for .NET Apps",
+          "subtopics": ["Infrastructure for a full stack app as code", "Bicep modules and parameters", "Terraform for the same platform", "Environments from one definition", "Deploying infrastructure from pipelines", "Drift detection", "Policy checks on infrastructure", "Choosing Bicep or Terraform"],
+          "tools": ["Bicep", "Terraform", "Azure DevOps or GitHub Actions", "Azure Policy"],
+          "lab_task": "Define the platform's App Service, SQL, Key Vault, Service Bus and monitoring in Bicep modules, create dev and prod from one definition, deploy from a pipeline and detect drift.",
+          "deliverable": "Infrastructure code and pipeline",
+          "checks": [["Create two environments", "Dev and prod built from the same modules", "Deployment log"], ["Detect drift", "Manual portal change found by the what-if or plan step", "Pipeline output"], ["Pass policy checks", "Non-compliant resources blocked", "Policy report"]],
+          "objectives": ["Manage Azure infrastructure as code", "Build environments from one definition", "Control drift"]
+        },
+        {
+          "topic": "Observability with OpenTelemetry and Azure Monitor",
+          "subtopics": ["OpenTelemetry in ASP.NET Core and Angular", "Traces, metrics and logs together", "Exporting to Azure Monitor", "Custom business metrics", "Service level objectives", "Alert design and noise reduction", "Dashboards for engineering and business", "Cost control for telemetry"],
+          "tools": ["OpenTelemetry", "Azure Monitor", "Application Insights", "Grafana"],
+          "lab_task": "Instrument services and the client with OpenTelemetry, export to Azure Monitor, define SLOs for booking and search, alert on burn rate and cut telemetry cost with sampling.",
+          "deliverable": "Observability setup with SLOs and alerts",
+          "checks": [["Trace across services", "One trace covers client, proxy, services and database", "Trace screenshot"], ["Alert on burn rate", "Alert fires during a simulated failure", "Alert notification"], ["Cut cost", "Telemetry volume reduced while keeping error traces", "Ingestion comparison"]],
+          "objectives": ["Instrument .NET platforms with OpenTelemetry", "Define SLOs", "Control telemetry cost"]
+        },
+        {
+          "topic": "Migrating Web Forms and AngularJS Apps to ASP.NET Core and Angular",
+          "subtopics": ["Assessing legacy .NET Framework applications", "The .NET Upgrade Assistant", "Incremental migration with System.Web adapters", "Moving business logic into libraries", "Replacing Web Forms pages with APIs and Angular", "Migrating AngularJS screens", "Data access from ADO.NET or EF6 to EF Core", "Planning and tracking migration"],
+          "tools": [".NET Upgrade Assistant", "System.Web adapters", "YARP", "Angular"],
+          "lab_task": "Assess a Web Forms and AngularJS application, migrate two pages and one service incrementally behind YARP, move data access to EF Core and plan the rest of the migration.",
+          "deliverable": "Partly migrated application and migration plan",
+          "checks": [["Run side by side", "Old and new pages work together for users", "Screen recording"], ["Move data access", "Migrated service uses EF Core with tests passing", "Test output"], ["Plan the rest", "Plan lists pages, risks and order", "Migration plan"]],
+          "objectives": ["Assess legacy .NET apps", "Migrate incrementally", "Plan modernisation programmes"]
+        },
+        {
+          "topic": "Testing Strategy and Quality Gates for .NET Full Stack Teams",
+          "subtopics": ["Risk-based testing", "Unit, integration, contract and end-to-end balance", "Contract testing between Angular and the API", "Test data management", "Mutation testing with Stryker.NET", "Flaky test control", "Quality gates in pipelines", "Quality metrics for leaders"],
+          "tools": ["xUnit", "Pact", "Stryker.NET", "Playwright", "SonarQube"],
+          "lab_task": "Assess a large solution's tests, add contract tests between client and API, run mutation testing on core logic and set SonarQube quality gates in the pipeline.",
+          "deliverable": "Test strategy and quality dashboard",
+          "checks": [["Add contract tests", "API change breaks the contract test", "Pipeline log"], ["Run mutation tests", "Mutation score measured for core logic", "Stryker report"], ["Enforce gates", "Pipeline blocks code below the quality gate", "SonarQube result"]],
+          "objectives": ["Design test strategies", "Measure test quality", "Gate releases on quality"]
+        },
+        {
+          "topic": "AI Features in .NET Business Apps with Semantic Kernel and Azure OpenAI",
+          "subtopics": ["Use cases for AI in business apps", "Azure OpenAI from .NET", "Semantic Kernel plugins and function calling", "Retrieval over company documents with Azure AI Search", "Streaming answers to Angular", "Guardrails and content filtering", "Cost and rate limits", "Evaluating AI features"],
+          "tools": ["Semantic Kernel", "Azure OpenAI", "Azure AI Search", "Angular"],
+          "lab_task": "Add an assistant that answers policy questions from documents with Azure AI Search, calls a plugin to check leave balances, streams answers to Angular and logs cost per request.",
+          "deliverable": "AI assistant feature with evaluation notes",
+          "checks": [["Answer from documents", "Answers cite the source documents", "Conversation log"], ["Call a plugin", "Assistant returns the user's real leave balance", "Conversation log"], ["Track cost", "Cost per request reported", "Cost report"]],
+          "objectives": ["Add AI features to .NET apps", "Ground answers in company data", "Control AI cost and risk"]
+        },
+        {
+          "topic": "Cost Optimisation on Azure for .NET Workloads",
+          "subtopics": ["Cost drivers for .NET platforms on Azure", "Right-sizing App Service plans and databases", "Reserved capacity and savings plans", "Autoscale and scale to zero", "Storage tiers and lifecycle rules", "Telemetry and logging costs", "Cost per tenant and per feature", "Budgets and alerts"],
+          "tools": ["Azure Cost Management", "Azure Advisor", "Azure Pricing Calculator"],
+          "lab_task": "Analyse a month of platform costs, right-size plans and databases, apply autoscale and storage tiers, calculate cost per tenant and set budgets with alerts.",
+          "deliverable": "Cost report and savings plan",
+          "checks": [["Find cost drivers", "Top cost drivers identified with amounts", "Cost analysis"], ["Apply savings", "Monthly cost reduced with no SLO breach", "Before and after report"], ["Set budgets", "Budget alert fires in a test", "Alert notification"]],
+          "objectives": ["Understand Azure costs for .NET apps", "Reduce cost safely", "Report cost per tenant"]
+        },
+        {
+          "topic": "Compliance, Auditing and Data Protection in Business Apps",
+          "subtopics": ["Personal data in business applications", "Data protection laws such as GDPR and India's DPDP Act", "Consent and purpose tracking", "Data retention and deletion", "Audit logs that stand up to review", "Encryption of sensitive columns", "Data subject requests", "Evidence for auditors"],
+          "tools": ["SQL Server Always Encrypted", "Azure Purview or Microsoft Purview", "Audit tables"],
+          "lab_task": "Map personal data in the platform, encrypt sensitive columns, implement retention and deletion jobs, handle a data subject request end to end and prepare an audit evidence pack.",
+          "deliverable": "Data protection design and evidence pack",
+          "checks": [["Encrypt columns", "Sensitive columns unreadable without keys", "Query output"], ["Handle a deletion request", "User data removed or anonymised across all stores", "Request log"], ["Prepare evidence", "Auditor sample answered from the pack", "Evidence pack index"]],
+          "objectives": ["Protect personal data", "Meet retention and deletion rules", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Production Troubleshooting Across ASP.NET Core, SQL Server and Angular",
+          "subtopics": ["Triage from alerts and user reports", "Slow pages caused by SQL Server", "Thread pool starvation and async mistakes", "Memory leaks in ASP.NET Core", "Deadlocks and blocking", "Client errors after releases", "Collecting dumps and traces safely", "Post-incident reviews"],
+          "tools": ["dotnet-dump", "dotnet-trace", "SQL Server Query Store", "Application Insights"],
+          "lab_task": "Work through four incidents: thread pool starvation, a blocking chain in SQL Server, a memory leak and a client crash after release, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by dumps, traces or plans", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot across .NET tiers", "Use diagnostics tools", "Learn from incidents"]
+        },
+        {
+          "topic": "Technical Leadership for .NET Full Stack Teams",
+          "subtopics": ["Engineering standards for .NET and Angular", "Solution and service templates", "Code review practice", "Mentoring and career paths", "Technical debt management", "Estimating and planning with product owners", "Hiring for full stack teams", "Communicating with stakeholders"],
+          "tools": ["dotnet new templates", "Review templates", "Decision records"],
+          "lab_task": "Create a solution template with standards built in, run a code review session, write a technical debt plan and present a quarterly engineering plan to mock stakeholders.",
+          "deliverable": "Template, debt plan and engineering plan",
+          "checks": [["Use the template", "New solution from the template passes all checks", "Template repository"], ["Run a review", "Review comments specific and actionable", "Pull request review"], ["Present the plan", "Priorities agreed with stakeholders", "Meeting notes"]],
+          "objectives": ["Lead .NET full stack teams", "Set standards through templates", "Plan engineering work"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant Business Platform on Azure",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["ASP.NET Core", ".NET Aspire", "Angular", "Azure SQL", "Azure Container Apps", "OpenTelemetry"],
+          "lab_task": "Design and build a multi-tenant business platform with a modular monolith and one extracted service, sagas, zero trust security, reporting store, infrastructure as code, SLOs and cost controls, then defend it to a review panel.",
+          "deliverable": "Platform repository, architecture pack and defence",
+          "checks": [["Prove isolation", "No cross-tenant data in tests", "Test report"], ["Meet SLOs", "Load test meets the agreed SLOs", "Load test report"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect enterprise .NET systems", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}

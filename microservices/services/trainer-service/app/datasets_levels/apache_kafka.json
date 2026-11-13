@@ -1,0 +1,573 @@
+{
+  "domain": "Apache Kafka",
+  "name": "Apache Kafka",
+  "category": "Data Engineering and Analytics",
+  "icon": "share-2",
+  "aliases": ["Kafka", "Kafka Training", "Kafka Developer", "Kafka Administration", "Kafka Administrator", "Confluent Kafka", "Confluent Platform", "Confluent Cloud", "Kafka Streams", "Kafka Connect", "Event Streaming", "Event-Driven Architecture with Kafka"],
+  "certifications": ["Confluent Certified Developer for Apache Kafka (CCDAK)", "Confluent Certified Administrator for Apache Kafka (CCAAK)", "Confluent Cloud Certified Operator"],
+  "tools": ["Apache Kafka 3.9 or 4.x with KRaft", "Confluent Schema Registry", "Kafka Connect", "Kafka Streams", "ksqlDB", "Docker Compose", "Java or Python clients"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, data engineers and operators new to Kafka. Covers event streaming concepts, set-up with KRaft, topics and partitions, the command-line tools, producers, consumers and groups, offsets, keys and ordering, serialisation, Schema Registry, delivery guarantees, retention and compaction, Kafka Connect, basic Kafka Streams, ksqlDB, monitoring, security and client errors.",
+      "prerequisites": ["Programs in Java or Python", "Comfortable with Docker and the command line", "Understands basic client-server applications"],
+      "outcomes": ["Explain how Kafka stores and delivers events", "Write reliable producers and consumers with schemas", "Move data in and out with Kafka Connect and process it with Kafka Streams or ksqlDB", "Run and secure a small cluster and read its health"],
+      "days": [
+        {
+          "topic": "Event Streaming Overview and Kafka Setup with KRaft",
+          "subtopics": ["What event streaming is and where it is used", "Kafka compared with message queues such as RabbitMQ", "Brokers, topics, partitions and replicas", "KRaft mode instead of ZooKeeper", "Apache Kafka, Confluent Platform and cloud services", "Running Kafka with Docker Compose", "Installing Kafka from the binary release", "The command-line tools", "Kafka UIs: AKHQ, Kafka UI and Confluent Control Center", "The course project: online shop events"],
+          "tools": ["Apache Kafka", "Docker Compose", "Kafka UI"],
+          "lab_task": "Start a three-broker KRaft cluster with Docker Compose, create a topic, send and read messages from the command line and view the topic in a Kafka UI.",
+          "deliverable": "Compose file, command log and screenshots",
+          "checks": [["Describe the cluster", "Three brokers and the controller quorum listed", "Command output"], ["Produce and consume", "Messages read in order from one partition", "Console output"], ["Open the Kafka UI", "Topic, partitions and messages visible", "Screenshot"]],
+          "objectives": ["Explain event streaming", "Run Kafka with KRaft", "Use the command-line tools"]
+        },
+        {
+          "topic": "Topics, Partitions and Replication",
+          "subtopics": ["Topics and partitions", "Partition logs and offsets", "Replication factor", "Leaders and followers", "In-sync replicas", "min.insync.replicas", "Choosing partition counts", "Topic configuration"],
+          "tools": ["kafka-topics", "kafka-configs"],
+          "lab_task": "Create topics with different partition and replica settings, stop a broker and watch leaders move, and show writes failing when in-sync replicas fall below the minimum.",
+          "deliverable": "Topic settings and failover notes",
+          "checks": [["Stop a broker", "Leaders move to other brokers", "kafka-topics describe output"], ["Drop below min.insync.replicas", "Producer with acks=all fails", "Producer error"], ["Increase partitions", "New partitions created and keys remapped noted", "Command output"]],
+          "objectives": ["Configure topics", "Understand replication", "See failover"]
+        },
+        {
+          "topic": "Producers: Sending Events Reliably",
+          "subtopics": ["Producer API", "Keys and partitioners", "acks settings", "Retries and idempotent producers", "Batching and linger.ms", "Compression", "Callbacks and errors", "Producer configuration in Java and Python"],
+          "tools": ["Java client or confluent-kafka Python", "Kafka"],
+          "lab_task": "Write a producer for order events with keys, acks=all and idempotence, measure throughput with different batch and compression settings and handle send errors in callbacks.",
+          "deliverable": "Producer code and throughput table",
+          "checks": [["Send keyed events", "Same key always in the same partition", "Consumer output"], ["Compare compression", "Throughput and size for each codec", "Throughput table"], ["Stop the brokers during sends", "Errors handled in callbacks", "Producer log"]],
+          "objectives": ["Write producers", "Send reliably", "Tune throughput"]
+        },
+        {
+          "topic": "Consumers and Consumer Groups",
+          "subtopics": ["Consumer API", "Poll loops", "Consumer groups", "Partition assignment", "Rebalancing", "Cooperative rebalancing", "Static membership", "Scaling consumers"],
+          "tools": ["Java client or confluent-kafka Python", "kafka-consumer-groups"],
+          "lab_task": "Run a consumer group of three for order events, add and remove consumers to watch rebalances and show that more consumers than partitions leaves some idle.",
+          "deliverable": "Consumer code and rebalance notes",
+          "checks": [["Add a consumer", "Partitions rebalanced", "Consumer group describe output"], ["Run more consumers than partitions", "Extra consumer idle", "Consumer group output"], ["Use cooperative rebalancing", "Fewer stop-the-world pauses", "Consumer logs"]],
+          "objectives": ["Write consumers", "Use consumer groups", "Handle rebalances"]
+        },
+        {
+          "topic": "Offsets, Commits and Consumer Lag",
+          "subtopics": ["Committed offsets", "Auto commit", "Manual commit", "At-most-once and at-least-once processing", "Resetting offsets", "Reading from a timestamp", "Consumer lag", "Monitoring lag"],
+          "tools": ["kafka-consumer-groups", "Kafka UI"],
+          "lab_task": "Switch to manual commits after processing, crash a consumer mid-batch to see redelivery, reset a group to a timestamp and measure lag during a burst.",
+          "deliverable": "Consumer code, crash notes and lag readings",
+          "checks": [["Crash before commit", "Messages delivered again", "Consumer output"], ["Reset to a timestamp", "Consumption restarts from that time", "Consumer output"], ["Send a burst", "Lag rises and falls", "Lag readings"]],
+          "objectives": ["Manage offsets", "Choose delivery behaviour", "Monitor lag"]
+        },
+        {
+          "topic": "Message Keys, Ordering and Partitioning Design",
+          "subtopics": ["Ordering guarantees", "Choosing keys", "Hot partitions", "Custom partitioners", "Ordering with retries", "Changing partition counts", "Event design for ordering", "Testing ordering"],
+          "tools": ["Kafka", "Java or Python client"],
+          "lab_task": "Design keys for orders and payments, cause a hot partition with a bad key, fix it, and prove per-order ordering holds with retries enabled.",
+          "deliverable": "Key design and test results",
+          "checks": [["Use the bad key", "One partition far busier", "Partition metrics"], ["Use the new key", "Load spread across partitions", "Partition metrics"], ["Check ordering", "Events per order in sequence", "Test output"]],
+          "objectives": ["Design keys", "Keep ordering", "Avoid hot partitions"]
+        },
+        {
+          "topic": "Serialisation: JSON, Avro and Protobuf",
+          "subtopics": ["Bytes on the wire", "JSON events", "Avro schemas", "Protobuf", "Serialisers and deserialisers", "Message size", "Headers", "Choosing a format"],
+          "tools": ["Avro", "Protobuf", "Kafka clients"],
+          "lab_task": "Send the same order event as JSON, Avro and Protobuf, compare sizes and parsing time, and add tracing headers to each message.",
+          "deliverable": "Producer and consumer code and comparison table",
+          "checks": [["Compare sizes", "Size per format recorded", "Comparison table"], ["Read headers", "Trace ID received by the consumer", "Consumer output"], ["Send malformed JSON", "Consumer handles the error", "Consumer log"]],
+          "objectives": ["Serialise events", "Compare formats", "Use headers"]
+        },
+        {
+          "topic": "Schema Registry and Schema Evolution",
+          "subtopics": ["Why a schema registry", "Subjects and versions", "Compatibility modes", "Adding and removing fields", "Default values", "Schema references", "Client configuration", "Breaking changes and how to avoid them"],
+          "tools": ["Confluent Schema Registry", "Avro"],
+          "lab_task": "Register order schemas, add a field with a default under backward compatibility, try a breaking change and see it rejected, and run old and new consumers together.",
+          "deliverable": "Schemas, compatibility results and client code",
+          "checks": [["Add a field with a default", "New version accepted", "Registry output"], ["Remove a required field", "Change rejected", "Registry error"], ["Run old and new consumers", "Both read new events", "Consumer output"]],
+          "objectives": ["Use Schema Registry", "Evolve schemas safely", "Avoid breaking changes"]
+        },
+        {
+          "topic": "Delivery Guarantees and Exactly-Once Semantics",
+          "subtopics": ["At-most-once, at-least-once and exactly-once", "Idempotent producers", "Transactions", "read_committed consumers", "Read-process-write loops", "Idempotent consumers with external systems", "Costs of exactly-once", "Choosing a guarantee"],
+          "tools": ["Kafka transactions", "Java client"],
+          "lab_task": "Build a read-process-write service with transactions, crash it mid-transaction, show no duplicates downstream for read_committed consumers and add an idempotent database writer.",
+          "deliverable": "Service code and crash test results",
+          "checks": [["Crash mid-transaction", "No duplicate outputs for read_committed", "Consumer output"], ["Read with read_uncommitted", "Aborted messages visible", "Consumer output"], ["Replay into the database", "No duplicate rows", "Database query"]],
+          "objectives": ["Use transactions", "Achieve exactly-once processing", "Write idempotent consumers"]
+        },
+        {
+          "topic": "Retention, Compaction and Storage",
+          "subtopics": ["Log segments", "Time and size retention", "Log compaction", "Tombstones", "Compacted topics as tables", "Segment and index files", "Disk use per broker", "Tiered storage in brief"],
+          "tools": ["kafka-configs", "Kafka log directories"],
+          "lab_task": "Set short retention on a topic and watch segments deleted, use a compacted topic for customer profiles, delete a key with a tombstone and inspect segment files.",
+          "deliverable": "Topic settings, file listings and notes",
+          "checks": [["Wait past retention", "Old segments deleted", "File listing"], ["Write several values per key to a compacted topic", "Latest value kept after compaction", "Consumer output"], ["Send a tombstone", "Key removed after compaction", "Consumer output"]],
+          "objectives": ["Manage retention", "Use compaction", "Understand storage"]
+        },
+        {
+          "topic": "Kafka Connect: Source and Sink Connectors",
+          "subtopics": ["Why Kafka Connect", "Workers and connectors", "Standalone and distributed modes", "Source connectors: JDBC and files", "Sink connectors: databases, S3 and Elasticsearch", "Single message transforms", "Converters", "Error handling and dead-letter queues"],
+          "tools": ["Kafka Connect", "JDBC connector", "S3 sink connector"],
+          "lab_task": "Stream new rows from PostgreSQL into Kafka with a source connector, sink events to S3 and PostgreSQL, rename a field with a transform and route bad records to a dead-letter topic.",
+          "deliverable": "Connector configurations and test results",
+          "checks": [["Insert a row in PostgreSQL", "Event appears on the topic", "Consumer output"], ["Send a bad record", "Record lands in the dead-letter topic", "Consumer output"], ["Check S3", "Files written in time-based folders", "S3 listing"]],
+          "objectives": ["Use Kafka Connect", "Configure sources and sinks", "Handle bad records"]
+        },
+        {
+          "topic": "Change Data Capture with Debezium",
+          "subtopics": ["Log-based CDC", "Debezium connectors", "Snapshot and streaming phases", "Change event structure", "Handling deletes", "Schema changes in the source", "Outbox pattern with Debezium", "Monitoring CDC"],
+          "tools": ["Debezium", "PostgreSQL", "MySQL", "Kafka Connect"],
+          "lab_task": "Capture inserts, updates and deletes from PostgreSQL with Debezium, read before and after values, add a column in the source and route outbox events to topics.",
+          "deliverable": "Connector configuration and sample change events",
+          "checks": [["Update a row", "Event has before and after values", "Consumer output"], ["Delete a row", "Delete event and tombstone sent", "Consumer output"], ["Add a source column", "New field appears in events", "Consumer output"]],
+          "objectives": ["Capture database changes", "Read change events", "Use the outbox pattern"]
+        },
+        {
+          "topic": "Kafka Streams Essentials",
+          "subtopics": ["Stream processing concepts", "Topologies", "KStream and KTable", "Stateless operations: map, filter and branch", "Grouping and counting", "State stores", "Application IDs and scaling", "Testing with TopologyTestDriver"],
+          "tools": ["Kafka Streams", "Java", "TopologyTestDriver"],
+          "lab_task": "Build a Kafka Streams app that filters invalid orders, branches by country, counts orders per product and test the topology with TopologyTestDriver.",
+          "deliverable": "Streams application and tests",
+          "checks": [["Run the tests", "Expected outputs for the test input", "Test report"], ["Run two instances", "Partitions shared between instances", "Application logs"], ["Query counts", "Counts per product correct", "Output topic"]],
+          "objectives": ["Build stream processors", "Use KStream and KTable", "Test topologies"]
+        },
+        {
+          "topic": "Stream Processing with ksqlDB",
+          "subtopics": ["ksqlDB overview", "Streams and tables in SQL", "Persistent queries", "Filtering and transforming", "Aggregations and windows", "Joins", "Pull and push queries", "When to use ksqlDB or Kafka Streams"],
+          "tools": ["ksqlDB", "Kafka"],
+          "lab_task": "Create streams and tables over order and customer topics, enrich orders with customer data, count orders per minute and query the latest totals with pull queries.",
+          "deliverable": "ksqlDB statements and query results",
+          "checks": [["Join orders with customers", "Enriched events written", "Output topic"], ["Count per minute", "Windowed counts correct", "Query result"], ["Run a pull query", "Current total returned", "Query result"]],
+          "objectives": ["Process streams with SQL", "Join streams and tables", "Query state"]
+        },
+        {
+          "topic": "Monitoring Kafka Clusters and Clients",
+          "subtopics": ["Broker metrics through JMX", "Under-replicated partitions", "Request latency", "Consumer lag monitoring", "Prometheus JMX exporter", "Grafana dashboards", "Burrow and other lag tools", "Alerts worth having"],
+          "tools": ["Prometheus JMX exporter", "Grafana", "Kafka Exporter"],
+          "lab_task": "Export broker and lag metrics to Prometheus, build a Grafana dashboard and alert on under-replicated partitions and growing consumer lag.",
+          "deliverable": "Exporter configuration, dashboard and alerts",
+          "checks": [["Stop a broker", "Under-replicated partitions alert fires", "Alert notification"], ["Stop a consumer", "Lag alert fires", "Alert notification"], ["View the dashboard", "Throughput, latency and lag shown", "Screenshot"]],
+          "objectives": ["Monitor Kafka", "Track lag", "Alert on cluster health"]
+        },
+        {
+          "topic": "Securing Kafka: TLS, SASL and ACLs",
+          "subtopics": ["Security threats to Kafka", "TLS encryption", "SASL/SCRAM authentication", "mTLS authentication", "ACLs", "Principals and naming", "Securing Kafka Connect and Schema Registry", "Credentials in clients"],
+          "tools": ["Kafka", "OpenSSL", "kafka-acls"],
+          "lab_task": "Turn on TLS and SASL/SCRAM, create users for a producer and a consumer, add ACLs so each can only use its topics and test what is refused.",
+          "deliverable": "Security configuration, ACLs and test results",
+          "checks": [["Connect without credentials", "Refused", "Client error"], ["Write to a topic without permission", "Authorisation error", "Producer error"], ["Capture traffic", "Encrypted on the wire", "Packet capture"]],
+          "objectives": ["Encrypt Kafka", "Authenticate clients", "Authorise with ACLs"]
+        },
+        {
+          "topic": "Handling Errors, Retries and Dead-Letter Topics in Consumers",
+          "subtopics": ["Error types in consumers", "Poison messages", "Retry topics with delays", "Dead-letter topics", "Replaying from a dead-letter topic", "Alerting on errors", "Idempotency during retries", "Error handling in Spring Kafka"],
+          "tools": ["Kafka", "Spring for Apache Kafka or Python client"],
+          "lab_task": "Add retry topics with increasing delays and a dead-letter topic to the order consumer, send a poison message, fix the cause and replay it.",
+          "deliverable": "Consumer code, topic set-up and replay evidence",
+          "checks": [["Send a poison message", "Moves through retries to the dead-letter topic", "Consumer logs"], ["Replay after the fix", "Message processed once", "Consumer output"], ["Alert on the dead-letter topic", "Alert fires on new messages", "Alert notification"]],
+          "objectives": ["Handle consumer errors", "Use retries and dead-letter topics", "Replay safely"]
+        },
+        {
+          "topic": "Event Design and Topic Naming",
+          "subtopics": ["Events, commands and state", "Event granularity", "Naming topics", "Event envelopes and metadata", "Correlation and causation IDs", "Versioning events", "Documenting events with AsyncAPI", "Ownership of topics"],
+          "tools": ["AsyncAPI", "Schema Registry"],
+          "lab_task": "Design events for the shop with naming rules, envelopes and IDs, document them with AsyncAPI and review them with a partner team.",
+          "deliverable": "Event catalogue and AsyncAPI document",
+          "checks": [["Review names", "All topics follow the naming rules", "Event catalogue"], ["Trace an order", "Correlation ID carried across events", "Consumer output"], ["Validate the AsyncAPI document", "No errors", "Validator output"]],
+          "objectives": ["Design events", "Name topics", "Document event APIs"]
+        },
+        {
+          "topic": "Managed Kafka: Confluent Cloud, Amazon MSK and Azure Event Hubs",
+          "subtopics": ["Managed service options", "Confluent Cloud clusters and features", "Amazon MSK and MSK Serverless", "Azure Event Hubs Kafka endpoint", "Networking and private access", "Authentication in each service", "Limits and missing features", "Cost comparison"],
+          "tools": ["Confluent Cloud", "Amazon MSK", "Azure Event Hubs"],
+          "lab_task": "Connect the shop producer and consumer to two managed services, compare set-up, security, limits and monthly cost and note code changes needed.",
+          "deliverable": "Configurations, test results and comparison",
+          "checks": [["Produce and consume on each service", "Messages delivered", "Client output"], ["List missing features", "Differences per service recorded", "Comparison table"], ["Compare costs", "Monthly cost for the same workload", "Comparison table"]],
+          "objectives": ["Use managed Kafka", "Compare services", "Plan portability"]
+        },
+        {
+          "topic": "Beginner Capstone: Event-Driven Online Shop",
+          "subtopics": ["Event design", "Producers and consumers", "Connect and stream processing", "Operations"],
+          "tools": ["Kafka", "Schema Registry", "Kafka Connect", "Kafka Streams or ksqlDB", "Prometheus and Grafana"],
+          "lab_task": "Build an event-driven shop: Avro order events, inventory and email consumers with retries, CDC from the customer database, a stream that computes sales per minute, monitoring and ACLs, then demo a broker failure.",
+          "deliverable": "Repository, schemas, connector configs, dashboards and demo recording",
+          "checks": [["Stop a broker during the demo", "No orders lost", "Demo recording"], ["Send a bad event", "Goes to the dead-letter topic and the system continues", "Demo recording"], ["Test ACLs", "Each service limited to its topics", "Test results"]],
+          "objectives": ["Combine the beginner topics in one system", "Build reliable event flows", "Operate and secure them"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and operators who run Kafka. Covers cluster sizing, broker configuration, producer and consumer tuning, Kafka Streams state, joins and windows, interactive queries, Connect clusters and custom connectors, Schema Registry governance, Spring for Apache Kafka, Flink with Kafka, multi-cluster replication, tiered storage, operating on Kubernetes with Strimzi, upgrades, client observability, testing, quotas, performance testing and the developer certification.",
+      "prerequisites": ["Writes Kafka producers and consumers with schemas", "Uses Kafka Connect and basic stream processing", "Runs Kafka with Docker or a managed service"],
+      "outcomes": ["Size, configure and tune Kafka clusters and clients", "Build stateful stream processing with Kafka Streams and Flink", "Run Connect, Schema Registry and replication across clusters", "Operate Kafka on Kubernetes and pass the developer certification"],
+      "days": [
+        {
+          "topic": "Cluster Sizing and Capacity Planning",
+          "subtopics": ["Throughput and retention requirements", "Disk sizing", "Network and replication traffic", "Partition counts per broker", "CPU and memory", "Controller quorum sizing", "Headroom for failures", "Sizing worksheets"],
+          "tools": ["Spreadsheet", "kafka-producer-perf-test"],
+          "lab_task": "Size a cluster for 200 MB per second in, three-day retention and replication factor 3 with one broker down, then validate the plan with performance tests.",
+          "deliverable": "Sizing worksheet and test results",
+          "checks": [["Calculate disk", "Disk per broker including headroom", "Sizing worksheet"], ["Test with one broker down", "Throughput target still met", "Perf test output"], ["Review partition counts", "Within recommended limits per broker", "Sizing worksheet"]],
+          "objectives": ["Size clusters", "Plan for failures", "Validate sizing"]
+        },
+        {
+          "topic": "Broker Configuration and Tuning",
+          "subtopics": ["Important broker settings", "Network and I/O threads", "Log flush settings", "Replica fetchers", "Unclean leader election", "Rack awareness", "Page cache and file systems", "Operating system tuning"],
+          "tools": ["Kafka", "Linux tools"],
+          "lab_task": "Configure rack awareness across three zones, tune thread counts for the workload, keep unclean leader election off and measure the effect of OS settings on latency.",
+          "deliverable": "Configuration changes and measurements",
+          "checks": [["Place replicas", "Each partition's replicas in different racks", "Topic describe output"], ["Tune threads", "Request latency lower", "Metrics comparison"], ["Lose a zone", "Partitions stay available", "Topic describe output"]],
+          "objectives": ["Configure brokers", "Use rack awareness", "Tune for latency"]
+        },
+        {
+          "topic": "Producer and Consumer Performance Tuning",
+          "subtopics": ["Producer batching and compression trade-offs", "Buffer memory", "max.in.flight.requests", "Consumer fetch sizes", "max.poll.records and processing time", "Parallel processing inside consumers", "Client metrics", "Benchmarking clients"],
+          "tools": ["kafka-producer-perf-test", "kafka-consumer-perf-test", "Client metrics"],
+          "lab_task": "Tune the producer for throughput and for latency separately, fix a consumer that keeps getting kicked out of the group and add parallel processing with ordering per key.",
+          "deliverable": "Tuning results and fixed consumer",
+          "checks": [["Compare tuning profiles", "Throughput and latency for each", "Benchmark table"], ["Fix the slow consumer", "No more rebalances from poll timeouts", "Consumer logs"], ["Process in parallel", "Ordering kept per key", "Test output"]],
+          "objectives": ["Tune clients", "Fix poll timeouts", "Process in parallel safely"]
+        },
+        {
+          "topic": "Kafka Streams State, Joins and Windows",
+          "subtopics": ["State stores and changelog topics", "Stream-stream joins", "Stream-table joins", "Global tables", "Tumbling, hopping and session windows", "Grace periods", "Suppression", "Repartition topics"],
+          "tools": ["Kafka Streams", "Java"],
+          "lab_task": "Join orders with payments within 15 minutes, enrich with a customer table, count sales in hopping windows with a grace period and suppress early results.",
+          "deliverable": "Streams application and tests",
+          "checks": [["Send a late payment within grace", "Join still produced", "Output topic"], ["Suppress results", "One final result per window", "Output topic"], ["Find repartition topics", "Created where keys change", "Topic list"]],
+          "objectives": ["Use state stores", "Join streams and tables", "Use windows"]
+        },
+        {
+          "topic": "Interactive Queries and Scaling Kafka Streams",
+          "subtopics": ["Interactive queries", "Querying local and remote state", "Standby replicas", "Scaling instances", "Rebalancing and state restoration", "Exactly-once in Kafka Streams", "Upgrading topologies", "Monitoring Streams apps"],
+          "tools": ["Kafka Streams", "Java", "REST"],
+          "lab_task": "Expose product counts through a REST endpoint with interactive queries across instances, add standby replicas and measure recovery time when an instance dies.",
+          "deliverable": "Application, endpoint and recovery measurements",
+          "checks": [["Query any instance", "Correct count returned from the right instance", "API response"], ["Kill an instance", "Standby takes over quickly", "Recovery timing"], ["Turn on exactly-once", "No duplicates after a crash", "Output check"]],
+          "objectives": ["Query state", "Scale Streams apps", "Recover quickly"]
+        },
+        {
+          "topic": "Kafka Connect Clusters and Custom Connectors",
+          "subtopics": ["Distributed Connect clusters", "Connector and task scaling", "Rebalancing in Connect", "Secrets in connector configs", "Monitoring connectors", "Writing a custom source connector", "Writing a single message transform", "Packaging and deploying plugins"],
+          "tools": ["Kafka Connect", "Java", "Connect REST API"],
+          "lab_task": "Run a three-worker Connect cluster, scale connector tasks, move secrets to a config provider and write a small source connector for an internal API.",
+          "deliverable": "Cluster configuration, custom connector and tests",
+          "checks": [["Kill a worker", "Tasks move to other workers", "Connect status"], ["Search configs for passwords", "Secrets resolved from a provider", "Connector config"], ["Run the custom connector", "API data appears on the topic", "Consumer output"]],
+          "objectives": ["Run Connect clusters", "Manage secrets", "Build connectors"]
+        },
+        {
+          "topic": "Schema Governance and Data Contracts",
+          "subtopics": ["Schema ownership", "Compatibility rules per subject", "Data contracts with rules and metadata", "Validating messages on produce", "Schema linting in CI", "Migrating breaking changes", "Documentation and catalogues", "Governance processes"],
+          "tools": ["Schema Registry", "Data contracts", "CI tools"],
+          "lab_task": "Add data contract rules to order schemas, lint schemas in CI, block a breaking change and migrate it through a new topic version.",
+          "deliverable": "Contracts, CI checks and migration plan",
+          "checks": [["Produce a message breaking a rule", "Rejected or routed by the rule", "Producer error"], ["Open a pull request with a breaking change", "CI fails", "CI log"], ["Migrate to a new topic", "Consumers moved without data loss", "Migration notes"]],
+          "objectives": ["Govern schemas", "Use data contracts", "Migrate breaking changes"]
+        },
+        {
+          "topic": "Spring for Apache Kafka",
+          "subtopics": ["Spring Kafka set-up", "KafkaTemplate", "@KafkaListener", "Error handlers and retry topics", "Transactions in Spring", "Batch listeners", "Spring Cloud Stream", "Testing with embedded Kafka"],
+          "tools": ["Spring Boot", "Spring for Apache Kafka", "Testcontainers"],
+          "lab_task": "Build order and inventory services with Spring Kafka, non-blocking retry topics, transactions with a database and Testcontainers tests.",
+          "deliverable": "Services and tests",
+          "checks": [["Fail processing", "Retries and dead-letter handled by Spring", "Logs"], ["Roll back the database", "Kafka transaction rolled back too", "Test output"], ["Run the tests", "Pass against a Kafka container", "Test report"]],
+          "objectives": ["Use Spring Kafka", "Handle retries", "Test with containers"]
+        },
+        {
+          "topic": "Stream Processing with Apache Flink and Kafka",
+          "subtopics": ["When to use Flink", "Flink Kafka connectors", "DataStream and Table APIs", "Flink SQL over Kafka topics", "Event time and watermarks in Flink", "Checkpoints and exactly-once sinks", "Flink compared with Kafka Streams", "Managed Flink services"],
+          "tools": ["Apache Flink", "Kafka", "Flink SQL"],
+          "lab_task": "Compute fraud signals from transactions with Flink SQL over Kafka, use event time with watermarks, write results back exactly once and compare with a Kafka Streams version.",
+          "deliverable": "Flink job, results and comparison",
+          "checks": [["Run the Flink SQL job", "Signals written to the output topic", "Consumer output"], ["Restore from a checkpoint", "No duplicates after restart", "Output check"], ["Compare with Kafka Streams", "Trade-offs recorded", "Comparison note"]],
+          "objectives": ["Use Flink with Kafka", "Process event time", "Choose stream engines"]
+        },
+        {
+          "topic": "Multi-Cluster Replication with MirrorMaker 2 and Cluster Linking",
+          "subtopics": ["Why replicate clusters", "MirrorMaker 2", "Topic and offset sync", "Active-passive and active-active", "Confluent Cluster Linking", "Failover of consumers", "Avoiding loops", "Testing disaster recovery"],
+          "tools": ["MirrorMaker 2", "Cluster Linking"],
+          "lab_task": "Replicate topics and consumer offsets to a second cluster with MirrorMaker 2, fail over consumers and resume from translated offsets, then set up active-active without loops.",
+          "deliverable": "Replication configuration and failover results",
+          "checks": [["Fail over consumers", "Resume near the last offset", "Consumer output"], ["Run active-active", "No replication loops", "Topic list"], ["Measure replication lag", "Lag recorded under load", "Metrics"]],
+          "objectives": ["Replicate clusters", "Fail over consumers", "Design active-active"]
+        },
+        {
+          "topic": "Tiered Storage and Long Retention",
+          "subtopics": ["Why tiered storage", "Local and remote tiers", "Configuring tiered storage", "Retention per tier", "Reading old data", "Cost of long retention", "Rebalancing with tiered storage", "Limits"],
+          "tools": ["Kafka tiered storage", "S3 or compatible storage"],
+          "lab_task": "Turn on tiered storage for an events topic, keep one day locally and a year remotely, read year-old data and compare cost with local disks.",
+          "deliverable": "Configuration, read test and cost comparison",
+          "checks": [["Read old data", "Messages served from the remote tier", "Consumer output"], ["Check local disk", "Only recent segments local", "File listing"], ["Compare costs", "Remote storage cheaper for a year", "Cost table"]],
+          "objectives": ["Use tiered storage", "Keep long retention", "Control storage cost"]
+        },
+        {
+          "topic": "Operating Kafka on Kubernetes with Strimzi",
+          "subtopics": ["Kafka on Kubernetes", "The Strimzi operator", "Kafka custom resources", "Topic and user operators", "Storage and node pools", "Rolling updates", "Cruise Control with Strimzi", "Monitoring with the operator"],
+          "tools": ["Strimzi", "Kubernetes", "Cruise Control"],
+          "lab_task": "Deploy Kafka with Strimzi using KRaft node pools, manage topics and users as resources, rebalance with Cruise Control and run a rolling configuration change.",
+          "deliverable": "Manifests and operation logs",
+          "checks": [["Create a KafkaTopic resource", "Topic created in the cluster", "kubectl output"], ["Run a rebalance", "Partitions balanced across brokers", "Cruise Control status"], ["Change a broker setting", "Rolling restart with no client errors", "Client log"]],
+          "objectives": ["Run Kafka on Kubernetes", "Manage resources as code", "Rebalance clusters"]
+        },
+        {
+          "topic": "Kafka Administration: Partition Reassignment, Broker Replacement and Balancing",
+          "subtopics": ["Day-to-day administration tasks", "kafka-reassign-partitions", "Throttling reassignment traffic", "Replacing a failed broker", "Decommissioning brokers", "Preferred leader election", "Cruise Control goals", "Admin runbooks"],
+          "tools": ["kafka-reassign-partitions", "Cruise Control", "kafka-leader-election"],
+          "lab_task": "Replace a failed broker, move partitions off a broker being retired with throttled reassignment, run preferred leader election and balance the cluster with Cruise Control.",
+          "deliverable": "Admin commands, throttle settings and runbooks",
+          "checks": [["Reassign with a throttle", "Client latency stays within the target", "Metrics during reassignment"], ["Retire a broker", "No partitions left on it", "Topic describe output"], ["Run preferred leader election", "Leadership balanced across brokers", "Leader distribution"]],
+          "objectives": ["Administer clusters", "Move partitions safely", "Balance load"]
+        },
+        {
+          "topic": "Upgrades and Migrating from ZooKeeper to KRaft",
+          "subtopics": ["Kafka release cadence", "Rolling upgrades", "Inter-broker protocol and metadata versions", "Client compatibility", "ZooKeeper to KRaft migration steps", "Rollback points", "Testing upgrades", "Upgrade runbooks"],
+          "tools": ["Kafka", "ZooKeeper", "KRaft"],
+          "lab_task": "Migrate a ZooKeeper-based cluster to KRaft with no downtime, upgrade the brokers by one version and confirm clients keep working throughout.",
+          "deliverable": "Migration log, upgrade log and runbook",
+          "checks": [["Run the migration", "Cluster on KRaft with no client errors", "Client log"], ["Upgrade brokers", "All brokers on the new version", "Broker logs"], ["Review the runbook", "Steps and rollback points listed", "Runbook"]],
+          "objectives": ["Upgrade Kafka", "Migrate to KRaft", "Write runbooks"]
+        },
+        {
+          "topic": "Observability for Event-Driven Applications",
+          "subtopics": ["Tracing through Kafka", "OpenTelemetry for producers and consumers", "Propagating context in headers", "End-to-end latency", "Lag-based autoscaling", "Logging with event IDs", "Dashboards per flow", "Investigating slow flows"],
+          "tools": ["OpenTelemetry", "Jaeger or Tempo", "KEDA"],
+          "lab_task": "Trace an order through three services and Kafka with OpenTelemetry, measure end-to-end latency and scale a consumer with KEDA based on lag.",
+          "deliverable": "Instrumentation, traces and autoscaling evidence",
+          "checks": [["Follow an order", "One trace across producer and consumers", "Trace screenshot"], ["Measure latency", "End-to-end latency per flow", "Dashboard"], ["Raise lag", "KEDA adds consumer pods", "kubectl output"]],
+          "objectives": ["Trace through Kafka", "Measure end-to-end latency", "Scale on lag"]
+        },
+        {
+          "topic": "Testing Kafka Applications",
+          "subtopics": ["Unit tests with mocks", "TopologyTestDriver", "Embedded Kafka", "Testcontainers", "Contract tests for events", "Load tests", "Chaos tests for consumers", "Tests in CI"],
+          "tools": ["Testcontainers", "TopologyTestDriver", "Pact for messages"],
+          "lab_task": "Add unit, topology, container-based integration and message contract tests to the shop services and run them in CI.",
+          "deliverable": "Test suites and CI run",
+          "checks": [["Break the event contract", "Contract test fails", "Test output"], ["Run integration tests", "Pass against a Kafka container", "Test report"], ["Run in CI", "All tests pass", "CI log"]],
+          "objectives": ["Test Kafka code", "Use contract tests", "Automate tests"]
+        },
+        {
+          "topic": "Quotas, Multi-Tenancy and Topic Governance",
+          "subtopics": ["Shared clusters for many teams", "Client quotas", "Naming and ownership rules", "Self-service topic creation", "Partition and retention limits", "Chargeback by team", "Cleaning up unused topics", "Governance tooling"],
+          "tools": ["Kafka quotas", "GitOps for topics", "Kafka UI"],
+          "lab_task": "Set produce and fetch quotas per team, manage topics through Git with validation rules, find unused topics and report usage by team.",
+          "deliverable": "Quota settings, topic repository and usage report",
+          "checks": [["Exceed a quota", "Client throttled", "Client metrics"], ["Request a topic breaking the rules", "Validation fails", "CI log"], ["Report usage", "Throughput and storage per team", "Usage report"]],
+          "objectives": ["Share clusters", "Apply quotas", "Govern topics"]
+        },
+        {
+          "topic": "Performance Testing and Benchmarking Kafka",
+          "subtopics": ["What to benchmark", "Producer and consumer perf tools", "OpenMessaging Benchmark", "Latency percentiles", "Testing failure scenarios under load", "Comparing configurations", "Reporting results", "Avoiding misleading benchmarks"],
+          "tools": ["OpenMessaging Benchmark", "kafka-producer-perf-test"],
+          "lab_task": "Benchmark the cluster at the target load, repeat with a broker down and with compression changes and report p50, p99 and p99.9 latency.",
+          "deliverable": "Benchmark report",
+          "checks": [["Run at the target load", "Latency percentiles recorded", "Benchmark output"], ["Run with a broker down", "Effect on latency recorded", "Benchmark output"], ["Review the report", "Method and settings documented", "Benchmark report"]],
+          "objectives": ["Benchmark Kafka", "Test under failure", "Report fairly"]
+        },
+        {
+          "topic": "Confluent Certified Developer (CCDAK) Preparation",
+          "subtopics": ["Exam topics", "Producer and consumer questions", "Kafka Streams and ksqlDB questions", "Connect and Schema Registry questions", "Configuration questions", "Common traps", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "Kafka documentation"],
+          "lab_task": "Take a timed practice exam, check wrong answers by running small experiments, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Test wrong answers", "Each confirmed with an experiment", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Real-Time Order and Fraud Platform",
+          "subtopics": ["Design", "Services and streams", "Operations", "Demo"],
+          "tools": ["Kafka on Strimzi", "Kafka Streams", "Flink", "Kafka Connect", "Schema Registry", "MirrorMaker 2"],
+          "lab_task": "Build a real-time platform with Spring Kafka services, Kafka Streams order state with interactive queries, a Flink fraud job, Connect pipelines with data contracts, tracing, quotas and a replicated DR cluster, then demo a failover.",
+          "deliverable": "Repositories, manifests, dashboards and demo recording",
+          "checks": [["Fail over to the DR cluster", "Consumers resume with translated offsets", "Demo recording"], ["Query order state", "Current state returned through the API", "Demo recording"], ["Trace an order", "End-to-end trace across services", "Trace screenshot"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Run stateful streaming reliably", "Show recovery"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, platform owners and architects. Covers broker internals, replication and KRaft controller internals, event-driven architecture, event sourcing and CQRS, sagas, large-scale design, multi-region strategies, platform engineering for Kafka, security at scale, compliance, very high throughput, low latency, Kafka for analytics and AI, streaming databases, cost, migrations, incident troubleshooting and Kafka strategy.",
+      "prerequisites": ["Runs Kafka clusters and stream processing in production", "Tunes brokers and clients", "Builds services with Kafka Streams, Connect and Schema Registry"],
+      "outcomes": ["Design event-driven systems and Kafka platforms for many teams", "Run Kafka across regions with high throughput, low latency and strong security", "Use Kafka for analytics and AI workloads", "Diagnose incidents and lead streaming strategy"],
+      "days": [
+        {
+          "topic": "Broker Internals: Log Storage, Requests and Replication",
+          "subtopics": ["Log segments, indexes and time indexes", "Request handling path", "Purgatory", "Replication protocol", "High watermark and leader epochs", "Zero-copy transfer", "Page cache behaviour", "Reading broker logs"],
+          "tools": ["Kafka", "kafka-dump-log", "JMX"],
+          "lab_task": "Inspect segment and index files, trace a produce request through request metrics, cause a leader change and explain how leader epochs prevent data loss.",
+          "deliverable": "Annotated internals notes",
+          "checks": [["Dump a segment", "Record batches and offsets shown", "kafka-dump-log output"], ["Trace a produce request", "Time per stage from request metrics", "Metrics breakdown"], ["Explain leader epochs", "Truncation behaviour explained", "Written note"]],
+          "objectives": ["Understand broker internals", "Explain replication", "Read low-level data"]
+        },
+        {
+          "topic": "KRaft Controller Internals and Metadata Management",
+          "subtopics": ["The metadata log", "Controller quorum and Raft", "Metadata snapshots", "Broker registration", "Controller failover", "Metadata scaling limits", "Dynamic quorum changes", "Troubleshooting controllers"],
+          "tools": ["Kafka KRaft", "kafka-metadata-quorum", "kafka-metadata-shell"],
+          "lab_task": "Inspect the metadata log and snapshots, fail the active controller and measure election time, and add a controller to the quorum.",
+          "deliverable": "Metadata inspection notes and failover timings",
+          "checks": [["Read the metadata log", "Topic creation records found", "metadata shell output"], ["Fail the active controller", "New leader elected and the time recorded", "Quorum status"], ["Add a controller", "Quorum grows without downtime", "Quorum status"]],
+          "objectives": ["Understand KRaft", "Manage the controller quorum", "Troubleshoot metadata"]
+        },
+        {
+          "topic": "Event-Driven Architecture Patterns",
+          "subtopics": ["Event notification, event-carried state and event sourcing", "Choreography and orchestration", "Request-reply over Kafka", "Event-driven microservices", "Coupling through events", "Domain events and integration events", "Anti-patterns", "Architecture decision records"],
+          "tools": ["Architecture diagrams", "AsyncAPI"],
+          "lab_task": "Redesign a set of synchronous services as event-driven, choose patterns per interaction, record decisions and review the design for coupling problems.",
+          "deliverable": "Architecture design, decision records and review notes",
+          "checks": [["Choose patterns", "Pattern justified for each interaction", "Decision records"], ["Review coupling", "Shared schemas and hidden dependencies found", "Review notes"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Apply event-driven patterns", "Reduce coupling", "Record decisions"]
+        },
+        {
+          "topic": "Event Sourcing and CQRS with Kafka",
+          "subtopics": ["Events as the source of truth", "Kafka as an event store: strengths and limits", "Rebuilding state", "Read models and projections", "Snapshots", "Event versioning", "Consistency in the UI", "When not to use event sourcing"],
+          "tools": ["Kafka", "Kafka Streams", "PostgreSQL"],
+          "lab_task": "Event-source a wallet service on Kafka, build two projections, rebuild one from the start of the topic and handle an event schema change.",
+          "deliverable": "Event model, projections and rebuild evidence",
+          "checks": [["Rebuild a projection", "Matches the live projection", "Comparison output"], ["Change an event schema", "Old and new events read correctly", "Test output"], ["Write the limits", "Cases where Kafka is a poor event store listed", "Written note"]],
+          "objectives": ["Apply event sourcing", "Build projections", "Know the limits"]
+        },
+        {
+          "topic": "Sagas and Distributed Transactions over Kafka",
+          "subtopics": ["Long-running business processes", "Choreographed sagas", "Orchestrated sagas", "Compensations", "Timeouts", "Idempotency across steps", "Workflow engines with Kafka", "Testing sagas"],
+          "tools": ["Kafka", "Temporal or a custom orchestrator"],
+          "lab_task": "Implement order placement as a choreographed saga and as an orchestrated saga over Kafka, fail payment mid-way and confirm compensations in both.",
+          "deliverable": "Two saga implementations and failure tests",
+          "checks": [["Fail payment", "Stock released by compensation", "Test output"], ["Time out a step", "Saga ends in a clear failed state", "Logs"], ["Compare styles", "Trade-offs recorded", "Written note"]],
+          "objectives": ["Design sagas", "Write compensations", "Choose orchestration or choreography"]
+        },
+        {
+          "topic": "Designing Kafka for Large Organisations",
+          "subtopics": ["Single, per-domain and per-region clusters", "Partition and topic limits at scale", "Naming and ownership across hundreds of teams", "Shared and private topics", "Data products on Kafka", "Platform APIs", "Capacity at scale", "Reviewing designs"],
+          "tools": ["Architecture diagrams", "Topic catalogues"],
+          "lab_task": "Design the Kafka estate for a bank with 300 teams, choose the cluster model, ownership rules and data product approach, and defend it in a review.",
+          "deliverable": "Estate design, standards and review notes",
+          "checks": [["Choose the cluster model", "Justified with scale and isolation", "Decision record"], ["Write ownership rules", "Clear rules for every topic", "Standards document"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design Kafka at scale", "Set ownership", "Define data products"]
+        },
+        {
+          "topic": "Multi-Region and Disaster Recovery Strategies",
+          "subtopics": ["Stretch clusters", "Replicated clusters", "Active-active designs", "Offset translation", "Client failover", "Data consistency across regions", "DR drills", "Cost of multi-region"],
+          "tools": ["Cluster Linking or MirrorMaker 2", "Kafka"],
+          "lab_task": "Compare a stretch cluster and replicated clusters for two regions, run a region failover drill with client failover and measure data loss and downtime.",
+          "deliverable": "Design comparison, drill report and runbook",
+          "checks": [["Run the drill", "Clients back within the target", "Drill report"], ["Measure data loss", "Lost messages counted against the RPO", "Drill report"], ["Compare designs", "Latency, cost and recovery compared", "Comparison table"]],
+          "objectives": ["Design multi-region Kafka", "Fail over regions", "Measure recovery"]
+        },
+        {
+          "topic": "Kafka Platform Engineering and Self-Service",
+          "subtopics": ["Platform team responsibilities", "Self-service topic and access requests", "Golden paths for producers and consumers", "Client libraries and defaults", "Developer portals", "Guardrails and policies", "Support model", "Measuring adoption"],
+          "tools": ["Backstage", "GitOps", "Strimzi or Confluent APIs"],
+          "lab_task": "Build self-service topic and ACL creation through a portal and Git, publish a client library with safe defaults and onboard a team end to end.",
+          "deliverable": "Portal templates, client library and onboarding record",
+          "checks": [["Request a topic through the portal", "Topic and ACLs created automatically", "Portal and cluster output"], ["Use the client library", "Safe defaults applied", "Client configuration"], ["Onboard a team", "Producing in under a day", "Onboarding record"]],
+          "objectives": ["Run Kafka as a platform", "Offer self-service", "Set safe defaults"]
+        },
+        {
+          "topic": "Security at Scale: OAuth, RBAC and Encryption",
+          "subtopics": ["OAuth with OIDC for Kafka", "Role-based access control", "Centralised identity", "Certificate management at scale", "Client-side field encryption", "Audit logs", "Securing Connect and Streams apps", "Security reviews"],
+          "tools": ["Kafka OAuth", "Confluent RBAC or Strimzi authorisation", "Vault"],
+          "lab_task": "Move clients to OAuth through the company identity provider, apply role-based access per team, encrypt a sensitive field on the client side and audit access.",
+          "deliverable": "Security configuration, policies and audit report",
+          "checks": [["Connect with an expired token", "Refused", "Client error"], ["Read the encrypted field without the key", "Unreadable", "Consumer output"], ["Audit access", "Reads of the sensitive topic listed by principal", "Audit log"]],
+          "objectives": ["Secure Kafka at scale", "Use OAuth and RBAC", "Encrypt sensitive data"]
+        },
+        {
+          "topic": "Compliance, Data Retention and Privacy on Kafka",
+          "subtopics": ["Regulations affecting event data", "Personal data in events", "Retention by data type", "Deleting personal data: crypto-shredding and compaction", "Data masking in streams", "Audit evidence", "Data lineage across topics", "Privacy reviews"],
+          "tools": ["Kafka", "Schema Registry tags", "Lineage tools"],
+          "lab_task": "Tag personal fields in schemas, mask them for analytics consumers, implement crypto-shredding for deletion requests and produce lineage and retention evidence.",
+          "deliverable": "Tagged schemas, masking stream, deletion test and evidence pack",
+          "checks": [["Process a deletion request", "Personal data unreadable afterwards", "Test output"], ["Read as an analytics consumer", "Personal fields masked", "Consumer output"], ["Show lineage", "Personal data flows traced across topics", "Lineage view"]],
+          "objectives": ["Protect personal data", "Delete data on request", "Prepare compliance evidence"]
+        },
+        {
+          "topic": "Very High Throughput Kafka",
+          "subtopics": ["Throughput limits", "Partition counts and producers", "Batching at scale", "Compression choices", "Broker hardware", "Network design", "Consumer scaling", "Benchmarking at scale"],
+          "tools": ["OpenMessaging Benchmark", "Kafka"],
+          "lab_task": "Push a cluster to 1 GB per second, find the first bottleneck, fix it and repeat, and record the configuration that reached the target.",
+          "deliverable": "Benchmark history and final configuration",
+          "checks": [["Find the first bottleneck", "Limiting resource identified", "Metrics"], ["Reach the target", "1 GB per second sustained", "Benchmark output"], ["Review the final configuration", "Each change justified", "Configuration notes"]],
+          "objectives": ["Scale throughput", "Find bottlenecks", "Configure for scale"]
+        },
+        {
+          "topic": "Low-Latency Kafka",
+          "subtopics": ["Latency sources", "Producer settings for latency", "Broker settings for latency", "Consumer settings for latency", "Replication and acks trade-offs", "Tail latency", "Garbage collection pauses", "Measuring end to end"],
+          "tools": ["Kafka", "Latency benchmarks"],
+          "lab_task": "Tune a trading-style flow to under 10 ms p99 end to end, measure the cost in throughput and durability and find what causes the slowest one percent.",
+          "deliverable": "Tuning steps and latency report",
+          "checks": [["Measure p99", "Under 10 ms end to end", "Latency report"], ["Record trade-offs", "Throughput and durability effects stated", "Latency report"], ["Find tail causes", "Causes of p99.9 spikes identified", "Analysis notes"]],
+          "objectives": ["Tune for latency", "Understand trade-offs", "Reduce tail latency"]
+        },
+        {
+          "topic": "Kafka for Analytics, Lakehouses and Streaming Databases",
+          "subtopics": ["Streaming into lakehouse tables", "Tableflow and Iceberg topics", "Connect sinks to warehouses", "Streaming databases: RisingWave, Materialize and others", "Real-time analytics stores: ClickHouse, Pinot and Druid", "Freshness and cost", "Choosing a serving layer", "Governance of analytics data"],
+          "tools": ["Kafka", "Apache Iceberg", "ClickHouse or Apache Pinot"],
+          "lab_task": "Land order events as Iceberg tables, serve a real-time dashboard from ClickHouse or Pinot and compare freshness, cost and effort of each path.",
+          "deliverable": "Pipelines, dashboard and comparison",
+          "checks": [["Measure freshness", "Event to dashboard time recorded", "Freshness notes"], ["Query Iceberg", "Events available for batch analytics", "Query result"], ["Compare paths", "Cost and effort for each", "Comparison table"]],
+          "objectives": ["Feed analytics from Kafka", "Choose serving layers", "Balance freshness and cost"]
+        },
+        {
+          "topic": "Kafka for AI and Real-Time Machine Learning",
+          "subtopics": ["Real-time features from streams", "Streaming inference", "Kafka with feature stores", "Feeding vector stores for RAG", "Events for AI agents", "Model monitoring through events", "Back-pressure with model services", "Cost control"],
+          "tools": ["Kafka", "Flink or Kafka Streams", "Vector database", "Model endpoint"],
+          "lab_task": "Compute real-time features from clickstream events, score them with a model service, push product updates into a vector store for RAG and handle back-pressure when the model slows.",
+          "deliverable": "Streaming pipelines, scored events and vector updates",
+          "checks": [["Score events", "Predictions written with low latency", "Output topic"], ["Update a product", "Vector store refreshed within a minute", "Query result"], ["Slow the model", "Back-pressure handled without data loss", "Lag metrics"]],
+          "objectives": ["Use Kafka for AI", "Stream features and inference", "Keep RAG data fresh"]
+        },
+        {
+          "topic": "Kafka and Its Alternatives: Pulsar, Redpanda and Cloud Messaging Services",
+          "subtopics": ["Why compare platforms", "Kafka-compatible engines: Redpanda and WarpStream", "Apache Pulsar", "Cloud services: Kinesis, Pub/Sub and Event Hubs", "Queues compared with logs", "Kafka share groups for queue-style consumption", "Feature and cost comparison", "When to choose something other than Kafka"],
+          "tools": ["Redpanda", "Apache Pulsar", "Amazon Kinesis"],
+          "lab_task": "Run the shop workload on Kafka, Redpanda and one cloud service, compare compatibility, latency, operations effort and cost, and write a recommendation for three use cases.",
+          "deliverable": "Benchmark results, comparison and recommendation",
+          "checks": [["Run the Kafka clients against Redpanda", "Clients work without code changes", "Client output"], ["Compare latency and cost", "Results recorded for each platform", "Comparison table"], ["Write the recommendation", "Platform chosen for each use case with reasons", "Recommendation"]],
+          "objectives": ["Compare streaming platforms", "Know Kafka's alternatives", "Choose platforms by use case"]
+        },
+        {
+          "topic": "Cost Management for Kafka",
+          "subtopics": ["Where Kafka cost comes from", "Storage and retention cost", "Network and cross-zone traffic", "Follower fetching to cut cross-zone traffic", "Right-sizing clusters", "Managed service pricing", "Chargeback", "Cost reviews"],
+          "tools": ["Cloud billing data", "Kafka metrics", "Spreadsheet"],
+          "lab_task": "Measure cost by team and topic, cut cross-zone traffic with follower fetching, move old data to tiered storage and report monthly savings.",
+          "deliverable": "Cost report before and after",
+          "checks": [["Measure cost by topic", "Top cost topics listed", "Cost report"], ["Turn on follower fetching", "Cross-zone traffic lower", "Network metrics"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Measure Kafka cost", "Reduce traffic and storage cost", "Report by team"]
+        },
+        {
+          "topic": "Migrating to Kafka and Between Platforms",
+          "subtopics": ["Migrating from MQ systems", "Migrating from self-managed to managed Kafka", "Migrating between managed services", "Dual writes and bridges", "Consumer cutover", "Validating migrations", "Rollback", "Decommissioning"],
+          "tools": ["MirrorMaker 2", "Cluster Linking", "Validation scripts"],
+          "lab_task": "Migrate topics and consumers from a self-managed cluster to a managed service with replication, cut over consumers one group at a time and validate no data loss.",
+          "deliverable": "Migration plan, cutover log and validation report",
+          "checks": [["Cut over a consumer group", "Resumes without gaps or duplicates", "Validation report"], ["Roll back one group", "Back on the old cluster", "Cutover log"], ["Review the plan", "Steps, order and rollback defined", "Migration plan"]],
+          "objectives": ["Plan migrations", "Cut over safely", "Validate results"]
+        },
+        {
+          "topic": "Troubleshooting Production Kafka Incidents",
+          "subtopics": ["An incident method for Kafka", "Under-replicated partitions", "Controller and metadata problems", "Consumer lag spikes", "Rebalance storms", "Disk full on brokers", "Producer timeouts", "Post-incident reviews"],
+          "tools": ["Kafka metrics", "Broker logs", "kafka-consumer-groups", "Cruise Control"],
+          "lab_task": "Diagnose five injected incidents (a rebalance storm, a full broker disk, a slow follower, producer timeouts from throttling and a stuck consumer), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the rebalance storm", "Cause found and rebalances stop", "Consumer logs"], ["Free the full disk", "Retention or reassignment fixes it", "Broker metrics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose Kafka incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Streaming Strategy and Team Practices",
+          "subtopics": ["Where streaming adds value", "Build, buy and managed choices", "Team structures for streaming", "Standards for events and services", "Training developers", "Measuring platform value", "Roadmaps", "Communicating with leadership"],
+          "tools": ["Strategy templates", "Roadmap template"],
+          "lab_task": "Write a streaming strategy for a company: use cases, platform choice, team model, standards and a 12-month roadmap, and present it to a role-play leadership panel.",
+          "deliverable": "Strategy document, standards and presentation",
+          "checks": [["Prioritise use cases", "Ranked by value and effort", "Strategy document"], ["Review standards", "Clear rules for events and services", "Standards"], ["Present to leadership", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Set streaming strategy", "Define team practices", "Lead platform work"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Event Streaming Platform",
+          "subtopics": ["Architecture", "Build", "Operate", "Review"],
+          "tools": ["Kafka", "Cluster Linking or MirrorMaker 2", "Schema Registry", "Flink", "Backstage", "Prometheus"],
+          "lab_task": "Design and build an event streaming platform for a case company: multi-region clusters, self-service with guardrails, OAuth and RBAC, data contracts, analytics and AI feeds and cost reporting, then run a game day with region failover and present to an architecture board.",
+          "deliverable": "Architecture records, platform code, game day report and board presentation",
+          "checks": [["Run the region failover", "Clients recover within the target", "Game day report"], ["Onboard a new team", "Producing through self-service in a day", "Onboarding record"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Kafka at enterprise scale", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

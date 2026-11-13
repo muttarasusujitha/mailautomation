@@ -3,7 +3,7 @@
   "name": "Agile and Scrum",
   "category": "Project Management",
   "icon": "refresh-cw",
-  "aliases": ["Agile", "Scrum", "Agile and Scrum", "Agile Methodology", "Agile Methodologies", "Scrum Master", "Scrum Master Training", "Product Owner", "Product Owner Training", "Kanban", "Agile Coaching", "Agile Project Management"],
+  "aliases": ["Agile", "Scrum", "Agile and Scrum", "Agile Methodology", "Agile Methodologies", "Scrum Master", "Scrum Master Training", "Product Owner", "Product Owner Training", "Kanban", "Agile Coaching", "Agile Project Management", "Agile Leadership"],
   "certifications": ["Professional Scrum Master I (PSM I)", "Certified ScrumMaster (CSM)", "Professional Scrum Product Owner I (PSPO I)", "ICAgile Certified Professional (ICP)"],
   "tools": ["Jira", "Azure Boards", "Miro", "Confluence", "Excel"],
   "review_status": "unreviewed",

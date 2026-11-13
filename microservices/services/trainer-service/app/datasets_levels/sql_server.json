@@ -1,0 +1,573 @@
+{
+  "domain": "SQL Server",
+  "name": "Microsoft SQL Server",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Microsoft SQL Server", "MS SQL", "MSSQL", "MS SQL Server", "T-SQL", "Transact-SQL", "SQL Server DBA", "SQL Server Administration", "SQL Server Development", "SQL Server Developer", "SQL Server Performance Tuning", "Azure SQL", "Azure SQL Database"],
+  "certifications": ["Microsoft Certified: Azure Database Administrator Associate (DP-300)", "Microsoft Certified: Azure Data Fundamentals (DP-900)", "Microsoft Certified: Fabric Analytics Engineer Associate (DP-600, for reporting work)"],
+  "tools": ["SQL Server 2022 Developer Edition", "SQL Server Management Studio", "Azure Data Studio or VS Code mssql extension", "SQL Server Agent", "dbatools", "Azure SQL"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and junior DBAs new to SQL Server. Covers installation and tools, databases and files, tables and data types, constraints, T-SQL querying, joins, aggregation and window functions, CTEs and APPLY, data changes with MERGE and OUTPUT, views, indexes, transactions and locking, stored procedures, functions and triggers, error handling, security, backups, SQL Server Agent and bulk loading.",
+      "prerequisites": ["Knows what tables, rows and columns are", "Comfortable installing software on Windows or Linux", "No previous SQL Server experience needed"],
+      "outcomes": ["Install SQL Server and work in SSMS", "Design tables and write T-SQL queries, procedures and functions", "Secure databases with logins, users and roles", "Back up, restore and schedule jobs"],
+      "days": [
+        {
+          "topic": "SQL Server Overview, Editions and Installation Setup",
+          "subtopics": ["What SQL Server is and where it is used", "Editions: Express, Developer, Standard and Enterprise", "SQL Server on Windows, Linux, containers and Azure", "Instances: default and named", "Installing SQL Server 2022 Developer Edition", "Service accounts and the SQL Server services", "SQL Server Management Studio and Azure Data Studio", "Connecting with Windows and SQL authentication", "System databases: master, model, msdb and tempdb", "Restoring the AdventureWorks sample database"],
+          "tools": ["SQL Server 2022 Developer Edition", "SSMS", "Azure Data Studio", "Docker"],
+          "lab_task": "Install SQL Server on Windows and in a Linux container, connect with SSMS and Azure Data Studio, restore AdventureWorks and record versions, services and system databases.",
+          "deliverable": "Install notes and an instance information sheet",
+          "checks": [["Run SELECT @@VERSION", "SQL Server 2022 reported for both installs", "Query result"], ["List databases", "AdventureWorks and system databases listed", "Object Explorer screenshot"], ["Explain each system database", "Purpose of master, model, msdb and tempdb correct", "Information sheet"]],
+          "objectives": ["Describe SQL Server", "Install it on Windows and Linux", "Use the main tools"]
+        },
+        {
+          "topic": "Databases, Files and Filegroups",
+          "subtopics": ["Data files and log files", "Initial size and autogrowth", "Filegroups", "Recovery models in outline", "Creating and altering databases", "Database options", "Moving files", "Checking space use"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Create a database with data and log files on separate drives, add a filegroup for archive tables, set sensible autogrowth and report file sizes and free space.",
+          "deliverable": "CREATE DATABASE script and a space report",
+          "checks": [["Query sys.database_files", "Files and filegroups as planned", "Query result"], ["Fill the log file", "Growth event recorded and explained", "Default trace or error log"], ["Report space", "Used and free space per file", "Report output"]],
+          "objectives": ["Create databases", "Manage files and filegroups", "Monitor space"]
+        },
+        {
+          "topic": "Tables and Data Types",
+          "subtopics": ["Schemas", "Numeric types and decimal precision", "Character types: varchar and nvarchar", "Date and time types", "uniqueidentifier", "IDENTITY and SEQUENCE", "Computed columns", "Choosing types for storage and correctness"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Create sales and HR schemas with tables using correct types, compare storage of varchar and nvarchar, add identity keys and a computed column for line totals.",
+          "deliverable": "DDL script and type choice notes",
+          "checks": [["Insert a non-ASCII name into varchar and nvarchar", "nvarchar keeps it and varchar loses characters", "Query result"], ["Insert without an ID", "Identity value generated", "Query result"], ["Query the computed column", "Line totals correct", "Query result"]],
+          "objectives": ["Create tables", "Choose data types", "Use identity and computed columns"]
+        },
+        {
+          "topic": "Constraints and Relationships",
+          "subtopics": ["Primary keys and clustered indexes", "Foreign keys and cascading actions", "UNIQUE constraints", "CHECK constraints", "DEFAULT constraints", "NULL and NOT NULL", "Trusted and untrusted constraints", "Database diagrams"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Add keys, foreign keys with suitable delete rules, unique emails and checks on quantities and dates, then test each with bad data and draw the database diagram.",
+          "deliverable": "Constraint script, test results and diagram",
+          "checks": [["Insert an order for a missing customer", "Rejected by the foreign key", "Error message"], ["Insert a negative quantity", "Rejected by the check constraint", "Error message"], ["Check trust status", "All constraints trusted", "sys.foreign_keys output"]],
+          "objectives": ["Enforce data rules", "Relate tables", "Keep constraints trusted"]
+        },
+        {
+          "topic": "Querying with T-SQL: SELECT, Filtering and Sorting",
+          "subtopics": ["SELECT and column aliases", "WHERE and logical operators", "NULL handling with ISNULL and COALESCE", "LIKE and pattern matching", "ORDER BY, TOP and OFFSET FETCH", "DISTINCT", "CASE expressions", "Built-in string, date and conversion functions"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Answer ten questions on AdventureWorks, including paged product lists with OFFSET FETCH, customers without phone numbers and orders labelled by size with CASE.",
+          "deliverable": "Query file and results",
+          "checks": [["Page through products", "Correct rows on page three", "Query result"], ["Find missing phone numbers", "NULLs handled correctly", "Query result"], ["Convert text dates", "TRY_CONVERT returns NULL for bad values", "Query result"]],
+          "objectives": ["Write T-SQL queries", "Handle NULLs", "Use built-in functions"]
+        },
+        {
+          "topic": "Joins in T-SQL",
+          "subtopics": ["INNER JOIN", "LEFT, RIGHT and FULL joins", "Self joins", "CROSS JOIN", "Joining many tables", "Anti-joins with NOT EXISTS", "Join mistakes that duplicate rows", "Checking row counts"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Report orders with customer, product and salesperson, list products never sold, show employees with their managers and fix a join that doubles revenue.",
+          "deliverable": "Query file and a note on the doubling bug",
+          "checks": [["List products never sold", "Correct products returned", "Query result"], ["Show managers", "Each employee with the right manager", "Query result"], ["Fix the doubling join", "Revenue matches the order total", "Query result"]],
+          "objectives": ["Join tables", "Find missing matches", "Avoid duplicated totals"]
+        },
+        {
+          "topic": "Aggregation and Window Functions",
+          "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "GROUP BY and HAVING", "GROUPING SETS, ROLLUP and CUBE", "ROW_NUMBER, RANK and DENSE_RANK", "Running totals with SUM OVER", "LAG and LEAD", "NTILE and percentiles", "STRING_AGG"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Report sales by year and territory with ROLLUP subtotals, rank salespeople within territories, calculate running totals and month-over-month change, and list products per order with STRING_AGG.",
+          "deliverable": "Query file and results",
+          "checks": [["Check ROLLUP", "Subtotals and grand total correct", "Query result"], ["Rank within territories", "Ranks restart in each territory", "Query result"], ["Calculate month-over-month change", "Matches a manual check", "Query result"]],
+          "objectives": ["Aggregate data", "Use window functions", "Produce subtotals"]
+        },
+        {
+          "topic": "Subqueries, CTEs and APPLY",
+          "subtopics": ["Scalar and table subqueries", "EXISTS and IN", "Common table expressions", "Recursive CTEs", "Derived tables", "CROSS APPLY and OUTER APPLY", "Top N per group", "Readable query structure"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Walk the employee hierarchy with a recursive CTE, get the latest three orders per customer with CROSS APPLY and rewrite a nested query as a chain of CTEs.",
+          "deliverable": "Query file and results",
+          "checks": [["Walk the hierarchy", "All levels returned with depth", "Query result"], ["Use CROSS APPLY", "Three latest orders per customer", "Query result"], ["Compare versions", "CTE version returns the same rows", "Query results"]],
+          "objectives": ["Use subqueries", "Write recursive CTEs", "Use APPLY"]
+        },
+        {
+          "topic": "Changing Data: INSERT, UPDATE, DELETE, MERGE and OUTPUT",
+          "subtopics": ["INSERT with VALUES and SELECT", "UPDATE with joins", "DELETE with joins", "MERGE for upserts", "MERGE pitfalls", "The OUTPUT clause", "TRUNCATE TABLE", "Safe changes inside transactions"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Load a staging price list, update prices with a join, upsert products with MERGE, capture every change with OUTPUT into an audit table and test changes inside a transaction before committing.",
+          "deliverable": "DML script and audit table output",
+          "checks": [["Run the MERGE twice", "Second run changes nothing", "Row counts"], ["Capture changes with OUTPUT", "Old and new prices recorded", "Audit table"], ["Roll back a test update", "Data unchanged afterwards", "Query result"]],
+          "objectives": ["Change data safely", "Use MERGE", "Audit changes with OUTPUT"]
+        },
+        {
+          "topic": "Views",
+          "subtopics": ["Creating views", "Views for security", "Updatable views", "WITH CHECK OPTION", "SCHEMABINDING", "Indexed views", "View performance", "When to use views"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Create a reporting view over sales, give a reporting user access to the view only, add WITH CHECK OPTION to an updatable view and create an indexed view for a daily total.",
+          "deliverable": "View definitions and access tests",
+          "checks": [["Query the base table as the reporting user", "Permission denied", "Error message"], ["Update through the view outside its filter", "Rejected by CHECK OPTION", "Error message"], ["Query the daily total", "Indexed view used", "Execution plan"]],
+          "objectives": ["Create views", "Secure data with views", "Use indexed views"]
+        },
+        {
+          "topic": "Indexes in SQL Server",
+          "subtopics": ["Heaps and clustered indexes", "Nonclustered indexes", "Key and included columns", "Composite index column order", "Seeks, scans and lookups", "Reading a simple execution plan", "Missing index suggestions and their limits", "Cost of too many indexes"],
+          "tools": ["SSMS", "Execution plans"],
+          "lab_task": "Load a million orders, time three slow queries, read their plans, add indexes with included columns and compare plans and logical reads afterwards.",
+          "deliverable": "Before and after plans and statistics",
+          "checks": [["Run SET STATISTICS IO ON", "Logical reads lower after indexing", "Messages output"], ["Read the plan", "Scan changed to seek", "Execution plan"], ["Review missing index hints", "Each hint accepted or rejected with a reason", "Notes"]],
+          "objectives": ["Create indexes", "Read plans", "Balance index cost"]
+        },
+        {
+          "topic": "Transactions, Locking and Blocking",
+          "subtopics": ["ACID in SQL Server", "BEGIN, COMMIT and ROLLBACK", "XACT_ABORT", "Lock types and modes", "Blocking chains", "Finding blockers with DMVs", "Read committed and NOLOCK risks", "Keeping transactions short"],
+          "tools": ["SSMS", "sys.dm_exec_requests", "sp_WhoIsActive"],
+          "lab_task": "Create blocking between two sessions, find the blocker with DMVs and sp_WhoIsActive, show dirty reads with NOLOCK and fix a long transaction.",
+          "deliverable": "Session transcripts and DMV output",
+          "checks": [["Find the blocker", "Blocking session and its query found", "DMV output"], ["Read with NOLOCK during an update", "Uncommitted data seen", "Query result"], ["Set XACT_ABORT ON and fail a statement", "Whole transaction rolled back", "Query result"]],
+          "objectives": ["Use transactions", "Find blocking", "Understand locking risks"]
+        },
+        {
+          "topic": "Stored Procedures",
+          "subtopics": ["Creating procedures", "Parameters and defaults", "Output parameters and return codes", "SET NOCOUNT ON", "Dynamic SQL with sp_executesql", "SQL injection in dynamic SQL", "Permissions through procedures", "Naming and coding standards"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Write procedures to place an order and search products with optional filters using safe dynamic SQL, grant execute only and show how string-built SQL is open to injection.",
+          "deliverable": "Procedure code and injection demonstration",
+          "checks": [["Place an order", "Order and lines created and the new ID returned", "Query result"], ["Try an injection string", "sp_executesql treats it as data", "Query result"], ["Call as a user with execute only", "Procedure works without table permissions", "Query result"]],
+          "objectives": ["Write procedures", "Use dynamic SQL safely", "Control access through procedures"]
+        },
+        {
+          "topic": "Functions and Triggers",
+          "subtopics": ["Scalar functions and their cost", "Inline table-valued functions", "Multi-statement table-valued functions", "Scalar UDF inlining", "AFTER and INSTEAD OF triggers", "inserted and deleted tables", "Audit triggers", "Trigger pitfalls"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Write an inline table-valued function for customer orders, compare a scalar function with an inline version for speed, and add an audit trigger that handles multi-row updates.",
+          "deliverable": "Function and trigger code and timings",
+          "checks": [["Compare scalar and inline functions", "Inline version faster", "Timing output"], ["Update five rows at once", "Five audit rows written", "Audit table"], ["Review the trigger", "Works for multi-row changes", "Code review"]],
+          "objectives": ["Write functions", "Write triggers correctly", "Avoid slow functions"]
+        },
+        {
+          "topic": "Error Handling with TRY CATCH",
+          "subtopics": ["TRY and CATCH blocks", "ERROR_NUMBER, ERROR_MESSAGE and others", "THROW and RAISERROR", "Transactions in CATCH blocks", "XACT_STATE", "Logging errors to a table", "Retrying deadlocks", "Consistent error patterns"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Add TRY CATCH to the order procedure with transaction handling, error logging and a retry for deadlocks, then force each error path.",
+          "deliverable": "Procedure code and error log output",
+          "checks": [["Force a constraint error", "Transaction rolled back and the error logged", "Error log table"], ["Force a deadlock", "Procedure retries and succeeds", "Query result"], ["Re-throw to the caller", "Caller receives the original error", "Messages output"]],
+          "objectives": ["Handle errors", "Manage transactions in errors", "Retry deadlocks"]
+        },
+        {
+          "topic": "Logins, Users, Roles and Permissions",
+          "subtopics": ["Logins and users", "Windows and SQL authentication", "Server and database roles", "GRANT, DENY and REVOKE", "Schema permissions", "Contained database users", "Orphaned users", "Least privilege for applications"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Create an application login with execute-only rights on the sales schema, a read-only reporting role, fix an orphaned user after a restore and audit who has sysadmin.",
+          "deliverable": "Security script and test results",
+          "checks": [["Select from a table as the application", "Denied", "Error message"], ["Fix the orphaned user", "User mapped to its login", "Query result"], ["List sysadmin members", "Members reviewed and reduced", "Query result"]],
+          "objectives": ["Manage logins and users", "Grant least privilege", "Fix orphaned users"]
+        },
+        {
+          "topic": "Backup and Restore",
+          "subtopics": ["Recovery models: simple, full and bulk-logged", "Full, differential and log backups", "Backup compression and checksums", "Restoring databases", "Restoring to a point in time", "RESTORE VERIFYONLY", "Backing up to URL in Azure", "Testing restores"],
+          "tools": ["SSMS", "T-SQL", "Azure Blob Storage"],
+          "lab_task": "Set the full recovery model, take full, differential and log backups, delete data by mistake and restore to one minute before the delete.",
+          "deliverable": "Backup scripts and restore evidence",
+          "checks": [["Restore to a point in time", "Deleted rows back", "Query result"], ["Verify a backup", "VERIFYONLY passes with checksums", "Messages output"], ["Back up to URL", "Backup file in Blob Storage", "Storage listing"]],
+          "objectives": ["Take backups", "Restore to a point in time", "Test restores"]
+        },
+        {
+          "topic": "Scheduling with SQL Server Agent",
+          "subtopics": ["Agent jobs, steps and schedules", "Job step types", "Operators and alerts", "Database Mail", "Job history", "Proxies and credentials", "Alerts for severity errors", "Scripting jobs"],
+          "tools": ["SQL Server Agent", "Database Mail"],
+          "lab_task": "Schedule nightly backups and an index maintenance job, email an operator on failure through Database Mail and alert on severity 17 and above errors.",
+          "deliverable": "Job scripts, alert settings and test emails",
+          "checks": [["Fail a job step", "Operator emailed", "Email"], ["Raise a severity 17 error", "Alert fires", "Email"], ["Review job history", "Runs and outcomes listed", "Job history"]],
+          "objectives": ["Schedule jobs", "Notify on failure", "Alert on errors"]
+        },
+        {
+          "topic": "Importing and Exporting Data",
+          "subtopics": ["Import and Export Wizard", "bcp", "BULK INSERT", "OPENROWSET for files", "Format files", "Minimal logging", "Staging and cleaning loads", "Exporting query results"],
+          "tools": ["bcp", "BULK INSERT", "SSMS"],
+          "lab_task": "Load a 2-million-row CSV with BULK INSERT into a staging table, clean and move it, export a report with bcp and compare load times with and without minimal logging.",
+          "deliverable": "Load scripts, export file and timing table",
+          "checks": [["Load the CSV", "Row count matches the file", "Query result"], ["Compare logging modes", "Faster with minimal logging", "Timing table"], ["Export with bcp", "File matches the query result", "File comparison"]],
+          "objectives": ["Bulk load data", "Export data", "Use minimal logging"]
+        },
+        {
+          "topic": "Beginner Capstone: Order Management Database",
+          "subtopics": ["Design", "Code", "Security and backups", "Demo"],
+          "tools": ["SQL Server 2022", "SSMS", "SQL Server Agent"],
+          "lab_task": "Build an order database with constraints, indexes, views, procedures with error handling, audit triggers, roles, scheduled backups and a restore test, then demo it.",
+          "deliverable": "Scripts, job definitions, restore evidence and demo recording",
+          "checks": [["Run the order procedure under bad input", "Errors handled and logged", "Demo recording"], ["Restore on a new instance", "Database works with users fixed", "Demo recording"], ["Test the roles", "Reporting role cannot change data", "Test results"]],
+          "objectives": ["Combine the beginner topics in one database", "Build a secure, tested database", "Back up and restore it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For DBAs and developers who run SQL Server. Covers execution plans, index tuning and columnstore, statistics, Query Store, isolation levels and RCSI, deadlocks, tempdb, instance configuration, wait statistics, Extended Events, backup strategy, Always On availability groups, log shipping and failover cluster instances, encryption and auditing, partitioning, SSIS, maintenance automation with dbatools and Azure SQL.",
+      "prerequisites": ["Writes T-SQL procedures and queries with joins and windows", "Takes backups and manages logins", "Reads simple execution plans"],
+      "outcomes": ["Tune queries, indexes and configuration using plans, waits and Query Store", "Run high availability with availability groups and log shipping", "Secure data with TDE, Always Encrypted and auditing", "Automate maintenance and run databases on Azure SQL"],
+      "days": [
+        {
+          "topic": "Reading Execution Plans in Depth",
+          "subtopics": ["Estimated and actual plans", "Operators: seeks, scans, lookups, joins and sorts", "Estimated and actual rows", "Memory grants and spills", "Parallelism in plans", "Warnings in plans", "Plan Explorer and SSMS plan comparison", "Finding the expensive part"],
+          "tools": ["SSMS", "SentryOne Plan Explorer"],
+          "lab_task": "Read the actual plans of five slow queries, find the costliest operators, a bad estimate, a spill to tempdb and an implicit conversion, and fix each.",
+          "deliverable": "Annotated plans and fixes",
+          "checks": [["Find the spill", "Spill warning found and memory grant explained", "Execution plan"], ["Find the implicit conversion", "Type mismatch fixed and seek used", "Execution plan"], ["Compare plans after fixes", "Lower duration and reads", "Plan comparison"]],
+          "objectives": ["Read plans in depth", "Find expensive operators", "Fix common plan problems"]
+        },
+        {
+          "topic": "Index Tuning, Filtered Indexes and Columnstore",
+          "subtopics": ["Index usage DMVs", "Unused and duplicate indexes", "Filtered indexes", "Covering indexes", "Index fragmentation and fill factor", "Clustered and nonclustered columnstore", "Batch mode", "Index design for mixed workloads"],
+          "tools": ["sys.dm_db_index_usage_stats", "sp_BlitzIndex"],
+          "lab_task": "Review indexes with DMVs and sp_BlitzIndex, drop unused and duplicate indexes, add a filtered index for open orders and a columnstore index for reporting, and measure the effect.",
+          "deliverable": "Index review, changes and measurements",
+          "checks": [["List unused indexes", "Indexes with no reads listed", "DMV output"], ["Query open orders", "Filtered index used", "Execution plan"], ["Run the report query", "Batch mode on columnstore and lower CPU", "Execution plan"]],
+          "objectives": ["Review indexes", "Use filtered and columnstore indexes", "Design for mixed workloads"]
+        },
+        {
+          "topic": "Statistics and Cardinality Estimation",
+          "subtopics": ["What statistics hold", "Histograms and density", "Auto create and auto update", "Stale statistics", "Filtered statistics", "Cardinality estimator versions", "Compatibility levels", "Fixing bad estimates"],
+          "tools": ["DBCC SHOW_STATISTICS", "SSMS"],
+          "lab_task": "Show a bad plan from stale statistics, update them, compare estimates under two compatibility levels and add filtered statistics for a skewed column.",
+          "deliverable": "Statistics output, plans and notes",
+          "checks": [["Read the histogram", "Steps and ranges explained", "DBCC SHOW_STATISTICS output"], ["Update stale statistics", "Estimate closer to actual", "Execution plan"], ["Compare compatibility levels", "Estimates differ and the cause is explained", "Plan comparison"]],
+          "objectives": ["Understand statistics", "Maintain statistics", "Fix estimates"]
+        },
+        {
+          "topic": "Query Store and Plan Regressions",
+          "subtopics": ["Enabling and configuring Query Store", "Top resource consumers", "Regressed queries", "Forcing plans", "Query Store hints", "Automatic plan correction", "Query Store on readable secondaries", "Capacity and cleanup settings"],
+          "tools": ["Query Store", "SSMS"],
+          "lab_task": "Enable Query Store, cause a plan regression, find it in the regressed queries report, force the good plan and turn on automatic plan correction.",
+          "deliverable": "Query Store settings, reports and forced plan",
+          "checks": [["Find the regression", "Query and plans shown", "Query Store report"], ["Force the good plan", "Duration back to normal", "Query Store report"], ["Apply a Query Store hint", "Hint used without changing code", "Execution plan"]],
+          "objectives": ["Use Query Store", "Fix regressions", "Use hints and automatic correction"]
+        },
+        {
+          "topic": "Isolation Levels, Row Versioning and RCSI",
+          "subtopics": ["Isolation levels in SQL Server", "Read committed snapshot isolation", "Snapshot isolation", "Version store in tempdb", "Update conflicts", "Optimistic locking with rowversion", "Choosing an isolation level", "Testing concurrent behaviour"],
+          "tools": ["SSMS", "T-SQL"],
+          "lab_task": "Show readers blocked by writers, turn on RCSI and show the blocking gone, cause an update conflict under snapshot isolation and add rowversion checks to an application update.",
+          "deliverable": "Session transcripts and settings",
+          "checks": [["Turn on RCSI", "Readers no longer blocked", "Session transcript"], ["Cause an update conflict", "Error 3960 raised", "Error message"], ["Check the version store", "Version store use visible", "DMV output"]],
+          "objectives": ["Choose isolation levels", "Use row versioning", "Handle conflicts"]
+        },
+        {
+          "topic": "Deadlocks: Capture, Analysis and Prevention",
+          "subtopics": ["How deadlocks happen", "The deadlock graph", "Capturing deadlocks with the system_health session", "Reading victim and resource lists", "Access order", "Indexes that reduce deadlocks", "Retry logic", "Measuring deadlock frequency"],
+          "tools": ["Extended Events", "SSMS"],
+          "lab_task": "Reproduce three deadlock types, read each graph from system_health, fix two by changing access order and indexes and add retry for the third.",
+          "deliverable": "Deadlock graphs and fixes",
+          "checks": [["Read the graph", "Victim, resources and statements identified", "Deadlock graph"], ["Change access order", "Deadlock no longer occurs under load", "Load test output"], ["Count deadlocks", "Fewer deadlocks per hour after fixes", "Extended Events data"]],
+          "objectives": ["Capture deadlocks", "Analyse graphs", "Prevent deadlocks"]
+        },
+        {
+          "topic": "tempdb Configuration and Contention",
+          "subtopics": ["What uses tempdb", "Number and size of data files", "Allocation contention", "Memory-optimised tempdb metadata", "Temporary tables and table variables", "Spills to tempdb", "Monitoring tempdb use", "Moving tempdb"],
+          "tools": ["SSMS", "DMVs"],
+          "lab_task": "Create tempdb allocation contention under load, fix it with more equally sized files and memory-optimised metadata, and find the sessions using the most tempdb.",
+          "deliverable": "Configuration changes and contention measurements",
+          "checks": [["Measure PAGELATCH waits", "Waits lower after the fix", "Wait statistics"], ["Find top tempdb users", "Sessions and queries listed", "DMV output"], ["Review file sizes", "All tempdb data files equal", "Query result"]],
+          "objectives": ["Configure tempdb", "Remove contention", "Monitor tempdb"]
+        },
+        {
+          "topic": "Instance Configuration: Memory, MAXDOP and Cost Threshold",
+          "subtopics": ["Max server memory", "Lock pages in memory", "MAXDOP", "Cost threshold for parallelism", "Optimize for ad hoc workloads", "Instant file initialisation", "Trace flags in modern versions", "Configuration checks with sp_Blitz"],
+          "tools": ["sp_configure", "sp_Blitz", "SSMS"],
+          "lab_task": "Review an instance with sp_Blitz, set memory, MAXDOP and cost threshold for its hardware, turn on instant file initialisation and record the reasons for each change.",
+          "deliverable": "sp_Blitz output before and after and a change log",
+          "checks": [["Set max server memory", "Value leaves memory for the OS", "sp_configure output"], ["Re-run sp_Blitz", "High-priority findings fixed", "sp_Blitz output"], ["Check instant file initialisation", "Enabled for the service account", "DMV output"]],
+          "objectives": ["Configure instances", "Set parallelism", "Review configuration"]
+        },
+        {
+          "topic": "Wait Statistics Analysis",
+          "subtopics": ["How waits work", "sys.dm_os_wait_stats", "Common waits: CXPACKET, PAGEIOLATCH, LCK and WRITELOG", "Benign waits to ignore", "Waits per query", "Comparing periods", "Linking waits to causes", "Wait-based tuning method"],
+          "tools": ["DMVs", "sp_BlitzFirst"],
+          "lab_task": "Collect wait statistics during four workloads, name the top waits for each, link them to their causes and fix the top cause for one.",
+          "deliverable": "Wait analysis and fix",
+          "checks": [["Diagnose the I/O workload", "PAGEIOLATCH waits linked to missing indexes", "Wait analysis"], ["Diagnose the log workload", "WRITELOG linked to small transactions", "Wait analysis"], ["Fix one cause", "Top wait reduced", "Wait comparison"]],
+          "objectives": ["Read wait statistics", "Link waits to causes", "Tune with waits"]
+        },
+        {
+          "topic": "Extended Events for Monitoring and Troubleshooting",
+          "subtopics": ["Extended Events compared with Profiler", "Sessions, events, actions and targets", "Filtering events", "Capturing slow queries", "Capturing errors", "Ring buffer and event file targets", "Reading event data", "Low-overhead monitoring"],
+          "tools": ["Extended Events", "SSMS"],
+          "lab_task": "Create sessions that capture queries over one second and errors above severity 16, filter to one database, read the files and find the worst query.",
+          "deliverable": "Session definitions and findings",
+          "checks": [["Run a slow query", "Captured with duration and text", "Event data"], ["Raise an error", "Error captured with the statement", "Event data"], ["Measure overhead", "Workload impact recorded", "Timing comparison"]],
+          "objectives": ["Use Extended Events", "Capture slow queries and errors", "Monitor with low overhead"]
+        },
+        {
+          "topic": "Backup Strategy and Recovery Planning",
+          "subtopics": ["Recovery objectives", "Backup schedules for RPO and RTO", "Copy-only backups", "Backups on availability group replicas", "Tail-log backups", "Piecemeal restores", "Corruption and DBCC CHECKDB", "Restore drills"],
+          "tools": ["T-SQL", "dbatools", "DBCC CHECKDB"],
+          "lab_task": "Design a backup schedule for three databases with different targets, take a tail-log backup after a failure, run a piecemeal restore of one filegroup and check integrity with CHECKDB.",
+          "deliverable": "Backup design, restore logs and CHECKDB output",
+          "checks": [["Take a tail-log backup", "No committed work lost", "Restore log"], ["Run a piecemeal restore", "Primary filegroup online first", "Database state output"], ["Run DBCC CHECKDB", "No errors on the restored database", "CHECKDB output"]],
+          "objectives": ["Design backup strategies", "Recover from failures", "Check integrity"]
+        },
+        {
+          "topic": "Always On Availability Groups",
+          "subtopics": ["Windows Server Failover Clustering basics", "Availability groups and replicas", "Synchronous and asynchronous commit", "Automatic and manual failover", "Listeners", "Readable secondaries", "Seeding", "Monitoring with the dashboard and DMVs"],
+          "tools": ["Always On availability groups", "WSFC", "SSMS"],
+          "lab_task": "Build a two-replica availability group with a listener, seed a database automatically, run reports on the secondary, fail over manually and measure data movement lag.",
+          "deliverable": "Configuration, failover log and lag measurements",
+          "checks": [["Connect through the listener", "Session on the primary", "Query result"], ["Fail over", "Applications reconnect to the new primary", "Client log"], ["Query the secondary", "Read-only reports work", "Query result"]],
+          "objectives": ["Build availability groups", "Fail over", "Use readable secondaries"]
+        },
+        {
+          "topic": "Log Shipping and Failover Cluster Instances",
+          "subtopics": ["Log shipping set-up", "Monitoring log shipping", "Delayed restores for protection", "Failover cluster instances", "Shared storage", "FCI compared with availability groups", "Combining FCIs with availability groups", "Choosing a high availability option"],
+          "tools": ["Log shipping", "WSFC", "SSMS"],
+          "lab_task": "Set up log shipping to a DR server with a delayed restore, recover a dropped table from it and write a comparison of log shipping, FCIs and availability groups.",
+          "deliverable": "Log shipping configuration, recovery evidence and comparison",
+          "checks": [["Check log shipping status", "Backups, copies and restores current", "Monitor report"], ["Recover the dropped table", "Table copied from the delayed secondary", "Query result"], ["Write the comparison", "Cost, recovery and effort compared", "Comparison table"]],
+          "objectives": ["Use log shipping", "Understand FCIs", "Choose HA options"]
+        },
+        {
+          "topic": "Encryption, Masking and Auditing",
+          "subtopics": ["Transparent Data Encryption", "Backup encryption", "Always Encrypted", "Row-level security", "Dynamic data masking", "SQL Server Audit", "Certificates and key management", "Ledger tables in brief"],
+          "tools": ["TDE", "Always Encrypted", "SQL Server Audit"],
+          "lab_task": "Turn on TDE and back up its certificate, protect card numbers with Always Encrypted, mask emails for support staff, limit sales staff to their region with RLS and audit access to salaries.",
+          "deliverable": "Security configuration and tests",
+          "checks": [["Restore the TDE database elsewhere without the certificate", "Restore fails", "Error message"], ["Query as a support user", "Emails masked", "Query result"], ["Read salaries", "Access recorded in the audit", "Audit log"]],
+          "objectives": ["Encrypt data", "Mask and filter rows", "Audit access"]
+        },
+        {
+          "topic": "SQL Server Table Partitioning",
+          "subtopics": ["Partition functions and schemes", "Aligned indexes", "Partition elimination", "Sliding window with SWITCH, SPLIT and MERGE", "Partitioning and columnstore", "Statistics per partition", "Truncating partitions", "When partitioning helps"],
+          "tools": ["T-SQL", "SSMS"],
+          "lab_task": "Partition a 100-million-row sales table by month, show partition elimination, run a monthly sliding window that switches out the oldest month and truncate a partition.",
+          "deliverable": "Partition scripts, plans and window job",
+          "checks": [["Query one month", "Plan touches one partition", "Execution plan"], ["Switch out the oldest month", "Done in seconds with metadata only", "Timing output"], ["Truncate a partition", "Only that month removed", "Query result"]],
+          "objectives": ["Partition tables", "Use partition elimination", "Run sliding windows"]
+        },
+        {
+          "topic": "ETL with SQL Server Integration Services",
+          "subtopics": ["SSIS packages and projects", "Control flow and data flow", "Sources, transformations and destinations", "Lookups and slowly changing dimensions", "Error outputs", "Parameters and environments", "The SSIS catalog", "Logging and running packages from Agent"],
+          "tools": ["SSIS", "Visual Studio", "SSIS catalog"],
+          "lab_task": "Build an SSIS package that loads daily CSV sales into a warehouse with lookups, error rows to a reject table and environment parameters, deploy it to the catalog and schedule it.",
+          "deliverable": "SSIS project, catalog deployment and run reports",
+          "checks": [["Run the package", "Rows loaded with counts logged", "Catalog report"], ["Include bad rows", "Rejected rows stored with errors", "Reject table"], ["Switch environments", "Package uses test settings", "Execution report"]],
+          "objectives": ["Build SSIS packages", "Handle errors", "Deploy and schedule packages"]
+        },
+        {
+          "topic": "Reporting with SQL Server Reporting Services",
+          "subtopics": ["SSRS and Power BI Report Server", "Data sources and datasets", "Paginated report design", "Parameters and cascading parameters", "Grouping, totals and drill-down", "Subscriptions and delivery", "Report security", "Performance of report queries"],
+          "tools": ["SSRS or Power BI Report Server", "Report Builder"],
+          "lab_task": "Build a paginated sales report with cascading year and territory parameters, grouped totals and drill-down, schedule an email subscription and restrict it to the sales group.",
+          "deliverable": "Report definition, subscription and access tests",
+          "checks": [["Choose a year", "Territory list limited to that year", "Report screenshot"], ["Receive the subscription", "PDF delivered on schedule", "Email"], ["Open as a non-sales user", "Access denied", "Screenshot"]],
+          "objectives": ["Build paginated reports", "Use parameters", "Deliver and secure reports"]
+        },
+        {
+          "topic": "Automating Maintenance with dbatools and Ola Hallengren",
+          "subtopics": ["Maintenance tasks DBAs need", "Ola Hallengren's maintenance solution", "Index and statistics maintenance", "Integrity checks", "dbatools PowerShell module", "Migrating instances with dbatools", "Automated restore testing", "Reporting across many instances"],
+          "tools": ["dbatools", "PowerShell", "Ola Hallengren scripts"],
+          "lab_task": "Install Ola Hallengren jobs on three instances, use dbatools to check last backups and CHECKDB across them, test restores automatically and copy logins between instances.",
+          "deliverable": "Jobs, PowerShell scripts and reports",
+          "checks": [["Run the backup check", "Last backup per database across instances", "Script output"], ["Run the restore test", "Restores verified and reported", "Script output"], ["Copy logins", "Logins with passwords and SIDs copied", "Login list"]],
+          "objectives": ["Automate maintenance", "Manage many instances", "Test restores automatically"]
+        },
+        {
+          "topic": "Azure SQL Database and Managed Instance",
+          "subtopics": ["Azure SQL options: Database, Managed Instance and SQL Server on VMs", "Service tiers and purchasing models", "Microsoft Entra authentication", "Automatic backups and point-in-time restore", "Geo-replication and failover groups", "Elastic pools", "What DBAs still own in Azure SQL", "Migrating with Azure Database Migration Service"],
+          "tools": ["Azure SQL Database", "Azure SQL Managed Instance", "Azure portal"],
+          "lab_task": "Create an Azure SQL database with Entra login, restore to a point in time, add a failover group in another region and fail over, then migrate a small database to Managed Instance.",
+          "deliverable": "Configuration, failover evidence and migration log",
+          "checks": [["Log in with Entra ID", "Login without a SQL password", "Client output"], ["Fail over the group", "Application reconnects through the listener", "Client log"], ["Migrate the database", "Data and logins on Managed Instance", "Query result"]],
+          "objectives": ["Use Azure SQL", "Use failover groups", "Migrate to Azure"]
+        },
+        {
+          "topic": "Intermediate Capstone: Highly Available and Tuned SQL Server",
+          "subtopics": ["Assessment", "High availability and recovery", "Performance tuning", "Security and report"],
+          "tools": ["Always On availability groups", "Query Store", "Extended Events", "dbatools", "TDE"],
+          "lab_task": "Take over a slow, unprotected sales system: build an availability group, a backup strategy with restore tests, tune top queries with Query Store and waits, encrypt and audit data and present results with a failover demo.",
+          "deliverable": "Configuration, tuning log, restore evidence and presentation",
+          "checks": [["Run the failover demo", "Application continues after failover", "Demo recording"], ["Compare top query times", "Each tuned query faster", "Tuning log"], ["Present to stakeholders", "Improvements and risks clear", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one system", "Protect and tune production", "Report results"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DBAs and database architects. Covers storage engine internals, advanced query tuning, concurrency at scale and In-Memory OLTP, columnstore analytics, availability group architecture, disaster recovery, a performance method, licensing and consolidation, upgrades and migrations, SQL Server on Linux and Kubernetes, hardening and ledger, HA monitoring, CDC and replication, database DevOps, Azure Arc, Fabric mirroring, vector search, very large databases and production incidents.",
+      "prerequisites": ["Runs SQL Server in production with availability groups", "Tunes queries with plans, waits and Query Store", "Automates administration with PowerShell"],
+      "outcomes": ["Diagnose deep performance and concurrency problems", "Design availability, recovery and hybrid platforms", "Upgrade, migrate and deliver database changes safely", "Run large and secure SQL Server estates cost-effectively"],
+      "days": [
+        {
+          "topic": "Storage Engine Internals",
+          "subtopics": ["Pages and extents", "Allocation maps", "Row and page structure", "Buffer pool and checkpoints", "Transaction log internals and VLFs", "Write-ahead logging", "Ghost records and cleanup", "Inspecting internals with DBCC PAGE"],
+          "tools": ["DBCC PAGE", "sys.dm_db_page_info", "fn_dblog"],
+          "lab_task": "Inspect data and index pages with DBCC PAGE, read log records for an update, fix a log with too many VLFs and watch ghost cleanup after deletes.",
+          "deliverable": "Annotated internals notes",
+          "checks": [["Read a data page", "Row offsets and records identified", "DBCC PAGE output"], ["Fix the VLF count", "VLFs reduced after resizing", "sys.dm_db_log_info output"], ["Read log records", "Update operation found in the log", "fn_dblog output"]],
+          "objectives": ["Understand storage internals", "Read pages and log records", "Manage the log"]
+        },
+        {
+          "topic": "Advanced Query Tuning: Parameter Sniffing and Intelligent Query Processing",
+          "subtopics": ["Parameter sniffing", "OPTIMIZE FOR and RECOMPILE", "Parameter-sensitive plan optimisation", "Intelligent query processing features", "Memory grant feedback", "Cardinality estimation feedback", "Row goals", "Rewriting complex queries"],
+          "tools": ["Query Store", "SSMS", "Execution plans"],
+          "lab_task": "Reproduce parameter sniffing on a skewed procedure, compare fixes, test parameter-sensitive plans in compatibility level 160 and fix a row goal problem.",
+          "deliverable": "Plans, timings and recommendation",
+          "checks": [["Reproduce sniffing", "Different parameters give very different times", "Timing table"], ["Enable compatibility level 160", "Separate plans for skewed values", "Query Store report"], ["Fix the row goal", "Plan and time improve", "Execution plan"]],
+          "objectives": ["Handle parameter sniffing", "Use intelligent query processing", "Rewrite complex queries"]
+        },
+        {
+          "topic": "Concurrency at Scale: Latches, Hot Pages and In-Memory OLTP",
+          "subtopics": ["Latch contention", "Last-page insert contention", "OPTIMIZE_FOR_SEQUENTIAL_KEY", "Hash partitioning for hot tables", "Memory-optimised tables", "Natively compiled procedures", "Durability options", "When In-Memory OLTP is worth it"],
+          "tools": ["DMVs", "In-Memory OLTP", "ostress"],
+          "lab_task": "Create last-page insert contention with ostress, fix it with OPTIMIZE_FOR_SEQUENTIAL_KEY and with a memory-optimised table, and compare throughput.",
+          "deliverable": "Contention measurements and comparison",
+          "checks": [["Measure PAGELATCH_EX waits", "Waits high before the fix", "Wait statistics"], ["Compare fixes", "Throughput recorded for each", "Benchmark table"], ["Run the native procedure", "Higher throughput than the interpreted version", "Benchmark table"]],
+          "objectives": ["Diagnose latch contention", "Use In-Memory OLTP", "Scale inserts"]
+        },
+        {
+          "topic": "Columnstore and Analytics Workloads",
+          "subtopics": ["Columnstore internals: rowgroups and segments", "Deltastore and tuple mover", "Segment elimination", "Ordered columnstore", "Batch mode on rowstore", "Real-time operational analytics", "Columnstore maintenance", "Design for reporting workloads"],
+          "tools": ["Columnstore indexes", "DMVs"],
+          "lab_task": "Build a columnstore fact table, check rowgroup quality, add ordering for segment elimination, run operational analytics on a live table and plan maintenance.",
+          "deliverable": "Columnstore design, DMV output and timings",
+          "checks": [["Check rowgroups", "Few open or small rowgroups after the load", "DMV output"], ["Check segment elimination", "Segments skipped for a date filter", "Statistics output"], ["Run analytics on the live table", "OLTP throughput kept within the target", "Benchmark table"]],
+          "objectives": ["Design columnstore tables", "Maintain rowgroups", "Run analytics on live data"]
+        },
+        {
+          "topic": "Availability Group Architecture: Distributed and Contained AGs",
+          "subtopics": ["Multi-subnet availability groups", "Distributed availability groups", "Contained availability groups", "Read-scale availability groups", "Quorum design", "Failover policies", "Cross-platform availability groups", "Patching with availability groups"],
+          "tools": ["Always On availability groups", "WSFC", "PowerShell"],
+          "lab_task": "Build a multi-subnet availability group, link it to another region with a distributed availability group, add a contained availability group for logins and jobs and patch replicas with rolling failovers.",
+          "deliverable": "Architecture, configuration and patching log",
+          "checks": [["Fail over across subnets", "Clients reconnect quickly with MultiSubnetFailover", "Client log"], ["Create a login in the contained AG", "Login works after failover", "Query result"], ["Patch with rolling failovers", "No unplanned downtime", "Patch log"]],
+          "objectives": ["Design AG architectures", "Link regions", "Patch without downtime"]
+        },
+        {
+          "topic": "Disaster Recovery Design and Testing",
+          "subtopics": ["Recovery objectives by system", "Regional DR options", "DR for availability groups", "Backup copies and immutable storage", "Ransomware recovery", "Runbooks", "DR drills", "Failback"],
+          "tools": ["Availability groups", "Azure Blob Storage", "dbatools"],
+          "lab_task": "Write DR plans for three systems, store immutable backup copies, run a regional DR drill with timing and failback, and recover a database after a simulated ransomware attack.",
+          "deliverable": "DR plans, drill report and recovery evidence",
+          "checks": [["Run the DR drill", "Service restored within the RTO", "Drill report"], ["Recover after the ransomware test", "Database restored from immutable copies", "Recovery log"], ["Fail back", "Primary region back in service", "Drill report"]],
+          "objectives": ["Plan disaster recovery", "Protect against ransomware", "Test DR"]
+        },
+        {
+          "topic": "A Performance Troubleshooting Method at Scale",
+          "subtopics": ["Baselines", "Top-down method: waits, queries and resources", "First Responder Kit", "Monitoring tools", "Performance across many instances", "Communicating findings", "Prioritising fixes", "Preventing repeat problems"],
+          "tools": ["First Responder Kit", "Query Store", "Monitoring tool"],
+          "lab_task": "Use a baseline and the First Responder Kit to diagnose a slowdown across three instances, prioritise five fixes by impact and present the findings.",
+          "deliverable": "Diagnosis, priority list and presentation",
+          "checks": [["Compare with the baseline", "Changes from normal identified", "Comparison report"], ["Prioritise fixes", "Fixes ranked by measured impact", "Priority list"], ["Present findings", "Cause and plan clear to managers", "Presentation feedback"]],
+          "objectives": ["Troubleshoot methodically", "Use baselines", "Prioritise fixes"]
+        },
+        {
+          "topic": "Licensing, Consolidation and Cost",
+          "subtopics": ["Core-based and server plus CAL licensing", "Edition features and limits", "Licensing in virtual machines and containers", "Software Assurance benefits", "Azure Hybrid Benefit", "Consolidating instances", "Right-sizing hardware", "Licence audits"],
+          "tools": ["Spreadsheet", "MAP Toolkit or Azure Migrate"],
+          "lab_task": "Inventory a sample estate, design a consolidation onto fewer licensed hosts, apply Hybrid Benefit for Azure workloads and estimate savings.",
+          "deliverable": "Inventory, consolidation design and savings estimate",
+          "checks": [["Inventory features used", "Enterprise features in use listed", "Inventory"], ["Design consolidation", "Workloads fit on fewer hosts", "Design document"], ["Estimate savings", "Licence and hardware savings calculated", "Savings estimate"]],
+          "objectives": ["Understand licensing", "Consolidate instances", "Reduce cost"]
+        },
+        {
+          "topic": "Upgrades and Migrations",
+          "subtopics": ["Supported upgrade paths", "Data Migration Assistant and Azure Migrate", "In-place compared with side-by-side upgrades", "Compatibility levels after upgrade", "Query Store for safe upgrades", "Migrating with availability groups", "Migrating to Azure SQL Managed Instance with the link feature", "Rollback planning"],
+          "tools": ["Data Migration Assistant", "Query Store", "Managed Instance link"],
+          "lab_task": "Assess a SQL Server 2016 database, upgrade it side by side to 2022 with Query Store protecting plans, and migrate another database to Managed Instance with the link feature.",
+          "deliverable": "Assessment, upgrade log and migration evidence",
+          "checks": [["Run the assessment", "Breaking changes listed and fixed", "Assessment report"], ["Raise the compatibility level", "No plan regressions after fixes", "Query Store report"], ["Cut over to Managed Instance", "Downtime within the target", "Migration log"]],
+          "objectives": ["Plan upgrades", "Migrate safely", "Protect plans during upgrades"]
+        },
+        {
+          "topic": "SQL Server on Linux, Containers and Kubernetes",
+          "subtopics": ["SQL Server on Linux", "mssql-conf", "Containers for development and testing", "Persistent storage for containers", "SQL Server on Kubernetes", "Availability groups on Kubernetes with operators", "Monitoring Linux instances", "When to run SQL Server in containers"],
+          "tools": ["SQL Server on Linux", "Docker", "Kubernetes", "mssql-conf"],
+          "lab_task": "Install SQL Server on Linux and configure it with mssql-conf, run it in Kubernetes with persistent storage, kill the pod and confirm data survives.",
+          "deliverable": "Configuration, manifests and test results",
+          "checks": [["Change a setting with mssql-conf", "Setting active after restart", "Query result"], ["Delete the pod", "Data kept on the persistent volume", "Query result"], ["Write the guidance", "Cases for and against containers", "Written note"]],
+          "objectives": ["Run SQL Server on Linux", "Run it in Kubernetes", "Decide on containers"]
+        },
+        {
+          "topic": "SQL Server Security Hardening and Compliance",
+          "subtopics": ["Attack surface", "Service accounts and least privilege", "Separating DBA duties", "Ledger tables", "Microsoft Defender for SQL", "Vulnerability assessment", "Compliance evidence", "Security baselines"],
+          "tools": ["Microsoft Defender for SQL", "Ledger", "SQL vulnerability assessment"],
+          "lab_task": "Harden an instance against a baseline, run vulnerability assessment, create a ledger table and prove tampering is detected, and assemble compliance evidence.",
+          "deliverable": "Hardening report, assessment results and evidence pack",
+          "checks": [["Re-run vulnerability assessment", "High findings fixed or justified", "Assessment report"], ["Tamper with ledger data", "Verification fails", "Ledger verification output"], ["Review the evidence pack", "Access and changes traceable", "Evidence pack"]],
+          "objectives": ["Harden SQL Server", "Prove data integrity", "Prepare compliance evidence"]
+        },
+        {
+          "topic": "Monitoring High Availability and Estate Health",
+          "subtopics": ["What to monitor for availability groups", "Data movement and redo queues", "Alerts for synchronisation state", "Estate dashboards", "Monitoring tools: Redgate, SolarWinds and open source", "Prometheus exporters for SQL Server", "Baselines for capacity", "Runbooks for alerts"],
+          "tools": ["DMVs", "Prometheus sql_exporter", "Grafana"],
+          "lab_task": "Build dashboards for availability group health and estate capacity, alert on redo queue size and suspended data movement with runbooks, and trigger each alert.",
+          "deliverable": "Dashboards, alert rules and runbooks",
+          "checks": [["Suspend data movement", "Alert fires with a runbook link", "Alert notification"], ["Grow the redo queue", "Alert fires before the threshold matters", "Alert notification"], ["View the estate dashboard", "All instances reporting", "Dashboard screenshot"]],
+          "objectives": ["Monitor availability", "Alert on replication", "Track estate health"]
+        },
+        {
+          "topic": "Change Data Capture, Change Tracking and Replication",
+          "subtopics": ["Change tracking", "Change data capture", "Transactional replication", "Merge and peer-to-peer replication in brief", "Streaming changes to Kafka with Debezium", "Performance cost of each", "Monitoring change feeds", "Choosing a method"],
+          "tools": ["CDC", "Transactional replication", "Debezium", "Apache Kafka"],
+          "lab_task": "Feed order changes to a reporting server with transactional replication and to Kafka with CDC and Debezium, compare latency and load and write a choice guide.",
+          "deliverable": "Configuration, latency measurements and guide",
+          "checks": [["Insert an order", "Change arrives in both targets", "Query and topic output"], ["Compare latency", "Latency recorded for each method", "Comparison table"], ["Write the guide", "Method recommended for each use case", "Guide"]],
+          "objectives": ["Capture changes", "Replicate data", "Choose a method"]
+        },
+        {
+          "topic": "Database DevOps: SSDT, DACPACs, tSQLt and Pipelines",
+          "subtopics": ["State-based and migration-based change", "SQL Database Projects and DACPACs", "Unit testing with tSQLt", "Pipelines with Azure DevOps or GitHub Actions", "Deployment reports and drift", "Handling data changes", "Approvals for production", "Rolling back database changes"],
+          "tools": ["SQL Database Projects", "SqlPackage", "tSQLt", "GitHub Actions"],
+          "lab_task": "Put the order database in a SQL project with tSQLt tests, build and test it in a pipeline, publish a DACPAC to test and produce a deployment report for production approval.",
+          "deliverable": "Project, tests, pipeline and deployment report",
+          "checks": [["Break a procedure", "tSQLt test fails the pipeline", "Pipeline log"], ["Publish to test", "Database matches the project", "SqlPackage output"], ["Detect drift", "Manual change on test reported", "Drift report"]],
+          "objectives": ["Version databases", "Test T-SQL", "Deploy with pipelines"]
+        },
+        {
+          "topic": "Hybrid Management with Azure Arc",
+          "subtopics": ["Azure Arc-enabled SQL Server", "Inventory and governance", "Microsoft Defender through Arc", "Best practices assessment", "Pay-as-you-go licensing", "Automated patching and backups", "Entra ID authentication for on-premises", "Fleet views in Azure"],
+          "tools": ["Azure Arc", "Azure portal", "Microsoft Defender for SQL"],
+          "lab_task": "Connect on-premises instances to Azure Arc, run the best practices assessment, enable Defender and Entra login and view the estate in Azure.",
+          "deliverable": "Arc configuration, assessment results and screenshots",
+          "checks": [["View the estate", "All instances shown in Azure", "Portal screenshot"], ["Run the assessment", "Findings listed per instance", "Assessment report"], ["Log in with Entra ID on-premises", "Login works", "Client output"]],
+          "objectives": ["Manage hybrid estates", "Assess at scale", "Secure through Azure"]
+        },
+        {
+          "topic": "Microsoft Fabric Mirroring and Analytics Integration",
+          "subtopics": ["Operational and analytical workloads", "Fabric mirroring for SQL Server and Azure SQL", "Synapse Link history", "Delta tables from SQL data", "Reporting in Power BI on mirrored data", "Latency and cost", "Security of mirrored data", "Choosing mirroring, CDC or ETL"],
+          "tools": ["Microsoft Fabric", "SQL Server 2025 or Azure SQL", "Power BI"],
+          "lab_task": "Mirror the order database to Fabric, query it with the SQL analytics endpoint, build a Power BI report on it and measure delay from commit to report.",
+          "deliverable": "Mirroring configuration, queries, report and latency notes",
+          "checks": [["Insert an order", "Order visible in Fabric", "Query result"], ["Measure delay", "Commit to Fabric time recorded", "Latency notes"], ["Check security", "Only permitted users read mirrored data", "Access test"]],
+          "objectives": ["Mirror operational data", "Report without loading production", "Choose integration methods"]
+        },
+        {
+          "topic": "Vector Search and AI Features in SQL Server 2025",
+          "subtopics": ["The vector data type", "Embeddings from Azure OpenAI or local models", "Vector distance functions", "Vector indexes", "Hybrid search with full-text", "Calling AI models from T-SQL", "RAG patterns with SQL Server", "Security and cost"],
+          "tools": ["SQL Server 2025 or Azure SQL Database", "Azure OpenAI", "T-SQL"],
+          "lab_task": "Store product description embeddings in a vector column, run similarity search with filters, combine with full-text ranking and build a small RAG query for product questions.",
+          "deliverable": "Schema, queries and RAG prototype",
+          "checks": [["Run similarity search", "Nearest products returned", "Query result"], ["Combine with full-text", "Results ranked by both scores", "Query result"], ["Compare with and without the vector index", "Index reduces query time", "Timing table"]],
+          "objectives": ["Store vectors in SQL Server", "Search by similarity", "Build RAG with SQL"]
+        },
+        {
+          "topic": "Managing Very Large Databases",
+          "subtopics": ["What makes a database very large", "Backup and restore at scale", "Striped and differential backups", "Integrity checks at scale", "Index maintenance at scale", "Data archiving", "Filegroup strategies", "Moving large data with minimal downtime"],
+          "tools": ["T-SQL", "dbatools", "Partitioning"],
+          "lab_task": "Plan operations for a 20 TB database: striped backups, CHECKDB spread across nights, partition-level index maintenance and an archive process, and test them on a scaled sample.",
+          "deliverable": "Operations plan and test results",
+          "checks": [["Compare striped backups", "Faster than a single file", "Timing table"], ["Split integrity checks", "Each night inside the window", "Job history"], ["Archive old data", "Old partitions moved without blocking", "Session log"]],
+          "objectives": ["Run very large databases", "Back up and check at scale", "Archive data"]
+        },
+        {
+          "topic": "Troubleshooting Production SQL Server Incidents",
+          "subtopics": ["An incident method for SQL Server", "High CPU", "Memory pressure", "Blocking storms", "Log growth and full disks", "Availability group failures", "Corruption", "Post-incident reviews"],
+          "tools": ["First Responder Kit", "DMVs", "Extended Events", "Error logs"],
+          "lab_task": "Diagnose five injected incidents (CPU from a plan regression, a blocking storm, a full log from an open transaction, a suspended AG replica and page corruption), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the full log", "Cause found and log space reused", "log_reuse_wait_desc output"], ["Repair the corruption", "Page restored from backup", "Restore log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise SQL Server Platform",
+          "subtopics": ["Architecture", "Availability and recovery", "Performance and delivery", "Operations and cost"],
+          "tools": ["Always On availability groups", "Query Store", "SQL Database Projects", "Azure Arc", "dbatools"],
+          "lab_task": "Design and deliver a SQL Server platform for a payments system: distributed availability groups, immutable backups, tuned workloads, database DevOps, hardening, Arc management and cost controls, then run a game day with failover, ransomware recovery and a release.",
+          "deliverable": "Architecture records, automation, game day report and review presentation",
+          "checks": [["Run the regional failover", "Service restored within the target", "Game day report"], ["Release a database change", "Tested and deployed through the pipeline", "Pipeline log"], ["Present to the review board", "Design and cost choices defended", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run SQL Server at enterprise standard", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

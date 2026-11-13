@@ -336,7 +336,7 @@
           "objectives": ["Write modern decorators", "Know the legacy differences", "Decide when decorators help"]
         },
         {
-          "topic": "Integration and End-to-End Testing",
+          "topic": "Integration and End-to-End Testing for TypeScript Apps",
           "subtopics": ["Testing APIs with Supertest", "Testcontainers for Node.js", "Contract tests between API and client", "Playwright for end-to-end tests", "Test fixtures and factories", "Running tests in CI", "Flaky test handling", "Coverage thresholds"],
           "tools": ["Vitest", "Supertest", "Testcontainers", "Playwright"],
           "lab_task": "Add integration tests for the API with a real PostgreSQL container and Playwright end-to-end tests for the admin screen, and fail the run below 80 percent coverage.",
@@ -541,7 +541,7 @@
           "objectives": ["Design public TypeScript APIs", "Detect breaking changes", "Support several compiler versions"]
         },
         {
-          "topic": "Testing Strategy at Scale",
+          "topic": "Testing Strategy for Large TypeScript Codebases",
           "subtopics": ["Test pyramid for full-stack TypeScript", "Mock Service Worker for network mocking", "Property-based testing with fast-check", "Mutation testing with Stryker", "Visual regression testing", "Test sharding and parallelism", "Flaky test management", "Test data management"],
           "tools": ["Vitest", "MSW", "fast-check", "Stryker", "Playwright"],
           "lab_task": "Add property-based tests to the pricing logic, mutation-test it with Stryker to above 80 percent, mock the network with MSW for front-end tests and shard Playwright runs.",

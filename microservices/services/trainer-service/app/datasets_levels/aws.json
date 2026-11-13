@@ -565,7 +565,7 @@
           "objectives": ["Plan migrations across a portfolio", "Choose modernisation strategies", "Build a migration business case"]
         },
         {
-          "topic": "SRE Practice: SLOs, Error Budgets and Incident Command",
+          "topic": "SRE Practice on AWS with SLOs, Error Budgets and Incident Command",
           "subtopics": ["Choosing SLIs", "Writing SLOs", "Error budgets and policies", "Burn-rate alerts", "Incident roles and command", "Communication during incidents", "Blameless post-incident reviews", "Reducing toil"],
           "tools": ["CloudWatch Application Signals", "CloudWatch", "Incident Manager"],
           "lab_task": "Define SLOs for the order API, set multi-window burn-rate alarms, and run a 60-minute incident simulation with assigned roles followed by a post-incident review.",
