@@ -1,0 +1,573 @@
+{
+  "domain": "GraphQL",
+  "name": "GraphQL API Development",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "share-2",
+  "aliases": ["GraphQL API", "GraphQL APIs", "GraphQL Development", "GraphQL Developer", "GraphQL Training", "Apollo GraphQL", "Apollo Server", "Apollo Client", "Apollo Federation", "GraphQL Federation", "GraphQL Schema Design"],
+  "certifications": ["Apollo Graph Developer - Associate", "Apollo Graph Developer - Professional"],
+  "tools": ["GraphQL", "Apollo Server", "GraphQL Yoga", "Apollo Client", "GraphQL Code Generator", "DataLoader", "GraphiQL", "Apollo Router", "Node.js", "TypeScript"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web and back-end developers who are new to GraphQL. Covers how GraphQL differs from REST, the schema definition language, queries, arguments and fragments, mutations and input types, resolvers and execution, a first Apollo Server, database-backed resolvers, nullability and errors, enums, interfaces and unions, cursor pagination, client operations and variables, authentication and field authorisation, DataLoader, Apollo Client, subscriptions, testing, tooling and deployment.",
+      "prerequisites": ["Writes JavaScript or TypeScript and has used npm", "Has built or called a REST API", "Understands JSON"],
+      "outcomes": ["Design GraphQL schemas for real products", "Build GraphQL servers with resolvers, pagination and auth", "Call GraphQL APIs from web clients", "Test, document and deploy a GraphQL API"],
+      "days": [
+        {
+          "topic": "GraphQL Overview and Development Setup",
+          "subtopics": ["What GraphQL is and the problems it solves", "GraphQL compared with REST", "One endpoint, typed schema and client-chosen fields", "The GraphQL specification and ecosystem", "Installing Node.js and TypeScript for the course", "GraphiQL and Apollo Sandbox for exploring APIs", "Querying a public GraphQL API", "Reading a schema with introspection", "How the course project is organised", "Where GraphQL is used in industry"],
+          "tools": ["Node.js", "TypeScript", "GraphiQL", "Apollo Sandbox", "VS Code GraphQL extension"],
+          "lab_task": "Explore a public GraphQL API in GraphiQL, write queries that fetch exactly the fields a screen needs, compare the payload with the equivalent REST calls and set up the course project.",
+          "deliverable": "Query notebook and project skeleton",
+          "checks": [["Write screen queries", "Each query returns only the fields the screen needs", "Query notebook"], ["Compare with REST", "Request count and payload size compared", "Comparison table"], ["Read the schema", "Types and fields found through introspection", "Schema notes"]],
+          "objectives": ["Explain what GraphQL offers", "Explore GraphQL APIs", "Compare GraphQL with REST"]
+        },
+        {
+          "topic": "Schema Definition Language: Types, Fields and Scalars",
+          "subtopics": ["Object types and fields", "Built-in scalars", "Custom scalars such as DateTime", "Lists and non-null markers", "Arguments on fields", "Descriptions and documentation in the schema", "Schema-first design", "Naming conventions"],
+          "tools": ["GraphQL SDL", "VS Code GraphQL extension", "graphql-js"],
+          "lab_task": "Write the schema for a bookstore with books, authors, reviews and a DateTime scalar, document every type and field and validate it with graphql-js.",
+          "deliverable": "Documented bookstore schema",
+          "checks": [["Validate the schema", "Schema builds with no errors", "Build output"], ["Document fields", "Every type and field has a description", "Schema file"], ["Use a custom scalar", "DateTime values validated and serialised", "Test output"]],
+          "objectives": ["Write GraphQL schemas", "Use scalars and lists", "Document schemas"]
+        },
+        {
+          "topic": "Queries, Arguments, Aliases and Fragments",
+          "subtopics": ["Query structure and selection sets", "Field arguments", "Nested selections", "Aliases for repeated fields", "Named fragments", "Inline fragments", "Directives @include and @skip", "Reading query responses"],
+          "tools": ["GraphiQL", "Apollo Sandbox"],
+          "lab_task": "Write queries against the course API that use arguments, nested selections, aliases to compare two books, named fragments shared by two screens and conditional fields with @include.",
+          "deliverable": "Query library for the course API",
+          "checks": [["Use aliases", "Two books fetched side by side in one query", "Response"], ["Share fragments", "Two queries reuse one fragment", "Query file"], ["Toggle fields", "@include adds and removes fields by variable", "Responses"]],
+          "objectives": ["Write GraphQL queries", "Reuse selections with fragments", "Shape responses with aliases and directives"]
+        },
+        {
+          "topic": "Mutations and Input Types",
+          "subtopics": ["Mutation design", "Input object types", "Returning the changed object", "Mutation payload types", "Naming mutations by intent", "Validating inputs", "Multiple mutations in one request", "Idempotency for mutations"],
+          "tools": ["GraphQL SDL", "Apollo Server"],
+          "lab_task": "Add createBook, updateBook, addReview and deleteReview mutations with input types and payload types that return changed data and user errors.",
+          "deliverable": "Mutations with payload types",
+          "checks": [["Create a book", "Mutation returns the new book with its ID", "Response"], ["Send invalid input", "Payload returns user errors without a server error", "Response"], ["Run two mutations", "Mutations run in order in one request", "Response"]],
+          "objectives": ["Design mutations", "Use input and payload types", "Return useful errors"]
+        },
+        {
+          "topic": "Resolvers and the Execution Model",
+          "subtopics": ["What a resolver receives: parent, args, context and info", "Default resolvers", "Resolver chains for nested fields", "Async resolvers", "Execution order and parallelism", "Context per request", "Resolver maps", "Keeping business logic out of resolvers"],
+          "tools": ["Apollo Server", "Node.js", "TypeScript"],
+          "lab_task": "Implement resolvers for the bookstore schema with a per-request context, log the order resolvers run in for a nested query and move business rules into service modules.",
+          "deliverable": "Resolver implementation with notes on execution",
+          "checks": [["Log execution", "Resolver order for a nested query explained", "Log output"], ["Use context", "Request ID available in every resolver", "Log output"], ["Separate logic", "Resolvers call services instead of holding rules", "Code review"]],
+          "objectives": ["Write resolvers", "Explain GraphQL execution", "Organise server code"]
+        },
+        {
+          "topic": "Building a First Server with Apollo Server",
+          "subtopics": ["Apollo Server setup", "Type definitions and resolvers together", "Standalone and Express integration", "Plugins in Apollo Server", "Landing page and sandbox", "Environment configuration", "Logging requests", "Graceful shutdown"],
+          "tools": ["Apollo Server", "Express", "Node.js"],
+          "lab_task": "Run the bookstore API on Apollo Server inside Express, add a logging plugin, configure environments, disable the sandbox in production and shut down cleanly.",
+          "deliverable": "Running Apollo Server application",
+          "checks": [["Run the server", "Sandbox loads and queries work", "Screenshot"], ["Add a plugin", "Every operation name logged with timing", "Log output"], ["Run in production mode", "Sandbox disabled", "Response"]],
+          "objectives": ["Build an Apollo Server API", "Use plugins", "Configure servers per environment"]
+        },
+        {
+          "topic": "Connecting Resolvers to a Database",
+          "subtopics": ["Choosing a data layer for GraphQL", "Prisma or Drizzle with resolvers", "Mapping database rows to GraphQL types", "Filtering from arguments", "Transactions in mutations", "Avoiding over-fetching from the database", "Seeding data", "Migrations"],
+          "tools": ["PostgreSQL", "Prisma or Drizzle", "Apollo Server"],
+          "lab_task": "Back the bookstore API with PostgreSQL through Prisma, map rows to types, implement filters from arguments and wrap review creation and rating updates in a transaction.",
+          "deliverable": "Database-backed GraphQL API",
+          "checks": [["Query live data", "Results come from PostgreSQL", "Response and database rows"], ["Filter by arguments", "Filters change the SQL that runs", "Query log"], ["Use a transaction", "Review and rating saved together or not at all", "Test output"]],
+          "objectives": ["Back GraphQL with a database", "Map data to types", "Use transactions in mutations"]
+        },
+        {
+          "topic": "Lists, Nullability and Error Handling",
+          "subtopics": ["Nullability choices and their effects", "Null propagation", "The errors array and partial data", "GraphQLError and error codes", "Masking internal errors", "User errors in payloads compared with top-level errors", "Logging errors", "Documenting error behaviour"],
+          "tools": ["Apollo Server", "graphql-js"],
+          "lab_task": "Make nullability choices for the schema, show null propagation when a resolver fails, return coded errors, mask internal details in production and document the error policy.",
+          "deliverable": "Error policy and updated schema",
+          "checks": [["Fail a nested resolver", "Partial data returned with an error entry", "Response"], ["Mask errors", "Production errors hide stack traces", "Response"], ["Use error codes", "Clients get stable error codes", "Response"]],
+          "objectives": ["Choose nullability", "Handle errors in GraphQL", "Return safe error details"]
+        },
+        {
+          "topic": "Enums, Interfaces and Unions",
+          "subtopics": ["Enums for fixed values", "Interfaces for shared fields", "Unions for search results", "Resolving abstract types", "Querying with inline fragments", "Schema evolution with abstract types", "Common modelling mistakes", "When to use each"],
+          "tools": ["GraphQL SDL", "Apollo Server"],
+          "lab_task": "Add a Product interface for books and e-books, a search union across books, authors and series, enums for formats and resolve abstract types correctly.",
+          "deliverable": "Extended schema with abstract types",
+          "checks": [["Search across types", "Union returns books, authors and series", "Response"], ["Query an interface", "Shared fields and type-specific fields both returned", "Response"], ["Resolve types", "Every result has the right __typename", "Response"]],
+          "objectives": ["Model with enums, interfaces and unions", "Resolve abstract types", "Query abstract types"]
+        },
+        {
+          "topic": "Pagination with Cursors and Connections",
+          "subtopics": ["Offset and cursor pagination", "The connection pattern", "Edges, nodes and pageInfo", "Encoding cursors", "Forward and backward pagination", "Total counts and their cost", "Filtering with pagination", "Client handling of pages"],
+          "tools": ["Apollo Server", "PostgreSQL"],
+          "lab_task": "Add cursor-based connections for books and reviews with forward and backward paging, filters and optional total counts, and test page boundaries.",
+          "deliverable": "Paginated connections",
+          "checks": [["Page forward and back", "No duplicates or gaps across pages", "Test output"], ["Combine with filters", "Filters apply to every page", "Responses"], ["Read pageInfo", "hasNextPage correct on the last page", "Response"]],
+          "objectives": ["Paginate with connections", "Encode cursors", "Combine pagination and filters"]
+        },
+        {
+          "topic": "Variables and Operation Names in Clients",
+          "subtopics": ["Why clients use variables", "Declaring variables and defaults", "Operation names for logging", "Sending operations over HTTP", "GET and POST requests", "Batching and its trade-offs", "Calling GraphQL with fetch", "Avoiding string-built queries", "Required variables and type checking of inputs", "Debugging requests in browser DevTools"],
+          "tools": ["fetch", "GraphiQL", "curl"],
+          "lab_task": "Call the API from a small web page with fetch using named operations and variables, show why string-building queries is unsafe and log operations by name on the server.",
+          "deliverable": "Client page and logging changes",
+          "checks": [["Use variables", "Same operation reused with different variables", "Network log"], ["Log by name", "Server logs show operation names", "Log output"], ["Show the risk", "String-built query injection demonstrated and fixed", "Notes"]],
+          "objectives": ["Call GraphQL safely from clients", "Use variables", "Name operations"]
+        },
+        {
+          "topic": "Authentication in GraphQL Context",
+          "subtopics": ["Where authentication happens in GraphQL", "Reading tokens or cookies into context", "Validating JWTs", "The current user in resolvers", "Signing in through a mutation or a separate endpoint", "Sessions for browser clients", "Rejecting unauthenticated operations", "Testing authenticated requests"],
+          "tools": ["Apollo Server", "jose", "Express"],
+          "lab_task": "Add JWT authentication that builds the current user in context, protect the addReview mutation, return a clear error for missing tokens and test authenticated operations.",
+          "deliverable": "Authenticated GraphQL API",
+          "checks": [["Call without a token", "Protected mutation returns UNAUTHENTICATED", "Response"], ["Call with a token", "Mutation runs as the signed-in user", "Response"], ["Test auth", "Tests cover signed-in and anonymous users", "Test output"]],
+          "objectives": ["Authenticate GraphQL requests", "Use context for users", "Protect operations"]
+        },
+        {
+          "topic": "Authorisation Rules on Fields",
+          "subtopics": ["Field-level authorisation", "Ownership checks in resolvers", "Role checks with directives or middleware", "graphql-shield or Pothos auth plugins", "Hiding fields compared with returning errors", "Authorisation in nested resolvers", "Avoiding leaks through introspection and errors", "Testing permission matrices"],
+          "tools": ["graphql-shield or Pothos scope auth", "Apollo Server"],
+          "lab_task": "Protect fields so only authors see draft books and only admins see sales figures, enforce ownership on edits and test every role against every protected field.",
+          "deliverable": "Authorisation rules with tests",
+          "checks": [["Query sales as a reader", "Field returns an authorisation error", "Response"], ["Edit another author's book", "Mutation rejected", "Response"], ["Run the matrix", "Every role and field combination tested", "Test output"]],
+          "objectives": ["Authorise at field level", "Check ownership", "Test permissions"]
+        },
+        {
+          "topic": "The N+1 Problem and DataLoader",
+          "subtopics": ["How nested queries cause N+1 database calls", "Measuring queries per operation", "DataLoader batching", "DataLoader caching per request", "Loaders for one-to-many relations", "Creating loaders in context", "Ordering and missing keys", "Testing loaders"],
+          "tools": ["DataLoader", "Apollo Server", "Query logging"],
+          "lab_task": "Measure database queries for a nested books-with-authors-and-reviews query, add DataLoaders for each relation and show the query count drop.",
+          "deliverable": "Loaders with before and after query counts",
+          "checks": [["Measure before", "N+1 pattern visible in the query log", "Query log"], ["Add loaders", "Query count drops to one per relation", "Query log"], ["Handle missing keys", "Missing IDs return null without errors", "Test output"]],
+          "objectives": ["Find N+1 problems", "Batch with DataLoader", "Scope loaders per request"]
+        },
+        {
+          "topic": "Calling GraphQL from a Web Client with Apollo Client",
+          "subtopics": ["Apollo Client setup", "useQuery and useMutation in React", "Loading and error states", "Variables from component state", "Refetching after mutations", "The normalised cache in brief", "Typed operations", "Devtools for Apollo Client"],
+          "tools": ["Apollo Client", "React", "Apollo Client Devtools"],
+          "lab_task": "Build a small React page that lists and filters books with useQuery, adds reviews with useMutation, updates the list after a mutation and inspects the cache in devtools.",
+          "deliverable": "React client using the API",
+          "checks": [["Filter books", "List updates from query variables", "Screen recording"], ["Add a review", "List updates after the mutation without a full reload", "Screen recording"], ["Inspect the cache", "Normalised entities visible in devtools", "Screenshot"]],
+          "objectives": ["Call GraphQL from React", "Handle loading and errors", "Update data after mutations"]
+        },
+        {
+          "topic": "Subscriptions for Real-Time Updates",
+          "subtopics": ["When to use subscriptions", "The graphql-ws protocol", "Subscription resolvers and async iterators", "Publishing events from mutations", "Filtering subscription events", "Authenticating subscriptions", "Subscriptions in the client", "Alternatives such as polling"],
+          "tools": ["graphql-ws", "Apollo Server", "Apollo Client"],
+          "lab_task": "Add a reviewAdded subscription filtered by book, publish events from the mutation, authenticate the WebSocket connection and show live reviews in the React page.",
+          "deliverable": "Real-time review feature",
+          "checks": [["Add a review", "Subscribed clients see it instantly", "Screen recording"], ["Filter events", "Clients receive only their book's reviews", "Test output"], ["Connect without a token", "Subscription connection refused", "Client output"]],
+          "objectives": ["Build GraphQL subscriptions", "Filter and secure events", "Use subscriptions in clients"]
+        },
+        {
+          "topic": "Testing GraphQL APIs",
+          "subtopics": ["What to test in a GraphQL API", "Executing operations in tests without HTTP", "HTTP-level tests", "Testing resolvers with fake services", "Testing errors and authorisation", "Schema snapshot tests", "Test data factories", "Running tests in CI"],
+          "tools": ["Vitest or Jest", "Apollo Server executeOperation", "Supertest"],
+          "lab_task": "Write tests that execute operations directly and over HTTP, cover errors and authorisation, snapshot the schema and run the suite in CI.",
+          "deliverable": "Test suite with CI job",
+          "checks": [["Execute operations", "Operation tests run without starting a server", "Test output"], ["Snapshot the schema", "Schema change fails the snapshot until reviewed", "Test output"], ["Run in CI", "Suite passes in the pipeline", "CI run"]],
+          "objectives": ["Test GraphQL servers", "Test authorisation and errors", "Guard the schema"]
+        },
+        {
+          "topic": "Documenting and Exploring APIs with GraphiQL and Apollo Sandbox",
+          "subtopics": ["Schema descriptions as documentation", "Deprecation notices", "Example operations", "Exploring with GraphiQL", "Apollo Sandbox and Explorer features", "Generating static schema documentation", "Publishing the schema file", "Onboarding new client developers"],
+          "tools": ["GraphiQL", "Apollo Sandbox", "SpectaQL or GraphQL Markdown"],
+          "lab_task": "Add descriptions, deprecations and example operations to the API, publish a static documentation site from the schema and onboard a classmate as a new client developer.",
+          "deliverable": "Documentation site and onboarding notes",
+          "checks": [["Publish docs", "Every type and field documented on the site", "Docs URL"], ["Deprecate a field", "Deprecation notice shown in tools", "Screenshot"], ["Onboard a peer", "Peer writes a working query from the docs alone", "Peer confirmation"]],
+          "objectives": ["Document GraphQL APIs", "Mark deprecations", "Onboard client developers"]
+        },
+        {
+          "topic": "Deploying a GraphQL Server",
+          "subtopics": ["Production settings for Apollo Server", "Disabling introspection and sandbox where needed", "Containerising the server", "Health checks", "Environment configuration", "Logging and monitoring in production", "Deploying to a cloud platform", "Smoke tests after deployment"],
+          "tools": ["Docker", "Apollo Server", "A cloud platform such as Render or Azure Container Apps"],
+          "lab_task": "Containerise the API with production settings and health checks, deploy it to a cloud platform with PostgreSQL, run smoke tests and confirm logging works.",
+          "deliverable": "Live GraphQL API and deployment guide",
+          "checks": [["Deploy", "API reachable over HTTPS", "Browser or client screenshot"], ["Check production settings", "Introspection limited as configured", "Response"], ["Run smoke tests", "Smoke queries pass after deployment", "Test output"]],
+          "objectives": ["Deploy GraphQL servers", "Configure for production", "Verify deployments"]
+        },
+        {
+          "topic": "Beginner Capstone: Bookstore GraphQL API",
+          "subtopics": ["Plan", "Build", "Test", "Ship"],
+          "tools": ["Apollo Server", "PostgreSQL", "DataLoader", "Apollo Client", "Docker"],
+          "lab_task": "Complete the bookstore API with a documented schema, mutations, pagination, authentication and field rules, DataLoaders, subscriptions, a React client, tests and a deployment, then demo it.",
+          "deliverable": "Repository, live API, client and demo recording",
+          "checks": [["Demo the API", "Queries, mutations and live reviews work end to end", "Demo recording"], ["Run the tests", "Test suite passes", "Test report"], ["Check query counts", "Nested queries use batched loading", "Query log"]],
+          "objectives": ["Combine the beginner topics in one API", "Build a complete GraphQL service", "Ship it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already build GraphQL APIs. Covers schema design for products, code-first servers with Pothos and GraphQL Yoga, type generation, errors as data, advanced pagination and filtering, caching and persisted queries, the Apollo Client cache, Relay conventions, uploads, security limits, resolver performance, schema evolution, custom directives, subscriptions at scale, gateways over services, testing strategy, observability, GraphQL in other languages and schema checks in CI.",
+      "prerequisites": ["Has built a GraphQL API with resolvers, mutations and authentication", "Writes TypeScript", "Understands DataLoader and pagination"],
+      "outcomes": ["Design product-quality GraphQL schemas", "Build typed, secure and fast GraphQL servers", "Cache and evolve GraphQL APIs safely", "Run GraphQL across services and languages"],
+      "days": [
+        {
+          "topic": "Schema Design Principles for Product APIs",
+          "subtopics": ["Designing from client use cases", "Naming and consistency rules", "Nodes and global identity", "Modelling mutations by intent", "Avoiding database-shaped schemas", "Nullability strategy", "Schema review checklists", "Design documents for schema changes"],
+          "tools": ["GraphQL SDL", "Schema review checklist", "GraphQL ESLint"],
+          "lab_task": "Redesign a database-shaped schema from client use cases, apply naming and nullability rules, model intent-based mutations and run a schema review with a checklist.",
+          "deliverable": "Redesigned schema and review record",
+          "checks": [["Map use cases", "Each client screen served by the new schema", "Use case mapping"], ["Lint the schema", "GraphQL ESLint rules pass", "Lint output"], ["Review the design", "Review findings resolved", "Review record"]],
+          "objectives": ["Design schemas from use cases", "Apply naming and nullability rules", "Review schema changes"]
+        },
+        {
+          "topic": "Code-First Servers with Pothos and GraphQL Yoga",
+          "subtopics": ["Schema-first compared with code-first", "Pothos schema builder", "Type-safe resolvers from TypeScript types", "Pothos plugins for auth, errors and Prisma", "GraphQL Yoga server", "Envelop plugins", "Migrating from SDL to code-first", "Choosing an approach for a team"],
+          "tools": ["Pothos", "GraphQL Yoga", "Prisma", "TypeScript"],
+          "lab_task": "Rebuild part of the API code-first with Pothos and the Prisma plugin on GraphQL Yoga, add the auth and errors plugins and compare type safety with the SDL version.",
+          "deliverable": "Code-first service and comparison notes",
+          "checks": [["Break a type", "TypeScript catches a resolver returning the wrong shape", "tsc output"], ["Use the Prisma plugin", "Relations resolved without manual loaders", "Query log"], ["Compare approaches", "Trade-offs recorded for the team", "Comparison notes"]],
+          "objectives": ["Build code-first GraphQL servers", "Use Pothos plugins", "Choose schema-first or code-first"]
+        },
+        {
+          "topic": "Type Generation with GraphQL Code Generator",
+          "subtopics": ["GraphQL Code Generator setup", "Server resolver types", "Client operation types", "Typed document nodes", "Fragment masking", "Generating hooks for React", "Watch mode and CI checks", "Keeping generated code out of reviews"],
+          "tools": ["GraphQL Code Generator", "TypeScript", "Apollo Client"],
+          "lab_task": "Generate resolver types for the server and typed documents with fragment masking for the React client, run generation in watch mode and fail CI when generated code is stale.",
+          "deliverable": "Code generation setup",
+          "checks": [["Change the schema", "Type errors appear in affected client components", "tsc output"], ["Use fragment masking", "Components read only their own fragment fields", "Code review"], ["Check freshness in CI", "Stale generated code fails the build", "CI log"]],
+          "objectives": ["Generate types for GraphQL", "Type clients and servers", "Automate generation"]
+        },
+        {
+          "topic": "Errors as Data: Result Types and Error Unions",
+          "subtopics": ["Limits of top-level errors", "Result unions for mutations", "Typed error objects", "Partial success in batch mutations", "Client handling of result types", "Combining with top-level errors for system failures", "Documenting error types", "Migrating existing mutations"],
+          "tools": ["GraphQL SDL", "Pothos errors plugin", "Apollo Client"],
+          "lab_task": "Convert checkout and review mutations to result unions with typed errors, handle each error type in the client and keep system failures as top-level errors.",
+          "deliverable": "Result types and client handling",
+          "checks": [["Trigger a business error", "Client receives a typed error object", "Response"], ["Handle in the client", "Each error type shows a specific message", "Screenshots"], ["Trigger a system failure", "Top-level error returned with a code", "Response"]],
+          "objectives": ["Model errors as data", "Use result unions", "Handle errors in clients"]
+        },
+        {
+          "topic": "Advanced Pagination, Filtering and Sorting",
+          "subtopics": ["Filter input design", "Combining filters with AND and OR", "Sorting inputs", "Keyset pagination in the database", "Stable cursors with sorting", "Search fields", "Limits on page size", "Performance of filtered connections"],
+          "tools": ["PostgreSQL", "Pothos or Apollo Server", "Query plans"],
+          "lab_task": "Design filter and sort inputs for the catalogue, implement keyset pagination that stays stable under sorting, cap page sizes and check query plans.",
+          "deliverable": "Filtering and pagination design",
+          "checks": [["Sort and page", "Pages stay consistent when sorting by price", "Test output"], ["Cap page size", "Requests above the limit rejected", "Response"], ["Check plans", "Filtered queries use indexes", "EXPLAIN output"]],
+          "objectives": ["Design filter inputs", "Implement keyset pagination", "Keep connections fast"]
+        },
+        {
+          "topic": "Caching: HTTP, Persisted Queries and Response Caches",
+          "subtopics": ["Why GraphQL caching is different", "Automatic persisted queries", "GET requests and CDN caching", "Cache control hints", "Response caching plugins", "Per-user and public data", "Invalidation strategies", "Measuring cache benefit"],
+          "tools": ["Apollo Server cache control", "Envelop response cache", "CDN"],
+          "lab_task": "Add automatic persisted queries, serve public queries over GET through a CDN with cache hints, cache responses on the server and keep private data out of shared caches.",
+          "deliverable": "Caching configuration with measurements",
+          "checks": [["Use persisted queries", "Repeat requests send only the query hash", "Network log"], ["Cache at the CDN", "Public query served from the CDN", "Response headers"], ["Protect private data", "User data never cached publicly", "Test output"]],
+          "objectives": ["Cache GraphQL responses", "Use persisted queries", "Separate public and private data"]
+        },
+        {
+          "topic": "Apollo Client Cache: Normalisation, Policies and Updates",
+          "subtopics": ["Normalisation and cache IDs", "Type policies and key fields", "Field policies and merge functions", "Pagination in the cache", "Updating the cache after mutations", "Optimistic responses", "Local-only fields", "Debugging cache problems"],
+          "tools": ["Apollo Client", "Apollo Client Devtools", "React"],
+          "lab_task": "Configure type and field policies for paginated lists, update the cache after mutations without refetching, add optimistic responses and fix a stale-data bug.",
+          "deliverable": "Configured client cache",
+          "checks": [["Paginate in the cache", "Infinite list merges pages correctly", "Screen recording"], ["Update without refetch", "Mutation updates the list from the cache", "Network log"], ["Fix stale data", "Cause of the stale list identified and fixed", "Fix notes"]],
+          "objectives": ["Configure the Apollo cache", "Update the cache after mutations", "Debug cache issues"]
+        },
+        {
+          "topic": "Relay Conventions: Global IDs, Connections and Fragments",
+          "subtopics": ["Relay server specification", "Global object identification and the node field", "Connections as Relay expects them", "Fragment colocation", "Relay compiler", "Mutations and store updates in Relay", "Relay compared with Apollo Client", "Making a server Relay-compatible"],
+          "tools": ["Relay", "React", "GraphQL server"],
+          "lab_task": "Make the server Relay-compatible with global IDs and the node field, build a Relay page with colocated fragments and compare the developer experience with Apollo Client.",
+          "deliverable": "Relay-compatible server and client page",
+          "checks": [["Refetch by node", "Any object refetched through the node field", "Response"], ["Colocate fragments", "Each component declares its own data", "Code review"], ["Compare clients", "Trade-offs of Relay and Apollo recorded", "Comparison notes"]],
+          "objectives": ["Follow Relay conventions", "Build Relay clients", "Choose a client library"]
+        },
+        {
+          "topic": "File Uploads and Large Payloads in GraphQL",
+          "subtopics": ["Options for uploads with GraphQL", "Signed URLs with object storage", "The multipart request specification and its risks", "Returning upload status", "Large responses and streaming", "Payload size limits", "CSRF protection for uploads", "Choosing an approach"],
+          "tools": ["Amazon S3 or MinIO", "GraphQL server", "Signed URLs"],
+          "lab_task": "Implement uploads through signed URLs requested by a mutation, record upload status, compare with multipart uploads and add size limits and CSRF protection.",
+          "deliverable": "Upload flow with notes on trade-offs",
+          "checks": [["Upload a file", "File goes straight to storage through a signed URL", "Network log"], ["Exceed a limit", "Oversized request rejected", "Response"], ["Compare approaches", "Risks of multipart uploads documented", "Notes"]],
+          "objectives": ["Handle uploads with GraphQL", "Use signed URLs", "Limit payload sizes"]
+        },
+        {
+          "topic": "Security: Depth Limits, Cost Analysis and Introspection Control",
+          "subtopics": ["Denial of service through deep or wide queries", "Depth and breadth limits", "Query cost analysis", "Alias and batching abuse", "Introspection in production", "Rate limiting by operation cost", "Error message leaks", "Security testing of GraphQL APIs"],
+          "tools": ["graphql-armor", "Envelop plugins", "InQL or graphql-cop"],
+          "lab_task": "Attack the API with deep, wide and aliased queries, add depth, cost and alias limits, rate-limit by cost, restrict introspection and retest with a GraphQL security scanner.",
+          "deliverable": "Security configuration and scan results",
+          "checks": [["Send a deep query", "Query rejected by the depth limit", "Response"], ["Send an expensive query", "Query rejected by cost analysis", "Response"], ["Scan the API", "Scanner finds no high-risk issues", "Scan report"]],
+          "objectives": ["Protect GraphQL from abuse", "Limit query cost", "Test GraphQL security"]
+        },
+        {
+          "topic": "Performance: Tracing Resolvers and Batching",
+          "subtopics": ["Finding slow resolvers", "Resolver tracing", "Batching beyond DataLoader", "Look-ahead with the info argument", "Projection to avoid over-fetching columns", "Parallel resolution", "Caching inside resolvers", "Load testing GraphQL operations"],
+          "tools": ["OpenTelemetry", "Apollo usage reporting or GraphQL Hive", "k6"],
+          "lab_task": "Trace a slow operation to its resolvers, use look-ahead to fetch only requested columns, batch an external API call, cache a hot resolver and prove the gains under load.",
+          "deliverable": "Performance report with traces",
+          "checks": [["Find the slow resolver", "Slowest resolver identified in the trace", "Trace screenshot"], ["Use look-ahead", "SQL selects only requested columns", "Query log"], ["Load test", "p95 latency lower after the changes", "k6 results"]],
+          "objectives": ["Trace GraphQL performance", "Fetch only what is needed", "Prove performance gains"]
+        },
+        {
+          "topic": "Schema Evolution and Deprecation",
+          "subtopics": ["Additive changes", "Breaking changes and how to avoid them", "@deprecated and replacement fields", "Field usage tracking", "Removing fields safely", "Versioning compared with continuous evolution", "Communicating changes", "Change logs for schemas"],
+          "tools": ["GraphQL Inspector", "GraphQL Hive or Apollo GraphOS"],
+          "lab_task": "Deprecate and replace two fields, track usage until clients move, detect breaking changes with GraphQL Inspector and remove a field only when usage reaches zero.",
+          "deliverable": "Evolution plan and change log",
+          "checks": [["Detect a breaking change", "Inspector flags the removal", "Inspector output"], ["Track usage", "Usage of the deprecated field reported per client", "Usage report"], ["Remove safely", "Field removed only after zero usage", "Change log"]],
+          "objectives": ["Evolve schemas without versions", "Track field usage", "Remove fields safely"]
+        },
+        {
+          "topic": "Directives: Built-In and Custom",
+          "subtopics": ["Built-in directives", "Schema directives", "Executable directives", "Implementing directives with schema transforms", "Directives for auth and formatting", "Directive pitfalls", "Directives in federation", "Documenting directives"],
+          "tools": ["graphql-tools mapSchema", "Apollo Server or GraphQL Yoga"],
+          "lab_task": "Implement a @formatDate directive and an @auth directive with schema transforms, compare them with plugin-based approaches and document both.",
+          "deliverable": "Custom directives with tests",
+          "checks": [["Format dates", "Directive formats dates as requested", "Response"], ["Protect fields", "@auth blocks unauthorised access", "Response"], ["Compare approaches", "Directive and plugin trade-offs recorded", "Notes"]],
+          "objectives": ["Use built-in directives", "Write custom directives", "Choose directives or plugins"]
+        },
+        {
+          "topic": "Subscriptions at Scale with WebSockets and Server-Sent Events",
+          "subtopics": ["Subscription transports: WebSockets and SSE", "Scaling with Redis or other pub/sub", "Connection limits and memory", "Filtering events efficiently", "Authentication and reauthentication", "Back-pressure and slow consumers", "Monitoring subscriptions", "Load testing subscriptions"],
+          "tools": ["graphql-ws", "graphql-sse", "Redis pub/sub", "k6"],
+          "lab_task": "Scale subscriptions across three instances with Redis pub/sub, switch a client to SSE, handle slow consumers and load test 5,000 concurrent subscribers.",
+          "deliverable": "Scaled subscription setup with test results",
+          "checks": [["Scale out", "Events reach subscribers on all instances", "Test output"], ["Use SSE", "Client receives events over SSE", "Network log"], ["Load test", "5,000 subscribers served at the target latency", "Load test report"]],
+          "objectives": ["Scale GraphQL subscriptions", "Choose transports", "Load test real-time APIs"]
+        },
+        {
+          "topic": "GraphQL over Microservices: Schema Stitching and Gateways",
+          "subtopics": ["Exposing many services through one graph", "Schema stitching", "Gateways in front of REST services", "Wrapping REST with GraphQL Mesh", "Error and timeout handling across services", "Authentication propagation", "When to move to federation", "Operating a gateway"],
+          "tools": ["GraphQL Mesh", "Schema stitching", "Hive Gateway"],
+          "lab_task": "Build one graph over a REST product service and a GraphQL review service with GraphQL Mesh and stitching, propagate auth and handle a slow downstream service.",
+          "deliverable": "Gateway over two services",
+          "checks": [["Query across services", "One operation returns data from both services", "Response"], ["Propagate auth", "Downstream services receive the user identity", "Log output"], ["Slow a service", "Gateway times out and returns partial data", "Response"]],
+          "objectives": ["Combine services in one graph", "Wrap REST APIs", "Handle downstream failures"]
+        },
+        {
+          "topic": "Testing Strategy: Unit, Integration and Contract Tests for Schemas",
+          "subtopics": ["Test layers for GraphQL services", "Resolver unit tests", "Integration tests with real databases", "Operation-based contract tests", "Mocked schemas for client tests", "Schema checks against real client operations", "Load tests", "Flaky test control"],
+          "tools": ["Vitest", "Testcontainers", "GraphQL Inspector", "graphql-tools mocks"],
+          "lab_task": "Build a layered test suite with resolver tests, container-backed integration tests, mocked-schema client tests and operation checks that block changes breaking known client queries.",
+          "deliverable": "Layered test suite",
+          "checks": [["Run integration tests", "Tests pass against a real PostgreSQL container", "Test output"], ["Check client operations", "Breaking change caught against saved operations", "CI log"], ["Mock the schema", "Client tests run without a server", "Test output"]],
+          "objectives": ["Plan GraphQL testing", "Test against real dependencies", "Protect clients from breaking changes"]
+        },
+        {
+          "topic": "Observability for GraphQL APIs",
+          "subtopics": ["Why HTTP metrics are not enough", "Operation-level metrics", "Resolver traces with OpenTelemetry", "Error rates by operation and field", "Client identification", "Field usage analytics", "Dashboards and alerts", "Sampling and cost"],
+          "tools": ["OpenTelemetry", "GraphQL Hive or Apollo GraphOS", "Grafana"],
+          "lab_task": "Instrument the API for operation and resolver telemetry, identify clients by name and version, build dashboards for slow and failing operations and alert on error spikes.",
+          "deliverable": "Observability setup and dashboards",
+          "checks": [["Trace an operation", "Trace shows resolver spans and database calls", "Trace screenshot"], ["Identify clients", "Metrics split by client name and version", "Dashboard screenshot"], ["Alert on errors", "Alert fires for an error spike on one operation", "Alert notification"]],
+          "objectives": ["Observe GraphQL APIs", "Track operations and clients", "Alert on problems"]
+        },
+        {
+          "topic": "GraphQL in Other Languages: Strawberry, Hot Chocolate, gqlgen and Spring for GraphQL",
+          "subtopics": ["The same schema in several languages", "Strawberry for Python", "Hot Chocolate for .NET", "gqlgen for Go", "Spring for GraphQL for Java", "Batching and auth in each ecosystem", "Interoperability through the specification", "Choosing a server stack"],
+          "tools": ["Strawberry", "Hot Chocolate", "gqlgen", "Spring for GraphQL"],
+          "lab_task": "Implement the same small schema in two other languages, run the same client operations against all three servers and compare batching, auth and developer experience.",
+          "deliverable": "Two extra implementations and a comparison",
+          "checks": [["Run the same operations", "All servers return the same results", "Test output"], ["Compare batching", "Batching approach documented for each stack", "Comparison notes"], ["Recommend a stack", "Recommendation for a given team context", "Recommendation document"]],
+          "objectives": ["Build GraphQL servers in other languages", "Compare ecosystems", "Choose a server stack"]
+        },
+        {
+          "topic": "CI/CD and Schema Checks",
+          "subtopics": ["Publishing schemas from CI", "Schema checks against real traffic", "Linting schemas", "Generated code checks", "Deployment of servers and clients", "Preview environments", "Rollbacks", "Release notes for schema changes"],
+          "tools": ["GitHub Actions", "GraphQL Hive or Apollo Rover", "GraphQL ESLint"],
+          "lab_task": "Build a pipeline that lints the schema, checks changes against recorded client operations, publishes the schema, deploys the server and rolls back a bad release.",
+          "deliverable": "Pipeline definition and runbook",
+          "checks": [["Run schema checks", "Pipeline blocks a change that breaks a live client", "CI log"], ["Publish the schema", "Registry shows the new schema version", "Registry screenshot"], ["Roll back", "Previous server and schema restored", "Deployment log"]],
+          "objectives": ["Automate GraphQL delivery", "Check schemas against usage", "Roll back safely"]
+        },
+        {
+          "topic": "Intermediate Capstone: Typed GraphQL API for a Marketplace",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["Pothos", "GraphQL Yoga", "PostgreSQL", "GraphQL Code Generator", "Apollo Client", "OpenTelemetry"],
+          "lab_task": "Build a marketplace API with a reviewed schema, code-first server, generated types, result-type errors, keyset pagination, caching, security limits, subscriptions, observability and schema checks in CI, then present it.",
+          "deliverable": "Repository, live API, reports and presentation",
+          "checks": [["Demo the marketplace", "Listing, buying and live updates work end to end", "Demo recording"], ["Show quality", "Security, performance and test reports meet targets", "Reports"], ["Defend the schema", "Schema choices explained against client use cases", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one API", "Ship a production GraphQL API", "Explain schema decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior API engineers and platform teams running GraphQL at scale. Covers execution internals, Apollo Federation v2, subgraph and entity design, supergraph routing, schema governance, persisted operations and abuse protection, query planning, caching at scale, live queries and incremental delivery, mobile clients, REST migration, GraphQL as a BFF, data access patterns, multi-tenancy, observability and SLOs, testing federated graphs, GraphQL for AI agents, platform operating models and incident troubleshooting.",
+      "prerequisites": ["Several years building production GraphQL APIs", "Strong TypeScript or another server language", "Has operated APIs in production"],
+      "outcomes": ["Architect federated supergraphs for many teams", "Engineer performance, caching and security at scale", "Govern schemas and migrations across an organisation", "Lead GraphQL platform decisions and incident response"],
+      "days": [
+        {
+          "topic": "GraphQL Execution Internals: Parsing, Validation and Execution",
+          "subtopics": ["Lexing and parsing documents", "The AST and visitors", "Validation rules", "Execution algorithm and field collection", "Abstract type resolution internals", "Error propagation internals", "Custom validation rules", "Reading graphql-js source"],
+          "tools": ["graphql-js", "AST Explorer", "Node.js debugger"],
+          "lab_task": "Parse documents and walk the AST, write a custom validation rule that blocks a field pattern, step through execution in the debugger and explain null propagation from the source.",
+          "deliverable": "Internals notebook with a custom rule",
+          "checks": [["Write a validation rule", "Rule rejects the forbidden pattern", "Test output"], ["Walk the AST", "Visitor reports every field in a document", "Script output"], ["Explain propagation", "Null propagation explained from the source code", "Notes"]],
+          "objectives": ["Explain GraphQL execution internals", "Write validation rules", "Work with the AST"]
+        },
+        {
+          "topic": "Federation Architecture with Apollo Federation v2",
+          "subtopics": ["Why federation", "Supergraph and subgraphs", "Entities and @key", "Sharing types with @shareable", "Moving fields with @override", "Interfaces and entities across subgraphs", "Composition and errors", "Federation compared with stitching"],
+          "tools": ["Apollo Federation v2", "Apollo Rover", "Apollo Router or Hive Gateway"],
+          "lab_task": "Split the marketplace graph into products, reviews and users subgraphs, compose a supergraph, move a field between subgraphs with @override and fix composition errors.",
+          "deliverable": "Federated supergraph",
+          "checks": [["Compose the supergraph", "Composition succeeds with three subgraphs", "Rover output"], ["Resolve entities", "Product query returns fields from all three subgraphs", "Response"], ["Move a field", "Field moved with @override without client changes", "Change log"]],
+          "objectives": ["Design federated graphs", "Use entities and federation directives", "Compose supergraphs"]
+        },
+        {
+          "topic": "Subgraph Design and Entity Ownership",
+          "subtopics": ["Mapping subgraphs to teams and domains", "Entity ownership and contributions", "Avoiding chatty entity resolution", "Value types and shared enums", "Reference resolvers and batching", "Subgraph boundaries that change", "Anti-patterns in federated design", "Design reviews across teams"],
+          "tools": ["Apollo Federation", "Subgraph libraries", "DataLoader"],
+          "lab_task": "Design subgraph boundaries for a retailer with four teams, batch reference resolvers, remove a chatty entity pattern and run a cross-team design review.",
+          "deliverable": "Subgraph design document",
+          "checks": [["Batch references", "Entity lookups batched per request", "Query log"], ["Remove chattiness", "Fewer subgraph calls for the key operation", "Query plan comparison"], ["Review the design", "Cross-team review actions recorded", "Review notes"]],
+          "objectives": ["Design subgraph boundaries", "Own entities clearly", "Avoid federated anti-patterns"]
+        },
+        {
+          "topic": "Supergraph Routing with Apollo Router or Hive Gateway",
+          "subtopics": ["Router architecture", "Query plans", "Header propagation and auth at the router", "Coprocessors and plugins", "Traffic shaping and timeouts", "Router telemetry", "Deploying and scaling the router", "Choosing a router"],
+          "tools": ["Apollo Router", "Hive Gateway", "Rhai or coprocessors"],
+          "lab_task": "Run the supergraph behind a router with JWT checks, header propagation, a coprocessor for custom policy, timeouts per subgraph and telemetry, then scale it to three replicas.",
+          "deliverable": "Router configuration and runbook",
+          "checks": [["Check auth at the router", "Unauthenticated operations stopped at the router", "Router log"], ["Time out a subgraph", "Slow subgraph returns a partial response within the limit", "Response"], ["Read query plans", "Plan for the main operation explained", "Query plan"]],
+          "objectives": ["Operate a supergraph router", "Apply policy at the edge", "Read query plans"]
+        },
+        {
+          "topic": "Schema Governance for Many Teams",
+          "subtopics": ["Schema registries", "Contracts and variants", "Ownership metadata", "Linting and design rules", "Change approval workflows", "Breaking change policy", "Communicating change across teams", "Measuring governance health"],
+          "tools": ["Apollo GraphOS or GraphQL Hive", "GraphQL ESLint", "CODEOWNERS"],
+          "lab_task": "Set up a schema registry with ownership metadata, lint rules, contracts for a partner variant and an approval workflow, then process two changes from different teams.",
+          "deliverable": "Governance setup and process guide",
+          "checks": [["Publish a contract", "Partner variant exposes only approved fields", "Schema comparison"], ["Process a change", "Change approved by the owning team before publish", "Approval record"], ["Enforce rules", "Rule-breaking change blocked", "CI log"]],
+          "objectives": ["Govern shared schemas", "Use registries and contracts", "Run change workflows"]
+        },
+        {
+          "topic": "Advanced Security: Persisted Operations, Rate Limits and Abuse Protection",
+          "subtopics": ["Trusted documents and persisted operation lists", "Blocking arbitrary operations in production", "Rate limits by client and cost", "Batching and alias abuse at scale", "Authorisation at subgraph and router", "Protecting introspection and schema leaks", "Logging and detecting abuse", "Penetration testing GraphQL platforms"],
+          "tools": ["Persisted operations", "Apollo Router or Hive Gateway", "graphql-armor", "WAF"],
+          "lab_task": "Move first-party clients to trusted documents, block arbitrary operations, apply cost-based limits per client, detect abuse in logs and run a penetration test.",
+          "deliverable": "Security configuration and test report",
+          "checks": [["Send an unknown operation", "Router rejects operations not on the list", "Response"], ["Exceed a client limit", "Client throttled by cost", "Response"], ["Run a penetration test", "High findings fixed on retest", "Retest report"]],
+          "objectives": ["Lock down production graphs", "Limit abuse", "Test GraphQL platform security"]
+        },
+        {
+          "topic": "Query Planning and Performance at Scale",
+          "subtopics": ["How query plans are built", "Reducing subgraph fetches", "@requires and @provides", "Batching entity calls", "Defer for slow fields", "Caching query plans", "Load testing a supergraph", "Performance budgets per operation"],
+          "tools": ["Apollo Router", "k6", "OpenTelemetry"],
+          "lab_task": "Analyse query plans for the top five operations, cut subgraph fetches with @provides, defer slow fields, load test the supergraph and set budgets per operation.",
+          "deliverable": "Performance analysis and budgets",
+          "checks": [["Cut fetches", "Fewer subgraph calls in the new plan", "Query plan comparison"], ["Defer slow fields", "Initial response arrives before the slow field", "Network timing"], ["Load test", "Budgets met for the top operations", "k6 report"]],
+          "objectives": ["Optimise query plans", "Use federation performance features", "Set performance budgets"]
+        },
+        {
+          "topic": "Caching Strategies at Scale: CDN, Entity Caching and Invalidation",
+          "subtopics": ["Caching layers for a supergraph", "Entity caching", "Cache control hints across subgraphs", "CDN caching for persisted queries", "Invalidation by entity and tag", "Personalised data and cache keys", "Cache consistency trade-offs", "Measuring hit rates"],
+          "tools": ["Apollo Router entity caching or Hive response cache", "CDN", "Redis"],
+          "lab_task": "Add entity caching and CDN caching for public operations, invalidate by entity when products change, keep personalised fields uncached and measure hit rates and freshness.",
+          "deliverable": "Caching design with measurements",
+          "checks": [["Invalidate an entity", "Updated product appears within the freshness target", "Test output"], ["Cache publicly", "Public operations served from the CDN", "Response headers"], ["Measure hit rates", "Hit rate reported per layer", "Metrics"]],
+          "objectives": ["Design caching for supergraphs", "Invalidate precisely", "Measure cache value"]
+        },
+        {
+          "topic": "Real-Time Architectures: Subscriptions, Live Queries and Incremental Delivery",
+          "subtopics": ["Subscriptions in a federated graph", "Live queries", "@defer and @stream for incremental delivery", "Event sources such as Kafka", "Scaling real-time connections", "Client support for incremental delivery", "Choosing a real-time approach", "Costs of real-time features"],
+          "tools": ["Apollo Router subscriptions", "@defer and @stream support", "Kafka"],
+          "lab_task": "Add federated subscriptions fed from Kafka, stream a long list with @stream, defer slow fields and compare the cost and complexity of each approach.",
+          "deliverable": "Real-time features and comparison",
+          "checks": [["Subscribe through the router", "Events from a subgraph reach clients through the router", "Client output"], ["Stream a list", "List items arrive incrementally", "Network log"], ["Compare approaches", "Cost and complexity recorded for each", "Comparison notes"]],
+          "objectives": ["Build real-time features in federated graphs", "Use incremental delivery", "Choose real-time approaches"]
+        },
+        {
+          "topic": "GraphQL for Mobile Clients: Offline, Persisted Queries and Versioning",
+          "subtopics": ["Mobile constraints: network, battery and release cycles", "Persisted queries for mobile apps", "Supporting old app versions", "Offline caching and sync", "Payload size control", "Client identification and usage tracking", "Apollo Kotlin and Apollo iOS", "Deprecation with long-lived clients"],
+          "tools": ["Apollo Kotlin", "Apollo iOS", "Persisted queries"],
+          "lab_task": "Ship a mobile client with persisted queries and an offline cache, track usage by app version and plan field removal while old versions are still in use.",
+          "deliverable": "Mobile client setup and deprecation plan",
+          "checks": [["Use persisted queries", "Mobile requests send hashes only", "Network log"], ["Work offline", "Cached data shown without a connection", "Screen recording"], ["Plan removal", "Field removal timed to app version usage", "Deprecation plan"]],
+          "objectives": ["Support mobile clients", "Handle long-lived app versions", "Control payloads"]
+        },
+        {
+          "topic": "Migrating REST APIs to GraphQL",
+          "subtopics": ["Reasons to migrate and reasons not to", "Wrapping REST endpoints as a first step", "Moving logic into subgraphs", "Running REST and GraphQL side by side", "Client migration plans", "Measuring adoption", "Retiring REST endpoints", "Lessons from migrations"],
+          "tools": ["GraphQL Mesh", "Apollo Connectors or REST data sources", "Usage analytics"],
+          "lab_task": "Wrap three REST services in the graph, move one into a native subgraph, migrate a client screen, track adoption and retire one REST endpoint safely.",
+          "deliverable": "Migration plan and progress report",
+          "checks": [["Wrap REST services", "REST data available in the graph", "Response"], ["Migrate a screen", "Client screen uses GraphQL only", "Network log"], ["Retire an endpoint", "Endpoint removed after zero traffic", "Traffic report"]],
+          "objectives": ["Plan REST to GraphQL migrations", "Run both side by side", "Retire old endpoints safely"]
+        },
+        {
+          "topic": "GraphQL as a Backend for Frontend",
+          "subtopics": ["BFF responsibilities", "One graph or one BFF per client", "Aggregating services for screens", "Client-specific fields and contracts", "Security in a BFF", "Performance budgets for screens", "Ownership of BFFs", "Evolving BFFs as products change"],
+          "tools": ["GraphQL Yoga or Apollo Server", "Contracts", "Product analytics"],
+          "lab_task": "Build a GraphQL BFF for a mobile app over existing services, compare it with a shared supergraph, enforce screen performance budgets and decide ownership.",
+          "deliverable": "BFF and decision record",
+          "checks": [["Serve a screen", "One operation serves the whole home screen", "Network log"], ["Meet the budget", "Screen operation within its latency budget", "Load test results"], ["Decide ownership", "Ownership and change process agreed", "Decision record"]],
+          "objectives": ["Use GraphQL as a BFF", "Compare BFF and shared graph designs", "Own BFFs well"]
+        },
+        {
+          "topic": "Data Access Patterns: Databases, Search and Third-Party APIs Behind GraphQL",
+          "subtopics": ["Resolving from SQL and NoSQL stores", "Search engines behind GraphQL fields", "Third-party APIs with rate limits", "Caching and batching across sources", "Consistency across sources", "Handling partial failures", "Auditing data access", "Choosing where data logic lives"],
+          "tools": ["PostgreSQL", "OpenSearch or Elasticsearch", "DataLoader", "Redis"],
+          "lab_task": "Serve one product type from PostgreSQL, search results from OpenSearch and stock from a rate-limited third-party API, batch and cache across sources and handle partial failures.",
+          "deliverable": "Multi-source resolvers with tests",
+          "checks": [["Search through GraphQL", "Search field returns ranked results", "Response"], ["Respect rate limits", "Third-party calls stay under the limit", "Metrics"], ["Fail a source", "Partial data returned with a clear error", "Response"]],
+          "objectives": ["Resolve from many data sources", "Batch and cache across sources", "Handle partial failures"]
+        },
+        {
+          "topic": "Multi-Tenant GraphQL APIs",
+          "subtopics": ["Tenancy in schemas and resolvers", "Tenant context at the router and subgraphs", "Data isolation strategies", "Per-tenant limits and features", "Tenant-specific schema variants", "Caching per tenant", "Testing isolation", "Onboarding tenants"],
+          "tools": ["GraphQL server", "PostgreSQL row-level security", "Router"],
+          "lab_task": "Make the marketplace graph multi-tenant with tenant context from tokens, row-level security, per-tenant limits and a schema variant for premium tenants, and prove isolation.",
+          "deliverable": "Multi-tenant design and isolation tests",
+          "checks": [["Test isolation", "No cross-tenant data in any operation", "Test output"], ["Limit a tenant", "Per-tenant cost limit enforced", "Response"], ["Use a variant", "Premium fields visible only to premium tenants", "Responses"]],
+          "objectives": ["Design multi-tenant graphs", "Enforce isolation", "Offer tenant-specific features"]
+        },
+        {
+          "topic": "Observability and SLOs for Supergraphs",
+          "subtopics": ["Signals for routers and subgraphs", "Tracing across the router and subgraphs", "SLOs per operation and client", "Error budgets", "Field-level usage and health", "Alerting on symptoms", "Dashboards for platform and product teams", "Telemetry cost control"],
+          "tools": ["OpenTelemetry", "Apollo GraphOS or GraphQL Hive", "Grafana"],
+          "lab_task": "Trace operations across router and subgraphs, define SLOs for the checkout and search operations, alert on burn rate and build dashboards for the platform team.",
+          "deliverable": "SLOs, dashboards and alert rules",
+          "checks": [["Trace across subgraphs", "One trace covers router and all subgraphs", "Trace screenshot"], ["Alert on burn rate", "Alert fires during a simulated failure", "Alert notification"], ["Build dashboards", "Dashboards show health per operation and client", "Dashboard screenshot"]],
+          "objectives": ["Observe supergraphs", "Define SLOs for operations", "Alert on user impact"]
+        },
+        {
+          "topic": "Testing Federated Graphs",
+          "subtopics": ["Testing subgraphs in isolation", "Composition checks", "Contract tests against client operations", "End-to-end tests through the router", "Local supergraph development", "Test data across subgraphs", "Performance tests for query plans", "Release coordination between teams"],
+          "tools": ["Apollo Rover", "Testcontainers", "k6", "Mock subgraphs"],
+          "lab_task": "Build a test strategy for the supergraph with isolated subgraph tests, composition checks, operation contracts, router end-to-end tests and query plan performance tests.",
+          "deliverable": "Federated test strategy and pipeline",
+          "checks": [["Check composition", "Breaking composition blocked before deploy", "CI log"], ["Run end-to-end tests", "Key operations pass through the router", "Test output"], ["Test plans", "Plan regressions caught by performance tests", "Test report"]],
+          "objectives": ["Test federated graphs", "Coordinate releases across teams", "Catch regressions early"]
+        },
+        {
+          "topic": "GraphQL and AI: Agents and LLM Tool Calling over a Graph",
+          "subtopics": ["Why a graph suits AI agents", "Exposing operations as tools", "Model Context Protocol servers over GraphQL", "Controlling what agents can query", "Persisted operations for agents", "Cost and rate limits for agent traffic", "Auditing agent access", "Evaluating agent answers"],
+          "tools": ["MCP", "Persisted operations", "GraphQL server", "LLM API"],
+          "lab_task": "Expose a curated set of graph operations as tools through an MCP server, let an agent answer catalogue questions, restrict it to safe operations and audit its usage.",
+          "deliverable": "Agent integration with audit report",
+          "checks": [["Answer with tools", "Agent answers questions through approved operations", "Conversation log"], ["Block unsafe access", "Agent cannot run operations outside its list", "Error log"], ["Audit usage", "Agent operations recorded with cost", "Audit report"]],
+          "objectives": ["Connect AI agents to a graph", "Control agent access", "Audit agent traffic"]
+        },
+        {
+          "topic": "Platform Team Operating Model for GraphQL",
+          "subtopics": ["Platform and product team responsibilities", "Golden paths for new subgraphs", "Templates and tooling", "Support and on-call", "Adoption metrics", "Training and documentation", "Funding and roadmaps", "Reviewing the operating model"],
+          "tools": ["Subgraph templates", "Backstage or a developer portal", "Adoption dashboards"],
+          "lab_task": "Define the operating model for a GraphQL platform team, publish a subgraph template and golden path, set adoption metrics and present a roadmap.",
+          "deliverable": "Operating model, template and roadmap",
+          "checks": [["Use the golden path", "New subgraph created and composed in a day", "Timeline"], ["Track adoption", "Adoption metrics dashboard live", "Dashboard screenshot"], ["Present the roadmap", "Roadmap agreed with stakeholders", "Meeting notes"]],
+          "objectives": ["Run a GraphQL platform", "Provide golden paths", "Measure adoption"]
+        },
+        {
+          "topic": "Troubleshooting Production GraphQL Incidents",
+          "subtopics": ["Incident triage for graphs", "Slow operations after schema changes", "Query plan regressions", "Subgraph outages and partial responses", "Abuse and traffic spikes", "Client-side cache bugs", "Evidence collection", "Post-incident reviews"],
+          "tools": ["OpenTelemetry", "Router logs", "Schema registry history"],
+          "lab_task": "Work through four incidents: a plan regression, a subgraph outage, an abusive client and a client cache bug, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by traces or registry history", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot GraphQL platforms", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Federated Supergraph for a Retail Platform",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["Apollo Federation", "Apollo Router or Hive Gateway", "OpenTelemetry", "Schema registry", "k6"],
+          "lab_task": "Design and build a federated supergraph for a retailer with four subgraphs, router policy, trusted documents, entity caching, real-time features, governance workflows and SLOs, then defend it to a review panel.",
+          "deliverable": "Supergraph repository, governance pack and defence",
+          "checks": [["Meet the SLOs", "Load test meets the agreed SLOs", "Load test report"], ["Prove governance", "Breaking changes blocked by the workflow", "CI log"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect federated graphs", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

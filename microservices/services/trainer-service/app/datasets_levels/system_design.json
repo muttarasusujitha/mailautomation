@@ -1,0 +1,573 @@
+{
+  "domain": "System Design",
+  "name": "System Design: High-Level and Low-Level Design",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "network",
+  "aliases": ["System Design Interview", "System Design Training", "System Design and Architecture", "High-Level Design", "Low-Level Design", "HLD and LLD", "HLD LLD", "Scalable System Design", "Distributed System Design", "Large-Scale System Design", "System Design Fundamentals"],
+  "certifications": ["No vendor certification; assessed by design reviews and mock interviews", "AWS Certified Solutions Architect - Associate as a companion certification"],
+  "tools": ["Excalidraw or draw.io", "C4 model", "Back-of-the-envelope calculators", "Java, Python or C# for low-level design", "Redis", "Kafka", "PostgreSQL"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers preparing for design interviews or moving into design work. Covers a method for design problems, requirements and estimates, client-server basics and APIs, SQL and NoSQL choices, scaling out with load balancers, caching, CDNs, replication, partitioning, queues, consistency and CAP, classic problems such as a URL shortener, rate limiter and notification system, object-oriented principles and SOLID, design patterns, low-level design problems, storage choices and how to communicate a design.",
+      "prerequisites": ["Has built at least one web application or API", "Knows one programming language well", "Understands databases at a basic level"],
+      "outcomes": ["Approach design problems with a repeatable method", "Use the building blocks of scalable systems", "Solve classic high-level and low-level design problems", "Explain designs and trade-offs clearly"],
+      "days": [
+        {
+          "topic": "System Design Overview and How to Approach Problems",
+          "subtopics": ["What system design covers: high-level and low-level design", "Where system design is used at work and in interviews", "A step-by-step method for any design problem", "Clarifying questions to ask first", "Functional and non-functional requirements", "Drawing a first high-level diagram", "Deep-diving into one component", "Talking about trade-offs", "Common mistakes in design discussions", "Tools for drawing designs"],
+          "tools": ["Excalidraw or draw.io", "Whiteboard"],
+          "lab_task": "Apply the design method to a simple file sharing service: ask clarifying questions, list requirements, draw a first diagram, deep-dive into storage and record the trade-offs.",
+          "deliverable": "First design using the method",
+          "checks": [["Ask clarifying questions", "At least eight useful questions asked before designing", "Question list"], ["Draw the diagram", "Clients, services and data stores shown with flows", "Diagram"], ["Record trade-offs", "Two choices explained with pros and cons", "Trade-off notes"]],
+          "objectives": ["Explain what system design covers", "Use a design method", "Discuss trade-offs"]
+        },
+        {
+          "topic": "Requirements: Functional, Non-Functional and Estimates",
+          "subtopics": ["Separating functional and non-functional requirements", "Availability, latency, durability and consistency targets", "Read and write patterns", "Back-of-the-envelope estimation", "Powers of two and latency numbers", "Estimating storage, bandwidth and requests per second", "Peak and average load", "Turning estimates into design choices"],
+          "tools": ["Estimation worksheet", "Calculator"],
+          "lab_task": "Write requirements for a social media app and estimate daily active users, requests per second, storage for five years and bandwidth, then explain how the numbers shape the design.",
+          "deliverable": "Requirements and estimation sheet",
+          "checks": [["List requirements", "Functional and non-functional requirements separated", "Requirements sheet"], ["Estimate load", "Requests per second and storage estimated with steps shown", "Estimation sheet"], ["Link to design", "Two design choices justified by the numbers", "Notes"]],
+          "objectives": ["Gather design requirements", "Estimate system load", "Use numbers to drive design"]
+        },
+        {
+          "topic": "Client-Server Architecture, HTTP and APIs",
+          "subtopics": ["Clients, servers and the request lifecycle", "DNS and how names resolve", "HTTP methods, status codes and headers", "REST API design", "RPC and gRPC", "WebSockets and long polling", "API gateways", "Stateless and stateful servers"],
+          "tools": ["Browser DevTools", "curl", "Diagram tool"],
+          "lab_task": "Trace a request from a browser to a server through DNS, load balancer and application, design REST endpoints for a to-do service and pick a protocol for live updates.",
+          "deliverable": "Request trace and API design",
+          "checks": [["Trace a request", "Each hop from browser to database explained", "Trace diagram"], ["Design endpoints", "Endpoints follow REST conventions with status codes", "API design"], ["Pick a protocol", "Choice for live updates justified", "Notes"]],
+          "objectives": ["Explain client-server flows", "Design APIs", "Choose communication protocols"]
+        },
+        {
+          "topic": "Databases: SQL and NoSQL Choices",
+          "subtopics": ["Relational databases and transactions", "Key-value stores", "Document databases", "Wide-column stores", "Graph databases", "Indexes and query patterns", "ACID and BASE", "Choosing a database from access patterns"],
+          "tools": ["PostgreSQL", "MongoDB", "Redis", "Diagram tool"],
+          "lab_task": "For five sample products, list access patterns and choose a database type for each, then model one in SQL and one in a document store.",
+          "deliverable": "Database choices with models",
+          "checks": [["Choose databases", "Each choice justified by access patterns", "Choice table"], ["Model in SQL", "Relational schema supports the main queries", "Schema"], ["Model as documents", "Document model avoids unneeded joins", "Model"]],
+          "objectives": ["Compare database types", "Choose from access patterns", "Model data for each type"]
+        },
+        {
+          "topic": "Scaling Out: Vertical Scaling, Horizontal Scaling and Load Balancers",
+          "subtopics": ["Vertical and horizontal scaling", "Stateless application servers", "Load balancer algorithms", "Layer 4 and layer 7 load balancing", "Health checks", "Sticky sessions and their problems", "Autoscaling", "Single points of failure"],
+          "tools": ["NGINX or HAProxy", "Docker Compose", "Load testing tool"],
+          "lab_task": "Scale a small web app from one to three servers behind NGINX, make it stateless, compare round robin and least connections under load and remove a single point of failure.",
+          "deliverable": "Scaled setup with load test results",
+          "checks": [["Scale to three servers", "Throughput grows with more servers", "Load test results"], ["Make it stateless", "Sessions survive when a server is removed", "Test output"], ["Remove a single point of failure", "Design survives losing any one node", "Updated diagram"]],
+          "objectives": ["Scale systems horizontally", "Use load balancers", "Remove single points of failure"]
+        },
+        {
+          "topic": "Caching Strategies",
+          "subtopics": ["Where to cache: client, CDN, server and database", "Cache-aside, read-through and write-through", "Write-back caching", "Eviction policies: LRU and LFU", "Expiry and invalidation", "Cache stampedes", "Hot keys", "Measuring hit ratio"],
+          "tools": ["Redis", "Diagram tool"],
+          "lab_task": "Add cache-aside caching with Redis to a product service, choose expiry and invalidation rules, protect against a stampede and measure hit ratio and latency.",
+          "deliverable": "Caching design with measurements",
+          "checks": [["Measure latency", "Cached reads faster than database reads", "Measurement table"], ["Invalidate on update", "Updates visible after the agreed delay", "Test output"], ["Prevent a stampede", "Only one rebuild for many concurrent misses", "Log output"]],
+          "objectives": ["Choose caching strategies", "Handle invalidation", "Measure caching benefit"]
+        },
+        {
+          "topic": "Content Delivery Networks",
+          "subtopics": ["How CDNs work", "Edge locations and origin servers", "Caching static and dynamic content", "Cache keys and headers", "Invalidation and versioned assets", "Security at the edge", "Video and large file delivery", "Cost of CDNs"],
+          "tools": ["A CDN such as CloudFront or Cloudflare", "Browser DevTools"],
+          "lab_task": "Put a CDN in front of a static site and an API, cache assets with versioned names, set cache headers for API responses and measure latency from two regions.",
+          "deliverable": "CDN setup with measurements",
+          "checks": [["Cache assets", "Assets served from the edge", "Response headers"], ["Version assets", "New release served without manual invalidation", "Response headers"], ["Measure latency", "Edge latency lower than origin latency", "Measurement table"]],
+          "objectives": ["Use CDNs in designs", "Cache at the edge", "Plan invalidation"]
+        },
+        {
+          "topic": "Database Replication and Read Replicas",
+          "subtopics": ["Leader and follower replication", "Synchronous and asynchronous replication", "Replication lag", "Read-after-write consistency", "Failover and promotion", "Multi-leader replication", "Leaderless replication in brief", "Choosing a replication setup"],
+          "tools": ["PostgreSQL replication", "Diagram tool"],
+          "lab_task": "Set up a PostgreSQL primary and replica, route reads to the replica, show replication lag, handle read-after-write for a user's own data and practise a failover.",
+          "deliverable": "Replication setup and failover notes",
+          "checks": [["Route reads", "Reads served by the replica", "Query log"], ["Show lag", "Lag measured during heavy writes", "Lag measurements"], ["Fail over", "Replica promoted and app reconnected", "Failover log"]],
+          "objectives": ["Use database replication", "Handle replication lag", "Plan failover"]
+        },
+        {
+          "topic": "Partitioning and Sharding",
+          "subtopics": ["Why partition data", "Range, hash and directory-based partitioning", "Choosing a shard key", "Hot spots", "Rebalancing shards", "Cross-shard queries", "Secondary indexes with sharding", "Sharding in managed databases"],
+          "tools": ["Diagram tool", "Spreadsheet for shard simulations"],
+          "lab_task": "Choose shard keys for a messaging app and a store, simulate data distribution for each, find a hot spot and design rebalancing.",
+          "deliverable": "Sharding design with simulations",
+          "checks": [["Simulate distribution", "Data spread evenly with the chosen key", "Simulation sheet"], ["Find a hot spot", "Hot spot found and a fix proposed", "Notes"], ["Plan rebalancing", "Rebalancing steps described without downtime", "Design notes"]],
+          "objectives": ["Partition data", "Choose shard keys", "Handle hot spots and rebalancing"]
+        },
+        {
+          "topic": "Message Queues and Asynchronous Processing",
+          "subtopics": ["Why use queues", "Point-to-point queues and publish-subscribe", "At-least-once and at-most-once delivery", "Idempotent consumers", "Dead letter queues", "Back-pressure", "Kafka compared with RabbitMQ", "Designing async workflows"],
+          "tools": ["RabbitMQ or Kafka", "Diagram tool"],
+          "lab_task": "Move image processing in a photo app to a queue, design idempotent workers, add a dead letter queue and show how the queue absorbs a traffic spike.",
+          "deliverable": "Async processing design and demo",
+          "checks": [["Absorb a spike", "Queue grows and drains while the API stays fast", "Metrics"], ["Handle duplicates", "Duplicate messages processed once", "Test output"], ["Use a dead letter queue", "Failing messages moved aside after retries", "Queue screenshot"]],
+          "objectives": ["Use queues in designs", "Design reliable consumers", "Absorb traffic spikes"]
+        },
+        {
+          "topic": "Consistency, Availability and the CAP Theorem",
+          "subtopics": ["Consistency models: strong, eventual and causal", "The CAP theorem", "PACELC", "Quorums", "Consistency in real products", "Choosing consistency per feature", "Explaining consistency to stakeholders", "Common misunderstandings of CAP"],
+          "tools": ["Diagram tool", "Case study material"],
+          "lab_task": "Choose a consistency model for ten features of a banking and a social app, explain each with CAP and PACELC, and show a quorum setting that gives strong reads.",
+          "deliverable": "Consistency decisions with explanations",
+          "checks": [["Choose models", "Each feature has a model and reason", "Decision table"], ["Apply quorums", "Read and write quorum settings give strong reads", "Calculation"], ["Correct a myth", "Common CAP misunderstanding explained", "Notes"]],
+          "objectives": ["Explain consistency models", "Apply CAP and PACELC", "Choose consistency per feature"]
+        },
+        {
+          "topic": "Designing a URL Shortener",
+          "subtopics": ["Requirements and estimates", "API design", "Generating short codes", "Base62 and collision handling", "Database choice and schema", "Caching redirects", "Analytics on clicks", "Scaling and failure handling"],
+          "tools": ["Diagram tool", "Estimation worksheet"],
+          "lab_task": "Design a URL shortener for 100 million links a month, compare code generation strategies, choose storage, cache hot links and add click analytics without slowing redirects.",
+          "deliverable": "URL shortener design document",
+          "checks": [["Compare code generation", "Hashing, counters and random codes compared", "Comparison table"], ["Cache redirects", "Hot links served from cache", "Design diagram"], ["Add analytics", "Click counting does not slow redirects", "Design notes"]],
+          "objectives": ["Solve a classic design problem", "Generate unique IDs", "Separate fast paths from analytics"]
+        },
+        {
+          "topic": "Designing a Rate Limiter",
+          "subtopics": ["Where to put a rate limiter", "Token bucket and leaky bucket", "Fixed and sliding windows", "Distributed rate limiting with Redis", "Limits per user, IP and API key", "Responses and headers for limited requests", "Race conditions", "Monitoring limits"],
+          "tools": ["Redis", "Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design a distributed rate limiter, implement a sliding window limiter with Redis, test it under concurrent load and handle Redis being unavailable.",
+          "deliverable": "Rate limiter design and implementation",
+          "checks": [["Enforce limits", "Requests beyond the limit rejected with 429", "Test output"], ["Test concurrency", "Limit holds under concurrent requests", "Load test results"], ["Lose Redis", "Agreed fallback behaviour applied", "Test output"]],
+          "objectives": ["Design rate limiters", "Implement a limiting algorithm", "Handle failure cases"]
+        },
+        {
+          "topic": "Designing a Notification System",
+          "subtopics": ["Requirements: email, SMS and push", "Templates and personalisation", "Queues and workers per channel", "Retries and provider failover", "User preferences and opt-outs", "Rate limits and quiet hours", "Tracking delivery", "Scaling to millions of messages"],
+          "tools": ["Diagram tool", "Queue", "Provider APIs"],
+          "lab_task": "Design a notification system for 10 million users across email, SMS and push with preferences, retries, provider failover and delivery tracking.",
+          "deliverable": "Notification system design document",
+          "checks": [["Design channels", "Each channel has its own queue and workers", "Diagram"], ["Handle failures", "Retries and provider failover described", "Design notes"], ["Respect preferences", "Opt-outs and quiet hours enforced", "Flow diagram"]],
+          "objectives": ["Design multi-channel delivery systems", "Handle retries and failover", "Respect user preferences"]
+        },
+        {
+          "topic": "Low-Level Design: Object-Oriented Principles and SOLID",
+          "subtopics": ["Classes, objects and responsibilities", "Encapsulation, inheritance and polymorphism", "Composition over inheritance", "Single responsibility", "Open-closed and Liskov substitution", "Interface segregation and dependency inversion", "UML class and sequence diagrams", "Refactoring towards SOLID"],
+          "tools": ["Java, Python or C#", "UML tool", "IDE"],
+          "lab_task": "Refactor a tangled billing module to follow SOLID, draw class and sequence diagrams before and after, and show how a new payment type is added without changing old code.",
+          "deliverable": "Refactored module with diagrams",
+          "checks": [["Draw diagrams", "Class and sequence diagrams match the code", "Diagrams"], ["Add a payment type", "New type added without editing existing classes", "Code diff"], ["Explain principles", "Each SOLID change explained", "Notes"]],
+          "objectives": ["Apply object-oriented principles", "Use SOLID", "Draw UML for designs"]
+        },
+        {
+          "topic": "Low-Level Design: Design Patterns in Practice",
+          "subtopics": ["Creational patterns: factory, builder and singleton", "Structural patterns: adapter, decorator and facade", "Behavioural patterns: strategy, observer and state", "Command and chain of responsibility", "Choosing a pattern from the problem", "Over-engineering with patterns", "Patterns in standard libraries", "Testing pattern-based code"],
+          "tools": ["Java, Python or C#", "IDE", "Unit test framework"],
+          "lab_task": "Solve six small problems with the right pattern each, explain why the pattern fits, write tests and remove one pattern that adds no value.",
+          "deliverable": "Pattern solutions with tests",
+          "checks": [["Choose patterns", "Each problem solved with a fitting pattern", "Code and notes"], ["Test the code", "Tests pass for every solution", "Test output"], ["Remove over-engineering", "Unneeded pattern removed with simpler code", "Code diff"]],
+          "objectives": ["Use design patterns", "Match patterns to problems", "Avoid over-engineering"]
+        },
+        {
+          "topic": "Low-Level Design Problems: Parking Lot and Library System",
+          "subtopics": ["Turning requirements into classes", "Identifying entities, relationships and behaviour", "Interfaces for extension", "Handling concurrency in shared resources", "Validations and errors", "Writing clean, testable code", "Explaining the design in an interview", "Common follow-up questions"],
+          "tools": ["Java, Python or C#", "UML tool", "Unit test framework"],
+          "lab_task": "Design and code a parking lot system and a library management system with class diagrams, extension points, thread-safe allocation and tests, then present one in a mock interview.",
+          "deliverable": "Two low-level designs with code and tests",
+          "checks": [["Model classes", "Class diagrams cover all requirements", "Diagrams"], ["Allocate safely", "Concurrent parking requests never double-book a spot", "Test output"], ["Present a design", "Follow-up questions answered in a mock interview", "Interview feedback"]],
+          "objectives": ["Solve low-level design problems", "Write extensible code", "Present designs clearly"]
+        },
+        {
+          "topic": "Storage Choices: Blob Storage, Files and Search Indexes",
+          "subtopics": ["Object storage for files and media", "Block and file storage", "Metadata in databases and files in object storage", "Search indexes for text", "Time series storage", "Data lifecycle and archiving", "Storage cost", "Choosing storage per data type"],
+          "tools": ["Object storage such as Amazon S3 or MinIO", "Elasticsearch or OpenSearch", "Diagram tool"],
+          "lab_task": "Design storage for a video learning platform with object storage for videos, a relational store for metadata, a search index for courses and lifecycle rules for old content.",
+          "deliverable": "Storage design with cost estimate",
+          "checks": [["Choose storage", "Each data type mapped to a store with reasons", "Storage table"], ["Design search", "Course search served by the index", "Diagram"], ["Estimate cost", "Monthly storage cost estimated with lifecycle rules", "Cost estimate"]],
+          "objectives": ["Choose storage types", "Combine stores in one design", "Estimate storage cost"]
+        },
+        {
+          "topic": "Communicating a Design: Diagrams and Trade-offs",
+          "subtopics": ["Diagram levels with the C4 model", "Choosing what to show", "Writing a design document", "Explaining trade-offs", "Handling questions and pushback", "Time management in interviews", "Reviewing someone else's design", "Common communication mistakes"],
+          "tools": ["C4 model", "Excalidraw or draw.io", "Design document template"],
+          "lab_task": "Write a short design document with C4 diagrams for the notification system, present it in ten minutes, take questions and review a classmate's design.",
+          "deliverable": "Design document and review notes",
+          "checks": [["Draw C4 diagrams", "Context and container diagrams clear to a newcomer", "Diagrams"], ["Present in time", "Presentation finished within ten minutes", "Recording"], ["Review a design", "Review gives three specific improvements", "Review notes"]],
+          "objectives": ["Communicate designs clearly", "Use C4 diagrams", "Review designs"]
+        },
+        {
+          "topic": "Beginner Capstone: Designing a Photo Sharing Service",
+          "subtopics": ["Requirements", "High-level design", "Low-level design", "Presentation"],
+          "tools": ["Diagram tool", "Estimation worksheet", "Java, Python or C#"],
+          "lab_task": "Design a photo sharing service end to end with requirements, estimates, a high-level design with caching, CDN, replication and queues, a low-level design of the upload module in code, and present it.",
+          "deliverable": "Design document, code and presentation",
+          "checks": [["Present the design", "Design meets the stated requirements", "Presentation recording"], ["Show estimates", "Capacity estimates support the design choices", "Estimation sheet"], ["Show the code", "Upload module code follows the low-level design", "Code and tests"]],
+          "objectives": ["Combine the beginner topics in one design", "Design a complete system", "Present and defend it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and senior engineers preparing for design rounds or design responsibilities. Covers classic large designs (news feed, chat, autocomplete, video streaming, ride sharing, key-value store, web crawler and payments), consistent hashing, distributed transactions, leader election and consensus, event-driven and streaming designs, API style choices, reliability and disaster recovery, observability, security, concurrency in low-level design, further low-level design problems and mock interviews.",
+      "prerequisites": ["Comfortable with caching, replication, sharding and queues", "Has solved basic design problems", "Writes object-oriented code in one language"],
+      "outcomes": ["Design large real-world systems with sound trade-offs", "Use distributed systems techniques correctly", "Solve advanced low-level design problems with concurrency", "Perform well in system design interviews"],
+      "days": [
+        {
+          "topic": "Designing a News Feed",
+          "subtopics": ["Requirements and scale", "Fan-out on write compared with fan-out on read", "Celebrity users and hybrid fan-out", "Feed ranking", "Feed storage and caching", "Pagination of feeds", "Media in feeds", "Handling deletes and privacy"],
+          "tools": ["Diagram tool", "Estimation worksheet"],
+          "lab_task": "Design a news feed for 200 million users, choose a hybrid fan-out for celebrities, design feed storage and caching, and explain how deletes and privacy changes propagate.",
+          "deliverable": "News feed design document",
+          "checks": [["Choose fan-out", "Hybrid approach justified with load numbers", "Design notes"], ["Design caching", "Feed reads served mostly from cache", "Diagram"], ["Propagate deletes", "Deleted posts removed from feeds within the target time", "Flow diagram"]],
+          "objectives": ["Design feed systems", "Choose fan-out strategies", "Handle privacy changes"]
+        },
+        {
+          "topic": "Designing a Chat System",
+          "subtopics": ["One-to-one and group chat requirements", "WebSocket gateways", "Message storage and ordering", "Delivery receipts and read status", "Presence", "Offline messages and push notifications", "Group chat fan-out", "End-to-end encryption in brief"],
+          "tools": ["Diagram tool", "Estimation worksheet"],
+          "lab_task": "Design a chat system with WebSocket gateways, ordered message storage, receipts, presence, offline delivery and large groups, and explain the scaling limits.",
+          "deliverable": "Chat system design document",
+          "checks": [["Order messages", "Ordering guarantee per conversation explained", "Design notes"], ["Handle offline users", "Offline messages delivered with push notifications", "Flow diagram"], ["Scale gateways", "Connection capacity per gateway estimated", "Estimation sheet"]],
+          "objectives": ["Design real-time messaging", "Order and store messages", "Scale connection gateways"]
+        },
+        {
+          "topic": "Designing a Search Autocomplete Service",
+          "subtopics": ["Requirements and latency targets", "Tries and prefix indexes", "Ranking suggestions", "Building indexes from query logs", "Caching popular prefixes", "Updating suggestions", "Personalisation", "Filtering unsafe suggestions"],
+          "tools": ["Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design autocomplete with a sharded trie built from query logs, ranking, prefix caching and safe filtering, and implement a small trie with top-k suggestions.",
+          "deliverable": "Autocomplete design and trie implementation",
+          "checks": [["Implement top-k", "Trie returns the top five suggestions for a prefix", "Test output"], ["Meet latency", "Design meets the latency target with caching", "Design notes"], ["Filter suggestions", "Blocked terms never suggested", "Test output"]],
+          "objectives": ["Design autocomplete systems", "Use tries and caching", "Keep suggestions safe"]
+        },
+        {
+          "topic": "Designing a Video Streaming Platform",
+          "subtopics": ["Upload and transcoding pipeline", "Adaptive bitrate streaming", "Storage and CDN delivery", "Metadata and search", "View counts at scale", "Recommendations in brief", "Live streaming differences", "Cost control"],
+          "tools": ["Diagram tool", "Estimation worksheet"],
+          "lab_task": "Design a video platform with an upload and transcoding pipeline, adaptive streaming through a CDN, view counting and cost estimates for storage and bandwidth.",
+          "deliverable": "Video platform design document",
+          "checks": [["Design transcoding", "Pipeline produces several renditions in parallel", "Diagram"], ["Count views", "View counts scale without hot rows", "Design notes"], ["Estimate cost", "Storage and bandwidth cost estimated", "Cost estimate"]],
+          "objectives": ["Design media platforms", "Use transcoding and CDNs", "Control media costs"]
+        },
+        {
+          "topic": "Designing a Ride-Sharing Service",
+          "subtopics": ["Requirements for riders and drivers", "Location updates at scale", "Geospatial indexing: geohashes and quadtrees", "Matching riders and drivers", "Trip state machine", "Pricing and surge", "Payments and receipts", "Handling failures during trips"],
+          "tools": ["Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design ride matching with geospatial indexing for live driver locations, a trip state machine and surge pricing, and implement a small geohash-based nearby search.",
+          "deliverable": "Ride-sharing design and nearby search code",
+          "checks": [["Find nearby drivers", "Nearby search returns drivers within the radius", "Test output"], ["Model trip states", "State machine covers cancellations and failures", "State diagram"], ["Scale location updates", "Update rate estimated and handled", "Estimation sheet"]],
+          "objectives": ["Design location-based systems", "Use geospatial indexes", "Model trip workflows"]
+        },
+        {
+          "topic": "Designing a Distributed Key-Value Store",
+          "subtopics": ["Requirements and APIs", "Partitioning with consistent hashing", "Replication and quorums", "Vector clocks and conflict resolution", "Hinted handoff and read repair", "Gossip and failure detection", "Storage engines: LSM trees and B-trees", "Tuning consistency per request"],
+          "tools": ["Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design a Dynamo-style key-value store with consistent hashing, replication, quorums, conflict resolution and failure detection, and implement a consistent hashing ring.",
+          "deliverable": "Key-value store design and hashing ring code",
+          "checks": [["Add a node", "Only a small share of keys move", "Test output"], ["Choose quorums", "Settings meet the stated consistency target", "Calculation"], ["Resolve conflicts", "Conflict example resolved with the chosen method", "Notes"]],
+          "objectives": ["Design distributed storage", "Use consistent hashing and quorums", "Resolve write conflicts"]
+        },
+        {
+          "topic": "Designing a Web Crawler",
+          "subtopics": ["Requirements and politeness", "URL frontier and prioritisation", "DNS and fetching at scale", "Duplicate detection", "Parsing and link extraction", "Storage of pages", "Robots rules and rate limits per host", "Handling traps and failures"],
+          "tools": ["Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design a crawler for one billion pages a month with a prioritised frontier, politeness per host, duplicate detection and trap handling, and code a small polite crawler.",
+          "deliverable": "Crawler design and prototype",
+          "checks": [["Respect politeness", "Crawler waits between requests to one host", "Log output"], ["Detect duplicates", "Duplicate pages skipped", "Test output"], ["Estimate throughput", "Fetch capacity estimated for the target", "Estimation sheet"]],
+          "objectives": ["Design crawling systems", "Prioritise and throttle fetching", "Detect duplicates"]
+        },
+        {
+          "topic": "Designing a Payment System",
+          "subtopics": ["Payment flows and actors", "Idempotency for payment requests", "Double-entry ledgers", "Integrating payment service providers", "Reconciliation", "Handling retries and timeouts", "Fraud checks", "Compliance in brief"],
+          "tools": ["Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design a payment system with idempotent requests, a double-entry ledger, provider integration, reconciliation and safe retries, and code the ledger posting logic.",
+          "deliverable": "Payment system design and ledger code",
+          "checks": [["Retry a payment", "Retried request never charges twice", "Test output"], ["Post to the ledger", "Every transaction balances to zero", "Test output"], ["Reconcile", "Mismatches between ledger and provider found", "Reconciliation report"]],
+          "objectives": ["Design payment systems", "Use idempotency and ledgers", "Reconcile money movement"]
+        },
+        {
+          "topic": "Consistent Hashing and Data Distribution",
+          "subtopics": ["Why simple hashing breaks when nodes change", "The hash ring", "Virtual nodes", "Replication on the ring", "Weighted nodes", "Rendezvous hashing", "Hot keys on a ring", "Where consistent hashing is used"],
+          "tools": ["Code in your chosen language", "Spreadsheet"],
+          "lab_task": "Implement consistent hashing with virtual nodes and rendezvous hashing, compare key movement and balance when nodes join and leave, and handle a hot key.",
+          "deliverable": "Implementations with comparison",
+          "checks": [["Compare balance", "Load spread measured with and without virtual nodes", "Results table"], ["Change membership", "Keys moved measured for both methods", "Results table"], ["Handle a hot key", "Hot key spread with a proposed technique", "Notes"]],
+          "objectives": ["Implement consistent hashing", "Compare distribution methods", "Handle hot keys"]
+        },
+        {
+          "topic": "Distributed Transactions and Sagas in System Design",
+          "subtopics": ["Why distributed transactions are hard", "Two-phase commit", "Sagas with compensation", "Choreography and orchestration", "The outbox pattern", "Idempotency and retries", "Choosing an approach", "Explaining transactions in interviews"],
+          "tools": ["Diagram tool", "Case study material"],
+          "lab_task": "Design a travel booking flow across flights, hotels and payments using two-phase commit and then a saga, compare failure handling and pick one with reasons.",
+          "deliverable": "Two designs and a recommendation",
+          "checks": [["Design with two-phase commit", "Coordinator failure risks identified", "Design notes"], ["Design a saga", "Compensation steps cover each failure point", "Flow diagram"], ["Recommend", "Choice justified by availability and complexity", "Recommendation"]],
+          "objectives": ["Compare distributed transaction approaches", "Design sagas", "Use the outbox pattern"]
+        },
+        {
+          "topic": "Leader Election, Consensus and Coordination",
+          "subtopics": ["Why systems need a leader", "Leader election approaches", "Raft in plain terms", "Paxos at a high level", "Coordination services such as ZooKeeper and etcd", "Distributed locks and fencing tokens", "Split brain", "Where consensus appears in real systems"],
+          "tools": ["etcd", "Raft visualisation", "Code in your chosen language"],
+          "lab_task": "Use etcd for leader election between three workers, show split brain without fencing, fix it with fencing tokens and explain how Raft keeps a log consistent.",
+          "deliverable": "Leader election demo and Raft notes",
+          "checks": [["Elect a leader", "Only one worker acts as leader", "Log output"], ["Fix split brain", "Fencing tokens stop the old leader's writes", "Test output"], ["Explain Raft", "Log replication explained with a diagram", "Notes"]],
+          "objectives": ["Explain consensus", "Use coordination services", "Prevent split brain"]
+        },
+        {
+          "topic": "Event-Driven Design and Stream Processing",
+          "subtopics": ["Events as the backbone of systems", "Event streams and logs", "Stream processing: windows and joins", "Exactly-once processing claims", "Event sourcing in system design", "Real-time analytics", "Back-pressure and replay", "When events add needless complexity"],
+          "tools": ["Kafka", "Stream processing framework", "Diagram tool"],
+          "lab_task": "Design a real-time fraud detection system on an event stream with windows and joins, show how replay rebuilds state and explain delivery guarantees.",
+          "deliverable": "Stream processing design",
+          "checks": [["Design windows", "Window and join choices match the fraud rules", "Design notes"], ["Replay events", "Replay rebuilds state correctly", "Flow description"], ["Explain guarantees", "Delivery guarantees stated precisely", "Notes"]],
+          "objectives": ["Design event-driven systems", "Use stream processing", "Explain delivery guarantees"]
+        },
+        {
+          "topic": "API Design for Large Systems: REST, gRPC and GraphQL Choices",
+          "subtopics": ["Public, partner and internal APIs", "REST strengths and limits", "gRPC for internal calls", "GraphQL for client-driven data", "Pagination, filtering and versioning", "Idempotency and long-running operations", "API gateways and BFFs", "Choosing styles per use case"],
+          "tools": ["OpenAPI", "Protocol Buffers", "GraphQL SDL"],
+          "lab_task": "Choose API styles for public, mobile and internal parts of a marketplace, design a long-running export operation and define pagination and versioning rules.",
+          "deliverable": "API style decisions and designs",
+          "checks": [["Choose styles", "Each API style justified by its clients", "Decision table"], ["Design a long-running operation", "Export uses a job resource with status polling", "API design"], ["Define rules", "Pagination and versioning rules written", "Guidelines"]],
+          "objectives": ["Choose API styles", "Design APIs for scale", "Handle long-running operations"]
+        },
+        {
+          "topic": "Reliability: Redundancy, Failover and Disaster Recovery",
+          "subtopics": ["Availability numbers and what they mean", "Redundancy at each layer", "Failover patterns", "Multi-zone and multi-region designs", "Backups, RPO and RTO", "Disaster recovery strategies", "Graceful degradation", "Testing failure"],
+          "tools": ["Diagram tool", "Availability calculator"],
+          "lab_task": "Raise a single-region design to 99.99 percent availability with redundancy, failover and multi-zone deployment, set RPO and RTO and choose a disaster recovery strategy.",
+          "deliverable": "Reliability design with calculations",
+          "checks": [["Calculate availability", "Combined availability meets the target", "Calculation"], ["Set recovery targets", "RPO and RTO chosen per data store", "Recovery table"], ["Plan degradation", "Non-critical features degrade first", "Design notes"]],
+          "objectives": ["Design for availability", "Plan disaster recovery", "Degrade gracefully"]
+        },
+        {
+          "topic": "Observability Design: Metrics, Logs and Traces",
+          "subtopics": ["What to measure in a system", "The four golden signals", "Logging design", "Distributed tracing", "SLIs and SLOs", "Alerting on symptoms", "Dashboards for different audiences", "Observability cost"],
+          "tools": ["Prometheus", "Grafana", "OpenTelemetry", "Diagram tool"],
+          "lab_task": "Add an observability design to the chat system with golden signals, SLOs, tracing across gateways and storage, alerts and dashboards for on-call engineers and managers.",
+          "deliverable": "Observability plan",
+          "checks": [["Define SLOs", "SLOs set for sending and delivering messages", "SLO table"], ["Design alerts", "Alerts fire on user-facing symptoms", "Alert list"], ["Plan tracing", "Trace spans cover the message path", "Diagram"]],
+          "objectives": ["Design observability", "Define SLOs", "Plan alerts and dashboards"]
+        },
+        {
+          "topic": "Security in System Design",
+          "subtopics": ["Threat modelling with STRIDE", "Authentication and authorisation designs", "Securing service-to-service calls", "Data protection at rest and in transit", "Secrets management", "Rate limiting and abuse prevention", "Auditing", "Privacy by design"],
+          "tools": ["Threat modelling tool", "Diagram tool"],
+          "lab_task": "Threat model the payment system with STRIDE, add authentication, authorisation, encryption, secrets management, abuse protection and audit logging, and update the design.",
+          "deliverable": "Threat model and secured design",
+          "checks": [["Model threats", "Threats listed for every component", "Threat model"], ["Add controls", "Each high threat has a control", "Control table"], ["Design audits", "Sensitive actions recorded in an audit log", "Design notes"]],
+          "objectives": ["Threat model designs", "Add security controls", "Design for privacy"]
+        },
+        {
+          "topic": "Low-Level Design: Concurrency and Thread Safety",
+          "subtopics": ["Threads, processes and shared state", "Race conditions", "Locks, mutexes and read-write locks", "Atomic operations", "Deadlocks and how to avoid them", "Producer-consumer with blocking queues", "Thread pools", "Testing concurrent code"],
+          "tools": ["Java, Python or C#", "Unit test framework", "Concurrency testing tools"],
+          "lab_task": "Fix race conditions in a ticket booking module, build a producer-consumer pipeline, create and then fix a deadlock and write tests that catch concurrency bugs.",
+          "deliverable": "Thread-safe module with tests",
+          "checks": [["Fix the race", "No double-booked seats under concurrent load", "Test output"], ["Fix the deadlock", "Deadlock removed by lock ordering", "Test output"], ["Build a pipeline", "Producer-consumer handles back-pressure", "Test output"]],
+          "objectives": ["Write thread-safe code", "Avoid deadlocks", "Test concurrent code"]
+        },
+        {
+          "topic": "Low-Level Design Problems: Elevator, Splitwise and BookMyShow",
+          "subtopics": ["Elevator scheduling and state", "Expense splitting and balance simplification", "Seat booking with locking and timeouts", "Choosing classes and interfaces", "Applying patterns where they help", "Handling concurrency", "Extensibility for new requirements", "Writing tests for designs"],
+          "tools": ["Java, Python or C#", "UML tool", "Unit test framework"],
+          "lab_task": "Design and code an elevator controller, an expense-splitting app and a movie seat booking system with class diagrams, patterns, concurrency handling and tests.",
+          "deliverable": "Three low-level designs with code and tests",
+          "checks": [["Schedule elevators", "Controller serves requests in a sensible order", "Test output"], ["Simplify balances", "Expense app settles debts with the fewest payments", "Test output"], ["Book seats", "Seat holds expire and never double-book", "Test output"]],
+          "objectives": ["Solve advanced low-level design problems", "Handle concurrency in designs", "Write tested design code"]
+        },
+        {
+          "topic": "Interview Practice: Mock High-Level and Low-Level Design Sessions",
+          "subtopics": ["Interview formats at product and service companies", "Time plans for 45 and 60 minute rounds", "Driving the discussion", "Handling hints and pushback", "Scoring rubrics used by interviewers", "Common weak spots", "Practising with peers", "Building a revision plan"],
+          "tools": ["Mock interview rubric", "Timer", "Diagram tool"],
+          "lab_task": "Run two timed mock interviews, one high-level and one low-level, with peers scoring against a rubric, then write a revision plan for the weakest areas.",
+          "deliverable": "Rubric scores and revision plan",
+          "checks": [["Complete the HLD mock", "Design completed within the time limit", "Rubric score"], ["Complete the LLD mock", "Working code and diagram produced", "Rubric score"], ["Plan revision", "Weak areas scheduled for practice", "Revision plan"]],
+          "objectives": ["Perform in design interviews", "Manage interview time", "Improve weak areas"]
+        },
+        {
+          "topic": "Intermediate Capstone: Designing a Food Delivery Platform",
+          "subtopics": ["Requirements and estimates", "High-level design", "Low-level design", "Defence"],
+          "tools": ["Diagram tool", "Estimation worksheet", "Java, Python or C#"],
+          "lab_task": "Design a food delivery platform with ordering, restaurant and rider matching, live tracking, payments, notifications, reliability and observability, code the order allocation module and defend the design.",
+          "deliverable": "Design document, code and defence recording",
+          "checks": [["Defend the design", "Panel questions on scale and failure answered", "Panel notes"], ["Show estimates", "Capacity estimates support the design", "Estimation sheet"], ["Show the code", "Allocation code handles concurrency and tests pass", "Code and tests"]],
+          "objectives": ["Combine the intermediate topics in one design", "Design a large real-world system", "Defend it under questioning"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior and staff engineers and architects. Covers large-scale case studies, global multi-region systems, geo-distributed databases and consistency models, and designs for a distributed message queue, distributed cache, object storage, metrics platform, job scheduler, search engine, recommendation system, ad click aggregation, stock exchange and LLM application platform, plus capacity and cost modelling, batch and stream architectures, reliability at scale, decision records, design reviews and staff-level interviews.",
+      "prerequisites": ["Solid experience with intermediate system design topics", "Has designed or owned production systems", "Understands distributed systems trade-offs"],
+      "outcomes": ["Design planet-scale and specialised systems", "Model capacity, cost and reliability with numbers", "Lead design reviews and decision-making", "Perform at senior and staff-level design interviews"],
+      "days": [
+        {
+          "topic": "Large-Scale Architecture Case Studies",
+          "subtopics": ["Reading engineering case studies critically", "Evolution of large architectures over time", "Monolith to services journeys", "Data platform evolutions", "Outage post-mortems as design lessons", "Patterns that recur at scale", "What did not work", "Applying lessons to your own systems"],
+          "tools": ["Published engineering blogs and post-mortems", "Diagram tool"],
+          "lab_task": "Analyse three published architecture evolutions and two outage post-mortems, extract recurring patterns and anti-patterns and apply them to a design you own.",
+          "deliverable": "Case study analysis and applied lessons",
+          "checks": [["Analyse case studies", "Key decisions and their reasons extracted", "Analysis notes"], ["Learn from outages", "Design lessons drawn from each post-mortem", "Lessons table"], ["Apply lessons", "Own design updated with two lessons", "Updated design"]],
+          "objectives": ["Learn from large-scale systems", "Use post-mortems as design input", "Apply lessons to real designs"]
+        },
+        {
+          "topic": "Designing Global Multi-Region Systems",
+          "subtopics": ["Why systems go global", "Active-active and active-passive regions", "Data residency and sovereignty", "Global routing and failover", "Replication across regions", "Conflict handling", "Latency budgets for global users", "Cost of global designs"],
+          "tools": ["Diagram tool", "Latency maps", "Cost calculator"],
+          "lab_task": "Design a global collaboration product with users in India, Europe and the US, data residency rules, active-active regions, conflict handling and failover targets.",
+          "deliverable": "Global design with latency and cost analysis",
+          "checks": [["Meet residency rules", "User data stays in the required regions", "Data flow diagram"], ["Handle conflicts", "Conflict resolution defined for concurrent edits", "Design notes"], ["Estimate cost", "Cost of the multi-region design estimated", "Cost model"]],
+          "objectives": ["Design multi-region systems", "Respect data residency", "Balance latency, cost and consistency"]
+        },
+        {
+          "topic": "Geo-Distributed Databases and Consistency Models",
+          "subtopics": ["Linearisability and serialisability", "Snapshot isolation and its anomalies", "Causal consistency", "Spanner-style global transactions", "Clock synchronisation and TrueTime ideas", "CRDTs for conflict-free replication", "Choosing a geo-distributed database", "Testing consistency with Jepsen-style thinking"],
+          "tools": ["Case studies of Spanner, CockroachDB and DynamoDB global tables", "Diagram tool"],
+          "lab_task": "Compare three geo-distributed databases for a banking ledger and a shopping cart, show anomalies under weaker isolation and design a CRDT-based cart.",
+          "deliverable": "Database comparison and CRDT design",
+          "checks": [["Show anomalies", "Write skew example demonstrated under snapshot isolation", "Notes"], ["Design a CRDT", "Cart merges concurrent edits without conflicts", "Design and test cases"], ["Choose databases", "Choice per workload justified", "Decision table"]],
+          "objectives": ["Explain consistency models deeply", "Choose geo-distributed databases", "Use CRDTs where they fit"]
+        },
+        {
+          "topic": "Designing a Distributed Message Queue",
+          "subtopics": ["Requirements: throughput, ordering and durability", "Partitioned logs", "Producers, brokers and consumers", "Replication and leader election per partition", "Consumer groups and offsets", "Retention and compaction", "Delivery guarantees", "Scaling and rebalancing"],
+          "tools": ["Diagram tool", "Kafka design references"],
+          "lab_task": "Design a Kafka-like distributed queue from scratch with partitioned logs, replication, consumer groups and delivery guarantees, and estimate broker capacity.",
+          "deliverable": "Message queue design document",
+          "checks": [["Design replication", "Partition leaders and followers handle broker loss", "Design notes"], ["Track offsets", "Consumer offsets survive restarts", "Flow diagram"], ["Estimate capacity", "Brokers needed for the target throughput estimated", "Estimation sheet"]],
+          "objectives": ["Design distributed logs", "Guarantee ordering and durability", "Plan broker capacity"]
+        },
+        {
+          "topic": "Designing a Distributed Cache",
+          "subtopics": ["Requirements and APIs", "Partitioning the keyspace", "Replication and failover", "Eviction at scale", "Consistency with the source of truth", "Hot keys and request coalescing", "Multi-region caching", "Operating a cache fleet"],
+          "tools": ["Diagram tool", "Redis and Memcached references"],
+          "lab_task": "Design a distributed cache service for many teams with partitioning, replication, eviction, hot key protection and consistency rules, and estimate memory and node counts.",
+          "deliverable": "Distributed cache design",
+          "checks": [["Protect hot keys", "Hot key traffic spread or coalesced", "Design notes"], ["Keep consistency", "Invalidation rules keep data within the freshness target", "Flow diagram"], ["Size the fleet", "Memory and node counts estimated", "Estimation sheet"]],
+          "objectives": ["Design cache services", "Handle hot keys", "Size cache fleets"]
+        },
+        {
+          "topic": "Designing an Object Storage Service",
+          "subtopics": ["Requirements: durability, availability and scale", "Metadata and data separation", "Erasure coding and replication", "Placement and failure domains", "Multipart uploads", "Consistency of listings", "Garbage collection", "Storage tiers and cost"],
+          "tools": ["Diagram tool", "Durability calculator"],
+          "lab_task": "Design an S3-like object store with separate metadata and data paths, erasure coding, placement across failure domains, multipart uploads and storage tiers, and calculate durability.",
+          "deliverable": "Object storage design with durability calculation",
+          "checks": [["Calculate durability", "Design reaches eleven nines with stated assumptions", "Calculation"], ["Place data", "Data spread across failure domains", "Placement diagram"], ["Handle multipart uploads", "Large uploads resumable and assembled correctly", "Flow diagram"]],
+          "objectives": ["Design storage services", "Use erasure coding", "Calculate durability"]
+        },
+        {
+          "topic": "Designing a Metrics and Monitoring System",
+          "subtopics": ["Requirements: ingestion, query and alerting", "Time series data models", "Pull and push collection", "Storage compression and downsampling", "High cardinality", "Query engines", "Alert evaluation at scale", "Multi-tenant monitoring"],
+          "tools": ["Diagram tool", "Prometheus and similar system references"],
+          "lab_task": "Design a monitoring platform that ingests ten million samples per second, stores and downsamples series, handles high cardinality and evaluates alerts for many tenants.",
+          "deliverable": "Monitoring platform design",
+          "checks": [["Size ingestion", "Ingestion path handles the target rate", "Estimation sheet"], ["Handle cardinality", "Limits and storage design for high cardinality", "Design notes"], ["Evaluate alerts", "Alert evaluation scales with tenants", "Diagram"]],
+          "objectives": ["Design observability platforms", "Store time series at scale", "Scale alert evaluation"]
+        },
+        {
+          "topic": "Designing a Distributed Job Scheduler",
+          "subtopics": ["Requirements: delayed, recurring and dependent jobs", "Job storage and partitioning", "Exactly-once execution claims", "Leases and heartbeats", "Retries and dead jobs", "Priorities and fairness", "Workflows with dependencies", "Observability for jobs"],
+          "tools": ["Diagram tool", "Scheduler references such as Airflow and Temporal"],
+          "lab_task": "Design a scheduler for one billion jobs a day with delayed and recurring jobs, leases, retries, fairness between tenants and dependency workflows.",
+          "deliverable": "Job scheduler design",
+          "checks": [["Use leases", "Crashed workers' jobs picked up after lease expiry", "Flow diagram"], ["Ensure fairness", "One tenant cannot starve others", "Design notes"], ["Size the system", "Storage and worker counts estimated", "Estimation sheet"]],
+          "objectives": ["Design job schedulers", "Handle worker failures", "Keep scheduling fair"]
+        },
+        {
+          "topic": "Designing a Search Engine",
+          "subtopics": ["Crawling and indexing pipeline", "Inverted indexes", "Sharding and replicating indexes", "Query processing", "Ranking signals", "Freshness and incremental indexing", "Spelling correction and synonyms", "Serving latency at scale"],
+          "tools": ["Diagram tool", "Elasticsearch and Lucene references"],
+          "lab_task": "Design a web-scale search engine with an indexing pipeline, sharded inverted indexes, query fan-out, ranking and freshness, and estimate index size and query capacity.",
+          "deliverable": "Search engine design",
+          "checks": [["Design the index", "Inverted index sharding and replication described", "Diagram"], ["Keep it fresh", "New pages searchable within the target time", "Flow diagram"], ["Estimate size", "Index size and query capacity estimated", "Estimation sheet"]],
+          "objectives": ["Design search systems", "Shard indexes", "Balance freshness and latency"]
+        },
+        {
+          "topic": "Designing a Recommendation System",
+          "subtopics": ["Candidate generation and ranking", "Collaborative and content-based approaches", "Embeddings and vector search", "Feature stores", "Online and offline evaluation", "Real-time signals", "Cold start", "Serving at low latency"],
+          "tools": ["Diagram tool", "Vector database references", "Feature store references"],
+          "lab_task": "Design recommendations for a video app with candidate generation, ranking, a feature store, real-time signals, cold-start handling and A/B evaluation.",
+          "deliverable": "Recommendation system design",
+          "checks": [["Design the pipeline", "Candidate generation and ranking stages defined", "Diagram"], ["Handle cold start", "New users and items get sensible recommendations", "Design notes"], ["Plan evaluation", "Offline and online metrics defined", "Evaluation plan"]],
+          "objectives": ["Design recommendation systems", "Use feature stores and vectors", "Evaluate recommendations"]
+        },
+        {
+          "topic": "Designing an Ad Click Aggregation System",
+          "subtopics": ["Requirements: accuracy, latency and scale", "Event ingestion", "Windowed aggregation", "Late and duplicate events", "Exactly-once accounting", "Reconciliation with batch", "Query serving for dashboards", "Fraud filtering"],
+          "tools": ["Diagram tool", "Stream processing references"],
+          "lab_task": "Design click aggregation for billions of events a day with windowed counts, late event handling, deduplication, batch reconciliation and fast dashboard queries.",
+          "deliverable": "Click aggregation design",
+          "checks": [["Handle late events", "Late clicks counted in the right window", "Design notes"], ["Deduplicate", "Duplicate clicks counted once", "Flow diagram"], ["Reconcile", "Batch job corrects stream totals", "Diagram"]],
+          "objectives": ["Design aggregation pipelines", "Handle late and duplicate events", "Reconcile stream and batch"]
+        },
+        {
+          "topic": "Designing a Stock Exchange",
+          "subtopics": ["Requirements: latency, fairness and correctness", "Order books", "Matching engines", "Sequencing and determinism", "Market data distribution", "Risk checks", "Failover with zero data loss", "Low-latency engineering"],
+          "tools": ["Diagram tool", "Code in your chosen language"],
+          "lab_task": "Design an exchange with a deterministic matching engine, sequenced inputs, market data fan-out, risk checks and failover, and code a price-time priority order book.",
+          "deliverable": "Exchange design and order book code",
+          "checks": [["Match orders", "Order book matches by price then time", "Test output"], ["Fail over", "Standby continues with no lost orders", "Design notes"], ["Distribute market data", "Fan-out meets the latency target", "Design notes"]],
+          "objectives": ["Design low-latency systems", "Build matching engines", "Guarantee correctness under failure"]
+        },
+        {
+          "topic": "Designing an LLM-Powered Application Platform",
+          "subtopics": ["Requirements for AI features at scale", "Model gateways and routing", "Retrieval pipelines and vector stores", "Caching prompts and responses", "Guardrails and safety", "Cost and quota management", "Evaluation and monitoring", "Latency and streaming"],
+          "tools": ["Diagram tool", "Vector database references", "LLM gateway references"],
+          "lab_task": "Design a platform that serves AI assistants for many product teams with a model gateway, retrieval, caching, guardrails, quotas, evaluation and cost tracking.",
+          "deliverable": "AI platform design",
+          "checks": [["Route models", "Requests routed by cost, latency and capability", "Design notes"], ["Control cost", "Quotas and caching keep cost within budget", "Cost model"], ["Evaluate quality", "Evaluation and monitoring plan defined", "Evaluation plan"]],
+          "objectives": ["Design AI platforms", "Control AI cost and safety", "Evaluate AI features at scale"]
+        },
+        {
+          "topic": "Capacity Planning and Cost Modelling",
+          "subtopics": ["Turning traffic forecasts into capacity", "Utilisation targets and headroom", "Queueing theory basics for capacity", "Cost models per component", "Unit economics", "Reserved and on-demand capacity", "Cost-aware design choices", "Presenting capacity plans"],
+          "tools": ["Spreadsheet", "Cloud pricing calculators"],
+          "lab_task": "Build a capacity and cost model for the video platform for three years, test it against growth scenarios and present cost-aware design changes.",
+          "deliverable": "Capacity and cost model",
+          "checks": [["Model capacity", "Capacity per component calculated for each year", "Model"], ["Test scenarios", "Model updated for high and low growth", "Scenario results"], ["Cut cost", "Two design changes reduce cost with impact stated", "Presentation"]],
+          "objectives": ["Plan capacity with numbers", "Model system cost", "Make cost-aware design choices"]
+        },
+        {
+          "topic": "Data-Intensive Design: Batch, Stream and Lambda or Kappa Architectures",
+          "subtopics": ["Batch processing architectures", "Stream processing architectures", "Lambda architecture", "Kappa architecture", "Data lakes and lakehouses", "Serving layers", "Data quality and lineage", "Choosing an architecture"],
+          "tools": ["Diagram tool", "Spark, Flink and lakehouse references"],
+          "lab_task": "Design analytics for a ride-sharing company with lambda and kappa variants, compare correctness, cost and complexity, and choose one.",
+          "deliverable": "Two architectures and a recommendation",
+          "checks": [["Design lambda", "Batch and speed layers merge correctly", "Diagram"], ["Design kappa", "Stream-only design handles reprocessing", "Diagram"], ["Recommend", "Choice justified by cost and correctness", "Recommendation"]],
+          "objectives": ["Design data-intensive systems", "Compare lambda and kappa", "Choose data architectures"]
+        },
+        {
+          "topic": "Reliability Engineering at Scale",
+          "subtopics": ["SLOs across many services", "Error budgets", "Cell-based architecture", "Load shedding and admission control", "Retry storms and metastable failures", "Chaos engineering", "Incident management", "Designing for operability"],
+          "tools": ["Diagram tool", "Chaos engineering references"],
+          "lab_task": "Redesign a large service for reliability with cells, admission control and retry budgets, explain a metastable failure and design a chaos programme to find weaknesses.",
+          "deliverable": "Reliability redesign and chaos plan",
+          "checks": [["Add cells", "Failure in one cell limited to its users", "Diagram"], ["Prevent retry storms", "Retry budgets and backoff stop amplification", "Design notes"], ["Plan chaos", "Experiments target the riskiest components", "Chaos plan"]],
+          "objectives": ["Engineer reliability at scale", "Prevent metastable failures", "Plan chaos experiments"]
+        },
+        {
+          "topic": "Architecture Decision Records and Trade-off Analysis",
+          "subtopics": ["Why record decisions", "Decision record templates", "Trade-off analysis methods", "Architecture characteristics and fitness functions", "Reversible and irreversible decisions", "Revisiting decisions", "Decision records in reviews", "Building a decision log for a team"],
+          "tools": ["Decision record templates", "Trade-off matrices"],
+          "lab_task": "Write decision records for five choices in the food delivery design with trade-off matrices, mark which are reversible and define fitness functions that check two of them.",
+          "deliverable": "Decision log with fitness functions",
+          "checks": [["Write records", "Each record has context, options and consequences", "Decision records"], ["Analyse trade-offs", "Options scored against agreed characteristics", "Trade-off matrix"], ["Define fitness functions", "Two decisions checked automatically", "Fitness function definitions"]],
+          "objectives": ["Record architecture decisions", "Analyse trade-offs", "Check decisions over time"]
+        },
+        {
+          "topic": "Reviewing Designs and Leading Design Discussions",
+          "subtopics": ["Running a design review", "Questions that find risks", "Giving and receiving feedback", "Facilitating disagreement", "Bringing in security, reliability and cost views", "Writing review outcomes", "Following up on actions", "Building a review culture"],
+          "tools": ["Review checklists", "Design document templates"],
+          "lab_task": "Lead a design review of a classmate's design with a checklist, facilitate a disagreement to a decision, write outcomes and actions and follow up on one action.",
+          "deliverable": "Review outcome document",
+          "checks": [["Find risks", "At least five real risks found", "Review notes"], ["Reach a decision", "Disagreement resolved with a recorded decision", "Decision record"], ["Follow up", "Action completed and verified", "Follow-up notes"]],
+          "objectives": ["Lead design reviews", "Facilitate decisions", "Build review habits"]
+        },
+        {
+          "topic": "Staff-Level Interview Preparation",
+          "subtopics": ["What changes at senior and staff level", "Open-ended and ambiguous problems", "Leading with requirements and scope", "Depth on demand", "Discussing organisational and migration aspects", "Behavioural signals in design rounds", "Practising with senior interviewers", "Building a long-term practice plan"],
+          "tools": ["Mock interview rubric", "Diagram tool", "Recording tool"],
+          "lab_task": "Complete two staff-level mock interviews on open-ended problems, review recordings against a senior rubric and write a practice plan for the next month.",
+          "deliverable": "Mock interview recordings, scores and practice plan",
+          "checks": [["Handle ambiguity", "Scope agreed before designing", "Recording"], ["Go deep on demand", "Deep-dive answered with numbers and trade-offs", "Rubric score"], ["Plan practice", "Weak areas scheduled for practice", "Practice plan"]],
+          "objectives": ["Prepare for senior design rounds", "Handle ambiguous problems", "Improve with feedback"]
+        },
+        {
+          "topic": "Advanced Capstone: Designing a Global Event Ticketing Platform",
+          "subtopics": ["Requirements and scale", "Architecture", "Deep dives", "Defence"],
+          "tools": ["Diagram tool", "Capacity and cost model", "Decision records"],
+          "lab_task": "Design a global ticketing platform that survives on-sale traffic spikes with fair queuing, seat inventory consistency, payments, fraud checks, multi-region reliability and cost modelling, then defend it to a review panel.",
+          "deliverable": "Design document, models, decision log and defence recording",
+          "checks": [["Survive the on-sale spike", "Design handles the stated peak with fair queuing", "Capacity model"], ["Keep inventory correct", "No seat sold twice in any failure case", "Design notes"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one design", "Design for extreme load", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

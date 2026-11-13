@@ -1,0 +1,573 @@
+{
+  "domain": "Microservices",
+  "name": "Microservices Architecture and Development",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "boxes",
+  "aliases": ["Microservices Architecture", "Microservice Architecture", "Microservices Design", "Microservices Design Patterns", "Microservices Patterns", "Microservices Development", "Microservices Training", "Event-Driven Microservices"],
+  "certifications": ["No vendor certification; assessed by capstone project", "Certified Kubernetes Application Developer (CKAD) as a companion certification"],
+  "tools": ["Docker", "Docker Compose", "Kubernetes", "RabbitMQ", "Apache Kafka", "API gateway", "OpenTelemetry", "Pact", "Istio or Linkerd"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers moving from single applications to services. Covers what microservices are, monoliths and modular monoliths, finding service boundaries, REST service APIs, a first service with its own database, synchronous calls, messaging with RabbitMQ, containers, Docker Compose, discovery and configuration, API gateways, database per service, timeouts and retries, correlation IDs, health checks, service-to-service security, testing, CI/CD per service and a first Kubernetes deployment. Labs use Spring Boot, Node.js, .NET or Python, whichever the group knows.",
+      "prerequisites": ["Builds REST APIs in one back-end language such as Java, C#, Node.js or Python", "Knows SQL and basic Git", "Has run Docker containers"],
+      "outcomes": ["Explain when microservices help and when they hurt", "Build services with their own data, APIs and messaging", "Run several services with containers, a gateway and monitoring", "Test, deliver and deploy services independently"],
+      "days": [
+        {
+          "topic": "Microservices Overview and Lab Setup",
+          "subtopics": ["What a microservice is", "Why companies adopt microservices", "Costs and risks of distributed systems", "Microservices compared with service-oriented architecture", "Common building blocks: gateway, discovery, messaging and observability", "Choosing a language for the course labs", "Installing Docker, Docker Compose and a local Kubernetes", "An HTTP client and a message broker console", "The course case study: an online food ordering system", "How the labs build on each other"],
+          "tools": ["Docker Desktop or Rancher Desktop", "Docker Compose", "kind or minikube", "Postman or Bruno"],
+          "lab_task": "Set up the lab toolchain, run a prebuilt two-service system with Docker Compose, trace a request across both services and write down the parts of the food ordering case study.",
+          "deliverable": "Working lab environment and case study notes",
+          "checks": [["Run the sample system", "Both services start and answer requests", "docker compose ps output"], ["Trace a request", "Request path across both services described", "Trace notes"], ["List building blocks", "Gateway, discovery, messaging and monitoring roles explained", "Case study notes"]],
+          "objectives": ["Explain what microservices are", "Set up a microservices lab", "Describe the course case study"]
+        },
+        {
+          "topic": "Monoliths, Modular Monoliths and Microservices Compared",
+          "subtopics": ["How monoliths grow and decay", "Modular monoliths with strong boundaries", "What microservices change for teams", "Deployment independence", "Data and transaction trade-offs", "Operational complexity", "Signals that a split is worth it", "Case studies of success and failure"],
+          "tools": ["Whiteboard or diagram tool", "Case study material"],
+          "lab_task": "Analyse a sample monolith, propose a modular monolith and a microservices design for it, compare cost, risk and delivery speed and recommend one for the case study company.",
+          "deliverable": "Architecture comparison and recommendation",
+          "checks": [["Compare designs", "Cost, risk and speed compared for both designs", "Comparison table"], ["Find split signals", "Signals for and against splitting listed", "Notes"], ["Recommend", "Recommendation fits the company's team size and goals", "Recommendation document"]],
+          "objectives": ["Compare architecture styles", "Judge when to split", "Recommend an approach"]
+        },
+        {
+          "topic": "Finding Service Boundaries with Business Capabilities",
+          "subtopics": ["Business capabilities", "Subdomains: core, supporting and generic", "Event storming in brief", "Cohesion and coupling", "Data ownership as a boundary test", "Team ownership", "Sizing services", "Common boundary mistakes"],
+          "tools": ["Event storming boards", "Miro or sticky notes"],
+          "lab_task": "Run a short event storming session for the food ordering system, group events into capabilities, propose service boundaries with data ownership and review them for coupling.",
+          "deliverable": "Event storm and service boundary map",
+          "checks": [["Run event storming", "Domain events and commands captured on the board", "Board photo"], ["Propose boundaries", "Each service owns its data and capability", "Boundary map"], ["Review coupling", "Chatty or circular dependencies found and fixed", "Review notes"]],
+          "objectives": ["Find service boundaries", "Use business capabilities", "Avoid boundary mistakes"]
+        },
+        {
+          "topic": "Designing Service APIs with REST",
+          "subtopics": ["Resource design for service APIs", "Request and response contracts", "Status codes and errors", "Versioning service APIs", "Idempotency keys", "Pagination and filtering", "OpenAPI contracts", "Backward-compatible changes"],
+          "tools": ["OpenAPI", "Swagger Editor", "Spectral"],
+          "lab_task": "Write OpenAPI contracts for the restaurant, menu and order services with errors, idempotent order creation, pagination and a versioning plan, and lint them with Spectral.",
+          "deliverable": "API contracts for three services",
+          "checks": [["Lint contracts", "Spectral rules pass for all three services", "Lint output"], ["Design idempotency", "Repeated order requests create one order", "Contract and test plan"], ["Plan a change", "Backward-compatible change added without a new version", "Contract diff"]],
+          "objectives": ["Design service APIs", "Write OpenAPI contracts", "Evolve APIs safely"]
+        },
+        {
+          "topic": "Building a First Service with Its Own Database",
+          "subtopics": ["Service project structure", "One database per service", "Migrations per service", "Configuration for the service", "Health endpoint", "Logging", "Running the service in a container", "README and service ownership"],
+          "tools": ["Spring Boot, ASP.NET Core, Node.js or FastAPI", "PostgreSQL", "Docker"],
+          "lab_task": "Build the menu service in your chosen language with its own PostgreSQL database, migrations, configuration, a health endpoint, structured logs and a container image.",
+          "deliverable": "Menu service with container image",
+          "checks": [["Run migrations", "Service creates its own schema on start", "Log output"], ["Call the API", "Menu endpoints follow the contract", "HTTP collection run"], ["Check health", "Health endpoint reports database status", "Response"]],
+          "objectives": ["Build a microservice", "Give it its own data", "Package it in a container"]
+        },
+        {
+          "topic": "Synchronous Communication Between Services",
+          "subtopics": ["HTTP calls between services", "Client libraries and generated clients", "Service URLs and configuration", "Timeouts on every call", "Handling errors from other services", "Fan-out calls and latency", "gRPC as an alternative", "When synchronous calls are a problem"],
+          "tools": ["HTTP clients", "gRPC", "Postman"],
+          "lab_task": "Make the order service call the menu service to validate items, add timeouts and error handling, measure fan-out latency and try the same call over gRPC.",
+          "deliverable": "Service-to-service calls with measurements",
+          "checks": [["Validate an order", "Order service rejects items missing from the menu", "Response"], ["Slow the menu service", "Order service times out cleanly", "Log output"], ["Compare protocols", "Latency for HTTP and gRPC compared", "Measurement table"]],
+          "objectives": ["Call services synchronously", "Handle timeouts and errors", "Choose HTTP or gRPC"]
+        },
+        {
+          "topic": "Asynchronous Messaging with RabbitMQ",
+          "subtopics": ["Why messaging decouples services", "Queues, exchanges and bindings", "Publishing events", "Consuming messages", "Acknowledgements", "Retries and dead letter queues", "Message formats and contracts", "Ordering and duplicates"],
+          "tools": ["RabbitMQ", "RabbitMQ management UI", "Client library for your language"],
+          "lab_task": "Publish an OrderPlaced event to RabbitMQ, consume it in kitchen and notification services, acknowledge correctly, send failures to a dead letter queue and handle a duplicate message.",
+          "deliverable": "Event flow between three services",
+          "checks": [["Place an order", "Kitchen and notification services both receive the event", "Logs"], ["Fail a consumer", "Message lands in the dead letter queue after retries", "Management UI screenshot"], ["Send a duplicate", "Duplicate message processed once", "Database rows"]],
+          "objectives": ["Use messaging between services", "Handle failures in consumers", "Deal with duplicates"]
+        },
+        {
+          "topic": "Packaging Each Service in a Container",
+          "subtopics": ["One image per service", "Dockerfiles for the course languages", "Multi-stage builds", "Image tags and versions", "Environment configuration", "Non-root containers", "Image registries", "Scanning images"],
+          "tools": ["Docker", "Container registry", "Trivy"],
+          "lab_task": "Write multi-stage Dockerfiles for every service, tag images by version, push them to a registry, run them as non-root and scan them for vulnerabilities.",
+          "deliverable": "Images for all services in a registry",
+          "checks": [["Build images", "Every service has a versioned image", "Registry listing"], ["Run as non-root", "Containers run without root", "docker inspect output"], ["Scan images", "No critical vulnerabilities", "Trivy report"]],
+          "objectives": ["Containerise services", "Version images", "Keep images secure"]
+        },
+        {
+          "topic": "Running Several Services with Docker Compose",
+          "subtopics": ["Compose files for many services", "Networks and service names", "Databases and brokers in Compose", "Start-up order and health checks", "Environment files", "Volumes for data", "Profiles for optional services", "Local development workflow"],
+          "tools": ["Docker Compose", "Docker"],
+          "lab_task": "Run the whole food ordering system with Docker Compose, including databases, RabbitMQ and all services, with health-based start-up order and a profile for optional tools.",
+          "deliverable": "Compose setup for the system",
+          "checks": [["Start the system", "All services healthy with one command", "docker compose ps output"], ["Restart a database", "Data persists across restarts", "Query output"], ["Use a profile", "Optional monitoring tools start only when asked", "Terminal output"]],
+          "objectives": ["Run multi-service systems locally", "Manage start-up order", "Organise Compose files"]
+        },
+        {
+          "topic": "Service Discovery and Configuration",
+          "subtopics": ["Why services need discovery", "DNS-based discovery", "Registries such as Consul or Eureka", "Client-side and server-side discovery", "Externalised configuration", "Configuration servers", "Secrets for services", "Changing configuration safely"],
+          "tools": ["Consul or Eureka", "Docker Compose", "Configuration server"],
+          "lab_task": "Register services in a discovery registry, call them by name instead of address, move settings to a configuration server and change a setting without rebuilding images.",
+          "deliverable": "Discovery and configuration setup",
+          "checks": [["Call by name", "Services find each other through the registry", "Log output"], ["Scale a service", "Calls spread across two instances", "Log output"], ["Change a setting", "New value used without rebuilding", "Response"]],
+          "objectives": ["Use service discovery", "Externalise configuration", "Manage secrets for services"]
+        },
+        {
+          "topic": "API Gateway Concepts and a First Gateway",
+          "subtopics": ["What an API gateway does", "Routing to services", "Authentication at the gateway", "Rate limiting", "Request and response transformation", "Aggregating calls", "Gateway as a single point of failure", "Choosing a gateway"],
+          "tools": ["Kong, Spring Cloud Gateway, YARP or NGINX", "Postman"],
+          "lab_task": "Put a gateway in front of the services with routes, token checks, rate limits and one aggregated endpoint for the order screen, and test what happens when the gateway restarts.",
+          "deliverable": "Gateway configuration",
+          "checks": [["Route through the gateway", "Clients reach every service through one address", "HTTP collection run"], ["Exceed a rate limit", "Gateway returns 429", "Response"], ["Aggregate calls", "Order screen gets data from three services in one call", "Response"]],
+          "objectives": ["Use an API gateway", "Secure and limit traffic at the edge", "Aggregate responses"]
+        },
+        {
+          "topic": "Data Management: Database per Service",
+          "subtopics": ["Why services should not share databases", "Choosing a database per service", "Duplicating data on purpose", "Querying across services", "Reference data", "Reporting across services", "Data migrations per service", "Common data mistakes"],
+          "tools": ["PostgreSQL", "MongoDB", "Messaging"],
+          "lab_task": "Give the order, menu and payment services separate stores, keep a copy of menu data in the order service updated by events and build a simple cross-service report.",
+          "deliverable": "Data ownership design and report",
+          "checks": [["Remove shared tables", "No service reads another service's database", "Configuration review"], ["Sync copied data", "Menu changes reach the order service copy", "Log output"], ["Build a report", "Report combines data from three services", "Report output"]],
+          "objectives": ["Own data per service", "Share data through events", "Report across services"]
+        },
+        {
+          "topic": "Timeouts, Retries and Fallbacks Between Services",
+          "subtopics": ["How failures spread between services", "Timeouts as the first defence", "Retries with backoff", "Retries that make things worse", "Fallback responses", "Idempotency for safe retries", "Circuit breakers in brief", "Testing failure behaviour"],
+          "tools": ["Resilience library for your language", "Toxiproxy"],
+          "lab_task": "Inject latency and errors between the order and payment services, add timeouts, retries with backoff, idempotency and a fallback, and show the order flow survives.",
+          "deliverable": "Resilience changes with test results",
+          "checks": [["Inject latency", "Calls stop at the timeout", "Log output"], ["Retry safely", "Retried payments charge once", "Database rows"], ["Use a fallback", "Order screen loads when recommendations fail", "Screenshot"]],
+          "objectives": ["Handle failures between services", "Retry safely", "Use fallbacks"]
+        },
+        {
+          "topic": "Logging Across Services with Correlation IDs",
+          "subtopics": ["Why logs are hard in distributed systems", "Structured logs", "Correlation IDs across HTTP and messages", "Central log collection", "Searching logs across services", "Log levels and noise", "Not logging personal data", "Using logs during incidents"],
+          "tools": ["Structured logging library", "Loki or Elasticsearch", "Grafana or Kibana"],
+          "lab_task": "Add structured logs with a correlation ID passed through HTTP calls and messages, collect logs centrally and follow one order across all services.",
+          "deliverable": "Central logging setup",
+          "checks": [["Follow an order", "One correlation ID finds logs from every service", "Log search screenshot"], ["Pass IDs through messages", "Consumers log the same correlation ID", "Log sample"], ["Check for personal data", "No addresses or card data in logs", "Log search output"]],
+          "objectives": ["Log across services", "Correlate requests", "Search central logs"]
+        },
+        {
+          "topic": "Health Checks and Monitoring Services",
+          "subtopics": ["Liveness and readiness", "Health of dependencies", "Metrics for services: rate, errors and duration", "Prometheus and Grafana", "Dashboards per service", "Alerts on symptoms", "Monitoring brokers and databases", "On-call basics"],
+          "tools": ["Prometheus", "Grafana", "Health endpoints"],
+          "lab_task": "Add liveness and readiness checks and request metrics to every service, scrape them with Prometheus, build a dashboard per service and alert on error rate.",
+          "deliverable": "Monitoring setup with dashboards and alerts",
+          "checks": [["Stop a database", "Readiness fails for the affected service", "Response"], ["Build dashboards", "Rate, errors and duration shown per service", "Dashboard screenshot"], ["Fire an alert", "Alert triggers on a raised error rate", "Alert notification"]],
+          "objectives": ["Monitor microservices", "Use health checks", "Alert on symptoms"]
+        },
+        {
+          "topic": "Securing Service-to-Service Calls",
+          "subtopics": ["Threats inside a service network", "User tokens at the edge", "Passing identity to downstream services", "Service identities and client credentials", "Scopes per service", "mTLS in brief", "Secrets management", "Least privilege for services"],
+          "tools": ["Keycloak or another identity provider", "JWT libraries", "Vault or a secrets manager"],
+          "lab_task": "Protect the gateway with user tokens, pass identity to downstream services, give each service its own client credentials and scopes and store secrets in a vault.",
+          "deliverable": "Security setup for services",
+          "checks": [["Call a service directly", "Direct call without a valid token rejected", "Response"], ["Pass identity", "Downstream service sees the user ID", "Log output"], ["Limit scopes", "Kitchen service cannot call payment endpoints", "Response"]],
+          "objectives": ["Secure service-to-service calls", "Propagate identity", "Apply least privilege"]
+        },
+        {
+          "topic": "Testing Microservices: Unit, Component and Contract Tests",
+          "subtopics": ["The test pyramid for services", "Unit tests inside a service", "Component tests with real dependencies in containers", "Contract tests between services", "Testing message consumers", "End-to-end tests and their cost", "Test data per service", "Running tests per service in CI"],
+          "tools": ["Testcontainers", "Pact", "Test framework for your language"],
+          "lab_task": "Write unit and component tests for the order service with Testcontainers, a Pact contract between order and menu services, and a test for the kitchen message consumer.",
+          "deliverable": "Test suites for two services",
+          "checks": [["Run component tests", "Order service tests pass against real PostgreSQL and RabbitMQ", "Test output"], ["Break the contract", "Pact verification fails when the menu API changes", "Test output"], ["Test a consumer", "Consumer test processes a sample message", "Test output"]],
+          "objectives": ["Test services at the right level", "Use contract tests", "Test message consumers"]
+        },
+        {
+          "topic": "CI/CD per Service",
+          "subtopics": ["One pipeline per service", "Monorepo and multi-repo pipelines", "Building, testing and scanning images", "Versioning services", "Deploying one service without the others", "Environments and promotion", "Database migrations in pipelines", "Rollbacks per service"],
+          "tools": ["GitHub Actions or GitLab CI", "Container registry", "Trivy"],
+          "lab_task": "Create a pipeline per service that tests, builds, scans and pushes images, deploys only the changed service to staging and rolls it back without touching others.",
+          "deliverable": "Pipelines for each service",
+          "checks": [["Change one service", "Only that service's pipeline runs", "Pipeline list"], ["Deploy independently", "Changed service deployed while others keep running", "Deployment log"], ["Roll back", "One service rolled back alone", "Deployment log"]],
+          "objectives": ["Build pipelines per service", "Deploy services independently", "Roll back safely"]
+        },
+        {
+          "topic": "First Deployment of Services to Kubernetes",
+          "subtopics": ["Why Kubernetes suits microservices", "Deployments and Services", "ConfigMaps and Secrets", "Probes", "Ingress for the gateway", "Scaling replicas", "Rolling updates", "Viewing logs and events"],
+          "tools": ["Kubernetes", "kubectl", "kind or minikube", "Helm"],
+          "lab_task": "Deploy the food ordering system to a local Kubernetes cluster with Deployments, Services, ConfigMaps, Secrets and probes, expose the gateway through Ingress and do a rolling update.",
+          "deliverable": "Kubernetes manifests for the system",
+          "checks": [["Deploy the system", "All pods ready", "kubectl get pods output"], ["Scale a service", "Order service runs three replicas", "kubectl output"], ["Roll out an update", "Update completes with no failed requests", "Load test output"]],
+          "objectives": ["Deploy microservices to Kubernetes", "Configure probes and secrets", "Roll out updates"]
+        },
+        {
+          "topic": "Beginner Capstone: Online Food Ordering Microservices",
+          "subtopics": ["Design", "Build", "Operate", "Present"],
+          "tools": ["Docker", "Docker Compose", "RabbitMQ", "API gateway", "Prometheus", "Kubernetes"],
+          "lab_task": "Complete the food ordering system with bounded services, own databases, REST and messaging, a gateway, resilience, central logs, monitoring, tests, pipelines and a Kubernetes deployment, then present it.",
+          "deliverable": "Repository, running system and presentation",
+          "checks": [["Demo an order", "Order flows from placement to delivery notification", "Demo recording"], ["Survive a failure", "System keeps taking orders when the notification service is down", "Demo recording"], ["Explain boundaries", "Service boundaries justified by capability and data", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one system", "Build working microservices", "Explain design choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and leads already running a few services. Covers domain-driven design and context maps, event-driven architecture with Kafka, sagas, the outbox and inbox patterns, CQRS, event sourcing, gateway and BFF patterns, service mesh, resilience patterns, distributed tracing, consumer-driven contracts, versioning APIs and events, OAuth2 and mTLS, consistency and idempotency, Kubernetes deployment patterns, progressive delivery, configuration at scale, workflow engines and strangler migrations.",
+      "prerequisites": ["Has built and deployed several services that talk over HTTP and messaging", "Comfortable with Docker and basic Kubernetes", "Knows one back-end framework well"],
+      "outcomes": ["Design services and events with domain-driven design", "Keep data consistent with sagas, outbox and CQRS", "Secure, observe and test service estates", "Release and migrate services safely"],
+      "days": [
+        {
+          "topic": "Domain-Driven Design for Microservices: Bounded Contexts and Context Maps",
+          "subtopics": ["Bounded contexts and ubiquitous language", "Context mapping patterns", "Anti-corruption layers", "Aggregates and consistency boundaries", "Domain events", "Strategic and tactical design", "Mapping contexts to services and teams", "Refining boundaries over time"],
+          "tools": ["Event storming boards", "Context mapping tools"],
+          "lab_task": "Build a context map for a marketplace with six bounded contexts, choose relationship patterns, design two aggregates with invariants and add an anti-corruption layer to a legacy system.",
+          "deliverable": "Context map and aggregate designs",
+          "checks": [["Draw the context map", "Relationships between contexts named with patterns", "Context map"], ["Design aggregates", "Invariants enforced inside each aggregate", "Design notes"], ["Add an anti-corruption layer", "Legacy model translated at the boundary", "Code review"]],
+          "objectives": ["Apply domain-driven design", "Map contexts to services", "Protect models with anti-corruption layers"]
+        },
+        {
+          "topic": "Event-Driven Architecture with Kafka",
+          "subtopics": ["Events, commands and queries", "Kafka topics, partitions and consumer groups", "Event design: notifications and state transfer", "Ordering and keys", "Consumer lag", "Retention and compaction", "Event catalogues", "Choosing Kafka or RabbitMQ"],
+          "tools": ["Apache Kafka", "Schema Registry", "Kafka UI"],
+          "lab_task": "Publish order and payment events to Kafka with keys that preserve ordering, consume them in three services, monitor lag and document the events in a catalogue.",
+          "deliverable": "Event-driven flow and event catalogue",
+          "checks": [["Preserve ordering", "Events for one order processed in order", "Consumer log"], ["Monitor lag", "Lag visible and recovers after a slow consumer catches up", "Kafka UI screenshot"], ["Document events", "Every event has an owner, schema and example", "Event catalogue"]],
+          "objectives": ["Design event-driven systems", "Use Kafka for events", "Document events"]
+        },
+        {
+          "topic": "Sagas: Choreography and Orchestration",
+          "subtopics": ["Why distributed transactions do not fit", "Sagas and compensating actions", "Choreography with events", "Orchestration with a coordinator", "Timeouts and stuck sagas", "Saga state and observability", "Testing sagas", "Choosing an approach"],
+          "tools": ["Messaging", "Saga library or workflow engine for your language"],
+          "lab_task": "Implement checkout as a choreographed saga and as an orchestrated saga, add compensation and timeouts, and compare how easy each is to follow and change.",
+          "deliverable": "Two saga implementations and a comparison",
+          "checks": [["Fail payment", "Stock reservation released by compensation", "Logs and database rows"], ["Time out a step", "Stuck saga detected and compensated", "Log output"], ["Compare approaches", "Trade-offs recorded with a recommendation", "Comparison notes"]],
+          "objectives": ["Implement sagas", "Design compensation", "Choose choreography or orchestration"]
+        },
+        {
+          "topic": "The Transactional Outbox and Inbox Patterns",
+          "subtopics": ["The dual-write problem", "Outbox tables", "Relaying the outbox by polling or change data capture", "Inbox tables for idempotent consumers", "Ordering guarantees", "Cleaning up outbox and inbox tables", "Monitoring relay lag", "Libraries that implement the patterns"],
+          "tools": ["PostgreSQL", "Debezium", "Kafka or RabbitMQ"],
+          "lab_task": "Replace a dual write with an outbox relayed by Debezium, add an inbox to the consumer, crash the service mid-flow and prove no events are lost or duplicated.",
+          "deliverable": "Outbox and inbox implementation with crash tests",
+          "checks": [["Crash mid-flow", "No lost events after the crash", "Event counts"], ["Replay messages", "Inbox prevents duplicate processing", "Database rows"], ["Monitor relay lag", "Lag reported on the dashboard", "Dashboard screenshot"]],
+          "objectives": ["Solve dual writes", "Implement outbox and inbox", "Prove delivery guarantees"]
+        },
+        {
+          "topic": "CQRS and Read Models",
+          "subtopics": ["Separating commands and queries", "Read models built from events", "Denormalised views for screens", "Eventual consistency in the UI", "Rebuilding read models", "Storage choices for read models", "When CQRS is too much", "Testing projections"],
+          "tools": ["Kafka or RabbitMQ", "PostgreSQL or Elasticsearch"],
+          "lab_task": "Build an order history read model from events for the customer screen, show eventual consistency in the UI, rebuild the model from scratch and test the projection.",
+          "deliverable": "Read model with tests",
+          "checks": [["Query the read model", "Customer screen served by one query", "Query log"], ["Rebuild the model", "Rebuilt model matches the original", "Comparison output"], ["Show consistency delay", "UI handles the short delay after a write", "Screen recording"]],
+          "objectives": ["Apply CQRS", "Build read models", "Handle eventual consistency"]
+        },
+        {
+          "topic": "Event Sourcing",
+          "subtopics": ["Storing events instead of state", "Event streams per aggregate", "Rebuilding state", "Snapshots", "Versioning events", "Projections from the event store", "Event store options", "When event sourcing fits"],
+          "tools": ["EventStoreDB or PostgreSQL event store", "Messaging"],
+          "lab_task": "Event-source the wallet service with streams per wallet, snapshots, an upcaster for a changed event and projections for balances and statements.",
+          "deliverable": "Event-sourced service with projections",
+          "checks": [["Rebuild a wallet", "State rebuilt from events matches the balance", "Test output"], ["Upcast an event", "Old events read correctly after a schema change", "Test output"], ["Use snapshots", "Load time lower with snapshots", "Timing comparison"]],
+          "objectives": ["Implement event sourcing", "Version events", "Build projections"]
+        },
+        {
+          "topic": "API Gateway Patterns and Backends for Frontends",
+          "subtopics": ["Edge gateways and internal gateways", "Backends for frontends per client", "Aggregation and composition", "Authentication and token translation", "Caching at the edge", "Gateway configuration as code", "Avoiding business logic in gateways", "Gateway failure modes"],
+          "tools": ["Kong, Spring Cloud Gateway, YARP or Envoy", "GraphQL as an option"],
+          "lab_task": "Split the gateway into an edge gateway and two BFFs for web and mobile, translate tokens at the edge, cache public data and manage configuration as code.",
+          "deliverable": "Gateway and BFF design",
+          "checks": [["Serve two clients", "Web and mobile BFFs return client-shaped data", "Responses"], ["Translate tokens", "Internal services receive internal tokens", "Log output"], ["Manage as code", "Gateway changes applied from a repository", "Pipeline log"]],
+          "objectives": ["Apply gateway patterns", "Build BFFs", "Keep gateways thin"]
+        },
+        {
+          "topic": "Service Mesh with Istio or Linkerd",
+          "subtopics": ["What a service mesh adds", "Sidecars and ambient mode", "mTLS between services", "Traffic policies: retries and timeouts in the mesh", "Traffic splitting", "Mesh observability", "Costs and complexity", "When to adopt a mesh"],
+          "tools": ["Istio or Linkerd", "Kubernetes", "Kiali or Linkerd dashboard"],
+          "lab_task": "Install a service mesh, enable mTLS between services, move retries and timeouts into mesh policy, split traffic for a canary and compare the operating cost.",
+          "deliverable": "Mesh configuration and adoption notes",
+          "checks": [["Enable mTLS", "Service traffic encrypted and verified", "Mesh dashboard"], ["Split traffic", "Canary receives the configured share", "Traffic metrics"], ["Judge adoption", "Benefits and costs recorded for the team", "Adoption notes"]],
+          "objectives": ["Use a service mesh", "Secure traffic with mTLS", "Decide when a mesh is worth it"]
+        },
+        {
+          "topic": "Resilience Patterns: Circuit Breakers, Bulkheads and Rate Limits",
+          "subtopics": ["Failure modes in service estates", "Circuit breakers", "Bulkheads", "Rate limits and load shedding", "Retry budgets", "Graceful degradation", "Chaos experiments", "Resilience testing in CI"],
+          "tools": ["Resilience4j, Polly, opossum or tenacity", "Toxiproxy", "Chaos Mesh"],
+          "lab_task": "Add circuit breakers, bulkheads and load shedding to the order flow, run chaos experiments that kill and slow services and show the system degrades gracefully.",
+          "deliverable": "Resilience patterns with chaos results",
+          "checks": [["Open a breaker", "Calls fail fast while a dependency is down", "Breaker metrics"], ["Isolate with bulkheads", "Slow dependency does not exhaust other calls", "Load test results"], ["Run chaos", "Key flows keep working during experiments", "Chaos report"]],
+          "objectives": ["Apply resilience patterns", "Run chaos experiments", "Degrade gracefully"]
+        },
+        {
+          "topic": "Distributed Tracing with OpenTelemetry",
+          "subtopics": ["Traces, spans and context propagation", "Instrumenting services", "Tracing through message brokers", "Sampling strategies", "Trace backends", "Linking logs and metrics to traces", "Finding latency with traces", "Tracing cost"],
+          "tools": ["OpenTelemetry", "Jaeger or Grafana Tempo", "Grafana"],
+          "lab_task": "Instrument every service with OpenTelemetry, propagate context through HTTP and Kafka, sample traces, find the slowest step in checkout and link logs to traces.",
+          "deliverable": "Tracing setup and latency analysis",
+          "checks": [["Trace checkout", "One trace spans all services and the broker", "Trace screenshot"], ["Find the slow step", "Slowest span identified and fixed", "Before and after traces"], ["Link logs", "Logs carry trace IDs", "Log sample"]],
+          "objectives": ["Trace distributed requests", "Propagate context through messages", "Find latency problems"]
+        },
+        {
+          "topic": "Consumer-Driven Contract Testing with Pact",
+          "subtopics": ["Why end-to-end tests do not scale", "Consumer-driven contracts", "Writing consumer tests", "Provider verification", "The Pact Broker and can-i-deploy", "Contracts for messages", "Contract versioning", "Rolling out contract testing"],
+          "tools": ["Pact", "Pact Broker or PactFlow", "CI pipelines"],
+          "lab_task": "Add consumer contracts for three consumers, verify providers in CI, use can-i-deploy to gate releases and add a message contract for OrderPlaced.",
+          "deliverable": "Contract testing pipeline",
+          "checks": [["Break a provider", "Verification fails before deployment", "CI log"], ["Gate a release", "can-i-deploy blocks an incompatible release", "CI log"], ["Test a message", "Message contract verified", "Test output"]],
+          "objectives": ["Use consumer-driven contracts", "Gate releases on contracts", "Test message contracts"]
+        },
+        {
+          "topic": "Versioning APIs and Events",
+          "subtopics": ["Compatible and breaking changes", "Versioning REST APIs", "Versioning events and schemas", "Schema registries and compatibility modes", "Running versions side by side", "Deprecation timelines", "Communicating changes", "Removing old versions"],
+          "tools": ["Schema Registry", "Avro or Protobuf", "OpenAPI"],
+          "lab_task": "Evolve an event schema under backward compatibility, run two API versions side by side, publish a deprecation timeline and remove the old version when traffic reaches zero.",
+          "deliverable": "Versioning policy and change records",
+          "checks": [["Evolve a schema", "Registry accepts the compatible change", "Registry output"], ["Reject a breaking change", "Registry blocks the incompatible schema", "Registry output"], ["Remove a version", "Old version removed after zero traffic", "Traffic report"]],
+          "objectives": ["Version APIs and events", "Use schema registries", "Retire old versions"]
+        },
+        {
+          "topic": "Security: OAuth2, JWT Propagation and mTLS",
+          "subtopics": ["OAuth2 and OpenID Connect for service estates", "Token validation in every service", "Token exchange for downstream calls", "Service accounts and workload identity", "mTLS and certificate management", "Authorisation policies per service", "Secrets rotation", "Threat modelling a service estate"],
+          "tools": ["Keycloak or Entra ID", "SPIFFE or mesh certificates", "Vault"],
+          "lab_task": "Threat model the system, validate tokens in every service, exchange tokens for downstream calls, use workload identities with mTLS and rotate secrets without downtime.",
+          "deliverable": "Threat model and security configuration",
+          "checks": [["Model threats", "Threats mapped to every service and channel", "Threat model"], ["Exchange tokens", "Downstream services get scoped tokens", "Log output"], ["Rotate secrets", "Rotation completes without failed requests", "Availability log"]],
+          "objectives": ["Secure service estates", "Propagate identity safely", "Threat model microservices"]
+        },
+        {
+          "topic": "Data Consistency and Idempotency",
+          "subtopics": ["Consistency models for services", "Idempotent endpoints and consumers", "Deduplication keys", "Optimistic concurrency across services", "Reconciliation jobs", "Handling out-of-order events", "Exactly-once claims and reality", "Testing consistency"],
+          "tools": ["Messaging", "PostgreSQL", "Test tools"],
+          "lab_task": "Make payment and stock flows idempotent, handle out-of-order events with versions, write a reconciliation job that finds mismatches and test with duplicated and reordered messages.",
+          "deliverable": "Consistency safeguards with tests",
+          "checks": [["Duplicate messages", "Duplicates have no effect", "Database rows"], ["Reorder events", "Late events ignored by version checks", "Test output"], ["Reconcile", "Reconciliation job reports and fixes mismatches", "Job report"]],
+          "objectives": ["Keep data consistent across services", "Make operations idempotent", "Reconcile data"]
+        },
+        {
+          "topic": "Kubernetes Deployment Patterns for Microservices",
+          "subtopics": ["Helm charts per service", "Shared chart libraries", "Resource requests and limits", "Autoscaling services", "Pod disruption budgets", "Network policies", "Namespaces per team or environment", "GitOps with Argo CD"],
+          "tools": ["Kubernetes", "Helm", "Argo CD", "KEDA"],
+          "lab_task": "Package services as Helm charts from a shared library, set resources, autoscaling and disruption budgets, restrict traffic with network policies and deploy with Argo CD.",
+          "deliverable": "Charts and GitOps configuration",
+          "checks": [["Deploy with GitOps", "Argo CD syncs every service from Git", "Argo CD screenshot"], ["Restrict traffic", "Network policy blocks an unexpected call", "Connection test"], ["Drain a node", "Disruption budget keeps services available", "kubectl output"]],
+          "objectives": ["Package services for Kubernetes", "Apply production settings", "Deploy with GitOps"]
+        },
+        {
+          "topic": "Progressive Delivery: Canary and Blue-Green Releases",
+          "subtopics": ["Release strategies", "Canary analysis with metrics", "Blue-green switches", "Feature flags", "Automated rollback", "Releasing database changes", "Release coordination between services", "Measuring release health"],
+          "tools": ["Argo Rollouts or Flagger", "Prometheus", "Feature flag service"],
+          "lab_task": "Release a service with an automated canary that checks error rate and latency, roll back a bad version automatically and switch a second service with blue-green.",
+          "deliverable": "Progressive delivery setup",
+          "checks": [["Promote a canary", "Healthy canary promoted automatically", "Rollout history"], ["Roll back automatically", "Bad canary rolled back by analysis", "Rollout history"], ["Switch blue-green", "Traffic switched with no failed requests", "Load test output"]],
+          "objectives": ["Release services progressively", "Automate rollback", "Use feature flags"]
+        },
+        {
+          "topic": "Configuration and Secrets at Scale",
+          "subtopics": ["Configuration sources and precedence", "Per-environment configuration", "Dynamic configuration", "Secrets managers", "External Secrets Operator", "Auditing configuration changes", "Configuration drift", "Testing configuration"],
+          "tools": ["Vault or a cloud secrets manager", "External Secrets Operator", "Git"],
+          "lab_task": "Move all service secrets to a secrets manager synced by External Secrets, manage configuration per environment in Git, change a dynamic setting safely and audit the change.",
+          "deliverable": "Configuration and secrets setup",
+          "checks": [["Sync secrets", "Services read secrets synced from the manager", "Pod environment check"], ["Change dynamic settings", "Setting changes without a redeploy", "Response"], ["Audit a change", "Change recorded with author and time", "Audit log"]],
+          "objectives": ["Manage configuration at scale", "Handle secrets safely", "Audit changes"]
+        },
+        {
+          "topic": "Workflow Engines: Temporal and Camunda",
+          "subtopics": ["When to use a workflow engine", "Durable execution", "Workflows and activities", "Retries and timeouts in workflows", "Human tasks", "Versioning workflows", "Observability for workflows", "Workflow engines compared with sagas in code"],
+          "tools": ["Temporal or Camunda", "SDK for your language"],
+          "lab_task": "Rebuild the refund process as a durable workflow with retries, a human approval step and a timeout, version the workflow and compare it with the saga version.",
+          "deliverable": "Workflow implementation and comparison",
+          "checks": [["Restart the worker", "Workflow resumes where it stopped", "Workflow history"], ["Approve a refund", "Human task completes the workflow", "Workflow history"], ["Version a workflow", "Running instances finish on the old version", "Workflow history"]],
+          "objectives": ["Use workflow engines", "Build durable processes", "Compare engines with sagas"]
+        },
+        {
+          "topic": "Migrating a Monolith with the Strangler Fig Pattern",
+          "subtopics": ["Assessing the monolith", "Choosing the first service to extract", "Routing with a proxy", "Data migration strategies", "Change data capture during migration", "Running old and new in parallel", "Measuring migration progress", "When to stop migrating"],
+          "tools": ["Reverse proxy or gateway", "Debezium", "Feature flags"],
+          "lab_task": "Extract the notifications capability from a monolith behind a proxy, sync data with change data capture, run both in parallel and switch traffic with a flag.",
+          "deliverable": "Extracted service and migration plan",
+          "checks": [["Route through the proxy", "Traffic moves to the new service without client changes", "Request log"], ["Sync data", "New service data matches the monolith", "Comparison report"], ["Plan the next steps", "Next extractions ranked by value and risk", "Migration plan"]],
+          "objectives": ["Migrate monoliths incrementally", "Use the strangler fig pattern", "Plan migration steps"]
+        },
+        {
+          "topic": "Intermediate Capstone: Event-Driven Order Management Platform",
+          "subtopics": ["Design", "Build", "Quality", "Release"],
+          "tools": ["Kafka", "Debezium", "OpenTelemetry", "Pact", "Kubernetes", "Argo CD"],
+          "lab_task": "Build an event-driven order platform with bounded contexts, sagas, outbox, CQRS read models, a BFF, mesh mTLS, tracing, contract tests and progressive delivery, then present it.",
+          "deliverable": "Repository, running platform, reports and presentation",
+          "checks": [["Demo an order", "Order flows across services with compensation on failure", "Demo recording"], ["Show quality", "Contracts, chaos and tracing evidence meet targets", "Reports"], ["Defend the design", "Boundaries and consistency choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Run a production-style service estate", "Explain design trade-offs"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For architects, staff engineers and platform leads. Covers architecture trade-offs and when not to use microservices, team topologies and Conway's law, platform engineering, large-scale event streaming, multi-region services and data, reliability engineering, capacity planning, zero trust, change data capture and data mesh integration, observability at scale, cost engineering, governance and paved roads, cell-based architecture, multi-tenancy, serverless services, testing in production, merging over-split services, AI services and distributed incident troubleshooting.",
+      "prerequisites": ["Several years building and running microservices in production", "Strong knowledge of messaging, Kubernetes and observability", "Has led design decisions for a team"],
+      "outcomes": ["Make and defend architecture decisions for service estates", "Design multi-region, reliable and secure platforms", "Run platforms, governance and cost programmes", "Lead troubleshooting of distributed incidents"],
+      "days": [
+        {
+          "topic": "Microservices Architecture Trade-offs and When Not to Use Them",
+          "subtopics": ["Architecture characteristics and trade-offs", "Distributed monolith warning signs", "Granularity drivers and disintegrators", "Cost of coordination", "Team size and maturity", "Reversibility of decisions", "Architecture decision records", "Case studies of moving back to monoliths"],
+          "tools": ["Architecture decision records", "Trade-off analysis templates"],
+          "lab_task": "Analyse three real case studies, score service granularity with drivers and disintegrators for a sample estate and write decision records for merging and splitting.",
+          "deliverable": "Trade-off analysis and decision records",
+          "checks": [["Score granularity", "Each service scored with reasons", "Scoring sheet"], ["Spot a distributed monolith", "Warning signs identified in the sample estate", "Analysis notes"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Analyse architecture trade-offs", "Judge service granularity", "Record decisions"]
+        },
+        {
+          "topic": "Team Topologies and Conway's Law",
+          "subtopics": ["Conway's law in practice", "Stream-aligned, platform, enabling and complicated-subsystem teams", "Interaction modes", "Cognitive load", "Mapping services to teams", "Changing team structure with architecture", "Ownership and on-call", "Measuring team flow"],
+          "tools": ["Team Topologies templates", "Service ownership catalogue"],
+          "lab_task": "Map the services of a sample organisation to teams, find cognitive overload and ownership gaps, propose a new team topology and plan the change.",
+          "deliverable": "Team and service map with proposal",
+          "checks": [["Map ownership", "Every service has one owning team", "Ownership map"], ["Find overload", "Teams with too many services or domains identified", "Analysis notes"], ["Propose topology", "Proposal reduces handoffs between teams", "Proposal document"]],
+          "objectives": ["Apply Conway's law", "Design team topologies", "Align services and teams"]
+        },
+        {
+          "topic": "Platform Engineering for Microservices",
+          "subtopics": ["Internal developer platforms", "Golden paths and service templates", "Self-service infrastructure", "Developer portals such as Backstage", "Platform as a product", "Measuring developer experience", "Platform APIs", "Avoiding platform overreach"],
+          "tools": ["Backstage", "Service templates", "Crossplane or Terraform"],
+          "lab_task": "Build a golden path that creates a new service with repository, pipeline, observability and deployment from a Backstage template, and measure time to first deploy.",
+          "deliverable": "Golden path template and metrics",
+          "checks": [["Create a service", "New service deployed from the template in under an hour", "Timeline"], ["Register in the portal", "Service appears in the catalogue with its owner", "Portal screenshot"], ["Measure experience", "Time to first deploy recorded", "Metrics report"]],
+          "objectives": ["Build internal platforms", "Offer golden paths", "Measure developer experience"]
+        },
+        {
+          "topic": "Large-Scale Event Streaming Architecture",
+          "subtopics": ["Topic design at scale", "Partitioning strategy", "Multi-cluster Kafka", "Stream processing services", "Event governance and catalogues", "Retention and storage tiers", "Back-pressure and consumer scaling", "Cost of streaming platforms"],
+          "tools": ["Apache Kafka", "Kafka Streams or Flink", "Schema Registry", "MirrorMaker or Cluster Linking"],
+          "lab_task": "Design the topic and partition strategy for 200 services, replicate between two clusters, build a stream processor for fraud signals and estimate platform cost.",
+          "deliverable": "Streaming architecture and cost model",
+          "checks": [["Design partitions", "Partition counts justified by throughput and ordering", "Design document"], ["Replicate clusters", "Events replicated with measured lag", "Lag metrics"], ["Estimate cost", "Monthly cost modelled for the design", "Cost model"]],
+          "objectives": ["Design streaming platforms", "Scale topics and consumers", "Model streaming cost"]
+        },
+        {
+          "topic": "Multi-Region Microservices and Data Replication",
+          "subtopics": ["Why go multi-region", "Active-passive and active-active designs", "Data replication and conflicts", "Global routing", "Region-aware services", "Failover testing", "Consistency trade-offs", "Cost of multi-region"],
+          "tools": ["Global load balancing", "Database replication", "Kafka replication"],
+          "lab_task": "Design an active-active order platform across two regions, handle write conflicts, route users by region, run a regional failover and record the impact.",
+          "deliverable": "Multi-region design and failover report",
+          "checks": [["Route by region", "Users served from their nearest region", "Routing test"], ["Resolve conflicts", "Conflicting writes resolved by the agreed rule", "Test output"], ["Fail a region", "Traffic moves to the other region within the target time", "Failover report"]],
+          "objectives": ["Design multi-region services", "Replicate data safely", "Test regional failover"]
+        },
+        {
+          "topic": "Reliability Engineering: SLOs, Error Budgets and Chaos",
+          "subtopics": ["SLIs and SLOs for user journeys", "Error budgets and release policies", "Dependency SLOs", "Game days", "Chaos engineering at scale", "Load shedding and priority", "Incident review culture", "Reliability roadmaps"],
+          "tools": ["Prometheus", "Sloth or OpenSLO", "Chaos Mesh or Litmus"],
+          "lab_task": "Define SLOs for three journeys, set an error budget policy, run a game day with chaos experiments across services and update the reliability roadmap from the results.",
+          "deliverable": "SLOs, game day report and roadmap",
+          "checks": [["Define SLOs", "SLOs agreed for each journey", "SLO document"], ["Run a game day", "Experiments run with findings recorded", "Game day report"], ["Apply the budget policy", "Release frozen when the budget is spent", "Policy record"]],
+          "objectives": ["Run SLO-based reliability", "Use error budgets", "Practise with game days"]
+        },
+        {
+          "topic": "Performance and Capacity Planning Across Services",
+          "subtopics": ["Latency budgets across call chains", "Tail latency and fan-out", "Load testing service estates", "Capacity models per service", "Autoscaling limits", "Database and broker capacity", "Forecasting growth", "Performance regression detection"],
+          "tools": ["k6 or Gatling", "Prometheus", "Capacity spreadsheets"],
+          "lab_task": "Split a latency budget across the checkout call chain, load test the estate, build capacity models per service and forecast hardware for twice the traffic.",
+          "deliverable": "Capacity plan with load test results",
+          "checks": [["Split budgets", "Each service has a latency budget that adds up", "Budget table"], ["Load test", "Bottleneck service identified", "Load test report"], ["Forecast", "Capacity for twice the traffic estimated", "Capacity plan"]],
+          "objectives": ["Plan capacity for service estates", "Manage tail latency", "Forecast growth"]
+        },
+        {
+          "topic": "Zero Trust Security Architecture for Microservices",
+          "subtopics": ["Zero trust principles", "Workload identity with SPIFFE", "Policy engines such as OPA", "Fine-grained authorisation services", "Securing the software supply chain", "Runtime security", "Data protection across services", "Security reviews at scale"],
+          "tools": ["SPIFFE and SPIRE", "Open Policy Agent", "Sigstore", "Falco"],
+          "lab_task": "Issue workload identities with SPIRE, enforce service policies with OPA, sign and verify images, detect suspicious runtime behaviour with Falco and review the result.",
+          "deliverable": "Zero trust design and implementation",
+          "checks": [["Enforce policy", "Disallowed service call blocked by OPA", "Decision log"], ["Verify images", "Unsigned image refused at deployment", "Admission log"], ["Detect runtime behaviour", "Falco alerts on a shell in a container", "Alert output"]],
+          "objectives": ["Apply zero trust to services", "Use workload identity and policy engines", "Secure the supply chain"]
+        },
+        {
+          "topic": "Advanced Data Patterns: Change Data Capture and Data Mesh Integration",
+          "subtopics": ["Change data capture at scale", "Events from legacy databases", "Data products owned by domains", "Serving analytics without coupling services", "Schema contracts for data products", "Privacy and retention across services", "Data quality checks", "Lineage"],
+          "tools": ["Debezium", "Kafka", "Data catalogue", "Data quality tools"],
+          "lab_task": "Publish domain data products from two services through change data capture with contracts, quality checks and lineage, and serve an analytics use case without touching service databases.",
+          "deliverable": "Data products with contracts and lineage",
+          "checks": [["Publish a data product", "Consumers read the product without service database access", "Access review"], ["Check quality", "Bad records caught by quality checks", "Quality report"], ["Show lineage", "Lineage traced from service to report", "Lineage graph"]],
+          "objectives": ["Use change data capture at scale", "Publish data products", "Protect data contracts"]
+        },
+        {
+          "topic": "Observability Across Hundreds of Services",
+          "subtopics": ["Telemetry volume and cost", "Sampling strategies at scale", "High-cardinality data", "Service maps and dependency analysis", "Alert design across many teams", "Observability as a platform", "Standards for telemetry", "Using telemetry for architecture decisions"],
+          "tools": ["OpenTelemetry Collector", "Grafana stack or a commercial platform", "Tail sampling"],
+          "lab_task": "Design telemetry standards for 100 services, set up tail sampling in the collector, cut telemetry cost by half while keeping error traces and build service dependency maps.",
+          "deliverable": "Observability standards and cost results",
+          "checks": [["Cut cost", "Telemetry volume halved with error traces kept", "Volume comparison"], ["Build a dependency map", "Service map shows real call paths", "Map screenshot"], ["Publish standards", "Standards adopted by two teams", "Adoption notes"]],
+          "objectives": ["Run observability at scale", "Control telemetry cost", "Use telemetry for decisions"]
+        },
+        {
+          "topic": "Cost Engineering for Microservices",
+          "subtopics": ["Where microservice costs come from", "Cost allocation per service and team", "Right-sizing and autoscaling", "Shared infrastructure costs", "Data transfer costs", "Cost of duplication across services", "Unit economics", "Cost reviews and budgets"],
+          "tools": ["Kubecost or OpenCost", "Cloud cost tools", "Tagging"],
+          "lab_task": "Allocate a month of platform cost to services and teams, find the biggest waste, right-size workloads and calculate cost per order.",
+          "deliverable": "Cost report and savings plan",
+          "checks": [["Allocate cost", "Every service has a monthly cost", "Cost report"], ["Cut waste", "Savings achieved with no SLO breach", "Before and after report"], ["Calculate unit cost", "Cost per order calculated", "Unit economics sheet"]],
+          "objectives": ["Measure microservice costs", "Reduce waste", "Track unit economics"]
+        },
+        {
+          "topic": "Governance: Standards, Paved Roads and Architecture Reviews",
+          "subtopics": ["What to standardise and what to leave free", "Engineering standards for services", "Paved roads over mandates", "Architecture review boards", "Fitness functions", "Scorecards for services", "Exceptions and waivers", "Evolving standards"],
+          "tools": ["Service scorecards", "Fitness function tooling", "Decision records"],
+          "lab_task": "Write service standards, encode three as automated fitness functions, build scorecards in the developer portal and run an architecture review for a new service.",
+          "deliverable": "Standards, fitness functions and scorecards",
+          "checks": [["Automate standards", "Fitness functions fail non-compliant services", "CI log"], ["Build scorecards", "Scorecards show compliance per service", "Portal screenshot"], ["Run a review", "Review decision recorded with conditions", "Review record"]],
+          "objectives": ["Govern service estates", "Automate standards", "Run architecture reviews"]
+        },
+        {
+          "topic": "Cell-Based Architecture and Blast Radius",
+          "subtopics": ["What a cell is", "Cell routing", "Sizing cells", "Data partitioning by cell", "Deploying cell by cell", "Limiting blast radius", "Cell migration and rebalancing", "When cells are worth it"],
+          "tools": ["Cell router", "Kubernetes", "Infrastructure as code"],
+          "lab_task": "Partition customers into cells with a cell router, deploy changes cell by cell, fail one cell and show other customers are unaffected.",
+          "deliverable": "Cell-based design and failure test",
+          "checks": [["Route by cell", "Each customer always reaches its cell", "Routing test"], ["Deploy by cell", "Release rolls out one cell at a time", "Deployment log"], ["Fail a cell", "Only customers in that cell affected", "Failure report"]],
+          "objectives": ["Design cell-based architectures", "Limit blast radius", "Release cell by cell"]
+        },
+        {
+          "topic": "Multi-Tenant Microservices",
+          "subtopics": ["Tenancy models across services", "Tenant context propagation", "Isolation at data, compute and network levels", "Noisy neighbours", "Tenant-aware observability", "Per-tenant configuration and features", "Onboarding automation across services", "Isolation testing"],
+          "tools": ["Tenant context libraries", "Kubernetes namespaces", "Database isolation features"],
+          "lab_task": "Propagate tenant context through HTTP and messages, isolate data per tenant in three services, protect against noisy neighbours and automate onboarding across services.",
+          "deliverable": "Multi-tenant design and isolation tests",
+          "checks": [["Propagate tenant context", "Tenant ID present in every service and message", "Trace screenshot"], ["Test isolation", "No cross-tenant data in any service", "Test output"], ["Limit a noisy tenant", "Other tenants unaffected during a flood", "Load test results"]],
+          "objectives": ["Design multi-tenant service estates", "Propagate tenant context", "Isolate tenants"]
+        },
+        {
+          "topic": "Serverless and Event-Driven Microservices",
+          "subtopics": ["Functions as services", "Event sources and triggers", "Choreography with serverless functions", "State with durable functions or step functions", "Cold starts and concurrency limits", "Observability for serverless", "Cost at different scales", "Mixing containers and functions"],
+          "tools": ["AWS Lambda and Step Functions or Azure Functions and Durable Functions", "EventBridge or Event Grid"],
+          "lab_task": "Rebuild the notification and refund flows as serverless functions with an orchestrated state machine, trace them end to end and compare cost with containers.",
+          "deliverable": "Serverless flows and cost comparison",
+          "checks": [["Run the state machine", "Refund flow completes with retries", "Execution history"], ["Trace end to end", "Trace covers functions and queues", "Trace screenshot"], ["Compare cost", "Cost compared at three traffic levels", "Cost model"]],
+          "objectives": ["Build serverless services", "Orchestrate functions", "Compare serverless and containers"]
+        },
+        {
+          "topic": "Testing in Production and Synthetic Monitoring",
+          "subtopics": ["Why staging is never enough", "Synthetic transactions", "Dark launches and shadow traffic", "Feature flags for testing in production", "Canary analysis", "Safety controls for production tests", "Observing experiments", "Learning from production tests"],
+          "tools": ["Synthetic monitoring tools", "Traffic mirroring", "Feature flags"],
+          "lab_task": "Run synthetic checks for key journeys, mirror production traffic to a new service version, dark-launch a feature behind a flag and compare results safely.",
+          "deliverable": "Production testing setup and findings",
+          "checks": [["Run synthetics", "Synthetic check alerts on a broken journey", "Alert notification"], ["Mirror traffic", "New version handles mirrored traffic without user impact", "Comparison report"], ["Dark-launch", "Feature runs hidden with metrics collected", "Metrics dashboard"]],
+          "objectives": ["Test safely in production", "Use traffic mirroring", "Run dark launches"]
+        },
+        {
+          "topic": "Merging Services and Reversing Over-Splitting",
+          "subtopics": ["Signs of over-splitting", "Measuring coupling between services", "Merging services safely", "Merging data stores", "Updating contracts and clients", "Team and ownership changes", "Communicating the change", "Avoiding the next over-split"],
+          "tools": ["Dependency analysis", "Tracing data", "Migration tooling"],
+          "lab_task": "Find two over-split services from tracing and change data, merge them into one service with one store, migrate clients and measure the improvement.",
+          "deliverable": "Merge plan and results",
+          "checks": [["Find coupling", "Coupling shown with tracing and change frequency data", "Analysis report"], ["Merge services", "Merged service passes all contracts", "CI log"], ["Measure improvement", "Latency and deployment effort reduced", "Before and after metrics"]],
+          "objectives": ["Recognise over-splitting", "Merge services safely", "Improve architecture over time"]
+        },
+        {
+          "topic": "AI Services in a Microservices Estate",
+          "subtopics": ["Where AI services fit", "Model serving as a service", "AI gateways for many teams", "Retrieval services and shared vector stores", "Cost and quota per team", "Safety and data protection", "Observability for AI calls", "Evaluating AI services"],
+          "tools": ["AI gateway such as LiteLLM", "Model serving platform", "Vector database"],
+          "lab_task": "Add a shared AI gateway with quotas per service, a retrieval service used by two product services and tracing for AI calls, and report cost per team.",
+          "deliverable": "AI platform services and cost report",
+          "checks": [["Enforce quotas", "Service blocked after its quota", "Gateway log"], ["Share retrieval", "Two services use the retrieval service", "Trace screenshot"], ["Report cost", "AI cost reported per team", "Cost report"]],
+          "objectives": ["Add AI services to an estate", "Govern AI usage", "Track AI cost"]
+        },
+        {
+          "topic": "Troubleshooting Distributed Systems Incidents",
+          "subtopics": ["Incident command for service estates", "Finding the failing service from symptoms", "Cascading failures and retry storms", "Message backlogs and poison messages", "Clock, ordering and consistency bugs", "Partial outages and degraded modes", "Evidence collection across services", "Post-incident reviews"],
+          "tools": ["OpenTelemetry", "Central logs", "Broker dashboards", "Runbooks"],
+          "lab_task": "Work through four incidents: a retry storm, a poison message backlog, a cascading timeout and an ordering bug, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by traces, logs or broker data", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot distributed incidents", "Stop cascading failures", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Microservices Platform",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["Kubernetes", "Kafka", "OpenTelemetry", "SPIRE", "Argo CD", "Backstage"],
+          "lab_task": "Design and build a multi-region, cell-based service platform with a golden path, zero trust, event streaming, SLOs, cost allocation and governance, then defend it to an architecture review panel.",
+          "deliverable": "Platform repository, architecture pack and defence",
+          "checks": [["Fail a region", "Platform keeps serving users within its SLOs", "Failover report"], ["Prove the golden path", "New service deployed through the golden path in a day", "Timeline"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect service estates", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

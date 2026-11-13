@@ -309,7 +309,7 @@
           "objectives": ["Handle imbalanced data", "Calibrate models", "Decide with costs"]
         },
         {
-          "topic": "Interpreting and Explaining Models",
+          "topic": "Interpreting and Explaining Models for Stakeholders",
           "subtopics": ["Global and local explanations", "Partial dependence and ICE plots", "Permutation importance", "SHAP values", "Explaining to non-technical people", "Explanations for regulators", "Limits of explanations", "Checking explanations for sense"],
           "tools": ["SHAP", "scikit-learn"],
           "lab_task": "Explain the loan default model globally and for three individual decisions with SHAP and partial dependence, check the explanations against domain knowledge and write a customer-facing explanation.",

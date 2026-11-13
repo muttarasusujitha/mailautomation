@@ -1,0 +1,573 @@
+{
+  "domain": "Hadoop",
+  "name": "Apache Hadoop and the Big Data Ecosystem",
+  "category": "Data Engineering and Analytics",
+  "icon": "hard-drive",
+  "aliases": ["Apache Hadoop", "Hadoop Big Data", "Big Data Hadoop", "Big Data with Hadoop", "Hadoop Administration", "Hadoop Admin", "Hadoop Developer", "Hadoop Ecosystem", "HDFS", "MapReduce", "Cloudera", "Cloudera Data Platform", "Hortonworks"],
+  "certifications": ["Cloudera Certified CDP Generalist", "Cloudera Certified CDP Administrator - Private Cloud Base", "Cloudera Certified CDP Data Developer"],
+  "tools": ["Apache Hadoop", "HDFS", "YARN", "MapReduce", "Apache Hive", "Apache HBase", "Apache Spark", "Apache Ranger", "Cloudera Manager", "Apache Ambari"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For data engineers, administrators and developers who work with on-premises big data platforms. Covers the Hadoop ecosystem and a lab cluster, HDFS architecture and commands, YARN, MapReduce in Java and Python, Hive tables, partitions and file formats, moving data in and out, HBase, Spark on YARN, scheduling, ZooKeeper, cluster configuration, monitoring with Ambari or Cloudera Manager, security in brief, SQL engines and Hadoop services in the cloud.",
+      "prerequisites": ["Comfortable with Linux commands and SQL", "Basic programming in Java or Python", "Understands files, directories and networks at a basic level"],
+      "outcomes": ["Explain how Hadoop stores and processes data", "Load, query and process data with HDFS, MapReduce, Hive, HBase and Spark", "Configure, monitor and secure a small cluster", "Choose between on-premises and cloud Hadoop services"],
+      "days": [
+        {
+          "topic": "Hadoop Overview, Ecosystem and Lab Cluster Setup",
+          "subtopics": ["Why Hadoop was built and where it is still used", "The core: HDFS, YARN and MapReduce", "The wider ecosystem: Hive, HBase, Spark, Kafka and more", "Distributions: Apache Hadoop and Cloudera", "Single-node and multi-node clusters", "Running a lab cluster with Docker or virtual machines", "Configuration files at a glance", "Web interfaces for HDFS and YARN", "Hadoop compared with cloud data lakes", "The course project: web log analytics"],
+          "tools": ["Apache Hadoop", "Docker", "Linux", "HDFS and YARN web UIs"],
+          "lab_task": "Start a three-node lab cluster with Docker, check the HDFS and YARN web interfaces, run the sample word count job and sketch the log analytics project.",
+          "deliverable": "Running lab cluster and project sketch",
+          "checks": [["Start the cluster", "All DataNodes and NodeManagers shown as live", "Web UI screenshots"], ["Run the sample job", "Word count job succeeds", "Job history screenshot"], ["Sketch the project", "Data sources, stages and outputs listed", "Project sketch"]],
+          "objectives": ["Explain the Hadoop ecosystem", "Run a lab cluster", "Navigate the cluster web interfaces"]
+        },
+        {
+          "topic": "HDFS Architecture: NameNode, DataNodes and Blocks",
+          "subtopics": ["NameNode and namespace metadata", "DataNodes and block storage", "Block size and replication factor", "Rack awareness", "Read and write paths", "Heartbeats and block reports", "Secondary NameNode and checkpoints", "Safe mode"],
+          "tools": ["HDFS", "hdfs dfsadmin", "NameNode web UI"],
+          "lab_task": "Upload a large file, find where its blocks and replicas live, stop a DataNode and watch re-replication, and put the cluster into and out of safe mode.",
+          "deliverable": "HDFS architecture notes with evidence",
+          "checks": [["Locate blocks", "Block locations listed for the file", "fsck output"], ["Lose a DataNode", "Missing replicas re-created on other nodes", "dfsadmin report"], ["Use safe mode", "Writes blocked in safe mode and resumed after", "Terminal output"]],
+          "objectives": ["Explain HDFS architecture", "Trace blocks and replicas", "Handle node loss"]
+        },
+        {
+          "topic": "Working with HDFS: Shell Commands and File Operations",
+          "subtopics": ["hdfs dfs commands", "Uploading and downloading data", "Permissions and ownership", "Quotas", "Trash and recovery", "Checking file health with fsck", "Copying between clusters with DistCp", "Scripting HDFS tasks"],
+          "tools": ["HDFS shell", "DistCp", "Bash"],
+          "lab_task": "Organise a raw, clean and curated folder structure in HDFS, set permissions and quotas, recover a deleted file from trash and copy data to a second cluster with DistCp.",
+          "deliverable": "HDFS layout and task script",
+          "checks": [["Set quotas", "Upload beyond the quota fails", "Terminal output"], ["Recover from trash", "Deleted file restored", "Terminal output"], ["Copy with DistCp", "Data copied with matching checksums", "DistCp output"]],
+          "objectives": ["Manage files in HDFS", "Apply permissions and quotas", "Copy data between clusters"]
+        },
+        {
+          "topic": "YARN: Resource Management and Applications",
+          "subtopics": ["ResourceManager and NodeManagers", "Containers, memory and vcores", "Application masters", "Submitting and tracking applications", "Queues at a glance", "Logs and log aggregation", "Killing and restarting applications", "Reading the YARN web UI"],
+          "tools": ["YARN", "yarn CLI", "ResourceManager web UI"],
+          "lab_task": "Submit several jobs, follow them through the YARN UI, read aggregated logs for a failed job, kill a runaway application and explain how memory is allocated.",
+          "deliverable": "YARN operations notes",
+          "checks": [["Track jobs", "Jobs followed from submission to completion", "UI screenshots"], ["Read logs", "Cause of the failed job found in aggregated logs", "Log excerpt"], ["Kill a job", "Runaway application stopped", "yarn application output"]],
+          "objectives": ["Explain YARN resource management", "Run and monitor applications", "Read YARN logs"]
+        },
+        {
+          "topic": "MapReduce Concepts and a First Job",
+          "subtopics": ["Map, shuffle and reduce", "Input splits and record readers", "Key-value pairs", "Combiners in brief", "Counters", "Job configuration", "Running jobs and reading output", "When MapReduce still makes sense"],
+          "tools": ["Hadoop MapReduce", "Sample jobs"],
+          "lab_task": "Trace the map, shuffle and reduce stages of a word count job with counters, change the number of reducers and explain the effect on output files.",
+          "deliverable": "MapReduce walkthrough notes",
+          "checks": [["Read counters", "Map and reduce record counts explained", "Counter output"], ["Change reducers", "Output file count matches reducers", "HDFS listing"], ["Explain the shuffle", "Shuffle stage described with evidence", "Notes"]],
+          "objectives": ["Explain how MapReduce works", "Run MapReduce jobs", "Read job counters"]
+        },
+        {
+          "topic": "Writing MapReduce Jobs in Java",
+          "subtopics": ["Mapper and Reducer classes", "Writable types", "The driver class", "Packaging jobs with Maven", "Custom counters", "Handling bad records", "Testing with MRUnit-style unit tests", "Running jobs on the cluster"],
+          "tools": ["Java", "Maven", "Hadoop MapReduce API"],
+          "lab_task": "Write a Java MapReduce job that counts requests per URL and status code from web logs, skips bad records with a counter, test it locally and run it on the cluster.",
+          "deliverable": "Java MapReduce job with tests",
+          "checks": [["Run the job", "Counts per URL and status produced", "Output sample"], ["Skip bad records", "Bad records counted and skipped", "Counter output"], ["Test locally", "Unit tests pass before cluster runs", "Test output"]],
+          "objectives": ["Write MapReduce jobs in Java", "Handle bad input", "Test jobs locally"]
+        },
+        {
+          "topic": "MapReduce with Python Using Hadoop Streaming",
+          "subtopics": ["How Hadoop Streaming works", "Mappers and reducers as scripts", "Sorting and grouping in streaming jobs", "Passing parameters", "Shipping files and libraries", "Debugging streaming jobs", "Performance trade-offs", "When to move to Spark"],
+          "tools": ["Hadoop Streaming", "Python"],
+          "lab_task": "Rewrite the log analysis in Python with Hadoop Streaming, ship a lookup file with the job, debug a failing mapper and compare run time with the Java version.",
+          "deliverable": "Streaming job and comparison",
+          "checks": [["Run the streaming job", "Output matches the Java job", "Diff output"], ["Ship a file", "Lookup file used by the mapper", "Output sample"], ["Compare speed", "Run times compared", "Timing table"]],
+          "objectives": ["Use Hadoop Streaming", "Write jobs in Python", "Compare approaches"]
+        },
+        {
+          "topic": "Apache Hive: Tables, Partitions and HiveQL",
+          "subtopics": ["Hive architecture and the metastore", "Managed and external tables", "HiveQL queries", "Partitions", "Loading data", "Joins and aggregations", "Views", "Beeline and HiveServer2"],
+          "tools": ["Apache Hive", "Beeline", "HiveServer2"],
+          "lab_task": "Create external tables over the raw logs, partition them by date, load a new day of data, and answer five business questions with HiveQL from Beeline.",
+          "deliverable": "Hive tables and query file",
+          "checks": [["Partition by date", "Queries for one day read only that partition", "EXPLAIN output"], ["Answer questions", "Five business questions answered correctly", "Query results"], ["Use external tables", "Dropping the table keeps the data files", "HDFS listing"]],
+          "objectives": ["Build tables in Hive", "Query with HiveQL", "Use partitions"]
+        },
+        {
+          "topic": "Hive File Formats: ORC, Parquet and Avro",
+          "subtopics": ["Row and columnar formats", "ORC features: stripes and indexes", "Parquet in the ecosystem", "Avro for schema evolution", "Compression codecs", "Converting between formats", "Choosing a format per use", "Measuring query and storage gains"],
+          "tools": ["Apache Hive", "ORC", "Parquet", "Avro"],
+          "lab_task": "Convert the log tables from text to ORC and Parquet with compression, compare storage size and query times and choose a format for each layer.",
+          "deliverable": "Format comparison and decision",
+          "checks": [["Compare storage", "Storage size compared for each format", "Size table"], ["Compare queries", "Query times compared for each format", "Timing table"], ["Choose formats", "Format chosen per layer with reasons", "Decision notes"]],
+          "objectives": ["Use columnar formats", "Choose compression", "Measure format gains"]
+        },
+        {
+          "topic": "Moving Data In and Out: DistCp, Kafka Connect and JDBC Imports",
+          "subtopics": ["Batch ingestion options after Sqoop's retirement", "JDBC imports with Spark", "Kafka Connect HDFS sink", "Apache NiFi in brief", "DistCp for bulk copies", "Exporting results to databases", "Incremental loads", "Validating loaded data"],
+          "tools": ["Spark JDBC", "Kafka Connect", "DistCp", "Apache NiFi"],
+          "lab_task": "Import a MySQL table into HDFS incrementally with Spark JDBC, stream events into HDFS with Kafka Connect and export results back to a database, validating row counts.",
+          "deliverable": "Ingestion jobs with validation reports",
+          "checks": [["Load incrementally", "Only new rows imported on the second run", "Row counts"], ["Stream to HDFS", "Kafka events land in HDFS files", "HDFS listing"], ["Validate", "Source and target counts reconciled", "Validation report"]],
+          "objectives": ["Ingest data into Hadoop", "Load incrementally", "Validate data movement"]
+        },
+        {
+          "topic": "Apache HBase for Random Reads and Writes",
+          "subtopics": ["When HBase fits", "Tables, column families and cells", "Row keys", "Puts, gets and scans", "Versions and time to live", "Regions and region servers", "HBase shell and Java client", "HBase compared with Hive"],
+          "tools": ["Apache HBase", "HBase shell", "Java client"],
+          "lab_task": "Store user profiles in HBase with a row key design for fast lookups, run gets and scans, set time to live on a column family and compare access speed with Hive.",
+          "deliverable": "HBase table and access examples",
+          "checks": [["Look up a profile", "Get by row key returns in milliseconds", "Timing output"], ["Expire data", "Cells removed after their time to live", "Shell output"], ["Compare with Hive", "Lookup speed compared", "Timing table"]],
+          "objectives": ["Use HBase for low-latency access", "Design row keys", "Choose HBase or Hive"]
+        },
+        {
+          "topic": "Spark on YARN for Hadoop Users",
+          "subtopics": ["Why Spark replaced most MapReduce work", "Submitting Spark jobs to YARN", "Reading and writing HDFS and Hive tables", "Spark SQL over the Hive metastore", "Executors, memory and dynamic allocation", "The Spark UI and history server", "Converting a MapReduce job to Spark", "Common Spark on YARN errors"],
+          "tools": ["Apache Spark", "YARN", "Spark History Server"],
+          "lab_task": "Rewrite the Java log job in Spark, run it on YARN reading Hive tables, compare run times and fix a container memory error.",
+          "deliverable": "Spark job and comparison report",
+          "checks": [["Run on YARN", "Spark job completes on the cluster", "Spark UI screenshot"], ["Compare", "Spark run faster than MapReduce", "Timing table"], ["Fix memory", "Container killed error fixed by tuning", "Before and after logs"]],
+          "objectives": ["Run Spark on Hadoop", "Use Hive tables from Spark", "Tune Spark on YARN"]
+        },
+        {
+          "topic": "Workflow Scheduling with Oozie and Airflow",
+          "subtopics": ["Why pipelines need scheduling", "Oozie workflows and coordinators", "Apache Airflow DAGs for Hadoop jobs", "Dependencies and retries", "Triggering on data arrival", "Alerts on failure", "Migrating Oozie workflows to Airflow", "Choosing a scheduler"],
+          "tools": ["Apache Oozie", "Apache Airflow"],
+          "lab_task": "Schedule the daily log pipeline in Oozie, rebuild it as an Airflow DAG with retries and alerts, and wait for the day's data before starting.",
+          "deliverable": "Oozie workflow and Airflow DAG",
+          "checks": [["Run daily", "Pipeline runs on schedule in both tools", "Run history"], ["Retry", "Failed step retried automatically", "Task log"], ["Wait for data", "Pipeline waits until the data arrives", "Sensor log"]],
+          "objectives": ["Schedule Hadoop pipelines", "Use Oozie and Airflow", "Migrate workflows"]
+        },
+        {
+          "topic": "ZooKeeper and Coordination",
+          "subtopics": ["What ZooKeeper does for Hadoop services", "Znodes and watches", "Ensembles and quorum", "ZooKeeper for HDFS and YARN high availability", "ZooKeeper for HBase and Kafka", "Health checks", "Common ZooKeeper problems", "Operating an ensemble"],
+          "tools": ["Apache ZooKeeper", "zkCli"],
+          "lab_task": "Run a three-node ZooKeeper ensemble, inspect the znodes used by HBase, stop one node to show the quorum still works and stop two to show it fails.",
+          "deliverable": "ZooKeeper notes with test results",
+          "checks": [["Inspect znodes", "HBase znodes found and explained", "zkCli output"], ["Lose one node", "Ensemble keeps working", "Status output"], ["Lose quorum", "Ensemble stops serving with two nodes down", "Status output"]],
+          "objectives": ["Explain ZooKeeper's role", "Operate an ensemble", "Understand quorum"]
+        },
+        {
+          "topic": "Hadoop Cluster Configuration and Core Settings",
+          "subtopics": ["core-site, hdfs-site, yarn-site and mapred-site", "Memory settings for YARN and containers", "HDFS replication and block size settings", "Configuration precedence", "Distributing configuration", "Restarting services safely", "Configuration management tools", "Documenting changes"],
+          "tools": ["Hadoop configuration files", "Cloudera Manager or Ambari"],
+          "lab_task": "Tune YARN memory for the lab nodes, change replication for one directory, roll out the configuration and restart services one by one without failing running jobs.",
+          "deliverable": "Configuration change record",
+          "checks": [["Tune memory", "More containers fit after tuning", "ResourceManager screenshot"], ["Set replication", "Directory files use the new replication", "fsck output"], ["Restart safely", "Running jobs survive the rolling restart", "Job history"]],
+          "objectives": ["Configure Hadoop services", "Tune memory", "Roll out changes safely"]
+        },
+        {
+          "topic": "Monitoring Hadoop with Ambari or Cloudera Manager",
+          "subtopics": ["Cluster management tools", "Service health and alerts", "Host metrics", "HDFS capacity and usage", "YARN queue usage", "Log viewing", "Alert notifications", "Daily health checks"],
+          "tools": ["Apache Ambari or Cloudera Manager"],
+          "lab_task": "Add the lab cluster to a management tool, configure alerts for disk, NameNode and failed jobs, trigger each alert and write a daily health check.",
+          "deliverable": "Alert setup and health checklist",
+          "checks": [["Trigger a disk alert", "Alert raised when disk usage passes the threshold", "Alert screenshot"], ["Read service health", "Unhealthy service found and fixed", "Screenshot"], ["Run the health check", "Checklist completed with values", "Completed checklist"]],
+          "objectives": ["Monitor Hadoop clusters", "Configure alerts", "Run daily checks"]
+        },
+        {
+          "topic": "Hadoop Security: Kerberos, Ranger and Encryption in Brief",
+          "subtopics": ["Why Hadoop needs strong security", "Kerberos concepts: principals, keytabs and tickets", "Authenticating users and services", "Apache Ranger policies", "HDFS encryption zones", "Wire encryption", "Auditing access", "Common security mistakes"],
+          "tools": ["Kerberos", "Apache Ranger", "Hadoop KMS"],
+          "lab_task": "Log in with Kerberos, create Ranger policies that limit a team to its own Hive database, set up an encryption zone and check the audit logs.",
+          "deliverable": "Security setup notes",
+          "checks": [["Use Kerberos", "Commands fail without a ticket and work with one", "Terminal output"], ["Apply Ranger", "Team blocked from another team's database", "Error output"], ["Encrypt data", "Files in the zone unreadable without the key", "Test output"]],
+          "objectives": ["Explain Hadoop security", "Use Kerberos and Ranger", "Encrypt data at rest"]
+        },
+        {
+          "topic": "Querying with Impala, Trino or Hive LLAP",
+          "subtopics": ["Interactive SQL on Hadoop", "Impala architecture", "Trino on Hive tables", "Hive LLAP", "Query performance compared", "Statistics for query planning", "Connecting BI tools", "Choosing an engine"],
+          "tools": ["Apache Impala or Trino", "Hive LLAP", "A BI tool"],
+          "lab_task": "Run the same reports on Hive, Impala or Trino, collect table statistics, compare response times and connect a BI tool to the fastest engine.",
+          "deliverable": "Engine comparison and BI connection",
+          "checks": [["Compare engines", "Response times compared for five queries", "Timing table"], ["Use statistics", "Query plans improve after computing statistics", "EXPLAIN output"], ["Connect BI", "Dashboard reads data through the engine", "Screenshot"]],
+          "objectives": ["Run interactive SQL on Hadoop", "Compare query engines", "Connect BI tools"]
+        },
+        {
+          "topic": "Hadoop in the Cloud: EMR, Dataproc and HDInsight",
+          "subtopics": ["Managed Hadoop services", "Amazon EMR", "Google Cloud Dataproc", "Azure HDInsight", "Object storage instead of HDFS", "Transient and long-running clusters", "Costs and autoscaling", "When to move to a lakehouse instead"],
+          "tools": ["Amazon EMR or Google Cloud Dataproc", "Object storage"],
+          "lab_task": "Run the log pipeline on a managed cluster reading from object storage, use a transient cluster that shuts down after the job and compare cost with the lab cluster.",
+          "deliverable": "Cloud run and cost comparison",
+          "checks": [["Run in the cloud", "Pipeline completes on the managed service", "Job history"], ["Use a transient cluster", "Cluster stops after the job", "Cluster events"], ["Compare cost", "Cost per run estimated", "Cost table"]],
+          "objectives": ["Use managed Hadoop services", "Store data in object storage", "Compare costs"]
+        },
+        {
+          "topic": "Beginner Capstone: Log Analytics Pipeline on Hadoop",
+          "subtopics": ["Design", "Build", "Operate", "Present"],
+          "tools": ["HDFS", "Hive", "Spark", "Airflow", "Ranger"],
+          "lab_task": "Build a daily web log analytics pipeline that ingests, cleans and stores logs in ORC Hive tables, runs Spark reports, is scheduled with retries and secured with Ranger, then present results.",
+          "deliverable": "Pipeline code, tables and presentation",
+          "checks": [["Run the pipeline", "Daily run produces the reports", "Run history"], ["Secure data", "Access limited by Ranger policies", "Policy test output"], ["Present results", "Business questions answered from the reports", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one pipeline", "Build on the Hadoop ecosystem", "Present data results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers and administrators running Hadoop in production. Covers HDFS high availability and federation, YARN schedulers, MapReduce and Hive performance, ACID tables, partitioning and bucketing, HBase row key design, streaming ingestion, Spark SQL over the metastore, Iceberg on Hadoop, Kerberos and Ranger, Atlas governance, capacity planning, upgrades, snapshots and DR, monitoring, the small files problem, Ozone and troubleshooting.",
+      "prerequisites": ["Has used HDFS, YARN, Hive and Spark on a cluster", "Comfortable with Linux administration and SQL", "Knows basic Kerberos concepts"],
+      "outcomes": ["Run highly available, well-tuned Hadoop clusters", "Model and tune large Hive, HBase and Iceberg tables", "Secure, govern and protect cluster data", "Troubleshoot jobs and plan capacity"],
+      "days": [
+        {
+          "topic": "HDFS High Availability and Federation",
+          "subtopics": ["Single points of failure in HDFS", "Active and standby NameNodes", "Quorum Journal Manager", "Automatic failover with ZooKeeper", "Fencing", "HDFS federation and namespaces", "Router-based federation", "Testing failover"],
+          "tools": ["HDFS", "ZooKeeper", "hdfs haadmin"],
+          "lab_task": "Configure NameNode high availability with journal nodes and automatic failover, kill the active NameNode during writes and confirm clients continue.",
+          "deliverable": "HA configuration and failover report",
+          "checks": [["Fail over", "Standby becomes active automatically", "haadmin output"], ["Keep writing", "Client writes continue after failover", "Client log"], ["Explain fencing", "Fencing method configured and explained", "Configuration notes"]],
+          "objectives": ["Make HDFS highly available", "Test failover", "Understand federation"]
+        },
+        {
+          "topic": "YARN Schedulers: Capacity and Fair Scheduler",
+          "subtopics": ["Why queues matter on shared clusters", "Capacity Scheduler queues and limits", "Fair Scheduler concepts", "Preemption", "User limits", "Node labels", "Queue mapping rules", "Testing queue behaviour"],
+          "tools": ["YARN Capacity Scheduler", "YARN web UI"],
+          "lab_task": "Create queues for ETL, BI and data science teams with guaranteed and maximum capacity, enable preemption, and show each team gets its share under load.",
+          "deliverable": "Queue design with test results",
+          "checks": [["Share capacity", "Each queue gets its guaranteed share under load", "ResourceManager screenshot"], ["Preempt", "Preemption reclaims resources for a starved queue", "Scheduler log"], ["Map users", "Jobs land in the right queue automatically", "Application list"]],
+          "objectives": ["Design YARN queues", "Configure preemption", "Share clusters fairly"]
+        },
+        {
+          "topic": "MapReduce Performance: Combiners, Partitioners and Compression",
+          "subtopics": ["Finding bottlenecks in jobs", "Combiners to cut shuffle data", "Custom partitioners", "Data skew", "Map output compression", "Speculative execution", "Number of mappers and reducers", "Reading job history for tuning"],
+          "tools": ["Hadoop MapReduce", "Job history server"],
+          "lab_task": "Tune a slow MapReduce job with a combiner, a custom partitioner for skewed keys and output compression, and record the gains.",
+          "deliverable": "Tuning report with measurements",
+          "checks": [["Add a combiner", "Shuffle bytes drop", "Counter comparison"], ["Fix skew", "Reducer run times even out", "Job history screenshots"], ["Compress output", "Job faster with compressed map output", "Timing table"]],
+          "objectives": ["Tune MapReduce jobs", "Handle data skew", "Use compression"]
+        },
+        {
+          "topic": "Hive Performance: Tez, Vectorisation and Cost-Based Optimisation",
+          "subtopics": ["Hive on Tez", "Vectorised execution", "Cost-based optimisation and statistics", "Join strategies", "Partition pruning", "Predicate pushdown in ORC", "Materialised views", "Reading EXPLAIN plans"],
+          "tools": ["Apache Hive", "Tez", "EXPLAIN"],
+          "lab_task": "Speed up five slow Hive queries with statistics, vectorisation, better joins, partition pruning and a materialised view, and compare plans before and after.",
+          "deliverable": "Query tuning report",
+          "checks": [["Gather statistics", "Plans change after statistics are computed", "EXPLAIN output"], ["Use a materialised view", "Query rewritten to use the view", "EXPLAIN output"], ["Measure gains", "All five queries faster", "Timing table"]],
+          "objectives": ["Tune Hive queries", "Read query plans", "Use materialised views"]
+        },
+        {
+          "topic": "Hive Transactions and ACID Tables",
+          "subtopics": ["ACID tables in Hive", "Inserts, updates, deletes and merges", "Delta files and compaction", "Transactional table properties", "Isolation and locks", "Slowly changing dimensions with MERGE", "Performance considerations", "When to choose Iceberg instead"],
+          "tools": ["Apache Hive", "ORC ACID tables"],
+          "lab_task": "Build a customer dimension as an ACID table, apply daily changes with MERGE as a type 2 slowly changing dimension and run compaction.",
+          "deliverable": "ACID table with merge scripts",
+          "checks": [["Merge changes", "History rows created for changed customers", "Query results"], ["Compact", "Delta files reduced after compaction", "HDFS listing"], ["Check locks", "Concurrent writes handled without corruption", "Test notes"]],
+          "objectives": ["Use Hive ACID tables", "Apply MERGE for dimensions", "Manage compaction"]
+        },
+        {
+          "topic": "Partitioning and Bucketing Strategy for Large Tables",
+          "subtopics": ["Partition design for query patterns", "Too many partitions", "Dynamic partitioning", "Bucketing and bucket joins", "Sorting within files", "Partition evolution problems", "Metastore load", "Reviewing table designs"],
+          "tools": ["Apache Hive", "Spark SQL"],
+          "lab_task": "Redesign an over-partitioned table, add bucketing for a frequent join, sort data for range filters and measure query and metastore effects.",
+          "deliverable": "Table design review and results",
+          "checks": [["Cut partitions", "Partition count reduced with no query slowdown", "Before and after metrics"], ["Use bucket joins", "Join uses buckets without a full shuffle", "EXPLAIN output"], ["Sort data", "Range filters skip more data", "Query statistics"]],
+          "objectives": ["Design partitions and buckets", "Avoid over-partitioning", "Speed up joins"]
+        },
+        {
+          "topic": "HBase Data Modelling and Row Key Design",
+          "subtopics": ["Access patterns first", "Row key design and hotspots", "Salting and hashing", "Wide and tall tables", "Column family design", "Secondary indexes with Phoenix", "Region splits and pre-splitting", "Load testing designs"],
+          "tools": ["Apache HBase", "Apache Phoenix", "Load testing tool"],
+          "lab_task": "Design row keys for a time series workload that avoid hotspots, pre-split the table, add a Phoenix secondary index and load test the design.",
+          "deliverable": "HBase design with load results",
+          "checks": [["Avoid hotspots", "Writes spread across region servers", "Region server metrics"], ["Query by index", "Secondary index query fast with Phoenix", "Timing output"], ["Load test", "Design meets the write target", "Load test results"]],
+          "objectives": ["Model data in HBase", "Design row keys", "Use secondary indexes"]
+        },
+        {
+          "topic": "Kafka to HDFS and Hive Streaming Ingestion",
+          "subtopics": ["Streaming into Hadoop", "Kafka Connect HDFS and Hive sinks", "Spark Structured Streaming to Hive tables", "Exactly-once considerations", "File sizing and rolling", "Late data", "Monitoring streaming jobs", "Backfills"],
+          "tools": ["Apache Kafka", "Kafka Connect", "Spark Structured Streaming"],
+          "lab_task": "Stream click events from Kafka into partitioned Hive tables with Spark Structured Streaming, handle late data, keep file sizes healthy and backfill a missed hour.",
+          "deliverable": "Streaming ingestion job",
+          "checks": [["Stream events", "Events queryable in Hive within minutes", "Query results"], ["Handle late data", "Late events land in the right partition", "Query results"], ["Backfill", "Missed hour filled without duplicates", "Row counts"]],
+          "objectives": ["Stream data into Hadoop", "Handle late data", "Keep files healthy"]
+        },
+        {
+          "topic": "Spark SQL over Hive Metastore",
+          "subtopics": ["Sharing the metastore between engines", "Reading and writing Hive tables from Spark", "Table formats and compatibility", "Statistics shared across engines", "Partition handling from Spark", "Permissions with Ranger and Spark", "Performance tuning for Spark SQL", "Avoiding metastore bottlenecks"],
+          "tools": ["Apache Spark", "Hive Metastore", "Apache Ranger"],
+          "lab_task": "Move three Hive ETL jobs to Spark SQL using the shared metastore, keep Ranger rules working, tune shuffle settings and compare run times.",
+          "deliverable": "Migrated jobs with comparison",
+          "checks": [["Share tables", "Hive and Spark read the same tables", "Query results"], ["Keep permissions", "Ranger rules enforced for Spark users", "Error output"], ["Compare", "Spark versions faster", "Timing table"]],
+          "objectives": ["Use Spark with the Hive metastore", "Keep security consistent", "Tune Spark SQL"]
+        },
+        {
+          "topic": "Apache Iceberg on Hadoop",
+          "subtopics": ["Why table formats like Iceberg", "Creating Iceberg tables on HDFS", "Hidden partitioning", "Schema and partition evolution", "Time travel and snapshots", "Row-level updates", "Maintenance: expiring snapshots and compaction", "Engines that read Iceberg"],
+          "tools": ["Apache Iceberg", "Apache Spark", "Trino or Hive"],
+          "lab_task": "Convert a Hive table to Iceberg, evolve its schema and partitioning without rewrites, query an old snapshot and run table maintenance.",
+          "deliverable": "Iceberg table with maintenance scripts",
+          "checks": [["Evolve partitioning", "New partition scheme used without rewriting old data", "Metadata output"], ["Time travel", "Query returns data as of an earlier snapshot", "Query results"], ["Maintain", "Old snapshots expired and files compacted", "Maintenance output"]],
+          "objectives": ["Use Iceberg on Hadoop", "Evolve tables safely", "Maintain table health"]
+        },
+        {
+          "topic": "Securing a Cluster with Kerberos and Apache Ranger",
+          "subtopics": ["Enabling Kerberos on a cluster", "Service principals and keytabs", "Integration with Active Directory", "Ranger policies for HDFS, Hive and HBase", "Row filtering and column masking", "Tag-based policies", "Audit logs", "Testing security changes"],
+          "tools": ["Kerberos", "Active Directory", "Apache Ranger"],
+          "lab_task": "Kerberise the cluster against Active Directory, create Ranger policies with row filters and column masks for a sales table and verify access for three user roles.",
+          "deliverable": "Security configuration and access tests",
+          "checks": [["Kerberise", "All services authenticate with Kerberos", "Service status"], ["Mask columns", "Analysts see masked customer phone numbers", "Query results"], ["Filter rows", "Regional users see only their region", "Query results"]],
+          "objectives": ["Secure Hadoop clusters", "Use row filters and masks", "Audit access"]
+        },
+        {
+          "topic": "Data Governance with Apache Atlas",
+          "subtopics": ["Metadata and lineage", "Automatic lineage from Hive and Spark", "Classifications and tags", "Business glossary", "Tag-based security with Ranger", "Searching metadata", "Data stewardship workflows", "Governance reporting"],
+          "tools": ["Apache Atlas", "Apache Ranger"],
+          "lab_task": "Capture lineage for the log pipeline, classify personal data columns, drive Ranger tag policies from Atlas tags and build a glossary for business terms.",
+          "deliverable": "Governance setup and lineage evidence",
+          "checks": [["Show lineage", "Lineage traced from raw logs to reports", "Atlas screenshot"], ["Tag personal data", "PII columns tagged and protected by tag policy", "Policy test"], ["Build a glossary", "Business terms linked to tables", "Atlas screenshot"]],
+          "objectives": ["Govern data with Atlas", "Track lineage", "Protect data with tags"]
+        },
+        {
+          "topic": "Capacity Planning and Storage Management for HDFS",
+          "subtopics": ["Forecasting data growth", "Replication and storage cost", "Storage policies and tiers", "Balancer and disk balancer", "Quotas by team", "Cleaning up old data", "Hardware sizing", "Capacity reports"],
+          "tools": ["HDFS", "Balancer", "Cloudera Manager or Ambari"],
+          "lab_task": "Forecast storage for two years, move cold data to an archive storage policy, rebalance the cluster and set team quotas.",
+          "deliverable": "Capacity plan and storage changes",
+          "checks": [["Forecast", "Two-year storage need calculated", "Capacity model"], ["Tier cold data", "Cold data moved to archive storage", "Storage policy output"], ["Rebalance", "Disk usage evened out across nodes", "Balancer report"]],
+          "objectives": ["Plan HDFS capacity", "Use storage tiers", "Keep clusters balanced"]
+        },
+        {
+          "topic": "Cluster Upgrades and Rolling Restarts",
+          "subtopics": ["Planning upgrades", "Rolling upgrades for HDFS and YARN", "Upgrading Hive and Spark", "Compatibility testing", "Backups before upgrades", "Rollback planning", "Communicating downtime", "Post-upgrade checks"],
+          "tools": ["Cloudera Manager or Ambari", "Test cluster"],
+          "lab_task": "Plan and run a minor version upgrade on the lab cluster with rolling restarts, test key jobs before and after, and document the rollback plan.",
+          "deliverable": "Upgrade plan and results",
+          "checks": [["Upgrade rolling", "Cluster upgraded while jobs keep running", "Job history"], ["Test jobs", "Key jobs pass after the upgrade", "Test results"], ["Plan rollback", "Rollback steps documented and checked", "Upgrade plan"]],
+          "objectives": ["Plan Hadoop upgrades", "Upgrade without downtime", "Prepare rollback"]
+        },
+        {
+          "topic": "Backup, Snapshots and Disaster Recovery for HDFS",
+          "subtopics": ["HDFS snapshots", "Recovering from snapshots", "DistCp-based replication", "Backing up the metastore", "Recovery objectives", "DR cluster designs", "Testing recovery", "Runbooks"],
+          "tools": ["HDFS snapshots", "DistCp", "Database backups for the metastore"],
+          "lab_task": "Enable snapshots on key directories, recover a deleted table from a snapshot, replicate data to a DR cluster with DistCp and back up the metastore.",
+          "deliverable": "DR setup and recovery test",
+          "checks": [["Recover from a snapshot", "Deleted data restored from a snapshot", "Terminal output"], ["Replicate", "DR cluster holds the latest data", "Comparison report"], ["Restore the metastore", "Tables visible after a metastore restore", "Query results"]],
+          "objectives": ["Protect HDFS data", "Recover from mistakes", "Plan disaster recovery"]
+        },
+        {
+          "topic": "Monitoring, Alerting and Log Management for Clusters",
+          "subtopics": ["Metrics that matter for Hadoop", "Prometheus and Grafana for Hadoop", "JMX metrics", "Log aggregation", "Alert design", "Job success and SLA tracking", "Dashboards for teams", "On-call runbooks"],
+          "tools": ["Prometheus", "Grafana", "JMX exporters", "Log aggregation tools"],
+          "lab_task": "Export NameNode, ResourceManager and HiveServer2 metrics to Prometheus, build Grafana dashboards, alert on key failures and track pipeline SLAs.",
+          "deliverable": "Monitoring stack and runbooks",
+          "checks": [["Build dashboards", "HDFS, YARN and Hive health shown", "Dashboard screenshot"], ["Alert on failure", "Alert fires when a NameNode goes down", "Alert notification"], ["Track SLAs", "Late pipelines flagged", "SLA report"]],
+          "objectives": ["Monitor Hadoop in production", "Alert on failures", "Track pipeline SLAs"]
+        },
+        {
+          "topic": "Small Files Problem and Compaction",
+          "subtopics": ["Why small files hurt HDFS and the NameNode", "Finding small files", "Compaction jobs", "Hadoop archives", "Fixing the source of small files", "File sizing in streaming jobs", "Monitoring file counts", "Preventing regressions"],
+          "tools": ["HDFS", "Spark", "Hadoop archives"],
+          "lab_task": "Find directories with millions of small files, compact them with Spark, change the streaming job to write bigger files and track NameNode object counts.",
+          "deliverable": "Compaction jobs and results",
+          "checks": [["Find small files", "Worst directories identified", "Report"], ["Compact", "File count reduced with the same data", "Before and after counts"], ["Fix the source", "Streaming job writes larger files", "HDFS listing"]],
+          "objectives": ["Detect small files", "Compact data", "Prevent small file growth"]
+        },
+        {
+          "topic": "Apache Ozone Object Storage",
+          "subtopics": ["Why Ozone", "Volumes, buckets and keys", "S3-compatible access", "Ozone with Hive and Spark", "Replication and erasure coding in Ozone", "Migrating data from HDFS", "Operating Ozone", "When to choose Ozone"],
+          "tools": ["Apache Ozone", "S3 clients", "Spark"],
+          "lab_task": "Create Ozone buckets, access them through the S3 API and from Spark, move a dataset from HDFS to Ozone and compare operations.",
+          "deliverable": "Ozone setup and comparison notes",
+          "checks": [["Use the S3 API", "Files uploaded and listed with an S3 client", "Client output"], ["Read from Spark", "Spark job reads data in Ozone", "Job output"], ["Move data", "Dataset moved with matching counts", "Validation report"]],
+          "objectives": ["Use Ozone for object storage", "Access it from engines", "Migrate data from HDFS"]
+        },
+        {
+          "topic": "Troubleshooting Failed Jobs and Slow Queries",
+          "subtopics": ["A method for job failures", "Reading YARN and container logs", "Out-of-memory errors", "Skew and stragglers", "Permission and Kerberos errors", "Metastore problems", "Slow HDFS reads", "Writing up fixes"],
+          "tools": ["YARN logs", "Spark UI", "HiveServer2 logs", "HDFS tools"],
+          "lab_task": "Diagnose and fix five broken or slow jobs covering memory, skew, Kerberos, metastore and HDFS problems, and write a short note for each fix.",
+          "deliverable": "Troubleshooting notes for five cases",
+          "checks": [["Fix memory errors", "Job passes after memory tuning", "Job history"], ["Fix Kerberos errors", "Expired ticket problem fixed", "Terminal output"], ["Write notes", "Each case has cause, fix and prevention", "Notes"]],
+          "objectives": ["Troubleshoot Hadoop jobs", "Read logs effectively", "Prevent repeat failures"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure Data Lake on Hadoop",
+          "subtopics": ["Design", "Build", "Secure and govern", "Operate"],
+          "tools": ["HDFS", "Hive", "Iceberg", "Spark", "Ranger", "Atlas"],
+          "lab_task": "Build a secure data lake with highly available HDFS, YARN queues, streaming and batch ingestion, Iceberg tables, Ranger policies, Atlas lineage, snapshots and monitoring, then present it.",
+          "deliverable": "Platform configuration, pipelines and presentation",
+          "checks": [["Show the pipelines", "Batch and streaming data land in governed tables", "Demo recording"], ["Show security", "Access, masking and audit work for three roles", "Test evidence"], ["Survive a failure", "NameNode failover handled with no data loss", "Failover report"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Run a production-style data lake", "Prove security and resilience"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior big data engineers, administrators and architects. Covers NameNode and YARN internals, multi-tenant clusters, petabyte-scale performance, enterprise security architecture, Cloudera Data Platform, hybrid and cloud designs, migrating Hadoop to lakehouses, moving Hive tables to Iceberg and Delta, replacing MapReduce and Hive jobs with Spark, erasure coding, multi-site DR, cost comparisons, automation, governance at scale, combined real-time and batch designs, decommissioning, incident troubleshooting and platform strategy.",
+      "prerequisites": ["Several years running or building on Hadoop clusters", "Strong Linux, networking and security knowledge", "Experience with Spark and Hive in production"],
+      "outcomes": ["Explain and tune Hadoop internals at scale", "Architect secure, multi-tenant and hybrid big data platforms", "Lead migrations from Hadoop to modern platforms", "Make cost and strategy decisions for big data estates"],
+      "days": [
+        {
+          "topic": "Hadoop Internals: NameNode Metadata, Edit Logs and Block Placement",
+          "subtopics": ["The fsimage and edit logs", "Checkpointing", "Block placement policy", "Block reports and NameNode memory", "Lease management", "DataNode volume handling", "Reading Hadoop source code", "Internals that drive tuning"],
+          "tools": ["Hadoop source code", "hdfs oiv and oev", "NameNode metrics"],
+          "lab_task": "Inspect fsimage and edit logs with the offline viewers, estimate NameNode heap from object counts, test a custom block placement scenario and explain lease recovery.",
+          "deliverable": "Internals notebook",
+          "checks": [["Read the fsimage", "Files and blocks counted from the offline viewer", "oiv output"], ["Estimate heap", "NameNode heap need calculated", "Calculation"], ["Explain leases", "Lease recovery shown after a writer crash", "Log excerpt"]],
+          "objectives": ["Explain HDFS internals", "Size NameNode memory", "Use internals for tuning"]
+        },
+        {
+          "topic": "YARN Internals and Large-Scale Resource Management",
+          "subtopics": ["ResourceManager state and recovery", "Scheduler internals", "Opportunistic containers", "Federation for very large clusters", "GPU and custom resources", "Node health and blacklisting", "Timeline service", "Tuning for thousands of nodes"],
+          "tools": ["YARN", "ResourceManager metrics", "Timeline service"],
+          "lab_task": "Enable ResourceManager recovery and test a restart under load, schedule GPU containers, configure node health checks and explain how federation spreads load.",
+          "deliverable": "Resource management design notes",
+          "checks": [["Recover the ResourceManager", "Running apps survive a restart", "Application list"], ["Schedule GPUs", "GPU containers allocated to GPU nodes", "Scheduler output"], ["Mark unhealthy nodes", "Bad node excluded by health checks", "Node list"]],
+          "objectives": ["Explain YARN internals", "Run YARN at scale", "Manage custom resources"]
+        },
+        {
+          "topic": "Multi-Tenant Hadoop Clusters",
+          "subtopics": ["Tenancy models on shared clusters", "Queue hierarchies and limits", "Storage quotas and namespaces", "Security isolation per tenant", "Chargeback and showback", "Noisy neighbours", "Self-service for tenants", "Tenant onboarding"],
+          "tools": ["YARN queues", "HDFS quotas", "Apache Ranger", "Usage reports"],
+          "lab_task": "Design tenancy for five business units with queues, quotas, Ranger isolation and chargeback reports, and show one noisy tenant cannot harm others.",
+          "deliverable": "Multi-tenant design and chargeback report",
+          "checks": [["Isolate tenants", "Tenants cannot read each other's data", "Access tests"], ["Limit a noisy tenant", "Other tenants keep their SLAs during a flood", "Job metrics"], ["Report chargeback", "Usage cost per tenant calculated", "Chargeback report"]],
+          "objectives": ["Design multi-tenant clusters", "Isolate tenants", "Charge for usage"]
+        },
+        {
+          "topic": "Performance Engineering for Petabyte-Scale Clusters",
+          "subtopics": ["Bottlenecks at large scale", "NameNode RPC load", "Shuffle service tuning", "Network topology and rack design", "Disk and JVM tuning", "Benchmarking with TeraSort and DFSIO", "Workload analysis", "Performance budgets"],
+          "tools": ["TeraSort", "TestDFSIO", "JVM tools", "Cluster metrics"],
+          "lab_task": "Benchmark the cluster with TeraSort and DFSIO, find the bottleneck, tune NameNode RPC, shuffle and JVM settings and show the gains.",
+          "deliverable": "Performance engineering report",
+          "checks": [["Benchmark", "Baseline throughput recorded", "Benchmark results"], ["Tune RPC", "NameNode queue time reduced", "RPC metrics"], ["Show gains", "Benchmarks improve after tuning", "Comparison table"]],
+          "objectives": ["Engineer Hadoop performance", "Benchmark clusters", "Tune at scale"]
+        },
+        {
+          "topic": "Hadoop Security Architecture at Enterprise Scale",
+          "subtopics": ["Threat models for big data platforms", "Kerberos at scale", "Centralised authorisation with Ranger", "Encryption and key management with KMS", "Network segmentation", "Privileged access", "Compliance mapping", "Security reviews"],
+          "tools": ["Kerberos", "Apache Ranger", "Hadoop KMS or Ranger KMS"],
+          "lab_task": "Threat model an enterprise cluster, design Kerberos realms and trusts, central Ranger policies, encryption with key rotation and network zones, and run a review.",
+          "deliverable": "Security architecture and threat model",
+          "checks": [["Model threats", "Threats mapped to every service", "Threat model"], ["Rotate keys", "Encryption keys rotated without data loss", "Test record"], ["Pass the review", "Review findings closed or accepted", "Review report"]],
+          "objectives": ["Architect Hadoop security", "Manage keys at scale", "Meet compliance needs"]
+        },
+        {
+          "topic": "Cloudera Data Platform Architecture",
+          "subtopics": ["CDP Private Cloud Base", "CDP Private Cloud Data Services", "CDP Public Cloud", "Shared Data Experience: SDX", "Data warehouse and data engineering services", "Upgrading from older distributions", "Licensing and support", "Choosing CDP options"],
+          "tools": ["Cloudera Data Platform", "Cloudera Manager"],
+          "lab_task": "Design a CDP deployment for a bank with base clusters and data services, plan the upgrade from an older distribution and compare public and private options.",
+          "deliverable": "CDP architecture and upgrade plan",
+          "checks": [["Design the platform", "Services mapped to workloads", "Architecture diagram"], ["Plan the upgrade", "Upgrade path with risks listed", "Upgrade plan"], ["Compare options", "Public and private options compared", "Comparison table"]],
+          "objectives": ["Design CDP platforms", "Plan distribution upgrades", "Choose deployment options"]
+        },
+        {
+          "topic": "Hybrid Hadoop: On-Premises and Cloud Together",
+          "subtopics": ["Why hybrid", "Bursting workloads to the cloud", "Replicating data between sites", "Shared metadata and security", "Network links and bandwidth", "Cost control in hybrid designs", "Governance across environments", "Operating hybrid platforms"],
+          "tools": ["DistCp", "Cloud object storage", "Shared metastore patterns"],
+          "lab_task": "Design a hybrid platform that keeps sensitive data on-premises and bursts heavy jobs to cloud clusters, replicate approved data and keep security consistent.",
+          "deliverable": "Hybrid architecture and cost estimate",
+          "checks": [["Burst a job", "Heavy job runs in the cloud on replicated data", "Job history"], ["Keep security consistent", "Same policies apply in both environments", "Policy tests"], ["Estimate cost", "Monthly hybrid cost estimated", "Cost model"]],
+          "objectives": ["Design hybrid big data platforms", "Move data between sites", "Keep governance consistent"]
+        },
+        {
+          "topic": "Migrating Hadoop Workloads to Cloud Lakehouses",
+          "subtopics": ["Migration drivers", "Assessing workloads and dependencies", "Target platforms: Databricks, Fabric, Snowflake and cloud services", "Data migration strategies", "Job migration patterns", "Security and governance mapping", "Parallel runs and validation", "Programme planning"],
+          "tools": ["Assessment tools", "DistCp or cloud transfer services", "Target platform"],
+          "lab_task": "Assess a cluster's workloads, choose a target lakehouse, migrate one pipeline and its data, run old and new in parallel and validate results.",
+          "deliverable": "Migration assessment and pilot report",
+          "checks": [["Assess workloads", "Every workload classified with a migration path", "Assessment sheet"], ["Migrate a pipeline", "Pipeline runs on the target platform", "Run history"], ["Validate", "Old and new outputs match", "Validation report"]],
+          "objectives": ["Plan Hadoop migrations", "Migrate pipelines", "Validate results"]
+        },
+        {
+          "topic": "Moving Hive Tables to Iceberg and Delta",
+          "subtopics": ["Why move table formats", "In-place and copy migration", "Metadata migration", "Handling ACID tables", "Updating jobs and queries", "Performance after migration", "Rollback options", "Migration at scale"],
+          "tools": ["Apache Iceberg", "Delta Lake", "Spark"],
+          "lab_task": "Migrate a set of Hive tables to Iceberg in place and to Delta by copy, update dependent jobs, compare performance and plan rollback.",
+          "deliverable": "Table migration runbook and results",
+          "checks": [["Migrate in place", "Iceberg table created without copying data", "Metadata output"], ["Update jobs", "Dependent jobs run on the new tables", "Run history"], ["Compare performance", "Query performance compared", "Timing table"]],
+          "objectives": ["Migrate table formats", "Update dependent jobs", "Plan rollback"]
+        },
+        {
+          "topic": "Replacing MapReduce and Hive Jobs with Spark",
+          "subtopics": ["Inventorying legacy jobs", "Translating MapReduce logic", "Converting HiveQL to Spark SQL", "Handling UDFs", "Testing for identical results", "Performance tuning after conversion", "Scheduling changes", "Retiring old jobs"],
+          "tools": ["Apache Spark", "Hive", "Testing frameworks"],
+          "lab_task": "Convert three MapReduce jobs and three Hive scripts with UDFs to Spark, prove identical results with tests, tune them and retire the old versions.",
+          "deliverable": "Converted jobs with parity tests",
+          "checks": [["Prove parity", "Outputs identical to the legacy jobs", "Test output"], ["Convert UDFs", "UDF logic reproduced in Spark", "Test output"], ["Retire old jobs", "Legacy jobs removed from schedules", "Scheduler config"]],
+          "objectives": ["Modernise legacy jobs", "Prove result parity", "Retire old code safely"]
+        },
+        {
+          "topic": "Erasure Coding and Storage Efficiency in HDFS",
+          "subtopics": ["Replication compared with erasure coding", "Erasure coding policies", "When erasure coding fits", "Performance impact", "Converting data to erasure coding", "Storage savings", "Recovery behaviour", "Monitoring erasure-coded data"],
+          "tools": ["HDFS erasure coding", "hdfs ec commands"],
+          "lab_task": "Apply an erasure coding policy to cold data, measure storage savings and read performance, and test recovery after losing DataNodes.",
+          "deliverable": "Erasure coding report",
+          "checks": [["Save storage", "Storage use reduced for cold data", "Before and after report"], ["Measure reads", "Read performance impact measured", "Benchmark results"], ["Recover", "Data readable after losing nodes within tolerance", "Test output"]],
+          "objectives": ["Use erasure coding", "Save storage", "Understand trade-offs"]
+        },
+        {
+          "topic": "Disaster Recovery Across Data Centres",
+          "subtopics": ["Recovery objectives for big data", "Active-passive and active-active designs", "Replication of data and metadata", "Security replication", "Failover procedures", "DR testing", "Cost of DR", "Runbooks"],
+          "tools": ["Replication tools", "DistCp", "Metastore replication"],
+          "lab_task": "Design DR between two data centres, replicate data, metastore and policies, run a failover drill and measure recovery time against the objective.",
+          "deliverable": "DR design and drill report",
+          "checks": [["Replicate everything", "Data, metadata and policies replicated", "Comparison report"], ["Fail over", "Workloads run in the second site", "Drill report"], ["Meet objectives", "Recovery time within the objective", "Timing log"]],
+          "objectives": ["Design big data DR", "Run failover drills", "Meet recovery objectives"]
+        },
+        {
+          "topic": "Cost Analysis: Hadoop Compared with Cloud Platforms",
+          "subtopics": ["Total cost of ownership for clusters", "Hardware, licences, staff and data centre costs", "Cloud cost models", "Workload-based comparisons", "Hidden costs of migration", "Utilisation and efficiency", "Presenting cost to leaders", "Building a business case"],
+          "tools": ["TCO spreadsheets", "Cloud pricing calculators"],
+          "lab_task": "Build a five-year cost comparison between running the cluster and moving workloads to a cloud lakehouse, including migration costs, and present a business case.",
+          "deliverable": "Cost model and business case",
+          "checks": [["Model costs", "Five-year costs for both options calculated", "Cost model"], ["Include migration", "Migration costs and risks included", "Business case"], ["Present", "Leadership questions answered", "Presentation notes"]],
+          "objectives": ["Compare big data costs", "Build business cases", "Present to leaders"]
+        },
+        {
+          "topic": "Automating Cluster Operations",
+          "subtopics": ["Infrastructure as code for clusters", "Configuration management with Ansible", "Cloudera Manager and Ambari APIs", "Automated health checks", "Automated scaling of cloud clusters", "Self-healing scripts", "Change management", "Measuring automation benefit"],
+          "tools": ["Ansible", "Cloudera Manager API or Ambari API", "Python"],
+          "lab_task": "Automate node addition, configuration changes and health checks through the management API and Ansible, and add a script that restarts failed services safely.",
+          "deliverable": "Automation scripts and runbook",
+          "checks": [["Add a node", "New node added by automation", "Automation log"], ["Change configuration", "Change rolled out by the API", "API output"], ["Heal a service", "Failed service restarted automatically", "Log output"]],
+          "objectives": ["Automate Hadoop operations", "Use management APIs", "Reduce manual work"]
+        },
+        {
+          "topic": "Data Governance and Compliance at Scale",
+          "subtopics": ["Governance operating models", "Metadata management at scale", "Data quality programmes", "Retention and deletion", "Privacy regulations", "Lineage for audits", "Stewardship", "Governance metrics"],
+          "tools": ["Apache Atlas", "Apache Ranger", "Data quality tools"],
+          "lab_task": "Set up retention and deletion rules, a data quality programme and audit-ready lineage for a regulated dataset, and report governance metrics.",
+          "deliverable": "Governance programme pack",
+          "checks": [["Apply retention", "Data past retention removed automatically", "Job log"], ["Measure quality", "Quality scores reported per dataset", "Quality report"], ["Answer an audit", "Lineage answers an auditor's question", "Lineage screenshot"]],
+          "objectives": ["Run governance at scale", "Meet compliance rules", "Report governance metrics"]
+        },
+        {
+          "topic": "Real-Time and Batch Together: Kafka, Spark and HBase Architectures",
+          "subtopics": ["Lambda and kappa architectures on Hadoop", "Kafka as the ingestion backbone", "Spark streaming to HBase and Hive", "Serving layers", "Reprocessing and backfills", "Consistency between layers", "Monitoring end to end", "Choosing an architecture"],
+          "tools": ["Apache Kafka", "Spark", "HBase", "Hive"],
+          "lab_task": "Build a fraud signal system with streaming to HBase for real-time lookups and batch to Hive for reports, reprocess a day of data and check consistency between layers.",
+          "deliverable": "Real-time and batch architecture with tests",
+          "checks": [["Serve in real time", "Lookups reflect events within seconds", "Timing output"], ["Reprocess", "Reprocessed day matches the streaming results", "Comparison report"], ["Monitor end to end", "Lag and freshness shown on a dashboard", "Dashboard screenshot"]],
+          "objectives": ["Combine streaming and batch", "Build serving layers", "Keep layers consistent"]
+        },
+        {
+          "topic": "Decommissioning Hadoop Safely",
+          "subtopics": ["When to decommission", "Inventorying data, jobs and users", "Archiving data", "Moving users to new platforms", "Legal holds and retention", "Shutting down services in order", "Hardware disposal and data destruction", "Lessons learned"],
+          "tools": ["Inventory reports", "Archive storage", "Checklists"],
+          "lab_task": "Plan the decommissioning of a cluster after migration with inventories, archives, user moves, retention checks and a shutdown order, and run a dry run on the lab.",
+          "deliverable": "Decommissioning plan and dry-run report",
+          "checks": [["Inventory", "Every dataset and job accounted for", "Inventory sheet"], ["Archive", "Required data archived and verified", "Archive report"], ["Dry run", "Shutdown order tested on the lab cluster", "Dry-run report"]],
+          "objectives": ["Decommission big data platforms", "Protect required data", "Shut down in order"]
+        },
+        {
+          "topic": "Troubleshooting Production Cluster Incidents",
+          "subtopics": ["Incident triage for clusters", "NameNode slowdowns and outages", "ResourceManager failures", "Disk and network failures", "Metastore outages", "Kerberos and certificate expiries", "Evidence collection", "Post-incident reviews"],
+          "tools": ["Cluster metrics", "Logs", "JVM tools", "Management tools"],
+          "lab_task": "Work through four incidents: a NameNode heap crisis, a metastore outage, an expired keytab and a failing disk, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot clusters", "Restore service quickly", "Learn from incidents"]
+        },
+        {
+          "topic": "Big Data Platform Strategy",
+          "subtopics": ["Business needs for data platforms", "Current state assessment", "Options: modernise, migrate or keep", "Roadmaps and funding", "Skills and team changes", "Vendor management", "Risk management", "Communicating strategy"],
+          "tools": ["Strategy templates", "Roadmap tools"],
+          "lab_task": "Assess a company's Hadoop estate, compare keep, modernise and migrate options, build a three-year roadmap and present it to a mock leadership team.",
+          "deliverable": "Strategy paper and roadmap",
+          "checks": [["Assess", "Current state scored with risks", "Assessment report"], ["Compare options", "Options compared on cost, risk and value", "Comparison table"], ["Present", "Leadership questions answered", "Panel notes"]],
+          "objectives": ["Set big data strategy", "Build roadmaps", "Communicate decisions"]
+        },
+        {
+          "topic": "Advanced Capstone: Hadoop to Lakehouse Migration Programme",
+          "subtopics": ["Assessment", "Architecture", "Pilot and plan", "Defence"],
+          "tools": ["Hadoop ecosystem", "Iceberg or Delta", "Spark", "Target lakehouse platform"],
+          "lab_task": "Run a migration programme for a large cluster: assess workloads, design the target lakehouse, migrate pilot pipelines with parity tests, plan DR and decommissioning and defend the business case.",
+          "deliverable": "Assessment, architecture, pilot results and business case",
+          "checks": [["Prove the pilot", "Pilot pipelines match legacy outputs", "Validation report"], ["Plan the programme", "Waves, risks and costs planned", "Programme plan"], ["Defend the case", "Panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one programme", "Lead a big data migration", "Defend the business case"]
+        }
+      ]
+    }
+  }
+}

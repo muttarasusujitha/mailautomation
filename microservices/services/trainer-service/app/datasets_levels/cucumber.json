@@ -1,0 +1,573 @@
+{
+  "domain": "Cucumber",
+  "name": "Cucumber and Behaviour-Driven Development",
+  "category": "Testing and QA",
+  "icon": "workflow",
+  "aliases": ["BDD with Cucumber", "Behavior-Driven Development", "Behaviour-Driven Development", "BDD", "BDD Cucumber", "Cucumber BDD", "Cucumber Framework", "Cucumber with Java", "Gherkin", "BDD Framework", "Cucumber Automation"],
+  "certifications": ["No official Cucumber certification; assessed by capstone projects", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)", "ISTQB Certified Tester Foundation Level (CTFL)"],
+  "tools": ["Cucumber-JVM", "Gherkin", "Java 17 or 21", "Maven", "JUnit 5 Platform or TestNG", "IntelliJ IDEA with the Cucumber plugin", "Selenium or REST Assured"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For testers, developers and business analysts starting behaviour-driven development with Cucumber. Covers BDD and why teams use it, discovery with example mapping, Gherkin syntax, writing good scenarios, step definitions with Cucumber Expressions, running features with JUnit 5 or TestNG, hooks, tags, Background, Scenario Outline, data tables and doc strings, sharing state between steps, Cucumber with Selenium and REST Assured, reports and running in CI.",
+      "prerequisites": ["Understands how software requirements are written and tested", "Basic Java or another programming language for the automation days", "Works in or with an agile team"],
+      "outcomes": ["Explain BDD and run example mapping sessions with business and technical people", "Write clear, declarative Gherkin scenarios that act as living documentation", "Automate scenarios with Cucumber-JVM step definitions, hooks and tags", "Connect Cucumber to Selenium and REST Assured and run features in CI with reports"],
+      "days": [
+        {
+          "topic": "Cucumber and BDD Overview, Tools and Project Setup",
+          "subtopics": ["What behaviour-driven development is and is not", "BDD compared with test automation alone", "The three practices: discovery, formulation and automation", "Cucumber's place among BDD tools", "Cucumber-JVM, Cucumber-JS, Behave and Reqnroll", "Installing Java, Maven and IntelliJ with the Cucumber plugin", "Creating a Maven project with Cucumber dependencies", "Folders for features and step definitions", "Running a first feature", "The course application and project overview"],
+          "tools": ["Java", "Maven", "IntelliJ IDEA with the Cucumber plugin", "Cucumber-JVM"],
+          "lab_task": "Create a Cucumber-JVM project with Maven, write a first feature file with one scenario, generate step definition snippets, implement them and run the feature.",
+          "deliverable": "Working Cucumber project with a first passing scenario",
+          "checks": [["Build", "The project builds and runs the feature with mvn test", "Terminal output"], ["Generate snippets", "Undefined steps produce snippets that are implemented", "Test output"], ["Explain BDD", "The three BDD practices are explained in the team's words", "Notes"]],
+          "objectives": ["Explain BDD", "Set up a Cucumber project", "Run a first scenario"]
+        },
+        {
+          "topic": "Discovery with Example Mapping and Three Amigos Sessions",
+          "subtopics": ["Why examples clarify requirements", "Three amigos: business, development and testing", "Example mapping with rules, examples and questions", "Time-boxing discovery sessions", "Spotting stories that are too big", "Recording open questions", "From examples to scenarios", "Discovery in remote teams"],
+          "tools": ["Miro or sticky notes", "Example mapping template", "User stories"],
+          "lab_task": "Run an example mapping session for three user stories with a role-played product owner and developer, record rules, examples and questions, and split one story that is too big.",
+          "deliverable": "Example maps and a split story",
+          "checks": [["Map examples", "Each rule has at least two concrete examples", "Example maps"], ["Capture questions", "Open questions are recorded with owners", "Example maps"], ["Split", "The large story is split into smaller stories", "Story list"]],
+          "objectives": ["Run example mapping", "Work as three amigos", "Find questions early"]
+        },
+        {
+          "topic": "Gherkin Syntax: Feature, Scenario, Given, When and Then",
+          "subtopics": ["Feature files and descriptions", "Scenario structure", "Given for context", "When for the action", "Then for the outcome", "And, But and the asterisk", "The Rule keyword", "Comments and language support", "Indentation and formatting conventions", "Linting feature files with gherkin-lint"],
+          "tools": ["Gherkin", "IntelliJ IDEA with the Cucumber plugin"],
+          "lab_task": "Write a feature file for login with a description, rules and five scenarios using correct Given, When and Then steps, and review it with a partner for structure.",
+          "deliverable": "Login feature file",
+          "checks": [["Structure", "Each scenario has context, one action and outcomes", "Feature file"], ["Use rules", "Scenarios are grouped under Rule keywords", "Feature file"], ["Review", "Partner review findings are fixed", "Review notes"]],
+          "objectives": ["Write Gherkin", "Structure scenarios", "Group scenarios by rules"]
+        },
+        {
+          "topic": "Writing Good Scenarios: Declarative Steps and Business Language",
+          "subtopics": ["Declarative compared with imperative steps", "Business language instead of UI details", "One behaviour per scenario", "Concrete examples and data", "Avoiding conjunction steps", "Scenario titles that explain intent", "Keeping scenarios short", "Common Gherkin anti-patterns"],
+          "tools": ["Gherkin", "Scenario review checklist"],
+          "lab_task": "Rewrite ten imperative, click-by-click scenarios into declarative business scenarios, remove UI details and check each against a review checklist.",
+          "deliverable": "Rewritten scenarios with checklist results",
+          "checks": [["Write declaratively", "No rewritten step mentions clicks or field IDs", "Feature files"], ["Focus", "Each scenario tests one behaviour", "Checklist results"], ["Name well", "Scenario titles state the behaviour", "Feature files"]],
+          "objectives": ["Write declarative scenarios", "Use business language", "Avoid anti-patterns"]
+        },
+        {
+          "topic": "Step Definitions and Cucumber Expressions",
+          "subtopics": ["How Cucumber matches steps to code", "Cucumber Expressions and parameter types", "Regular expressions when needed", "Built-in types: int, float, string and word", "Optional text and alternatives", "Undefined and ambiguous steps", "Organising step definition classes", "Reusing steps without making them vague"],
+          "tools": ["Cucumber-JVM", "Java", "IntelliJ IDEA"],
+          "lab_task": "Implement step definitions for the login feature with Cucumber Expressions, use optional text and alternatives, and fix an ambiguous step error.",
+          "deliverable": "Step definition classes for the login feature",
+          "checks": [["Match steps", "All steps match exactly one definition", "Test output"], ["Use parameters", "Parameters are passed with Cucumber Expressions", "Step code"], ["Fix ambiguity", "The ambiguous step error is resolved", "Test output"]],
+          "objectives": ["Write step definitions", "Use Cucumber Expressions", "Fix undefined and ambiguous steps"]
+        },
+        {
+          "topic": "Running Features with JUnit 5 Platform and TestNG",
+          "subtopics": ["The cucumber-junit-platform-engine", "Suite classes and configuration", "junit-platform.properties settings", "Running with TestNG instead", "Selecting features and scenarios", "Running from the IDE and from Maven", "Dry runs to find undefined steps", "Strict mode and failing on undefined steps"],
+          "tools": ["Cucumber JUnit 5 Platform", "TestNG", "Maven"],
+          "lab_task": "Configure features to run with the JUnit 5 Platform engine, run a dry run to find undefined steps, then configure a TestNG runner and compare the two.",
+          "deliverable": "JUnit 5 and TestNG runner configurations",
+          "checks": [["Run with JUnit 5", "Features run through the platform engine", "Terminal output"], ["Dry run", "Undefined steps are listed without running scenarios", "Terminal output"], ["Compare", "The runner comparison is recorded", "Comparison note"]],
+          "objectives": ["Run Cucumber with JUnit 5", "Use TestNG runners", "Use dry runs"]
+        },
+        {
+          "topic": "Hooks: Before, After and Step Hooks",
+          "subtopics": ["Before and After hooks", "BeforeStep and AfterStep hooks", "BeforeAll and AfterAll", "Hook order", "Tagged hooks", "Screenshots on failure in hooks", "Cleaning up in hooks", "Keeping hooks out of business logic"],
+          "tools": ["Cucumber-JVM hooks", "Selenium WebDriver", "Java"],
+          "lab_task": "Add hooks that start and stop a browser, take a screenshot after failed steps, clean up test data after scenarios and run a tagged hook only for API scenarios.",
+          "deliverable": "Hook class with tagged hooks",
+          "checks": [["Manage resources", "Browsers start and stop through hooks", "Test output"], ["Capture failures", "Failed steps attach screenshots", "Report"], ["Tag hooks", "The tagged hook runs only for tagged scenarios", "Test output"]],
+          "objectives": ["Use Cucumber hooks", "Control hook order", "Clean up with hooks"]
+        },
+        {
+          "topic": "Tags and Organising Test Runs",
+          "subtopics": ["Tagging features and scenarios", "Tag expressions with and, or and not", "Smoke, regression and work-in-progress tags", "Tags for requirement and ticket IDs", "Running tags from Maven and the IDE", "Skipping scenarios with tags", "Tag conventions for the team", "Avoiding tag sprawl"],
+          "tools": ["Cucumber-JVM", "Maven", "Jira"],
+          "lab_task": "Tag the scenarios for smoke, regression and ticket IDs, run tag expressions from Maven and write a short tag convention for the team.",
+          "deliverable": "Tagged features and a tag convention",
+          "checks": [["Tag", "Every scenario has a type tag and a ticket tag", "Feature files"], ["Filter", "Tag expressions select the right scenarios", "Terminal output"], ["Agree", "The convention lists allowed tags", "Convention document"]],
+          "objectives": ["Organise scenarios with tags", "Use tag expressions", "Agree tag conventions"]
+        },
+        {
+          "topic": "Background, Scenario Outline and Examples",
+          "subtopics": ["Background for shared context", "When Background hurts readability", "Scenario Outline with Examples tables", "Several Examples tables with tags", "Naming outline examples", "Choosing examples that matter", "Boundary values in examples", "Keeping outlines small"],
+          "tools": ["Gherkin", "Cucumber-JVM"],
+          "lab_task": "Refactor repeated context into a Background, turn five similar scenarios into a Scenario Outline with boundary examples and tag one Examples table as smoke.",
+          "deliverable": "Refactored feature files",
+          "checks": [["Share context", "Repeated Given steps move into Background", "Feature file"], ["Use outlines", "One outline replaces five scenarios", "Feature file"], ["Choose examples", "Examples include boundary values", "Examples table"]],
+          "objectives": ["Use Background well", "Write Scenario Outlines", "Choose good examples"]
+        },
+        {
+          "topic": "Data Tables and Doc Strings",
+          "subtopics": ["Data tables in steps", "Lists, maps and lists of maps", "Transforming tables into objects", "DataTableType definitions", "Doc strings for JSON and text", "Doc string content types", "Readable tables", "When tables become too large"],
+          "tools": ["Cucumber-JVM", "Jackson", "Java"],
+          "lab_task": "Write steps that take a table of products and a JSON doc string, transform the table into objects with a DataTableType and use the doc string as a request body.",
+          "deliverable": "Steps using data tables and doc strings",
+          "checks": [["Transform tables", "Tables become typed objects", "Step code"], ["Use doc strings", "The doc string is sent as a JSON body", "Test output"], ["Keep readable", "Tables have clear headers and few columns", "Feature file"]],
+          "objectives": ["Use data tables", "Transform tables to objects", "Use doc strings"]
+        },
+        {
+          "topic": "Sharing State Between Steps with Dependency Injection",
+          "subtopics": ["Why steps need shared state", "The problem with static variables", "PicoContainer for dependency injection", "Spring for dependency injection", "A scenario context or world object", "Sharing drivers and API clients", "Scope of shared objects per scenario", "Keeping state minimal"],
+          "tools": ["Cucumber PicoContainer", "Cucumber Spring", "Java"],
+          "lab_task": "Replace static variables in step definitions with a scenario context injected by PicoContainer, share a browser driver and an API client, and show that scenarios no longer leak state.",
+          "deliverable": "Injected context and refactored steps",
+          "checks": [["Inject state", "Steps receive the context through constructors", "Step code"], ["Remove statics", "No step uses static shared variables", "Code search"], ["Isolate scenarios", "Two scenarios run without leaking data", "Test output"]],
+          "objectives": ["Share state safely", "Use dependency injection", "Isolate scenarios"]
+        },
+        {
+          "topic": "Cucumber with Selenium for UI Scenarios",
+          "subtopics": ["Connecting steps to Selenium WebDriver", "Page objects behind step definitions", "Waits inside page objects, not steps", "Screenshots in reports", "Browser choice by configuration", "Keeping UI details out of Gherkin", "Running UI scenarios in parallel later", "Debugging UI scenarios"],
+          "tools": ["Cucumber-JVM", "Selenium WebDriver", "Page objects"],
+          "lab_task": "Automate the checkout feature with Selenium page objects behind the steps, keep Gherkin free of UI details and attach screenshots of failures to the report.",
+          "deliverable": "Automated checkout feature with page objects",
+          "checks": [["Use page objects", "Steps call page object methods", "Step code"], ["Keep Gherkin clean", "Feature files contain no locators", "Feature files"], ["Attach evidence", "Failures include screenshots", "Report"]],
+          "objectives": ["Automate UI scenarios", "Put page objects behind steps", "Keep scenarios readable"]
+        },
+        {
+          "topic": "Cucumber with REST Assured for API Scenarios",
+          "subtopics": ["API behaviour in Gherkin", "Steps that call REST Assured", "Request and response objects in the scenario context", "Checking status and bodies in Then steps", "Data tables for request fields", "Doc strings for expected JSON", "Avoiding HTTP details in Gherkin", "Combining API and UI scenarios"],
+          "tools": ["Cucumber-JVM", "REST Assured", "Jackson"],
+          "lab_task": "Write API scenarios for creating and searching orders, implement the steps with REST Assured and a shared context, and check responses with tables and doc strings.",
+          "deliverable": "API feature with REST Assured steps",
+          "checks": [["Describe behaviour", "Scenarios describe business outcomes, not HTTP calls", "Feature file"], ["Implement", "Steps call REST Assured through a client", "Step code"], ["Check results", "Then steps assert status and body", "Test output"]],
+          "objectives": ["Write API scenarios", "Use REST Assured in steps", "Keep Gherkin business-focused"]
+        },
+        {
+          "topic": "Reports: HTML, JSON, Allure and Living Documentation",
+          "subtopics": ["Built-in HTML and JSON reports", "Cucumber Reports service", "Allure with Cucumber", "Third-party HTML reports such as Masterthought", "Attaching screenshots and logs", "Living documentation for stakeholders", "Publishing reports from CI", "Reports for different readers"],
+          "tools": ["Cucumber reports", "Allure", "Masterthought cucumber-reporting"],
+          "lab_task": "Produce HTML, JSON and Allure reports for the suite with attachments, publish a living documentation report and ask a business stakeholder to review it.",
+          "deliverable": "Reports and stakeholder feedback",
+          "checks": [["Produce reports", "HTML, JSON and Allure reports are generated", "Report files"], ["Attach evidence", "Screenshots and logs are attached to steps", "Report"], ["Share", "A business stakeholder can read and comment on the report", "Feedback notes"]],
+          "objectives": ["Produce Cucumber reports", "Publish living documentation", "Share results with business"]
+        },
+        {
+          "topic": "Running Cucumber in CI with Maven",
+          "subtopics": ["Maven configuration for Cucumber", "Passing tags and environments from the command line", "GitHub Actions or Jenkins pipelines", "Publishing reports from CI", "Failing builds on failed or undefined steps", "Secrets in CI", "Running smoke on pull requests and regression nightly", "Reading CI failures"],
+          "tools": ["Maven", "GitHub Actions or Jenkins", "Cucumber reports"],
+          "lab_task": "Run smoke-tagged scenarios on pull requests and regression nightly in CI, pass environments from the command line, publish reports and fail the build on undefined steps.",
+          "deliverable": "CI pipeline with tagged runs and reports",
+          "checks": [["Run by tag", "Pull requests run smoke and nightly runs regression", "Pipeline config"], ["Publish", "Reports are reachable from each run", "Report link"], ["Fail on undefined", "An undefined step fails the build", "Pipeline run"]],
+          "objectives": ["Run Cucumber in CI", "Pass tags and environments", "Publish reports"]
+        },
+        {
+          "topic": "Parameter Types and Custom Transformations",
+          "subtopics": ["Custom parameter types", "Transforming text into domain objects", "Enums as parameters", "Dates and money in steps", "Default transformers with Jackson", "Validation of parameter values", "Keeping types in one place", "Readable error messages"],
+          "tools": ["Cucumber-JVM", "Java", "Jackson"],
+          "lab_task": "Define custom parameter types for money, dates and customer types, use them across three features and make invalid values fail with clear messages.",
+          "deliverable": "Parameter type definitions and updated steps",
+          "checks": [["Define types", "Money, date and customer types are defined", "Code"], ["Reuse", "Three features use the custom types", "Feature files"], ["Validate", "Invalid values fail with clear messages", "Test output"]],
+          "objectives": ["Create parameter types", "Transform step text into objects", "Improve error messages"]
+        },
+        {
+          "topic": "Reviewing and Refactoring Feature Files",
+          "subtopics": ["Reviewing scenarios with business people", "Duplicate and overlapping scenarios", "Long scenarios and how to split them", "Steps that are too generic", "Consistent vocabulary across features", "Glossaries for domain terms", "Deleting scenarios that add no value", "Feature file review checklist"],
+          "tools": ["Gherkin", "Review checklist", "Domain glossary"],
+          "lab_task": "Review a messy set of feature files with a checklist and a business stakeholder, remove duplicates, split long scenarios, align vocabulary with a glossary and record the changes.",
+          "deliverable": "Refactored features, glossary and change log",
+          "checks": [["Remove duplicates", "Duplicated scenarios are merged or removed", "Change log"], ["Align vocabulary", "Steps use glossary terms consistently", "Feature files"], ["Agree with business", "The stakeholder approves the revised features", "Review notes"]],
+          "objectives": ["Review feature files", "Refactor scenarios", "Keep shared vocabulary"]
+        },
+        {
+          "topic": "Cucumber in Other Languages: Cucumber-JS, Behave and Reqnroll",
+          "subtopics": ["Cucumber-JS with JavaScript or TypeScript", "Behave for Python teams", "Reqnroll for .NET teams as the SpecFlow successor", "What stays the same across tools", "Differences in hooks and context", "Choosing a tool for a team's language", "Sharing Gherkin across languages", "Migrating from SpecFlow to Reqnroll"],
+          "tools": ["Cucumber-JS", "Behave", "Reqnroll"],
+          "lab_task": "Implement the same login feature in Cucumber-JS and Behave, list the differences from Cucumber-JVM and recommend a tool for a mixed-language organisation.",
+          "deliverable": "Two implementations and a recommendation",
+          "checks": [["Implement", "The feature passes in both tools", "Test output"], ["Compare", "Differences in hooks, context and runners are listed", "Comparison"], ["Recommend", "The recommendation fits the organisation's languages", "Recommendation note"]],
+          "objectives": ["Use BDD tools in other languages", "Compare implementations", "Choose a tool for a team"]
+        },
+        {
+          "topic": "Debugging Cucumber Scenarios",
+          "subtopics": ["Undefined, pending and ambiguous steps", "Snippets and glue path problems", "Debugging step definitions in the IDE", "Logging inside steps", "Failures in hooks", "Problems with shared state", "Reproducing CI failures locally", "A debugging checklist"],
+          "tools": ["IntelliJ IDEA debugger", "Cucumber-JVM", "Logs"],
+          "lab_task": "Diagnose four broken scenarios (a glue path error, an ambiguous step, a failing hook and leaked state), fix them and write a debugging checklist.",
+          "deliverable": "Diagnosis notes, fixes and checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All four scenarios pass", "Terminal output"], ["Share", "The checklist covers the steps used", "Checklist"]],
+          "objectives": ["Debug Cucumber problems", "Fix glue and state issues", "Share debugging practice"]
+        },
+        {
+          "topic": "Beginner Capstone: BDD Feature Set for an Online Store",
+          "subtopics": ["Example mapping", "Declarative feature files", "Step definitions with shared context", "UI and API automation", "Tags and reports", "CI pipeline"],
+          "tools": ["Cucumber-JVM", "Selenium WebDriver", "REST Assured", "Maven", "GitHub Actions or Jenkins"],
+          "lab_task": "Run example mapping for three store features, write declarative feature files, automate them with UI and API steps and a shared context, tag them and run them in CI with a living documentation report.",
+          "deliverable": "Feature set, automation code, reports and pipeline",
+          "checks": [["Discover", "Example maps exist for each feature", "Example maps"], ["Automate", "Scenarios pass with UI and API steps", "Test output"], ["Run in CI", "Tagged runs publish reports in CI", "Pipeline run"]],
+          "objectives": ["Combine beginner BDD skills", "Go from examples to automated scenarios", "Run BDD in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For teams that already write and automate Cucumber scenarios and want BDD to scale. Covers BDD in the agile workflow, writing acceptance criteria as examples, framework layers behind steps, Spring and dependency injection, parallel execution, test data, combining UI and API steps, Cucumber with Playwright, mobile scenarios with Appium, flaky scenarios, traceability to Jira and Xray, living documentation, metrics, contract and service-level scenarios, database checks, reusable step libraries, performance of large suites, code quality and BDD for legacy systems.",
+      "prerequisites": ["Writes Gherkin scenarios and Cucumber-JVM step definitions", "Has run Cucumber in CI", "Works in an agile team with business stakeholders"],
+      "outcomes": ["Run BDD as a team practice from discovery to living documentation", "Build a layered, parallel Cucumber framework for UI, API and mobile scenarios", "Connect scenarios to requirements and test management tools", "Keep large feature suites readable, fast and trusted"],
+      "days": [
+        {
+          "topic": "BDD in the Agile Workflow: From Backlog to Done",
+          "subtopics": ["Where BDD fits in refinement, planning and review", "Definition of ready and examples", "Who writes scenarios and when", "Scenarios as acceptance criteria", "Automating during the sprint", "Reviewing scenarios in sprint reviews", "Keeping BDD lightweight", "Measuring whether BDD is working"],
+          "tools": ["Jira", "Miro", "Cucumber-JVM"],
+          "lab_task": "Run BDD through a simulated sprint: discovery for three stories, scenarios written before coding, automation during the sprint and a review where the business reads the results.",
+          "deliverable": "Sprint artefacts from discovery to review",
+          "checks": [["Discover early", "Scenarios exist before development starts", "Story history"], ["Automate in sprint", "Scenarios pass by the end of the sprint", "Pipeline run"], ["Review with business", "The product owner accepts stories from scenario results", "Review notes"]],
+          "objectives": ["Run BDD in a sprint", "Use scenarios as acceptance criteria", "Involve the business throughout"]
+        },
+        {
+          "topic": "Acceptance Criteria as Examples: Specification by Example",
+          "subtopics": ["Specification by example", "Key examples and how to find them", "Rules and examples together", "Refining examples into scenarios", "Illustrating edge cases", "Avoiding scripts in acceptance criteria", "Examples for non-functional rules", "Living specifications"],
+          "tools": ["Example mapping template", "Gherkin", "Jira"],
+          "lab_task": "Rewrite the acceptance criteria of five backlog items as rules with key examples, turn them into scenarios and check that each example illustrates a single rule.",
+          "deliverable": "Rewritten acceptance criteria and scenarios",
+          "checks": [["Illustrate rules", "Every rule has key examples", "Story set"], ["Cover edges", "Edge cases are shown as examples", "Story set"], ["Map to scenarios", "Each example becomes one scenario or outline row", "Feature files"]],
+          "objectives": ["Write specifications by example", "Find key examples", "Turn examples into scenarios"]
+        },
+        {
+          "topic": "Framework Layers Behind Steps: Steps, Domain Actions and Drivers",
+          "subtopics": ["Thin step definitions", "Domain action or task layer", "Page objects and API clients as drivers", "Screenplay pattern basics in practice", "Reusing actions across UI and API", "Folder and package structure", "Avoiding logic in Gherkin", "Refactoring a large step library"],
+          "tools": ["Cucumber-JVM", "Java", "Selenium and REST Assured"],
+          "lab_task": "Refactor a step library so steps call domain actions, which call page objects or API clients, and show that one action serves both a UI and an API scenario.",
+          "deliverable": "Layered framework with shared actions",
+          "checks": [["Thin steps", "Step definitions contain no direct driver calls", "Code review"], ["Share actions", "One action is used by UI and API scenarios", "Code search"], ["Organise", "Packages separate steps, actions and drivers", "Project tree"]],
+          "objectives": ["Layer a Cucumber framework", "Keep steps thin", "Reuse domain actions"]
+        },
+        {
+          "topic": "Cucumber with Spring: Configuration, Beans and Scenario Scope",
+          "subtopics": ["cucumber-spring setup", "CucumberContextConfiguration", "Scenario-scoped beans", "Injecting clients and page objects", "Spring profiles for environments", "Testing Spring Boot applications with Cucumber", "Startup cost and how to reduce it", "Choosing Spring or PicoContainer"],
+          "tools": ["Cucumber Spring", "Spring Boot", "Maven profiles"],
+          "lab_task": "Move the framework to cucumber-spring with scenario-scoped beans and profiles for two environments, and test a Spring Boot service started in the same test context.",
+          "deliverable": "Spring-based framework with environment profiles",
+          "checks": [["Configure", "The Cucumber context loads with Spring", "Test output"], ["Scope beans", "Scenario-scoped beans do not leak between scenarios", "Test output"], ["Switch", "Profiles select the environment", "Terminal output"]],
+          "objectives": ["Use Spring with Cucumber", "Scope beans per scenario", "Manage environments with profiles"]
+        },
+        {
+          "topic": "Parallel Execution of Scenarios",
+          "subtopics": ["Parallel execution with the JUnit 5 Platform", "Parallel execution with TestNG", "Thread safety of drivers and state", "Data isolation in parallel scenarios", "Grouping scenarios that cannot run in parallel", "Choosing thread counts", "Parallel reports", "Measuring the gain"],
+          "tools": ["Cucumber JUnit 5 Platform", "TestNG", "Selenium Grid"],
+          "lab_task": "Enable parallel scenario execution, make drivers and state thread-safe, isolate data for parallel scenarios and compare suite duration with serial runs.",
+          "deliverable": "Parallel suite with timing comparison",
+          "checks": [["Run in parallel", "Scenarios run in parallel and pass", "Terminal output"], ["Isolate", "No scenario shares mutable data with another", "Code review"], ["Measure", "Suite time drops compared with serial runs", "Timing comparison"]],
+          "objectives": ["Run scenarios in parallel", "Keep state thread-safe", "Measure speed gains"]
+        },
+        {
+          "topic": "Test Data for BDD Scenarios",
+          "subtopics": ["Data described in Gherkin compared with hidden data", "Builders and factories behind steps", "Seeding data through APIs", "Unique data for parallel runs", "Reference data and lookups", "Cleaning up after scenarios", "Masked production-like data", "Keeping scenario data meaningful to readers"],
+          "tools": ["Data builders", "REST Assured", "Datafaker"],
+          "lab_task": "Replace hard-coded data in steps with builders and API seeding, keep the data that matters visible in Gherkin and clean up after each scenario.",
+          "deliverable": "Data builders, seeding steps and cleaned-up scenarios",
+          "checks": [["Show what matters", "Gherkin shows only data relevant to the behaviour", "Feature files"], ["Seed", "Scenarios seed their own data through APIs", "Step code"], ["Clean up", "Data is removed after each scenario", "API check"]],
+          "objectives": ["Manage data for scenarios", "Keep relevant data visible", "Clean up reliably"]
+        },
+        {
+          "topic": "Combining UI and API Steps in One Scenario",
+          "subtopics": ["Using the API for Given steps", "Checking UI outcomes through the API", "Speed and stability gains", "Shared domain models", "Authentication across UI and API", "Deciding which steps use which layer", "Keeping Gherkin independent of the layer", "Measuring the effect"],
+          "tools": ["Cucumber-JVM", "Selenium WebDriver", "REST Assured"],
+          "lab_task": "Change five UI scenarios so their Given steps use the API and some Then steps verify through the API, keep the Gherkin unchanged and compare time and stability.",
+          "deliverable": "Hybrid scenarios with comparison",
+          "checks": [["Keep Gherkin", "Feature files do not change", "Diff"], ["Use the API", "Given steps call APIs instead of the UI", "Step code"], ["Compare", "Duration and failure rates improve", "Comparison"]],
+          "objectives": ["Combine UI and API steps", "Keep Gherkin layer-independent", "Speed up scenarios"]
+        },
+        {
+          "topic": "Cucumber with Playwright",
+          "subtopics": ["Playwright for Java or Cucumber-JS with Playwright", "Browser and context management in hooks", "Auto-waiting behind steps", "Traces and screenshots for failed scenarios", "Parallel scenarios with Playwright", "Page objects for Playwright", "Migrating Selenium steps to Playwright", "Choosing between the two drivers"],
+          "tools": ["Cucumber-JVM or Cucumber-JS", "Playwright", "Trace Viewer"],
+          "lab_task": "Implement the checkout feature with Playwright behind the steps, attach traces for failures and compare stability with the Selenium implementation.",
+          "deliverable": "Playwright-backed feature and comparison",
+          "checks": [["Implement", "Scenarios pass with Playwright steps", "Test output"], ["Capture traces", "Failed scenarios include traces", "Report"], ["Compare", "Stability is compared with Selenium", "Comparison note"]],
+          "objectives": ["Use Playwright with Cucumber", "Manage browsers in hooks", "Compare UI drivers"]
+        },
+        {
+          "topic": "Mobile Scenarios with Cucumber and Appium",
+          "subtopics": ["Mobile behaviour in Gherkin", "Appium drivers behind steps", "Screen objects for Android and iOS", "Sharing steps across platforms", "Device configuration by tag or profile", "Gestures behind domain actions", "Running on emulators and device clouds", "Mobile reports"],
+          "tools": ["Cucumber-JVM", "Appium", "Android emulator and iOS simulator"],
+          "lab_task": "Automate a login and search feature for Android and iOS with shared Gherkin and platform-specific screen objects, and run it on an emulator and a simulator.",
+          "deliverable": "Cross-platform mobile feature",
+          "checks": [["Share Gherkin", "Both platforms use the same feature file", "Feature file"], ["Implement per platform", "Screen objects exist for Android and iOS", "Code"], ["Run", "Scenarios pass on both platforms", "Test output"]],
+          "objectives": ["Write mobile scenarios", "Share steps across platforms", "Run on emulators and simulators"]
+        },
+        {
+          "topic": "Flaky Scenarios: Causes, Retries and Fixes",
+          "subtopics": ["What makes scenarios flaky", "Timing, data, state and environment causes", "Rerunning failed scenarios with the rerun plugin", "When reruns hide problems", "Diagnosing with logs and attachments", "Quarantine tags", "Tracking flakiness", "A team flakiness policy"],
+          "tools": ["Cucumber rerun plugin", "Reports", "Issue tracker"],
+          "lab_task": "Find flaky scenarios by repeated runs, diagnose three, fix them, add a limited rerun policy and tag quarantined scenarios with owners.",
+          "deliverable": "Flaky report, fixes and policy",
+          "checks": [["Detect", "Flaky scenarios are listed with rates", "Flaky report"], ["Fix", "Three scenarios pass fifty runs after fixes", "Terminal output"], ["Quarantine", "Quarantined scenarios have owners and dates", "Feature files"]],
+          "objectives": ["Find flaky scenarios", "Fix root causes", "Manage reruns and quarantine"]
+        },
+        {
+          "topic": "Traceability with Jira and Xray",
+          "subtopics": ["Linking scenarios to stories", "Xray Cucumber tests and pre-conditions", "Importing and exporting features with Xray", "Publishing results to test executions", "Coverage reports by requirement", "Keeping Jira and repository in step", "Tags for ticket IDs", "Reporting to managers"],
+          "tools": ["Jira", "Xray", "Cucumber-JVM"],
+          "lab_task": "Link scenarios to stories through tags, import results into Xray test executions from CI and produce a requirement coverage report.",
+          "deliverable": "Linked scenarios and an Xray coverage report",
+          "checks": [["Link", "Every scenario links to a story", "Xray screenshot"], ["Publish", "CI results appear in Xray executions", "Execution record"], ["Report", "Coverage by requirement is shown", "Coverage report"]],
+          "objectives": ["Trace scenarios to requirements", "Publish results to Xray", "Report coverage"]
+        },
+        {
+          "topic": "Living Documentation for Business Stakeholders",
+          "subtopics": ["What living documentation is", "Organising features for readers", "Descriptions, rules and examples as documentation", "Publishing documentation sites", "Showing pass and fail status", "Keeping documentation current", "Getting business people to read it", "Measuring documentation use"],
+          "tools": ["Cucumber reports", "Documentation site generator", "Allure"],
+          "lab_task": "Organise features by business capability, add rule descriptions, publish a living documentation site from CI and walk a business stakeholder through it.",
+          "deliverable": "Living documentation site and stakeholder feedback",
+          "checks": [["Organise", "Features are grouped by business capability", "Site structure"], ["Publish", "The site updates with every CI run", "Site link and pipeline"], ["Use", "A stakeholder answers a business question using the site", "Feedback notes"]],
+          "objectives": ["Publish living documentation", "Organise for business readers", "Keep documentation current"]
+        },
+        {
+          "topic": "Metrics for BDD Suites",
+          "subtopics": ["Scenario counts and what they hide", "Pass rate and flakiness", "Duration and feedback time", "Requirement coverage", "Undefined and pending steps", "Step reuse and duplication", "Dashboards for teams", "Using metrics to improve"],
+          "tools": ["Cucumber JSON reports", "Dashboard tool", "Scripts"],
+          "lab_task": "Build a dashboard from Cucumber JSON results with pass rate, flakiness, duration, coverage and step duplication, and propose two improvements from the data.",
+          "deliverable": "Dashboard and improvement proposals",
+          "checks": [["Measure", "All five measures are shown", "Dashboard"], ["Find issues", "Two problems are identified from the data", "Analysis"], ["Improve", "Each problem has a proposed action", "Proposal"]],
+          "objectives": ["Measure BDD suites", "Spot problems in data", "Improve suites with evidence"]
+        },
+        {
+          "topic": "Service-Level Scenarios: Contracts, Events and Back-End Behaviour",
+          "subtopics": ["BDD for services without a UI", "Scenarios for business rules in services", "Event-driven behaviour in Gherkin", "Checking messages and events in steps", "Contract checks behind scenarios", "Stubbing other services", "Asynchronous outcomes and polling", "Keeping service scenarios readable"],
+          "tools": ["Cucumber-JVM", "WireMock", "Kafka test tools", "Awaitility"],
+          "lab_task": "Write scenarios for an order service's business rules, check emitted events in Then steps, stub a dependent service and poll for asynchronous outcomes.",
+          "deliverable": "Service-level feature with event checks",
+          "checks": [["Describe rules", "Scenarios describe business rules, not endpoints", "Feature file"], ["Check events", "Then steps verify emitted events", "Test output"], ["Stub dependencies", "The dependent service is stubbed", "Stub files"]],
+          "objectives": ["Write service-level scenarios", "Check events in steps", "Handle asynchronous outcomes"]
+        },
+        {
+          "topic": "Database Checks in Steps",
+          "subtopics": ["When scenarios should check stored data", "Database helpers behind steps", "Comparing stored and expected values", "Transactions and cleanup", "Avoiding schema details in Gherkin", "Database access per environment", "Performance of database checks", "Verifying through APIs instead"],
+          "tools": ["JDBC", "Cucumber-JVM", "PostgreSQL or MySQL"],
+          "lab_task": "Add database checks behind Then steps for three scenarios, keep table names out of Gherkin and clean up in hooks.",
+          "deliverable": "Scenarios with database checks",
+          "checks": [["Verify", "Stored data matches expected values", "Test output"], ["Hide details", "Feature files contain no table or column names", "Feature files"], ["Clean up", "Data is removed after scenarios", "Database check"]],
+          "objectives": ["Check stored data from steps", "Hide technical details", "Clean up safely"]
+        },
+        {
+          "topic": "Reusable Step Libraries Across Teams",
+          "subtopics": ["When to share steps between teams", "Packaging step libraries", "Glue configuration for shared steps", "Versioning shared steps", "Avoiding generic steps that hide meaning", "Documenting shared steps", "Ownership of the library", "Consumers and upgrades"],
+          "tools": ["Maven", "Internal artifact repository", "Cucumber-JVM"],
+          "lab_task": "Extract common authentication and navigation steps into a versioned library, use it from two projects through glue configuration and document each step.",
+          "deliverable": "Shared step library used by two projects",
+          "checks": [["Package", "The library is published with a version", "Repository"], ["Use", "Two projects use it through glue paths", "Project config"], ["Document", "Each shared step has an example", "Documentation"]],
+          "objectives": ["Share steps across teams", "Version step libraries", "Document shared steps"]
+        },
+        {
+          "topic": "Speeding Up Large Feature Suites",
+          "subtopics": ["Where time goes in large suites", "Expensive hooks and setup", "API seeding instead of UI setup", "Parallel execution and grids", "Tag-based tiers", "Removing redundant scenarios", "Test impact analysis by tag and feature", "Feedback time targets"],
+          "tools": ["Cucumber-JVM", "Selenium Grid or Playwright", "CI timings"],
+          "lab_task": "Profile a slow suite, cut hook and setup time, remove redundant scenarios, add tag-based tiers and report the new feedback time.",
+          "deliverable": "Profiling results and optimised suite",
+          "checks": [["Profile", "The slowest scenarios and hooks are identified", "Profiling notes"], ["Optimise", "Suite duration drops by an agreed target", "Timing comparison"], ["Tier", "Smoke, regression and nightly tiers run by tag", "Pipeline config"]],
+          "objectives": ["Speed up feature suites", "Reduce setup cost", "Tier runs by tag"]
+        },
+        {
+          "topic": "Code Quality for BDD Frameworks",
+          "subtopics": ["Coding standards for steps and actions", "Static analysis", "Duplicate steps and dead steps", "Code reviews for features and steps", "Lint rules for Gherkin", "Dependency updates", "Deleting low-value scenarios", "Measuring framework health"],
+          "tools": ["gherkin-lint", "Checkstyle or SonarQube", "Code review tools"],
+          "lab_task": "Lint the feature files, find duplicate and unused steps, run static analysis on step code, fix the main issues and agree a review checklist.",
+          "deliverable": "Lint and analysis results, fixes and checklist",
+          "checks": [["Lint", "Feature files pass the agreed lint rules", "Lint output"], ["Remove dead steps", "Unused steps are deleted", "Commit diff"], ["Agree", "The review checklist covers features and steps", "Checklist"]],
+          "objectives": ["Keep BDD code healthy", "Lint Gherkin", "Remove dead steps"]
+        },
+        {
+          "topic": "BDD for Legacy Systems and Existing Test Suites",
+          "subtopics": ["Introducing BDD where tests already exist", "Characterisation scenarios for legacy behaviour", "Converting manual test cases into scenarios", "Wrapping legacy interfaces behind actions", "Choosing where to start", "Avoiding converting everything", "Measuring value as you go", "Changing team habits gradually"],
+          "tools": ["Existing test cases", "Cucumber-JVM", "Legacy application"],
+          "lab_task": "Choose a legacy feature, write characterisation scenarios for its current behaviour, convert five manual test cases into scenarios and automate the most valuable two.",
+          "deliverable": "Characterisation scenarios and converted tests",
+          "checks": [["Characterise", "Scenarios describe current behaviour accurately", "Review with experts"], ["Convert selectively", "Only valuable cases are converted, with reasons", "Selection notes"], ["Automate", "Two scenarios pass against the legacy system", "Test output"]],
+          "objectives": ["Bring BDD to legacy systems", "Write characterisation scenarios", "Convert tests selectively"]
+        },
+        {
+          "topic": "Intermediate Capstone: BDD Practice for a Product Team",
+          "subtopics": ["Discovery and specification by example", "Layered framework with Spring", "UI, API and service scenarios", "Parallel runs and data", "Xray traceability", "Living documentation"],
+          "tools": ["Cucumber-JVM", "Spring", "Selenium or Playwright", "REST Assured", "Xray"],
+          "lab_task": "Run BDD for a product team over a simulated release: discovery for five stories, a layered Spring framework with UI, API and service scenarios, parallel runs with seeded data, Xray traceability and living documentation reviewed by the business.",
+          "deliverable": "Feature set, framework, traceability and documentation",
+          "checks": [["Specify", "Every story has rules and examples before coding", "Example maps"], ["Automate", "Scenarios run in parallel and pass", "Pipeline run"], ["Share", "The business reviews results in the living documentation", "Feedback notes"]],
+          "objectives": ["Combine intermediate BDD skills", "Run BDD for a team", "Connect scenarios to requirements"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For BDD coaches, automation leads and quality engineers who run BDD across several teams. Covers BDD strategy and adoption, coaching discovery, domain language and bounded contexts, screenplay architecture, framework architecture for many teams, BDD for microservices, compliance and audit evidence, BDD with AI assistance, large-scale traceability, BDD metrics, BDD in regulated and safety-critical work, governance of feature files, scaling living documentation, CI at scale, BDD with DevOps and continuous delivery, migration between BDD tools, rescuing failing BDD adoptions, training programmes and troubleshooting.",
+      "prerequisites": ["Has run BDD with Cucumber in at least one team", "Has built and maintained a Cucumber framework", "Works with product owners and engineering leads"],
+      "outcomes": ["Lead BDD adoption across teams with a clear strategy and coaching", "Architect Cucumber frameworks and living documentation for many teams", "Use BDD for compliance, audit and regulated delivery", "Measure, govern and rescue BDD practices"],
+      "days": [
+        {
+          "topic": "BDD Strategy and Adoption Across Teams",
+          "subtopics": ["Why BDD adoptions succeed or fail", "Goals for BDD in an organisation", "Choosing pilot teams", "Roles: coaches, champions and product owners", "Tooling and framework decisions", "Adoption roadmap", "Measuring adoption and value", "Communicating with leadership"],
+          "tools": ["Adoption roadmap template", "Team assessment", "Presentation template"],
+          "lab_task": "Assess BDD readiness in four case teams, choose pilots, write an adoption roadmap with goals and measures and present it to engineering and product leaders.",
+          "deliverable": "Readiness assessment, roadmap and presentation notes",
+          "checks": [["Assess", "Each team has a readiness rating with evidence", "Assessment"], ["Plan", "The roadmap has pilots, phases and measures", "Roadmap"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Plan BDD adoption", "Choose pilots", "Measure adoption value"]
+        },
+        {
+          "topic": "Coaching Discovery Sessions and Facilitation",
+          "subtopics": ["The coach's role in discovery", "Facilitating example mapping well", "Handling dominant voices and silent participants", "Asking questions that reveal rules", "Remote facilitation", "Coaching product owners to bring examples", "Growing facilitators in teams", "Observing and giving feedback"],
+          "tools": ["Facilitation guide", "Miro", "Observation checklist"],
+          "lab_task": "Facilitate a difficult role-played discovery session, then observe a team member facilitating and give structured feedback.",
+          "deliverable": "Session outputs and feedback notes",
+          "checks": [["Facilitate", "The session produces rules, examples and questions", "Example map"], ["Include everyone", "All roles contribute", "Observer notes"], ["Coach", "Feedback to the new facilitator is specific", "Feedback notes"]],
+          "objectives": ["Facilitate discovery", "Coach facilitators", "Handle group dynamics"]
+        },
+        {
+          "topic": "Domain Language, Glossaries and Bounded Contexts in Gherkin",
+          "subtopics": ["Ubiquitous language from domain-driven design", "Building and maintaining glossaries", "Bounded contexts and different meanings of terms", "Feature organisation by context", "Translating between contexts in steps", "Spotting language drift", "Working with domain experts", "Language in multi-team products"],
+          "tools": ["Domain glossary", "Context map", "Gherkin"],
+          "lab_task": "Build a glossary and context map for a product with three bounded contexts, reorganise features by context and fix five scenarios where terms drifted.",
+          "deliverable": "Glossary, context map and corrected features",
+          "checks": [["Define terms", "Each key term has a definition per context", "Glossary"], ["Organise", "Features are grouped by bounded context", "Repository tree"], ["Fix drift", "Five drifting scenarios are corrected", "Diff"]],
+          "objectives": ["Use domain language in Gherkin", "Respect bounded contexts", "Keep language consistent"]
+        },
+        {
+          "topic": "Screenplay Architecture for Large BDD Frameworks",
+          "subtopics": ["The screenplay pattern: actors, abilities, tasks, interactions and questions", "Serenity BDD and screenplay", "Comparing screenplay with page objects", "Reusable tasks across UI and API", "Reporting with screenplay", "Migrating from page objects", "When screenplay is overkill", "Team training for screenplay"],
+          "tools": ["Serenity BDD", "Cucumber-JVM", "Java"],
+          "lab_task": "Implement three scenarios with the screenplay pattern in Serenity BDD, reuse a task across UI and API actors and compare readability and reports with the page object version.",
+          "deliverable": "Screenplay implementation and comparison",
+          "checks": [["Use screenplay", "Scenarios use actors, tasks and questions", "Code review"], ["Reuse tasks", "One task serves UI and API actors", "Code search"], ["Compare", "The comparison covers readability and reporting", "Comparison note"]],
+          "objectives": ["Apply the screenplay pattern", "Reuse tasks across layers", "Choose architecture for scale"]
+        },
+        {
+          "topic": "Framework Architecture for Many Teams",
+          "subtopics": ["One framework or many", "Shared libraries and team-owned steps", "Versioning and upgrades", "Configuration for many products", "Templates for new teams", "Ownership and support model"],
+          "tools": ["Maven multi-module", "Internal artifact repository", "Project templates"],
+          "lab_task": "Design a Cucumber framework architecture for five teams with shared libraries and team-owned steps, create a starter template and onboard one team with it.",
+          "deliverable": "Architecture design, starter template and onboarding record",
+          "checks": [["Design", "Shared and team-owned parts are clearly separated", "Architecture document"], ["Template", "A new team runs the template without help", "Onboarding record"], ["Support", "Ownership and support rules are written", "Support model"]],
+          "objectives": ["Architect BDD frameworks for many teams", "Provide templates", "Define ownership"]
+        },
+        {
+          "topic": "BDD for Microservices and Distributed Systems",
+          "subtopics": ["Where BDD helps in microservices", "Journey scenarios compared with service scenarios", "Contracts between services", "Test environments for distributed scenarios", "Event-driven outcomes", "Ownership of cross-service journeys", "Avoiding slow end-to-end suites", "Observability for scenario failures"],
+          "tools": ["Cucumber-JVM", "Pact", "Kafka test tools", "Tracing tool"],
+          "lab_task": "Split a slow end-to-end feature suite into service scenarios with contracts and a few journey scenarios, and link journey failures to traces.",
+          "deliverable": "Restructured suites with contracts and trace links",
+          "checks": [["Split", "Most behaviour moves to service scenarios", "Suite inventory"], ["Contract", "Service boundaries have contract checks", "Pact Broker"], ["Trace", "Journey failures link to traces", "Report screenshot"]],
+          "objectives": ["Apply BDD to microservices", "Balance journey and service scenarios", "Diagnose distributed failures"]
+        },
+        {
+          "topic": "Compliance and Audit Evidence from BDD Scenarios",
+          "subtopics": ["Scenarios as requirements evidence", "Traceability from regulation to scenario", "Signed and timestamped results", "Evidence retention", "Change control for feature files", "Audit-friendly reports", "Handling auditor questions", "Avoiding evidence gaps"],
+          "tools": ["Xray or another test management tool", "Evidence repository", "Cucumber reports"],
+          "lab_task": "Map ten regulatory requirements to scenarios, produce signed results with retained evidence and answer a role-played auditor's questions from the evidence.",
+          "deliverable": "Traceability map, evidence pack and audit notes",
+          "checks": [["Trace", "Each requirement links to scenarios and results", "Traceability map"], ["Retain", "Evidence is stored with timestamps", "Evidence repository"], ["Answer", "Auditor questions are answered from evidence", "Audit notes"]],
+          "objectives": ["Use BDD for compliance", "Produce audit evidence", "Control feature file changes"]
+        },
+        {
+          "topic": "BDD with AI Assistance: Drafting Scenarios and Steps Responsibly",
+          "subtopics": ["AI tools for drafting Gherkin", "Generating examples from rules", "Reviewing AI-drafted scenarios with the three amigos", "AI help for step definitions", "Risks: plausible but wrong rules", "Data privacy in prompts", "Team rules for AI in BDD", "Measuring effect on discovery quality"],
+          "tools": ["AI assistant", "Gherkin", "Cucumber-JVM"],
+          "lab_task": "Use an AI assistant to draft scenarios from three user stories, review them in a three amigos session, record wrong or missing rules and implement the corrected scenarios.",
+          "deliverable": "Draft and corrected scenarios with a review record",
+          "checks": [["Draft", "AI drafts exist for all three stories", "Draft files"], ["Review", "Wrong or missing rules are recorded and fixed", "Review record"], ["Implement", "Corrected scenarios pass", "Test output"]],
+          "objectives": ["Use AI to draft BDD artefacts", "Review AI output with people", "Set rules for AI use"]
+        },
+        {
+          "topic": "Traceability and Reporting at Scale",
+          "subtopics": ["Many teams, many features", "Linking scenarios to epics and objectives", "Cross-team coverage reports", "Release readiness from scenario results", "Dashboards for leadership", "Keeping links healthy", "Tooling choices", "Avoiding reporting overhead"],
+          "tools": ["Jira", "Xray", "Dashboard tool"],
+          "lab_task": "Build a cross-team coverage and readiness report that links scenarios to epics for three teams, and present release readiness for a sample release.",
+          "deliverable": "Cross-team report and readiness presentation",
+          "checks": [["Link", "Scenarios link to epics across teams", "Report"], ["Assess readiness", "The report shows readiness by epic", "Report"], ["Present", "Leaders get a readiness recommendation", "Presentation notes"]],
+          "objectives": ["Trace BDD at scale", "Report readiness", "Keep reporting lightweight"]
+        },
+        {
+          "topic": "Measuring BDD Value and Practice Health",
+          "subtopics": ["What success looks like for BDD", "Measures for discovery quality", "Defects found before coding", "Rework and escaped defects", "Suite health measures", "Surveys of team experience", "Reporting value to leadership", "Using measures to coach teams"],
+          "tools": ["Survey tool", "Defect data", "Dashboard tool"],
+          "lab_task": "Define measures for BDD value and practice health, collect sample data for three teams, compare them and recommend coaching actions for the weakest team.",
+          "deliverable": "Measure set, comparison and coaching plan",
+          "checks": [["Define", "Measures cover discovery, defects and suite health", "Measure set"], ["Compare", "Teams are compared with data", "Comparison"], ["Act", "The coaching plan targets measured weaknesses", "Coaching plan"]],
+          "objectives": ["Measure BDD value", "Assess practice health", "Coach from evidence"]
+        },
+        {
+          "topic": "BDD in Regulated and Safety-Critical Delivery",
+          "subtopics": ["Regulated industries and BDD", "Validation and verification with scenarios", "Risk-based scenario selection", "Formal reviews of feature files", "Separation of duties", "Evidence for certification", "Tool qualification questions", "Balancing agility and control"],
+          "tools": ["Validation plan template", "Review records", "Evidence repository"],
+          "lab_task": "Design a BDD process for a regulated product with formal reviews, separation of duties and evidence for certification, and test it on two features.",
+          "deliverable": "Regulated BDD process and trial evidence",
+          "checks": [["Define process", "Reviews, approvals and evidence steps are defined", "Process document"], ["Separate duties", "Authors and approvers are different people", "Review records"], ["Produce evidence", "Two features have complete evidence", "Evidence pack"]],
+          "objectives": ["Use BDD in regulated work", "Combine agility and control", "Produce certification evidence"]
+        },
+        {
+          "topic": "Governance of Feature Files and Step Libraries",
+          "subtopics": ["Ownership of features", "Review rules for features and steps", "Naming, tagging and folder standards", "Retiring outdated scenarios", "Change history and approvals", "Exceptions and waivers", "Governance reports", "Keeping governance light"],
+          "tools": ["Code review tools", "gherkin-lint", "Repository rules"],
+          "lab_task": "Write governance rules for features and steps, apply them to a large repository with lint and review, retire outdated scenarios and report compliance by team.",
+          "deliverable": "Governance rules, cleanup and compliance report",
+          "checks": [["Set rules", "Rules cover ownership, review, naming and retirement", "Governance document"], ["Apply", "Lint and review findings are fixed", "Repository diff"], ["Report", "Compliance is reported by team", "Report"]],
+          "objectives": ["Govern BDD artefacts", "Retire outdated scenarios", "Report compliance"]
+        },
+        {
+          "topic": "Scaling Living Documentation",
+          "subtopics": ["Documentation for many products", "Navigation by capability", "Search and cross-links", "Versioned documentation per release", "Combining scenarios with other documentation", "Access control for documentation", "Measuring use", "Maintaining documentation sites"],
+          "tools": ["Documentation site generator", "CI pipelines", "Search tool"],
+          "lab_task": "Build a living documentation portal for three products with capability navigation, search and versions per release, and measure how often stakeholders use it.",
+          "deliverable": "Documentation portal and usage report",
+          "checks": [["Navigate", "Readers find a feature by capability and search", "Portal walkthrough"], ["Version", "Each release has its own documentation version", "Portal"], ["Measure", "Usage data is collected and reported", "Usage report"]],
+          "objectives": ["Scale living documentation", "Version documentation", "Measure documentation use"]
+        },
+        {
+          "topic": "CI at Scale for BDD Suites",
+          "subtopics": ["Pipelines for many teams", "Tag-based and impact-based selection", "Parallel and distributed execution", "Shared infrastructure for grids and devices", "Result aggregation", "Cost of CI minutes", "Feedback time targets", "Pipeline templates"],
+          "tools": ["CI templates", "Selenium Grid or device cloud", "Results aggregator"],
+          "lab_task": "Build a CI template for BDD suites with impact-based selection, parallel execution on shared infrastructure and aggregated results, and roll it out to two teams.",
+          "deliverable": "CI template and rollout results",
+          "checks": [["Select", "Pull requests run only affected features plus smoke", "Pipeline run"], ["Aggregate", "Results from all jobs appear in one report", "Report"], ["Roll out", "Two teams use the template", "Pipeline configs"]],
+          "objectives": ["Run BDD in CI at scale", "Select scenarios by impact", "Share pipeline templates"]
+        },
+        {
+          "topic": "BDD in DevOps and Continuous Delivery",
+          "subtopics": ["Scenarios as deployment gates", "Smoke scenarios after deployment", "Scenarios in production with care", "Feature flags and scenarios", "Fast feedback loops", "Rollback triggers from scenario failures", "Ownership of gates", "Avoiding slow gates"],
+          "tools": ["CI/CD pipeline", "Feature flag service", "Cucumber-JVM"],
+          "lab_task": "Add scenario-based gates to a delivery pipeline: pre-merge, post-deployment smoke and a flag-aware scenario, and trigger a rollback when the smoke gate fails.",
+          "deliverable": "Pipeline with scenario gates and rollback evidence",
+          "checks": [["Gate", "Each gate runs the right scenarios", "Pipeline config"], ["Check deployments", "Post-deployment smoke runs after each deployment", "Pipeline runs"], ["Roll back", "A failing smoke gate triggers rollback", "Pipeline run"]],
+          "objectives": ["Use scenarios as delivery gates", "Check deployments", "Trigger rollbacks safely"]
+        },
+        {
+          "topic": "Migrating Between BDD Tools and Frameworks",
+          "subtopics": ["Reasons to migrate: SpecFlow end of life, language changes, tool limits", "SpecFlow to Reqnroll migration", "Cucumber-JVM version upgrades", "Moving step implementations to new drivers", "Keeping Gherkin stable during migration", "Running old and new side by side", "Measuring results", "Retiring the old tool"],
+          "tools": ["Reqnroll", "Cucumber-JVM", "Migration tracker"],
+          "lab_task": "Plan and pilot a migration of a feature set to a new BDD tool or major version, keeping Gherkin unchanged, run both side by side and report the results.",
+          "deliverable": "Migration plan, pilot results and report",
+          "checks": [["Keep Gherkin", "Feature files are unchanged after migration", "Diff"], ["Run side by side", "Old and new runs produce matching results", "Comparison"], ["Plan", "The plan covers the remaining features and training", "Migration plan"]],
+          "objectives": ["Migrate BDD tools", "Keep specifications stable", "Measure migration results"]
+        },
+        {
+          "topic": "Rescuing Failing BDD Adoptions",
+          "subtopics": ["Signs BDD has become test scripting in Gherkin", "Scenarios nobody reads", "Huge, slow and flaky suites", "Diagnosing the causes", "Resetting discovery practice", "Pruning and rewriting features", "Rebuilding trust with business people", "Planning the recovery"],
+          "tools": ["Suite inventory", "Team interviews", "Recovery plan template"],
+          "lab_task": "Diagnose a failing BDD adoption from its suite and role-played interviews, prune and rewrite a sample of features and present a recovery plan.",
+          "deliverable": "Diagnosis, rewritten features and recovery plan",
+          "checks": [["Diagnose", "Causes are supported by suite data and interviews", "Diagnosis"], ["Rewrite", "Rewritten features are declarative and readable", "Feature files"], ["Plan recovery", "The plan has steps, owners and measures", "Recovery plan"]],
+          "objectives": ["Diagnose failing BDD", "Rewrite features", "Plan recovery"]
+        },
+        {
+          "topic": "BDD Training and Community of Practice",
+          "subtopics": ["Training paths for product owners, testers and developers", "Hands-on workshops", "Pairing and mobbing on scenarios", "Communities of practice", "Champions in each team", "Measuring learning", "Keeping the community active", "Sharing examples across teams"],
+          "tools": ["Training plan template", "Workshop materials", "Community wiki"],
+          "lab_task": "Design a BDD training path for three roles, run a short workshop with a role-played team and plan a community of practice with champions.",
+          "deliverable": "Training path, workshop materials and community plan",
+          "checks": [["Design", "Each role has a training path", "Training path"], ["Run", "The workshop produces example maps and scenarios", "Workshop outputs"], ["Sustain", "The community plan names champions and rhythms", "Community plan"]],
+          "objectives": ["Train people in BDD", "Build a community of practice", "Sustain BDD skills"]
+        },
+        {
+          "topic": "Troubleshooting Large Cucumber Suites",
+          "subtopics": ["Failures that only happen in CI", "Glue and classpath problems at scale", "Parallel execution failures", "Environment and data problems", "Reading reports, logs and attachments together", "Reproducing failures locally"],
+          "tools": ["Cucumber reports", "Logs", "Local environment"],
+          "lab_task": "Diagnose four failures in a large Cucumber suite (a classpath clash, a parallel state leak, an environment issue and a data collision), reproduce two locally and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "Two failures are reproduced locally", "Terminal output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot large suites", "Reproduce failures", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: BDD Programme for a Product Organisation",
+          "subtopics": ["Adoption strategy", "Discovery coaching", "Framework and CI architecture", "Living documentation portal", "Measures and governance", "Leadership presentation"],
+          "tools": ["Cucumber-JVM", "Serenity BDD", "CI templates", "Documentation portal", "Dashboard tool"],
+          "lab_task": "Design a BDD programme for a product organisation with an adoption roadmap, discovery coaching plan, shared framework and CI architecture, documentation portal and measures, and present it to leadership.",
+          "deliverable": "BDD programme plan, architecture and presentation",
+          "checks": [["Plan adoption", "The roadmap has pilots, phases and measures", "Programme plan"], ["Architect", "Framework, CI and documentation designs fit together", "Architecture"], ["Win support", "Leadership approves the programme", "Presentation notes"]],
+          "objectives": ["Combine advanced BDD skills", "Lead BDD across an organisation", "Present a BDD programme"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "Test Automation with Python",
+  "name": "Test Automation with Python",
+  "category": "Testing and QA",
+  "icon": "python",
+  "aliases": ["Test Automation using Python", "Python Test Automation", "Python Automation Testing", "Automation Testing with Python", "Automation Testing using Python", "pytest", "PyTest Framework", "Pytest Automation", "Selenium with Python", "Python Selenium", "API Testing with Python"],
+  "certifications": ["No single required certification; assessed by capstone projects", "PCEP or PCAP from the Python Institute (optional)", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)"],
+  "tools": ["Python 3.12 or later", "pytest", "requests or httpx", "Selenium or Playwright for Python", "VS Code or PyCharm", "Allure", "GitHub Actions or Jenkins"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For manual testers and QA engineers learning to automate tests in Python. Covers Python for testers from variables to classes, virtual environments, pytest tests, assertions, fixtures, parametrisation and markers, API testing with requests, JSON and schema checks, UI testing with Selenium and Playwright for Python, page objects, test data from files, logging and reports, Git and running tests in CI.",
+      "prerequisites": ["Has tested software by hand and understands test cases", "No programming experience needed", "Can install software on a laptop"],
+      "outcomes": ["Write Python code for tests with functions, collections, files and classes", "Build pytest suites with fixtures, parametrisation and markers", "Automate API tests with requests and UI tests with Selenium or Playwright", "Run the suite in CI with HTML or Allure reports"],
+      "days": [
+        {
+          "topic": "Python for Testers Overview, Installation and Environment Setup",
+          "subtopics": ["Why Python is popular for test automation", "What we will automate: APIs, web UIs and data", "Installing Python and checking the version", "VS Code or PyCharm with the Python extension", "The terminal and running scripts", "Virtual environments with venv", "Installing packages with pip", "A first script and a first pytest test", "Project folders for tests", "Course project overview"],
+          "tools": ["Python", "VS Code or PyCharm", "venv", "pip", "pytest"],
+          "lab_task": "Install Python and an editor, create a virtual environment, install pytest, write a first script and a first passing test, and run both from the terminal.",
+          "deliverable": "Working Python environment with a first test",
+          "checks": [["Install", "Python and pytest run from the virtual environment", "Terminal output"], ["Run a script", "The first script prints the expected output", "Terminal output"], ["Run a test", "pytest reports one passing test", "Terminal output"]],
+          "objectives": ["Set up Python for testing", "Use virtual environments", "Run a first test"]
+        },
+        {
+          "topic": "Python Syntax for Testers: Variables, Types and Strings",
+          "subtopics": ["Variables and naming", "Numbers and arithmetic", "Strings and f-strings", "String methods for test data", "Booleans and comparisons", "Lists and indexing", "Type conversion", "Comments and readable code", "print and input for quick checks", "Reading error messages"],
+          "tools": ["Python", "VS Code or PyCharm"],
+          "lab_task": "Write small scripts that build test data strings, compare expected and actual values, and fix five scripts with syntax and type errors from their messages.",
+          "deliverable": "Practice scripts and fixed examples",
+          "checks": [["Use variables", "Scripts build test data with variables and f-strings", "Script files"], ["Compare values", "Comparisons print the right pass or fail result", "Terminal output"], ["Fix errors", "All five broken scripts run", "Terminal output"]],
+          "objectives": ["Write basic Python", "Work with strings and numbers", "Read Python errors"]
+        },
+        {
+          "topic": "Control Flow: Conditions and Loops for Test Logic",
+          "subtopics": ["if, elif and else", "Comparison and logical operators", "for loops over test data", "while loops and when to avoid them", "break and continue", "range and enumerate", "Nested loops", "Writing readable conditions"],
+          "tools": ["Python", "VS Code or PyCharm"],
+          "lab_task": "Write a script that loops over a list of test inputs, decides pass or fail for each with conditions and prints a summary of results.",
+          "deliverable": "Data-checking script with summary",
+          "checks": [["Loop", "Every input is processed", "Terminal output"], ["Decide", "Pass and fail decisions match the expected rules", "Terminal output"], ["Summarise", "The summary counts passes and failures", "Terminal output"]],
+          "objectives": ["Use conditions and loops", "Process test data", "Summarise results"]
+        },
+        {
+          "topic": "Functions, Modules and Packages",
+          "subtopics": ["Defining functions", "Parameters, defaults and return values", "Keyword arguments", "Docstrings", "Modules and imports", "Packages with __init__.py", "The standard library for testers", "Organising helper code"],
+          "tools": ["Python", "VS Code or PyCharm"],
+          "lab_task": "Move test data helpers into a module with documented functions, import them from a test file and use standard library modules for dates and random values.",
+          "deliverable": "Helper module used by tests",
+          "checks": [["Write functions", "Helpers have parameters, defaults and docstrings", "Module code"], ["Import", "Tests import and use the helpers", "Test file"], ["Use the standard library", "Dates and random values come from standard modules", "Module code"]],
+          "objectives": ["Write functions", "Organise code in modules", "Use the standard library"]
+        },
+        {
+          "topic": "Collections: Lists, Dictionaries, Sets and Tuples",
+          "subtopics": ["Lists and list methods", "Dictionaries for structured data", "Sets for unique values", "Tuples", "Comprehensions", "Sorting and filtering", "Nested data like JSON", "Choosing the right collection"],
+          "tools": ["Python", "VS Code or PyCharm"],
+          "lab_task": "Represent users and orders as dictionaries and lists, filter and sort them with comprehensions and find duplicates with sets.",
+          "deliverable": "Data manipulation script",
+          "checks": [["Model data", "Users and orders are stored as nested dictionaries and lists", "Script code"], ["Filter and sort", "Comprehensions return the expected subsets", "Terminal output"], ["Find duplicates", "Duplicates are found with sets", "Terminal output"]],
+          "objectives": ["Use Python collections", "Work with nested data", "Filter and sort data"]
+        },
+        {
+          "topic": "Files, JSON, CSV and Excel for Test Data",
+          "subtopics": ["Reading and writing text files", "Paths with pathlib", "JSON with the json module", "CSV with the csv module", "Excel with openpyxl", "Choosing a data format", "Handling missing files", "Keeping data next to tests"],
+          "tools": ["Python", "json", "csv", "openpyxl"],
+          "lab_task": "Read test data from JSON, CSV and Excel files, convert it into a common structure and write a results file with pass and fail counts.",
+          "deliverable": "Data loading module and results file",
+          "checks": [["Read formats", "Data loads from all three formats", "Terminal output"], ["Normalise", "All data ends up in the same structure", "Script code"], ["Write results", "The results file has the right counts", "Results file"]],
+          "objectives": ["Read test data files", "Use pathlib", "Write results files"]
+        },
+        {
+          "topic": "Exceptions, Logging and Debugging",
+          "subtopics": ["Errors and exceptions", "try, except, else and finally", "Raising exceptions", "The logging module", "Log levels and formats", "Using the debugger in the editor", "Reading tracebacks", "Debugging failing tests"],
+          "tools": ["Python", "logging", "VS Code or PyCharm debugger"],
+          "lab_task": "Add error handling and logging to the data loader, step through a failing function in the debugger and fix three bugs found with tracebacks.",
+          "deliverable": "Robust data loader and debugging notes",
+          "checks": [["Handle errors", "Missing or bad files give clear errors", "Terminal output"], ["Log", "Logs show progress and problems at the right levels", "Log output"], ["Debug", "Three bugs are fixed with recorded causes", "Debugging notes"]],
+          "objectives": ["Handle exceptions", "Log usefully", "Debug Python code"]
+        },
+        {
+          "topic": "Classes and Objects for Test Code",
+          "subtopics": ["Why classes help in automation", "Defining classes and methods", "__init__ and attributes", "Instance and class attributes", "Inheritance for shared behaviour", "Dataclasses for test data", "Composition over inheritance", "Simple design rules"],
+          "tools": ["Python", "dataclasses", "VS Code or PyCharm"],
+          "lab_task": "Write a dataclass for test users, a base class for API clients and a subclass for one service, and use them in a script.",
+          "deliverable": "Classes for data and clients",
+          "checks": [["Use dataclasses", "Test users are dataclass objects", "Code"], ["Inherit", "The service client reuses the base client", "Code"], ["Use", "The script uses both classes", "Terminal output"]],
+          "objectives": ["Write classes", "Use dataclasses", "Apply simple design rules"]
+        },
+        {
+          "topic": "pytest Essentials: Tests, Assertions and Test Discovery",
+          "subtopics": ["How pytest finds tests", "Writing test functions", "Plain assert and assertion messages", "Running selected tests", "Test outcomes: pass, fail, skip and xfail", "Reading pytest output", "pytest.ini and pyproject.toml settings", "Testing for exceptions with pytest.raises"],
+          "tools": ["pytest", "pyproject.toml"],
+          "lab_task": "Write tests for a small pricing module covering normal values, boundaries and exceptions, run selected tests by name and keyword and configure pytest in pyproject.toml.",
+          "deliverable": "Tested pricing module with configuration",
+          "checks": [["Test behaviour", "Normal, boundary and error cases are tested", "Test file"], ["Select tests", "Tests run by name and keyword", "Terminal output"], ["Configure", "Settings live in pyproject.toml", "Config file"]],
+          "objectives": ["Write pytest tests", "Run tests selectively", "Configure pytest"]
+        },
+        {
+          "topic": "Fixtures, Parametrisation and Markers",
+          "subtopics": ["Fixtures for setup and teardown", "Fixture scope", "conftest.py for shared fixtures", "yield fixtures", "Parametrising tests", "Parametrising fixtures", "Markers for smoke and regression", "Registering markers"],
+          "tools": ["pytest", "conftest.py"],
+          "lab_task": "Create fixtures for test data and an API client, parametrise the pricing tests from a data list and mark smoke tests to run them alone.",
+          "deliverable": "Fixtures, parametrised tests and markers",
+          "checks": [["Use fixtures", "Tests receive data and clients from fixtures", "Test files"], ["Parametrise", "Each data row runs as its own test", "Terminal output"], ["Mark", "Smoke tests run alone with -m", "Terminal output"]],
+          "objectives": ["Use fixtures", "Parametrise tests", "Organise with markers"]
+        },
+        {
+          "topic": "API Testing with requests",
+          "subtopics": ["HTTP methods with requests", "Query parameters, headers and bodies", "JSON responses", "Status codes and response times", "Sessions and cookies", "Authentication with tokens", "Timeouts", "Organising API tests with pytest"],
+          "tools": ["requests", "pytest", "Course API"],
+          "lab_task": "Write pytest tests for the course API's products endpoints with requests, covering GET, POST, PUT and DELETE, headers, status codes and response times.",
+          "deliverable": "API test module",
+          "checks": [["Cover methods", "All four methods are tested", "Test output"], ["Check responses", "Status, headers and body fields are asserted", "Test code"], ["Set timeouts", "Every request has a timeout", "Code review"]],
+          "objectives": ["Test APIs with requests", "Check responses", "Organise API tests"]
+        },
+        {
+          "topic": "JSON Validation, Schemas and API Test Data",
+          "subtopics": ["Navigating JSON responses", "Comparing expected and actual data", "jsonschema for schema validation", "Pydantic models for response checks", "Generating data with Faker", "Unique data per run", "Cleaning up created data", "Negative API tests"],
+          "tools": ["jsonschema", "Pydantic", "Faker", "pytest"],
+          "lab_task": "Validate product and order responses with jsonschema and Pydantic, create unique test data with Faker, write five negative tests and clean up created data.",
+          "deliverable": "Schema checks, data helpers and negative tests",
+          "checks": [["Validate", "Responses pass schema and model validation", "Test output"], ["Generate data", "Each run creates unique data", "Test output"], ["Test negatives", "Five negative cases return expected errors", "Test output"]],
+          "objectives": ["Validate API responses", "Generate test data", "Write negative API tests"]
+        },
+        {
+          "topic": "Web UI Testing with Selenium for Python",
+          "subtopics": ["Installing Selenium and drivers with Selenium Manager", "Opening pages and finding elements", "Locators: ID, CSS and XPath", "Clicking, typing and selecting", "Explicit waits", "Screenshots", "pytest fixtures for the browser", "Headless runs"],
+          "tools": ["Selenium for Python", "pytest", "Chrome or Firefox"],
+          "lab_task": "Automate login and search on the course web application with Selenium, use explicit waits and a browser fixture, and run the tests headless.",
+          "deliverable": "Selenium test module with a browser fixture",
+          "checks": [["Automate", "Login and search tests pass", "Test output"], ["Wait", "No test uses time.sleep", "Code review"], ["Run headless", "Tests pass in headless mode", "Terminal output"]],
+          "objectives": ["Automate web UIs with Selenium", "Use explicit waits", "Manage browsers with fixtures"]
+        },
+        {
+          "topic": "Web UI Testing with Playwright for Python",
+          "subtopics": ["Installing Playwright and browsers", "pytest-playwright fixtures", "Locators: get_by_role, get_by_label and get_by_text", "Auto-waiting and expect assertions", "Codegen for Python", "Traces and screenshots", "Running in several browsers", "Selenium and Playwright compared"],
+          "tools": ["Playwright for Python", "pytest-playwright", "Trace viewer"],
+          "lab_task": "Automate the same login and search with Playwright for Python, record traces on failure, run in Chromium and Firefox and compare effort and stability with Selenium.",
+          "deliverable": "Playwright tests and comparison",
+          "checks": [["Automate", "Tests pass in two browsers", "Test output"], ["Trace", "Failed runs produce traces", "Trace file"], ["Compare", "Effort and stability are compared with Selenium", "Comparison note"]],
+          "objectives": ["Automate with Playwright for Python", "Use role-based locators", "Compare UI tools"]
+        },
+        {
+          "topic": "Page Objects for Python UI Tests",
+          "subtopics": ["Why page objects help", "Page classes with locators and actions", "Passing the driver or page into objects", "Components within pages", "Assertions in tests, not pages", "Folder structure", "Naming", "Refactoring tests to page objects"],
+          "tools": ["Selenium or Playwright for Python", "pytest"],
+          "lab_task": "Refactor the UI tests into page objects for login, search and product pages, and show that a changed locator needs one edit.",
+          "deliverable": "Page objects and refactored tests",
+          "checks": [["Create pages", "Each page has a class with actions", "Code review"], ["Reduce duplication", "No locator is defined twice", "Code search"], ["Prove the benefit", "A locator change is fixed in one place", "Commit diff"]],
+          "objectives": ["Design page objects", "Refactor UI tests", "Reduce maintenance"]
+        },
+        {
+          "topic": "Data-Driven Tests from CSV, JSON and Excel",
+          "subtopics": ["Loading data for parametrisation", "pytest.mark.parametrize with loaded data", "Test IDs from data", "Expected results in data files", "Boundary and invalid rows", "Data for UI and API tests", "Keeping data readable", "When data-driven tests become too large"],
+          "tools": ["pytest", "csv", "json", "openpyxl"],
+          "lab_task": "Drive login and pricing tests from CSV, JSON and Excel files with readable test IDs and expected results in the data.",
+          "deliverable": "Data files and data-driven tests",
+          "checks": [["Load data", "Tests are generated from each file", "Test output"], ["Name tests", "Test IDs come from the data", "Terminal output"], ["Cover edges", "Boundary and invalid rows are included", "Data files"]],
+          "objectives": ["Write data-driven tests", "Use data files", "Keep data tests readable"]
+        },
+        {
+          "topic": "Reports: pytest-html and Allure",
+          "subtopics": ["pytest-html reports", "Allure with allure-pytest", "Steps and attachments", "Screenshots on failure", "Grouping by feature", "Environment information in reports", "Sharing reports", "Choosing a report"],
+          "tools": ["pytest-html", "allure-pytest", "Allure CLI"],
+          "lab_task": "Produce pytest-html and Allure reports for the suite with steps, screenshots of UI failures and environment details, and share the Allure report.",
+          "deliverable": "Two reports with attachments",
+          "checks": [["Produce", "Both reports are generated", "Report files"], ["Attach", "UI failures include screenshots", "Allure report"], ["Group", "Tests are grouped by feature in Allure", "Report screenshot"]],
+          "objectives": ["Report test results", "Attach evidence", "Choose a report format"]
+        },
+        {
+          "topic": "Git and Project Structure for Test Automation",
+          "subtopics": ["Git basics for testers", "Committing, branching and pull requests", ".gitignore for Python projects", "requirements.txt and pyproject.toml", "Folder structure for tests, pages and data", "Configuration files and secrets", "Code review for test code", "README for the project"],
+          "tools": ["Git", "GitHub", "pyproject.toml"],
+          "lab_task": "Put the project in Git with a clean structure, a .gitignore, pinned dependencies and a README, and merge a change through a reviewed pull request.",
+          "deliverable": "Repository with a merged pull request",
+          "checks": [["Structure", "Tests, pages and data have clear folders", "Repository tree"], ["Pin", "Dependencies are pinned", "Dependency file"], ["Review", "A change is merged through a reviewed pull request", "Pull request"]],
+          "objectives": ["Use Git for test code", "Structure a test project", "Review test code"]
+        },
+        {
+          "topic": "Running Python Tests in CI",
+          "subtopics": ["Why run tests in CI", "GitHub Actions or Jenkins for Python", "Installing dependencies in CI", "Browsers in CI for UI tests", "Secrets and environment variables", "Publishing reports", "Running on pull requests and schedules", "Reading CI failures"],
+          "tools": ["GitHub Actions or Jenkins", "pytest", "Allure"],
+          "lab_task": "Add a pipeline that installs dependencies, runs API and headless UI tests on pull requests and nightly, uses secrets for credentials and publishes the report.",
+          "deliverable": "CI pipeline with reports",
+          "checks": [["Run in CI", "The pipeline runs on pull requests", "Pipeline run"], ["Use secrets", "Credentials come from CI secrets", "Pipeline config"], ["Publish", "The report is available from each run", "Report link"]],
+          "objectives": ["Run tests in CI", "Handle secrets", "Publish reports"]
+        },
+        {
+          "topic": "Beginner Capstone: Python Test Suite for a Web Shop",
+          "subtopics": ["API tests with requests", "UI tests with page objects", "Fixtures and data-driven tests", "Reports", "Git repository", "CI pipeline"],
+          "tools": ["Python", "pytest", "requests", "Selenium or Playwright", "Allure", "GitHub Actions or Jenkins"],
+          "lab_task": "Build a Python test suite for a web shop with API tests, UI tests using page objects, fixtures, data-driven tests and Allure reporting, kept in Git and run in CI.",
+          "deliverable": "Test suite, repository and pipeline",
+          "checks": [["Cover", "API and UI tests cover the main journeys", "Test inventory"], ["Structure", "Fixtures, page objects and data files are used", "Code review"], ["Run in CI", "The suite runs in CI with reports", "Pipeline run"]],
+          "objectives": ["Combine beginner Python automation skills", "Build a complete suite", "Run it in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and SDETs who write Python tests and now build a maintainable framework. Covers framework layers, configuration and environments, advanced fixtures and conftest design, pytest plugins and hooks, parallel runs with pytest-xdist, BDD with pytest-bdd and Behave, mocking with unittest.mock and responses, database testing, contract and property-based testing with Schemathesis and Hypothesis, async API testing with httpx, Docker and Testcontainers, mobile tests with the Appium Python client, test data factories, flaky tests, typing and linting, packaging, Robot Framework, Allure and CI pipelines.",
+      "prerequisites": ["Writes pytest tests with fixtures and parametrisation", "Has automated API and UI tests in Python", "Uses Git and has run tests in CI"],
+      "outcomes": ["Design a layered Python test framework that a team can extend", "Run large suites in parallel with reliable data and isolated dependencies", "Add BDD, contract, property-based, mobile and database tests where they add value", "Keep test code typed, linted, packaged and running in CI with clear reports"],
+      "days": [
+        {
+          "topic": "Framework Layers for Python Test Automation",
+          "subtopics": ["Layers: tests, pages, API clients, data and utilities", "Package structure and imports", "Shared helpers compared with fixtures", "Naming conventions", "Keeping tests readable", "Code review rules", "A contributor guide", "Measuring framework health"],
+          "tools": ["pytest", "Python packages", "Git"],
+          "lab_task": "Restructure a flat Python suite into tests, pages, clients and data packages, write a contributor guide and have a colleague add a test using only the guide.",
+          "deliverable": "Layered framework and contributor guide",
+          "checks": [["Layer", "Tests call pages and clients, not raw drivers or requests", "Code review"], ["Package", "Imports work without path hacks", "Test output"], ["Onboard", "A colleague adds a passing test from the guide", "Pull request"]],
+          "objectives": ["Design a test framework", "Separate layers", "Make the framework easy to extend"]
+        },
+        {
+          "topic": "Configuration and Secrets for Python Test Suites",
+          "subtopics": ["Configuration files per environment", "Environment variables and dotenv", "Pydantic settings for typed configuration", "Command-line options with pytest_addoption", "Secrets from CI or a vault", "Validating configuration at start", "Feature toggles in tests", "Avoiding hard-coded values"],
+          "tools": ["pydantic-settings", "python-dotenv", "pytest"],
+          "lab_task": "Add typed configuration for three environments, a --env command-line option and secrets from environment variables, and fail fast with a clear message on missing settings.",
+          "deliverable": "Configuration module and environment runs",
+          "checks": [["Configure", "No URLs or credentials are hard-coded", "Code search"], ["Select", "--env switches environments", "Terminal output"], ["Fail fast", "Missing settings stop the run clearly", "Terminal output"]],
+          "objectives": ["Manage configuration", "Add command-line options", "Handle secrets safely"]
+        },
+        {
+          "topic": "Advanced Fixtures and conftest Design",
+          "subtopics": ["Fixture scopes: function, class, module and session", "Fixture dependency chains", "Autouse fixtures and their risks", "Factory fixtures", "Request object and fixture parametrisation", "Finalisers and cleanup", "conftest.py at several levels", "Debugging fixture order"],
+          "tools": ["pytest", "conftest.py"],
+          "lab_task": "Redesign the suite's fixtures with session-scoped clients, factory fixtures for data, cleanup finalisers and layered conftest files, and show the fixture order with --setup-show.",
+          "deliverable": "Redesigned fixtures with order evidence",
+          "checks": [["Scope", "Expensive fixtures run once per session", "--setup-show output"], ["Build data", "Factory fixtures create data on demand", "Test code"], ["Clean up", "Created data is removed after tests", "Application check"]],
+          "objectives": ["Design fixtures", "Use scopes and factories", "Control cleanup"]
+        },
+        {
+          "topic": "pytest Plugins and Hooks",
+          "subtopics": ["Popular plugins for testers", "Installing and configuring plugins", "Hook functions in conftest.py", "pytest_collection_modifyitems for selection", "pytest_runtest_makereport for failure evidence", "Writing a small local plugin", "Packaging a plugin", "Plugin compatibility"],
+          "tools": ["pytest hooks", "pluggy", "pytest plugins"],
+          "lab_task": "Write hooks that attach screenshots on UI failures, skip tests marked for other environments and add a custom summary line, then move them into a local plugin.",
+          "deliverable": "Local plugin with three hooks",
+          "checks": [["Attach evidence", "Failed UI tests get screenshots", "Report"], ["Select", "Environment-marked tests skip correctly", "Terminal output"], ["Package", "The hooks work as a plugin", "Test output"]],
+          "objectives": ["Use pytest plugins", "Write hooks", "Package a local plugin"]
+        },
+        {
+          "topic": "Parallel Runs with pytest-xdist",
+          "subtopics": ["Running tests in parallel", "Worker distribution modes", "Fixtures and session scope in parallel runs", "Data isolation between workers", "Browsers in parallel", "Load balancing by duration", "Debugging parallel failures", "Measuring the gain"],
+          "tools": ["pytest-xdist", "pytest", "Selenium or Playwright"],
+          "lab_task": "Run the suite with pytest-xdist, fix two tests that collide on shared data, isolate browser sessions and compare duration with serial runs.",
+          "deliverable": "Parallel-safe suite with timing comparison",
+          "checks": [["Run in parallel", "The suite passes with several workers", "Terminal output"], ["Isolate", "Workers use separate data", "Code review"], ["Measure", "Duration drops compared with serial runs", "Timing comparison"]],
+          "objectives": ["Run tests in parallel", "Isolate data", "Measure speed gains"]
+        },
+        {
+          "topic": "BDD in Python with pytest-bdd and Behave",
+          "subtopics": ["When BDD helps", "Feature files and Gherkin", "pytest-bdd scenarios and steps", "Fixtures in pytest-bdd", "Behave steps and environment hooks", "Choosing pytest-bdd or Behave", "Reports for business readers", "Avoiding Gherkin anti-patterns"],
+          "tools": ["pytest-bdd", "Behave", "Gherkin"],
+          "lab_task": "Write two features for checkout, implement them with pytest-bdd using existing fixtures and page objects, implement one in Behave and recommend a tool for the team.",
+          "deliverable": "BDD features in two tools and a recommendation",
+          "checks": [["Write features", "Features use declarative business language", "Feature files"], ["Implement", "Scenarios pass in pytest-bdd and Behave", "Test output"], ["Recommend", "The recommendation compares both tools", "Recommendation note"]],
+          "objectives": ["Use BDD in Python", "Implement scenarios with pytest-bdd", "Compare Python BDD tools"]
+        },
+        {
+          "topic": "Mocking and Stubbing: unittest.mock, pytest-mock and responses",
+          "subtopics": ["When to mock in tests", "unittest.mock and patch", "pytest-mock fixtures", "Mocking HTTP calls with responses or respx", "Stubbing time with freezegun", "Mock servers for UI tests", "Over-mocking risks", "Verifying calls"],
+          "tools": ["unittest.mock", "pytest-mock", "responses", "freezegun"],
+          "lab_task": "Test a client library with mocked HTTP responses for success, timeout and error, freeze time for an expiry check and verify the calls made.",
+          "deliverable": "Mock-based tests",
+          "checks": [["Mock HTTP", "Success, timeout and error cases are mocked", "Test code"], ["Freeze time", "The expiry check runs at a fixed time", "Test output"], ["Verify", "Calls and arguments are asserted", "Test code"]],
+          "objectives": ["Mock dependencies", "Stub time", "Avoid over-mocking"]
+        },
+        {
+          "topic": "Database Testing with Python",
+          "subtopics": ["Connecting with database drivers", "SQLAlchemy Core for test queries", "Verifying data after API or UI actions", "Seeding and cleaning data", "Transactions for isolation", "Testing stored procedures and views", "Database fixtures", "Safety in shared environments"],
+          "tools": ["SQLAlchemy", "psycopg or mysql-connector", "pytest"],
+          "lab_task": "Create database fixtures that seed and roll back data, verify records created through the API, and test one stored procedure.",
+          "deliverable": "Database fixtures and tests",
+          "checks": [["Seed and clean", "Each test starts and ends with known data", "Test output"], ["Verify", "API-created records match expectations", "Test output"], ["Test logic", "The stored procedure returns correct results", "Test output"]],
+          "objectives": ["Test databases from Python", "Use fixtures for data", "Keep shared environments safe"]
+        },
+        {
+          "topic": "Contract and Property-Based Testing: Schemathesis and Hypothesis",
+          "subtopics": ["Testing APIs from their OpenAPI description", "Schemathesis for generated API tests", "Property-based testing ideas", "Hypothesis strategies", "Shrinking failing examples", "Finding edge cases automatically", "Combining with example-based tests", "Running generated tests in CI"],
+          "tools": ["Schemathesis", "Hypothesis", "OpenAPI file"],
+          "lab_task": "Run Schemathesis against the course API's OpenAPI description, triage the failures it finds, and write Hypothesis tests for a pricing function that reveal an edge case.",
+          "deliverable": "Generated test results, triage and property tests",
+          "checks": [["Generate", "Schemathesis runs against every operation", "Run output"], ["Triage", "Found failures are classified as defects or spec gaps", "Triage notes"], ["Find edges", "A Hypothesis test finds and shrinks an edge case", "Test output"]],
+          "objectives": ["Generate tests from contracts", "Use property-based testing", "Triage generated failures"]
+        },
+        {
+          "topic": "Async API Testing with httpx and pytest-asyncio",
+          "subtopics": ["Why async clients help", "httpx sync and async clients", "pytest-asyncio", "Concurrent requests in tests", "Testing streaming responses", "WebSockets in Python tests", "Timeouts and retries", "Keeping async tests readable"],
+          "tools": ["httpx", "pytest-asyncio", "websockets"],
+          "lab_task": "Rewrite slow API checks with the httpx async client to run requests concurrently, test a streaming endpoint and a WebSocket message flow.",
+          "deliverable": "Async API tests",
+          "checks": [["Run concurrently", "Concurrent requests cut test time", "Timing comparison"], ["Test streams", "Streaming responses are checked", "Test output"], ["Test WebSockets", "WebSocket messages are sent and checked", "Test output"]],
+          "objectives": ["Write async tests", "Use httpx", "Test streaming and WebSockets"]
+        },
+        {
+          "topic": "Docker and Testcontainers for Python Tests",
+          "subtopics": ["Running dependencies in containers", "testcontainers-python", "Database and message broker containers", "Starting the application under test", "Networks between containers", "Speed and reuse", "Running container tests in CI", "When containers are worth it"],
+          "tools": ["Docker", "testcontainers-python", "pytest"],
+          "lab_task": "Start PostgreSQL and the service under test with testcontainers-python, run API tests against them and run the same setup in CI.",
+          "deliverable": "Container-based test setup",
+          "checks": [["Start", "Containers start before tests", "Test output"], ["Test", "API tests pass against the containers", "Test output"], ["Run in CI", "The setup runs in the pipeline", "Pipeline run"]],
+          "objectives": ["Use containers in tests", "Isolate dependencies", "Run container tests in CI"]
+        },
+        {
+          "topic": "Mobile Automation with the Appium Python Client",
+          "subtopics": ["Appium architecture in brief", "The Appium Python client", "Capabilities for Android and iOS", "Locators and gestures", "Screen objects in Python", "pytest fixtures for drivers", "Running on emulators and device clouds", "Reports with screenshots"],
+          "tools": ["Appium", "Appium Python client", "Android emulator"],
+          "lab_task": "Automate login and search in a mobile app with the Appium Python client, screen objects and a driver fixture, and run it on an emulator and a device cloud.",
+          "deliverable": "Python mobile tests",
+          "checks": [["Automate", "Mobile tests pass on the emulator", "Test output"], ["Structure", "Screen objects and fixtures are used", "Code review"], ["Run in the cloud", "Tests run on a cloud device", "Cloud dashboard"]],
+          "objectives": ["Automate mobile apps in Python", "Use screen objects", "Run on clouds"]
+        },
+        {
+          "topic": "Test Data Factories with factory_boy and Faker",
+          "subtopics": ["Why factories beat static data", "factory_boy factories", "Sequences and lazy attributes", "Related objects", "Faker providers and locales", "Factories that create data through APIs", "Cleaning up factory data", "Readable test data"],
+          "tools": ["factory_boy", "Faker", "pytest"],
+          "lab_task": "Build factories for users, products and orders that create data through the API with Indian and UK locales, use them in ten tests and clean up afterwards.",
+          "deliverable": "Factory module and refactored tests",
+          "checks": [["Build", "Factories produce valid related data", "Test output"], ["Localise", "Data uses the chosen locales", "Sample output"], ["Clean up", "Factory data is removed after tests", "Application check"]],
+          "objectives": ["Build test data factories", "Use Faker locales", "Keep data readable"]
+        },
+        {
+          "topic": "Flaky Tests: Detection, Reruns and Fixes",
+          "subtopics": ["Causes of flaky tests", "Detecting flakiness with repeated runs", "pytest-rerunfailures and its risks", "Diagnosing with logs and traces", "Fixing timing, data and order problems", "Quarantine markers", "Tracking flakiness over time", "A team flakiness policy"],
+          "tools": ["pytest-repeat", "pytest-rerunfailures", "Test history"],
+          "lab_task": "Find flaky tests with repeated runs, diagnose three, fix them and add a limited rerun policy with reporting of reruns.",
+          "deliverable": "Flaky report, fixes and policy",
+          "checks": [["Detect", "Flaky tests are listed with failure rates", "Flaky report"], ["Fix", "Three tests pass fifty runs after fixes", "Terminal output"], ["Report reruns", "Reruns are visible in reports", "Report screenshot"]],
+          "objectives": ["Find flaky tests", "Fix causes", "Use reruns carefully"]
+        },
+        {
+          "topic": "Typing, Linting and Formatting Test Code",
+          "subtopics": ["Type hints in test code", "mypy or Pyright checks", "Ruff for linting and formatting", "pre-commit hooks", "Common lint rules for tests", "Fixing issues in bulk", "Enforcing checks in CI", "Keeping rules useful"],
+          "tools": ["Ruff", "mypy or Pyright", "pre-commit"],
+          "lab_task": "Add type hints to the framework, configure Ruff and mypy, fix the reported issues, add pre-commit hooks and enforce the checks in CI.",
+          "deliverable": "Typed, linted framework with checks in CI",
+          "checks": [["Type", "mypy or Pyright passes on the framework", "Check output"], ["Lint", "Ruff passes with the agreed rules", "Check output"], ["Enforce", "CI fails on lint or type errors", "Pipeline run"]],
+          "objectives": ["Type test code", "Lint and format automatically", "Enforce quality in CI"]
+        },
+        {
+          "topic": "Packaging Shared Test Libraries",
+          "subtopics": ["When to share test code as a package", "pyproject.toml packaging", "Building wheels", "Versioning", "Private package indexes", "Installing in several projects", "Changelogs", "Keeping packages small"],
+          "tools": ["pyproject.toml", "build", "Private package index"],
+          "lab_task": "Package the API clients and fixtures as an internal library, publish a version to a private index and install it in a second test project.",
+          "deliverable": "Published internal test package",
+          "checks": [["Package", "The wheel builds from pyproject.toml", "Build output"], ["Publish", "The version appears in the private index", "Index listing"], ["Reuse", "The second project uses the package", "Test output"]],
+          "objectives": ["Package test code", "Version shared libraries", "Reuse across projects"]
+        },
+        {
+          "topic": "Robot Framework with Python Libraries",
+          "subtopics": ["Robot Framework syntax and structure", "Keywords and resource files", "SeleniumLibrary and Browser library", "RequestsLibrary for APIs", "Writing custom Python keywords", "Variables and data", "Reports and logs", "When Robot Framework fits a team"],
+          "tools": ["Robot Framework", "SeleniumLibrary or Browser library", "RequestsLibrary"],
+          "lab_task": "Write Robot Framework tests for login and an API check, add a custom Python keyword library and compare readability and maintenance with pytest.",
+          "deliverable": "Robot Framework tests, custom keyword and comparison",
+          "checks": [["Write tests", "Robot tests pass for UI and API", "Robot report"], ["Extend", "A custom Python keyword is used", "Keyword library"], ["Compare", "The comparison with pytest is recorded", "Comparison note"]],
+          "objectives": ["Use Robot Framework", "Write Python keywords", "Choose between Robot and pytest"]
+        },
+        {
+          "topic": "Allure Reporting in Depth",
+          "subtopics": ["Allure steps and nested steps", "Attachments: screenshots, logs and API calls", "Severity, features and stories", "Links to tickets and test cases", "Environment and categories", "History and trends", "Allure TestOps or report hosting", "Reports for different readers"],
+          "tools": ["allure-pytest", "Allure CLI", "Report hosting"],
+          "lab_task": "Add nested steps, API call attachments, ticket links, categories and history to the Allure report and host it for the team.",
+          "deliverable": "Rich Allure report with history",
+          "checks": [["Add steps", "Tests show nested steps", "Allure report"], ["Link", "Tests link to tickets", "Allure report"], ["Track history", "Trends show several runs", "Allure report"]],
+          "objectives": ["Use Allure fully", "Attach evidence", "Track trends"]
+        },
+        {
+          "topic": "CI Pipelines for Python Test Frameworks",
+          "subtopics": ["Pipeline stages for lint, unit, API and UI tests", "Caching dependencies", "Matrix runs for Python versions and browsers", "Parallel jobs", "Test selection by marker", "Publishing reports", "Notifications", "Pipeline duration targets"],
+          "tools": ["GitHub Actions or Jenkins", "pytest", "Allure"],
+          "lab_task": "Build a pipeline with lint and type checks, API and UI stages selected by markers, a browser matrix, cached dependencies, published Allure history and notifications.",
+          "deliverable": "Multi-stage CI pipeline",
+          "checks": [["Stage", "Lint, API and UI stages run in order", "Pipeline run"], ["Matrix", "UI tests run on two browsers", "Pipeline run"], ["Notify", "Failures notify the team", "Notification"]],
+          "objectives": ["Design test pipelines", "Use matrices and caching", "Notify teams"]
+        },
+        {
+          "topic": "Intermediate Capstone: Team-Ready Python Test Framework",
+          "subtopics": ["Layered framework", "Configuration and data factories", "API, UI, database and contract tests", "Parallel runs and containers", "Typed, linted code", "CI with reports"],
+          "tools": ["pytest", "pytest-xdist", "Schemathesis", "testcontainers-python", "Allure", "GitHub Actions or Jenkins"],
+          "lab_task": "Build a team-ready Python framework for a web application with layered packages, typed configuration, factories, API, UI, database and contract tests, parallel runs with containers and a CI pipeline, then hand it to a colleague to extend.",
+          "deliverable": "Framework, pipeline and handover notes",
+          "checks": [["Cover", "API, UI, database and contract tests run", "Test inventory"], ["Run well", "Parallel CI runs pass with reports", "Pipeline run"], ["Hand over", "A colleague adds a test without help", "Pull request"]],
+          "objectives": ["Combine intermediate Python automation skills", "Build a team framework", "Run it at scale"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For automation leads and SDETs who run Python test automation across teams. Covers test architecture for many services, a shared platform of plugins and packages, test impact analysis, performance testing with Locust, security test automation, data and ETL testing, testing machine learning and LLM systems, AI-assisted test generation, observability for test runs, contract testing at scale with Pact, chaos and resilience checks, test environments and data at scale, governance, migration from other frameworks, team enablement, strategy and troubleshooting.",
+      "prerequisites": ["Has built and maintained a Python test framework used by a team", "Strong Python, pytest and CI skills", "Understands services, data pipelines and cloud environments"],
+      "outcomes": ["Architect Python test automation shared by many teams", "Add performance, security, data and AI-system testing to quality", "Keep large suites fast, observable and governed", "Lead Python automation strategy and capability"],
+      "days": [
+        {
+          "topic": "Test Architecture for Many Services and Teams",
+          "subtopics": ["One framework or many", "Shared packages for clients, fixtures and reporting", "Generated API clients from OpenAPI", "Monorepo or multi-repo test code", "Ownership by teams", "Versioning and upgrade paths"],
+          "tools": ["openapi-python-client", "Private package index", "Git"],
+          "lab_task": "Design test architecture for five services with shared packages and generated clients, implement one generated client and upgrade two consumer projects to a new shared version.",
+          "deliverable": "Architecture design, generated client and upgrade record",
+          "checks": [["Share", "Two projects use the shared packages", "Project files"], ["Generate", "Tests use the generated client", "Test code"], ["Upgrade", "Both consumers pass after the upgrade", "Pipeline runs"]],
+          "objectives": ["Architect test automation for many teams", "Generate clients", "Manage shared versions"]
+        },
+        {
+          "topic": "Building an Internal pytest Platform: Plugins, Templates and Standards",
+          "subtopics": ["Internal plugins for evidence, environments and reporting", "Project templates with cookiecutter or copier", "Standard markers and configuration", "Documentation sites for the platform", "Support and ownership model", "Measuring adoption", "Deprecations and changelogs", "Avoiding a central bottleneck"],
+          "tools": ["pluggy", "copier or cookiecutter", "Documentation site generator"],
+          "lab_task": "Publish an internal pytest plugin and a project template, create a new test project from the template and document the platform for other teams.",
+          "deliverable": "Plugin, template, new project and documentation",
+          "checks": [["Publish", "The plugin installs from the private index", "Install log"], ["Template", "A new project runs tests on first generation", "Test output"], ["Document", "Platform docs cover setup, markers and support", "Documentation"]],
+          "objectives": ["Build an internal test platform", "Provide templates", "Support many teams"]
+        },
+        {
+          "topic": "Test Impact Analysis and Smart Selection for Python Suites",
+          "subtopics": ["Where suite time goes", "Mapping tests to code and services", "pytest-testmon and coverage-based selection", "Marker-based tiers", "Change-based selection in CI", "Feedback time targets", "CI cost", "Measuring missed defects"],
+          "tools": ["pytest-testmon", "coverage.py", "CI pipelines"],
+          "lab_task": "Add change-based test selection with coverage data, keep nightly full runs, and report feedback time, CI cost and any defects missed over two weeks.",
+          "deliverable": "Selection setup and report",
+          "checks": [["Select", "Pull requests run only affected tests plus smoke", "Pipeline run"], ["Keep safety", "Nightly full runs still happen", "Pipeline schedule"], ["Report", "Feedback time, cost and missed defects are reported", "Report"]],
+          "objectives": ["Select tests by impact", "Shorten feedback", "Balance speed and risk"]
+        },
+        {
+          "topic": "Performance Testing with Locust",
+          "subtopics": ["Locust users, tasks and wait times", "Reusing Python clients in Locust", "Load shapes", "Distributed runs", "Event hooks and custom metrics", "Thresholds and CI checks", "Results analysis", "When to use other tools"],
+          "tools": ["Locust", "Python", "Grafana"],
+          "lab_task": "Reuse the framework's API client in a Locust test with a custom load shape, run it distributed, add a CI check that fails on response time and analyse the results.",
+          "deliverable": "Locust tests, CI check and analysis",
+          "checks": [["Reuse", "The Locust test uses the shared client", "Code review"], ["Shape load", "The load follows the custom shape", "Run output"], ["Gate", "The CI check fails when thresholds are broken", "Pipeline run"]],
+          "objectives": ["Load test with Locust", "Reuse test code for load", "Gate on performance"]
+        },
+        {
+          "topic": "Security Test Automation in Python",
+          "subtopics": ["Security checks that automation can cover", "OWASP ZAP automation through its Python API", "Authorisation matrix tests", "Dependency and secret scanning", "Security headers and cookies", "Fuzzing inputs with Hypothesis"],
+          "tools": ["OWASP ZAP", "zaproxy Python client", "pip-audit", "Hypothesis"],
+          "lab_task": "Drive a ZAP scan from Python against the course app, add authorisation matrix and header tests, fuzz two inputs and triage the findings with developers.",
+          "deliverable": "Security tests, scan results and triaged findings",
+          "checks": [["Scan", "The ZAP scan runs from Python", "Scan report"], ["Test access", "Authorisation matrix tests run for all roles", "Test output"], ["Triage", "Findings have owners and severity", "Findings list"]],
+          "objectives": ["Automate security checks", "Use ZAP from Python", "Test authorisation systematically"]
+        },
+        {
+          "topic": "Data and ETL Testing with pandas and Great Expectations",
+          "subtopics": ["Testing data pipelines", "Row counts, completeness and uniqueness", "Comparing source and target data", "pandas for data checks", "Great Expectations or similar tools", "Testing transformations", "Data quality in CI", "Reporting data quality"],
+          "tools": ["pandas", "Great Expectations", "SQL database"],
+          "lab_task": "Write data tests for an ETL job that check counts, nulls, duplicates and transformation rules between source and target, and run them after each pipeline run.",
+          "deliverable": "Data test suite and quality report",
+          "checks": [["Compare", "Source and target data are reconciled", "Test output"], ["Check rules", "Transformation rules are verified", "Test output"], ["Report", "A data quality report is produced after each run", "Report"]],
+          "objectives": ["Test data pipelines", "Use pandas and expectations", "Report data quality"]
+        },
+        {
+          "topic": "Testing Machine Learning Systems",
+          "subtopics": ["What can go wrong in ML systems", "Data validation for training and inference", "Model performance tests on held-out data", "Robustness and invariance tests", "Bias and fairness checks", "Testing model serving APIs", "Monitoring drift", "Working with data scientists"],
+          "tools": ["pytest", "scikit-learn", "Evidently or similar", "FastAPI model service"],
+          "lab_task": "Write tests for a model service covering input validation, accuracy on a held-out set, invariance to irrelevant changes and a fairness metric, and run them on each model version.",
+          "deliverable": "ML system test suite",
+          "checks": [["Validate inputs", "Bad inputs are rejected by the service", "Test output"], ["Check performance", "Accuracy thresholds are tested per version", "Test output"], ["Check fairness", "The fairness metric is reported and gated", "Test output"]],
+          "objectives": ["Test ML systems", "Check robustness and fairness", "Gate model versions"]
+        },
+        {
+          "topic": "Testing LLM Applications and Agents",
+          "subtopics": ["Why LLM outputs need different tests", "Evaluation datasets", "Structure, factuality and safety checks", "LLM-as-judge with care", "Prompt injection tests", "Testing tool calls and agents", "Cost and latency checks", "Regression tests for prompts"],
+          "tools": ["pytest", "LLM evaluation library such as DeepEval or Ragas", "LLM API sandbox"],
+          "lab_task": "Build an evaluation suite for an LLM-backed support assistant with structure, factuality and safety checks, prompt injection tests and cost tracking, and run it on two prompt versions.",
+          "deliverable": "LLM evaluation suite and version comparison",
+          "checks": [["Evaluate", "Both prompt versions are scored on the dataset", "Evaluation results"], ["Test safety", "Injection and unsafe requests are handled", "Test output"], ["Track cost", "Cost and latency per run are recorded", "Cost report"]],
+          "objectives": ["Test LLM applications", "Build evaluation datasets", "Compare prompt versions"]
+        },
+        {
+          "topic": "AI-Assisted Test Generation in Python",
+          "subtopics": ["AI assistants for writing tests", "Generating tests from code and specifications", "Reviewing generated tests for value", "Mutation testing to check test strength", "Data privacy and code confidentiality", "Team rules for AI-generated tests", "Measuring effort and quality changes", "Keeping humans accountable"],
+          "tools": ["AI coding assistant", "mutmut or cosmic-ray", "pytest"],
+          "lab_task": "Generate tests for a module with an AI assistant, review them, measure their strength with mutation testing, improve weak ones and record effort and results.",
+          "deliverable": "Reviewed tests, mutation results and effort record",
+          "checks": [["Generate", "Generated tests run", "Test output"], ["Measure strength", "Mutation scores are recorded before and after review", "Mutation report"], ["Record", "Effort and improvements are recorded", "Effort record"]],
+          "objectives": ["Use AI for test generation", "Check test strength with mutation testing", "Set rules for AI use"]
+        },
+        {
+          "topic": "Observability for Python Test Runs",
+          "subtopics": ["Test results as data", "Exporting results with plugins", "Correlation IDs from tests to services", "OpenTelemetry in test code", "Dashboards for pass rate, duration and flakiness", "Alerts on quality trends", "Using test data in incident reviews", "Artefact retention"],
+          "tools": ["OpenTelemetry Python", "Results database", "Grafana"],
+          "lab_task": "Send correlation IDs from tests, export results to a database with a plugin, build a dashboard and set an alert for rising flakiness.",
+          "deliverable": "Results pipeline, dashboard and alert",
+          "checks": [["Correlate", "Failed tests link to service traces", "Trace screenshot"], ["Store", "Every run is stored", "Database records"], ["Alert", "Rising flakiness triggers the alert", "Alert test"]],
+          "objectives": ["Observe test runs", "Link tests to services", "Alert on quality trends"]
+        },
+        {
+          "topic": "Contract Testing at Scale with Pact for Python",
+          "subtopics": ["Consumer-driven contracts", "pact-python consumer tests", "Provider verification", "Provider states", "Pact Broker and can-i-deploy", "Contracts across many teams", "Breaking-change workflows", "Where other tests still fit"],
+          "tools": ["pact-python", "Pact Broker", "pytest"],
+          "lab_task": "Write consumer contracts for two clients, verify them on the provider with provider states, gate deployment with can-i-deploy and run a breaking-change workflow.",
+          "deliverable": "Contracts, verification and deployment gate",
+          "checks": [["Publish", "Consumer pacts are in the broker", "Broker screenshot"], ["Verify", "Provider verification passes in CI", "Pipeline run"], ["Gate", "can-i-deploy blocks a breaking change", "Pipeline run"]],
+          "objectives": ["Use contract testing at scale", "Verify providers", "Gate deployments"]
+        },
+        {
+          "topic": "Chaos and Resilience Checks from Python Tests",
+          "subtopics": ["Resilience behaviours to test", "Fault injection with Toxiproxy", "Timeouts, retries and circuit breakers", "Steady-state checks", "Recovery measurement", "Running experiments safely", "Reporting weaknesses", "Following up fixes"],
+          "tools": ["Toxiproxy", "toxiproxy-python", "pytest"],
+          "lab_task": "Inject latency and dropped connections into a dependency with Toxiproxy from pytest, check the service's timeouts and fallbacks, and report the weaknesses found.",
+          "deliverable": "Resilience tests and weakness report",
+          "checks": [["Inject", "Faults are controlled from tests", "Test code"], ["Check behaviour", "Timeouts and fallbacks are verified or fail clearly", "Test output"], ["Report", "Weaknesses have owners", "Weakness report"]],
+          "objectives": ["Test resilience from Python", "Inject faults", "Report weaknesses"]
+        },
+        {
+          "topic": "Ephemeral Environments and Synthetic Data for Python Suites",
+          "subtopics": ["Ephemeral environments per pull request", "Environment readiness checks", "Seeding services for many teams", "Synthetic data and masking", "Data ownership", "Environment costs", "Environment contention", "Choosing environments per tier"],
+          "tools": ["Ephemeral environment platform", "Seeding scripts", "Masking tools"],
+          "lab_task": "Run the suite against preview environments with readiness checks and seeded synthetic data, and measure environment-related failures before and after.",
+          "deliverable": "Environment pipeline and failure comparison",
+          "checks": [["Create", "Each pull request gets an environment", "Pipeline log"], ["Seed", "Data is synthetic and seeded per run", "Seeding log"], ["Improve", "Environment failures drop", "Comparison"]],
+          "objectives": ["Test against ephemeral environments", "Seed synthetic data", "Reduce environment failures"]
+        },
+        {
+          "topic": "Governance for Python Test Automation",
+          "subtopics": ["Standards for structure, naming and data", "Review checklists", "Markers and ownership metadata", "Coverage maps by service", "Removing obsolete tests", "Dependency and Python version policy", "Exceptions and waivers", "Reporting governance status"],
+          "tools": ["Code review tools", "Test inventory", "Dashboard tool"],
+          "lab_task": "Write standards and a dependency policy, build a coverage map for five services, review twenty tests, remove obsolete ones and report status to leads.",
+          "deliverable": "Standards, coverage map, review records and report",
+          "checks": [["Set standards", "Standards cover structure, data and ownership", "Standards document"], ["Map coverage", "The map shows coverage per service", "Coverage map"], ["Report", "Leads receive the status report", "Report"]],
+          "objectives": ["Govern Python automation", "Map coverage", "Remove obsolete tests"]
+        },
+        {
+          "topic": "Migrating from Java or Robot Framework Suites to pytest",
+          "subtopics": ["Reasons to migrate and reasons not to", "Mapping TestNG and JUnit concepts to pytest", "Mapping Robot keywords to Python", "Running old and new suites side by side", "Prioritising tests to move", "Training the team in Python", "Measuring results", "Retiring the old suite"],
+          "tools": ["pytest", "Existing Java or Robot suite", "Migration tracker"],
+          "lab_task": "Migrate twenty tests from a Java or Robot Framework suite to pytest, run both for a week and write a plan for the remaining tests with training needs.",
+          "deliverable": "Migrated tests, comparison and plan",
+          "checks": [["Migrate", "Twenty migrated tests pass", "Test output"], ["Compare", "Stability and maintenance are compared", "Comparison table"], ["Plan", "The plan covers the remaining tests and training", "Migration plan"]],
+          "objectives": ["Plan framework migrations", "Map concepts to pytest", "Measure migration results"]
+        },
+        {
+          "topic": "Testing Event-Driven Systems with Python",
+          "subtopics": ["Event-driven architectures", "Producing and consuming test messages", "Kafka and RabbitMQ clients in Python", "Schema validation for events", "Ordering, duplicates and retries", "Dead-letter queues", "Polling and timeouts", "Containers for brokers"],
+          "tools": ["confluent-kafka or aiokafka", "pika", "testcontainers-python"],
+          "lab_task": "Start Kafka in a container, call an API that publishes events, consume and validate them, test duplicate handling and check that bad messages reach the dead-letter topic.",
+          "deliverable": "Event-driven test suite",
+          "checks": [["Consume", "Events are consumed and validated", "Test output"], ["Check duplicates", "Duplicates are handled correctly", "Test output"], ["Check failures", "Bad messages reach the dead-letter topic", "Test output"]],
+          "objectives": ["Test event-driven systems", "Validate events", "Check failure handling"]
+        },
+        {
+          "topic": "Enabling Teams in Python Test Automation",
+          "subtopics": ["Skills needed for Python automation", "Assessing team skills", "Learning paths for manual testers", "Pairing and code review as teaching", "Starter templates", "Communities of practice", "Measuring growth", "Supporting developers who write tests"],
+          "tools": ["Skills matrix", "Project template", "Team wiki"],
+          "lab_task": "Assess a QA team's Python skills, design a learning path, provide a starter project and coach a manual tester to a first merged automated test.",
+          "deliverable": "Skills assessment, learning path and first merged test",
+          "checks": [["Assess", "Each person has a skills rating", "Skills matrix"], ["Enable", "The starter project runs on a new machine", "Run log"], ["Coach", "A manual tester merges a first test", "Pull request"]],
+          "objectives": ["Grow Python automation skills", "Provide templates", "Coach new automators"]
+        },
+        {
+          "topic": "Strategy for Python Test Automation in an Organisation",
+          "subtopics": ["Linking automation to business risk", "Test layers and tools", "Python's role among other languages", "Ownership between QA and development", "Investment and return", "Roadmap", "Communicating strategy", "Reviewing strategy each year"],
+          "tools": ["Strategy template", "Risk map", "Test inventory"],
+          "lab_task": "Write an automation strategy for an organisation using Python for API, data and UI testing, with risks, layers, ownership and a one-year roadmap, and present it to leaders.",
+          "deliverable": "Strategy and roadmap with presentation notes",
+          "checks": [["Link to risk", "Each layer addresses named risks", "Strategy"], ["Assign ownership", "Responsibilities are clear", "Strategy"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Set automation strategy", "Assign ownership", "Plan improvement"]
+        },
+        {
+          "topic": "Troubleshooting Large Python Test Suites",
+          "subtopics": ["Failures only in CI", "Dependency and version conflicts", "Parallel and ordering problems", "Environment and data issues", "Reading logs, traces and reports together", "Reproducing failures locally"],
+          "tools": ["pytest", "Docker", "CI logs"],
+          "lab_task": "Diagnose four failures in a large suite (a dependency conflict, an xdist ordering issue, an environment problem and a data collision), reproduce two locally and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "Two failures are reproduced locally", "Terminal output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot large suites", "Reproduce CI failures", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Python Quality Platform for a Product Organisation",
+          "subtopics": ["Shared packages and plugins", "Fast pipelines with test selection", "Performance, security and data tests", "AI and ML system tests", "Observability and governance", "Strategy presentation"],
+          "tools": ["pytest", "Locust", "OWASP ZAP", "Great Expectations", "Grafana"],
+          "lab_task": "Design and build a Python quality platform for three teams with shared packages, change-based selection, performance, security, data and AI-system tests, dashboards and governance, and present it to engineering leadership.",
+          "deliverable": "Platform, dashboards and strategy presentation",
+          "checks": [["Share", "All teams use the shared packages", "Repositories"], ["Cover risks", "Performance, security, data and AI tests exist for critical services", "Test inventory"], ["Win support", "Leadership approves the plan", "Presentation notes"]],
+          "objectives": ["Combine advanced Python automation skills", "Build a quality platform", "Lead Python automation"]
+        }
+      ]
+    }
+  }
+}

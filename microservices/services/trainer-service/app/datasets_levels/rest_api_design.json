@@ -1,0 +1,573 @@
+{
+  "domain": "REST API Design",
+  "name": "REST API Design and Development",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "link-2",
+  "aliases": ["RESTful API Design", "REST API Design Best Practices", "API Design", "API Design Best Practices", "API Design and Governance", "API-First Design", "API First Design", "OpenAPI Specification", "OpenAPI Design", "REST API Training", "RESTful API Training", "REST API Architecture", "Web API Design"],
+  "certifications": ["No vendor certification; assessed by API design reviews and a capstone", "API Academy or Postman API Fundamentals Student Expert as companion badges"],
+  "tools": ["OpenAPI", "Swagger Editor", "Stoplight or Redocly", "Spectral", "Prism mock server", "Postman or Bruno", "Schemathesis", "Any back-end framework"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who build or consume web APIs. Covers HTTP for API design, resources and URIs, JSON bodies, status codes and problem details, filtering, sorting and field selection, pagination, OpenAPI descriptions, mock servers, implementing a designed API in any framework, API keys and OAuth 2.0 at a glance, HTTP caching, idempotency, versioning, documentation, API testing, validation, nested resources and rate limits.",
+      "prerequisites": ["Has written code in one back-end language", "Knows what HTTP and JSON are", "Has called an API from a tool or app"],
+      "outcomes": ["Design clean, consistent REST APIs from requirements", "Describe APIs with OpenAPI and mock them", "Handle errors, pagination, caching, idempotency and versioning correctly", "Build and test a designed API in a chosen framework"],
+      "days": [
+        {
+          "topic": "REST API Design Overview and Tooling Setup",
+          "subtopics": ["What makes an API RESTful", "REST constraints in plain language", "REST compared with RPC, GraphQL and events", "Who API consumers are and what they need", "Design-first and code-first approaches", "Installing an OpenAPI editor and linter", "An HTTP client: Postman, Bruno or HTTPie", "A mock server for designs", "Reading a well-known public API", "The course project: a library lending API"],
+          "tools": ["Swagger Editor or Stoplight", "Spectral", "Prism", "Postman or Bruno", "HTTPie"],
+          "lab_task": "Explore two well-known public APIs, note what makes them easy or hard to use, set up the design toolchain and sketch the resources for the library lending API.",
+          "deliverable": "API review notes and first resource sketch",
+          "checks": [["Review public APIs", "Five strengths and five weaknesses noted across two APIs", "Review notes"], ["Set up tools", "Editor, linter, mock server and HTTP client all working", "Screenshot"], ["Sketch resources", "Main resources and relationships listed for the project", "Resource sketch"]],
+          "objectives": ["Explain REST principles", "Compare API styles", "Set up API design tools"]
+        },
+        {
+          "topic": "HTTP Essentials for API Designers: Methods, Status Codes and Headers",
+          "subtopics": ["Requests and responses", "Safe and idempotent methods", "GET, POST, PUT, PATCH and DELETE", "Status code classes", "Common request and response headers", "Content negotiation", "HTTP/1.1, HTTP/2 and HTTP/3 in brief", "Reading HTTP traffic with tools"],
+          "tools": ["curl", "Browser DevTools", "HTTPie"],
+          "lab_task": "Capture and explain the HTTP traffic of a public API, classify methods as safe or idempotent, and pick the right method and status code for twelve library operations.",
+          "deliverable": "Method and status code table for the project",
+          "checks": [["Classify methods", "Safe and idempotent methods classified correctly", "Classification table"], ["Choose codes", "Status code chosen and justified for each operation", "Operation table"], ["Read traffic", "Headers explained for three captured requests", "Annotated capture"]],
+          "objectives": ["Use HTTP methods correctly", "Choose status codes", "Read HTTP headers"]
+        },
+        {
+          "topic": "Resources, URIs and Naming",
+          "subtopics": ["Resources and representations", "Collection and item URIs", "Plural nouns and consistent naming", "Path segments compared with query parameters", "Avoiding verbs in URIs", "Actions that do not fit CRUD", "Identifiers: numeric, UUID and slugs", "A naming style guide"],
+          "tools": ["OpenAPI editor", "Style guide template"],
+          "lab_task": "Design URIs for books, members, loans and reservations, model the return-book action without verbs in the path where possible, and write a naming style guide.",
+          "deliverable": "URI design and naming style guide",
+          "checks": [["Design URIs", "URIs consistent across all resources", "URI list"], ["Model an action", "Return-book action modelled as a resource or justified sub-resource", "Design notes"], ["Write the guide", "Style guide covers casing, plurals and identifiers", "Style guide"]],
+          "objectives": ["Model resources", "Design consistent URIs", "Handle non-CRUD actions"]
+        },
+        {
+          "topic": "Request and Response Bodies in JSON",
+          "subtopics": ["JSON structure for resources", "Field naming and casing", "Dates, times and time zones in JSON", "Money and decimals", "Enumerations", "Nulls, empty values and missing fields", "Envelopes and when to avoid them", "Consistency across endpoints"],
+          "tools": ["JSON Schema", "OpenAPI editor"],
+          "lab_task": "Design request and response bodies for every library resource with consistent naming, ISO 8601 dates, safe money values, enums and clear rules for nulls and missing fields.",
+          "deliverable": "Body designs with JSON Schema",
+          "checks": [["Validate examples", "Example bodies validate against the schemas", "Validator output"], ["Represent dates and money", "Dates in ISO 8601 with offsets and money without floats", "Schema review"], ["Define null rules", "Null and missing field rules written and applied", "Design notes"]],
+          "objectives": ["Design JSON bodies", "Represent dates and money safely", "Keep bodies consistent"]
+        },
+        {
+          "topic": "Status Codes and Error Responses with Problem Details",
+          "subtopics": ["Success codes: 200, 201, 202 and 204", "Client errors: 400, 401, 403, 404, 409, 422 and 429", "Server errors and what to expose", "Problem Details (RFC 9457)", "Error codes for machines and messages for people", "Field-level validation errors", "Correlation IDs in errors", "Documenting errors"],
+          "tools": ["OpenAPI editor", "RFC 9457 examples"],
+          "lab_task": "Define a Problem Details error format with stable error codes and field errors, map every failure in the library API to a status code and document the error catalogue.",
+          "deliverable": "Error format and error catalogue",
+          "checks": [["Map failures", "Each failure has one status code and error code", "Error catalogue"], ["Show field errors", "Validation errors list each invalid field", "Example response"], ["Hide internals", "Server errors expose a correlation ID and no stack traces", "Example response"]],
+          "objectives": ["Choose status codes for errors", "Use Problem Details", "Document errors"]
+        },
+        {
+          "topic": "Query Parameters: Filtering, Sorting and Field Selection",
+          "subtopics": ["Filtering with simple parameters", "Ranges and multiple values", "Sorting syntax", "Field selection and sparse fieldsets", "Search parameters", "Default values", "Validating and limiting parameters", "Documenting parameters"],
+          "tools": ["OpenAPI editor", "Prism mock server"],
+          "lab_task": "Design filtering by author, genre and availability, sorting by title and date, field selection and free-text search for the books collection, with limits and defaults.",
+          "deliverable": "Query parameter design",
+          "checks": [["Combine filters", "Combined filters return the expected mock results", "Mock responses"], ["Limit parameters", "Unknown sort fields and oversized limits rejected", "Example error responses"], ["Document parameters", "Every parameter documented with type and default", "OpenAPI file"]],
+          "objectives": ["Design filtering and sorting", "Support field selection", "Validate query parameters"]
+        },
+        {
+          "topic": "Pagination Patterns",
+          "subtopics": ["Offset and limit pagination", "Page number pagination", "Cursor pagination", "Keyset pagination in the database", "Links to next and previous pages", "Total counts and their cost", "Consistency while data changes", "Choosing a pattern"],
+          "tools": ["OpenAPI editor", "SQL database"],
+          "lab_task": "Design offset and cursor pagination for the books and loans collections, return navigation links, decide on total counts and show what happens to each pattern when data changes.",
+          "deliverable": "Pagination design with a comparison",
+          "checks": [["Page with cursors", "No duplicates or gaps when items are added during paging", "Test notes"], ["Return links", "Responses include next and previous links", "Example response"], ["Choose a pattern", "Pattern chosen per collection with reasons", "Decision notes"]],
+          "objectives": ["Choose pagination patterns", "Design navigation links", "Handle changing data"]
+        },
+        {
+          "topic": "Writing an OpenAPI Description",
+          "subtopics": ["OpenAPI document structure", "Paths, operations and parameters", "Request bodies and responses", "Components and reuse", "Examples", "Tags and descriptions", "Security schemes", "Linting the document"],
+          "tools": ["OpenAPI 3.1", "Swagger Editor or Stoplight", "Spectral"],
+          "lab_task": "Write a complete OpenAPI 3.1 description for the library API with reusable components, examples, tags, security schemes and error responses, and fix every Spectral warning.",
+          "deliverable": "Linted OpenAPI description",
+          "checks": [["Lint the document", "Spectral reports no errors or warnings", "Spectral output"], ["Reuse components", "Shared schemas defined once and referenced", "OpenAPI file"], ["Add examples", "Every operation has request and response examples", "Rendered docs"]],
+          "objectives": ["Describe APIs with OpenAPI", "Reuse components", "Lint API descriptions"]
+        },
+        {
+          "topic": "Mocking APIs from OpenAPI",
+          "subtopics": ["Why mock before building", "Prism mock server", "Dynamic and static examples", "Validating requests against the description", "Sharing mocks with front-end teams", "Collecting feedback on the design", "Changing the design from feedback", "Keeping mocks and implementations in step"],
+          "tools": ["Prism", "OpenAPI", "Postman or Bruno"],
+          "lab_task": "Run a mock server from the description, let a front-end classmate build two screens against it, collect feedback and change the design before any implementation.",
+          "deliverable": "Mock server and design change log",
+          "checks": [["Run the mock", "Mock returns examples for every operation", "Mock responses"], ["Validate requests", "Mock rejects requests that break the description", "Error responses"], ["Apply feedback", "Design changed from consumer feedback with reasons", "Change log"]],
+          "objectives": ["Mock APIs from designs", "Get consumer feedback early", "Improve designs before building"]
+        },
+        {
+          "topic": "Implementing a Designed API in Your Framework",
+          "subtopics": ["Generating server stubs or writing code to the design", "Spring Boot, ASP.NET Core, FastAPI, Express or Django REST Framework", "Request validation against the schema", "Mapping errors to Problem Details", "Pagination and filtering in the database", "Keeping code and description in step", "Testing the implementation against the description", "Reviewing the implementation for design drift"],
+          "tools": ["Chosen framework", "OpenAPI generators", "Schemathesis"],
+          "lab_task": "Implement the library API in your chosen framework to match the description exactly, validate requests, return Problem Details and run Schemathesis against the running API.",
+          "deliverable": "Working API that matches its description",
+          "checks": [["Run Schemathesis", "No responses that break the description", "Schemathesis report"], ["Validate requests", "Invalid requests rejected with Problem Details", "Example responses"], ["Check drift", "Implementation and description match after review", "Review notes"]],
+          "objectives": ["Build APIs from designs", "Validate against the description", "Prevent design drift"]
+        },
+        {
+          "topic": "Authentication for APIs: API Keys, Tokens and OAuth 2.0 at a Glance",
+          "subtopics": ["Authentication compared with authorisation", "API keys and their limits", "Bearer tokens and JWTs", "OAuth 2.0 roles and common flows", "Scopes in API design", "401 compared with 403", "Describing security in OpenAPI", "Keeping secrets out of URLs"],
+          "tools": ["OpenAPI security schemes", "An identity provider sandbox", "Postman or Bruno"],
+          "lab_task": "Add API keys for a partner endpoint and OAuth 2.0 bearer tokens with scopes for member endpoints, describe both in OpenAPI and test 401 and 403 cases.",
+          "deliverable": "Secured API design and tests",
+          "checks": [["Call without credentials", "401 returned with a WWW-Authenticate header", "Response"], ["Call with a wrong scope", "403 returned", "Response"], ["Describe security", "Security schemes and scopes shown in the docs", "Rendered docs"]],
+          "objectives": ["Secure APIs with keys and tokens", "Design scopes", "Describe security in OpenAPI"]
+        },
+        {
+          "topic": "Caching with HTTP Headers and ETags",
+          "subtopics": ["Why API caching matters", "Cache-Control directives", "ETags and Last-Modified", "Conditional GET with If-None-Match", "Caching for public and private data", "Vary headers", "CDN and gateway caching", "When not to cache"],
+          "tools": ["curl", "Browser DevTools", "CDN or reverse proxy"],
+          "lab_task": "Add Cache-Control and ETags to book and author endpoints, support conditional GET, keep member data private and measure bandwidth saved through a reverse proxy cache.",
+          "deliverable": "Caching design and measurements",
+          "checks": [["Send If-None-Match", "304 returned for unchanged data", "Response"], ["Protect private data", "Member responses marked private", "Response headers"], ["Measure savings", "Bandwidth saved through the proxy measured", "Measurement table"]],
+          "objectives": ["Use HTTP caching", "Support conditional requests", "Protect private data from caches"]
+        },
+        {
+          "topic": "Idempotency and Safe Retries",
+          "subtopics": ["Why clients retry", "Idempotent methods by design", "Idempotency keys for POST", "Storing and expiring idempotency records", "Returning the original response on a retry", "Concurrent requests with the same key", "Documenting idempotency for clients", "Testing retries"],
+          "tools": ["Chosen framework", "Database or Redis", "Load testing tool"],
+          "lab_task": "Add idempotency keys to loan creation, return the original response on retries, handle two concurrent requests with the same key and document the behaviour.",
+          "deliverable": "Idempotent loan endpoint with tests",
+          "checks": [["Retry a request", "Retried request returns the same loan without duplicates", "Test output"], ["Send concurrent requests", "Only one loan created for the same key", "Test output"], ["Document behaviour", "Idempotency rules explained in the docs", "Rendered docs"]],
+          "objectives": ["Make APIs safe to retry", "Use idempotency keys", "Handle concurrent retries"]
+        },
+        {
+          "topic": "Versioning Strategies",
+          "subtopics": ["Why APIs change", "Compatible and breaking changes", "URI versioning", "Header and media type versioning", "Versioning by date", "Supporting two versions at once", "Deprecation headers and sunset dates", "Choosing a strategy"],
+          "tools": ["OpenAPI", "Chosen framework", "oasdiff"],
+          "lab_task": "Classify ten proposed changes as compatible or breaking, ship one breaking change as a new version with deprecation and sunset headers, and detect breaking changes with oasdiff.",
+          "deliverable": "Versioning policy and change classification",
+          "checks": [["Classify changes", "Each change classified correctly", "Classification table"], ["Detect breaks", "oasdiff flags the breaking change", "oasdiff output"], ["Deprecate", "Old version returns deprecation and sunset headers", "Response headers"]],
+          "objectives": ["Tell compatible from breaking changes", "Choose a versioning strategy", "Deprecate versions clearly"]
+        },
+        {
+          "topic": "Documenting APIs for Developers",
+          "subtopics": ["What good API documentation contains", "Reference docs from OpenAPI", "Getting started guides", "Authentication guides", "Examples in several languages", "Changelogs", "Error and rate limit documentation", "Testing docs with new users"],
+          "tools": ["Redocly or Stoplight", "Markdown", "Code samples"],
+          "lab_task": "Publish reference docs from the description, write a getting started guide and an authentication guide with examples in two languages, and test them with a new user.",
+          "deliverable": "Documentation site",
+          "checks": [["Publish reference docs", "Every operation documented with examples", "Docs site"], ["Follow the guide", "New user makes a first successful call in 15 minutes", "Timed test"], ["Add a changelog", "Changes listed by date and impact", "Changelog"]],
+          "objectives": ["Write useful API docs", "Publish reference docs", "Test docs with real users"]
+        },
+        {
+          "topic": "Testing APIs with Postman or Bruno",
+          "subtopics": ["Collections and environments", "Writing test scripts", "Chaining requests", "Data-driven tests", "Testing errors and edge cases", "Running collections from the command line", "Tests in CI", "Sharing collections"],
+          "tools": ["Postman or Bruno", "Newman or Bruno CLI"],
+          "lab_task": "Build a collection that tests every library operation including errors and edge cases, chain requests for a loan flow, run it with data files and in CI.",
+          "deliverable": "Test collection and CI job",
+          "checks": [["Run the collection", "All tests pass against the API", "Run report"], ["Test edge cases", "Error and boundary cases covered", "Collection"], ["Run in CI", "Collection runs on every pull request", "CI run"]],
+          "objectives": ["Test APIs with collections", "Cover errors and edge cases", "Automate API tests"]
+        },
+        {
+          "topic": "Validation and Input Constraints",
+          "subtopics": ["Validating at the API boundary", "JSON Schema constraints", "Format validation for emails, dates and IDs", "Cross-field rules", "Unknown fields: reject or ignore", "Size limits on bodies and arrays", "Consistent validation errors", "Keeping validation in the description and code aligned"],
+          "tools": ["JSON Schema", "Chosen framework", "Schemathesis"],
+          "lab_task": "Add constraints to every schema, choose a policy for unknown fields, enforce body and array size limits, add a cross-field rule and test validation with fuzzing.",
+          "deliverable": "Validation rules and fuzz results",
+          "checks": [["Send oversized bodies", "Requests beyond the limits rejected", "Responses"], ["Send unknown fields", "Behaviour matches the chosen policy", "Responses"], ["Fuzz inputs", "Fuzzing finds no server errors", "Schemathesis report"]],
+          "objectives": ["Validate API input", "Encode constraints in schemas", "Keep validation consistent"]
+        },
+        {
+          "topic": "Designing Relationships and Nested Resources",
+          "subtopics": ["Linking related resources", "Nested URIs and how deep to go", "Embedding related data", "Expansion parameters", "Many-to-many relationships", "Creating related resources", "Deleting with dependencies", "Avoiding chatty APIs"],
+          "tools": ["OpenAPI editor", "Prism mock server"],
+          "lab_task": "Design relationships between books, authors, members and loans with links, one level of nesting, an expand parameter and rules for deleting members with active loans.",
+          "deliverable": "Relationship design",
+          "checks": [["Expand related data", "Expand parameter returns embedded authors", "Mock response"], ["Limit nesting", "No URI deeper than one sub-resource level", "URI list"], ["Protect deletes", "Deleting a member with loans returns 409", "Example response"]],
+          "objectives": ["Design relationships", "Choose between links, nesting and embedding", "Avoid chatty APIs"]
+        },
+        {
+          "topic": "Rate Limits and Quotas from the Client's View",
+          "subtopics": ["Why APIs limit traffic", "Limits per key, user and IP", "429 responses and Retry-After", "RateLimit headers", "Quotas and plans", "Designing clients that back off", "Documenting limits", "Testing limits"],
+          "tools": ["Chosen framework", "API gateway", "Load testing tool"],
+          "lab_task": "Add per-key rate limits with standard headers and Retry-After, document them, write a client that backs off correctly and load test the behaviour.",
+          "deliverable": "Rate limit design and well-behaved client",
+          "checks": [["Exceed the limit", "429 with Retry-After returned", "Response"], ["Read headers", "Remaining quota shown in response headers", "Response headers"], ["Back off", "Client waits and succeeds after the limit resets", "Client log"]],
+          "objectives": ["Design rate limits", "Communicate limits to clients", "Build clients that back off"]
+        },
+        {
+          "topic": "Beginner Capstone: Designing and Building a Library API",
+          "subtopics": ["Design", "Mock and review", "Build", "Present"],
+          "tools": ["OpenAPI", "Spectral", "Prism", "Chosen framework", "Postman or Bruno", "Schemathesis"],
+          "lab_task": "Design the library lending API in OpenAPI, mock it and get consumer feedback, implement it with errors, pagination, caching, idempotency, security and limits, test it and present the design.",
+          "deliverable": "OpenAPI description, implementation, tests and presentation",
+          "checks": [["Pass contract checks", "Schemathesis finds no mismatches with the description", "Schemathesis report"], ["Run the tests", "Collection tests pass", "Run report"], ["Defend the design", "Design choices explained against REST principles", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one API", "Design and build a complete REST API", "Defend API design choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and leads who design APIs for other teams or partners. Covers the API-first workflow, style guides and Spectral rules, advanced OpenAPI, long-running and asynchronous operations, bulk operations, concurrency control, hypermedia, OAuth 2.0 and OpenID Connect design, the OWASP API Security Top 10, webhooks, search APIs, evolution without breaking clients, contract testing, SDK generation, AsyncAPI, gateways and management, API observability, performance and internationalisation.",
+      "prerequisites": ["Has designed and built REST APIs with OpenAPI", "Comfortable with HTTP caching, pagination and versioning", "Works with at least one back-end framework"],
+      "outcomes": ["Run an API-first process with style guides and automated checks", "Design advanced API features: async operations, webhooks, bulk and search", "Secure, observe and evolve APIs without breaking clients", "Deliver APIs with SDKs, gateways and developer portals"],
+      "days": [
+        {
+          "topic": "API-First Development Workflow",
+          "subtopics": ["Design-first lifecycle", "Gathering consumer use cases", "Design reviews before code", "Mock-driven parallel development", "Generating code from descriptions", "Contract checks in CI", "Keeping the description as the source of truth", "Measuring the workflow"],
+          "tools": ["OpenAPI", "Prism", "Spectral", "CI pipeline"],
+          "lab_task": "Run an API-first cycle for a new orders API: gather use cases, design, review, mock for a front-end team, implement in parallel and gate merges on contract checks.",
+          "deliverable": "API-first process record for one API",
+          "checks": [["Review before code", "Design review completed before implementation started", "Review record"], ["Build in parallel", "Front-end built against the mock while the API was implemented", "Timeline"], ["Gate merges", "Contract check blocks a mismatching implementation", "CI log"]],
+          "objectives": ["Run an API-first workflow", "Develop against mocks", "Gate changes on contracts"]
+        },
+        {
+          "topic": "API Style Guides and Linting with Spectral",
+          "subtopics": ["Why style guides matter", "Writing rules for naming, errors and pagination", "Spectral rulesets", "Custom functions for complex rules", "Severity levels", "Running rules in editors and CI", "Handling exceptions", "Evolving the style guide"],
+          "tools": ["Spectral", "OpenAPI", "CI pipeline"],
+          "lab_task": "Turn the team's API style guide into a Spectral ruleset with custom functions, run it in the editor and CI on three APIs and process one exception request.",
+          "deliverable": "Ruleset and lint reports",
+          "checks": [["Encode rules", "Ruleset catches naming, error and pagination violations", "Spectral output"], ["Lint three APIs", "Violations found and fixed in each API", "Lint reports"], ["Handle an exception", "Exception recorded with reason and expiry", "Exception record"]],
+          "objectives": ["Write API style guides", "Automate them with Spectral", "Manage exceptions"]
+        },
+        {
+          "topic": "Advanced OpenAPI: Components, Polymorphism and Webhooks",
+          "subtopics": ["Splitting large descriptions into files", "oneOf, anyOf and discriminators", "Nullable and optional fields in OpenAPI 3.1", "Links between operations", "Callbacks and webhooks in OpenAPI", "Overlays for environments", "Bundling and dereferencing", "Tooling compatibility issues"],
+          "tools": ["OpenAPI 3.1", "Redocly CLI", "Spectral"],
+          "lab_task": "Split a large description into files, model payment methods with a discriminator, describe webhooks, apply an overlay for a partner variant and bundle it for tools.",
+          "deliverable": "Modular OpenAPI description",
+          "checks": [["Model polymorphism", "Each payment type validated by the discriminator", "Validation output"], ["Describe webhooks", "Webhooks shown in rendered docs", "Rendered docs"], ["Bundle", "Bundled file works in two tools", "Tool screenshots"]],
+          "objectives": ["Structure large descriptions", "Model polymorphism", "Describe webhooks and callbacks"]
+        },
+        {
+          "topic": "Long-Running Operations and Asynchronous APIs",
+          "subtopics": ["When operations take too long for one request", "202 Accepted with a status resource", "Polling and Retry-After", "Callbacks and webhooks for completion", "Cancelling operations", "Results and expiry", "Failures and partial results", "Documenting async behaviour"],
+          "tools": ["Chosen framework", "Queue", "OpenAPI"],
+          "lab_task": "Design and build a report export as a long-running operation with 202 responses, a status resource, polling hints, cancellation, completion webhooks and expiring results.",
+          "deliverable": "Async operation design and implementation",
+          "checks": [["Start an export", "202 returned with a status resource location", "Response"], ["Cancel an export", "Operation moves to cancelled and stops work", "Responses and logs"], ["Receive completion", "Webhook delivered when the export finishes", "Webhook log"]],
+          "objectives": ["Design long-running operations", "Use status resources and webhooks", "Support cancellation"]
+        },
+        {
+          "topic": "Bulk and Batch Operations",
+          "subtopics": ["Why clients need bulk operations", "Batch endpoints compared with many requests", "Atomic and partial success", "Per-item results and errors", "Size limits", "Async bulk processing", "Idempotency for bulk requests", "Documenting bulk behaviour"],
+          "tools": ["Chosen framework", "OpenAPI"],
+          "lab_task": "Add a bulk import endpoint for books that reports per-item results, supports partial success, enforces size limits, is idempotent and switches to async processing for large batches.",
+          "deliverable": "Bulk endpoint with tests",
+          "checks": [["Import with bad rows", "Good rows saved and bad rows reported per item", "Response"], ["Exceed the size limit", "Oversized batch rejected or moved to async", "Response"], ["Retry a batch", "Retried batch causes no duplicates", "Test output"]],
+          "objectives": ["Design bulk operations", "Report per-item results", "Handle large batches"]
+        },
+        {
+          "topic": "Concurrency Control with ETags and Conditional Requests",
+          "subtopics": ["Lost updates", "ETags as versions", "If-Match for updates", "412 Precondition Failed", "428 Precondition Required", "Weak and strong ETags", "PATCH formats: JSON Merge Patch and JSON Patch", "Client handling of conflicts"],
+          "tools": ["Chosen framework", "curl"],
+          "lab_task": "Protect book updates with ETags and If-Match, require preconditions on updates, support JSON Merge Patch and show two clients resolving a conflict.",
+          "deliverable": "Concurrency-safe update endpoints",
+          "checks": [["Update with a stale ETag", "412 returned instead of overwriting", "Response"], ["Update without If-Match", "428 returned", "Response"], ["Patch a field", "Merge patch changes only the sent fields", "Response"]],
+          "objectives": ["Prevent lost updates", "Use conditional requests", "Support PATCH formats"]
+        },
+        {
+          "topic": "Hypermedia and HATEOAS in Practice",
+          "subtopics": ["What hypermedia adds", "Links in responses", "Link relation types", "Formats such as HAL and JSON:API", "Exposing available actions by state", "Clients that follow links", "Costs and benefits", "When to use hypermedia"],
+          "tools": ["HAL or JSON:API", "Chosen framework"],
+          "lab_task": "Add links to loan responses that change with loan state, build a small client that follows links instead of building URLs and decide where hypermedia helps the project.",
+          "deliverable": "Hypermedia responses and a decision note",
+          "checks": [["Show state-based links", "Return link appears only on active loans", "Responses"], ["Follow links", "Client completes a loan flow using only links", "Client log"], ["Decide", "Hypermedia use justified for the project", "Decision note"]],
+          "objectives": ["Add hypermedia to APIs", "Expose actions by state", "Judge when hypermedia helps"]
+        },
+        {
+          "topic": "OAuth 2.0 and OpenID Connect Design for APIs",
+          "subtopics": ["OAuth 2.0 flows for different clients", "Authorization code with PKCE", "Client credentials for services", "Designing scopes and permissions", "Token formats and validation", "Audience and resource indicators", "OpenID Connect for user identity", "Token lifetimes and refresh"],
+          "tools": ["Keycloak or another identity provider", "OpenAPI security schemes"],
+          "lab_task": "Design scopes for the orders API, configure an identity provider for a web app, a mobile app and a partner service with the right flows, and validate audiences in the API.",
+          "deliverable": "Authorisation design and provider configuration",
+          "checks": [["Use PKCE", "Mobile client signs in with authorization code and PKCE", "Flow trace"], ["Use client credentials", "Partner service gets a token without a user", "Token response"], ["Validate audience", "Token for another API rejected", "Response"]],
+          "objectives": ["Design OAuth 2.0 for APIs", "Choose flows for each client", "Design scopes"]
+        },
+        {
+          "topic": "API Security: OWASP API Security Top 10",
+          "subtopics": ["Broken object level authorisation", "Broken authentication", "Broken object property level authorisation", "Unrestricted resource consumption", "Broken function level authorisation", "Server-side request forgery", "Security misconfiguration and inventory management", "Security testing for APIs"],
+          "tools": ["OWASP ZAP", "Schemathesis", "Burp Suite Community"],
+          "lab_task": "Find and fix planted issues in a sample API: object-level access gaps, mass assignment, unlimited page sizes and an admin endpoint open to users, then retest with ZAP.",
+          "deliverable": "Security findings, fixes and retest report",
+          "checks": [["Fix object access", "Users cannot read other users' orders", "Test output"], ["Block mass assignment", "Clients cannot set protected fields", "Test output"], ["Retest", "No high-risk findings remain", "ZAP report"]],
+          "objectives": ["Recognise API security risks", "Fix them in design and code", "Test API security"]
+        },
+        {
+          "topic": "Designing Webhooks: Delivery, Signatures and Retries",
+          "subtopics": ["Webhook use cases", "Event types and payloads", "Subscription management", "Signing payloads", "Retries with backoff", "Ordering and duplicates", "Testing webhooks", "Documenting webhooks"],
+          "tools": ["Chosen framework", "Queue", "Webhook testing tools"],
+          "lab_task": "Design and build outgoing webhooks for order events with subscriptions, signatures, retries with backoff and a replay feature, and write the consumer guide.",
+          "deliverable": "Webhook system and consumer guide",
+          "checks": [["Verify signatures", "Consumer rejects a tampered payload", "Consumer log"], ["Retry deliveries", "Failed deliveries retried with backoff", "Delivery log"], ["Replay events", "Consumer replays missed events", "Replay log"]],
+          "objectives": ["Design webhooks", "Secure and retry deliveries", "Help consumers handle events"]
+        },
+        {
+          "topic": "Search and Complex Filtering APIs",
+          "subtopics": ["Simple filters compared with query languages", "Filter syntaxes such as RQL and OData-style filters", "Full-text search parameters", "Faceted search", "Search endpoints with POST bodies", "Security of query languages", "Performance limits", "Documenting search"],
+          "tools": ["Chosen framework", "Search engine or database full-text search"],
+          "lab_task": "Design a search endpoint for the catalogue with a safe filter syntax, full-text search, facets and limits, and protect it against expensive queries.",
+          "deliverable": "Search API design and implementation",
+          "checks": [["Use facets", "Facet counts returned with results", "Response"], ["Block expensive queries", "Overly complex filters rejected", "Response"], ["Document search", "Filter syntax documented with examples", "Rendered docs"]],
+          "objectives": ["Design search APIs", "Choose filter syntaxes", "Protect search from abuse"]
+        },
+        {
+          "topic": "Evolving APIs Without Breaking Clients",
+          "subtopics": ["The robustness principle and its limits", "Additive changes", "Expand and contract for APIs", "Field deprecation", "Tracking client usage", "Breaking change detection in CI", "Migration guides", "Removing old behaviour safely"],
+          "tools": ["oasdiff", "API analytics", "OpenAPI"],
+          "lab_task": "Replace a field with a better one through expand and contract, track which clients still use the old field, publish a migration guide and remove it when usage is zero.",
+          "deliverable": "Evolution plan and migration guide",
+          "checks": [["Detect breaks in CI", "Breaking change blocked automatically", "CI log"], ["Track usage", "Usage of the old field reported per client", "Usage report"], ["Remove safely", "Field removed only after zero usage", "Change log"]],
+          "objectives": ["Evolve APIs safely", "Track client usage", "Remove behaviour without surprises"]
+        },
+        {
+          "topic": "Contract Testing and Schema Validation in CI",
+          "subtopics": ["Validating responses against the description", "Property-based testing with Schemathesis", "Consumer-driven contracts with Pact", "Bi-directional contract testing", "Testing examples in the description", "Running contract tests in CI", "Handling failures", "Choosing an approach"],
+          "tools": ["Schemathesis", "Pact", "Dredd or Prism validation proxy", "CI pipeline"],
+          "lab_task": "Validate responses against the description with a proxy, fuzz with Schemathesis, add Pact contracts for two consumers and gate deployments on all three.",
+          "deliverable": "Contract testing pipeline",
+          "checks": [["Validate responses", "Proxy flags a response that breaks the schema", "Proxy log"], ["Fuzz the API", "Fuzzing finds no server errors", "Schemathesis report"], ["Gate deployment", "Pact failure blocks the deployment", "CI log"]],
+          "objectives": ["Test APIs against contracts", "Combine fuzzing and consumer contracts", "Gate releases"]
+        },
+        {
+          "topic": "SDK Generation and Client Experience",
+          "subtopics": ["Why SDKs help adoption", "Generating SDKs from OpenAPI", "Generators compared", "Customising generated code", "Pagination and retries in SDKs", "Versioning and publishing SDKs", "Testing SDKs", "Measuring client experience"],
+          "tools": ["OpenAPI Generator", "Kiota or Speakeasy", "npm and PyPI"],
+          "lab_task": "Generate TypeScript and Python SDKs from the description, add pagination helpers and retries, publish them to private registries and test them against the API.",
+          "deliverable": "Published SDKs with tests",
+          "checks": [["Generate SDKs", "Both SDKs build and call the API", "Test output"], ["Page with helpers", "SDK iterates all pages with one call", "Script output"], ["Publish", "SDKs installable from the registries", "Install log"]],
+          "objectives": ["Generate SDKs", "Improve client experience", "Publish and test SDKs"]
+        },
+        {
+          "topic": "AsyncAPI for Event-Driven Interfaces",
+          "subtopics": ["When APIs are events, not requests", "AsyncAPI document structure", "Channels, messages and operations", "Describing Kafka and AMQP bindings", "Schemas for messages", "Generating docs and code", "Linting AsyncAPI", "Keeping AsyncAPI and OpenAPI together"],
+          "tools": ["AsyncAPI", "AsyncAPI Studio", "Spectral"],
+          "lab_task": "Describe the order events in AsyncAPI with Kafka bindings and message schemas, generate documentation, lint it and link it to the OpenAPI description.",
+          "deliverable": "AsyncAPI description and docs",
+          "checks": [["Describe channels", "Every event channel and message described", "AsyncAPI file"], ["Generate docs", "Event documentation site generated", "Docs screenshot"], ["Lint", "AsyncAPI passes lint rules", "Lint output"]],
+          "objectives": ["Describe event-driven interfaces", "Use AsyncAPI", "Document events with APIs"]
+        },
+        {
+          "topic": "API Gateways and Management Platforms",
+          "subtopics": ["What gateways do for APIs", "Routing, authentication and limits at the gateway", "Products, plans and subscriptions", "Developer portals", "Policies as code", "Analytics in management platforms", "Choosing a gateway", "Avoiding business logic in gateways"],
+          "tools": ["Kong, Azure API Management, AWS API Gateway or Apigee"],
+          "lab_task": "Publish the orders API through a gateway with token checks, rate limits, a product with two plans and a developer portal, and manage policies as code.",
+          "deliverable": "Gateway configuration and portal",
+          "checks": [["Subscribe in the portal", "Developer gets a key for a plan", "Portal screenshot"], ["Enforce plans", "Requests beyond the plan limit rejected", "Response"], ["Manage as code", "Policy change applied from a repository", "Pipeline log"]],
+          "objectives": ["Use API gateways", "Run API products and plans", "Manage policies as code"]
+        },
+        {
+          "topic": "Observability for APIs: Logs, Metrics and Traces per Endpoint",
+          "subtopics": ["What to measure for each endpoint", "Request logs and correlation IDs", "Metrics: rate, errors and duration per route", "Tracing across services", "Client identification", "SLOs for APIs", "Dashboards and alerts", "Privacy in API telemetry"],
+          "tools": ["OpenTelemetry", "Prometheus", "Grafana"],
+          "lab_task": "Instrument the API with per-route metrics, traces and client identification, define SLOs for two endpoints and build dashboards with alerts.",
+          "deliverable": "API observability setup",
+          "checks": [["Measure per route", "Latency and errors shown per route and client", "Dashboard screenshot"], ["Trace a request", "Trace spans the API and its dependencies", "Trace screenshot"], ["Alert on SLOs", "Alert fires when an SLO is at risk", "Alert notification"]],
+          "objectives": ["Observe APIs", "Define API SLOs", "Alert on API problems"]
+        },
+        {
+          "topic": "Performance: Payload Size, Compression and N+1 Calls",
+          "subtopics": ["Measuring API performance", "Payload size and field selection", "Compression", "Avoiding chatty client patterns", "N+1 calls between client and API", "Server-side N+1 queries", "Connection reuse and HTTP/2", "Performance budgets for endpoints"],
+          "tools": ["k6", "Browser DevTools", "Database query logs"],
+          "lab_task": "Measure a slow screen that makes many API calls, add expansion and field selection, enable compression, fix server N+1 queries and record before and after numbers.",
+          "deliverable": "Performance report",
+          "checks": [["Cut calls", "Screen loads with fewer API calls", "Network log"], ["Shrink payloads", "Payload size smaller with field selection and compression", "Measurement table"], ["Fix N+1 queries", "Database queries per request reduced", "Query log"]],
+          "objectives": ["Measure API performance", "Reduce payloads and calls", "Fix N+1 patterns"]
+        },
+        {
+          "topic": "Internationalisation, Time Zones and Money in APIs",
+          "subtopics": ["Language negotiation with Accept-Language", "Localised error messages", "Time zones and UTC", "Dates, durations and recurring times", "Money and currencies", "Rounding rules", "Country and address formats", "Testing international behaviour"],
+          "tools": ["ISO 8601", "ISO 4217", "Chosen framework"],
+          "lab_task": "Add language negotiation for error messages, store and return times correctly across time zones, represent money with currency codes and test with users from three countries.",
+          "deliverable": "International API behaviour with tests",
+          "checks": [["Negotiate language", "Errors returned in the requested language", "Responses"], ["Handle time zones", "Appointment times correct across three time zones", "Test output"], ["Represent money", "Amounts carry currency codes and round correctly", "Test output"]],
+          "objectives": ["Internationalise APIs", "Handle time zones", "Represent money correctly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Public Partner API with Developer Portal",
+          "subtopics": ["Design", "Build", "Secure and test", "Launch"],
+          "tools": ["OpenAPI", "AsyncAPI", "Spectral", "API gateway", "Pact", "OpenTelemetry"],
+          "lab_task": "Design and launch a partner API with an API-first process, style rules, async operations, webhooks, OAuth 2.0, contract tests, SDKs, a gateway with plans and a developer portal, then present it.",
+          "deliverable": "API descriptions, implementation, portal and presentation",
+          "checks": [["Onboard a partner", "Partner signs up and makes a first call from the portal", "Screen recording"], ["Show quality", "Security, contract and performance reports meet targets", "Reports"], ["Defend the design", "Design choices explained against partner needs", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one API product", "Launch a partner-ready API", "Defend design choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For API architects, platform owners and technical leads. Covers API strategy and products, governance programmes, platform APIs, multi-tenant design, choosing between REST, GraphQL, gRPC and events, security architecture, rate limiting and monetisation, large versioning programmes, reliability, global APIs and data residency, APIs for AI agents, open banking and FAPI, API analytics, developer experience, modernising SOAP and RPC, testing at scale, streaming APIs, lifecycle automation and incident troubleshooting.",
+      "prerequisites": ["Several years designing and running production APIs", "Strong OpenAPI, security and gateway experience", "Has led API work across teams"],
+      "outcomes": ["Set API strategy and governance for an organisation", "Architect secure, reliable and global API platforms", "Choose API styles and lead modernisation programmes", "Run APIs as products with metrics and developer experience"],
+      "days": [
+        {
+          "topic": "API Strategy and API Products",
+          "subtopics": ["APIs as products", "Internal, partner and public API strategies", "Identifying API product opportunities", "Product roles for APIs", "Roadmaps and lifecycle for API products", "Pricing and business models", "Success measures", "Communicating API strategy"],
+          "tools": ["Strategy canvases", "Product roadmap tools"],
+          "lab_task": "Build an API product strategy for a logistics company with three API products, target consumers, business models, roadmaps and success measures, and present it to mock executives.",
+          "deliverable": "API strategy and product briefs",
+          "checks": [["Define products", "Each product has consumers, value and model", "Product briefs"], ["Set measures", "Success measures defined per product", "Measures table"], ["Present", "Executive questions answered", "Presentation notes"]],
+          "objectives": ["Treat APIs as products", "Build API strategies", "Measure API success"]
+        },
+        {
+          "topic": "API Governance Programmes for Large Organisations",
+          "subtopics": ["Why governance fails or works", "Federated and central governance models", "Standards, style guides and automation", "Review processes that scale", "API catalogues and inventories", "Exceptions and waivers", "Metrics for governance", "Changing governance over time"],
+          "tools": ["Spectral", "API catalogue such as Backstage", "Review templates"],
+          "lab_task": "Design a governance programme for 300 APIs with a federated model, automated checks, a light review process, an API catalogue and governance metrics.",
+          "deliverable": "Governance programme design",
+          "checks": [["Automate standards", "Most standards checked automatically", "Rule coverage table"], ["Build a catalogue", "Every API listed with owner and lifecycle state", "Catalogue screenshot"], ["Measure governance", "Metrics show compliance trends", "Metrics dashboard"]],
+          "objectives": ["Design API governance", "Automate standards", "Measure governance outcomes"]
+        },
+        {
+          "topic": "Designing Platform APIs for Many Teams",
+          "subtopics": ["Platform capabilities as APIs", "Consistency across platform APIs", "Resource-oriented design at platform scale", "Long-running operations as a platform standard", "Standard methods and custom methods", "Errors and quotas across the platform", "Client libraries for platform APIs", "Learning from public cloud API guidelines"],
+          "tools": ["Google API Improvement Proposals", "Microsoft REST API Guidelines", "OpenAPI"],
+          "lab_task": "Design a set of internal platform APIs for compute, storage and deployments following one set of guidelines, with standard methods, operations and errors, and review them against public cloud guidance.",
+          "deliverable": "Platform API designs and guideline map",
+          "checks": [["Apply standard methods", "All resources follow the same method patterns", "Design review"], ["Standardise operations", "Long-running work uses one operation model", "Design notes"], ["Compare with guidance", "Differences from public guidelines justified", "Comparison table"]],
+          "objectives": ["Design platform APIs", "Apply organisation-wide guidelines", "Learn from cloud API design"]
+        },
+        {
+          "topic": "Multi-Tenant API Design",
+          "subtopics": ["Tenancy in URIs, tokens and headers", "Tenant isolation guarantees", "Per-tenant limits and quotas", "Tenant-specific configuration and features", "Cross-tenant operations for administrators", "Data residency per tenant", "Testing isolation", "Documenting tenancy for consumers"],
+          "tools": ["OpenAPI", "Chosen framework", "API gateway"],
+          "lab_task": "Design tenancy for a SaaS API with tenant identity from tokens, isolation rules, per-tenant quotas, admin cross-tenant operations and residency, and prove isolation with tests.",
+          "deliverable": "Multi-tenant API design with tests",
+          "checks": [["Test isolation", "No cross-tenant data through any endpoint", "Test output"], ["Enforce quotas", "Per-tenant quota enforced without affecting others", "Load test results"], ["Audit admin access", "Cross-tenant admin calls recorded", "Audit log"]],
+          "objectives": ["Design multi-tenant APIs", "Enforce tenant isolation", "Support tenant-specific rules"]
+        },
+        {
+          "topic": "Choosing Between REST, GraphQL, gRPC and Events",
+          "subtopics": ["Strengths and limits of each style", "Client needs and network conditions", "Performance and payload trade-offs", "Tooling and ecosystem", "Security considerations per style", "Mixing styles in one platform", "Migration between styles", "Decision frameworks"],
+          "tools": ["Decision records", "Prototype tools for each style"],
+          "lab_task": "For five integration scenarios, prototype the two strongest styles, compare them on clear criteria and record decisions with reasons.",
+          "deliverable": "Style decisions with prototypes",
+          "checks": [["Prototype styles", "Two styles prototyped per scenario", "Prototype repositories"], ["Compare", "Criteria scores recorded for each prototype", "Comparison table"], ["Record decisions", "Each decision has context, options and consequences", "Decision records"]],
+          "objectives": ["Compare API styles", "Choose styles for scenarios", "Record decisions"]
+        },
+        {
+          "topic": "API Security Architecture: Zero Trust, mTLS and Fine-Grained Authorisation",
+          "subtopics": ["Zero trust for API platforms", "mTLS for partners and services", "Sender-constrained tokens", "Fine-grained and relationship-based authorisation", "Policy engines", "Secrets and key management", "Threat modelling API platforms", "Security operations for APIs"],
+          "tools": ["Open Policy Agent or OpenFGA", "Identity provider", "Threat modelling tool"],
+          "lab_task": "Threat model an API platform, require mTLS for partners, add fine-grained authorisation through a policy engine and design key rotation and security monitoring.",
+          "deliverable": "Security architecture and threat model",
+          "checks": [["Require mTLS", "Partner calls without a certificate refused", "Response"], ["Enforce fine-grained rules", "Policy engine denies a disallowed action", "Decision log"], ["Rotate keys", "Keys rotated with no failed requests", "Availability log"]],
+          "objectives": ["Architect API security", "Apply zero trust", "Use policy engines"]
+        },
+        {
+          "topic": "Advanced Rate Limiting, Quotas and Monetisation",
+          "subtopics": ["Rate limiting algorithms at scale", "Distributed limits", "Quotas tied to plans", "Usage metering", "Billing integration", "Fair use and burst handling", "Communicating limits and plans", "Abuse detection"],
+          "tools": ["API gateway", "Redis", "Metering and billing tools"],
+          "lab_task": "Implement distributed per-plan quotas with burst handling, meter usage for billing, connect metering to invoices and detect abusive patterns.",
+          "deliverable": "Quota, metering and billing design",
+          "checks": [["Enforce plans", "Plan quotas enforced across gateway nodes", "Test output"], ["Meter usage", "Usage totals match request logs", "Reconciliation report"], ["Detect abuse", "Abusive pattern flagged automatically", "Alert notification"]],
+          "objectives": ["Rate-limit at scale", "Meter API usage", "Monetise APIs fairly"]
+        },
+        {
+          "topic": "Large-Scale API Versioning and Deprecation Programmes",
+          "subtopics": ["Versioning policy across an organisation", "Deprecation timelines and communication", "Usage tracking per client", "Migration support and tooling", "Running many versions", "Breaking change approvals", "Sunsetting versions safely", "Learning from failed migrations"],
+          "tools": ["API analytics", "oasdiff", "Communication templates"],
+          "lab_task": "Plan the retirement of a widely used API version with usage tracking, communications, migration tooling, staged brownouts and final sunset, and simulate the timeline.",
+          "deliverable": "Deprecation programme plan",
+          "checks": [["Track usage", "Remaining clients identified by version", "Usage report"], ["Run a brownout", "Planned brownout surfaces unmigrated clients", "Brownout report"], ["Sunset safely", "Final sunset completed with no unplanned impact", "Programme record"]],
+          "objectives": ["Run versioning programmes", "Communicate deprecations", "Sunset versions safely"]
+        },
+        {
+          "topic": "API Reliability: SLOs, Error Budgets and Graceful Degradation",
+          "subtopics": ["SLOs for API products", "Error budgets and release decisions", "Dependency failures", "Degraded responses", "Load shedding", "Retries and client guidance", "Incident communication for API consumers", "Reliability reviews"],
+          "tools": ["Prometheus", "SLO tooling", "Status page"],
+          "lab_task": "Define SLOs for a partner API, simulate dependency failures, return degraded responses, shed load by priority and run a consumer-facing incident communication.",
+          "deliverable": "Reliability design and incident communication",
+          "checks": [["Define SLOs", "SLOs agreed for the main operations", "SLO document"], ["Degrade gracefully", "API returns degraded data when a dependency fails", "Response"], ["Communicate an incident", "Status page updates sent during the drill", "Status page history"]],
+          "objectives": ["Run SLO-based API reliability", "Degrade gracefully", "Communicate incidents to consumers"]
+        },
+        {
+          "topic": "Global APIs: Latency, Data Residency and Edge Delivery",
+          "subtopics": ["Global users and latency budgets", "Regional deployments", "Data residency rules", "Edge caching and edge compute", "Global routing", "Consistency across regions", "Regulatory constraints", "Cost of global APIs"],
+          "tools": ["CDN or edge platform", "Global load balancer", "Cost calculator"],
+          "lab_task": "Design a global API for users in India, Europe and the US with regional data residency, edge caching, global routing and cost estimates.",
+          "deliverable": "Global API design with cost model",
+          "checks": [["Meet residency", "Personal data stays in the user's region", "Data flow diagram"], ["Cut latency", "Edge caching lowers latency for public data", "Measurement table"], ["Estimate cost", "Global design cost estimated", "Cost model"]],
+          "objectives": ["Design global APIs", "Respect data residency", "Use edge delivery"]
+        },
+        {
+          "topic": "Designing APIs for AI Agents and LLM Tool Use",
+          "subtopics": ["How agents call APIs", "Describing operations for tool use", "Model Context Protocol servers over APIs", "Safe operations and confirmation steps", "Scopes and limits for agent clients", "Machine-readable errors for agents", "Auditing agent actions", "Evaluating agent success with an API"],
+          "tools": ["OpenAPI", "Model Context Protocol", "LLM API"],
+          "lab_task": "Expose a curated subset of the orders API to an agent through an MCP server, add confirmation for risky actions and agent-specific scopes, and evaluate task success.",
+          "deliverable": "Agent-ready API and evaluation report",
+          "checks": [["Complete tasks", "Agent completes most test tasks through the API", "Evaluation report"], ["Confirm risky actions", "Cancellation requires an explicit confirmation step", "Conversation log"], ["Limit agents", "Agent cannot call operations outside its scopes", "Error log"]],
+          "objectives": ["Design APIs for agents", "Control agent access", "Evaluate agent use of APIs"]
+        },
+        {
+          "topic": "Open Banking and Regulated API Standards",
+          "subtopics": ["Open banking and open finance models", "FAPI security profiles", "Consent management", "Strong customer authentication", "Regulatory requirements for APIs", "Certification and conformance testing", "Account Aggregator style frameworks in India", "Designing for auditors"],
+          "tools": ["FAPI conformance tests", "Consent management examples"],
+          "lab_task": "Design a consent-based account information API following FAPI practices with strong authentication, consent records and audit trails, and run conformance checks.",
+          "deliverable": "Regulated API design and conformance results",
+          "checks": [["Record consent", "Every data access tied to a valid consent", "Audit log"], ["Apply FAPI", "Security profile requirements met", "Conformance report"], ["Revoke consent", "Access stops immediately after revocation", "Test output"]],
+          "objectives": ["Design regulated APIs", "Apply FAPI and consent", "Prepare for audits"]
+        },
+        {
+          "topic": "API Analytics and Product Metrics",
+          "subtopics": ["Metrics for API products", "Adoption funnels", "Time to first call", "Retention and churn of consumers", "Usage by endpoint and version", "Error experience for consumers", "Feedback loops", "Reporting to stakeholders"],
+          "tools": ["API analytics platform", "Data warehouse", "Dashboards"],
+          "lab_task": "Build an API product dashboard with adoption funnel, time to first call, usage by endpoint and version, error experience and retention, and present insights.",
+          "deliverable": "API product dashboard and insights",
+          "checks": [["Measure time to first call", "Median time to first call reported", "Dashboard"], ["Track adoption", "Funnel from sign-up to production use shown", "Dashboard"], ["Present insights", "Three product decisions proposed from data", "Presentation"]],
+          "objectives": ["Measure API products", "Track adoption and experience", "Turn data into decisions"]
+        },
+        {
+          "topic": "Developer Experience Programmes",
+          "subtopics": ["What developer experience means for APIs", "Onboarding journeys", "Documentation quality", "Sandboxes and test data", "SDKs and samples", "Support channels", "Measuring developer satisfaction", "Running a developer experience programme"],
+          "tools": ["Developer portal", "Survey tools", "Sandbox environments"],
+          "lab_task": "Audit the onboarding journey of an API, fix the top friction points with docs, a sandbox and samples, measure satisfaction before and after and plan the programme.",
+          "deliverable": "Developer experience audit and improvement plan",
+          "checks": [["Find friction", "Top five friction points identified with evidence", "Audit report"], ["Add a sandbox", "Developers test without production data", "Sandbox screenshot"], ["Measure satisfaction", "Satisfaction score improves after fixes", "Survey results"]],
+          "objectives": ["Improve developer experience", "Run onboarding audits", "Measure satisfaction"]
+        },
+        {
+          "topic": "Modernising Legacy SOAP and RPC Interfaces into REST",
+          "subtopics": ["Assessing legacy interfaces", "Mapping operations to resources", "Facades over legacy systems", "Data mapping and transformation", "Running legacy and new interfaces together", "Consumer migration", "Performance and reliability of facades", "Retiring legacy interfaces"],
+          "tools": ["Integration platform or gateway", "WSDL tools", "OpenAPI"],
+          "lab_task": "Design a REST facade over a SOAP order service, map operations to resources, migrate one consumer and plan the retirement of the SOAP interface.",
+          "deliverable": "Facade design and migration plan",
+          "checks": [["Map operations", "Each SOAP operation mapped or retired", "Mapping table"], ["Run the facade", "Facade serves the migrated consumer", "Request log"], ["Plan retirement", "Retirement steps and dates agreed", "Retirement plan"]],
+          "objectives": ["Modernise legacy interfaces", "Design facades", "Migrate consumers"]
+        },
+        {
+          "topic": "API Testing Strategy at Scale: Fuzzing, Contracts and Load",
+          "subtopics": ["Test layers for API platforms", "Fuzzing at scale", "Contract testing across many teams", "Load and soak testing", "Security testing in pipelines", "Testing in production", "Test environments and data", "Quality metrics"],
+          "tools": ["Schemathesis", "Pact", "k6", "OWASP ZAP"],
+          "lab_task": "Design a test strategy for an API platform, run fuzzing, contract, load and security tests in pipelines and define quality metrics for releases.",
+          "deliverable": "Test strategy and pipeline results",
+          "checks": [["Run fuzzing at scale", "Fuzzing runs on every API in the pipeline", "Pipeline run"], ["Soak test", "No degradation over a two-hour soak", "Soak report"], ["Define metrics", "Release quality metrics agreed", "Metrics document"]],
+          "objectives": ["Plan API testing at scale", "Combine test types", "Gate releases on quality"]
+        },
+        {
+          "topic": "Event-Driven and Streaming APIs at Scale",
+          "subtopics": ["Event APIs for external consumers", "Webhooks compared with streaming", "Server-sent events and WebSockets for APIs", "Kafka-based partner streams", "Replay and retention for consumers", "Event schemas and evolution", "Security for event APIs", "Documenting event APIs with AsyncAPI"],
+          "tools": ["AsyncAPI", "Kafka", "Server-sent events"],
+          "lab_task": "Design an external event API offering webhooks and a streaming option with replay, schema evolution rules and security, and document it with AsyncAPI.",
+          "deliverable": "Event API design and documentation",
+          "checks": [["Replay events", "Consumer replays events from a chosen point", "Consumer log"], ["Evolve schemas", "Compatible change does not break consumers", "Test output"], ["Document", "AsyncAPI docs published", "Docs screenshot"]],
+          "objectives": ["Design event APIs at scale", "Offer replay", "Evolve event schemas"]
+        },
+        {
+          "topic": "API Lifecycle Automation and Platform Tooling",
+          "subtopics": ["Lifecycle stages from design to retirement", "Automating checks at each stage", "Scaffolding new APIs", "Publishing to gateways and portals automatically", "Catalogue updates from pipelines", "Scorecards for APIs", "Self-service for teams", "Measuring automation value"],
+          "tools": ["CI pipelines", "Backstage", "Gateway APIs", "Spectral"],
+          "lab_task": "Build a pipeline that scaffolds a new API, runs lint and contract checks, publishes to the gateway and portal and updates the catalogue and scorecard automatically.",
+          "deliverable": "Lifecycle automation pipeline",
+          "checks": [["Scaffold an API", "New API created from a template", "Repository"], ["Publish automatically", "API appears in the gateway and portal after merge", "Portal screenshot"], ["Update scorecards", "Scorecard reflects lint and test results", "Scorecard screenshot"]],
+          "objectives": ["Automate the API lifecycle", "Offer self-service", "Measure automation value"]
+        },
+        {
+          "topic": "Troubleshooting API Incidents",
+          "subtopics": ["Incident triage for API platforms", "Reading gateway and service telemetry", "Client-caused incidents", "Breaking changes that slipped through", "Rate limit and quota incidents", "Authentication outages", "Communicating with consumers", "Post-incident reviews"],
+          "tools": ["OpenTelemetry", "Gateway logs", "Status page"],
+          "lab_task": "Work through four incidents: a breaking change, an expired signing key, a runaway client and a dependency outage, restore service, communicate with consumers and write one post-incident review.",
+          "deliverable": "Incident notes, communications and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Communicate", "Consumer updates sent at each stage", "Status page history"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot API platforms", "Communicate with consumers", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise API Platform and Governance Programme",
+          "subtopics": ["Strategy", "Platform", "Governance", "Defence"],
+          "tools": ["OpenAPI", "AsyncAPI", "API gateway", "Policy engine", "Backstage", "Analytics"],
+          "lab_task": "Design an enterprise API platform with product strategy, governance, security architecture, global delivery, monetisation, lifecycle automation and analytics, then defend it to an executive and architecture panel.",
+          "deliverable": "Strategy, platform design, governance pack and defence",
+          "checks": [["Defend the strategy", "Executive questions on value and cost answered", "Panel notes"], ["Prove governance", "Automated checks block a non-compliant API", "Pipeline log"], ["Defend the platform", "Architecture questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one programme", "Lead API platforms", "Defend strategy and architecture"]
+        }
+      ]
+    }
+  }
+}
