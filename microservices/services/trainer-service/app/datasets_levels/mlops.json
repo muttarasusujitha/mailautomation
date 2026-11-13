@@ -1,0 +1,573 @@
+{
+  "domain": "MLOps",
+  "name": "MLOps: Machine Learning Operations",
+  "category": "Data Science and Machine Learning",
+  "icon": "refresh-cw",
+  "aliases": ["MLOps Engineering", "MLOps Engineer", "Machine Learning Operations", "ML Ops", "ML Platform Engineering", "MLOps Training", "MLOps on Azure", "MLOps on AWS", "MLOps on GCP", "Model Deployment and Monitoring"],
+  "certifications": ["AWS Certified Machine Learning Engineer - Associate", "Microsoft Certified: Azure Data Scientist Associate (DP-100)", "Google Cloud Professional Machine Learning Engineer", "Databricks Certified Machine Learning Professional"],
+  "tools": ["Python", "Git", "Docker", "MLflow", "DVC", "FastAPI", "GitHub Actions", "Kubernetes", "Prometheus and Grafana"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For data scientists, ML engineers and DevOps engineers new to MLOps. Covers the ML lifecycle, project structure, environments, experiment tracking, data versioning, pipelines, model registries, serving with FastAPI, containers, CI, testing code and data, batch inference, monitoring, data validation, orchestration, cloud ML platforms, feature pipelines and responsible release.",
+      "prerequisites": ["Trains models with scikit-learn or similar", "Writes Python and uses Git", "Basic Docker and command-line skills"],
+      "outcomes": ["Make ML work reproducible with Git, environments, MLflow and DVC", "Package, serve and containerise models with automated tests and CI", "Run batch and real-time inference with monitoring", "Release models responsibly with validation and approvals"],
+      "days": [
+        {
+          "topic": "MLOps Overview, Lifecycle and Environment Setup",
+          "subtopics": ["What MLOps is and why models fail in production", "The ML lifecycle: data, training, deployment and monitoring", "Roles: data scientist, ML engineer, platform engineer", "MLOps maturity levels", "Tool landscape: open source and cloud", "Installing Python with uv, Docker and Git", "VS Code and Jupyter set-up", "Creating the course repository", "The course project: churn prediction service", "Running a first training script"],
+          "tools": ["Python", "uv", "Docker", "Git", "VS Code"],
+          "lab_task": "Set up the course environment, clone the churn project, run the training script, list every manual step needed to get the model into use and rate the project against a maturity model.",
+          "deliverable": "Environment set-up, manual step list and maturity rating",
+          "checks": [["Run the training script", "Model file and metric produced", "Terminal output"], ["List manual steps", "At least eight manual steps recorded", "Step list"], ["Rate maturity", "Level chosen with evidence", "Maturity rating"]],
+          "objectives": ["Explain MLOps", "Set up tools", "Assess maturity"]
+        },
+        {
+          "topic": "Project Structure and Git Workflows for ML",
+          "subtopics": ["Notebooks compared with modules", "A standard ML project layout", "Configuration files", "Branching and pull requests for ML work", "What not to commit: data, models and secrets", "Pre-commit hooks", "Code review for ML", "Moving notebook code into functions"],
+          "tools": ["Git", "pre-commit", "ruff", "Cookiecutter Data Science"],
+          "lab_task": "Restructure the churn notebook into a package with configuration, add pre-commit hooks for formatting and secret scanning and open a pull request for review.",
+          "deliverable": "Restructured repository and pull request",
+          "checks": [["Commit a fake API key", "Pre-commit blocks it", "Hook output"], ["Run the training module", "Same metric as the notebook", "Terminal output"], ["Review the pull request", "Reviewer comments addressed", "Pull request"]],
+          "objectives": ["Structure ML projects", "Use Git well", "Keep secrets out of code"]
+        },
+        {
+          "topic": "Reproducible Environments and Dependencies",
+          "subtopics": ["Why \"it works on my machine\" happens", "Lock files with uv or Poetry", "Conda for system libraries", "Docker images for training", "Pinning base images", "GPU drivers and CUDA versions", "Random seeds and determinism", "Recording environment details with runs"],
+          "tools": ["uv", "Docker", "Conda"],
+          "lab_task": "Pin dependencies with a lock file, build a training image, train twice on two machines and get the same metric, then show a version change that alters results.",
+          "deliverable": "Lock file, Dockerfile and reproduction results",
+          "checks": [["Train on two machines", "Same metric to four decimal places", "Run outputs"], ["Change a library version", "Result change recorded", "Run outputs"], ["Rebuild the image", "Same packages installed", "Build log"]],
+          "objectives": ["Reproduce environments", "Control randomness", "Containerise training"]
+        },
+        {
+          "topic": "Tracking Experiments and Runs with MLflow",
+          "subtopics": ["Why track experiments", "MLflow tracking server", "Logging parameters, metrics and artefacts", "Autologging", "Comparing runs", "Tags and run names", "Nested runs for tuning", "Sharing results with the team"],
+          "tools": ["MLflow", "scikit-learn"],
+          "lab_task": "Run an MLflow tracking server, log 20 training runs with different settings, compare them in the UI and pick the best run with a reason.",
+          "deliverable": "Tracked experiment and selection note",
+          "checks": [["Open the MLflow UI", "All 20 runs with parameters and metrics", "Screenshot"], ["Compare runs", "Best run chosen by the agreed metric", "Comparison view"], ["Reproduce the best run", "Same metric from the logged parameters", "Run output"]],
+          "objectives": ["Track experiments", "Compare runs", "Reproduce results"]
+        },
+        {
+          "topic": "Data Versioning with DVC",
+          "subtopics": ["Why version data", "DVC repositories and remotes", "Tracking datasets", "Switching data versions", "Storing data in S3 or Azure Blob", "Linking data versions to code commits", "Large files and Git LFS compared", "Data access permissions"],
+          "tools": ["DVC", "S3 or Azure Blob Storage", "Git"],
+          "lab_task": "Track the churn dataset with DVC in remote storage, add a new month of data, train on both versions and switch back to the old version to reproduce an earlier model.",
+          "deliverable": "DVC configuration, data versions and reproduction notes",
+          "checks": [["Check out an old commit", "Old data version restored", "dvc status output"], ["Train on both versions", "Metric per data version recorded", "Run outputs"], ["Push data", "Data in remote storage, not in Git", "Storage listing"]],
+          "objectives": ["Version data", "Link data and code", "Reproduce old models"]
+        },
+        {
+          "topic": "Reproducible Training Pipelines",
+          "subtopics": ["Steps: prepare, featurise, train and evaluate", "DVC pipelines", "Caching unchanged steps", "Parameters files", "Metrics and plots in pipelines", "Comparing pipeline runs", "Pipelines in CI", "When to move to an orchestrator"],
+          "tools": ["DVC pipelines", "Python"],
+          "lab_task": "Turn training into a DVC pipeline, change one parameter and show only affected steps re-run, and compare metrics between two branches.",
+          "deliverable": "Pipeline definition, run output and comparison",
+          "checks": [["Re-run with no changes", "All steps skipped", "dvc repro output"], ["Change a training parameter", "Only training and evaluation re-run", "dvc repro output"], ["Compare branches", "Metric differences shown", "dvc metrics diff output"]],
+          "objectives": ["Build pipelines", "Cache steps", "Compare experiments"]
+        },
+        {
+          "topic": "Model Packaging and the Model Registry",
+          "subtopics": ["Saving models with their preprocessing", "MLflow model format", "Model signatures and input examples", "The MLflow model registry", "Versions, aliases and tags", "Champion and challenger", "Model cards", "Loading models by alias"],
+          "tools": ["MLflow", "scikit-learn"],
+          "lab_task": "Package the churn pipeline as an MLflow model with a signature, register three versions, set champion and challenger aliases and load the champion in a script.",
+          "deliverable": "Registered model versions and loading script",
+          "checks": [["Load by alias", "Champion version loaded", "Script output"], ["Send input with a wrong column", "Signature check rejects it", "Error message"], ["Review the model card", "Use, data, metrics and limits recorded", "Model card"]],
+          "objectives": ["Package models", "Use a registry", "Document models"]
+        },
+        {
+          "topic": "Serving Models with FastAPI",
+          "subtopics": ["Real-time inference APIs", "FastAPI endpoints", "Input validation with pydantic", "Loading models at start-up", "Health and readiness endpoints", "Batch requests", "Latency and throughput", "API documentation"],
+          "tools": ["FastAPI", "pydantic", "Uvicorn", "Locust"],
+          "lab_task": "Serve the champion model with FastAPI, validate inputs, add health endpoints, load test it with Locust and record latency percentiles.",
+          "deliverable": "API code, load test results and API docs",
+          "checks": [["Send invalid input", "422 response with details", "API response"], ["Load test", "p95 latency recorded at the target rate", "Locust report"], ["Call the health endpoint", "Model version reported", "API response"]],
+          "objectives": ["Serve models", "Validate inputs", "Measure latency"]
+        },
+        {
+          "topic": "Containerising and Running Model Services",
+          "subtopics": ["Dockerfiles for model services", "Small and secure images", "Multi-stage builds", "Running as a non-root user", "Configuration through environment variables", "Image scanning", "Docker Compose for local stacks", "Registries and image tags"],
+          "tools": ["Docker", "Docker Compose", "Trivy"],
+          "lab_task": "Build a small, non-root image for the model API with a multi-stage build, scan it, run it with Compose next to MLflow and push it to a registry with a versioned tag.",
+          "deliverable": "Dockerfile, Compose file, scan report and pushed image",
+          "checks": [["Run the container", "Runs as a non-root user", "docker exec whoami output"], ["Scan the image", "No critical vulnerabilities", "Trivy report"], ["Compare image sizes", "Multi-stage image smaller", "docker images output"]],
+          "objectives": ["Containerise models", "Secure images", "Run local stacks"]
+        },
+        {
+          "topic": "Configuration, Secrets and Logging for ML Services",
+          "subtopics": ["Separating configuration from code", "Configuration files with Hydra or pydantic-settings", "Environment-specific settings", "Secrets in environment variables and vaults", "Structured logging", "Request IDs and model versions in logs", "Avoiding personal data in logs", "Log levels for training and serving"],
+          "tools": ["pydantic-settings or Hydra", "structlog", "HashiCorp Vault or a cloud secret store"],
+          "lab_task": "Move settings for training and the API into typed configuration per environment, read the database password from a secret store and add structured logs with request IDs and model versions.",
+          "deliverable": "Configuration files, secret set-up and log samples",
+          "checks": [["Start with a missing setting", "Clear error naming the setting", "Terminal output"], ["Search the repository for passwords", "No secrets in code or configuration files", "Repository scan"], ["Read a log line", "Request ID and model version present, no personal data", "Log sample"]],
+          "objectives": ["Configure ML services", "Manage secrets", "Log safely"]
+        },
+        {
+          "topic": "Continuous Integration for ML Projects",
+          "subtopics": ["What CI means for ML", "Linting and unit tests", "Training on a sample in CI", "Checking metrics against thresholds", "Building and scanning images", "Caching data and dependencies", "CML for reports in pull requests", "Branch protection"],
+          "tools": ["GitHub Actions", "CML", "pytest"],
+          "lab_task": "Build a CI workflow that lints, tests, trains on a sample, fails if the metric drops below a threshold, posts a metric report on the pull request and builds the image.",
+          "deliverable": "Workflow and a pull request with a report",
+          "checks": [["Lower model quality on a branch", "CI fails on the metric threshold", "CI log"], ["Open a pull request", "Metric report posted as a comment", "Pull request"], ["Break a unit test", "CI fails before training", "CI log"]],
+          "objectives": ["Build CI for ML", "Gate on metrics", "Report in pull requests"]
+        },
+        {
+          "topic": "Testing ML Code, Data and Models",
+          "subtopics": ["Unit tests for features", "Tests for data schemas", "Model behaviour tests", "Invariance and directional tests", "Minimum performance tests", "Fairness checks", "Testing the serving API", "Test data fixtures"],
+          "tools": ["pytest", "Hypothesis", "Deepchecks"],
+          "lab_task": "Write unit tests for feature functions, property-based tests with Hypothesis, behaviour tests that check predictions change in the expected direction and a fairness check.",
+          "deliverable": "Test suite and results",
+          "checks": [["Break a feature function", "Unit test fails", "pytest output"], ["Run behaviour tests", "Directional expectations hold", "pytest output"], ["Run the fairness check", "Gap between groups within the limit", "Test output"]],
+          "objectives": ["Test ML code", "Test model behaviour", "Check fairness"]
+        },
+        {
+          "topic": "Batch Inference Jobs",
+          "subtopics": ["When batch beats real time", "Scoring large tables", "Chunking and parallelism", "Writing predictions with metadata", "Idempotent re-runs", "Scheduling batch jobs", "Monitoring batch jobs", "Spark for very large batches"],
+          "tools": ["Python", "pandas or Polars", "cron or a scheduler"],
+          "lab_task": "Score a million customers nightly in chunks, write predictions with model version and run date, make re-runs safe and alert when the job fails.",
+          "deliverable": "Batch job, output table and alert",
+          "checks": [["Re-run the same night", "No duplicate predictions", "Query result"], ["Check prediction rows", "Model version and date on every row", "Query result"], ["Fail the job", "Alert sent", "Alert notification"]],
+          "objectives": ["Run batch inference", "Make jobs idempotent", "Monitor batch jobs"]
+        },
+        {
+          "topic": "Monitoring Models in Production",
+          "subtopics": ["What to monitor: service, data and model", "Logging predictions", "Prediction distributions", "Data drift", "Delayed labels and performance", "Monitoring with Evidently", "Dashboards in Grafana", "Alert thresholds"],
+          "tools": ["Evidently", "Prometheus", "Grafana"],
+          "lab_task": "Log predictions from the API, build service and prediction dashboards, run a drift report against training data and alert when drift crosses a threshold.",
+          "deliverable": "Monitoring set-up, dashboards, drift report and alert",
+          "checks": [["Send shifted data", "Drift detected in the report", "Evidently report"], ["Cross the drift threshold", "Alert fires", "Alert notification"], ["View the dashboard", "Latency, errors and prediction mix shown", "Grafana screenshot"]],
+          "objectives": ["Monitor services and models", "Detect drift", "Alert on problems"]
+        },
+        {
+          "topic": "Data Validation in ML Pipelines",
+          "subtopics": ["Why data checks first", "Schemas and expectations", "Great Expectations or Pandera", "Checks on ranges, nulls and categories", "Checking training and serving data", "Failing or warning", "Data quality reports", "Ownership of data checks"],
+          "tools": ["Pandera", "Great Expectations"],
+          "lab_task": "Add data checks to the pipeline and the API, block training when a new category appears, warn on rising nulls and publish a data quality report.",
+          "deliverable": "Validation rules, pipeline changes and report",
+          "checks": [["Add an unseen category", "Training blocked with a clear message", "Pipeline log"], ["Raise nulls slightly", "Warning logged and training continues", "Pipeline log"], ["Send bad input to the API", "Request rejected by validation", "API response"]],
+          "objectives": ["Validate data", "Protect training and serving", "Report data quality"]
+        },
+        {
+          "topic": "Orchestrating ML Workflows with Airflow or Prefect",
+          "subtopics": ["Why orchestration", "DAGs and flows", "Tasks and retries", "Scheduling retraining", "Passing artefacts between tasks", "Parameters and backfills", "Monitoring runs", "Choosing an orchestrator"],
+          "tools": ["Apache Airflow or Prefect", "MLflow"],
+          "lab_task": "Orchestrate monthly retraining: validate data, train, evaluate against the champion, register if better and notify the team, with retries on flaky steps.",
+          "deliverable": "DAG or flow definition and run history",
+          "checks": [["Run with a worse model", "Model not registered", "Run log"], ["Fail a step once", "Retry succeeds", "Run log"], ["Run a backfill for two months", "Both months processed", "Run history"]],
+          "objectives": ["Orchestrate ML workflows", "Gate on evaluation", "Handle retries"]
+        },
+        {
+          "topic": "Cloud ML Platforms: SageMaker, Azure ML and Vertex AI",
+          "subtopics": ["What managed ML platforms offer", "Training jobs", "Model registries", "Endpoints", "Pipelines", "Costs and quotas", "Lock-in and portability", "Choosing a platform"],
+          "tools": ["Amazon SageMaker", "Azure Machine Learning", "Google Vertex AI"],
+          "lab_task": "Train and deploy the churn model on one managed platform, compare effort and cost with the self-managed setup and record what moves easily between platforms.",
+          "deliverable": "Managed deployment, cost comparison and portability notes",
+          "checks": [["Call the managed endpoint", "Predictions returned", "API response"], ["Compare costs", "Monthly cost for both setups", "Comparison table"], ["Review portability", "Portable and platform-specific parts listed", "Notes"]],
+          "objectives": ["Use managed ML platforms", "Compare costs", "Judge lock-in"]
+        },
+        {
+          "topic": "Feature Pipelines and Training-Serving Skew",
+          "subtopics": ["Features computed in training and serving", "Sources of skew", "Shared feature code", "Point-in-time correctness", "Feature freshness", "Logging features at serving time", "Detecting skew", "When to adopt a feature store"],
+          "tools": ["Python", "pandas", "MLflow"],
+          "lab_task": "Find a training-serving skew bug in the churn service, fix it with shared feature code, add point-in-time joins for training and compare logged serving features with training features.",
+          "deliverable": "Fix, shared feature module and skew report",
+          "checks": [["Compare features", "Skew found before the fix", "Skew report"], ["Apply the fix", "Serving and training features match", "Skew report"], ["Check point-in-time joins", "No future data in training rows", "Test output"]],
+          "objectives": ["Prevent skew", "Share feature code", "Build point-in-time training data"]
+        },
+        {
+          "topic": "Responsible Model Release: Reviews, Approvals and Documentation",
+          "subtopics": ["Release criteria for models", "Model and data documentation", "Approval workflows", "Shadow testing before release", "Rollback plans", "Communicating changes to users", "Audit trails", "Post-release reviews"],
+          "tools": ["MLflow", "GitHub environments", "Model card template"],
+          "lab_task": "Define release criteria, run the new model in shadow mode for a day, get approval through a protected environment, release it and roll back on purpose to test the plan.",
+          "deliverable": "Release criteria, shadow results, approval record and rollback evidence",
+          "checks": [["Compare shadow and live predictions", "Differences within the agreed range", "Shadow report"], ["Deploy without approval", "Blocked by the protected environment", "Pipeline log"], ["Roll back", "Previous model serving again", "API response"]],
+          "objectives": ["Release models responsibly", "Use approvals", "Test rollbacks"]
+        },
+        {
+          "topic": "Beginner Capstone: Production Churn Prediction Service",
+          "subtopics": ["Pipeline", "Serving", "Monitoring", "Release"],
+          "tools": ["DVC", "MLflow", "FastAPI", "Docker", "GitHub Actions", "Evidently", "Grafana"],
+          "lab_task": "Deliver the churn model end to end: versioned data, a tested training pipeline, a registry, a containerised API with CI, batch scoring, monitoring with drift alerts and an approved release, then demo a rollback.",
+          "deliverable": "Repository, pipeline, deployed service, dashboards and demo recording",
+          "checks": [["Reproduce training from a clean clone", "Same metric as the registered model", "Reproduction notes"], ["Send drifted data in the demo", "Drift alert fires", "Demo recording"], ["Roll back during the demo", "Previous model live within minutes", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one service", "Run ML reproducibly in production", "Release and roll back safely"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For ML engineers and platform engineers who run models in production. Covers Kubernetes for ML, Kubeflow Pipelines, serving with KServe, BentoML and Triton, feature stores, canary and shadow deployment, drift-driven retraining, model governance, Azure ML, SageMaker, Vertex AI, distributed training, tuning at scale, Spark pipelines, infrastructure as code, security, cost, serving LLMs with vLLM, evaluating LLM applications and observability.",
+      "prerequisites": ["Has tracked experiments, packaged models and served them with an API", "Uses Docker and CI", "Knows Kubernetes basics"],
+      "outcomes": ["Run ML pipelines and model serving on Kubernetes and cloud platforms", "Deploy models progressively and retrain automatically", "Govern, secure and cost-control ML systems", "Serve and evaluate LLM workloads"],
+      "days": [
+        {
+          "topic": "Kubernetes for Machine Learning Workloads",
+          "subtopics": ["Why Kubernetes for ML", "Jobs and CronJobs for training", "GPU nodes and device plugins", "Requests, limits and node selectors", "Persistent volumes for data", "Namespaces for teams", "Helm charts for ML services", "Debugging pods"],
+          "tools": ["Kubernetes", "Helm", "NVIDIA device plugin"],
+          "lab_task": "Run training as a Kubernetes Job on a GPU node, schedule nightly scoring with a CronJob, deploy the model API with a Helm chart and debug a pod stuck pending.",
+          "deliverable": "Manifests, Helm chart and debugging notes",
+          "checks": [["Run the training Job", "Completes on the GPU node", "kubectl output"], ["Fix the pending pod", "Cause found in events and fixed", "kubectl describe output"], ["Upgrade the Helm release", "New model version served", "API response"]],
+          "objectives": ["Run ML on Kubernetes", "Use GPUs", "Package services with Helm"]
+        },
+        {
+          "topic": "ML Pipelines with Kubeflow Pipelines",
+          "subtopics": ["Kubeflow components", "Pipeline components and containers", "Passing artefacts", "Caching", "Pipeline parameters", "Recurring runs", "Metadata and lineage", "Kubeflow compared with Airflow"],
+          "tools": ["Kubeflow Pipelines", "Kubernetes"],
+          "lab_task": "Build a Kubeflow pipeline for validate, train, evaluate and register, use caching, schedule recurring runs and trace a model back to its data in the lineage view.",
+          "deliverable": "Pipeline code, runs and lineage screenshot",
+          "checks": [["Re-run unchanged steps", "Steps reused from cache", "Run graph"], ["Trace lineage", "Model linked to its dataset and run", "Lineage screenshot"], ["Schedule a recurring run", "Runs created on schedule", "Run list"]],
+          "objectives": ["Build Kubeflow pipelines", "Track lineage", "Schedule runs"]
+        },
+        {
+          "topic": "Model Serving at Scale with KServe, BentoML and Triton",
+          "subtopics": ["Serving framework choices", "KServe InferenceServices", "Autoscaling and scale to zero", "BentoML services", "NVIDIA Triton for GPU models", "Dynamic batching", "Multi-model serving", "Benchmarking servers"],
+          "tools": ["KServe", "BentoML", "NVIDIA Triton", "Locust"],
+          "lab_task": "Serve the same model with KServe and BentoML, serve an image model on Triton with dynamic batching, and benchmark latency and cost per thousand predictions.",
+          "deliverable": "Serving configurations and benchmark table",
+          "checks": [["Send no traffic for a while", "KServe scales to zero", "kubectl output"], ["Turn on dynamic batching", "Throughput higher on Triton", "Benchmark table"], ["Compare cost", "Cost per thousand predictions for each", "Benchmark table"]],
+          "objectives": ["Serve models at scale", "Autoscale", "Choose a serving framework"]
+        },
+        {
+          "topic": "Feature Stores with Feast",
+          "subtopics": ["Feature store concepts", "Offline and online stores", "Feature views and entities", "Materialisation", "Point-in-time training data", "Online lookups at serving time", "Feature reuse", "Managed feature stores compared"],
+          "tools": ["Feast", "Redis", "Parquet"],
+          "lab_task": "Define churn features in Feast, build a point-in-time training set, materialise features to Redis and look them up in the model API.",
+          "deliverable": "Feature definitions, training set and API changes",
+          "checks": [["Build the training set", "No values from after each label date", "Test output"], ["Look up online features", "Values returned in under 10 ms", "Timing output"], ["Reuse a feature", "Second model uses the same feature view", "Code review"]],
+          "objectives": ["Use a feature store", "Serve features online", "Reuse features"]
+        },
+        {
+          "topic": "Progressive Model Deployment: Shadow, Canary and A/B Tests",
+          "subtopics": ["Deployment strategies for models", "Shadow deployments", "Canary releases", "Traffic splitting with KServe or Istio", "A/B tests for business metrics", "Automatic rollback on metrics", "Bandits for model choice in brief", "Recording deployment decisions"],
+          "tools": ["KServe", "Istio or Argo Rollouts", "Prometheus"],
+          "lab_task": "Deploy a challenger in shadow, then as a 10 percent canary with automatic rollback on error rate, and run an A/B test on a business metric.",
+          "deliverable": "Deployment configuration, rollout results and A/B analysis",
+          "checks": [["Shadow the challenger", "Predictions logged without serving them", "Logs"], ["Inject errors in the canary", "Rollback triggered automatically", "Rollout status"], ["Analyse the A/B test", "Effect on the business metric with an interval", "Analysis"]],
+          "objectives": ["Deploy progressively", "Roll back automatically", "Test models on business metrics"]
+        },
+        {
+          "topic": "Drift Detection and Automated Retraining",
+          "subtopics": ["Types of drift", "Statistical tests for drift", "Performance monitoring with delayed labels", "Retraining triggers: schedule, drift and performance", "Avoiding retraining on bad data", "Champion and challenger evaluation", "Human review in the loop", "Measuring the value of retraining"],
+          "tools": ["Evidently", "Airflow or Kubeflow", "MLflow"],
+          "lab_task": "Detect drift on incoming data, trigger the retraining pipeline, compare the new model with the champion on recent labelled data and require a human approval before promotion.",
+          "deliverable": "Drift monitors, trigger configuration and approval record",
+          "checks": [["Inject drift", "Retraining triggered", "Pipeline run"], ["Retrain on corrupted data", "Promotion blocked by evaluation", "Pipeline log"], ["Approve the challenger", "Promoted after approval", "Registry history"]],
+          "objectives": ["Detect drift", "Retrain automatically", "Keep humans in control"]
+        },
+        {
+          "topic": "Model Governance, Lineage and Audit",
+          "subtopics": ["What governance requires", "Lineage from data to prediction", "Model inventories", "Access control on models", "Approval records", "Reproducing a past prediction", "Retention of artefacts", "Audit reports"],
+          "tools": ["MLflow", "Unity Catalog or a model inventory", "OpenLineage"],
+          "lab_task": "Build a model inventory with owners and risk ratings, capture lineage with OpenLineage, restrict registry access by role and reproduce a prediction made last month.",
+          "deliverable": "Inventory, lineage graph, access rules and reproduction evidence",
+          "checks": [["Reproduce last month's prediction", "Same output from stored model and features", "Reproduction log"], ["Try to promote without the role", "Blocked", "Error message"], ["Show lineage", "Prediction traced to data and code versions", "Lineage graph"]],
+          "objectives": ["Govern models", "Track lineage", "Pass audits"]
+        },
+        {
+          "topic": "MLOps on Azure Machine Learning",
+          "subtopics": ["Workspaces and compute", "Data assets and environments", "Jobs and components", "Azure ML pipelines", "Managed online endpoints", "Model registry and MLflow integration", "Responsible AI dashboard", "CI/CD with GitHub Actions"],
+          "tools": ["Azure Machine Learning", "Azure CLI ml extension", "GitHub Actions"],
+          "lab_task": "Build an Azure ML pipeline, register the model, deploy a managed endpoint with blue-green traffic and automate it from GitHub Actions.",
+          "deliverable": "Pipeline, endpoint and workflow",
+          "checks": [["Shift traffic to green", "Traffic split applied", "Endpoint details"], ["Run the workflow", "Pipeline and deployment automated", "Workflow log"], ["Open the Responsible AI dashboard", "Error analysis and explanations shown", "Screenshot"]],
+          "objectives": ["Run MLOps on Azure ML", "Deploy managed endpoints", "Automate with CI/CD"]
+        },
+        {
+          "topic": "MLOps on Amazon SageMaker",
+          "subtopics": ["SageMaker training jobs", "SageMaker Pipelines", "Model Registry", "Real-time, serverless and batch endpoints", "Model Monitor", "Feature Store", "Projects and templates", "Cost controls"],
+          "tools": ["Amazon SageMaker", "AWS CLI", "AWS CodePipeline or GitHub Actions"],
+          "lab_task": "Build a SageMaker pipeline that trains, evaluates and registers the model, deploy a serverless endpoint after approval and set up Model Monitor for data quality.",
+          "deliverable": "Pipeline, endpoint and monitor configuration",
+          "checks": [["Approve the model package", "Deployment starts", "Pipeline log"], ["Send bad data", "Model Monitor reports a violation", "Monitor report"], ["Compare endpoint types", "Cost and latency for each", "Comparison table"]],
+          "objectives": ["Run MLOps on SageMaker", "Monitor endpoints", "Control cost"]
+        },
+        {
+          "topic": "MLOps on Google Vertex AI",
+          "subtopics": ["Vertex AI training", "Vertex AI Pipelines", "Model Registry", "Endpoints and traffic splitting", "Model Monitoring", "Feature Store", "Experiments", "Integration with BigQuery"],
+          "tools": ["Google Vertex AI", "BigQuery", "gcloud CLI"],
+          "lab_task": "Train from BigQuery data in a Vertex AI pipeline, deploy two model versions with a traffic split and turn on skew and drift monitoring.",
+          "deliverable": "Pipeline, endpoint and monitoring configuration",
+          "checks": [["Split traffic", "Requests divided between versions", "Endpoint metrics"], ["Trigger skew", "Monitoring alert raised", "Alert notification"], ["Track experiments", "Runs compared in Vertex AI", "Screenshot"]],
+          "objectives": ["Run MLOps on Vertex AI", "Split traffic", "Monitor skew and drift"]
+        },
+        {
+          "topic": "Running Distributed Training Jobs and Using GPUs Efficiently",
+          "subtopics": ["When to distribute training", "Data parallelism", "PyTorch DistributedDataParallel", "Mixed precision", "GPU use and bottlenecks", "Data loading speed", "Checkpointing", "Spot instances for training"],
+          "tools": ["PyTorch", "torchrun", "NVIDIA tools"],
+          "lab_task": "Train an image model on one and then four GPUs with DDP and mixed precision, fix a data loading bottleneck and resume from a checkpoint after interruption.",
+          "deliverable": "Training scripts, scaling results and checkpoint test",
+          "checks": [["Compare one and four GPUs", "Speed-up recorded", "Timing table"], ["Fix the data loader", "GPU use rises", "nvidia-smi output"], ["Interrupt and resume", "Training continues from the checkpoint", "Training log"]],
+          "objectives": ["Distribute training", "Use GPUs well", "Train on interruptible capacity"]
+        },
+        {
+          "topic": "Hyperparameter Tuning at Scale",
+          "subtopics": ["Search strategies", "Optuna", "Ray Tune", "Early stopping of bad trials", "Parallel trials on a cluster", "Tracking trials in MLflow", "Cost of tuning", "When tuning is not worth it"],
+          "tools": ["Optuna", "Ray Tune", "MLflow"],
+          "lab_task": "Tune the model with Ray Tune across a cluster with early stopping, log trials to MLflow and compare the gain and cost with a small random search.",
+          "deliverable": "Tuning code, MLflow runs and cost comparison",
+          "checks": [["Run with early stopping", "Weak trials stopped early", "Ray Tune log"], ["Compare with random search", "Metric gain and cost for both", "Comparison table"], ["Track trials", "All trials in MLflow", "MLflow UI"]],
+          "objectives": ["Tune at scale", "Stop bad trials early", "Weigh tuning cost"]
+        },
+        {
+          "topic": "Data Pipelines for ML with Spark",
+          "subtopics": ["When data is too big for pandas", "Spark DataFrames for features", "Writing feature tables in Delta or Parquet", "Partitioning for training reads", "Data quality checks in Spark", "Scheduling Spark jobs", "Reading Spark output in training", "Cost of Spark clusters"],
+          "tools": ["PySpark", "Delta Lake", "Databricks or EMR"],
+          "lab_task": "Build monthly customer features from 500 million events with Spark, write them partitioned in Delta, check quality and train from the feature table.",
+          "deliverable": "Spark job, feature table and training run",
+          "checks": [["Build features", "Feature table for all customers", "Job output"], ["Run quality checks", "Checks pass or block the write", "Job log"], ["Train from the table", "Model trained from Delta data", "MLflow run"]],
+          "objectives": ["Build features with Spark", "Store features for training", "Check quality at scale"]
+        },
+        {
+          "topic": "Infrastructure as Code for ML Platforms",
+          "subtopics": ["Platform components", "Terraform for cloud ML resources", "Helm for in-cluster tools", "GitOps with Argo CD", "Environments: dev, staging and prod", "Secrets management", "Policy as code", "Rebuilding a platform from code"],
+          "tools": ["Terraform", "Helm", "Argo CD"],
+          "lab_task": "Define an ML platform with Terraform and Argo CD (cluster, storage, MLflow and serving), deploy it to two environments and rebuild staging from scratch.",
+          "deliverable": "Terraform code, GitOps repository and rebuild log",
+          "checks": [["Rebuild staging", "Platform back with no manual steps", "Rebuild log"], ["Change a Helm value in Git", "Argo CD applies it", "Argo CD screenshot"], ["Search for secrets", "None stored in Git", "Repository scan"]],
+          "objectives": ["Build ML platforms as code", "Use GitOps", "Separate environments"]
+        },
+        {
+          "topic": "Security for ML Systems",
+          "subtopics": ["Threats to ML systems", "Securing data and models", "Model files and unsafe formats such as pickle", "Dependency and image scanning", "Secrets and identities for pipelines", "Securing inference endpoints", "Adversarial inputs and model theft", "Security reviews for ML"],
+          "tools": ["ModelScan", "Trivy", "OPA or Kyverno"],
+          "lab_task": "Scan model files for unsafe code, switch to a safe format, scan images, require signed images in the cluster and add authentication and rate limits to the endpoint.",
+          "deliverable": "Scan results, policies and endpoint configuration",
+          "checks": [["Load a malicious pickle in the scan", "Threat reported", "ModelScan output"], ["Deploy an unsigned image", "Rejected by policy", "Cluster event"], ["Call the endpoint without a token", "Refused", "API response"]],
+          "objectives": ["Secure ML systems", "Scan models and images", "Protect endpoints"]
+        },
+        {
+          "topic": "Cost Management for ML Workloads",
+          "subtopics": ["Where ML money goes", "Tagging and showback", "Right-sizing training and serving", "Spot and preemptible capacity", "Autoscaling and scale to zero", "Batch compared with real-time costs", "Model optimisation for cost", "Cost reviews"],
+          "tools": ["Kubecost or cloud cost tools", "Kubernetes", "Cloud billing exports"],
+          "lab_task": "Measure cost per training run and per thousand predictions, move training to spot capacity, scale serving to zero at night and report savings.",
+          "deliverable": "Cost report before and after",
+          "checks": [["Measure training cost", "Cost per run recorded", "Cost report"], ["Move to spot capacity", "Training completes with checkpoints at lower cost", "Cost report"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Measure ML cost", "Reduce training and serving cost", "Report savings"]
+        },
+        {
+          "topic": "Serving Large Language Models with vLLM",
+          "subtopics": ["LLM serving challenges", "vLLM and paged attention", "Continuous batching", "Quantised models", "OpenAI-compatible APIs", "GPU memory sizing", "Autoscaling LLM servers", "Managed LLM APIs compared"],
+          "tools": ["vLLM", "Kubernetes", "Hugging Face models"],
+          "lab_task": "Serve an open model with vLLM behind an OpenAI-compatible API, compare a quantised version for throughput and quality and estimate cost against a managed API.",
+          "deliverable": "Serving configuration, benchmark and cost comparison",
+          "checks": [["Call the API with an OpenAI client", "Responses returned", "Client output"], ["Compare quantised and full models", "Throughput and quality recorded", "Benchmark table"], ["Compare costs", "Self-hosted and managed costs per million tokens", "Comparison table"]],
+          "objectives": ["Serve LLMs", "Use quantisation", "Compare hosting options"]
+        },
+        {
+          "topic": "Evaluation Pipelines for LLM Applications",
+          "subtopics": ["Why LLM apps need evaluation pipelines", "Test sets for LLM tasks", "Automatic metrics and LLM judges", "Retrieval evaluation for RAG", "Regression tests on prompts and models", "Evaluation in CI", "Human review", "Tracking evaluation results"],
+          "tools": ["MLflow evaluate or Ragas", "promptfoo", "GitHub Actions"],
+          "lab_task": "Build an evaluation set of 50 questions for a RAG app, score retrieval and answers, run the evaluation in CI on every prompt change and block a change that lowers quality.",
+          "deliverable": "Evaluation set, pipeline and CI results",
+          "checks": [["Run the evaluation", "Retrieval and answer scores recorded", "Evaluation report"], ["Change a prompt for the worse", "CI blocks the change", "CI log"], ["Compare judge and human scores", "Agreement measured on a sample", "Comparison table"]],
+          "objectives": ["Evaluate LLM apps", "Automate evaluation", "Prevent regressions"]
+        },
+        {
+          "topic": "Observability for ML Services",
+          "subtopics": ["Metrics for ML services", "Tracing inference requests", "Logging inputs and outputs safely", "Dashboards for teams", "SLOs for models", "Alerting on model quality", "Linking monitoring to retraining", "Incident runbooks"],
+          "tools": ["Prometheus", "Grafana", "OpenTelemetry", "Evidently"],
+          "lab_task": "Add metrics and traces to the serving stack, define SLOs for latency and prediction quality, build team dashboards and write runbooks for each alert.",
+          "deliverable": "Instrumentation, SLOs, dashboards and runbooks",
+          "checks": [["Follow a request", "Trace through API, feature store and model", "Trace screenshot"], ["Breach the latency SLO", "Alert fires with a runbook link", "Alert notification"], ["Review the quality dashboard", "Prediction quality trends shown", "Grafana screenshot"]],
+          "objectives": ["Observe ML services", "Set model SLOs", "Write runbooks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Automated ML Platform on Kubernetes",
+          "subtopics": ["Platform", "Pipelines and features", "Serving and deployment", "Operations"],
+          "tools": ["Kubernetes", "Kubeflow or Airflow", "Feast", "KServe", "MLflow", "Argo CD", "Prometheus and Grafana"],
+          "lab_task": "Build an ML platform as code with pipelines, a feature store, KServe serving with canary releases, drift-triggered retraining with approval, security policies and cost reporting, then demo a full retraining and release cycle.",
+          "deliverable": "Platform repository, pipelines, dashboards and demo recording",
+          "checks": [["Inject drift in the demo", "Retraining, evaluation, approval and canary release run end to end", "Demo recording"], ["Rebuild the platform from code", "Platform restored without manual steps", "Rebuild log"], ["Present the cost report", "Cost per model and per prediction shown", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Automate the model lifecycle", "Operate it with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For ML platform leads, senior ML engineers and architects. Covers platform architecture, multi-tenancy, real-time ML, GPU cluster scheduling, operating LLM and RAG systems, fine-tuning pipelines, model optimisation, regulation and model risk, ML supply chain security, reliability engineering, AI FinOps, edge MLOps, privacy-preserving ML, experimentation platforms, labelling operations, developer experience, incident response, platform migration and MLOps strategy.",
+      "prerequisites": ["Runs ML pipelines and serving in production", "Uses Kubernetes, infrastructure as code and CI/CD", "Has deployed models with monitoring and retraining"],
+      "outcomes": ["Design multi-tenant ML and LLM platforms", "Run real-time, GPU-heavy and edge workloads reliably and cost-effectively", "Meet regulation, security and privacy requirements", "Lead MLOps strategy, adoption and incident response"],
+      "days": [
+        {
+          "topic": "ML Platform Architecture",
+          "subtopics": ["Build, buy or combine", "Reference architectures", "Training, serving, features and monitoring layers", "Batch, real-time and LLM workloads together", "Data platform integration", "Multi-cloud and hybrid choices", "Architecture decision records", "Reviewing the architecture"],
+          "tools": ["Architecture diagrams", "Decision record templates"],
+          "lab_task": "Design an ML platform for a company with 40 data scientists and both classical and LLM workloads, choose build or buy per layer and defend the design in a review.",
+          "deliverable": "Architecture, decision records and review notes",
+          "checks": [["Review build or buy choices", "Each choice justified with cost and risk", "Decision records"], ["Trace workloads through the design", "Batch, real-time and LLM paths covered", "Architecture diagram"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design ML platforms", "Make build or buy decisions", "Record decisions"]
+        },
+        {
+          "topic": "Multi-Tenant ML Platforms",
+          "subtopics": ["Tenancy models for teams", "Namespaces, quotas and priorities", "Isolation of data and models", "Shared compared with dedicated GPUs", "Self-service with templates", "Chargeback", "Noisy neighbours", "Platform guardrails"],
+          "tools": ["Kubernetes", "Kueue", "OPA or Kyverno", "Backstage"],
+          "lab_task": "Set up three team tenants with quotas, priorities and data isolation, provide a self-service project template and show one team cannot read another's models.",
+          "deliverable": "Tenant configuration, templates and isolation tests",
+          "checks": [["Read another team's model", "Access denied", "Error message"], ["Exceed a quota", "Job queued, not run", "Kueue status"], ["Create a project from the template", "Pipeline, registry and serving ready", "Backstage screenshot"]],
+          "objectives": ["Run multi-tenant platforms", "Isolate teams", "Offer self-service"]
+        },
+        {
+          "topic": "Real-Time ML: Streaming Features and Online Inference",
+          "subtopics": ["Real-time use cases", "Streaming features with Kafka and Flink", "Online feature stores", "Low-latency serving", "Latency budgets", "Consistency between batch and stream features", "Online learning in brief", "Testing real-time systems"],
+          "tools": ["Apache Kafka", "Apache Flink or Spark Structured Streaming", "Redis", "KServe"],
+          "lab_task": "Build a fraud score service with streaming features from Kafka, an online store and a model under a 50 ms p99 budget, and check stream features against batch features.",
+          "deliverable": "Streaming pipeline, service and latency results",
+          "checks": [["Load test", "p99 under 50 ms", "Load test report"], ["Compare stream and batch features", "Values match within tolerance", "Comparison report"], ["Delay the stream", "Service falls back safely", "Service log"]],
+          "objectives": ["Build real-time ML", "Stream features", "Meet latency budgets"]
+        },
+        {
+          "topic": "GPU Cluster Scheduling and Utilisation",
+          "subtopics": ["GPU scarcity and cost", "Scheduling with Kueue and Volcano", "Ray clusters on Kubernetes", "Fractional GPUs and MIG", "Gang scheduling for distributed jobs", "Preemption and priorities", "Measuring GPU use", "Capacity planning for GPUs"],
+          "tools": ["Kueue", "KubeRay", "NVIDIA MIG", "DCGM exporter"],
+          "lab_task": "Share a GPU pool between training and inference with Kueue priorities, split a GPU with MIG for small models, run a gang-scheduled Ray job and report utilisation.",
+          "deliverable": "Scheduling configuration and utilisation report",
+          "checks": [["Submit a high-priority job", "Lower-priority work preempted", "Kueue events"], ["Split a GPU with MIG", "Three small models on one GPU", "nvidia-smi output"], ["Report utilisation", "GPU use before and after changes", "DCGM dashboard"]],
+          "objectives": ["Schedule GPUs", "Share GPUs", "Raise utilisation"]
+        },
+        {
+          "topic": "Operating LLM and RAG Systems in Production",
+          "subtopics": ["LLMOps compared with MLOps", "Prompt and model versioning", "Retrieval index pipelines", "Guardrails", "Tracing LLM calls", "Cost and latency controls", "Caching responses", "Incidents specific to LLM systems"],
+          "tools": ["LangSmith or Langfuse", "vLLM", "Vector database", "Guardrails tools"],
+          "lab_task": "Put a RAG assistant into production with versioned prompts, a nightly index rebuild, guardrails, tracing, semantic caching and cost alerts, then roll back a bad prompt.",
+          "deliverable": "Production configuration, traces and rollback evidence",
+          "checks": [["Roll back a prompt", "Previous prompt version live", "Deployment log"], ["Send a prompt injection", "Guardrail blocks it", "Trace"], ["Measure caching", "Cost and latency lower for repeated questions", "Metrics comparison"]],
+          "objectives": ["Operate LLM systems", "Version prompts and indexes", "Control cost and risk"]
+        },
+        {
+          "topic": "Fine-Tuning Pipelines for Open-Weight Language Models",
+          "subtopics": ["When to fine-tune", "Data preparation and quality", "LoRA and QLoRA", "Training infrastructure", "Evaluation before release", "Model registry for adapters", "Serving fine-tuned adapters", "Retraining cadence"],
+          "tools": ["Hugging Face TRL", "PEFT", "MLflow", "vLLM"],
+          "lab_task": "Build a pipeline that prepares data, fine-tunes an open model with QLoRA, evaluates it against the base model and serves the adapter with vLLM.",
+          "deliverable": "Pipeline, evaluation report and served adapter",
+          "checks": [["Compare with the base model", "Task score improves", "Evaluation report"], ["Check general ability", "No large drop on a general test set", "Evaluation report"], ["Serve the adapter", "Requests routed to the adapter", "API response"]],
+          "objectives": ["Fine-tune open-weight models", "Evaluate before release", "Serve adapters"]
+        },
+        {
+          "topic": "Model Optimisation for Serving: Quantisation, Pruning and Compilation",
+          "subtopics": ["Why optimise models", "Post-training quantisation", "Quantisation-aware training", "Pruning", "Distillation", "ONNX and ONNX Runtime", "TensorRT", "Measuring accuracy loss"],
+          "tools": ["ONNX Runtime", "TensorRT", "Hugging Face Optimum"],
+          "lab_task": "Export a model to ONNX, quantise it, compile it with TensorRT and compare latency, cost and accuracy with the original.",
+          "deliverable": "Optimised models and comparison table",
+          "checks": [["Compare latency", "Optimised versions faster", "Benchmark table"], ["Compare accuracy", "Loss within the agreed limit", "Evaluation table"], ["Compare cost per prediction", "Saving recorded", "Benchmark table"]],
+          "objectives": ["Optimise models", "Measure trade-offs", "Serve efficiently"]
+        },
+        {
+          "topic": "Regulation, Model Risk and Responsible AI Operations",
+          "subtopics": ["EU AI Act risk categories", "Model risk management (SR 11-7, RBI guidance)", "India's DPDP Act and data use", "Documentation requirements", "Human oversight", "Bias monitoring in production", "Incident reporting", "Evidence for regulators"],
+          "tools": ["Model inventory", "Fairness monitoring", "Documentation templates"],
+          "lab_task": "Classify five company models under the EU AI Act, complete documentation for a high-risk model, add production bias monitoring and prepare an evidence pack.",
+          "deliverable": "Classification, documentation, monitoring and evidence pack",
+          "checks": [["Classify models", "Each placed in a risk category with reasons", "Classification table"], ["Monitor bias", "Bias metrics tracked in production", "Dashboard"], ["Review the evidence pack", "Documentation meets the checklist", "Evidence pack"]],
+          "objectives": ["Apply regulation", "Manage model risk", "Operate AI responsibly"]
+        },
+        {
+          "topic": "Securing the ML Supply Chain",
+          "subtopics": ["Supply chain risks for ML", "Model provenance", "Signing models and images", "SBOMs and AI bill of materials", "Scanning datasets and models", "Third-party model risk", "Secure pipelines", "Responding to compromised models"],
+          "tools": ["Sigstore cosign", "ModelScan", "SLSA tooling"],
+          "lab_task": "Sign models and images in the pipeline, verify signatures at deploy time, produce an AI bill of materials and respond to a simulated compromised public model.",
+          "deliverable": "Signing set-up, AI BOM and incident response notes",
+          "checks": [["Deploy an unsigned model", "Rejected at deploy time", "Deploy log"], ["Produce the AI BOM", "Data, model and dependencies listed", "AI BOM"], ["Respond to the compromised model", "Affected services found and fixed", "Incident notes"]],
+          "objectives": ["Secure the ML supply chain", "Sign and verify artefacts", "Respond to compromise"]
+        },
+        {
+          "topic": "Reliability Engineering for ML Systems",
+          "subtopics": ["Failure modes of ML systems", "SLOs for services and models", "Fallbacks and safe defaults", "Graceful degradation", "Load shedding", "Chaos testing for ML", "Capacity for peaks", "Error budgets for model quality"],
+          "tools": ["Prometheus", "Grafana", "Chaos Mesh"],
+          "lab_task": "Define SLOs and fallbacks for the fraud service, inject failures in the feature store and model server and show the service degrades safely within its error budget.",
+          "deliverable": "SLOs, fallbacks and chaos test results",
+          "checks": [["Kill the feature store", "Fallback features used", "Service log"], ["Overload the model", "Load shed without collapse", "Load test report"], ["Check the error budget", "Within budget during the test", "SLO dashboard"]],
+          "objectives": ["Engineer reliable ML", "Design fallbacks", "Test with chaos"]
+        },
+        {
+          "topic": "FinOps for AI and ML",
+          "subtopics": ["Unit economics of AI features", "Cost per prediction and per token", "GPU reservations and commitments", "Cost allocation by team and product", "Optimising LLM spend", "Build compared with buy for models", "Budgets and alerts", "Cost reviews with product owners"],
+          "tools": ["Cloud billing exports", "Kubecost", "Spreadsheet"],
+          "lab_task": "Calculate unit cost for three AI features, allocate spend by team, cut LLM spend with routing to smaller models and caching, and present a quarterly cost review.",
+          "deliverable": "Unit cost model, allocation report and review",
+          "checks": [["Calculate unit costs", "Cost per prediction or request for each feature", "Cost model"], ["Apply model routing", "Spend down with quality kept", "Comparison report"], ["Present the review", "Costs linked to business value", "Presentation"]],
+          "objectives": ["Measure AI unit economics", "Allocate cost", "Reduce spend"]
+        },
+        {
+          "topic": "Edge MLOps: Deploying Models to Devices",
+          "subtopics": ["Edge use cases", "Model formats for devices: TFLite, ONNX and Core ML", "Fleet deployment", "Over-the-air updates", "Monitoring edge models", "Offline operation", "Security on devices", "Edge compared with cloud inference"],
+          "tools": ["ONNX Runtime", "TensorFlow Lite", "Azure IoT Edge or AWS IoT Greengrass"],
+          "lab_task": "Convert a model for edge devices, deploy it to a simulated fleet with staged updates, collect monitoring data when online and roll back a bad update.",
+          "deliverable": "Edge model, deployment configuration and monitoring data",
+          "checks": [["Roll out to 10 percent of devices", "Staged rollout works", "Fleet dashboard"], ["Roll back a bad update", "Devices return to the previous model", "Fleet dashboard"], ["Run offline", "Inference continues without connectivity", "Device log"]],
+          "objectives": ["Deploy to edge devices", "Update fleets safely", "Monitor edge models"]
+        },
+        {
+          "topic": "Privacy-Preserving ML in Production",
+          "subtopics": ["Privacy risks in ML", "Data minimisation", "Differential privacy in training", "Federated learning", "Synthetic data for development", "Membership inference tests", "Deleting data from models", "Privacy reviews"],
+          "tools": ["Opacus", "Flower", "SDV"],
+          "lab_task": "Train a model with differential privacy, run a federated training round across three simulated clients, test for membership inference and plan how to honour a deletion request.",
+          "deliverable": "Private training results, federated run and privacy test",
+          "checks": [["Compare private and normal models", "Accuracy and privacy budget reported", "Comparison table"], ["Run a membership inference test", "Risk lower for the private model", "Test results"], ["Plan a deletion request", "Steps to remove data and retrain defined", "Plan"]],
+          "objectives": ["Train with privacy", "Use federated learning", "Handle deletion requests"]
+        },
+        {
+          "topic": "Experimentation Platforms for ML",
+          "subtopics": ["Why a shared experimentation platform", "Assignment and randomisation services", "Metrics definitions", "Guardrail metrics", "Sequential testing", "Interference and network effects", "Experiment reviews", "Linking experiments to model releases"],
+          "tools": ["GrowthBook or an in-house service", "Python"],
+          "lab_task": "Set up an experimentation service, run a model A/B test with guardrails and sequential analysis and link the result to the model release decision.",
+          "deliverable": "Experiment configuration, analysis and release decision",
+          "checks": [["Check assignment", "Users split evenly and consistently", "Assignment report"], ["Breach a guardrail", "Experiment stopped", "Experiment log"], ["Record the decision", "Release linked to experiment results", "Release record"]],
+          "objectives": ["Run experiments for models", "Use guardrails", "Link experiments to releases"]
+        },
+        {
+          "topic": "Data Labelling Operations and Human Feedback",
+          "subtopics": ["Labelling workflows", "Label quality and agreement", "Active learning", "Weak supervision", "Human feedback for LLMs", "Labelling vendors and tools", "Cost and turnaround", "Feeding labels back into training"],
+          "tools": ["Label Studio", "Snorkel", "Python"],
+          "lab_task": "Run a labelling workflow with two labellers, measure agreement, use active learning to choose what to label next and show the model gain per thousand labels.",
+          "deliverable": "Labelling set-up, agreement report and learning curve",
+          "checks": [["Measure agreement", "Cohen's kappa reported", "Agreement report"], ["Compare active and random selection", "Active learning gains more per label", "Learning curve"], ["Feed labels to training", "New labels used in the next run", "Pipeline log"]],
+          "objectives": ["Run labelling operations", "Measure label quality", "Use active learning"]
+        },
+        {
+          "topic": "Developer Experience and Golden Paths for ML Teams",
+          "subtopics": ["Friction in ML workflows", "Golden paths and templates", "Internal developer portals", "Documentation and examples", "Local development with cloud parity", "Support and office hours", "Measuring developer experience", "Platform product management"],
+          "tools": ["Backstage", "Cookiecutter or Copier", "Surveys"],
+          "lab_task": "Interview two data scientists about friction, build a golden path template from notebook to deployed model, measure time to first deployment and survey satisfaction.",
+          "deliverable": "Interview notes, template and measurements",
+          "checks": [["Measure time to first deployment", "Time reduced with the template", "Measurements"], ["Survey users", "Satisfaction score and comments recorded", "Survey results"], ["Review documentation", "A new user deploys without help", "User test notes"]],
+          "objectives": ["Improve developer experience", "Build golden paths", "Measure adoption"]
+        },
+        {
+          "topic": "Incident Response for ML Systems",
+          "subtopics": ["ML-specific incidents", "Detection and triage", "Rolling back models and data", "Communicating model incidents", "Root cause analysis", "Post-incident reviews", "Runbooks and drills", "Learning across teams"],
+          "tools": ["Incident tooling", "Runbooks", "Monitoring dashboards"],
+          "lab_task": "Run a drill for a model producing harmful predictions after a data pipeline change: detect it, roll back model and data, communicate and write the post-incident review.",
+          "deliverable": "Drill timeline, communications and post-incident review",
+          "checks": [["Detect the incident", "Alert or report leads to triage within the target", "Drill timeline"], ["Roll back", "Model and data restored to the last good version", "Rollback log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Respond to ML incidents", "Roll back safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Migrating Between ML Platforms",
+          "subtopics": ["Reasons to migrate", "Inventory of models and pipelines", "Portable formats and interfaces", "Running platforms in parallel", "Migrating registries and lineage", "Validating migrated models", "Cutover planning", "Decommissioning"],
+          "tools": ["MLflow", "ONNX", "Migration scripts"],
+          "lab_task": "Plan a migration of 20 models from a self-managed stack to a cloud platform, migrate two with their registry history, validate predictions match and plan decommissioning.",
+          "deliverable": "Migration plan, migrated models and validation report",
+          "checks": [["Validate predictions", "Same outputs on both platforms", "Validation report"], ["Migrate registry history", "Versions and metadata kept", "Registry comparison"], ["Review the cutover plan", "Rollback and decommission steps included", "Cutover plan"]],
+          "objectives": ["Plan platform migrations", "Move models safely", "Decommission old platforms"]
+        },
+        {
+          "topic": "MLOps Strategy, Teams and Maturity",
+          "subtopics": ["MLOps maturity models", "Team structures: central, embedded and hybrid", "Roles and skills", "Roadmaps", "Measuring MLOps outcomes", "Funding the platform", "Change management for data science teams", "Communicating with executives"],
+          "tools": ["Maturity assessment", "Roadmap template"],
+          "lab_task": "Assess a company's MLOps maturity, design the team structure, write a 12-month roadmap with measures and present it to a role-play executive team.",
+          "deliverable": "Assessment, team design, roadmap and presentation",
+          "checks": [["Assess maturity", "Gaps listed with evidence", "Assessment"], ["Review the roadmap", "Milestones with measurable outcomes", "Roadmap"], ["Present to executives", "Funding and value explained", "Presentation feedback"]],
+          "objectives": ["Set MLOps strategy", "Design teams", "Measure outcomes"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise ML and LLM Platform",
+          "subtopics": ["Architecture", "Build", "Governance and operations", "Review"],
+          "tools": ["Kubernetes", "Kueue", "Feature store", "KServe", "vLLM", "MLflow", "Terraform", "Backstage"],
+          "lab_task": "Design and deliver a multi-tenant platform for classical and LLM workloads: GPU scheduling, real-time features, progressive delivery, LLM operations, supply chain security, regulatory documentation and FinOps, then run a game day with a model incident and present to an architecture board.",
+          "deliverable": "Architecture records, platform code, game day report and board presentation",
+          "checks": [["Run the game day incident", "Detected, rolled back and reviewed within targets", "Game day report"], ["Report unit costs", "Cost per prediction and per request by team", "Cost report"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run ML and LLMs at enterprise scale", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

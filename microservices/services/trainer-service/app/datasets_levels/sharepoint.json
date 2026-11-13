@@ -1,0 +1,573 @@
+{
+  "domain": "SharePoint",
+  "name": "Microsoft SharePoint",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "share",
+  "aliases": ["SharePoint Online", "Microsoft SharePoint", "SharePoint Administration", "SharePoint Admin", "SharePoint Development", "SharePoint Developer", "SharePoint Framework", "SPFx", "SharePoint Server", "SharePoint Training", "SharePoint Intranet"],
+  "certifications": ["Microsoft 365 Certified: Administrator Expert (MS-102, covers SharePoint administration)", "Microsoft Certified: Power Platform Developer Associate (PL-400, for SharePoint solutions with Power Platform)", "Microsoft 365 Certified: Teams Administrator Associate (MS-700, related)"],
+  "tools": ["SharePoint Online", "SharePoint admin center", "Microsoft Lists", "Power Automate", "Power Apps", "SharePoint Framework (SPFx)", "PnP PowerShell", "Microsoft Graph"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For site owners, power users and new SharePoint administrators. Covers team and communication sites, pages and web parts, lists and libraries, columns and content types, views and formatting, permissions and sharing, versions and co-authoring, metadata and search, navigation and hubs, Microsoft Lists, Power Automate and Power Apps with SharePoint, Teams and OneDrive, templates and themes, retention and site lifecycle.",
+      "prerequisites": ["Uses Microsoft 365 apps such as Word, Excel, Outlook and Teams", "Manages documents for a team", "No previous SharePoint experience needed"],
+      "outcomes": ["Build and run team and communication sites with pages, lists and libraries", "Organise content with columns, content types, views and metadata", "Control permissions and sharing", "Automate simple processes with Power Automate and Power Apps"],
+      "days": [
+        {
+          "topic": "SharePoint Overview, Sites and Course Setup",
+          "subtopics": ["What SharePoint is and how it fits with Teams and OneDrive", "SharePoint Online and SharePoint Server", "Team sites and communication sites", "The SharePoint start page", "Site contents and settings", "Roles: site owners, members and visitors", "The SharePoint admin center at a glance", "Microsoft 365 developer or trial tenant for practice", "Course case company: an engineering consultancy", "Planning the course intranet"],
+          "tools": ["SharePoint Online", "Microsoft 365 trial tenant"],
+          "lab_task": "Create a team site and a communication site in a trial tenant, explore site contents and settings and sketch the intranet for the case company.",
+          "deliverable": "Two sites and an intranet sketch",
+          "checks": [["Create both site types", "Team and communication sites working", "Screenshots"], ["Explore settings", "Main settings pages listed with purpose", "Notes"], ["Sketch the intranet", "Sites and audiences mapped", "Intranet sketch"]],
+          "objectives": ["Describe SharePoint", "Create sites", "Plan an intranet"]
+        },
+        {
+          "topic": "Pages and Web Parts",
+          "subtopics": ["Modern pages", "Sections and layouts", "Text, image and file web parts", "News posts", "Hero and quick links web parts", "Highlighted content", "Page publishing and scheduling", "Page templates"],
+          "tools": ["SharePoint Online pages"],
+          "lab_task": "Build a home page for the communication site with a hero, quick links, news and highlighted documents, publish a news post on a schedule and save a page template.",
+          "deliverable": "Home page, news post and template",
+          "checks": [["Publish on a schedule", "News post appears at the set time", "Screenshot"], ["Use highlighted content", "Latest documents shown automatically", "Screenshot"], ["Create a page from the template", "Layout reused", "Screenshot"]],
+          "objectives": ["Build pages", "Use web parts", "Publish news"]
+        },
+        {
+          "topic": "Document Libraries",
+          "subtopics": ["Libraries and folders", "Uploading and syncing", "Opening files in the browser and apps", "Check-in and check-out", "Copy and move", "Recycle bin", "Library settings", "Folders compared with metadata"],
+          "tools": ["SharePoint document libraries", "OneDrive sync"],
+          "lab_task": "Create a project documents library, upload files, sync it to a laptop, move files between libraries and restore a deleted file from the recycle bin.",
+          "deliverable": "Library set-up and test results",
+          "checks": [["Sync the library", "Files available in File Explorer", "Screenshot"], ["Move files", "Files keep their versions", "Version history"], ["Restore a deleted file", "File back from the recycle bin", "Screenshot"]],
+          "objectives": ["Manage document libraries", "Sync files", "Restore deleted files"]
+        },
+        {
+          "topic": "Lists and Microsoft Lists",
+          "subtopics": ["What lists are", "Creating lists from templates and Excel", "List items and attachments", "Microsoft Lists app", "Sharing lists", "Rules and reminders", "Comments on items", "Lists in Teams"],
+          "tools": ["Microsoft Lists", "SharePoint lists"],
+          "lab_task": "Create an issue tracker from a template, import an asset register from Excel, add a rule that emails when an issue is high priority and add the list to Teams.",
+          "deliverable": "Lists, rule and Teams tab",
+          "checks": [["Import from Excel", "Columns and rows created", "List screenshot"], ["Trigger the rule", "Email sent for a high-priority issue", "Email"], ["Open in Teams", "List works in the tab", "Screenshot"]],
+          "objectives": ["Create lists", "Use rules", "Use lists in Teams"]
+        },
+        {
+          "topic": "Columns and Content Types",
+          "subtopics": ["Column types", "Required columns and validation", "Choice, lookup and person columns", "Calculated columns", "Site columns", "Content types", "Document templates in content types", "Reusing columns across lists"],
+          "tools": ["SharePoint list and library settings"],
+          "lab_task": "Add site columns for project, client and document type, create a Contract content type with a template and validation and use it in two libraries.",
+          "deliverable": "Site columns, content type and libraries",
+          "checks": [["Create a contract", "Template opens with required fields", "Screenshot"], ["Enter an invalid date", "Validation message shown", "Screenshot"], ["Reuse columns", "Same columns in both libraries", "Library settings"]],
+          "objectives": ["Design columns", "Create content types", "Reuse metadata"]
+        },
+        {
+          "topic": "Document Sets for Project and Case Files",
+          "subtopics": ["What document sets are", "Enabling document sets", "Document set content types", "Shared metadata across files", "Default documents", "Welcome pages", "Versioning document sets", "When to use folders or document sets"],
+          "tools": ["SharePoint document sets", "Library settings"],
+          "lab_task": "Create a project document set with shared client and project metadata, default documents and a welcome page, create two project sets and capture a version.",
+          "deliverable": "Document set content type and two project sets",
+          "checks": [["Create a project set", "Default documents created", "Library view"], ["Change shared metadata", "All files in the set updated", "Library view"], ["Capture a version", "Set version saved", "Version history"]],
+          "objectives": ["Use document sets", "Share metadata", "Organise project files"]
+        },
+        {
+          "topic": "Views, Filters and Formatting",
+          "subtopics": ["Creating views", "Filters, sorting and grouping", "Personal and public views", "Column formatting with JSON", "View formatting", "Conditional formatting without code", "Gallery and calendar views", "Choosing default views"],
+          "tools": ["SharePoint views", "JSON formatting"],
+          "lab_task": "Create views for my documents, contracts expiring this month and documents by client, colour-code status with conditional formatting and add a calendar view.",
+          "deliverable": "Views and formatting",
+          "checks": [["Open expiring contracts", "Only this month's contracts shown", "Screenshot"], ["Apply conditional formatting", "Status colours shown", "Screenshot"], ["Use the calendar view", "Items shown by date", "Screenshot"]],
+          "objectives": ["Build views", "Format lists", "Choose defaults"]
+        },
+        {
+          "topic": "Permissions and Sharing",
+          "subtopics": ["Permission levels", "SharePoint groups", "Inheritance and breaking it", "Sharing links: anyone, organisation and specific people", "External sharing", "Access requests", "Checking permissions", "Common permission mistakes"],
+          "tools": ["SharePoint permissions", "Sharing settings"],
+          "lab_task": "Set up owners, members and visitors groups, give a client view access to one folder, break inheritance on a confidential library and check a user's permissions.",
+          "deliverable": "Permission set-up and test results",
+          "checks": [["Open the folder as the client", "Only that folder visible", "Screenshot"], ["Check permissions", "Effective access shown for a user", "Check permissions output"], ["Review unique permissions", "Broken inheritance listed", "Report"]],
+          "objectives": ["Manage permissions", "Share safely", "Check access"]
+        },
+        {
+          "topic": "Versions, Co-Authoring and Approvals",
+          "subtopics": ["Version history", "Major and minor versions", "Restoring versions", "Co-authoring in Office", "Content approval", "Draft item security", "Version limits and storage", "Approvals with Power Automate in brief"],
+          "tools": ["SharePoint libraries", "Office apps"],
+          "lab_task": "Turn on major and minor versions, co-author a document with a partner, restore an older version and require approval before policies are published.",
+          "deliverable": "Library settings and test results",
+          "checks": [["Co-author a document", "Both editors' changes saved", "Version history"], ["Restore a version", "Earlier content back", "Version history"], ["Submit for approval", "Hidden until approved", "Screenshot"]],
+          "objectives": ["Use versions", "Co-author documents", "Require approval"]
+        },
+        {
+          "topic": "Metadata, Managed Terms and Search",
+          "subtopics": ["Why metadata matters", "Managed metadata and the term store", "Term sets and terms", "Tagging documents", "Search in SharePoint", "Refiners", "Search tips for users", "Metadata compared with folders"],
+          "tools": ["Term store", "Microsoft Search in SharePoint"],
+          "lab_task": "Create a term set for services, tag documents with managed metadata, search with refiners and compare finding files by folders and by metadata.",
+          "deliverable": "Term set, tagged library and comparison",
+          "checks": [["Tag documents", "Terms applied", "Library view"], ["Refine search", "Results filtered by service", "Screenshot"], ["Compare finding methods", "Time for folders and metadata recorded", "Comparison"]],
+          "objectives": ["Use managed metadata", "Search effectively", "Choose metadata over folders"]
+        },
+        {
+          "topic": "Navigation, Hub Sites and Site Structure",
+          "subtopics": ["Flat site structure", "Site navigation", "Hub sites", "Hub navigation and themes", "Associating sites", "Global navigation with Viva Connections in brief", "Audience targeting", "Planning navigation"],
+          "tools": ["SharePoint hub sites", "Navigation settings"],
+          "lab_task": "Create a hub for departments, associate three sites, build hub navigation with audience targeting and test it as two users.",
+          "deliverable": "Hub, navigation and test results",
+          "checks": [["Associate sites", "Sites share hub navigation and theme", "Screenshot"], ["Target audiences", "Each user sees their links", "Screenshots"], ["Review the structure", "Flat structure with hubs", "Site map"]],
+          "objectives": ["Structure sites", "Use hubs", "Target navigation"]
+        },
+        {
+          "topic": "Automating SharePoint with Power Automate",
+          "subtopics": ["Power Automate overview", "Triggers for lists and libraries", "Approvals", "Sending emails and Teams messages", "Updating items", "Conditions", "Running flows on selected files", "Flow ownership"],
+          "tools": ["Power Automate", "SharePoint connector"],
+          "lab_task": "Build a flow that routes new contracts for approval, updates their status and notifies the team in Teams, and a manual flow that moves selected documents to an archive.",
+          "deliverable": "Flows and run history",
+          "checks": [["Upload a contract", "Approval requested", "Approvals app"], ["Approve it", "Status updated and Teams message sent", "Screenshot"], ["Run the manual flow", "Selected files moved", "Library view"]],
+          "objectives": ["Automate with Power Automate", "Build approvals", "Notify teams"]
+        },
+        {
+          "topic": "Custom List Forms with Power Apps",
+          "subtopics": ["Why customise forms", "Customising a list form with Power Apps", "Controls and layout", "Showing and hiding fields", "Validation", "Publishing the form", "Mobile use", "Limits and alternatives"],
+          "tools": ["Power Apps", "SharePoint lists"],
+          "lab_task": "Replace the issue tracker form with a Power Apps form that shows fields by issue type, validates input and works on a phone.",
+          "deliverable": "Custom form and screenshots",
+          "checks": [["Change issue type", "Fields shown and hidden", "Screenshot"], ["Submit invalid data", "Validation message", "Screenshot"], ["Open on a phone", "Form usable", "Phone screenshot"]],
+          "objectives": ["Customise list forms", "Validate input", "Support mobile users"]
+        },
+        {
+          "topic": "SharePoint with Teams and OneDrive",
+          "subtopics": ["How Teams stores files in SharePoint", "Channels and folders", "Private and shared channels", "OneDrive and SharePoint differences", "Sharing from Teams", "Adding pages and lists to Teams", "Where to store which files", "File guidance for users"],
+          "tools": ["Microsoft Teams", "SharePoint", "OneDrive"],
+          "lab_task": "Create a team, find its SharePoint site and channel folders, add a SharePoint page and list as tabs and write file storage guidance for staff.",
+          "deliverable": "Team set-up and guidance",
+          "checks": [["Find the channel files", "Folder found in the SharePoint library", "Screenshot"], ["Add tabs", "Page and list open in Teams", "Screenshot"], ["Review guidance", "Clear rules for OneDrive, Teams and sites", "Guidance"]],
+          "objectives": ["Connect Teams and SharePoint", "Use OneDrive well", "Guide users"]
+        },
+        {
+          "topic": "Site Templates, Themes and Branding",
+          "subtopics": ["Site templates", "Custom site designs and scripts", "Themes", "Header and footer options", "Logos and branding", "Brand centre", "Applying templates to existing sites", "Keeping branding consistent"],
+          "tools": ["SharePoint site templates", "Themes"],
+          "lab_task": "Create a custom project site template with libraries and lists, apply a company theme and logo and create two new project sites from the template.",
+          "deliverable": "Template, theme and sites",
+          "checks": [["Create a site from the template", "Libraries and lists created", "Site contents"], ["Apply the theme", "Company colours shown", "Screenshot"], ["Apply to an existing site", "Template applied", "Site contents"]],
+          "objectives": ["Use site templates", "Brand sites", "Keep sites consistent"]
+        },
+        {
+          "topic": "Retention and Records in SharePoint",
+          "subtopics": ["Why retention", "Retention policies", "Retention labels", "Declaring records", "Preservation hold library", "Deleting content safely", "Retention and versions", "Working with compliance teams"],
+          "tools": ["Microsoft Purview retention", "SharePoint libraries"],
+          "lab_task": "Apply a retention label that keeps contracts for seven years, declare a document as a record, try to delete it and find it in the preservation hold library.",
+          "deliverable": "Label set-up and test results",
+          "checks": [["Delete a labelled contract", "Kept by retention", "Preservation hold library"], ["Edit a record", "Change blocked", "Screenshot"], ["Apply the label by default", "New contracts labelled", "Library settings"]],
+          "objectives": ["Apply retention", "Declare records", "Work with compliance"]
+        },
+        {
+          "topic": "Site Lifecycle, Storage and Everyday Administration",
+          "subtopics": ["Creating sites with governance", "Site storage", "Site owners and their duties", "Inactive sites", "Deleting and restoring sites", "Site usage analytics", "Changing site addresses", "Basic admin center tasks"],
+          "tools": ["SharePoint admin center"],
+          "lab_task": "Review storage and usage for three sites, restore a deleted site, rename a site address and write a site owner checklist.",
+          "deliverable": "Admin notes and owner checklist",
+          "checks": [["Restore a deleted site", "Site back with content", "Screenshot"], ["Review usage", "Visits and files by site", "Usage report"], ["Write the checklist", "Owner duties listed", "Checklist"]],
+          "objectives": ["Manage site lifecycle", "Use admin tools", "Guide site owners"]
+        },
+        {
+          "topic": "Adoption, Training and Good Practices for Site Owners",
+          "subtopics": ["Why sites fail", "Writing good pages", "Keeping content current", "Training users", "Champions networks", "Measuring adoption", "Accessibility basics for pages", "Common site owner mistakes"],
+          "tools": ["SharePoint usage analytics", "Accessibility checker"],
+          "lab_task": "Audit a site for out-of-date content and accessibility problems, fix them, plan a training session and measure use before and after.",
+          "deliverable": "Audit, fixes, training plan and usage comparison",
+          "checks": [["Find outdated content", "Old pages and files listed", "Audit"], ["Fix accessibility problems", "Alt text and headings fixed", "Accessibility check"], ["Compare usage", "Visits measured before and after", "Usage report"]],
+          "objectives": ["Drive adoption", "Keep content current", "Make pages accessible"]
+        },
+        {
+          "topic": "Using Copilot and AI with SharePoint Content",
+          "subtopics": ["How Copilot uses SharePoint content", "Asking Copilot about documents", "Summarising pages and files", "Good permissions before AI", "Labels and AI", "Content quality and AI answers", "SharePoint agents in brief", "Responsible use"],
+          "tools": ["Microsoft 365 Copilot", "SharePoint Online"],
+          "lab_task": "Ask Copilot questions about site documents, check answers against the files, find a permission problem that exposes content and fix it.",
+          "deliverable": "Questions, answer checks and fix",
+          "checks": [["Check Copilot answers", "Answers match documents or errors noted", "Review notes"], ["Find exposed content", "Over-shared file found", "Screenshot"], ["Fix permissions", "Content no longer returned for others", "Test result"]],
+          "objectives": ["Use AI with SharePoint", "Check answers", "Fix oversharing"]
+        },
+        {
+          "topic": "Beginner Capstone: Department Intranet Site",
+          "subtopics": ["Design", "Build", "Automate", "Launch"],
+          "tools": ["SharePoint Online", "Microsoft Lists", "Power Automate", "Power Apps"],
+          "lab_task": "Build a department intranet for the case company: a hub with sites, pages and news, libraries with content types and metadata, views, permissions, an approval flow, a custom form, retention and owner guidance, then launch it to test users.",
+          "deliverable": "Intranet, flows, guidance and demo recording",
+          "checks": [["Test as three users", "Each sees the right content", "Test results"], ["Run the approval flow", "Document approved and published", "Demo recording"], ["Collect feedback", "Test users' feedback recorded and acted on", "Feedback notes"]],
+          "objectives": ["Combine the beginner topics in one intranet", "Build a usable site", "Launch to users"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For SharePoint administrators and developers. Covers the admin center in depth, information architecture, the content type gallery and term store, search, governance of permissions and sharing, SharePoint Framework web parts and extensions, PnPjs and Microsoft Graph, PnP PowerShell, provisioning, advanced Power Automate and Power Apps, migrations, Viva Connections, document protection, performance, SharePoint Premium, SharePoint Embedded and Copilot readiness.",
+      "prerequisites": ["Builds sites, lists, libraries and flows", "Manages permissions and content types", "Knows basic JavaScript or PowerShell"],
+      "outcomes": ["Administer and govern SharePoint at company scale", "Build SPFx solutions and automate with PnP and Graph", "Migrate content and build intranets", "Protect content and prepare it for AI"],
+      "days": [
+        {
+          "topic": "SharePoint Admin Center in Depth",
+          "subtopics": ["Tenant settings", "Sharing policies", "Access control: unmanaged devices and idle sessions", "Site creation settings", "Storage management", "Admin roles for SharePoint", "Active and deleted sites", "Reports"],
+          "tools": ["SharePoint admin center"],
+          "lab_task": "Configure tenant sharing and access control for unmanaged devices, restrict site creation, set storage limits and review active sites for problems.",
+          "deliverable": "Tenant settings and review notes",
+          "checks": [["Open a file from an unmanaged device", "Web-only access as configured", "Screenshot"], ["Create a site as a normal user", "Blocked or allowed per policy", "Screenshot"], ["Review active sites", "Sites without owners found", "Report"]],
+          "objectives": ["Configure tenant settings", "Control access", "Manage sites"]
+        },
+        {
+          "topic": "Information Architecture",
+          "subtopics": ["Information architecture principles", "Sites, hubs and libraries", "Navigation design", "Metadata design", "Content types strategy", "Search-driven design", "Card sorting and user research", "Documenting the architecture"],
+          "tools": ["Card sorting tool", "Diagrams"],
+          "lab_task": "Run a card sorting exercise, design the information architecture for the case company's intranet and document sites, hubs, metadata and navigation.",
+          "deliverable": "Research results and IA document",
+          "checks": [["Run card sorting", "Groupings from users recorded", "Results"], ["Design the IA", "Sites, hubs and metadata defined", "IA document"], ["Review with users", "Users find test items quickly", "Test results"]],
+          "objectives": ["Design information architecture", "Research users", "Document designs"]
+        },
+        {
+          "topic": "Content Type Gallery and the Term Store at Scale",
+          "subtopics": ["Content type gallery", "Publishing content types to sites", "Term store administration", "Term groups and permissions", "Synonyms and translations", "Term set governance", "Changing terms safely", "Reports on use"],
+          "tools": ["Content type gallery", "Term store"],
+          "lab_task": "Publish company content types from the gallery to all sites, build term sets with synonyms and translations and change a term without breaking tagged documents.",
+          "deliverable": "Content types, term sets and test results",
+          "checks": [["Publish content types", "Available in all sites", "Site settings"], ["Search with a synonym", "Documents found", "Search results"], ["Rename a term", "Tagged documents show the new name", "Library view"]],
+          "objectives": ["Manage content types at scale", "Govern terms", "Change terms safely"]
+        },
+        {
+          "topic": "Search Configuration and Microsoft Search",
+          "subtopics": ["How search works in SharePoint Online", "Managed properties and crawled properties", "Result types and verticals", "Bookmarks and Q&A", "Search schema changes", "Reindexing", "Promoting results", "Measuring search quality"],
+          "tools": ["Microsoft Search", "Search schema"],
+          "lab_task": "Map custom columns to managed properties, create a vertical for contracts, add bookmarks for common queries and measure search success for ten test questions.",
+          "deliverable": "Search configuration and test results",
+          "checks": [["Search by a custom column", "Results filtered by the property", "Screenshot"], ["Use the contracts vertical", "Only contracts shown", "Screenshot"], ["Measure success", "Test questions answered in the top results", "Results table"]],
+          "objectives": ["Configure search", "Use managed properties", "Measure search"]
+        },
+        {
+          "topic": "Governance of Permissions, Sharing and Site Ownership",
+          "subtopics": ["Governance plans", "Ownership rules", "Guest access governance", "Sharing reports", "Access reviews", "Sensitivity labels for sites", "Site policies", "Communicating rules"],
+          "tools": ["SharePoint admin center", "Entra access reviews", "Sensitivity labels"],
+          "lab_task": "Write a governance plan, require two owners per site, label confidential sites to block guests, run a sharing report and an access review of guest access.",
+          "deliverable": "Governance plan, settings and review results",
+          "checks": [["Label a site confidential", "Guests cannot be added", "Screenshot"], ["Run a sharing report", "External shares listed", "Report"], ["Run the access review", "Old guest access removed", "Review results"]],
+          "objectives": ["Govern sharing", "Assign ownership", "Review access"]
+        },
+        {
+          "topic": "Building Web Parts with the SharePoint Framework",
+          "subtopics": ["SPFx overview", "Development environment: Node.js, Yeoman and Gulp or Heft", "Creating a web part", "React in SPFx", "Property panes", "Calling SharePoint REST", "Packaging and deploying", "The app catalog"],
+          "tools": ["SharePoint Framework", "Node.js", "React", "VS Code"],
+          "lab_task": "Build an SPFx web part in React that shows upcoming project deadlines from a list with a configurable property pane and deploy it through the app catalog.",
+          "deliverable": "Web part code, package and deployed web part",
+          "checks": [["Run in the workbench", "Web part loads list data", "Screenshot"], ["Change a property", "Display updates", "Screenshot"], ["Deploy to a site", "Web part available on pages", "Screenshot"]],
+          "objectives": ["Build SPFx web parts", "Use React", "Deploy solutions"]
+        },
+        {
+          "topic": "SPFx Extensions and Adaptive Card Extensions",
+          "subtopics": ["Application customisers", "Field customisers", "Command sets", "Adaptive Card Extensions for Viva Connections", "Placeholders and headers", "Deploying tenant-wide", "Performance of extensions", "Testing extensions"],
+          "tools": ["SharePoint Framework", "Viva Connections"],
+          "lab_task": "Build an application customiser that adds a company banner, a command set that sends selected documents for review and an adaptive card extension for the dashboard.",
+          "deliverable": "Extensions and screenshots",
+          "checks": [["Show the banner", "Banner on all sites", "Screenshot"], ["Run the command", "Selected documents sent for review", "Screenshot"], ["Add the card", "Card shown on the dashboard", "Screenshot"]],
+          "objectives": ["Build extensions", "Add commands", "Build adaptive card extensions"]
+        },
+        {
+          "topic": "PnPjs, REST and Microsoft Graph for SharePoint Developers",
+          "subtopics": ["SharePoint REST API", "PnPjs library", "Microsoft Graph for sites, lists and drives", "Permissions for SPFx: API access requests", "Batching requests", "Throttling and retries", "Caching", "Choosing REST, PnPjs or Graph"],
+          "tools": ["PnPjs", "Microsoft Graph", "SharePoint REST"],
+          "lab_task": "Rewrite the deadline web part with PnPjs, add a Graph call for the user's recent files, batch requests and handle throttling.",
+          "deliverable": "Updated web part and notes",
+          "checks": [["Batch requests", "Fewer network calls", "Network panel"], ["Call Graph", "Recent files shown", "Screenshot"], ["Handle throttling", "Retries on 429 responses", "Test log"]],
+          "objectives": ["Use PnPjs", "Use Microsoft Graph", "Handle throttling"]
+        },
+        {
+          "topic": "PnP PowerShell for Administration",
+          "subtopics": ["Installing PnP PowerShell", "Connecting with app registrations", "Managing sites, lists and permissions", "Bulk operations", "Reporting scripts", "Running in Azure Automation", "Error handling", "Scripting standards"],
+          "tools": ["PnP PowerShell", "Azure Automation"],
+          "lab_task": "Script reports of sites without owners and unique permissions, bulk-add a column to 50 libraries and run a weekly report from Azure Automation.",
+          "deliverable": "Scripts and reports",
+          "checks": [["Report sites without owners", "Sites listed", "Report"], ["Add columns in bulk", "Column in all 50 libraries", "Script output"], ["Run in Azure Automation", "Weekly report produced", "Runbook output"]],
+          "objectives": ["Use PnP PowerShell", "Automate administration", "Schedule scripts"]
+        },
+        {
+          "topic": "Site Provisioning and Templates as Code",
+          "subtopics": ["Provisioning approaches", "PnP provisioning templates", "Site templates and scripts", "Provisioning with Power Automate", "Request and approval process", "Naming and metadata at creation", "Applying governance at creation", "Testing provisioning"],
+          "tools": ["PnP provisioning", "Power Automate", "Microsoft Lists"],
+          "lab_task": "Build a site request list, an approval flow and PnP provisioning that creates a project site with libraries, content types, permissions and labels.",
+          "deliverable": "Request list, flow and provisioning template",
+          "checks": [["Request a site", "Approval requested", "Approvals app"], ["Approve it", "Site created with the template", "Site contents"], ["Check governance", "Owners, label and naming applied", "Site settings"]],
+          "objectives": ["Provision sites", "Automate requests", "Apply governance at creation"]
+        },
+        {
+          "topic": "Advanced Power Automate for SharePoint",
+          "subtopics": ["Complex approvals", "HTTP requests to SharePoint", "Handling large lists", "Error handling and retries", "Child flows", "Service accounts and connections", "Environment and ALM basics", "Monitoring flows"],
+          "tools": ["Power Automate", "SharePoint connector", "Dataverse for solutions"],
+          "lab_task": "Build a multi-stage contract approval with parallel reviewers, update permissions with HTTP requests, handle errors with a scope and package the flow in a solution.",
+          "deliverable": "Flow, solution and test results",
+          "checks": [["Run parallel reviews", "All reviewers must approve", "Run history"], ["Change permissions", "Permissions updated by the flow", "Permission check"], ["Force an error", "Error handled and reported", "Run history"]],
+          "objectives": ["Build advanced flows", "Call SharePoint APIs", "Handle errors"]
+        },
+        {
+          "topic": "Power Apps on SharePoint Data",
+          "subtopics": ["Canvas apps on lists", "Delegation limits", "Choosing SharePoint or Dataverse", "Forms and galleries", "Offline use", "Performance", "Sharing apps", "App lifecycle"],
+          "tools": ["Power Apps", "SharePoint lists"],
+          "lab_task": "Build a canvas app for site inspections on a SharePoint list, handle delegation for large lists and write guidance on when to move to Dataverse.",
+          "deliverable": "App and guidance",
+          "checks": [["Filter a large list", "Delegation warnings resolved", "App checker"], ["Use the app on a phone", "Inspection saved", "List item"], ["Write the guidance", "Clear rules for SharePoint or Dataverse", "Guidance"]],
+          "objectives": ["Build apps on SharePoint", "Handle delegation", "Choose data platforms"]
+        },
+        {
+          "topic": "Migrating Content to SharePoint Online",
+          "subtopics": ["Migration sources: file shares, SharePoint Server and other clouds", "SharePoint Migration Tool and Migration Manager", "Pre-migration scans", "Mapping permissions and metadata", "Incremental migration", "Cutover and communication", "Post-migration checks", "Third-party tools"],
+          "tools": ["Migration Manager", "SharePoint Migration Tool"],
+          "lab_task": "Scan a file share, migrate it with Migration Manager mapping folders to libraries and metadata, run an incremental pass and validate counts and permissions.",
+          "deliverable": "Scan report, migration report and validation",
+          "checks": [["Scan the source", "Problems found before migrating", "Scan report"], ["Run an incremental pass", "Only changed files copied", "Migration report"], ["Validate", "File counts and permissions match", "Validation report"]],
+          "objectives": ["Plan migrations", "Migrate file shares", "Validate migrations"]
+        },
+        {
+          "topic": "Building an Intranet with Viva Connections",
+          "subtopics": ["Viva Connections dashboard and feed", "Home site", "Global navigation", "Adaptive cards", "Teams app for the intranet", "Mobile intranet", "News targeting", "Measuring intranet use"],
+          "tools": ["Viva Connections", "SharePoint home site"],
+          "lab_task": "Set a home site, configure global navigation, build a dashboard with cards and publish Viva Connections in Teams and mobile.",
+          "deliverable": "Intranet configuration and screenshots",
+          "checks": [["Open Teams", "Intranet app with dashboard shown", "Screenshot"], ["Use global navigation", "Links shown on every site", "Screenshot"], ["Target news", "Users see news for their group", "Screenshots"]],
+          "objectives": ["Build an intranet", "Use Viva Connections", "Target content"]
+        },
+        {
+          "topic": "Protecting Documents: Sensitivity Labels and DLP",
+          "subtopics": ["Sensitivity labels for files and sites", "Default library labels", "Encryption with labels", "DLP policies for SharePoint", "Blocking external sharing of sensitive files", "Policy tips", "Alerts and reports", "User guidance"],
+          "tools": ["Microsoft Purview", "SharePoint libraries"],
+          "lab_task": "Set a default confidential label on a finance library, block external sharing of files with card numbers using DLP and review alerts.",
+          "deliverable": "Labels, DLP policy and alert review",
+          "checks": [["Upload to the finance library", "File labelled confidential", "File properties"], ["Share a card-number file externally", "Blocked with a policy tip", "Screenshot"], ["Review alerts", "Alerts listed", "Purview alerts"]],
+          "objectives": ["Protect documents", "Use DLP", "Guide users"]
+        },
+        {
+          "topic": "Performance and Large Lists",
+          "subtopics": ["The list view threshold", "Indexed columns", "Large libraries", "Page performance", "Image optimisation", "The Page Diagnostics tool", "CDN for SharePoint", "Throttling"],
+          "tools": ["Page Diagnostics for SharePoint", "List settings"],
+          "lab_task": "Fix a list over the view threshold with indexes and filtered views, speed up a slow page found with Page Diagnostics and enable the public CDN for assets.",
+          "deliverable": "Fixes and measurements",
+          "checks": [["Open the large list", "Views work under the threshold", "Screenshot"], ["Re-run Page Diagnostics", "Fewer issues and faster load", "Diagnostics output"], ["Enable the CDN", "Assets served from the CDN", "Network panel"]],
+          "objectives": ["Handle large lists", "Speed up pages", "Use the CDN"]
+        },
+        {
+          "topic": "SharePoint Premium: AI Content Processing",
+          "subtopics": ["SharePoint Premium (formerly Syntex) overview", "Document processing models", "Prebuilt models for invoices and receipts", "Custom extraction", "Autofill columns", "Content assembly", "Taxonomy tagging", "Cost and licensing"],
+          "tools": ["SharePoint Premium", "Content center"],
+          "lab_task": "Extract fields from invoices into columns with a prebuilt model, fill a summary column with autofill and generate contracts from a template with content assembly.",
+          "deliverable": "Models, filled columns and generated documents",
+          "checks": [["Upload invoices", "Fields extracted into columns", "Library view"], ["Use autofill", "Summary column filled", "Library view"], ["Generate a contract", "Document created from list data", "Generated file"]],
+          "objectives": ["Process content with AI", "Extract fields", "Generate documents"]
+        },
+        {
+          "topic": "SharePoint Embedded for Application Developers",
+          "subtopics": ["What SharePoint Embedded is", "Containers and container types", "Building apps on SharePoint Embedded", "Authentication and permissions", "Files through Microsoft Graph", "Copilot and search in embedded apps", "Billing", "Use cases"],
+          "tools": ["SharePoint Embedded", "Microsoft Graph", "Node.js or .NET"],
+          "lab_task": "Create a container type, build a small app that stores and lists files in containers through Graph and secure access per customer.",
+          "deliverable": "App, container set-up and tests",
+          "checks": [["Upload through the app", "File stored in the container", "API response"], ["Access another customer's container", "Denied", "API response"], ["List files", "Files returned through Graph", "Screenshot"]],
+          "objectives": ["Build on SharePoint Embedded", "Use Graph for files", "Secure containers"]
+        },
+        {
+          "topic": "Preparing SharePoint for Copilot and Agents",
+          "subtopics": ["Copilot and SharePoint permissions", "Oversharing reports", "Restricted SharePoint Search", "Restricted content discovery", "Cleaning stale content", "SharePoint agents", "Governance for agents", "Measuring readiness"],
+          "tools": ["SharePoint Advanced Management", "Copilot settings"],
+          "lab_task": "Run oversharing reports, fix three sites, restrict discovery of a sensitive site, create a SharePoint agent for policies and set rules for who can create agents.",
+          "deliverable": "Reports, fixes, agent and rules",
+          "checks": [["Run oversharing reports", "Overshared sites listed", "Report"], ["Ask the agent", "Answers from policy documents only", "Screenshot"], ["Restrict discovery", "Site content not returned by Copilot", "Test result"]],
+          "objectives": ["Prepare content for AI", "Fix oversharing", "Govern agents"]
+        },
+        {
+          "topic": "Intermediate Capstone: Company Intranet and Document Platform",
+          "subtopics": ["Architecture and governance", "Development", "Migration", "Launch"],
+          "tools": ["SharePoint Online", "SPFx", "PnP PowerShell", "Power Automate", "Viva Connections", "Purview"],
+          "lab_task": "Design and build the case company's intranet and document platform: IA, provisioning, SPFx web parts and extensions, search, governance and labels, a migrated file share, Viva Connections and Copilot readiness, then launch it.",
+          "deliverable": "IA document, solutions, scripts, migration report and launch recording",
+          "checks": [["Provision a project site", "Site created with governance", "Demo recording"], ["Validate the migration", "Counts and permissions match", "Validation report"], ["Present the platform", "Design choices defended", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Build and govern SharePoint", "Launch to the company"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For SharePoint architects and senior developers. Covers enterprise intranet architecture, multi-geo and large tenants, governance programmes, SharePoint Advanced Management, enterprise records, SharePoint Premium at scale, Copilot and agents architecture, SPFx at enterprise scale, SharePoint Embedded products, custom search with Graph connectors, integration architecture, oversharing at scale, large migrations, hybrid with SharePoint Server, throttling, accessibility, adoption, troubleshooting and platform strategy.",
+      "prerequisites": ["Administers SharePoint at company scale", "Builds SPFx solutions and automation", "Has run migrations or intranet projects"],
+      "outcomes": ["Design SharePoint architectures for large organisations", "Govern content, records and AI at scale", "Build enterprise solutions and integrations", "Lead migrations, adoption and platform strategy"],
+      "days": [
+        {
+          "topic": "Enterprise Intranet Architecture",
+          "subtopics": ["Intranet goals", "Home site and hub architecture", "Multilingual intranets", "Audience targeting at scale", "News architecture", "Integration with Viva and Teams", "Content ownership model", "Architecture reviews"],
+          "tools": ["SharePoint", "Viva Connections", "Architecture diagrams"],
+          "lab_task": "Design an intranet for a 20,000-person company in five countries with hubs, multilingual pages, news and ownership, and defend the design.",
+          "deliverable": "Architecture and review notes",
+          "checks": [["Review hubs", "Structure fits the organisation", "Architecture"], ["Plan multilingual content", "Translation process defined", "Content plan"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design enterprise intranets", "Plan multilingual content", "Assign ownership"]
+        },
+        {
+          "topic": "Multi-Geo and Large Tenant Design",
+          "subtopics": ["Multi-Geo in SharePoint", "Preferred data location", "Moving sites between geos", "Search across geos", "Tenant limits", "Very large libraries", "Site sprawl", "Design decisions"],
+          "tools": ["SharePoint Multi-Geo", "Admin tools"],
+          "lab_task": "Plan Multi-Geo for India, the EU and the US, move a site to another geo, check search across geos and plan for tenant limits.",
+          "deliverable": "Multi-Geo plan and move evidence",
+          "checks": [["Move a site", "Site in the target geo", "Admin report"], ["Search across geos", "Results from all geos", "Screenshot"], ["Plan limits", "Library and site limits addressed", "Plan"]],
+          "objectives": ["Use Multi-Geo", "Plan large tenants", "Manage limits"]
+        },
+        {
+          "topic": "SharePoint Governance Programmes",
+          "subtopics": ["Governance operating model", "Policies and standards", "Site lifecycle at scale", "Guest and external access policies", "Training and champions", "Measuring governance", "Governance tooling", "Reviewing the programme"],
+          "tools": ["Governance templates", "SharePoint Advanced Management"],
+          "lab_task": "Build a governance programme with policies, lifecycle rules, champions and measures, and review three months of governance data.",
+          "deliverable": "Programme document and review",
+          "checks": [["Review policies", "Clear, enforceable rules", "Policy set"], ["Measure governance", "Ownerless and inactive sites tracked", "Dashboard"], ["Review the programme", "Actions agreed", "Review notes"]],
+          "objectives": ["Run governance programmes", "Measure governance", "Improve over time"]
+        },
+        {
+          "topic": "SharePoint Advanced Management",
+          "subtopics": ["Data access governance reports", "Site lifecycle policies", "Inactive site policies", "Site ownership policies", "Restricted access control", "Conditional access for sites", "Change history reports", "Site access reviews"],
+          "tools": ["SharePoint Advanced Management"],
+          "lab_task": "Turn on inactive and ownership policies, restrict a sensitive site with restricted access control, run site access reviews and read change history.",
+          "deliverable": "Policies, reviews and reports",
+          "checks": [["Run the inactive site policy", "Owners notified", "Policy report"], ["Restrict a site", "Only the allowed group can open it", "Test result"], ["Read change history", "Setting changes listed", "Report"]],
+          "objectives": ["Use Advanced Management", "Control site access", "Review changes"]
+        },
+        {
+          "topic": "Enterprise Records Management",
+          "subtopics": ["Records management programmes", "File plans", "Event-based retention", "Regulatory records", "Disposition reviews", "Records across Teams and SharePoint", "Proving disposition", "Working with legal"],
+          "tools": ["Microsoft Purview Records Management"],
+          "lab_task": "Build a file plan for contracts and HR records, apply event-based retention, run disposition reviews and produce disposition evidence.",
+          "deliverable": "File plan, labels and disposition evidence",
+          "checks": [["Trigger an event", "Retention starts from the event", "Label details"], ["Run disposition", "Items approved and deleted", "Disposition report"], ["Produce evidence", "Proof of disposition", "Report"]],
+          "objectives": ["Manage records at scale", "Use event retention", "Prove disposition"]
+        },
+        {
+          "topic": "SharePoint Premium at Scale",
+          "subtopics": ["Processing models across many libraries", "Taxonomy tagging at scale", "Document translation", "eSignature", "Cost management", "Model accuracy monitoring", "Governance of AI processing", "Measuring value"],
+          "tools": ["SharePoint Premium", "Content center"],
+          "lab_task": "Roll out document processing to ten libraries, tag content with taxonomy tagging, monitor accuracy and cost and report value.",
+          "deliverable": "Rollout plan, accuracy report and value report",
+          "checks": [["Monitor accuracy", "Accuracy per model tracked", "Report"], ["Track cost", "Monthly cost recorded", "Cost report"], ["Report value", "Time saved estimated", "Value report"]],
+          "objectives": ["Scale AI content processing", "Monitor accuracy", "Measure value"]
+        },
+        {
+          "topic": "Copilot and SharePoint Agents Architecture",
+          "subtopics": ["How Copilot grounds on SharePoint", "Agent types in SharePoint", "Knowledge sources and scoping", "Agents built with Copilot Studio on SharePoint content", "Permissions and data boundaries", "Quality of source content", "Monitoring agent use", "Governance at scale"],
+          "tools": ["SharePoint agents", "Copilot Studio", "Copilot analytics"],
+          "lab_task": "Design agents for HR and IT policies with scoped knowledge, test answers against source documents, monitor use and set governance rules.",
+          "deliverable": "Agent designs, tests and governance rules",
+          "checks": [["Test agent answers", "Answers match sources", "Test results"], ["Test scoping", "Agent ignores out-of-scope content", "Test result"], ["Review use", "Questions and gaps listed", "Analytics"]],
+          "objectives": ["Design SharePoint agents", "Scope knowledge", "Govern agents"]
+        },
+        {
+          "topic": "SPFx at Enterprise Scale: ALM and CI/CD",
+          "subtopics": ["Solution architecture for SPFx", "Shared libraries", "Versioning", "CI/CD with Azure DevOps or GitHub Actions", "Deploying to the app catalog automatically", "Testing SPFx solutions", "Site collection app catalogs", "Upgrading SPFx versions"],
+          "tools": ["SharePoint Framework", "GitHub Actions", "CLI for Microsoft 365"],
+          "lab_task": "Build a pipeline that tests, packages and deploys SPFx solutions to the app catalog, share a library between solutions and upgrade SPFx versions.",
+          "deliverable": "Pipeline, library and upgrade notes",
+          "checks": [["Merge a change", "Solution deployed automatically", "Pipeline log"], ["Share the library", "Two solutions use it", "Build output"], ["Upgrade SPFx", "Solutions build on the new version", "Build output"]],
+          "objectives": ["Manage SPFx lifecycles", "Automate deployment", "Upgrade safely"]
+        },
+        {
+          "topic": "Building Products on SharePoint Embedded",
+          "subtopics": ["Product design on SharePoint Embedded", "Multi-tenant apps", "Container management at scale", "Permissions per customer", "Copilot in embedded apps", "Compliance features in containers", "Billing and cost", "Operating the product"],
+          "tools": ["SharePoint Embedded", "Microsoft Graph", "Azure"],
+          "lab_task": "Design a multi-tenant document product on SharePoint Embedded, build container management and permissions per customer and estimate cost.",
+          "deliverable": "Product design, code and cost estimate",
+          "checks": [["Create a customer", "Container created with permissions", "API response"], ["Test isolation", "Customers cannot read each other's files", "Test results"], ["Estimate cost", "Monthly cost per customer", "Cost estimate"]],
+          "objectives": ["Build products on SharePoint Embedded", "Isolate customers", "Plan cost"]
+        },
+        {
+          "topic": "Custom Search with Microsoft Graph Connectors",
+          "subtopics": ["Search across Microsoft 365 and other systems", "Graph connectors", "Custom connectors", "Schema and labels for connectors", "Permissions in connectors", "Search verticals and result types", "Connectors for Copilot", "Measuring search"],
+          "tools": ["Microsoft Graph connectors", "Microsoft Search"],
+          "lab_task": "Bring a line-of-business system into search with a Graph connector, set permissions, build a vertical and result type and check Copilot can use it.",
+          "deliverable": "Connector, search configuration and test results",
+          "checks": [["Search the external system", "Results returned", "Screenshot"], ["Search as an unauthorised user", "Restricted items not shown", "Screenshot"], ["Ask Copilot", "Answer uses connector content", "Screenshot"]],
+          "objectives": ["Extend search", "Build connectors", "Respect permissions"]
+        },
+        {
+          "topic": "Integration Architecture for SharePoint",
+          "subtopics": ["Integration patterns", "Microsoft Graph and webhooks", "Logic Apps and Azure Functions", "Power Platform integration", "Integration with ERP and CRM", "Identity for integrations", "Throttling and resilience", "Monitoring integrations"],
+          "tools": ["Microsoft Graph", "Azure Functions", "Logic Apps", "Power Automate"],
+          "lab_task": "Sync contract metadata between SharePoint and a CRM with webhooks and Azure Functions, handle throttling and monitor failures.",
+          "deliverable": "Integration code, monitoring and tests",
+          "checks": [["Change a contract", "CRM updated through the webhook", "Log"], ["Hit throttling", "Retries succeed", "Function log"], ["Fail an update", "Failure alerted", "Alert"]],
+          "objectives": ["Design integrations", "Use webhooks", "Build resilient integrations"]
+        },
+        {
+          "topic": "Oversharing and Information Security at Scale",
+          "subtopics": ["Oversharing risks", "Everyone and organisation-wide links", "Bulk remediation", "Sensitive content discovery", "Labels at scale", "Site access reviews at scale", "Monitoring sharing", "Reporting to security teams"],
+          "tools": ["SharePoint Advanced Management", "Purview", "PnP PowerShell"],
+          "lab_task": "Find sites shared with everyone, remediate them in bulk, find sensitive content with Purview, label it and report risk reduction.",
+          "deliverable": "Findings, remediation scripts and report",
+          "checks": [["Find everyone shares", "Sites listed", "Report"], ["Remediate in bulk", "Shares removed", "Script output"], ["Report risk reduction", "Overshared items reduced", "Report"]],
+          "objectives": ["Reduce oversharing", "Remediate at scale", "Report security"]
+        },
+        {
+          "topic": "Large-Scale Migrations from SharePoint Server",
+          "subtopics": ["Assessing SharePoint Server estates", "Customisation review", "Migration tools", "Workflows and InfoPath replacement", "Waves and scheduling", "Validation at scale", "User communication", "Decommissioning"],
+          "tools": ["SharePoint Migration Assessment Tool", "Migration tools", "Power Automate"],
+          "lab_task": "Assess a SharePoint Server farm, plan waves, replace a SharePoint 2013 workflow with Power Automate, migrate one wave and validate it.",
+          "deliverable": "Assessment, wave plan and validation",
+          "checks": [["Assess the farm", "Customisations and blockers listed", "Assessment report"], ["Replace the workflow", "Process runs in Power Automate", "Run history"], ["Validate the wave", "Content and permissions match", "Validation report"]],
+          "objectives": ["Plan large migrations", "Replace old features", "Validate waves"]
+        },
+        {
+          "topic": "Hybrid SharePoint with SharePoint Server Subscription Edition",
+          "subtopics": ["When SharePoint Server is still needed", "Subscription Edition", "Hybrid search", "Hybrid sites and OneDrive redirection", "Identity for hybrid", "Patching and support", "Moving workloads over time", "Costs of hybrid"],
+          "tools": ["SharePoint Server Subscription Edition", "Hybrid configuration"],
+          "lab_task": "Configure hybrid search between a SharePoint Server farm and SharePoint Online and plan which workloads stay on-premises.",
+          "deliverable": "Hybrid configuration and workload plan",
+          "checks": [["Search from online", "On-premises results returned", "Screenshot"], ["Plan workloads", "Each workload placed with reasons", "Plan"], ["Review patching", "Patch process defined", "Patch plan"]],
+          "objectives": ["Run hybrid SharePoint", "Configure hybrid search", "Plan workloads"]
+        },
+        {
+          "topic": "Throttling, Limits and Performance Engineering",
+          "subtopics": ["Throttling in SharePoint Online", "Rate limits for apps", "Designing for throttling", "Large content operations", "Search performance", "Page performance at scale", "Monitoring", "Working with Microsoft support"],
+          "tools": ["Microsoft Graph", "Page Diagnostics", "Monitoring"],
+          "lab_task": "Run a bulk job that gets throttled, redesign it with batching and backoff, tune a slow intranet home page and monitor results.",
+          "deliverable": "Redesigned job, page fixes and measurements",
+          "checks": [["Run the redesigned job", "Completes without failures", "Job log"], ["Tune the home page", "Load time lower", "Diagnostics output"], ["Monitor", "Throttling events tracked", "Dashboard"]],
+          "objectives": ["Design for throttling", "Tune performance", "Monitor limits"]
+        },
+        {
+          "topic": "Accessibility and User Experience",
+          "subtopics": ["Accessibility law and standards", "Accessible pages and web parts", "Testing with assistive technology", "Accessible SPFx components", "Usability testing", "Design systems with Fluent UI", "Mobile experience", "Measuring experience"],
+          "tools": ["Fluent UI", "Accessibility checkers", "Screen readers"],
+          "lab_task": "Audit the intranet and an SPFx web part for accessibility, fix the issues with Fluent UI and run a usability test with three users.",
+          "deliverable": "Audit, fixes and usability results",
+          "checks": [["Run the audit", "Issues found", "Audit report"], ["Fix issues", "Re-audit passes", "Audit report"], ["Run usability tests", "Task success measured", "Test results"]],
+          "objectives": ["Build accessible solutions", "Test usability", "Use Fluent UI"]
+        },
+        {
+          "topic": "Adoption and Change Management for SharePoint",
+          "subtopics": ["Adoption strategy", "Champions programmes", "Training at scale", "Communication campaigns", "Measuring adoption", "Retiring old tools", "Feedback loops", "Sustaining adoption"],
+          "tools": ["Usage reports", "Viva Engage", "Survey tools"],
+          "lab_task": "Plan the adoption programme for the new intranet, set measures, run a champions session and review adoption data after a month.",
+          "deliverable": "Adoption plan, measures and review",
+          "checks": [["Set measures", "Targets for use defined", "Adoption plan"], ["Run the champions session", "Champions ready with materials", "Session notes"], ["Review adoption data", "Progress and actions recorded", "Review"]],
+          "objectives": ["Drive adoption", "Use champions", "Measure and improve"]
+        },
+        {
+          "topic": "Troubleshooting Complex SharePoint Issues",
+          "subtopics": ["An incident method for SharePoint", "Permission problems", "Sync problems", "Search problems", "SPFx failures", "Flow failures", "Working with Microsoft support", "Post-incident reviews"],
+          "tools": ["Admin center", "Sync logs", "Search tools", "Browser tools"],
+          "lab_task": "Diagnose five injected issues (missing search results, a sync conflict storm, a broken SPFx web part, a failing flow and unexpected access), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the search issue", "Items found after the fix", "Screenshot"], ["Fix the web part", "Web part loads", "Screenshot"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose SharePoint issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "SharePoint Platform Strategy and Ownership",
+          "subtopics": ["Platform vision", "Roles and team structure", "Roadmaps", "Investment cases", "Third-party tools", "Measuring platform value", "Communicating with leadership", "Planning for AI"],
+          "tools": ["Strategy templates", "Roadmap template"],
+          "lab_task": "Write a three-year SharePoint platform strategy with roles, roadmap, investment case and value measures, and present it to a role-play leadership panel.",
+          "deliverable": "Strategy, roadmap and presentation",
+          "checks": [["Review the roadmap", "Milestones with measures", "Roadmap"], ["Review the investment case", "Costs and benefits estimated", "Investment case"], ["Present to leadership", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Set platform strategy", "Plan investment", "Lead the platform"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise SharePoint and Content Platform",
+          "subtopics": ["Architecture", "Governance and records", "Solutions and AI", "Launch and review"],
+          "tools": ["SharePoint Online", "Advanced Management", "Purview", "SPFx", "Graph connectors", "SharePoint Premium", "Copilot Studio"],
+          "lab_task": "Design and deliver a content platform for a multinational: intranet architecture, Multi-Geo, governance and records, oversharing remediation, SPFx solutions with CI/CD, connectors, AI content processing and agents, then present to an architecture board.",
+          "deliverable": "Architecture records, solutions, governance reports and board presentation",
+          "checks": [["Demo the platform", "Intranet, records and agents working", "Demo recording"], ["Show oversharing reduction", "Risk reduced with evidence", "Report"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run SharePoint at enterprise scale", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

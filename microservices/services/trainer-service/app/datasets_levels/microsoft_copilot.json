@@ -1,0 +1,573 @@
+{
+  "domain": "Microsoft Copilot",
+  "name": "Microsoft 365 Copilot and Copilot Studio",
+  "category": "Generative AI and Agents",
+  "icon": "zap",
+  "aliases": ["Microsoft 365 Copilot", "M365 Copilot", "Copilot for Microsoft 365", "Microsoft Copilot Training", "Copilot Studio", "Microsoft Copilot Studio", "Copilot Chat", "Microsoft Copilot Chat", "Copilot Adoption", "Copilot Agents"],
+  "certifications": ["Microsoft 365 Certified: Copilot and Agent Administration Fundamentals (where available)", "Microsoft Certified: Power Platform Fundamentals (PL-900)", "Microsoft Certified: Power Platform Developer Associate (PL-400)", "Microsoft 365 Certified: Administrator Expert (MS-102)"],
+  "tools": ["Microsoft 365 Copilot", "Copilot Chat", "Copilot Studio", "Microsoft 365 admin center", "Microsoft Purview", "Power Automate", "Copilot Analytics"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For business users, managers and support staff. Covers what Copilot is and how it uses work data, Copilot Chat and prompting at work, Copilot in Word, Excel, PowerPoint, Outlook, Teams meetings and chats, OneNote and Loop, working with files and SharePoint, Pages and Notebooks, Researcher and Analyst agents, building simple agents, data protection, checking accuracy, role-based use, mobile and Windows, and measuring personal value.",
+      "prerequisites": ["Uses Microsoft 365 apps for daily work", "Has a Microsoft 365 Copilot licence or Copilot Chat access for practice", "No technical skills needed"],
+      "outcomes": ["Use Copilot in Microsoft 365 apps to draft, analyse, summarise and present", "Write effective prompts with work context", "Build simple agents for team tasks", "Use Copilot safely and check its output"],
+      "days": [
+        {
+          "topic": "Microsoft Copilot Overview and Getting Access",
+          "subtopics": ["Microsoft 365 Copilot and Copilot Chat compared", "How Copilot uses Microsoft Graph and your permissions", "Web grounding and work grounding", "Licences and access", "Where Copilot appears: apps, Teams, Edge and Windows", "Company AI policy", "Privacy: what Microsoft does and does not do with your data", "The Copilot prompt gallery", "Setting up for the course", "Personal goals for using Copilot"],
+          "tools": ["Microsoft 365 Copilot", "Copilot Chat", "Microsoft Edge"],
+          "lab_task": "Open Copilot in Teams, Word and the web, compare answers grounded in work data and the web for the same question, review the company AI policy and write three goals.",
+          "deliverable": "Comparison notes and personal goals",
+          "checks": [["Ask a work question", "Answer cites your files or messages", "Screenshot"], ["Switch to web grounding", "Answer cites public sources", "Screenshot"], ["Review the policy", "Three key rules noted", "Notes"]],
+          "objectives": ["Explain how Copilot works", "Find Copilot in apps", "Follow company policy"]
+        },
+        {
+          "topic": "Prompting Copilot for Work",
+          "subtopics": ["Goal, context, source and expectations", "Referring to files, people and meetings with /", "Following up and refining", "Saving prompts", "Prompt gallery and sharing", "Common prompt mistakes", "Prompts for different roles", "Checking answers"],
+          "tools": ["Copilot Chat", "Prompt gallery"],
+          "lab_task": "Rewrite five work requests with goal, context, sources and expectations, reference files and meetings directly, refine answers with follow-ups and save the best prompts.",
+          "deliverable": "Before and after prompts and saved prompts",
+          "checks": [["Reference a file", "Answer based on the named file", "Screenshot"], ["Refine with a follow-up", "Second answer closer to the need", "Screenshot"], ["Save prompts", "Prompts in the gallery", "Screenshot"]],
+          "objectives": ["Write work prompts", "Reference sources", "Refine answers"]
+        },
+        {
+          "topic": "Copilot in Word: Drafting and Editing Documents",
+          "subtopics": ["Drafting from a prompt", "Drafting from existing files", "Rewriting and changing tone", "Summarising long documents", "Asking questions about a document", "Turning text into tables", "Reviewing drafts critically", "Keeping documents accurate"],
+          "tools": ["Microsoft Word with Copilot"],
+          "lab_task": "Draft a project proposal from two existing files, rewrite one section for executives, summarise a long policy and turn requirements into a table.",
+          "deliverable": "Draft, rewritten section, summary and table",
+          "checks": [["Draft from files", "Proposal uses facts from both files", "Document"], ["Rewrite for executives", "Shorter and clearer", "Document"], ["Check accuracy", "Facts checked against sources", "Fact-check notes"]],
+          "objectives": ["Draft in Word", "Edit with Copilot", "Check accuracy"]
+        },
+        {
+          "topic": "Copilot in Excel: Analysis and Formulas",
+          "subtopics": ["Copilot with Excel tables", "Asking questions about data", "Formula suggestions", "Highlighting and sorting", "Charts and PivotTables from prompts", "Python in Excel with Copilot", "Checking calculations", "Limits with messy data"],
+          "tools": ["Microsoft Excel with Copilot"],
+          "lab_task": "Analyse a sales table with Copilot: find trends, add formula columns, build a chart and PivotTable and check every number against your own calculation.",
+          "deliverable": "Analysed workbook and check sheet",
+          "checks": [["Add a formula column", "Correct results", "Workbook"], ["Build a chart", "Chart shows the trend asked for", "Workbook"], ["Check numbers", "Each figure matches your calculation", "Check sheet"]],
+          "objectives": ["Analyse data with Copilot", "Create formulas and charts", "Check results"]
+        },
+        {
+          "topic": "Copilot in PowerPoint: Presentations",
+          "subtopics": ["Creating presentations from prompts", "Creating from Word documents", "Adding slides and images", "Organising and summarising decks", "Speaker notes", "Brand templates", "Editing generated slides", "Reviewing for accuracy and design"],
+          "tools": ["Microsoft PowerPoint with Copilot"],
+          "lab_task": "Create a deck from a Word proposal using the company template, add speaker notes, summarise an existing long deck and fix design and accuracy problems.",
+          "deliverable": "Generated deck, notes and fixes",
+          "checks": [["Create from Word", "Slides follow the document", "Deck"], ["Use the template", "Brand template applied", "Deck"], ["Fix problems", "Errors corrected", "Review notes"]],
+          "objectives": ["Build decks with Copilot", "Use templates", "Review slides"]
+        },
+        {
+          "topic": "Copilot in Outlook: Email and Calendar",
+          "subtopics": ["Summarising email threads", "Drafting replies", "Coaching for tone and clarity", "Prioritising the inbox", "Scheduling with Copilot", "Preparing for meetings from email", "Sensitive email cautions", "Checking before sending"],
+          "tools": ["Microsoft Outlook with Copilot"],
+          "lab_task": "Summarise three long threads, draft replies with the right tone, use coaching on a difficult email and prepare for a meeting from related emails.",
+          "deliverable": "Summaries, drafts and preparation notes",
+          "checks": [["Summarise a thread", "Key points and asks correct", "Summary"], ["Use coaching", "Suggestions applied", "Draft"], ["Prepare for a meeting", "Relevant emails used", "Preparation notes"]],
+          "objectives": ["Manage email with Copilot", "Draft replies", "Prepare for meetings"]
+        },
+        {
+          "topic": "Copilot in Teams Meetings",
+          "subtopics": ["Copilot during meetings", "Asking questions live", "Recaps after meetings", "Action items and owners", "Transcription requirements", "Meetings without transcripts", "Sharing recaps", "Privacy and consent"],
+          "tools": ["Microsoft Teams with Copilot", "Intelligent recap"],
+          "lab_task": "Run a recorded team meeting, ask Copilot what was decided during the meeting, produce a recap with action items and check it against the transcript.",
+          "deliverable": "Recap, action list and check notes",
+          "checks": [["Ask during the meeting", "Answer reflects the discussion so far", "Screenshot"], ["Produce a recap", "Decisions and actions with owners", "Recap"], ["Check against the transcript", "Errors corrected", "Check notes"]],
+          "objectives": ["Use Copilot in meetings", "Produce recaps", "Check accuracy"]
+        },
+        {
+          "topic": "Copilot in Teams Chats and Channels",
+          "subtopics": ["Summarising chats", "Catching up on channels", "Drafting messages", "Finding information across chats", "Rewriting messages", "Copilot in group chats", "Etiquette for AI-written messages", "Checking summaries"],
+          "tools": ["Microsoft Teams with Copilot"],
+          "lab_task": "Catch up on a busy channel, find a decision made last week, draft a project update and rewrite a message for a different audience.",
+          "deliverable": "Catch-up summary, found decision and drafts",
+          "checks": [["Catch up on a channel", "Main threads summarised", "Summary"], ["Find a decision", "Correct decision and date", "Screenshot"], ["Rewrite a message", "Tone fits the audience", "Draft"]],
+          "objectives": ["Use Copilot in chat", "Find information", "Draft messages"]
+        },
+        {
+          "topic": "Copilot in OneNote and Loop",
+          "subtopics": ["Copilot in OneNote", "Summarising notes", "Turning notes into plans", "Copilot in Loop", "Shared workspaces", "Brainstorming with Copilot", "Pages and components", "Team collaboration with AI"],
+          "tools": ["Microsoft OneNote", "Microsoft Loop with Copilot"],
+          "lab_task": "Turn messy meeting notes in OneNote into a plan, brainstorm ideas in a Loop workspace with a colleague and turn them into a task list.",
+          "deliverable": "Plan, Loop page and task list",
+          "checks": [["Turn notes into a plan", "Plan with steps and owners", "OneNote page"], ["Brainstorm in Loop", "Ideas grouped and ranked", "Loop page"], ["Create tasks", "Task list created from ideas", "Loop component"]],
+          "objectives": ["Use Copilot in OneNote", "Collaborate in Loop", "Turn ideas into plans"]
+        },
+        {
+          "topic": "Working with Files, SharePoint and OneDrive through Copilot",
+          "subtopics": ["Asking about files in OneDrive and SharePoint", "Comparing documents", "Copilot in SharePoint and the file viewer", "Finding the right version", "Permissions and what Copilot can see", "Labelled and sensitive files", "Reporting overshared files", "Keeping files organised for AI"],
+          "tools": ["Microsoft 365 Copilot", "SharePoint", "OneDrive"],
+          "lab_task": "Compare two versions of a contract, ask questions about a SharePoint folder, find a file you should not see and report it.",
+          "deliverable": "Comparison, answers and oversharing report",
+          "checks": [["Compare documents", "Differences listed correctly", "Comparison"], ["Ask about a folder", "Answers cite folder files", "Screenshot"], ["Report oversharing", "Report sent to the site owner", "Message"]],
+          "objectives": ["Use Copilot with files", "Compare documents", "Report oversharing"]
+        },
+        {
+          "topic": "Copilot Pages and Notebooks",
+          "subtopics": ["Copilot Pages", "Moving chat answers into Pages", "Editing Pages with others", "Copilot Notebooks", "Adding references to Notebooks", "Asking across a Notebook", "Sharing and permissions", "Uses for project work"],
+          "tools": ["Copilot Pages", "Copilot Notebooks"],
+          "lab_task": "Build a project Notebook with five files and notes, ask questions across it, move answers into a Page and edit it with a colleague.",
+          "deliverable": "Notebook and shared Page",
+          "checks": [["Ask across the Notebook", "Answers cite added references", "Screenshot"], ["Create a Page", "Answer moved into a Page", "Page"], ["Edit with a colleague", "Both edits saved", "Page history"]],
+          "objectives": ["Use Pages", "Use Notebooks", "Collaborate on AI content"]
+        },
+        {
+          "topic": "Researcher and Analyst Agents",
+          "subtopics": ["Built-in agents", "Researcher for multi-step research", "Analyst for data analysis", "Giving them good instructions", "Checking sources", "Time and limits", "When to use them", "Sharing results"],
+          "tools": ["Microsoft 365 Copilot Researcher", "Analyst"],
+          "lab_task": "Use Researcher to prepare a market brief from web and work sources, use Analyst on a sales file, check every source and number and share results.",
+          "deliverable": "Brief, analysis and check notes",
+          "checks": [["Check Researcher sources", "All sources opened and confirmed", "Source list"], ["Check Analyst numbers", "Figures match the data", "Check sheet"], ["Share results", "Brief shared with the team", "Message"]],
+          "objectives": ["Use built-in agents", "Check sources", "Share research"]
+        },
+        {
+          "topic": "Creating Simple Agents with Agent Builder",
+          "subtopics": ["What agents are in Microsoft 365 Copilot", "Agent Builder in Copilot Chat", "Instructions", "Knowledge sources", "Starter prompts", "Testing agents", "Sharing agents", "Agent rules in the company"],
+          "tools": ["Copilot Agent Builder", "SharePoint"],
+          "lab_task": "Build an agent that answers team process questions from a SharePoint site, write instructions and starter prompts, test it with ten questions and share it with the team.",
+          "deliverable": "Agent, test results and sharing settings",
+          "checks": [["Ask ten questions", "Most answered correctly from the site", "Test sheet"], ["Ask outside its scope", "Agent says it cannot help", "Screenshot"], ["Share the agent", "Team members can use it", "Screenshot"]],
+          "objectives": ["Build simple agents", "Ground agents in knowledge", "Share agents"]
+        },
+        {
+          "topic": "Data Protection and Privacy for Copilot Users",
+          "subtopics": ["What Copilot can access", "Sensitivity labels and Copilot", "Confidential information in prompts", "External content and web searches", "Retention of Copilot interactions", "Reporting problems", "Recording and transcription rules", "Personal responsibility"],
+          "tools": ["Microsoft 365 Copilot", "Sensitivity labels"],
+          "lab_task": "Work through ten scenarios deciding what is safe to ask, apply a sensitivity label and see its effect on Copilot output, and report a problem.",
+          "deliverable": "Scenario decisions and notes",
+          "checks": [["Decide scenarios", "Decisions match the policy", "Decision sheet"], ["Apply a label", "Copilot output carries the label", "Screenshot"], ["Report a problem", "Report submitted correctly", "Confirmation"]],
+          "objectives": ["Protect data", "Use labels", "Report problems"]
+        },
+        {
+          "topic": "Checking Accuracy and Avoiding Mistakes",
+          "subtopics": ["Why Copilot gets things wrong", "Checking sources and citations", "Checking numbers", "Checking names, dates and commitments", "Bias in outputs", "When not to rely on Copilot", "Reviewing before sharing", "A personal checking checklist"],
+          "tools": ["Microsoft 365 Copilot"],
+          "lab_task": "Review ten Copilot outputs for errors, use citations to verify claims and build a personal checking checklist.",
+          "deliverable": "Error log and checklist",
+          "checks": [["Find errors", "Errors found in sample outputs", "Error log"], ["Verify claims", "Citations checked for each claim", "Error log"], ["Build the checklist", "Checklist used on a new output", "Checklist"]],
+          "objectives": ["Check Copilot output", "Use citations", "Avoid mistakes"]
+        },
+        {
+          "topic": "Copilot for Roles: HR, Finance, Sales and Project Managers",
+          "subtopics": ["Role-based scenarios", "HR: job descriptions and policy questions", "Finance: variance explanations and reports", "Sales: account preparation and proposals", "Project managers: status reports and risks", "Role-based prompt libraries", "Measuring role benefits", "Sharing practices"],
+          "tools": ["Microsoft 365 Copilot"],
+          "lab_task": "Complete three tasks for your own role with Copilot, build a role prompt library of ten prompts and estimate time saved per task.",
+          "deliverable": "Completed tasks, prompt library and time estimates",
+          "checks": [["Complete role tasks", "Outputs usable after review", "Outputs"], ["Build the library", "Ten tested prompts", "Library"], ["Estimate time saved", "Before and after times recorded", "Estimate sheet"]],
+          "objectives": ["Apply Copilot to roles", "Build role libraries", "Estimate value"]
+        },
+        {
+          "topic": "Copilot on Mobile, Windows and Edge",
+          "subtopics": ["Copilot mobile app", "Copilot in Teams and Outlook mobile", "Copilot in Windows", "Copilot in Edge with page context", "Voice input", "Using Copilot on the move safely", "Work and personal accounts", "Choosing the right surface"],
+          "tools": ["Copilot mobile app", "Microsoft Edge", "Windows"],
+          "lab_task": "Catch up on email by voice on mobile, summarise a web page in Edge with work context and decide which surface suits five tasks.",
+          "deliverable": "Notes and surface choices",
+          "checks": [["Use voice on mobile", "Summary received", "Screenshot"], ["Summarise a web page", "Summary with page details", "Screenshot"], ["Choose surfaces", "Surface chosen for each task", "Notes"]],
+          "objectives": ["Use Copilot everywhere", "Use voice", "Choose surfaces"]
+        },
+        {
+          "topic": "Building Good Habits and Measuring Personal Value",
+          "subtopics": ["Daily Copilot habits", "Tracking time saved", "Quality of work with Copilot", "Sharing tips with colleagues", "Avoiding overreliance", "Continuing to learn", "Copilot updates", "Personal reflection"],
+          "tools": ["Microsoft 365 Copilot", "Time log"],
+          "lab_task": "Track Copilot use and time saved for a week, review quality of outputs, share three tips with your team and update your goals.",
+          "deliverable": "Time log, review and tips",
+          "checks": [["Track a week", "Time saved per task recorded", "Time log"], ["Review quality", "Quality issues noted", "Review notes"], ["Share tips", "Tips posted for the team", "Message"]],
+          "objectives": ["Build habits", "Measure value", "Share practices"]
+        },
+        {
+          "topic": "Copilot and Microsoft Forms, Planner and To Do",
+          "subtopics": ["Copilot in Forms", "Drafting surveys and quizzes", "Summarising responses", "Copilot in Planner", "Creating plans from goals", "Tracking status", "Tasks from meetings into To Do", "Keeping plans current"],
+          "tools": ["Microsoft Forms", "Microsoft Planner", "Microsoft To Do"],
+          "lab_task": "Draft a feedback survey with Copilot in Forms, summarise responses, create a plan in Planner from a goal and move meeting actions into To Do.",
+          "deliverable": "Survey, summary, plan and tasks",
+          "checks": [["Draft the survey", "Questions match the goal", "Form"], ["Summarise responses", "Themes match the answers", "Summary"], ["Create a plan", "Tasks and buckets created", "Planner screenshot"]],
+          "objectives": ["Use Copilot in Forms", "Plan work with Copilot", "Track tasks"]
+        },
+        {
+          "topic": "Beginner Capstone: Running a Project with Copilot",
+          "subtopics": ["Planning", "Documents and analysis", "Meetings and communication", "Reflection"],
+          "tools": ["Microsoft 365 Copilot", "Teams", "Word", "Excel", "PowerPoint", "Agent Builder"],
+          "lab_task": "Run a two-week mini project with Copilot: plan it, draft documents, analyse data, run meetings with recaps, present results and build a small agent for the team, then report time saved and lessons.",
+          "deliverable": "Project outputs, agent, time log and presentation",
+          "checks": [["Present results", "Deck and analysis accurate after review", "Presentation"], ["Show the agent", "Agent answers team questions", "Demo recording"], ["Report time saved", "Time saved with evidence", "Time log"]],
+          "objectives": ["Combine the beginner topics in one project", "Work productively with Copilot", "Measure the benefit"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Microsoft 365 administrators, Copilot champions and Copilot Studio makers. Covers licensing and deployment, tenant readiness and oversharing, Copilot admin controls, Purview protection for Copilot, Copilot Studio agents, topics and generative answers, knowledge sources, actions and connectors, Power Automate flows, channels, authentication, agent analytics, maker governance, agent ALM, declarative agents, Graph connectors, adoption programmes, Copilot Analytics and Copilot in business apps.",
+      "prerequisites": ["Uses Microsoft 365 Copilot well in daily work", "Administers Microsoft 365 or builds with Power Platform", "Understands Microsoft 365 permissions"],
+      "outcomes": ["Deploy and govern Copilot safely across a tenant", "Build Copilot Studio agents with knowledge, actions and flows", "Manage agent lifecycle, security and analytics", "Run adoption and measure business impact"],
+      "days": [
+        {
+          "topic": "Copilot Licensing, Deployment and Rollout Planning",
+          "subtopics": ["Licence options and prerequisites", "Assigning licences with groups", "Update channels for Microsoft 365 Apps", "Pilot groups", "Rollout waves", "Support readiness", "Communication plans", "Success criteria"],
+          "tools": ["Microsoft 365 admin center", "Entra groups"],
+          "lab_task": "Plan a three-wave Copilot rollout for 2,000 users, assign licences to a pilot group, check app prerequisites and write success criteria.",
+          "deliverable": "Rollout plan, licence assignment and criteria",
+          "checks": [["Assign pilot licences", "Licences assigned through a group", "Admin center"], ["Check prerequisites", "Apps on supported channels", "Report"], ["Review success criteria", "Measurable criteria defined", "Rollout plan"]],
+          "objectives": ["Plan rollouts", "Assign licences", "Define success"]
+        },
+        {
+          "topic": "Tenant Readiness: Oversharing, Permissions and Content Hygiene",
+          "subtopics": ["Why oversharing matters for Copilot", "Data access governance reports", "Sites shared with everyone", "Restricted SharePoint Search", "Restricted content discovery", "Cleaning stale content", "Site owner reviews", "Readiness checklists"],
+          "tools": ["SharePoint Advanced Management", "Purview", "Admin centers"],
+          "lab_task": "Run oversharing reports, fix five overshared sites, restrict discovery for sensitive sites and complete a readiness checklist.",
+          "deliverable": "Reports, fixes and checklist",
+          "checks": [["Run reports", "Overshared sites listed", "Report"], ["Fix sites", "Access reduced", "Permission check"], ["Restrict discovery", "Content not returned by Copilot", "Test result"]],
+          "objectives": ["Prepare the tenant", "Fix oversharing", "Complete readiness checks"]
+        },
+        {
+          "topic": "Copilot Admin Controls and Settings",
+          "subtopics": ["Copilot settings in the admin center", "Web search controls", "Agent controls", "Plugins and connectors settings", "Copilot in apps settings", "User feedback settings", "Integrated apps", "Change management for settings"],
+          "tools": ["Microsoft 365 admin center", "Copilot control system"],
+          "lab_task": "Configure web search, agent availability, integrated apps and feedback settings for pilot and general users and document each decision.",
+          "deliverable": "Settings and decision log",
+          "checks": [["Turn off web search for a group", "Group gets work-only answers", "Test result"], ["Restrict agents", "Only approved agents available", "Screenshot"], ["Document decisions", "Each setting with a reason", "Decision log"]],
+          "objectives": ["Configure Copilot", "Control agents and web search", "Document settings"]
+        },
+        {
+          "topic": "Protecting Data for Copilot with Microsoft Purview",
+          "subtopics": ["Sensitivity labels and Copilot", "Label inheritance in Copilot output", "DLP for Copilot", "Audit of Copilot interactions", "Retention of prompts and responses", "eDiscovery for Copilot", "Data Security Posture Management for AI", "Insider risk with AI"],
+          "tools": ["Microsoft Purview", "DSPM for AI"],
+          "lab_task": "Set DLP to stop Copilot using highly confidential files, retain interactions for a year, search Copilot activity in audit and review DSPM for AI reports.",
+          "deliverable": "Policies, audit results and DSPM review",
+          "checks": [["Ask about a highly confidential file", "Copilot does not use it", "Test result"], ["Search audit", "Copilot interactions found", "Audit results"], ["Review DSPM for AI", "Risks listed with actions", "Report"]],
+          "objectives": ["Protect data for AI", "Audit Copilot use", "Retain interactions"]
+        },
+        {
+          "topic": "Building Agents in Copilot Studio",
+          "subtopics": ["Copilot Studio overview", "Creating an agent", "Instructions and model settings", "Knowledge and generative answers", "Testing in the test pane", "Publishing", "Environments", "Licensing and messages"],
+          "tools": ["Copilot Studio", "Power Platform environments"],
+          "lab_task": "Build an IT helpdesk agent in Copilot Studio with instructions and knowledge from IT articles, test it and publish it to Teams.",
+          "deliverable": "Agent and test log",
+          "checks": [["Test in the pane", "Correct answers from articles", "Test log"], ["Publish to Teams", "Agent available in Teams", "Screenshot"], ["Check message use", "Usage recorded", "Analytics"]],
+          "objectives": ["Build agents in Copilot Studio", "Add knowledge", "Publish agents"]
+        },
+        {
+          "topic": "Topics, Triggers and Conversation Design",
+          "subtopics": ["Topics and trigger phrases", "Generative orchestration compared with classic topics", "Questions and variables in topics", "Conditions and branching", "Adaptive cards", "Escalation to humans", "Fallback behaviour", "Testing conversations"],
+          "tools": ["Copilot Studio"],
+          "lab_task": "Build topics for password reset and laptop requests with questions, conditions and adaptive cards, and escalate unresolved conversations to a live agent.",
+          "deliverable": "Topics and test transcripts",
+          "checks": [["Request a laptop", "Questions asked and an adaptive card shown", "Transcript"], ["Fail to resolve", "Escalation to a human", "Transcript"], ["Ask something unexpected", "Fallback works", "Transcript"]],
+          "objectives": ["Design conversations", "Build topics", "Escalate well"]
+        },
+        {
+          "topic": "Knowledge Sources: SharePoint, Files, Websites and Dataverse",
+          "subtopics": ["Knowledge source types", "SharePoint and OneDrive knowledge", "Uploaded files", "Public websites", "Dataverse tables", "Graph connectors as knowledge", "Permissions on knowledge", "Testing answer quality"],
+          "tools": ["Copilot Studio", "SharePoint", "Dataverse"],
+          "lab_task": "Add SharePoint, file and Dataverse knowledge to the agent, check that users only get answers from content they can access and measure answer quality.",
+          "deliverable": "Knowledge configuration and test results",
+          "checks": [["Ask as two users", "Answers respect each user's permissions", "Test results"], ["Ask about Dataverse data", "Correct answer from the table", "Transcript"], ["Measure quality", "Accuracy on 20 questions", "Test sheet"]],
+          "objectives": ["Add knowledge sources", "Respect permissions", "Measure quality"]
+        },
+        {
+          "topic": "Actions, Connectors and Custom Tools",
+          "subtopics": ["Actions in Copilot Studio", "Prebuilt connectors", "Custom connectors to APIs", "Inputs and outputs", "Authentication for actions", "Confirmations before actions", "Error handling", "Testing actions"],
+          "tools": ["Copilot Studio", "Power Platform connectors", "Custom connector"],
+          "lab_task": "Add actions that create ServiceNow or Jira tickets and look up order status through a custom connector, ask for confirmation and handle errors.",
+          "deliverable": "Actions, connector and tests",
+          "checks": [["Create a ticket", "Ticket created after confirmation", "Ticket record"], ["Look up an order", "Status returned", "Transcript"], ["Break the API", "Error handled politely", "Transcript"]],
+          "objectives": ["Add actions", "Build connectors", "Confirm and handle errors"]
+        },
+        {
+          "topic": "Agent Flows and Power Automate",
+          "subtopics": ["Agent flows", "Calling flows from agents", "Approvals", "Long-running processes", "Passing data back to the agent", "Flow error handling", "Connections and ownership", "Monitoring flows"],
+          "tools": ["Copilot Studio agent flows", "Power Automate"],
+          "lab_task": "Build an agent flow for a leave request that checks balance, gets manager approval and returns the result to the agent.",
+          "deliverable": "Flow and run history",
+          "checks": [["Request leave", "Approval sent to the manager", "Approvals app"], ["Approve", "Result returned to the agent", "Transcript"], ["Fail a step", "Error reported to the user", "Transcript"]],
+          "objectives": ["Use agent flows", "Automate approvals", "Return results to agents"]
+        },
+        {
+          "topic": "Publishing Channels and Authentication",
+          "subtopics": ["Channels: Teams, Microsoft 365 Copilot, websites and others", "Authentication options", "Single sign-on", "Anonymous and authenticated agents", "Web channel security", "Custom branding", "Channel-specific behaviour", "Testing each channel"],
+          "tools": ["Copilot Studio", "Microsoft Entra ID"],
+          "lab_task": "Publish the agent to Teams with single sign-on, to Microsoft 365 Copilot and to a website with authentication, and test each channel.",
+          "deliverable": "Channel configuration and tests",
+          "checks": [["Use SSO in Teams", "No extra sign-in", "Screenshot"], ["Use in Microsoft 365 Copilot", "Agent available in Copilot", "Screenshot"], ["Open the website without signing in", "Access refused", "Screenshot"]],
+          "objectives": ["Publish to channels", "Authenticate users", "Test channels"]
+        },
+        {
+          "topic": "Agent Analytics and Improvement",
+          "subtopics": ["Analytics in Copilot Studio", "Sessions, outcomes and escalations", "Unanswered questions", "Satisfaction scores", "Topic and knowledge performance", "Improving from analytics", "Exporting data", "Reporting to owners"],
+          "tools": ["Copilot Studio analytics", "Power BI"],
+          "lab_task": "Review a week of agent analytics, find the top unanswered questions, improve knowledge and topics and compare outcomes the next week.",
+          "deliverable": "Analytics review and improvement log",
+          "checks": [["Find unanswered questions", "Top gaps listed", "Analytics"], ["Improve the agent", "Changes made for the gaps", "Change log"], ["Compare outcomes", "Resolution rate higher", "Analytics"]],
+          "objectives": ["Analyse agents", "Improve from data", "Report outcomes"]
+        },
+        {
+          "topic": "Governance for Makers: Environments, DLP and Policies",
+          "subtopics": ["Who can build agents", "Environment strategy", "Data policies for connectors", "Managed environments", "Sharing limits", "Approval for publishing", "Inventory of agents", "Centre of Excellence kit in brief"],
+          "tools": ["Power Platform admin center", "Managed environments"],
+          "lab_task": "Create development, test and production environments, block risky connectors with data policies, limit sharing and build an agent inventory.",
+          "deliverable": "Environment strategy, policies and inventory",
+          "checks": [["Use a blocked connector", "Blocked by the data policy", "Error message"], ["Share widely", "Blocked by sharing limits", "Screenshot"], ["List agents", "Inventory with owners", "Inventory"]],
+          "objectives": ["Govern makers", "Use environments", "Control connectors"]
+        },
+        {
+          "topic": "Agent Lifecycle Management: Solutions and Pipelines",
+          "subtopics": ["Solutions in Power Platform", "Moving agents between environments", "Environment variables and connection references", "Power Platform pipelines", "Source control with Git", "Testing before release", "Rollback", "Release notes"],
+          "tools": ["Power Platform solutions", "Pipelines", "Git integration"],
+          "lab_task": "Package the helpdesk agent in a solution, deploy it from development to test to production with pipelines and roll back a bad release.",
+          "deliverable": "Solution, pipeline runs and rollback evidence",
+          "checks": [["Deploy to test", "Agent works with test connections", "Pipeline log"], ["Promote to production", "Approval recorded", "Pipeline log"], ["Roll back", "Previous version restored", "Pipeline log"]],
+          "objectives": ["Manage agent lifecycles", "Use pipelines", "Roll back"]
+        },
+        {
+          "topic": "Declarative Agents for Microsoft 365 Copilot",
+          "subtopics": ["Declarative agents", "Building with Agents Toolkit", "Manifests and instructions", "Knowledge and capabilities", "API plugins", "Testing in Copilot", "Publishing through the admin center", "Updating agents"],
+          "tools": ["Microsoft 365 Agents Toolkit", "VS Code", "Microsoft 365 Copilot"],
+          "lab_task": "Build a declarative agent with the Agents Toolkit that answers from a SharePoint site and calls an API plugin, test it in Copilot and publish it through admin approval.",
+          "deliverable": "Agent project and publishing record",
+          "checks": [["Run in Copilot", "Answers grounded in the site", "Screenshot"], ["Call the API plugin", "Data returned from the API", "Transcript"], ["Publish", "Approved in the admin center", "Admin center"]],
+          "objectives": ["Build declarative agents", "Add API plugins", "Publish agents"]
+        },
+        {
+          "topic": "Extending Copilot with Graph Connectors",
+          "subtopics": ["Why connectors", "Prebuilt Graph connectors", "Custom connectors", "Schema and permissions", "Indexing and refresh", "Connectors as Copilot knowledge", "Monitoring connectors", "Cost and limits"],
+          "tools": ["Microsoft Graph connectors", "Microsoft 365 admin center"],
+          "lab_task": "Connect a ticketing system with a Graph connector, set item permissions, check Copilot answers from it and monitor refresh.",
+          "deliverable": "Connector configuration and tests",
+          "checks": [["Ask Copilot about a ticket", "Answer from the connected system", "Screenshot"], ["Ask as a user without access", "Restricted items not used", "Test result"], ["Monitor refresh", "Refresh status healthy", "Admin center"]],
+          "objectives": ["Use Graph connectors", "Respect item permissions", "Monitor connectors"]
+        },
+        {
+          "topic": "Copilot Adoption Programmes",
+          "subtopics": ["Adoption frameworks", "Champions networks", "Training paths by role", "Use case libraries", "Communications", "Office hours and support", "Feedback loops", "Sustaining adoption"],
+          "tools": ["Microsoft Adoption resources", "Viva Engage", "Copilot Analytics"],
+          "lab_task": "Design an adoption programme with champions, role training and a use case library, run a champions session and set up a feedback channel.",
+          "deliverable": "Programme plan, session notes and feedback channel",
+          "checks": [["Review the plan", "Audiences, training and timing defined", "Programme plan"], ["Run the session", "Champions ready with materials", "Session notes"], ["Collect feedback", "Feedback channel active", "Viva Engage screenshot"]],
+          "objectives": ["Run adoption", "Build champions", "Collect feedback"]
+        },
+        {
+          "topic": "Measuring Impact with Copilot Analytics",
+          "subtopics": ["Copilot Dashboard", "Usage and adoption metrics", "Impact metrics", "Surveys and sentiment", "Viva Insights for deeper analysis", "Privacy settings for analytics", "Business case measures", "Reporting to leadership"],
+          "tools": ["Copilot Dashboard", "Viva Insights", "Power BI"],
+          "lab_task": "Report usage and impact for the pilot from the Copilot Dashboard, run a sentiment survey and build a leadership summary with recommendations.",
+          "deliverable": "Usage report, survey results and summary",
+          "checks": [["Report usage", "Active users and apps shown", "Dashboard"], ["Run the survey", "Sentiment and time saved reported", "Survey results"], ["Present the summary", "Recommendations clear", "Summary"]],
+          "objectives": ["Measure Copilot impact", "Use the dashboard", "Report to leaders"]
+        },
+        {
+          "topic": "Copilot in Business Applications: Dynamics 365, Sales and Service",
+          "subtopics": ["Copilot in Dynamics 365 Sales", "Copilot in Dynamics 365 Customer Service", "Sales and Service agents in Microsoft 365", "Copilot in Power BI", "Copilot in Power Apps and Power Automate", "Data requirements", "Role-based value", "Rollout considerations"],
+          "tools": ["Dynamics 365 trial", "Power BI", "Power Platform"],
+          "lab_task": "Use Copilot in a Dynamics 365 trial to summarise an opportunity and draft a case reply, build a Power BI report page with Copilot and create a flow from a description.",
+          "deliverable": "Outputs and notes",
+          "checks": [["Summarise an opportunity", "Summary uses CRM data", "Screenshot"], ["Build a report page", "Visuals created from the prompt", "Power BI screenshot"], ["Create a flow", "Flow works after review", "Run history"]],
+          "objectives": ["Use Copilot in business apps", "Build with Copilot in Power Platform", "Plan rollouts"]
+        },
+        {
+          "topic": "Testing and Quality Assurance for Agents",
+          "subtopics": ["Test sets for agents", "Evaluation features in Copilot Studio", "Testing knowledge answers", "Testing actions and flows", "Regression testing after changes", "User acceptance testing", "Accessibility testing", "Sign-off"],
+          "tools": ["Copilot Studio evaluation", "Test sheets"],
+          "lab_task": "Build a 30-question test set for the helpdesk agent, run it before and after a change, test actions and get user acceptance sign-off.",
+          "deliverable": "Test set, results and sign-off",
+          "checks": [["Run the test set", "Accuracy recorded", "Test results"], ["Re-run after a change", "No regressions", "Test results"], ["Get sign-off", "Business owner approves", "Sign-off record"]],
+          "objectives": ["Test agents", "Prevent regressions", "Get sign-off"]
+        },
+        {
+          "topic": "Intermediate Capstone: Governed Copilot and Agent Rollout",
+          "subtopics": ["Readiness and controls", "Agents", "Lifecycle and governance", "Adoption and impact"],
+          "tools": ["Microsoft 365 admin center", "Purview", "Copilot Studio", "Power Platform", "Copilot Analytics"],
+          "lab_task": "Prepare a tenant for Copilot, configure controls and Purview protection, build and ship a helpdesk agent with knowledge, actions, flows and pipelines, run adoption for a pilot and present measured impact.",
+          "deliverable": "Readiness report, agent, pipelines, analytics and presentation",
+          "checks": [["Show readiness", "Oversharing fixed and controls in place", "Report"], ["Demo the agent", "Answers, actions and approvals work", "Demo recording"], ["Present impact", "Usage and time saved with evidence", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one rollout", "Deploy Copilot safely", "Prove impact"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For Copilot architects, platform owners and senior makers. Covers enterprise Copilot architecture, autonomous agents, custom engine agents with Azure AI Foundry, the Microsoft 365 Agents SDK, MCP and API plugins, multi-agent orchestration, agent evaluation, security and red teaming, compliance and audit, responsible AI programmes, grounding data strategy, large-scale change, business cases, cost and capacity, integration with enterprise systems, agent operations at scale, Security Copilot and Fabric Copilot, troubleshooting and AI strategy.",
+      "prerequisites": ["Has deployed Copilot and built Copilot Studio agents", "Understands Microsoft 365 security and Power Platform governance", "Comfortable with APIs and Azure basics"],
+      "outcomes": ["Design enterprise Copilot and agent architectures", "Build advanced agents with Copilot Studio, Azure AI Foundry and the Agents SDK", "Secure, evaluate and govern agents at scale", "Lead Copilot programmes with measured value"],
+      "days": [
+        {
+          "topic": "Enterprise Copilot Architecture",
+          "subtopics": ["Copilot architecture: Graph, semantic index and orchestration", "Extensibility options", "Choosing declarative, Copilot Studio or custom engine agents", "Data flows and boundaries", "Identity and permissions", "Network and compliance boundaries", "Architecture decision records", "Reviewing designs"],
+          "tools": ["Architecture diagrams", "Microsoft documentation"],
+          "lab_task": "Design the Copilot and agent architecture for a bank with five business units, choose the agent type for six use cases and defend the design.",
+          "deliverable": "Architecture, choices and review notes",
+          "checks": [["Choose agent types", "Type justified for each use case", "Decision records"], ["Map data flows", "Boundaries and permissions shown", "Architecture diagram"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design Copilot architecture", "Choose extensibility options", "Record decisions"]
+        },
+        {
+          "topic": "Autonomous Agents and Event Triggers",
+          "subtopics": ["Autonomous agents in Copilot Studio", "Event triggers", "Scheduled triggers", "Instructions for autonomy", "Limits and approvals", "Monitoring autonomous runs", "Failure handling", "When autonomy is appropriate"],
+          "tools": ["Copilot Studio", "Power Automate triggers"],
+          "lab_task": "Build an autonomous agent that triages new support emails, creates tickets and drafts replies, with approval for refunds and monitoring of every run.",
+          "deliverable": "Agent, triggers and run log",
+          "checks": [["Send a support email", "Ticket created and reply drafted", "Run log"], ["Request a refund", "Approval required", "Approvals app"], ["Review runs", "Every run logged with actions", "Activity log"]],
+          "objectives": ["Build autonomous agents", "Use triggers", "Limit autonomy"]
+        },
+        {
+          "topic": "Custom Engine Agents with Azure AI Foundry",
+          "subtopics": ["When to build custom engine agents", "Azure AI Foundry Agent Service", "Model choice", "Tools and knowledge in Foundry", "Bringing Foundry agents into Microsoft 365", "Identity and on-behalf-of access", "Evaluation in Foundry", "Cost"],
+          "tools": ["Azure AI Foundry", "Azure OpenAI", "Microsoft 365 Agents Toolkit"],
+          "lab_task": "Build a contract review agent in Azure AI Foundry with a chosen model and tools, evaluate it and make it available in Microsoft 365 Copilot and Teams.",
+          "deliverable": "Agent, evaluation and deployment",
+          "checks": [["Review a contract", "Issues found with citations", "Transcript"], ["Evaluate", "Scores on a test set", "Evaluation report"], ["Use in Teams", "Agent available to users", "Screenshot"]],
+          "objectives": ["Build custom engine agents", "Use Azure AI Foundry", "Bring agents into Microsoft 365"]
+        },
+        {
+          "topic": "Microsoft 365 Agents SDK",
+          "subtopics": ["The Agents SDK", "Activities and channels", "State and storage", "Authentication", "Using any orchestrator", "Deploying to Azure", "Publishing to Teams and Copilot", "Testing locally"],
+          "tools": ["Microsoft 365 Agents SDK", "Azure Bot Service", "Visual Studio Code"],
+          "lab_task": "Build an agent with the Agents SDK that uses your own orchestration, store conversation state, authenticate users and publish it to Teams and Copilot.",
+          "deliverable": "Agent code, deployment and tests",
+          "checks": [["Run locally", "Agent responds in the test tool", "Screenshot"], ["Keep state", "Conversation continues after restart", "Transcript"], ["Publish", "Agent available in Teams and Copilot", "Screenshot"]],
+          "objectives": ["Use the Agents SDK", "Manage state", "Publish agents"]
+        },
+        {
+          "topic": "MCP Servers and API Plugins for Copilot",
+          "subtopics": ["Model Context Protocol in Copilot Studio", "Connecting MCP servers", "API plugins with OpenAPI", "Authentication for plugins", "Designing APIs for agents", "Rate limits", "Testing tools", "Security review of tools"],
+          "tools": ["Copilot Studio", "MCP", "OpenAPI", "Azure API Management"],
+          "lab_task": "Expose an internal API through Azure API Management as an MCP server and an API plugin, connect both to agents and review their security.",
+          "deliverable": "MCP server, plugin and security review",
+          "checks": [["Connect the MCP server", "Tools available to the agent", "Screenshot"], ["Call without authorisation", "Refused", "API log"], ["Review security", "Risks and fixes recorded", "Review notes"]],
+          "objectives": ["Connect MCP servers", "Build API plugins", "Secure tools"]
+        },
+        {
+          "topic": "Multi-Agent Orchestration in Copilot Studio",
+          "subtopics": ["Connected agents", "Child agents", "Hand-offs", "Orchestration design", "Shared context", "Avoiding loops and conflicts", "Testing multi-agent flows", "Cost of multi-agent designs"],
+          "tools": ["Copilot Studio", "Azure AI Foundry"],
+          "lab_task": "Build an onboarding orchestrator that hands tasks to HR, IT and facilities agents, test hand-offs and compare with a single agent.",
+          "deliverable": "Agents, test results and comparison",
+          "checks": [["Run onboarding", "Each agent completes its part", "Transcript"], ["Test a hand-off failure", "Failure handled", "Transcript"], ["Compare with one agent", "Quality and cost compared", "Comparison"]],
+          "objectives": ["Orchestrate agents", "Design hand-offs", "Weigh designs"]
+        },
+        {
+          "topic": "Evaluating Agents at Scale",
+          "subtopics": ["Evaluation strategy for agents", "Test sets by use case", "Automated evaluation in Copilot Studio and Foundry", "Groundedness and relevance", "Action accuracy", "Human review", "Continuous evaluation", "Release gates"],
+          "tools": ["Copilot Studio evaluation", "Azure AI Foundry evaluation"],
+          "lab_task": "Build evaluation sets for three agents, run automated evaluation for groundedness and action accuracy, add human review and set release gates.",
+          "deliverable": "Evaluation sets, results and gates",
+          "checks": [["Run automated evaluation", "Scores per agent", "Evaluation report"], ["Review by humans", "Agreement with automated scores", "Review notes"], ["Apply gates", "Release blocked below the threshold", "Pipeline log"]],
+          "objectives": ["Evaluate agents", "Combine automated and human review", "Gate releases"]
+        },
+        {
+          "topic": "Security and Red Teaming for Copilot and Agents",
+          "subtopics": ["Threats: prompt injection, data leakage and excessive agency", "Injection through emails and documents", "Agent permissions", "Connector risks", "Red teaming agents", "Defender and Purview signals for AI", "Fixing findings", "Security reviews before publishing"],
+          "tools": ["Microsoft Defender", "Purview", "PyRIT"],
+          "lab_task": "Red-team an agent with injected instructions in emails and documents and with connector misuse, fix the findings and set a pre-publishing security review.",
+          "deliverable": "Red team report, fixes and review process",
+          "checks": [["Inject through an email", "Attack fails after fixes", "Test results"], ["Misuse a connector", "Blocked by permissions", "Log"], ["Run the review", "Agent passes before publishing", "Review record"]],
+          "objectives": ["Secure agents", "Red-team Copilot", "Review before publishing"]
+        },
+        {
+          "topic": "Compliance, Audit and Records for AI Interactions",
+          "subtopics": ["Regulatory needs for AI records", "Audit logs for Copilot and agents", "Retention policies for AI interactions", "eDiscovery for prompts and responses", "Communication compliance for AI", "Records of agent actions", "Responding to regulators", "Evidence packs"],
+          "tools": ["Microsoft Purview", "Audit", "eDiscovery"],
+          "lab_task": "Set retention and audit for Copilot and agents, run an eDiscovery search on AI interactions and assemble an evidence pack for an auditor.",
+          "deliverable": "Policies, search results and evidence pack",
+          "checks": [["Search interactions", "Prompts and responses found", "eDiscovery results"], ["Trace an agent action", "Action linked to the user and time", "Audit log"], ["Review the evidence pack", "Auditor requirements covered", "Evidence pack"]],
+          "objectives": ["Meet compliance needs", "Audit AI", "Prepare evidence"]
+        },
+        {
+          "topic": "Responsible AI Programmes for Copilot",
+          "subtopics": ["Responsible AI principles", "Policies for staff and makers", "Impact assessments for agents", "Transparency to users", "Bias and fairness checks", "EU AI Act and Indian guidance", "Incident handling", "Programme reviews"],
+          "tools": ["Impact assessment templates", "Policy templates"],
+          "lab_task": "Write responsible AI policies for staff and makers, complete impact assessments for two agents and design incident handling for AI harms.",
+          "deliverable": "Policies, assessments and incident process",
+          "checks": [["Complete assessments", "Risks and mitigations recorded", "Assessments"], ["Review transparency", "Users told they are using AI", "Agent screens"], ["Test incident handling", "Process followed in a drill", "Drill notes"]],
+          "objectives": ["Run responsible AI", "Assess agents", "Handle AI incidents"]
+        },
+        {
+          "topic": "Grounding Data Strategy",
+          "subtopics": ["Content quality for AI", "Information architecture for grounding", "Metadata and labels", "Retiring stale content", "Structured data through Dataverse and connectors", "Ownership of knowledge", "Measuring grounding quality", "Roadmaps for content"],
+          "tools": ["SharePoint", "Dataverse", "Graph connectors", "Analytics"],
+          "lab_task": "Assess the quality of content behind three agents, fix structure and metadata, retire stale content and measure answer quality before and after.",
+          "deliverable": "Assessment, fixes and measurements",
+          "checks": [["Assess content", "Problems listed per source", "Assessment"], ["Retire stale content", "Old content removed or archived", "Change log"], ["Measure answers", "Quality higher after fixes", "Test results"]],
+          "objectives": ["Plan grounding data", "Improve content", "Measure answer quality"]
+        },
+        {
+          "topic": "Large-Scale Change and Workforce Enablement",
+          "subtopics": ["Change at scale", "Leaders as role models", "Role-based learning paths", "Communities of practice", "Managing fears about AI and jobs", "Works councils and unions", "Measuring behaviour change", "Sustaining change"],
+          "tools": ["Change plans", "Learning platforms", "Viva"],
+          "lab_task": "Plan change for a 20,000-person rollout, prepare a leadership briefing, design role learning paths and plan engagement with employee representatives.",
+          "deliverable": "Change plan, briefing and learning paths",
+          "checks": [["Review the change plan", "Audiences, actions and timing defined", "Change plan"], ["Give the briefing", "Leaders' questions answered", "Session notes"], ["Plan engagement", "Representative concerns addressed", "Engagement plan"]],
+          "objectives": ["Lead change at scale", "Enable the workforce", "Address concerns"]
+        },
+        {
+          "topic": "Business Cases and Value Realisation",
+          "subtopics": ["Building the business case", "Measuring time saved and quality", "Linking to business outcomes", "Licence allocation by value", "Value tracking over time", "Benefits reports", "Stopping low-value use", "Communicating value"],
+          "tools": ["Copilot Analytics", "Viva Insights", "Spreadsheet"],
+          "lab_task": "Build a business case for expanding Copilot, model licence allocation by role value, track benefits for the pilot and present a benefits report.",
+          "deliverable": "Business case, allocation model and benefits report",
+          "checks": [["Model value", "Value per role estimated", "Allocation model"], ["Track benefits", "Pilot benefits measured", "Benefits report"], ["Present the case", "Decision requested with evidence", "Presentation"]],
+          "objectives": ["Build business cases", "Allocate licences by value", "Report benefits"]
+        },
+        {
+          "topic": "Cost, Capacity and Licensing for Agents",
+          "subtopics": ["Copilot Studio messages and credits", "Pay-as-you-go and prepaid capacity", "Azure consumption for custom agents", "Monitoring consumption", "Optimising agent design for cost", "Chargeback", "Forecasting", "Licensing changes"],
+          "tools": ["Power Platform admin center", "Azure Cost Management"],
+          "lab_task": "Measure consumption for three agents, cut cost by changing orchestration and knowledge settings, set up chargeback and forecast next quarter.",
+          "deliverable": "Consumption report, changes and forecast",
+          "checks": [["Measure consumption", "Cost per agent recorded", "Report"], ["Optimise", "Cost lower with quality kept", "Comparison"], ["Forecast", "Quarterly forecast with assumptions", "Forecast"]],
+          "objectives": ["Manage agent cost", "Optimise consumption", "Forecast spend"]
+        },
+        {
+          "topic": "Integrating Agents with Enterprise Systems",
+          "subtopics": ["ERP, CRM, HR and ITSM integrations", "Connectors and APIs", "On-behalf-of access", "Write actions and approvals", "Error handling and retries", "Auditing actions in systems", "Data residency", "Integration testing"],
+          "tools": ["Copilot Studio", "Power Platform connectors", "Azure API Management"],
+          "lab_task": "Connect an agent to SAP or Dynamics for purchase requests and to ServiceNow for tickets, act on behalf of users, add approvals and audit every action.",
+          "deliverable": "Integrations, tests and audit records",
+          "checks": [["Raise a purchase request", "Created in the ERP with the user's identity", "ERP record"], ["Require approval", "Manager approval before submission", "Approvals app"], ["Audit actions", "Every action logged", "Audit log"]],
+          "objectives": ["Integrate with enterprise systems", "Use delegated access", "Audit actions"]
+        },
+        {
+          "topic": "Agent Operations at Scale: Centre of Excellence",
+          "subtopics": ["Agent inventory and ownership", "Lifecycle policies", "Monitoring health and use", "Retiring agents", "Support model", "Maker community", "Standards and templates", "Operations reporting"],
+          "tools": ["Power Platform CoE kit", "Copilot Studio analytics", "Admin centers"],
+          "lab_task": "Set up a Centre of Excellence for agents with inventory, standards, templates, monitoring and a retirement process, and retire two unused agents.",
+          "deliverable": "CoE design, templates and retirement records",
+          "checks": [["Build the inventory", "All agents with owners", "Inventory"], ["Retire unused agents", "Two agents retired with notice", "Retirement records"], ["Publish templates", "Makers use the templates", "Template usage"]],
+          "objectives": ["Run agent operations", "Standardise agents", "Retire unused agents"]
+        },
+        {
+          "topic": "Copilot in Specialised Workloads: Security Copilot, Fabric and GitHub",
+          "subtopics": ["Microsoft Security Copilot", "Promptbooks for security operations", "Copilot in Microsoft Fabric", "Copilot in Power BI at scale", "GitHub Copilot for developers in brief", "Copilot for Azure", "Governance across Copilot products", "Choosing products by role"],
+          "tools": ["Security Copilot", "Microsoft Fabric", "Power BI", "Copilot for Azure"],
+          "lab_task": "Investigate an incident with Security Copilot promptbooks, build a Fabric notebook and report with Copilot and write a product guide by role.",
+          "deliverable": "Investigation, Fabric outputs and product guide",
+          "checks": [["Run a promptbook", "Incident summary with evidence", "Security Copilot output"], ["Build with Fabric Copilot", "Notebook and report work", "Screenshots"], ["Write the guide", "Products matched to roles", "Guide"]],
+          "objectives": ["Use specialised Copilots", "Govern across products", "Match products to roles"]
+        },
+        {
+          "topic": "Troubleshooting Copilot and Agent Issues",
+          "subtopics": ["An incident method for Copilot", "Missing or wrong answers", "Permission and grounding problems", "Connector and action failures", "Licence and access problems", "Performance problems", "Working with Microsoft support", "Post-incident reviews"],
+          "tools": ["Admin centers", "Copilot Studio test tools", "Audit logs"],
+          "lab_task": "Diagnose five injected issues (missing licences, an agent ignoring knowledge, a failing connector, an answer from overshared content and slow responses), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the knowledge issue", "Agent answers from knowledge", "Test result"], ["Fix the oversharing answer", "Content no longer returned", "Test result"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose Copilot issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "AI Strategy with Microsoft Copilot",
+          "subtopics": ["AI strategy and business goals", "Build, buy and extend choices", "Agent roadmap", "Skills and roles", "Risk and governance", "Partners and vendors", "Measuring progress", "Communicating with the board"],
+          "tools": ["Strategy templates", "Roadmap template"],
+          "lab_task": "Write a two-year Copilot and agent strategy with use case priorities, roadmap, skills plan, governance and measures, and present it to a role-play board.",
+          "deliverable": "Strategy, roadmap and presentation",
+          "checks": [["Prioritise use cases", "Ranked by value and risk", "Strategy"], ["Review the roadmap", "Milestones with measures", "Roadmap"], ["Present to the board", "Questions answered with evidence", "Board feedback"]],
+          "objectives": ["Set AI strategy", "Plan agents", "Communicate with the board"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Copilot and Agent Platform",
+          "subtopics": ["Architecture", "Agents and integrations", "Security and governance", "Value"],
+          "tools": ["Microsoft 365 Copilot", "Copilot Studio", "Azure AI Foundry", "Agents SDK", "Purview", "Power Platform"],
+          "lab_task": "Design and deliver a Copilot and agent platform for a case enterprise: architecture, autonomous and multi-agent workflows integrated with business systems, evaluation gates, red teaming, compliance, a CoE, cost controls and a value report, then present it to a board.",
+          "deliverable": "Architecture records, agents, evaluation and security reports, value report and board presentation",
+          "checks": [["Demo an end-to-end process", "Agents complete the process with approvals", "Demo recording"], ["Show security results", "Red team attacks fail", "Security report"], ["Present value", "Measured benefits and costs", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Copilot and agents at scale", "Defend the strategy"]
+        }
+      ]
+    }
+  }
+}
