@@ -1,0 +1,573 @@
+{
+  "domain": "iOS Development",
+  "name": "iOS App Development with Swift and SwiftUI",
+  "category": "Mobile Development",
+  "icon": "tablet-smartphone",
+  "aliases": ["iOS", "iOS App Development", "iOS Application Development", "iOS Developer", "iOS Training", "iPhone App Development", "Native iOS", "SwiftUI", "UIKit", "Xcode", "Apple App Development"],
+  "certifications": ["App Development with Swift Certified User (Apple and Certiport)", "Apple Developer Program enrolment for App Store distribution"],
+  "tools": ["Xcode", "Swift", "SwiftUI", "UIKit", "SwiftData", "Swift Testing", "Instruments", "TestFlight", "App Store Connect"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and freshers building their first iPhone apps. Covers Xcode and the simulator, Swift for iOS, optionals, structs, classes and protocols, SwiftUI views, layout, state and data flow, lists and navigation, forms, Swift concurrency, URLSession and Codable, SwiftData, images, the Observation framework and MVVM, permissions and device features, notifications, accessibility, Swift Testing, debugging with Instruments, UIKit interoperability and TestFlight and App Store distribution.",
+      "prerequisites": ["Knows programming basics in any language", "Comfortable with variables, functions and loops", "A Mac that can run the current Xcode"],
+      "outcomes": ["Build iPhone apps in Swift with SwiftUI", "Structure apps with observable models, async/await, SwiftData and networking", "Use device features, notifications and accessibility well", "Test, debug and distribute apps through TestFlight and the App Store"],
+      "days": [
+        {
+          "topic": "iOS Development Overview and Xcode Setup",
+          "subtopics": ["The iOS platform and app ecosystem", "Swift and SwiftUI as the modern stack", "Installing Xcode and the iOS SDK", "Creating a first SwiftUI project", "The simulator and running on a device", "Project structure, targets and schemes", "Info.plist and capabilities", "Previews in Xcode", "The debugger console", "Apple developer accounts and provisioning in brief"],
+          "tools": ["Xcode", "iOS Simulator", "Swift", "SwiftUI previews"],
+          "lab_task": "Install Xcode, create a SwiftUI project, run it in the simulator and on an iPhone, change the UI with live previews and find a planted crash in the debugger.",
+          "deliverable": "First running app in a Git repository",
+          "checks": [["Run in the simulator", "App launches in the simulator", "Screenshot"], ["Run on a device", "App installs and runs on an iPhone", "Photo or screen recording"], ["Find a crash", "Crash cause found from the debugger output", "Console excerpt"]],
+          "objectives": ["Explain how iOS apps are built", "Set up Xcode", "Run and debug a first app"]
+        },
+        {
+          "topic": "Swift Essentials for iOS Developers",
+          "subtopics": ["let, var and type inference", "Functions and argument labels", "String interpolation", "Conditionals, switch and pattern matching", "Loops and ranges", "Closures", "Extensions", "Swift style used in iOS code"],
+          "tools": ["Swift", "Xcode playgrounds"],
+          "lab_task": "Write Swift functions for a habit tracker: streak counts, date formatting, input checks with switch and extensions for display text, with unit tests.",
+          "deliverable": "Swift utility file with tests",
+          "checks": [["Run the tests", "All utility tests pass", "Test output"], ["Use switch", "Habit rules expressed with switch and patterns", "Code review"], ["Write an extension", "Display extension formats values correctly", "Test output"]],
+          "objectives": ["Write Swift for iOS", "Use closures and extensions", "Test Swift code"]
+        },
+        {
+          "topic": "Swift Optionals, Structs, Classes and Protocols in App Code",
+          "subtopics": ["Optionals and safe unwrapping", "Guard statements", "Structs and value semantics", "Classes and reference semantics", "Enums with associated values", "Protocols and protocol extensions", "Collections: arrays, dictionaries and sets", "Avoiding crashes from force unwrapping"],
+          "tools": ["Swift", "Xcode"],
+          "lab_task": "Model habits, check-ins and reminders with structs, enums and protocols, handle missing values safely and group check-ins by week with collection methods.",
+          "deliverable": "App model with tests",
+          "checks": [["Handle missing values", "No force unwraps in the model", "Code search output"], ["Model states", "Enum with associated values covers habit states", "Code review"], ["Group data", "Weekly totals correct for sample data", "Test output"]],
+          "objectives": ["Use optionals safely", "Model data with Swift types", "Work with collections"]
+        },
+        {
+          "topic": "SwiftUI Views and Layout",
+          "subtopics": ["Views as values", "Text, Image, Button and other basic views", "VStack, HStack and ZStack", "Modifiers and their order", "Spacers, padding and frames", "Grids and alignment", "Reusable views with parameters", "Previews for different devices"],
+          "tools": ["SwiftUI", "Xcode previews"],
+          "lab_task": "Build the habit list row, summary card and add-habit screen layouts with stacks and modifiers, and preview them on two device sizes in light and dark mode.",
+          "deliverable": "Screen layouts with previews",
+          "checks": [["Build layouts", "Screens match the provided mock-ups", "Screenshots"], ["Use previews", "Previews show two sizes in light and dark mode", "Preview screenshot"], ["Reuse views", "Row view reused with different data", "Code review"]],
+          "objectives": ["Build UIs with SwiftUI", "Use stacks and modifiers", "Create reusable views"]
+        },
+        {
+          "topic": "State and Data Flow in SwiftUI",
+          "subtopics": ["How SwiftUI updates views", "@State for local state", "@Binding for child views", "Observable models with @Observable", "@Environment values", "Passing data down and events up", "Derived values", "Common state mistakes"],
+          "tools": ["SwiftUI", "Observation framework"],
+          "lab_task": "Add state to the add-habit form with @State and bindings, share a habit store with @Observable and the environment, and show live progress with derived values.",
+          "deliverable": "Interactive screens with shared state",
+          "checks": [["Bind a child view", "Child control updates the parent's state", "Screen recording"], ["Share a model", "Two screens show the same habit data", "Screen recording"], ["Derive values", "Progress updates as check-ins change", "Screen recording"]],
+          "objectives": ["Manage state in SwiftUI", "Share observable models", "Pass data correctly"]
+        },
+        {
+          "topic": "Lists, Grids and Navigation",
+          "subtopics": ["List and ForEach", "Identifiable data", "Sections and swipe actions", "LazyVGrid", "NavigationStack and navigation paths", "Programmatic navigation", "Sheets and alerts", "Tab views"],
+          "tools": ["SwiftUI", "Xcode"],
+          "lab_task": "Show habits in a sectioned list with swipe to delete, categories in a grid, navigate to details with a NavigationStack, add a sheet for new habits and a tab bar.",
+          "deliverable": "Navigable app with lists and tabs",
+          "checks": [["Swipe to delete", "Habit removed with an undo option", "Screen recording"], ["Navigate by code", "Deep link opens the right habit detail", "Screen recording"], ["Present a sheet", "New habit sheet opens and saves", "Screen recording"]],
+          "objectives": ["Build lists and grids", "Navigate with NavigationStack", "Use sheets and tabs"]
+        },
+        {
+          "topic": "Forms, Input and Validation in SwiftUI",
+          "subtopics": ["Form and Section", "TextField, Toggle, Picker and DatePicker", "Keyboard types and focus", "Validation feedback", "Disabling actions until input is valid", "Formatting input", "Accessibility of forms", "Saving and cancelling"],
+          "tools": ["SwiftUI", "Xcode"],
+          "lab_task": "Build a validated habit form with text, pickers, toggles and dates, manage keyboard focus, show inline errors and enable saving only when the input is valid.",
+          "deliverable": "Validated form",
+          "checks": [["Enter invalid data", "Inline errors shown and save disabled", "Screenshot"], ["Move focus", "Return key moves focus to the next field", "Screen recording"], ["Cancel", "Cancelling discards changes", "Screen recording"]],
+          "objectives": ["Build forms in SwiftUI", "Validate input", "Manage focus"]
+        },
+        {
+          "topic": "Swift Concurrency: async/await and Tasks",
+          "subtopics": ["Why the main thread must stay free", "async functions and await", "Tasks and the task modifier", "MainActor", "Running work in parallel with async let", "Cancellation", "Error handling with throws", "Common concurrency warnings"],
+          "tools": ["Swift concurrency", "Xcode", "Instruments"],
+          "lab_task": "Load data with async functions, run two requests in parallel with async let, update the UI on the main actor, cancel work when views disappear and handle errors.",
+          "deliverable": "Async data loading",
+          "checks": [["Load in parallel", "Two requests finish in the time of the slower one", "Timing log"], ["Cancel work", "Work stops when the view disappears", "Log output"], ["Handle errors", "Error state shown instead of a crash", "Screenshot"]],
+          "objectives": ["Use async/await in iOS apps", "Keep the UI responsive", "Handle cancellation and errors"]
+        },
+        {
+          "topic": "Networking with URLSession and Codable",
+          "subtopics": ["URLSession data tasks with async/await", "Codable for JSON", "Custom coding keys and date strategies", "HTTP methods and headers", "Status codes and errors", "A simple API client", "Timeouts and retries", "Testing networking with protocols and mocks"],
+          "tools": ["URLSession", "Codable", "Xcode"],
+          "lab_task": "Sync habits with a REST API using URLSession and Codable, handle dates and errors, build an API client behind a protocol and test it with a mock.",
+          "deliverable": "Network layer with tests",
+          "checks": [["Sync habits", "App shows habits returned by the API", "Screenshot"], ["Handle errors", "Friendly messages for server and network errors", "Screenshots"], ["Test with a mock", "API client tests pass without a network", "Test output"]],
+          "objectives": ["Call APIs from iOS", "Decode JSON with Codable", "Test network code"]
+        },
+        {
+          "topic": "Persisting Data with SwiftData",
+          "subtopics": ["SwiftData models with @Model", "The model container and context", "Querying with @Query", "Relationships", "Sorting and filtering", "Saving and undo", "Migrations in SwiftData", "Previews with sample data"],
+          "tools": ["SwiftData", "Xcode"],
+          "lab_task": "Store habits and check-ins with SwiftData, query them with sorting and filtering, add a relationship and a schema migration, and use sample data in previews.",
+          "deliverable": "SwiftData persistence with tests",
+          "checks": [["Persist data", "Habits remain after relaunching the app", "Screen recording"], ["Query data", "Sorted and filtered lists update automatically", "Screen recording"], ["Migrate", "App update keeps existing data", "Test output"]],
+          "objectives": ["Store data with SwiftData", "Query and relate models", "Migrate schemas"]
+        },
+        {
+          "topic": "Images, Assets and AsyncImage",
+          "subtopics": ["Asset catalogs and app icons", "SF Symbols", "Loading remote images with AsyncImage", "Placeholders and failures", "Image sizing and memory", "Picking photos with PhotosPicker", "Saving images efficiently", "Dark mode assets"],
+          "tools": ["SwiftUI", "SF Symbols", "PhotosPicker"],
+          "lab_task": "Add an app icon and SF Symbols, load remote habit images with placeholders, let users pick photos with PhotosPicker and check memory use with large images.",
+          "deliverable": "Image features",
+          "checks": [["Pick a photo", "Photo chosen and shown on the habit", "Screen recording"], ["Show placeholders", "Placeholder shown while remote images load", "Screenshot"], ["Check memory", "Memory stays stable while scrolling images", "Instruments screenshot"]],
+          "objectives": ["Use assets and symbols", "Load images efficiently", "Use the photo picker"]
+        },
+        {
+          "topic": "App Architecture with the Observation Framework and MVVM",
+          "subtopics": ["Separating views from logic", "View models with @Observable", "Services and repositories", "Dependency injection through the environment", "Testing view models", "Previews with fake services", "Folder structure for features", "When to keep logic in views"],
+          "tools": ["Observation framework", "SwiftUI", "Swift Testing"],
+          "lab_task": "Move screen logic into observable view models backed by services, inject fake services for previews and tests, and organise the project by feature.",
+          "deliverable": "MVVM structure with tests",
+          "checks": [["Test a view model", "View model tests pass with fake services", "Test output"], ["Preview with fakes", "Previews run with fake data and no network", "Preview screenshot"], ["Organise features", "Each feature has its views, models and services together", "Project structure"]],
+          "objectives": ["Structure SwiftUI apps", "Test view logic", "Inject dependencies"]
+        },
+        {
+          "topic": "Permissions, Camera, Photos and Location",
+          "subtopics": ["Privacy usage descriptions", "Asking at the right moment", "Handling denial", "Camera capture", "Photo library access levels", "Core Location and authorisation", "Approximate and precise location", "Testing permission flows"],
+          "tools": ["AVFoundation", "PhotosUI", "Core Location", "Xcode"],
+          "lab_task": "Capture photos for check-ins, tag habits with location, write clear usage descriptions, ask in context, handle denial gracefully and support approximate location.",
+          "deliverable": "Device feature integration",
+          "checks": [["Deny a permission", "App explains and keeps working without the feature", "Screen recording"], ["Capture a photo", "Photo saved to the check-in", "Screenshot"], ["Use approximate location", "App works with approximate location", "Screenshot"]],
+          "objectives": ["Request permissions well", "Use the camera and location", "Respect user privacy"]
+        },
+        {
+          "topic": "Local and Push Notifications",
+          "subtopics": ["User notification permission", "Scheduling local notifications", "Notification content and actions", "Handling taps to open screens", "Push notification concepts and APNs", "Registering for remote notifications", "Testing pushes in the simulator", "Respecting notification settings"],
+          "tools": ["UserNotifications", "APNs", "Xcode simulator push files"],
+          "lab_task": "Schedule daily habit reminders with actions, open the right screen from a tap, register for push and send a test push to the simulator.",
+          "deliverable": "Notification features",
+          "checks": [["Receive a reminder", "Daily reminder appears at the set time", "Screenshot"], ["Act on a notification", "Done action records a check-in", "Screen recording"], ["Send a test push", "Simulator shows the pushed notification", "Screenshot"]],
+          "objectives": ["Schedule notifications", "Handle notification actions", "Prepare for push"]
+        },
+        {
+          "topic": "Accessibility in SwiftUI",
+          "subtopics": ["Who uses accessibility features", "VoiceOver", "Accessibility labels, hints and traits", "Dynamic Type", "Colour and contrast", "Touch target sizes", "Reduce Motion", "Accessibility Inspector"],
+          "tools": ["VoiceOver", "Accessibility Inspector", "Xcode"],
+          "lab_task": "Audit the app with VoiceOver and Accessibility Inspector, add labels and traits, support the largest Dynamic Type sizes and fix contrast and motion issues.",
+          "deliverable": "Accessibility fixes and audit report",
+          "checks": [["Use VoiceOver", "Every screen usable with VoiceOver", "Screen recording"], ["Use large text", "Screens work at the largest text size", "Screenshots"], ["Run the inspector", "No high-priority issues remain", "Inspector report"]],
+          "objectives": ["Build accessible iOS apps", "Test with VoiceOver", "Support Dynamic Type"]
+        },
+        {
+          "topic": "Testing with Swift Testing and XCTest",
+          "subtopics": ["Swift Testing basics: @Test and #expect", "Parameterised tests", "Testing async code", "Test doubles for services", "XCTest for UI tests", "Testing SwiftData code", "Running tests in Xcode and from the command line", "Code coverage"],
+          "tools": ["Swift Testing", "XCTest", "xcodebuild"],
+          "lab_task": "Write Swift Testing tests for models and view models with parameterised cases, async tests for networking, a UI test for adding a habit and a coverage report.",
+          "deliverable": "Test suite with coverage report",
+          "checks": [["Run unit tests", "Model and view model tests pass", "Test output"], ["Run a UI test", "Add-habit UI test passes", "Test report"], ["Measure coverage", "Coverage report generated for app logic", "Coverage report"]],
+          "objectives": ["Test iOS apps", "Use Swift Testing", "Write UI tests"]
+        },
+        {
+          "topic": "Debugging and Instruments",
+          "subtopics": ["Breakpoints and LLDB", "The view hierarchy debugger", "Memory graph debugger", "Instruments: Time Profiler and Allocations", "Finding retain cycles", "Main thread checker", "Logging with Logger", "Reading crash logs"],
+          "tools": ["Xcode debugger", "Instruments", "Logger"],
+          "lab_task": "Find and fix four planted bugs: a layout bug with the view debugger, a retain cycle with the memory graph, a slow screen with Time Profiler and a main thread violation.",
+          "deliverable": "Bug fixes with debugging evidence",
+          "checks": [["Fix a retain cycle", "Memory graph shows the cycle gone", "Screenshot"], ["Speed up a screen", "Time Profiler shows the hot path removed", "Instruments screenshots"], ["Use Logger", "Structured logs visible in Console", "Log screenshot"]],
+          "objectives": ["Debug iOS apps", "Use Instruments", "Find memory problems"]
+        },
+        {
+          "topic": "UIKit Interoperability",
+          "subtopics": ["Why UIKit still matters", "UIViewRepresentable", "UIViewControllerRepresentable", "Coordinators for delegates", "Hosting SwiftUI in UIKit with UIHostingController", "Migrating screens gradually", "Using UIKit-only APIs", "Testing mixed code"],
+          "tools": ["UIKit", "SwiftUI", "Xcode"],
+          "lab_task": "Wrap a UIKit map or text view in SwiftUI with a coordinator, host a SwiftUI screen inside a UIKit navigation flow and plan a gradual migration of one old screen.",
+          "deliverable": "Interop examples and a migration plan",
+          "checks": [["Wrap a UIKit view", "UIKit view works inside SwiftUI with delegate events", "Screen recording"], ["Host SwiftUI", "SwiftUI screen shown inside UIKit navigation", "Screen recording"], ["Plan migration", "Migration steps and risks listed", "Migration plan"]],
+          "objectives": ["Mix UIKit and SwiftUI", "Use coordinators", "Migrate gradually"]
+        },
+        {
+          "topic": "Distributing with TestFlight and the App Store",
+          "subtopics": ["Apple Developer Program and certificates", "Signing and provisioning", "Archiving builds", "App Store Connect records", "TestFlight internal and external testing", "App privacy details", "App Review guidelines", "Submitting and releasing"],
+          "tools": ["Xcode", "App Store Connect", "TestFlight"],
+          "lab_task": "Archive a signed build, upload it to App Store Connect, invite testers through TestFlight, fill in the privacy details and prepare a submission checklist.",
+          "deliverable": "TestFlight build and submission checklist",
+          "checks": [["Upload a build", "Build processed in App Store Connect", "Screenshot"], ["Invite testers", "Testers install through TestFlight", "Tester screenshot"], ["Fill privacy details", "Privacy answers match what the app collects", "Comparison notes"]],
+          "objectives": ["Sign and archive apps", "Test with TestFlight", "Prepare App Store submissions"]
+        },
+        {
+          "topic": "Beginner Capstone: Habit Tracker App",
+          "subtopics": ["Plan", "Build", "Test", "Distribute"],
+          "tools": ["Swift", "SwiftUI", "SwiftData", "URLSession", "Swift Testing", "TestFlight"],
+          "lab_task": "Complete the habit tracker with SwiftUI screens, navigation, observable models, SwiftData storage, API sync, photos, reminders, accessibility, tests and a TestFlight build, then demo it.",
+          "deliverable": "Repository, TestFlight build and demo recording",
+          "checks": [["Demo the app", "Add, check in, sync and remind flows work end to end", "Demo recording"], ["Run the tests", "Unit and UI tests pass", "Test report"], ["Install from TestFlight", "Testers install and use the app", "Screenshot"]],
+          "objectives": ["Combine the beginner topics in one app", "Build a complete iOS app", "Distribute it to testers"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For iOS developers who have shipped an app. Covers architecture choices including MVVM, coordinators and The Composable Architecture, advanced SwiftUI layout and animation, Swift concurrency with actors and Sendable, offline-first SwiftData sync, networking and token refresh, Sign in with Apple, passkeys and Keychain, APNs push and extensions, background tasks, widgets, Live Activities and App Intents, MapKit, AVFoundation, Swift packages, inclusive design, app security, UI and snapshot tests, Xcode Cloud or Fastlane, performance and StoreKit 2.",
+      "prerequisites": ["Has built and released an iOS app with Swift and SwiftUI", "Comfortable with async/await, SwiftData and networking", "Uses Git daily"],
+      "outcomes": ["Architect maintainable, offline-capable iOS apps", "Add authentication, push, widgets, media and payments", "Make apps inclusive, secure and fast", "Test and deliver apps through CI/CD with monitoring"],
+      "days": [
+        {
+          "topic": "App Architecture: MVVM, Coordinators and The Composable Architecture",
+          "subtopics": ["Architecture choices for SwiftUI apps", "MVVM with observable models", "Navigation coordinators", "The Composable Architecture: state, actions and reducers", "Dependency management", "Testing each approach", "Team size and learning curve", "Choosing an architecture"],
+          "tools": ["SwiftUI", "The Composable Architecture", "Swift Testing"],
+          "lab_task": "Build the same feature with MVVM plus a coordinator and with The Composable Architecture, test both and recommend one for a team of six.",
+          "deliverable": "Two implementations and a recommendation",
+          "checks": [["Test both versions", "Feature behaviour tested in both architectures", "Test output"], ["Navigate by coordinator", "Coordinator drives navigation without views knowing destinations", "Code review"], ["Recommend", "Recommendation based on team, testing and complexity", "Recommendation document"]],
+          "objectives": ["Compare iOS architectures", "Use coordinators and reducers", "Choose an architecture"]
+        },
+        {
+          "topic": "Advanced SwiftUI: Custom Layouts, Animations and Transitions",
+          "subtopics": ["The Layout protocol", "GeometryReader and when to avoid it", "Custom view modifiers and styles", "Implicit and explicit animations", "Matched geometry effects", "Phase and keyframe animators", "Transitions", "Performance of complex views"],
+          "tools": ["SwiftUI", "Instruments"],
+          "lab_task": "Build a custom flow layout, a matched geometry transition from list to detail, a keyframe celebration animation and reusable button styles, and check frame rates.",
+          "deliverable": "Advanced UI components",
+          "checks": [["Use a custom layout", "Tags wrap correctly at every width", "Screenshots"], ["Match geometry", "Card expands smoothly into the detail view", "Screen recording"], ["Keep frames smooth", "Animations hold 60 frames per second", "Instruments screenshot"]],
+          "objectives": ["Build custom layouts", "Animate with SwiftUI", "Keep complex views fast"]
+        },
+        {
+          "topic": "Swift Concurrency in Depth: Actors, Sendable and Structured Concurrency",
+          "subtopics": ["Structured concurrency with task groups", "Actors and isolation", "MainActor and global actors", "Sendable and data race safety", "Swift 6 language mode", "AsyncSequence and AsyncStream", "Bridging callbacks with continuations", "Testing concurrent code"],
+          "tools": ["Swift concurrency", "Xcode strict concurrency checking"],
+          "lab_task": "Move a shared cache into an actor, load images with a task group, bridge a delegate API with AsyncStream and fix every warning under strict concurrency checking.",
+          "deliverable": "Concurrency-safe module",
+          "checks": [["Use an actor", "Cache has no data races under parallel access", "Test output"], ["Use a task group", "Images load in parallel with cancellation", "Log output"], ["Enable strict checking", "Module builds with no concurrency warnings", "Build output"]],
+          "objectives": ["Use actors and task groups", "Achieve data race safety", "Adopt Swift 6 checks"]
+        },
+        {
+          "topic": "Offline-First Apps with SwiftData and Sync",
+          "subtopics": ["Local data as the source of truth", "Sync strategies", "Change tracking", "Conflict resolution", "Background sync", "Showing sync status", "CloudKit sync compared with a custom back end", "Testing offline behaviour"],
+          "tools": ["SwiftData", "CloudKit", "URLSession"],
+          "lab_task": "Make the app fully usable offline with SwiftData, queue offline changes, sync with a back end in the background, resolve conflicts and show sync status.",
+          "deliverable": "Offline-first sync design and implementation",
+          "checks": [["Work offline", "All features work in airplane mode", "Screen recording"], ["Sync changes", "Offline edits reach the server when online", "Server log"], ["Resolve a conflict", "Conflicting edit resolved by the agreed rule", "Test output"]],
+          "objectives": ["Build offline-first iOS apps", "Sync data reliably", "Resolve conflicts"]
+        },
+        {
+          "topic": "Networking Layers, Authentication and Token Refresh",
+          "subtopics": ["Designing a networking layer", "Request building and decoding", "Authentication headers", "Token refresh without duplicate requests", "Retry policies", "Request logging", "Mocking the network in tests", "Handling poor connectivity"],
+          "tools": ["URLSession", "Swift concurrency", "Network framework"],
+          "lab_task": "Build a networking layer with typed endpoints, automatic token refresh that serialises concurrent refreshes, retries for safe requests and offline detection.",
+          "deliverable": "Networking layer with tests",
+          "checks": [["Refresh once", "Concurrent 401s trigger a single refresh", "Log output"], ["Retry safely", "Only idempotent requests retried", "Test output"], ["Detect offline", "App shows offline state when the network drops", "Screenshot"]],
+          "objectives": ["Design networking layers", "Refresh tokens safely", "Handle poor connectivity"]
+        },
+        {
+          "topic": "Sign in with Apple, Passkeys and Keychain",
+          "subtopics": ["Sign in with Apple", "Passkeys with AuthenticationServices", "OAuth flows with ASWebAuthenticationSession", "Storing tokens in the Keychain", "Face ID and Touch ID with LocalAuthentication", "Signing out and account deletion", "Handling credential revocation", "Testing sign-in flows"],
+          "tools": ["AuthenticationServices", "Keychain Services", "LocalAuthentication"],
+          "lab_task": "Add Sign in with Apple and passkey sign-in, an OAuth flow for a company identity provider, Keychain token storage, Face ID unlock and account deletion.",
+          "deliverable": "Authentication feature",
+          "checks": [["Sign in with a passkey", "Passkey sign-in works without a password", "Screen recording"], ["Store tokens", "Tokens stored in the Keychain, not in user defaults", "Code review"], ["Delete an account", "Account and data deleted from the app", "Test record"]],
+          "objectives": ["Add modern sign-in to iOS apps", "Store credentials securely", "Support account deletion"]
+        },
+        {
+          "topic": "Push Notifications with APNs and Notification Extensions",
+          "subtopics": ["APNs authentication keys", "Device tokens", "Alert, background and silent pushes", "Notification service extensions", "Rich notifications with media", "Notification content extensions", "Testing pushes end to end", "Troubleshooting delivery"],
+          "tools": ["APNs", "Notification service and content extensions", "Push testing tools"],
+          "lab_task": "Send pushes through APNs with a token key, enrich them with images in a service extension, add a custom content extension and debug a delivery problem.",
+          "deliverable": "Push notification feature",
+          "checks": [["Receive a rich push", "Push arrives with an attached image", "Screenshot"], ["Use a content extension", "Custom notification UI shown", "Screenshot"], ["Debug delivery", "Delivery problem traced and fixed", "Notes"]],
+          "objectives": ["Send push notifications", "Use notification extensions", "Troubleshoot delivery"]
+        },
+        {
+          "topic": "Background Tasks and Background Downloads",
+          "subtopics": ["iOS background execution rules", "BackgroundTasks framework", "App refresh and processing tasks", "Background URLSession downloads and uploads", "Silent pushes for updates", "Battery and data costs", "Testing background tasks", "Choosing the right approach"],
+          "tools": ["BackgroundTasks", "URLSession background configuration", "Xcode"],
+          "lab_task": "Refresh data with a background app refresh task, upload photos with a background URLSession that survives app termination and test both with Xcode tools.",
+          "deliverable": "Background features with notes",
+          "checks": [["Refresh in the background", "Data refreshed while the app is suspended", "Log output"], ["Upload after termination", "Upload completes after the app is closed", "Server log"], ["Test tasks", "Background task triggered from the debugger", "Console output"]],
+          "objectives": ["Run background work on iOS", "Use background transfers", "Respect battery and data"]
+        },
+        {
+          "topic": "Widgets, Live Activities and App Intents",
+          "subtopics": ["WidgetKit timelines", "Widget families and configuration", "Interactive widgets", "Live Activities and the Dynamic Island", "App Intents for Shortcuts and Siri", "Sharing data with app groups", "Updating widgets from the app", "Testing widgets"],
+          "tools": ["WidgetKit", "ActivityKit", "App Intents"],
+          "lab_task": "Add a configurable progress widget with interactive check-ins, a Live Activity for an active habit session and App Intents for Shortcuts.",
+          "deliverable": "Widget, Live Activity and intents",
+          "checks": [["Check in from a widget", "Interactive widget records a check-in", "Screen recording"], ["Run a Live Activity", "Session shows in the Dynamic Island and lock screen", "Screenshot"], ["Use Shortcuts", "Shortcut runs the app intent", "Screen recording"]],
+          "objectives": ["Build widgets", "Use Live Activities", "Expose app actions with App Intents"]
+        },
+        {
+          "topic": "Maps, Location and MapKit",
+          "subtopics": ["MapKit for SwiftUI", "Annotations and custom markers", "Search with MKLocalSearch", "Directions and routes", "Location updates and accuracy", "Region monitoring", "Location privacy", "Testing location features"],
+          "tools": ["MapKit", "Core Location", "Xcode location simulation"],
+          "lab_task": "Show nearby gyms on a map with custom markers, search places, draw a route, monitor arrival at a gym and test with simulated locations.",
+          "deliverable": "Map and location feature",
+          "checks": [["Search places", "Search results shown as markers", "Screenshot"], ["Draw a route", "Route drawn with travel time", "Screenshot"], ["Detect arrival", "Arrival at a gym detected", "Log output"]],
+          "objectives": ["Use MapKit in SwiftUI", "Track location responsibly", "Test location features"]
+        },
+        {
+          "topic": "Media: Video Playback, Background Audio and Recording",
+          "subtopics": ["AVPlayer and VideoPlayer", "Streaming with HLS", "Background audio", "Now Playing info and remote controls", "Picture in Picture", "Recording audio", "Audio sessions", "Testing media features"],
+          "tools": ["AVFoundation", "AVKit", "MediaPlayer"],
+          "lab_task": "Build a workout video player with HLS streaming, Picture in Picture, background audio with lock screen controls and voice note recording.",
+          "deliverable": "Media features",
+          "checks": [["Stream video", "HLS video plays and adapts quality", "Screen recording"], ["Use lock screen controls", "Playback controlled from the lock screen", "Screenshot"], ["Record audio", "Voice note recorded and played back", "Screen recording"]],
+          "objectives": ["Play and record media", "Support background audio", "Integrate with system controls"]
+        },
+        {
+          "topic": "Modularisation with Swift Packages",
+          "subtopics": ["Why modularise iOS apps", "Local Swift packages for features", "Package dependencies and versions", "Resources in packages", "Access control between modules", "Build times", "Previews and tests per package", "Shared packages across apps"],
+          "tools": ["Swift Package Manager", "Xcode"],
+          "lab_task": "Split the app into feature and core Swift packages with clear access control, keep previews and tests per package and measure build time changes.",
+          "deliverable": "Modular project with build measurements",
+          "checks": [["Split packages", "Features build as separate packages", "Project structure"], ["Control access", "Only public APIs used across packages", "Code review"], ["Measure builds", "Incremental build time compared", "Timings"]],
+          "objectives": ["Modularise iOS apps", "Use Swift packages", "Improve build times"]
+        },
+        {
+          "topic": "Inclusive Design: VoiceOver, Dynamic Type and Localisation",
+          "subtopics": ["Designing for many users", "VoiceOver rotors and custom actions", "Dynamic Type layouts", "Right-to-left languages", "String catalogs for localisation", "Pluralisation", "Locale-aware formatting", "Testing with pseudolanguages"],
+          "tools": ["String Catalogs", "VoiceOver", "Xcode pseudolanguages"],
+          "lab_task": "Localise the app into English, Hindi and Arabic with string catalogs and plurals, support right-to-left layout, add VoiceOver custom actions and test with pseudolanguages.",
+          "deliverable": "Localised and inclusive app",
+          "checks": [["Switch language", "All text shown in the selected language", "Screenshots"], ["Use Arabic", "Layout mirrors for right-to-left", "Screenshot"], ["Use custom actions", "VoiceOver users act on rows without extra taps", "Screen recording"]],
+          "objectives": ["Localise iOS apps", "Support right-to-left", "Make apps inclusive"]
+        },
+        {
+          "topic": "App Security: Data Protection, ATS and Integrity",
+          "subtopics": ["Threats to iOS apps", "Data protection classes", "Keychain access control", "App Transport Security", "Certificate pinning trade-offs", "Jailbreak detection trade-offs", "Protecting secrets and API keys", "OWASP Mobile Top 10 for iOS"],
+          "tools": ["Keychain", "App Transport Security", "MobSF"],
+          "lab_task": "Set data protection classes, restrict Keychain items to the device and biometrics, enforce ATS, remove secrets from the binary and scan the app with MobSF.",
+          "deliverable": "Security fixes and scan report",
+          "checks": [["Protect files", "Files unreadable while the device is locked", "Test notes"], ["Enforce ATS", "Insecure connections refused", "Log output"], ["Scan the app", "No high-severity MobSF findings remain", "MobSF report"]],
+          "objectives": ["Protect data on iOS", "Secure network traffic", "Apply OWASP mobile guidance"]
+        },
+        {
+          "topic": "UI Testing and Snapshot Testing",
+          "subtopics": ["XCUITest for user flows", "Accessibility identifiers for tests", "Launch arguments for test data", "Snapshot testing for SwiftUI views", "Testing in several sizes and languages", "Parallel testing", "Flaky test control", "Test plans in Xcode"],
+          "tools": ["XCUITest", "swift-snapshot-testing", "Xcode test plans"],
+          "lab_task": "Write UI tests for the main flows with launch arguments for test data, add snapshot tests for key views in two sizes and two languages and configure a test plan.",
+          "deliverable": "UI and snapshot test suites",
+          "checks": [["Run UI tests", "Main flows pass in the simulator", "Test report"], ["Catch a visual change", "Snapshot test fails on a layout change", "Diff image"], ["Run a test plan", "Test plan runs unit, UI and snapshot tests together", "Xcode report"]],
+          "objectives": ["Test iOS user flows", "Use snapshot tests", "Organise tests with test plans"]
+        },
+        {
+          "topic": "CI/CD with Xcode Cloud or Fastlane",
+          "subtopics": ["Pipeline stages for iOS", "Xcode Cloud workflows", "Fastlane lanes", "Code signing in CI with match or cloud signing", "Running tests in CI", "Uploading to TestFlight automatically", "Versioning and build numbers", "Release notes"],
+          "tools": ["Xcode Cloud", "Fastlane", "GitHub Actions"],
+          "lab_task": "Build a pipeline that tests on each pull request, signs builds without manual steps, increments build numbers and uploads to TestFlight with release notes.",
+          "deliverable": "CI/CD pipeline",
+          "checks": [["Test on pull requests", "Tests run on every pull request", "Pipeline run"], ["Sign automatically", "Build signed in CI without local certificates", "Pipeline log"], ["Upload to TestFlight", "New build appears in TestFlight", "App Store Connect screenshot"]],
+          "objectives": ["Automate iOS builds", "Manage signing in CI", "Deliver to TestFlight automatically"]
+        },
+        {
+          "topic": "Performance: Instruments, Memory and Launch Time",
+          "subtopics": ["Measuring launch time", "Reducing launch work", "Memory footprint and leaks", "Scrolling performance in lists", "Energy use", "App size", "MetricKit field data", "Performance budgets"],
+          "tools": ["Instruments", "MetricKit", "Xcode Organizer"],
+          "lab_task": "Measure launch time and scrolling, defer launch work, fix a leak and an expensive list cell, collect MetricKit data and record the gains.",
+          "deliverable": "Performance report",
+          "checks": [["Speed up launch", "Launch time lower after deferring work", "Instruments results"], ["Fix a leak", "Leak gone in the memory graph", "Screenshot"], ["Collect field data", "MetricKit payloads received", "Log output"]],
+          "objectives": ["Measure iOS performance", "Improve launch and scrolling", "Use field data"]
+        },
+        {
+          "topic": "In-App Purchases and Subscriptions with StoreKit 2",
+          "subtopics": ["Product types", "StoreKit 2 APIs", "Purchasing and verifying transactions", "Subscription status and renewals", "Restoring purchases", "StoreKit testing in Xcode", "Server notifications", "App Store rules for payments"],
+          "tools": ["StoreKit 2", "StoreKit configuration files", "App Store Server Notifications"],
+          "lab_task": "Add a premium subscription with StoreKit 2, verify transactions, unlock features by status, restore purchases and test renewals with a StoreKit configuration file.",
+          "deliverable": "Subscription feature with tests",
+          "checks": [["Buy a subscription", "Premium features unlock after purchase", "Screen recording"], ["Restore purchases", "Purchases restored on a fresh install", "Screen recording"], ["Test renewals", "Renewal and expiry handled in StoreKit testing", "Test notes"]],
+          "objectives": ["Sell subscriptions", "Verify transactions", "Follow App Store payment rules"]
+        },
+        {
+          "topic": "Analytics, Crash Reporting and Feature Flags",
+          "subtopics": ["Choosing analytics tools", "Events for key flows", "Crash reporting", "Non-fatal errors", "Feature flags and remote configuration", "A/B testing", "Privacy and App Tracking Transparency", "Dashboards and alerts"],
+          "tools": ["Firebase Analytics or TelemetryDeck", "Crashlytics or Sentry", "Remote Config"],
+          "lab_task": "Add privacy-respecting analytics for key flows, crash reporting with non-fatal errors, a remote feature flag and an A/B test, and confirm tracking rules are respected.",
+          "deliverable": "Monitoring and experiment setup",
+          "checks": [["Report a crash", "Crash appears with a symbolicated stack trace", "Crash tool screenshot"], ["Toggle a feature", "Remote flag turns a feature on without a release", "Screen recording"], ["Respect privacy", "No tracking without the required permission", "Debug output"]],
+          "objectives": ["Monitor iOS apps", "Use feature flags", "Measure responsibly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Subscription Fitness App",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["Swift", "SwiftUI", "SwiftData", "StoreKit 2", "WidgetKit", "Xcode Cloud or Fastlane"],
+          "lab_task": "Build a fitness app with a chosen architecture, offline sync, passkey sign-in, push, widgets and a Live Activity, media, subscriptions, localisation, tests, CI/CD and crash reporting, then present it.",
+          "deliverable": "Repository, TestFlight build, reports and presentation",
+          "checks": [["Demo the app", "Workouts, widgets and subscriptions work end to end", "Demo recording"], ["Show quality", "Tests, accessibility and performance reports meet targets", "Reports"], ["Defend choices", "Architecture and sync choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one app", "Ship a production iOS app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior iOS engineers and mobile leads. Covers large-scale architecture, Swift package modularisation and build times, shared code strategies with Kotlin Multiplatform, SwiftUI internals, rendering, memory and energy performance, App Attest and Secure Enclave, design systems, testing strategy, release engineering, on-device AI with Core ML and Apple's Foundation Models, visionOS, watchOS and iPadOS, privacy manifests, real-time features, observability, UIKit and Objective-C migration, Swift 6 adoption, App Review at scale, server-driven UI and production troubleshooting.",
+      "prerequisites": ["Several years building production iOS apps", "Strong Swift, SwiftUI and concurrency skills", "Has released apps to large audiences"],
+      "outcomes": ["Architect and scale large iOS codebases and teams", "Engineer performance, security and privacy for large audiences", "Adopt on-device AI and new Apple platforms", "Lead releases, migrations and production troubleshooting"],
+      "days": [
+        {
+          "topic": "Large-Scale iOS Architecture",
+          "subtopics": ["Architecture for many teams", "Feature ownership and package boundaries", "Shared core packages", "Navigation across features", "State management at scale", "Dependency rules", "Architecture decision records", "Evolving architecture safely"],
+          "tools": ["Swift packages", "Dependency graph tools", "Decision records"],
+          "lab_task": "Design the package and ownership structure of a large banking app for six teams, enforce dependency rules, plan cross-feature navigation and record the decisions.",
+          "deliverable": "Architecture design with enforced rules",
+          "checks": [["Enforce rules", "Build fails on a forbidden package dependency", "Build output"], ["Assign ownership", "Every package has an owning team", "Ownership map"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Architect large iOS apps", "Enforce package boundaries", "Record decisions"]
+        },
+        {
+          "topic": "Swift Package Modularisation and Build Times at Scale",
+          "subtopics": ["Measuring build times", "Explicit modules and build settings", "Splitting packages for faster builds", "Binary frameworks", "Macros and their build cost", "CI caching", "Previews at scale", "Build health dashboards"],
+          "tools": ["Xcode build timeline", "Swift Package Manager", "CI caching"],
+          "lab_task": "Profile a slow build with the build timeline, split a heavy package, reduce macro cost, add CI caching and track build times on a dashboard.",
+          "deliverable": "Build performance report",
+          "checks": [["Find slow targets", "Slowest targets identified", "Build timeline screenshot"], ["Split a package", "Incremental build faster after the split", "Timing comparison"], ["Cut CI time", "CI build faster with caching", "Pipeline timings"]],
+          "objectives": ["Speed up iOS builds", "Structure packages for build speed", "Monitor build health"]
+        },
+        {
+          "topic": "Kotlin Multiplatform and Shared Code Strategies for iOS Teams",
+          "subtopics": ["When to share code with Android", "Kotlin Multiplatform from the iOS side", "Swift export and interop", "Shared networking and storage", "Keeping the UI native", "Build and dependency integration in Xcode", "Team workflows across platforms", "Risks and exit plans"],
+          "tools": ["Kotlin Multiplatform", "Xcode", "SKIE or Swift export"],
+          "lab_task": "Integrate a shared Kotlin Multiplatform module for business rules into the iOS app, call it from Swift with async support and assess the effect on the iOS team.",
+          "deliverable": "Shared module integration and assessment",
+          "checks": [["Call shared code", "Swift calls shared rules with natural async APIs", "Swift code sample"], ["Keep UI native", "All UI remains SwiftUI", "Code review"], ["Assess impact", "Build, debugging and team impact recorded", "Assessment notes"]],
+          "objectives": ["Evaluate shared code for iOS", "Integrate KMP modules", "Keep native quality"]
+        },
+        {
+          "topic": "SwiftUI Internals: Identity, Lifetime and Dependencies",
+          "subtopics": ["Structural and explicit identity", "View lifetime and state lifetime", "Dependency tracking with Observation", "When bodies are evaluated", "Attribute graph concepts", "Equatable views", "Debugging updates with _printChanges", "Performance patterns from internals"],
+          "tools": ["SwiftUI", "Instruments SwiftUI template"],
+          "lab_task": "Explain identity bugs that reset state, trace body evaluations with the SwiftUI instrument, fix excessive updates in a dashboard and record the rules learned.",
+          "deliverable": "SwiftUI internals notebook with fixes",
+          "checks": [["Fix an identity bug", "State no longer resets when the list changes", "Screen recording"], ["Cut updates", "Body evaluations drop on the dashboard", "Instruments comparison"], ["Record rules", "Rules for identity and dependencies written", "Notes"]],
+          "objectives": ["Explain SwiftUI internals", "Fix identity and update problems", "Apply internals to performance"]
+        },
+        {
+          "topic": "Advanced Performance: Rendering, Memory and Energy",
+          "subtopics": ["Rendering and hitches", "Offscreen rendering and blending", "Image decoding costs", "Memory warnings and jetsam", "Energy impact", "Low-end and older devices", "Performance tests with XCTest metrics", "Budgets in CI"],
+          "tools": ["Instruments", "XCTest performance metrics", "Xcode Organizer"],
+          "lab_task": "Profile hitches, memory and energy on an older iPhone, fix image decoding and rendering costs, avoid jetsam terminations and add performance tests to CI.",
+          "deliverable": "Performance programme report",
+          "checks": [["Remove hitches", "Hitch rate drops on the main screen", "Instruments results"], ["Avoid terminations", "No memory terminations in the stress test", "Test notes"], ["Guard budgets", "CI fails when a performance test regresses", "CI log"]],
+          "objectives": ["Profile iOS performance deeply", "Optimise for older devices", "Prevent regressions"]
+        },
+        {
+          "topic": "Security Hardening: App Attest, DeviceCheck and Secure Enclave",
+          "subtopics": ["Mobile threat models for iOS", "App Attest for app integrity", "DeviceCheck", "Secure Enclave keys", "Protecting API calls", "Obfuscation limits", "Penetration testing iOS apps", "Responding to abuse"],
+          "tools": ["App Attest", "DeviceCheck", "CryptoKit", "Frida for testing"],
+          "lab_task": "Threat model the app, attest the app on the server with App Attest, sign requests with Secure Enclave keys and run a penetration test.",
+          "deliverable": "Threat model and hardening report",
+          "checks": [["Attest the app", "Server rejects requests without valid attestation", "Server log"], ["Use the Secure Enclave", "Signing keys never leave the Secure Enclave", "Code review"], ["Pen test", "High findings fixed on retest", "Retest report"]],
+          "objectives": ["Threat model iOS apps", "Use App Attest and Secure Enclave", "Harden apps against abuse"]
+        },
+        {
+          "topic": "Design Systems for iOS Teams",
+          "subtopics": ["Design tokens for iOS", "Component libraries in SwiftUI", "Theming for several brands", "Documentation and catalog apps", "Accessibility built into components", "Snapshot tests for components", "Versioning and adoption", "Working with designers"],
+          "tools": ["SwiftUI", "Figma", "Snapshot testing"],
+          "lab_task": "Build a SwiftUI design system package with tokens, five components, two brand themes, a catalog app and snapshot tests, and migrate one feature to it.",
+          "deliverable": "Design system package and catalog app",
+          "checks": [["Switch brands", "Components restyle for each brand", "Screenshots"], ["Test components", "Snapshot tests cover every component state", "Test report"], ["Migrate a feature", "Feature uses only design system components", "Code review"]],
+          "objectives": ["Build iOS design systems", "Support multiple brands", "Drive adoption"]
+        },
+        {
+          "topic": "Testing Strategy for Large iOS Codebases",
+          "subtopics": ["Risk-based testing", "Unit, integration, UI and snapshot balance", "Contract tests with the back end", "Test parallelism and sharding", "Device farms", "Flaky test management", "Test impact analysis", "Quality metrics"],
+          "tools": ["Xcode test plans", "Device farm", "Contract testing tools"],
+          "lab_task": "Assess a large app's tests, rebalance by risk, add back-end contract tests, shard UI tests across simulators and cut CI time.",
+          "deliverable": "Test strategy and results",
+          "checks": [["Add contract tests", "Back-end change breaks a contract test", "CI log"], ["Shard tests", "UI test time reduced with sharding", "Pipeline timings"], ["Track flakiness", "Flaky tests tracked and quarantined", "Flakiness report"]],
+          "objectives": ["Design iOS test strategies", "Scale tests", "Manage flaky tests"]
+        },
+        {
+          "topic": "Release Engineering: Phased Releases, Feature Flags and Rollbacks",
+          "subtopics": ["Release trains", "Phased releases on the App Store", "Pausing releases", "Feature flags and kill switches", "Expedited reviews", "Forcing updates", "Release health metrics", "Post-release reviews"],
+          "tools": ["App Store Connect", "Feature flag service", "Crash reporting"],
+          "lab_task": "Run a release train with a phased release, pause it on a crash spike, disable a faulty feature with a kill switch and add an update prompt for old versions.",
+          "deliverable": "Release process and runbook",
+          "checks": [["Pause a release", "Phased release paused when crashes rise", "App Store Connect screenshot"], ["Use a kill switch", "Faulty feature disabled without a release", "Screen recording"], ["Prompt updates", "Old versions shown an update prompt", "Screenshot"]],
+          "objectives": ["Run safe iOS releases", "Use flags and kill switches", "Monitor release health"]
+        },
+        {
+          "topic": "On-Device AI with Core ML, Vision and Apple Intelligence Models",
+          "subtopics": ["On-device and cloud AI trade-offs", "Vision and Natural Language frameworks", "Converting and running custom models with Core ML", "Apple's Foundation Models framework on supported devices", "Guided generation and tool calling on device", "Model size and performance", "Privacy benefits and limits", "Evaluating AI features"],
+          "tools": ["Core ML", "Vision", "Foundation Models framework", "Create ML"],
+          "lab_task": "Add on-device text recognition with Vision, a custom Core ML classifier, an on-device summary with the Foundation Models framework where supported and a cloud fallback, and compare results.",
+          "deliverable": "AI features with evaluation report",
+          "checks": [["Recognise text", "Text extracted on device", "Screenshot"], ["Run a custom model", "Core ML classifier labels sample images", "Test output"], ["Fall back", "Cloud path used on unsupported devices", "Log output"]],
+          "objectives": ["Add on-device AI to iOS apps", "Choose on-device or cloud", "Evaluate AI features"]
+        },
+        {
+          "topic": "visionOS, watchOS and iPadOS Experiences",
+          "subtopics": ["Apple platforms beyond the iPhone", "iPadOS multitasking and pointer support", "watchOS apps and complications", "visionOS windows and volumes", "Sharing code across platforms", "Data sync between iPhone and watch", "Testing on each platform", "Store requirements per platform"],
+          "tools": ["SwiftUI", "watchOS SDK", "visionOS SDK", "Simulators"],
+          "lab_task": "Add an iPad layout with multitasking support, a watchOS companion with a complication and a visionOS window for the app's dashboard, sharing models and logic.",
+          "deliverable": "Experiences on three more platforms",
+          "checks": [["Use iPad multitasking", "App works in Split View", "Screenshot"], ["Show a complication", "Watch complication shows live progress", "Simulator screenshot"], ["Open on visionOS", "Dashboard window works in the visionOS simulator", "Screenshot"]],
+          "objectives": ["Build for other Apple platforms", "Share code across platforms", "Meet platform guidelines"]
+        },
+        {
+          "topic": "Privacy Manifests, Tracking Transparency and Compliance",
+          "subtopics": ["Privacy expectations and regulations", "Privacy manifests and required reason APIs", "App Tracking Transparency", "Privacy nutrition labels", "Third-party SDK privacy", "Consent management", "Data deletion", "Preparing for App Review privacy checks"],
+          "tools": ["Xcode privacy report", "App Store Connect", "SDK audit tools"],
+          "lab_task": "Generate the privacy report, add missing privacy manifest entries, audit SDKs, update privacy labels and handle tracking consent correctly.",
+          "deliverable": "Privacy audit and compliance changes",
+          "checks": [["Generate the report", "Privacy report covers app and SDKs", "Report file"], ["Update manifests", "Required reason APIs declared", "Manifest diff"], ["Match labels", "Privacy labels match actual collection", "Comparison notes"]],
+          "objectives": ["Meet Apple privacy requirements", "Audit SDKs", "Respect user tracking choices"]
+        },
+        {
+          "topic": "Real-Time Features: WebSockets and Live Updates on iOS",
+          "subtopics": ["Real-time options on iOS", "URLSessionWebSocketTask", "Server-sent events", "Reconnection and backoff", "Battery and network costs", "Combining push, sockets and Live Activities", "Live updates in SwiftUI", "Testing real-time features"],
+          "tools": ["URLSessionWebSocketTask", "ActivityKit push updates", "APNs"],
+          "lab_task": "Add live order tracking with WebSockets, reconnect with backoff, update a Live Activity through push when the app is in the background and measure battery cost.",
+          "deliverable": "Real-time tracking feature",
+          "checks": [["Track live", "Order position updates in real time", "Screen recording"], ["Update in the background", "Live Activity updated by push", "Screenshot"], ["Measure cost", "Battery cost of live tracking measured", "Energy report"]],
+          "objectives": ["Build real-time iOS features", "Handle unstable networks", "Balance freshness and battery"]
+        },
+        {
+          "topic": "Observability for iOS Apps",
+          "subtopics": ["What to measure in iOS apps", "Crashes, hangs and terminations", "MetricKit diagnostics", "Performance traces", "Network monitoring", "Release comparisons", "Alerting for mobile", "Privacy in telemetry"],
+          "tools": ["MetricKit", "Crash reporting tool", "Analytics"],
+          "lab_task": "Instrument key journeys, collect MetricKit hang and termination diagnostics, compare two releases and set alerts for crash and hang spikes.",
+          "deliverable": "iOS observability setup and dashboards",
+          "checks": [["Collect diagnostics", "Hang diagnostics received from MetricKit", "Log output"], ["Compare releases", "Regressions between releases identified", "Comparison report"], ["Alert on hangs", "Alert fires on a hang spike", "Alert notification"]],
+          "objectives": ["Observe iOS apps", "Compare releases", "Alert on regressions"]
+        },
+        {
+          "topic": "Migrating UIKit and Objective-C Code to SwiftUI and Swift",
+          "subtopics": ["Assessing a legacy codebase", "Objective-C and Swift interoperability", "Migrating screens to SwiftUI", "Converting Objective-C to Swift safely", "Replacing delegates and notifications with async APIs", "Replacing Core Data with SwiftData", "Testing during migration", "Tracking migration progress"],
+          "tools": ["Xcode", "Bridging headers", "SwiftUI", "SwiftData"],
+          "lab_task": "Migrate two UIKit screens to SwiftUI, convert an Objective-C class to Swift, replace a delegate API with async and move one Core Data model to SwiftData.",
+          "deliverable": "Migrated code and migration plan",
+          "checks": [["Mix old and new", "Migrated and legacy screens work together", "Screen recording"], ["Convert Objective-C", "Swift version passes the original tests", "Test output"], ["Move a model", "SwiftData model reads existing data", "Test output"]],
+          "objectives": ["Migrate to SwiftUI and Swift", "Use interop safely", "Plan large migrations"]
+        },
+        {
+          "topic": "Adopting Swift 6 Strict Concurrency Across a Codebase",
+          "subtopics": ["What Swift 6 language mode changes", "Planning module-by-module adoption", "Sendable conformances", "Isolating global state", "Working with non-Sendable dependencies", "Approachable concurrency settings", "Testing after adoption", "Communicating progress"],
+          "tools": ["Swift 6 language mode", "Xcode", "Concurrency checking settings"],
+          "lab_task": "Move three modules to Swift 6 language mode, fix Sendable and isolation errors, wrap a non-Sendable dependency and track the remaining work.",
+          "deliverable": "Migrated modules and adoption plan",
+          "checks": [["Build in Swift 6 mode", "Three modules build with no concurrency errors", "Build output"], ["Isolate global state", "Global mutable state moved into actors or made safe", "Code review"], ["Plan the rest", "Remaining modules ranked by effort and risk", "Adoption plan"]],
+          "objectives": ["Adopt Swift 6 concurrency", "Fix data race errors", "Plan codebase-wide migrations"]
+        },
+        {
+          "topic": "App Store Review, Policies and Compliance at Scale",
+          "subtopics": ["App Review guidelines that commonly cause rejections", "Payments and external link rules", "Account deletion and sign-in requirements", "Regional rules such as alternative distribution in the EU", "Age ratings and content", "Handling rejections and appeals", "Review readiness checklists", "Keeping up with policy changes"],
+          "tools": ["App Store Review Guidelines", "App Store Connect", "Checklists"],
+          "lab_task": "Review the app against the guidelines, fix three likely rejection causes, prepare review notes and a demo account, and simulate a rejection response.",
+          "deliverable": "Review readiness checklist and responses",
+          "checks": [["Find risks", "Likely rejection causes identified", "Review report"], ["Prepare notes", "Review notes and demo account ready", "Submission notes"], ["Respond to rejection", "Clear response drafted for a simulated rejection", "Response draft"]],
+          "objectives": ["Pass App Review reliably", "Follow payment and account rules", "Handle rejections"]
+        },
+        {
+          "topic": "Server-Driven UI and BFF APIs for iOS Apps",
+          "subtopics": ["What iOS apps need from back ends", "Backend for frontend services", "Server-driven UI components", "Versioning for old app versions", "Payload design for mobile networks", "Caching and offline support", "Security between app and back end", "Testing server-driven screens"],
+          "tools": ["API design tools", "Back-end framework", "SwiftUI"],
+          "lab_task": "Design a BFF and a server-driven home screen for the app, support older app versions, cache responses for offline use and test layout changes without a release.",
+          "deliverable": "BFF design and server-driven screen",
+          "checks": [["Change layout from the server", "Home screen changed without an app release", "Screen recording"], ["Support old versions", "Old app version keeps working after a BFF change", "Test output"], ["Work offline", "Cached home screen shown offline", "Screenshot"]],
+          "objectives": ["Design back ends for iOS apps", "Use server-driven UI", "Support many app versions"]
+        },
+        {
+          "topic": "Troubleshooting Production iOS Issues: Crashes, Hangs and Terminations",
+          "subtopics": ["Reading crash reports and symbolication", "Hang reports", "Memory and watchdog terminations", "Device and OS specific bugs", "Reproducing field issues", "Hotfix options and expedited review", "Communicating with users", "Post-incident reviews"],
+          "tools": ["Xcode Organizer", "MetricKit", "Crash reporting tool", "Instruments"],
+          "lab_task": "Work through four production issues: a launch crash, a hang on one screen, a watchdog termination and a regression after release, fix each and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Fix the crash", "Crash rate drops after the fix", "Organizer screenshot"], ["Fix a hang", "Hang no longer reproduced", "Instruments trace"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot iOS apps in production", "Use crash and hang reports", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Module Banking App",
+          "subtopics": ["Architecture", "Build", "Quality and release", "Defence"],
+          "tools": ["Swift", "SwiftUI", "Swift packages", "App Attest", "Core ML", "App Store Connect"],
+          "lab_task": "Design and build a multi-module banking app with team-owned packages, a design system, Swift 6 concurrency, App Attest, on-device AI, privacy compliance, phased releases and observability, then defend it to a review panel.",
+          "deliverable": "Repository, release evidence and architecture defence",
+          "checks": [["Show team independence", "Features built and released through separate packages", "Package and release history"], ["Prove quality", "Security, privacy, performance and test reports meet targets", "Reports"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one app", "Architect large iOS apps", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}

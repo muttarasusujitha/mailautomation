@@ -1,0 +1,573 @@
+{
+  "domain": "Oracle Cloud",
+  "name": "Oracle Cloud Infrastructure (OCI)",
+  "category": "Cloud",
+  "icon": "cloud",
+  "aliases": ["OCI", "Oracle Cloud Infrastructure", "Oracle Cloud Training", "OCI Training", "OCI Architect", "OCI Administration", "OCI Administrator", "Oracle Cloud Infrastructure Architect", "OCI Cloud"],
+  "certifications": ["Oracle Cloud Infrastructure Foundations Associate", "Oracle Cloud Infrastructure Architect Associate", "Oracle Cloud Infrastructure Architect Professional", "Oracle Cloud Infrastructure Security Professional"],
+  "tools": ["OCI Console", "OCI CLI", "Cloud Shell", "Terraform with the OCI provider", "Resource Manager", "Free Tier tenancy"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For engineers and administrators new to Oracle Cloud. Covers tenancies, regions and availability domains, compartments, IAM and identity domains, virtual cloud networks, security lists and network security groups, gateways, compute, block, object and file storage, load balancers, DNS, Autonomous Database and other database services, monitoring and logging, cost management, the CLI and Terraform with Resource Manager.",
+      "prerequisites": ["Basic networking: IP addresses, subnets and DNS", "Comfortable on the Linux command line", "No previous OCI experience needed"],
+      "outcomes": ["Set up a tenancy with compartments, users and policies", "Build networks, compute, storage and load balancers", "Run Autonomous Database and other database services", "Monitor, control cost and automate with the CLI and Terraform"],
+      "days": [
+        {
+          "topic": "OCI Overview, Tenancy and Free Tier Setup",
+          "subtopics": ["What Oracle Cloud Infrastructure offers", "OCI compared with AWS, Azure and Google Cloud", "Tenancies and home regions", "Signing up for the Free Tier", "Always Free and paid resources", "The OCI Console", "Cloud Shell", "Service limits", "Support and documentation", "The course case company: a retail chain moving to OCI"],
+          "tools": ["OCI Console", "Cloud Shell", "Free Tier tenancy"],
+          "lab_task": "Create a Free Tier tenancy, explore the console, open Cloud Shell, check service limits and list which Always Free resources the course will use.",
+          "deliverable": "Tenancy details and a resource plan",
+          "checks": [["Open Cloud Shell", "Shell runs with the CLI ready", "Screenshot"], ["Check service limits", "Limits for compute and storage recorded", "Limits page"], ["List Always Free resources", "Correct list for the course", "Resource plan"]],
+          "objectives": ["Describe OCI", "Set up a tenancy", "Navigate the console"]
+        },
+        {
+          "topic": "Regions, Availability Domains and Fault Domains",
+          "subtopics": ["Regions", "Availability domains", "Fault domains", "Realms and government regions", "Choosing regions", "High availability with fault domains", "Region subscriptions", "Latency between regions"],
+          "tools": ["OCI Console", "OCI CLI"],
+          "lab_task": "Subscribe to a second region, list availability and fault domains in each and place two instances in different fault domains.",
+          "deliverable": "Region and placement notes",
+          "checks": [["List availability domains", "Domains per region recorded", "CLI output"], ["Place instances", "Instances in different fault domains", "Instance details"], ["Explain choices", "Region choice for India customers justified", "Notes"]],
+          "objectives": ["Understand OCI geography", "Place resources for availability", "Choose regions"]
+        },
+        {
+          "topic": "Compartments, Users, Groups and Policies",
+          "subtopics": ["Compartments and hierarchy", "Users and groups", "Policy syntax", "Verbs: inspect, read, use and manage", "Resource types and families", "Policy inheritance", "Tag-based conditions", "Least-privilege policies"],
+          "tools": ["OCI IAM", "OCI Console"],
+          "lab_task": "Create compartments for networking, apps and databases, create admin and developer groups and write policies so developers manage instances only in the apps compartment.",
+          "deliverable": "Compartment structure and policies",
+          "checks": [["Create an instance as a developer", "Allowed in apps only", "Console screenshot"], ["Change a network as a developer", "Not authorised", "Error message"], ["Review policies", "Each grants only what is needed", "Policy list"]],
+          "objectives": ["Organise with compartments", "Write policies", "Apply least privilege"]
+        },
+        {
+          "topic": "Identity Domains and Federation",
+          "subtopics": ["Identity domains", "Domain types", "Federation with Microsoft Entra ID or Okta", "Single sign-on", "MFA", "Dynamic groups for resources", "Instance principals", "API keys and auth tokens"],
+          "tools": ["OCI Identity Domains", "Identity provider"],
+          "lab_task": "Federate the tenancy with an identity provider for single sign-on with MFA and create a dynamic group so instances can read object storage without keys.",
+          "deliverable": "Federation settings and dynamic group",
+          "checks": [["Sign in through SSO", "Login with MFA through the identity provider", "Screenshot"], ["Read a bucket from an instance", "Works with instance principal and no keys", "CLI output"], ["Review API keys", "No unneeded keys", "Key list"]],
+          "objectives": ["Federate identity", "Use dynamic groups", "Avoid stored keys"]
+        },
+        {
+          "topic": "Virtual Cloud Networks and Subnets",
+          "subtopics": ["VCNs and CIDR blocks", "Public and private subnets", "Regional subnets", "Route tables", "VCN Wizard", "IP address planning", "IPv6", "Network diagrams"],
+          "tools": ["OCI Networking", "VCN Wizard"],
+          "lab_task": "Plan addressing and build a VCN with public and private subnets by hand and with the wizard, and draw the network.",
+          "deliverable": "Address plan, VCN and diagram",
+          "checks": [["Create subnets", "Public and private subnets as planned", "VCN details"], ["Compare with the wizard", "Differences noted", "Notes"], ["Review the plan", "No overlap with on-premises ranges", "Address plan"]],
+          "objectives": ["Build VCNs", "Plan addresses", "Draw networks"]
+        },
+        {
+          "topic": "Security Lists and Network Security Groups",
+          "subtopics": ["Stateful and stateless rules", "Security lists", "Network security groups", "Ingress and egress rules", "Rules between tiers", "Choosing security lists or NSGs", "Troubleshooting blocked traffic", "VCN flow logs"],
+          "tools": ["OCI Networking", "VCN flow logs"],
+          "lab_task": "Allow web traffic to a web tier and only app traffic to a database tier with NSGs, block everything else and find a blocked connection in flow logs.",
+          "deliverable": "Security rules and flow log analysis",
+          "checks": [["Reach the web tier on 443", "Connection works", "curl output"], ["Reach the database from the internet", "Blocked", "Test output"], ["Find a blocked flow", "Rejected flow in flow logs", "Flow log entry"]],
+          "objectives": ["Control traffic", "Use NSGs", "Troubleshoot with flow logs"]
+        },
+        {
+          "topic": "Gateways: Internet, NAT and Service Gateways",
+          "subtopics": ["Internet gateway", "NAT gateway", "Service gateway for Oracle services", "Local peering gateways", "Dynamic routing gateway in brief", "Route rules for each gateway", "Private access to object storage", "Gateway costs"],
+          "tools": ["OCI Networking"],
+          "lab_task": "Give private instances outbound internet through a NAT gateway, reach object storage through a service gateway and peer two VCNs.",
+          "deliverable": "Gateway configuration and tests",
+          "checks": [["Update packages from a private instance", "Works through NAT", "Terminal output"], ["Read a bucket privately", "Traffic through the service gateway", "Route table and test"], ["Ping across peered VCNs", "Reply received", "ping output"]],
+          "objectives": ["Use gateways", "Reach services privately", "Peer networks"]
+        },
+        {
+          "topic": "Compute Instances",
+          "subtopics": ["Shapes: fixed and flexible", "Ampere Arm and x86 shapes", "Images and custom images", "SSH keys", "Cloud-init", "Instance metadata", "Boot volumes", "Stopping, resizing and terminating"],
+          "tools": ["OCI Compute", "Cloud-init"],
+          "lab_task": "Launch a flexible Ampere instance with cloud-init that installs a web server, resize it, create a custom image and launch a copy.",
+          "deliverable": "Instances, cloud-init file and custom image",
+          "checks": [["Open the web page", "Served by the new instance", "Browser screenshot"], ["Resize the shape", "More OCPUs after restart", "Instance details"], ["Launch from the custom image", "Copy works the same", "Browser screenshot"]],
+          "objectives": ["Launch instances", "Use flexible shapes", "Build custom images"]
+        },
+        {
+          "topic": "Block Volumes and Backups",
+          "subtopics": ["Block volumes", "Performance levels", "Attaching and mounting", "Resizing volumes", "Backups and backup policies", "Volume groups", "Cross-region copies", "Restoring from backups"],
+          "tools": ["OCI Block Volume", "Linux tools"],
+          "lab_task": "Attach a block volume, mount it, grow it online, apply a backup policy, restore a backup to a new volume and copy a backup to another region.",
+          "deliverable": "Volume configuration and restore evidence",
+          "checks": [["Grow the volume", "Larger file system without downtime", "df output"], ["Restore a backup", "Data back on the new volume", "File listing"], ["Copy to another region", "Backup in the second region", "Console screenshot"]],
+          "objectives": ["Use block storage", "Back up volumes", "Restore and copy backups"]
+        },
+        {
+          "topic": "Object Storage",
+          "subtopics": ["Buckets and objects", "Storage tiers: standard, infrequent access and archive", "Lifecycle policies", "Pre-authenticated requests", "Versioning", "Replication", "Retention rules", "Uploading with the CLI"],
+          "tools": ["OCI Object Storage", "OCI CLI"],
+          "lab_task": "Create buckets, upload files with the CLI, move old files to archive with a lifecycle policy, share a file with a pre-authenticated request and turn on versioning.",
+          "deliverable": "Bucket settings and test results",
+          "checks": [["Share with a PAR", "File downloads without login until expiry", "Browser test"], ["Delete a versioned file", "Previous version restorable", "Object versions"], ["Apply a lifecycle policy", "Old objects moved to archive", "Object details"]],
+          "objectives": ["Store objects", "Control lifecycle", "Share files safely"]
+        },
+        {
+          "topic": "File Storage",
+          "subtopics": ["File Storage service", "Mount targets", "Exports and export options", "NFS clients", "Snapshots", "Access control", "Performance", "Use cases"],
+          "tools": ["OCI File Storage", "NFS"],
+          "lab_task": "Create a file system with a mount target, mount it on two instances, restrict access by subnet and restore a file from a snapshot.",
+          "deliverable": "File system configuration and tests",
+          "checks": [["Write on one instance", "File visible on the other", "Terminal output"], ["Mount from another subnet", "Refused by export options", "Error output"], ["Restore from a snapshot", "Deleted file back", "File listing"]],
+          "objectives": ["Share files", "Control access", "Use snapshots"]
+        },
+        {
+          "topic": "Load Balancers and Network Load Balancers",
+          "subtopics": ["Load balancer types", "Backend sets and health checks", "Listeners and certificates", "Path routing", "Session persistence", "Network load balancers", "Private load balancers", "Monitoring load balancers"],
+          "tools": ["OCI Load Balancer", "OCI Network Load Balancer"],
+          "lab_task": "Put two web servers behind a load balancer with HTTPS, health checks and path routing, stop one server and confirm traffic moves.",
+          "deliverable": "Load balancer configuration and tests",
+          "checks": [["Stop a backend", "Traffic served by the other", "Load balancer health"], ["Open the site over HTTPS", "Valid certificate", "Browser screenshot"], ["Use path routing", "Paths reach different backends", "curl output"]],
+          "objectives": ["Balance traffic", "Use health checks", "Terminate TLS"]
+        },
+        {
+          "topic": "DNS and Traffic Management",
+          "subtopics": ["Public and private DNS zones", "Records", "Private resolvers", "Traffic management steering policies", "Failover policies", "Geolocation steering", "Health checks", "Domain delegation"],
+          "tools": ["OCI DNS", "Traffic Management"],
+          "lab_task": "Host a public zone, add private DNS for internal names, create a failover steering policy between two regions and test it.",
+          "deliverable": "DNS configuration and failover test",
+          "checks": [["Resolve a private name", "Answer only inside the VCN", "dig output"], ["Fail the primary site", "DNS answers with the secondary", "dig output"], ["Delegate the domain", "Public queries answered by OCI", "dig output"]],
+          "objectives": ["Manage DNS", "Use private DNS", "Steer traffic"]
+        },
+        {
+          "topic": "Autonomous Database",
+          "subtopics": ["Autonomous Database types", "Serverless deployment", "Creating and connecting", "Wallets and mTLS", "Scaling OCPUs and storage", "Automatic backups and clones", "Database Actions and SQL tools", "Security features"],
+          "tools": ["Autonomous Database", "Database Actions", "SQL Developer"],
+          "lab_task": "Create an Autonomous Database, connect with a wallet, load data, scale it, clone it for testing and restore to a point in time.",
+          "deliverable": "Database settings and test results",
+          "checks": [["Connect with the wallet", "Session opened", "Client output"], ["Clone for testing", "Clone available with the same data", "Console screenshot"], ["Restore to a point in time", "Data from that time", "Query result"]],
+          "objectives": ["Use Autonomous Database", "Connect securely", "Clone and restore"]
+        },
+        {
+          "topic": "Database Services: Base Database and MySQL HeatWave",
+          "subtopics": ["Base Database Service", "DB systems and shapes", "Backups and patching", "Data Guard in brief", "MySQL HeatWave service", "PostgreSQL service", "NoSQL Database service", "Choosing a database service"],
+          "tools": ["OCI Base Database", "MySQL HeatWave", "OCI PostgreSQL"],
+          "lab_task": "Create a Base Database system and a MySQL HeatWave instance, back up and patch the Base Database and compare services for three workloads.",
+          "deliverable": "Database systems and comparison",
+          "checks": [["Patch the DB system", "New patch level applied", "Console screenshot"], ["Run a HeatWave query", "Analytic query accelerated", "Query timing"], ["Compare services", "Service chosen per workload with reasons", "Comparison"]],
+          "objectives": ["Run database services", "Patch and back up", "Choose services"]
+        },
+        {
+          "topic": "Monitoring, Logging and Notifications",
+          "subtopics": ["Metrics and the Monitoring service", "Alarms", "Notifications topics", "Logging service", "Service and custom logs", "Audit logs", "Events rules", "Dashboards"],
+          "tools": ["OCI Monitoring", "OCI Logging", "OCI Notifications", "OCI Events"],
+          "lab_task": "Create alarms for CPU and load balancer errors, send notifications by email, collect instance logs and find who deleted a resource in the audit log.",
+          "deliverable": "Alarms, log settings and audit findings",
+          "checks": [["Raise CPU", "Alarm fires and email sent", "Email"], ["Search instance logs", "Application logs found", "Log search"], ["Find the deletion", "User and time in the audit log", "Audit entry"]],
+          "objectives": ["Monitor resources", "Collect logs", "Use audit logs"]
+        },
+        {
+          "topic": "Cost Management, Budgets and Tagging",
+          "subtopics": ["OCI pricing model", "Cost analysis", "Budgets and alerts", "Tags: free-form and defined", "Tag defaults", "Quotas", "Cost reports", "Always Free limits"],
+          "tools": ["OCI Cost Analysis", "Budgets", "Tagging"],
+          "lab_task": "Create defined tags with defaults for cost centres, set a budget with alerts, apply compartment quotas and report cost by tag.",
+          "deliverable": "Tags, budget, quotas and cost report",
+          "checks": [["Create a resource", "Cost centre tag applied by default", "Resource tags"], ["Exceed a quota", "Creation refused", "Error message"], ["Report by tag", "Cost per cost centre shown", "Cost analysis"]],
+          "objectives": ["Track cost", "Use tags and quotas", "Set budgets"]
+        },
+        {
+          "topic": "OCI CLI, SDKs and Cloud Shell",
+          "subtopics": ["Installing and configuring the CLI", "Profiles and authentication", "Common CLI commands", "Output formats and queries", "Python SDK", "Scripting tasks", "Instance principals in scripts", "Cloud Shell features"],
+          "tools": ["OCI CLI", "OCI Python SDK", "Cloud Shell"],
+          "lab_task": "Script the creation and clean-up of a test environment with the CLI, list all instances across compartments with the Python SDK and run a script with instance principals.",
+          "deliverable": "Scripts and outputs",
+          "checks": [["Run the create script", "Environment created", "CLI output"], ["List instances", "All compartments covered", "Script output"], ["Run with instance principals", "No keys used", "Script output"]],
+          "objectives": ["Use the CLI", "Use the SDK", "Script safely"]
+        },
+        {
+          "topic": "Infrastructure as Code with Resource Manager and Terraform",
+          "subtopics": ["Terraform with the OCI provider", "Resource Manager stacks", "State in Resource Manager", "Variables and modules", "Plans and applies", "Drift detection", "Landing zone modules in brief", "Version control"],
+          "tools": ["Terraform", "OCI Resource Manager", "Git"],
+          "lab_task": "Write Terraform for the VCN, instances and load balancer, run it as a Resource Manager stack, detect a manual change as drift and destroy and recreate the environment.",
+          "deliverable": "Terraform code, stack and drift report",
+          "checks": [["Apply the stack", "Environment created", "Job log"], ["Make a manual change", "Drift detected", "Drift report"], ["Recreate the environment", "Same result as before", "Job log"]],
+          "objectives": ["Write Terraform for OCI", "Use Resource Manager", "Detect drift"]
+        },
+        {
+          "topic": "Beginner Capstone: Three-Tier Web Application on OCI",
+          "subtopics": ["Design", "Build with code", "Security and monitoring", "Demo"],
+          "tools": ["OCI", "Terraform", "Autonomous Database", "Load Balancer"],
+          "lab_task": "Build a three-tier app for the case company with Terraform: compartments and policies, a VCN with private tiers, load-balanced instances, Autonomous Database, backups, alarms, budgets and tags, then demo a server failure.",
+          "deliverable": "Terraform repository, architecture diagram and demo recording",
+          "checks": [["Stop a web server in the demo", "Site stays up", "Demo recording"], ["Test network rules", "Database reachable only from the app tier", "Test results"], ["Review cost", "Cost tags and budget in place", "Cost analysis"]],
+          "objectives": ["Combine the beginner topics in one application", "Build OCI infrastructure as code", "Show resilience"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For cloud engineers and administrators running workloads on OCI. Covers hub-and-spoke networking with DRGs, FastConnect and VPN, OKE, the container registry and DevOps service, Functions and API Gateway, Streaming and Events, Cloud Guard and Security Zones, Vault, WAF and Bastion, database high availability, Exadata Database Service, data integration and GoldenGate, AI services and Generative AI, observability, autoscaling, disaster recovery, governance and the Architect Associate exam.",
+      "prerequisites": ["Builds networks, compute, storage and databases on OCI", "Writes policies and uses compartments", "Uses the CLI or Terraform"],
+      "outcomes": ["Design connected, secure networks and run containers and serverless apps", "Secure tenancies with Cloud Guard, Vault, WAF and Bastion", "Run highly available databases and data integration", "Observe, scale, recover and govern workloads and pass the Architect Associate exam"],
+      "days": [
+        {
+          "topic": "Hub-and-Spoke Networking with Dynamic Routing Gateways",
+          "subtopics": ["DRG concepts", "Attaching VCNs", "Route tables and import distributions", "Hub-and-spoke design", "Network firewalls in the hub", "Remote peering between regions", "Transit routing", "Troubleshooting routes"],
+          "tools": ["OCI DRG", "OCI Network Firewall", "Network Path Analyzer"],
+          "lab_task": "Build a hub VCN with a network firewall and two spoke VCNs attached to a DRG, route spoke traffic through the firewall and check paths with Network Path Analyzer.",
+          "deliverable": "Network design, configuration and path analysis",
+          "checks": [["Send traffic between spokes", "Traffic passes the firewall", "Firewall logs"], ["Run Network Path Analyzer", "Path matches the design", "Analyzer output"], ["Peer with another region", "Remote VCN reachable", "ping output"]],
+          "objectives": ["Design hub-and-spoke networks", "Route through firewalls", "Connect regions"]
+        },
+        {
+          "topic": "Hybrid Connectivity: FastConnect and Site-to-Site VPN",
+          "subtopics": ["Connectivity options", "Site-to-Site VPN with IPsec", "BGP over VPN", "FastConnect", "Redundant connections", "Routing on-premises traffic", "Monitoring connections", "Choosing VPN or FastConnect"],
+          "tools": ["OCI Site-to-Site VPN", "FastConnect", "On-premises router or simulator"],
+          "lab_task": "Connect a simulated data centre with a redundant site-to-site VPN using BGP, fail one tunnel and confirm traffic continues.",
+          "deliverable": "VPN configuration and failover test",
+          "checks": [["Bring up tunnels", "Both tunnels up with BGP sessions", "Console screenshot"], ["Fail one tunnel", "Traffic continues on the other", "ping output"], ["Write the choice note", "VPN or FastConnect chosen with reasons", "Notes"]],
+          "objectives": ["Connect on-premises", "Use BGP", "Build redundancy"]
+        },
+        {
+          "topic": "Kubernetes with OCI Container Engine (OKE)",
+          "subtopics": ["OKE cluster types", "Node pools and virtual nodes", "Networking with VCN-native pods", "Load balancers and ingress", "Storage classes", "Workload identity", "Cluster upgrades", "Monitoring clusters"],
+          "tools": ["OKE", "kubectl", "Helm"],
+          "lab_task": "Create an OKE cluster with VCN-native pod networking, deploy an app with an ingress, give pods access to object storage with workload identity and upgrade the cluster.",
+          "deliverable": "Cluster, manifests and upgrade log",
+          "checks": [["Reach the app through the ingress", "App responds", "curl output"], ["Read a bucket from a pod", "Works without keys", "Pod log"], ["Upgrade the cluster", "Nodes upgraded with no downtime", "Client log"]],
+          "objectives": ["Run Kubernetes on OCI", "Expose apps", "Use workload identity"]
+        },
+        {
+          "topic": "Container Registry and the OCI DevOps Service",
+          "subtopics": ["OCI Container Registry", "Image scanning", "DevOps projects", "Build pipelines", "Deployment pipelines to OKE and instances", "Artifacts", "Approvals", "Rollbacks"],
+          "tools": ["OCI Container Registry", "OCI DevOps"],
+          "lab_task": "Build an image with a DevOps build pipeline, scan it, push it to the registry and deploy to OKE with approval, then roll back a bad release.",
+          "deliverable": "Pipelines, scan results and rollback evidence",
+          "checks": [["Run the build", "Image pushed with a version tag", "Registry screenshot"], ["Scan the image", "Vulnerabilities reported", "Scan report"], ["Roll back", "Previous version running", "Deployment history"]],
+          "objectives": ["Use OCI Registry", "Build CI/CD on OCI", "Roll back releases"]
+        },
+        {
+          "topic": "Serverless with OCI Functions and API Gateway",
+          "subtopics": ["OCI Functions and Fn", "Function images", "Invoking functions", "API Gateway deployments", "Authentication with API Gateway", "Rate limiting", "Events triggering functions", "Cold starts and cost"],
+          "tools": ["OCI Functions", "API Gateway", "Fn CLI"],
+          "lab_task": "Build a function that resizes images uploaded to a bucket, expose another function through API Gateway with authentication and rate limits.",
+          "deliverable": "Functions, gateway configuration and tests",
+          "checks": [["Upload an image", "Resized copy created", "Bucket listing"], ["Call the API without a token", "Refused", "API response"], ["Exceed the rate limit", "Requests rejected", "API response"]],
+          "objectives": ["Build serverless apps", "Use API Gateway", "Trigger functions from events"]
+        },
+        {
+          "topic": "Streaming, Events and Queues",
+          "subtopics": ["OCI Streaming", "Kafka compatibility", "OCI Queue", "Events service", "Service Connector Hub", "Fan-out patterns", "Ordering and retention", "Choosing a messaging service"],
+          "tools": ["OCI Streaming", "OCI Queue", "Service Connector Hub"],
+          "lab_task": "Send order events to OCI Streaming with a Kafka client, process them with a consumer, move logs to object storage with Service Connector Hub and use a queue for background jobs.",
+          "deliverable": "Messaging set-up and test results",
+          "checks": [["Produce with a Kafka client", "Messages in the stream", "Consumer output"], ["Move logs", "Logs arrive in object storage", "Bucket listing"], ["Process queue jobs", "Each job processed once", "Queue metrics"]],
+          "objectives": ["Use streaming and queues", "Connect services", "Choose messaging"]
+        },
+        {
+          "topic": "Security Posture: Cloud Guard and Security Zones",
+          "subtopics": ["Cloud Guard targets", "Detector and responder recipes", "Problems and remediation", "Security Zones", "Security Advisor", "Vulnerability Scanning Service", "Threat intelligence", "Reporting security posture"],
+          "tools": ["Cloud Guard", "Security Zones", "Vulnerability Scanning"],
+          "lab_task": "Turn on Cloud Guard, create a public bucket and an open security list to trigger problems, auto-remediate one and create a Security Zone that blocks public resources.",
+          "deliverable": "Cloud Guard set-up, problems and Security Zone",
+          "checks": [["Create a public bucket", "Problem raised and remediated", "Cloud Guard problems"], ["Create a public resource in the zone", "Refused by the Security Zone", "Error message"], ["Scan instances", "Vulnerabilities reported", "Scan report"]],
+          "objectives": ["Monitor posture", "Remediate problems", "Enforce secure zones"]
+        },
+        {
+          "topic": "Vault, Keys and Secrets",
+          "subtopics": ["OCI Vault", "Master encryption keys", "Customer-managed keys for storage and databases", "Secrets", "Key rotation", "Hardware security modules", "Policies for keys", "Auditing key use"],
+          "tools": ["OCI Vault", "OCI CLI"],
+          "lab_task": "Create a vault and keys, encrypt a bucket and block volume with your key, store a database password as a secret read by an app and rotate the key.",
+          "deliverable": "Vault configuration and test results",
+          "checks": [["Encrypt with your key", "Resources show the customer-managed key", "Resource details"], ["Read the secret from an app", "Secret read without hard-coding", "App log"], ["Rotate the key", "Data still readable", "Test output"]],
+          "objectives": ["Manage keys", "Store secrets", "Rotate keys"]
+        },
+        {
+          "topic": "Web Application Firewall, Bastion and Network Security",
+          "subtopics": ["OCI WAF policies", "Protection rules", "Rate limiting and bot management", "OCI Bastion sessions", "Network Firewall", "DDoS protection", "Zero trust packet routing in brief", "Testing protections"],
+          "tools": ["OCI WAF", "OCI Bastion", "OCI Network Firewall"],
+          "lab_task": "Protect the web app with WAF rules and rate limits, remove public SSH and use Bastion sessions, and test the protections.",
+          "deliverable": "WAF policy, Bastion set-up and tests",
+          "checks": [["Send a SQL injection string", "Blocked by WAF", "WAF logs"], ["SSH through Bastion", "Session works with no public SSH", "Session log"], ["Exceed the rate limit", "Requests blocked", "WAF logs"]],
+          "objectives": ["Protect applications", "Use Bastion", "Test protections"]
+        },
+        {
+          "topic": "Database High Availability: Data Guard and Autonomous Data Guard",
+          "subtopics": ["Availability options for databases", "Data Guard on Base Database", "Autonomous Data Guard", "Cross-region standbys", "Switchover and failover", "Backup to object storage", "Application failover", "Testing database recovery"],
+          "tools": ["Base Database", "Autonomous Database", "Data Guard"],
+          "lab_task": "Add a Data Guard standby to a DB system and an Autonomous Data Guard peer in another region, switch over both and measure application downtime.",
+          "deliverable": "Configuration and switchover results",
+          "checks": [["Switch over the DB system", "Roles changed", "Console screenshot"], ["Fail over Autonomous Database", "Peer becomes primary", "Console screenshot"], ["Measure downtime", "Application downtime recorded", "Client log"]],
+          "objectives": ["Protect databases", "Switch over", "Measure downtime"]
+        },
+        {
+          "topic": "Exadata Database Service on OCI",
+          "subtopics": ["Exadata infrastructure and VM clusters", "Exadata Cloud@Customer in brief", "Creating databases on Exadata", "Scaling", "Patching", "Performance features", "Cost model", "When to choose Exadata"],
+          "tools": ["Exadata Database Service", "OCI Console"],
+          "lab_task": "Review an Exadata VM cluster set-up, create a pluggable database, scale OCPUs, plan patching and compare cost with Autonomous Database for a workload.",
+          "deliverable": "Configuration notes, patch plan and cost comparison",
+          "checks": [["Create a PDB", "PDB available", "Console screenshot"], ["Scale OCPUs", "New count applied online", "Console screenshot"], ["Compare costs", "Monthly cost for both options", "Comparison table"]],
+          "objectives": ["Use Exadata on OCI", "Scale and patch", "Choose database platforms"]
+        },
+        {
+          "topic": "Data Integration and GoldenGate on OCI",
+          "subtopics": ["OCI Data Integration", "Data flows and tasks", "OCI GoldenGate", "Replication from on-premises", "Data Flow for Spark", "Data Catalog", "Loading Autonomous Data Warehouse", "Monitoring pipelines"],
+          "tools": ["OCI Data Integration", "OCI GoldenGate", "OCI Data Flow"],
+          "lab_task": "Replicate an on-premises table to Autonomous Database with OCI GoldenGate, build a Data Integration flow that loads a warehouse and run a Spark job in Data Flow.",
+          "deliverable": "Replication, data flow and Spark job",
+          "checks": [["Update the source", "Change replicated", "Query result"], ["Run the data flow", "Warehouse loaded", "Task run"], ["Run the Spark job", "Job succeeds", "Data Flow run"]],
+          "objectives": ["Integrate data on OCI", "Replicate with GoldenGate", "Run Spark serverless"]
+        },
+        {
+          "topic": "AI Services: Language, Vision, Speech and Document Understanding",
+          "subtopics": ["OCI AI services", "Language service", "Vision service", "Speech service", "Document Understanding", "Calling AI services from apps", "Custom models", "Cost and limits"],
+          "tools": ["OCI AI services", "OCI Python SDK"],
+          "lab_task": "Extract fields from invoices with Document Understanding, classify ticket sentiment with Language and transcribe a call with Speech, all from a Python script.",
+          "deliverable": "Script and results",
+          "checks": [["Extract invoice fields", "Fields returned with confidence", "Script output"], ["Classify sentiment", "Sentiment per ticket", "Script output"], ["Transcribe a call", "Transcript produced", "Output file"]],
+          "objectives": ["Use OCI AI services", "Call them from code", "Weigh cost"]
+        },
+        {
+          "topic": "OCI Generative AI Service",
+          "subtopics": ["Generative AI service models", "Chat and embeddings", "Dedicated AI clusters", "Fine-tuning", "Generative AI Agents for RAG", "Security and data handling", "Cost", "Evaluating outputs"],
+          "tools": ["OCI Generative AI", "Generative AI Agents", "Autonomous Database vector search"],
+          "lab_task": "Build a RAG assistant with Generative AI Agents over product documents, compare two chat models and evaluate answers on 20 questions.",
+          "deliverable": "Agent configuration, comparison and evaluation",
+          "checks": [["Ask a question", "Answer cites documents", "Response"], ["Compare models", "Quality and cost for each", "Comparison table"], ["Evaluate", "Accuracy on 20 questions", "Evaluation table"]],
+          "objectives": ["Use OCI Generative AI", "Build RAG agents", "Evaluate answers"]
+        },
+        {
+          "topic": "Observability: Logging Analytics, APM and Monitoring",
+          "subtopics": ["Logging Analytics", "Log parsing and dashboards", "Application Performance Monitoring", "Tracing applications", "Synthetic monitoring", "Database Management", "Ops Insights", "Alerting strategy"],
+          "tools": ["Logging Analytics", "OCI APM", "Ops Insights"],
+          "lab_task": "Send app logs to Logging Analytics with a dashboard, trace a slow request with APM, add a synthetic test and review database capacity in Ops Insights.",
+          "deliverable": "Dashboards, traces and capacity notes",
+          "checks": [["Find errors", "Errors shown on the log dashboard", "Screenshot"], ["Trace a slow request", "Slow span identified", "APM trace"], ["Fail the synthetic test", "Alarm fires", "Notification"]],
+          "objectives": ["Observe applications", "Trace requests", "Plan capacity"]
+        },
+        {
+          "topic": "Autoscaling with Instance Pools and OKE",
+          "subtopics": ["Instance configurations", "Instance pools", "Autoscaling policies", "Load balancer integration", "Scheduled scaling", "Cluster autoscaler in OKE", "Horizontal pod autoscaling", "Testing scaling"],
+          "tools": ["OCI Instance Pools", "Autoscaling", "OKE"],
+          "lab_task": "Build an instance pool behind a load balancer with metric-based autoscaling, add scheduled scaling for business hours and autoscale pods and nodes in OKE.",
+          "deliverable": "Pool configuration, scaling policies and test results",
+          "checks": [["Raise load", "Pool scales out", "Pool metrics"], ["Wait for the schedule", "Pool resizes at the set time", "Activity log"], ["Raise pod load", "Nodes added by the cluster autoscaler", "kubectl output"]],
+          "objectives": ["Autoscale instances", "Schedule scaling", "Autoscale Kubernetes"]
+        },
+        {
+          "topic": "Backup and Disaster Recovery with Full Stack DR",
+          "subtopics": ["Recovery objectives", "Backup policies across services", "Cross-region replication", "Full Stack Disaster Recovery", "DR protection groups", "DR plans and prechecks", "DR drills", "Failback"],
+          "tools": ["OCI Full Stack Disaster Recovery", "Cross-region replication"],
+          "lab_task": "Protect the three-tier app with Full Stack DR across two regions, run prechecks, perform a switchover drill and fail back.",
+          "deliverable": "DR configuration and drill report",
+          "checks": [["Run prechecks", "All checks pass", "DR plan output"], ["Run the switchover", "App running in the standby region within the target", "Drill report"], ["Fail back", "App back in the primary region", "Drill report"]],
+          "objectives": ["Plan DR on OCI", "Use Full Stack DR", "Run drills"]
+        },
+        {
+          "topic": "Governance: Tagging, Quotas and Organisation Management",
+          "subtopics": ["Governance needs", "Tag namespaces and defaults", "Compartment quotas", "Organisation management for many tenancies", "Budgets per compartment", "Policy reviews", "Compliance reports", "Governance as code"],
+          "tools": ["OCI Tagging", "Quotas", "Organisation Management", "Terraform"],
+          "lab_task": "Set tag defaults and quotas for three teams with Terraform, review policies for excess access and produce a governance report.",
+          "deliverable": "Governance code and report",
+          "checks": [["Create an untagged resource", "Default tags applied", "Resource tags"], ["Exceed a team quota", "Request refused", "Error message"], ["Review policies", "Excess access found and removed", "Review report"]],
+          "objectives": ["Govern tenancies", "Use quotas and tags", "Review access"]
+        },
+        {
+          "topic": "OCI Architect Associate Certification Preparation",
+          "subtopics": ["Exam topics", "Compute and storage questions", "Networking questions", "Identity and security questions", "Database questions", "Design scenarios", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "OCI documentation", "Oracle University"],
+          "lab_task": "Take a timed practice exam, rebuild wrong answers in the tenancy, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each confirmed in the tenancy", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure Containerised Platform on OCI",
+          "subtopics": ["Network and security", "Containers and CI/CD", "Data and AI", "Operations"],
+          "tools": ["OKE", "OCI DevOps", "Cloud Guard", "Vault", "WAF", "Full Stack DR", "GoldenGate"],
+          "lab_task": "Build a platform for the case company with hub-and-spoke networking, OKE with CI/CD, WAF and Bastion, Vault, Cloud Guard, a replicated database, an AI feature, autoscaling, observability and DR, then demo a regional switchover.",
+          "deliverable": "Terraform repository, pipelines, dashboards and demo recording",
+          "checks": [["Run the switchover in the demo", "Platform running in the second region", "Demo recording"], ["Deploy through CI/CD", "New version deployed with approval", "Pipeline log"], ["Present the design", "Security and cost choices explained", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Run secure workloads on OCI", "Show recovery"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For cloud architects and senior engineers. Covers landing zones, multicloud with Oracle Database@Azure and interconnects, hybrid and dedicated regions, migration programmes, availability and DR architectures, zero trust security, compliance, FinOps, Kubernetes at scale, serverless architectures, data lakehouse design, AI infrastructure, performance engineering, GitOps automation, observability at scale, ERP workloads, sovereign cloud, troubleshooting and the Architect Professional exam.",
+      "prerequisites": ["Runs production workloads on OCI", "Designs networks, security and DR", "Uses Terraform and CI/CD"],
+      "outcomes": ["Design enterprise, multicloud and sovereign OCI architectures", "Lead migrations of applications, databases and ERP systems", "Secure, govern and optimise cost at scale", "Pass the Architect Professional exam"],
+      "days": [
+        {
+          "topic": "OCI Landing Zones for Enterprise Tenancies",
+          "subtopics": ["Why landing zones", "CIS Landing Zone and Operating Entities landing zone", "Compartment and network design", "Identity and policy foundations", "Security services baseline", "Logging and audit foundations", "Landing zones as code", "Extending landing zones"],
+          "tools": ["OCI Landing Zone Terraform modules", "Resource Manager"],
+          "lab_task": "Deploy a CIS landing zone with Terraform, review its compartments, policies and security services and extend it for a new business unit.",
+          "deliverable": "Landing zone deployment and extension",
+          "checks": [["Run the CIS check", "Landing zone meets the benchmark", "CIS report"], ["Add a business unit", "New compartments and policies from code", "Terraform output"], ["Review logging", "Audit and flow logs centralised", "Logging configuration"]],
+          "objectives": ["Build landing zones", "Apply security baselines", "Extend landing zones"]
+        },
+        {
+          "topic": "Multicloud with Oracle Database@Azure, @AWS and @Google Cloud",
+          "subtopics": ["Multicloud reasons", "Oracle Database@Azure", "Oracle Database@AWS and @Google Cloud", "OCI and Azure Interconnect", "Identity across clouds", "Network design for multicloud", "Operations and support model", "Cost and licensing"],
+          "tools": ["Oracle Database@Azure", "OCI-Azure Interconnect", "Terraform"],
+          "lab_task": "Design a multicloud architecture with an Azure application and Oracle Database@Azure, plan networking and identity and compare cost and latency with keeping everything in one cloud.",
+          "deliverable": "Architecture, network plan and comparison",
+          "checks": [["Review latency", "Expected latency within target", "Design notes"], ["Plan identity", "Single identity approach across clouds", "Identity plan"], ["Compare options", "Cost and risk for each", "Comparison table"]],
+          "objectives": ["Design multicloud architectures", "Use Oracle Database in other clouds", "Weigh trade-offs"]
+        },
+        {
+          "topic": "Hybrid and Dedicated Cloud: Cloud@Customer and Dedicated Region",
+          "subtopics": ["Hybrid needs", "Exadata Cloud@Customer", "Compute Cloud@Customer", "OCI Dedicated Region", "Alloy for partners", "Operations responsibilities", "Data residency", "Choosing a hybrid option"],
+          "tools": ["Cloud@Customer documentation", "Architecture diagrams"],
+          "lab_task": "Choose hybrid options for a bank that must keep data on site, design the operating model and compare costs with public regions.",
+          "deliverable": "Hybrid design, operating model and cost comparison",
+          "checks": [["Choose options", "Choice justified by residency and scale", "Decision record"], ["Define responsibilities", "Customer and Oracle duties listed", "Operating model"], ["Compare costs", "Hybrid and public costs estimated", "Cost table"]],
+          "objectives": ["Design hybrid cloud", "Plan operations", "Compare options"]
+        },
+        {
+          "topic": "Migration Programmes to OCI",
+          "subtopics": ["Migration strategies", "Discovery and assessment", "Oracle Cloud Migrations for VMs", "Zero Downtime Migration for databases", "Application dependencies", "Migration waves", "Testing and cutover", "Optimising after migration"],
+          "tools": ["Oracle Cloud Migrations", "Zero Downtime Migration", "Assessment tools"],
+          "lab_task": "Assess a sample estate, plan waves, migrate two VMware VMs with Oracle Cloud Migrations and a database with ZDM, and run a cutover rehearsal.",
+          "deliverable": "Assessment, wave plan and migration evidence",
+          "checks": [["Migrate VMs", "VMs running on OCI", "Migration report"], ["Migrate the database", "Cutover within the downtime target", "ZDM log"], ["Review the wave plan", "Dependencies respected", "Wave plan"]],
+          "objectives": ["Plan migrations", "Migrate VMs and databases", "Cut over safely"]
+        },
+        {
+          "topic": "High Availability and Disaster Recovery Architectures",
+          "subtopics": ["Availability targets", "Multi-AD and multi-region designs", "Active-passive and active-active", "Data replication choices", "DNS and traffic steering", "Testing failover regularly", "Cost of each design", "Architecture reviews"],
+          "tools": ["OCI Traffic Management", "Full Stack DR", "Data Guard"],
+          "lab_task": "Design active-passive and active-active versions of a payments app across regions, estimate RTO, RPO and cost and test active-active traffic steering.",
+          "deliverable": "Two designs, estimates and test results",
+          "checks": [["Estimate targets", "RTO and RPO for each design", "Design comparison"], ["Test traffic steering", "Traffic shifts on failure", "Test results"], ["Compare cost", "Monthly cost for each", "Cost table"]],
+          "objectives": ["Design for availability", "Compare DR designs", "Test failover"]
+        },
+        {
+          "topic": "Zero Trust Security Architecture on OCI",
+          "subtopics": ["Zero trust principles", "Identity-centred access", "Network segmentation and zero trust packet routing", "Workload identity everywhere", "Encryption by default", "Continuous monitoring", "Security architecture reviews", "Measuring maturity"],
+          "tools": ["OCI IAM", "Zero Trust Packet Routing", "Cloud Guard", "Vault"],
+          "lab_task": "Redesign the platform's security with zero trust: remove network trust between tiers, use workload identities, encrypt with customer keys and monitor continuously, then review maturity.",
+          "deliverable": "Security architecture and maturity review",
+          "checks": [["Test lateral movement", "Blocked between tiers without policy", "Test results"], ["Check for stored keys", "None in code or instances", "Review report"], ["Review maturity", "Level and gaps recorded", "Maturity review"]],
+          "objectives": ["Apply zero trust", "Segment workloads", "Review security maturity"]
+        },
+        {
+          "topic": "Compliance and Audit on OCI",
+          "subtopics": ["Compliance programmes and attestations", "Shared responsibility", "Audit evidence from OCI services", "CIS benchmarks", "Data residency and sovereignty", "PCI DSS and HIPAA on OCI", "Continuous compliance", "Working with auditors"],
+          "tools": ["OCI Audit", "Cloud Guard", "Compliance documents"],
+          "lab_task": "Map PCI DSS requirements to OCI services and controls, collect evidence from audit logs and Cloud Guard and run continuous CIS checks.",
+          "deliverable": "Control mapping, evidence pack and check results",
+          "checks": [["Map requirements", "Each requirement mapped to a control", "Mapping"], ["Collect evidence", "Evidence from OCI services indexed", "Evidence pack"], ["Run CIS checks", "Results tracked over time", "Report"]],
+          "objectives": ["Meet compliance on OCI", "Collect evidence", "Monitor continuously"]
+        },
+        {
+          "topic": "FinOps and Cost Optimisation on OCI",
+          "subtopics": ["Cost drivers on OCI", "Universal Credits and pricing models", "Right-sizing with flexible shapes", "Ampere and burstable instances", "Storage tiers", "Commitments and discounts", "Showback by compartment", "Cost reviews"],
+          "tools": ["Cost Analysis", "Cost reports", "Budgets"],
+          "lab_task": "Analyse a month of costs, right-size instances with flexible shapes, move data to cheaper tiers, plan commitments and report savings by compartment.",
+          "deliverable": "Cost analysis and savings report",
+          "checks": [["Right-size instances", "Lower cost with performance kept", "Metrics"], ["Move storage tiers", "Storage cost reduced", "Cost analysis"], ["Report savings", "Monthly saving by compartment", "Savings report"]],
+          "objectives": ["Optimise OCI cost", "Right-size", "Report by team"]
+        },
+        {
+          "topic": "Kubernetes at Scale on OKE",
+          "subtopics": ["Large clusters", "Multi-tenancy", "Node pool strategies", "Policy enforcement", "Service mesh options", "GitOps for clusters", "Upgrades at scale", "Cost of clusters"],
+          "tools": ["OKE", "Argo CD", "Kyverno or OPA Gatekeeper"],
+          "lab_task": "Run a multi-tenant OKE cluster with policies, GitOps and separate node pools, upgrade it with no downtime and report cost by team.",
+          "deliverable": "Cluster configuration, policies and cost report",
+          "checks": [["Deploy a non-compliant pod", "Rejected by policy", "Event log"], ["Upgrade the cluster", "No downtime", "Client log"], ["Report cost by team", "Cost per namespace", "Cost report"]],
+          "objectives": ["Run Kubernetes at scale", "Enforce policies", "Report cost"]
+        },
+        {
+          "topic": "Serverless and Event-Driven Architectures on OCI",
+          "subtopics": ["Event-driven design", "Functions at scale", "API Gateway patterns", "Streaming and queues together", "Workflows and orchestration", "Error handling and retries", "Observability for serverless", "Cost of serverless"],
+          "tools": ["OCI Functions", "API Gateway", "OCI Streaming", "OCI Queue"],
+          "lab_task": "Build an order pipeline with API Gateway, Functions, Queue and Streaming, handle failures with dead-letter queues and trace requests end to end.",
+          "deliverable": "Architecture, code and traces",
+          "checks": [["Fail a function", "Message sent to the dead-letter queue", "Queue metrics"], ["Trace an order", "Trace across services", "APM trace"], ["Estimate cost", "Cost per thousand orders", "Cost estimate"]],
+          "objectives": ["Design event-driven systems", "Handle failures", "Observe serverless"]
+        },
+        {
+          "topic": "Data Lakehouse on OCI",
+          "subtopics": ["Lakehouse design", "Object storage as the data lake", "Autonomous Data Warehouse", "OCI Data Flow and Spark", "Data Catalog", "Data sharing", "Analytics Cloud for reporting", "Governance"],
+          "tools": ["Autonomous Data Warehouse", "OCI Data Flow", "Data Catalog", "Oracle Analytics Cloud"],
+          "lab_task": "Build a lakehouse with raw data in object storage, Spark transformations in Data Flow, curated tables in Autonomous Data Warehouse, a catalogue and an Analytics Cloud report.",
+          "deliverable": "Lakehouse pipelines, catalogue and report",
+          "checks": [["Run the pipeline", "Curated tables loaded", "Query result"], ["Search the catalogue", "Datasets found with owners", "Catalogue screenshot"], ["Open the report", "Report refreshes from the warehouse", "Screenshot"]],
+          "objectives": ["Build lakehouses on OCI", "Use serverless Spark", "Govern data"]
+        },
+        {
+          "topic": "AI Infrastructure on OCI: GPUs and Clusters",
+          "subtopics": ["GPU shapes", "Cluster networks with RDMA", "Supercluster concepts", "Storage for AI training", "Kubernetes for AI on OKE", "Scheduling GPU work", "Cost of GPU capacity", "Choosing between managed AI and own infrastructure"],
+          "tools": ["OCI GPU shapes", "OKE", "File Storage or Lustre"],
+          "lab_task": "Plan GPU infrastructure for fine-tuning a model, run a small training job on a GPU node in OKE and compare cost with the managed Generative AI service.",
+          "deliverable": "Infrastructure plan, training run and cost comparison",
+          "checks": [["Run training on GPUs", "Job completes on the GPU node", "Job log"], ["Plan storage", "Throughput meets the training needs", "Plan"], ["Compare costs", "Own infrastructure and managed service compared", "Cost table"]],
+          "objectives": ["Plan AI infrastructure", "Run GPU workloads", "Compare cost"]
+        },
+        {
+          "topic": "Performance Engineering on OCI",
+          "subtopics": ["Performance goals", "Compute and network performance", "Storage performance levels", "Database performance", "Load testing", "Caching with OCI Cache", "Content delivery", "Performance regression tests"],
+          "tools": ["Load testing tools", "OCI Cache", "OCI Monitoring"],
+          "lab_task": "Load test the app, tune storage performance levels and instance shapes, add OCI Cache and record each change's effect.",
+          "deliverable": "Load test reports and tuning log",
+          "checks": [["Run the first load test", "Bottleneck found", "Load test report"], ["Add OCI Cache", "Database load and latency lower", "Metrics"], ["Compare final results", "Target throughput met", "Load test report"]],
+          "objectives": ["Tune performance", "Use caching", "Test under load"]
+        },
+        {
+          "topic": "Automation and GitOps for OCI",
+          "subtopics": ["Infrastructure pipelines", "Terraform modules and registries", "Policy as code", "Drift detection", "GitOps for OKE", "Secrets in pipelines", "Promotion between environments", "Self-service templates"],
+          "tools": ["Terraform", "OCI DevOps or GitHub Actions", "Argo CD"],
+          "lab_task": "Build an infrastructure pipeline with plan reviews, policy checks and drift detection, promote changes from test to production and offer a self-service template.",
+          "deliverable": "Pipeline, policies and template",
+          "checks": [["Open a pull request", "Plan and policy checks run", "Pipeline log"], ["Detect drift", "Manual change reported", "Drift report"], ["Use the template", "Environment created by self-service", "Pipeline log"]],
+          "objectives": ["Automate OCI", "Enforce policy as code", "Offer self-service"]
+        },
+        {
+          "topic": "Observability at Enterprise Scale",
+          "subtopics": ["Observability strategy", "Centralised logging across tenancies", "Monitoring many compartments", "SLOs", "Ops Insights for capacity", "Integration with third-party tools", "Alert noise", "Monthly health reviews"],
+          "tools": ["Logging Analytics", "OCI Monitoring", "Ops Insights", "Grafana"],
+          "lab_task": "Centralise logs from three tenancies, define SLOs for key services, connect Grafana and run a monthly health review.",
+          "deliverable": "Logging design, SLOs, dashboards and review notes",
+          "checks": [["Search across tenancies", "Logs from all three found", "Log search"], ["Breach an SLO", "Alert fires", "Notification"], ["Run the review", "Actions agreed", "Review notes"]],
+          "objectives": ["Observe at scale", "Set SLOs", "Run health reviews"]
+        },
+        {
+          "topic": "Running Oracle Applications on OCI: E-Business Suite, JD Edwards and PeopleSoft",
+          "subtopics": ["Why run Oracle applications on OCI", "Reference architectures", "EBS Cloud Manager", "Database tiers on OCI", "High availability and DR for applications", "Patching and cloning", "Integration with Fusion applications", "Cost and licensing"],
+          "tools": ["EBS Cloud Manager", "OCI Database services"],
+          "lab_task": "Design an E-Business Suite deployment on OCI with HA and DR, clone an environment with EBS Cloud Manager and plan patching windows.",
+          "deliverable": "Architecture, clone evidence and patch plan",
+          "checks": [["Review the architecture", "Tiers, HA and DR covered", "Architecture diagram"], ["Clone an environment", "Clone available for testing", "Cloud Manager output"], ["Plan patching", "Windows and steps defined", "Patch plan"]],
+          "objectives": ["Run Oracle applications on OCI", "Design HA and DR", "Manage clones and patches"]
+        },
+        {
+          "topic": "Sovereign Cloud and Data Residency",
+          "subtopics": ["Sovereignty requirements", "EU Sovereign Cloud", "Government regions", "Data residency controls", "Key control and external key management", "Operations by local staff", "Legal considerations", "Designing for sovereignty"],
+          "tools": ["OCI sovereign regions", "External Key Management"],
+          "lab_task": "Design a sovereign deployment for a public sector client with keys held outside OCI, residency controls and local operations, and review it against requirements.",
+          "deliverable": "Sovereign design and review",
+          "checks": [["Hold keys externally", "Data unreadable without the external key", "Test output"], ["Check residency", "Data and backups stay in the region", "Review notes"], ["Review requirements", "Each requirement met or explained", "Review report"]],
+          "objectives": ["Design sovereign cloud", "Control keys", "Keep data resident"]
+        },
+        {
+          "topic": "Troubleshooting Production OCI Issues",
+          "subtopics": ["An incident method for OCI", "Network reachability problems", "Policy and permission errors", "Instance and storage failures", "Database connectivity problems", "Service limits", "Working with Oracle Support", "Post-incident reviews"],
+          "tools": ["Network Path Analyzer", "Audit logs", "Monitoring", "Support portal"],
+          "lab_task": "Diagnose five injected issues (a wrong route, a missing policy, a full boot volume, a hit service limit and a database wallet problem), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the route", "Path Analyzer shows a good path", "Analyzer output"], ["Fix the policy", "Action allowed after the change", "Test result"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose OCI issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "OCI Architect Professional Certification Preparation",
+          "subtopics": ["Exam topics", "Design scenarios", "Migration questions", "Security architecture questions", "Multicloud and hybrid questions", "Cost questions", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "OCI architecture centre"],
+          "lab_task": "Take a timed professional practice exam, discuss scenario answers with a partner, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Discuss scenarios", "Reasons for each answer explained", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Prepare for the professional exam", "Answer design scenarios", "Reach a passing score"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise OCI Architecture",
+          "subtopics": ["Foundations", "Workloads and data", "Resilience and security", "Review"],
+          "tools": ["OCI Landing Zone", "OKE", "Autonomous Database", "Full Stack DR", "Terraform", "Cloud Guard"],
+          "lab_task": "Design and deliver OCI for a case enterprise: a landing zone, multicloud database access, migrated workloads, a lakehouse, zero trust security, FinOps reporting and DR, then run a regional drill and present to an architecture board.",
+          "deliverable": "Architecture records, Terraform code, drill report and board presentation",
+          "checks": [["Run the regional drill", "Services restored within targets", "Drill report"], ["Present cost", "Monthly cost with savings plan", "Presentation"], ["Defend the design", "Board questions answered with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one architecture", "Run OCI at enterprise scale", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "ASP.NET Core",
+  "name": "ASP.NET Core Web Development",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "server-cog",
+  "aliases": ["ASP.NET", "ASP.NET Core MVC", "ASP.NET MVC", "ASP.NET Web API", "ASP.NET Core Web API", ".NET Core Web API", ".NET Web API", "ASP.NET Core Developer", "ASP.NET Developer", "ASP.NET Core Training", "Blazor", "Razor Pages", "Minimal APIs"],
+  "certifications": ["Microsoft Certified: Azure Developer Associate (AZ-204)", "Foundational C# with Microsoft (freeCodeCamp)"],
+  "tools": [".NET SDK", "ASP.NET Core", "Visual Studio", "VS Code with C# Dev Kit", "Entity Framework Core", "Kestrel", "xUnit", "Docker", ".NET Aspire"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For C# developers starting web work on ASP.NET Core. Covers project templates and hosting, the middleware pipeline and routing, minimal APIs, controllers and model binding, dependency injection lifetimes, configuration and options, logging, EF Core per request, validation and ProblemDetails, OpenAPI documents, Razor Pages, MVC views and tag helpers, Blazor components, cookie authentication and Identity, authorization policies, static files and CORS, HttpClientFactory, endpoint tests and publishing to IIS, Linux and containers.",
+      "prerequisites": ["Writes C# classes, methods, LINQ and async/await", "Understands HTTP requests and JSON", "Knows what a relational database is"],
+      "outcomes": ["Build web APIs and server-rendered sites with ASP.NET Core", "Configure the pipeline, dependency injection, data access and security", "Choose between minimal APIs, controllers, Razor Pages, MVC and Blazor", "Test and publish ASP.NET Core applications"],
+      "days": [
+        {
+          "topic": "ASP.NET Core Overview and Project Setup",
+          "subtopics": ["What ASP.NET Core is and where it runs", "Long-term support and standard-term support releases", "Installing the .NET SDK and checking versions", "Project templates: web, webapi, razor, mvc and blazor", "The Program.cs entry point and WebApplication builder", "Kestrel and the development server", "launchSettings and environments", "Hot reload with dotnet watch", "Project files and NuGet packages", "Choosing an editor: Visual Studio, VS Code or Rider"],
+          "tools": [".NET SDK", "dotnet CLI", "Visual Studio or VS Code", "Kestrel"],
+          "lab_task": "Create one project from each main template, run them with dotnet watch, compare their Program.cs files and project files, and switch environments with launch profiles.",
+          "deliverable": "Five template projects with comparison notes",
+          "checks": [["Run with hot reload", "Code change appears without restarting the app", "Screen recording"], ["Switch environments", "Development and Production behave differently as configured", "Terminal output"], ["Compare templates", "Differences in Program.cs explained for each template", "Comparison notes"]],
+          "objectives": ["Explain what ASP.NET Core provides", "Create and run projects from templates", "Use environments and hot reload"]
+        },
+        {
+          "topic": "The Request Pipeline: Hosting, Middleware and Routing",
+          "subtopics": ["How a request moves through Kestrel and middleware", "Use, Map and Run", "Order of built-in middleware", "Endpoint routing", "Route templates and constraints", "The developer exception page", "Short-circuiting the pipeline", "Inspecting the pipeline while debugging"],
+          "tools": ["ASP.NET Core", "Visual Studio debugger"],
+          "lab_task": "Write three inline middleware components that log, time and short-circuit requests, place them in different orders, add routes with constraints and explain each result.",
+          "deliverable": "Pipeline experiments with notes",
+          "checks": [["Change middleware order", "Logged order matches the registration order", "Log output"], ["Use route constraints", "Non-matching values return 404", "Responses"], ["Short-circuit a request", "Request ends before reaching the endpoint", "Log output"]],
+          "objectives": ["Explain the middleware pipeline", "Order middleware correctly", "Define routes with constraints"]
+        },
+        {
+          "topic": "Minimal APIs: Endpoints, Route Groups and Parameter Binding",
+          "subtopics": ["MapGet, MapPost, MapPut and MapDelete", "Parameter binding from route, query, header and body", "Typed results and TypedResults", "Route groups with shared prefixes and filters", "Endpoint metadata such as names and tags", "Built-in validation for minimal APIs", "Organising endpoints in extension methods", "When minimal APIs are the right choice"],
+          "tools": ["ASP.NET Core minimal APIs", "HTTP files"],
+          "lab_task": "Build a minimal API for a to-do service with route groups, typed results, validation and binding from every source, organised into endpoint extension methods.",
+          "deliverable": "Minimal API with an HTTP request file",
+          "checks": [["Bind from each source", "Values from route, query, header and body all bound", "HTTP file results"], ["Send invalid data", "Validation returns a ProblemDetails response", "Response"], ["Use typed results", "OpenAPI shows each possible response type", "OpenAPI document"]],
+          "objectives": ["Build minimal APIs", "Bind parameters correctly", "Organise endpoints"]
+        },
+        {
+          "topic": "Controllers and Model Binding in ASP.NET Core",
+          "subtopics": ["ApiController and ControllerBase", "Attribute routing", "Model binding and binding sources", "Model state and automatic 400 responses", "ActionResult and status codes", "Action filters", "Content negotiation", "Controllers compared with minimal APIs"],
+          "tools": ["ASP.NET Core MVC", "HTTP files"],
+          "lab_task": "Rebuild the to-do service with controllers using attribute routing, binding attributes, model state, an action filter for timing and content negotiation for JSON and XML.",
+          "deliverable": "Controller-based API and a comparison with the minimal version",
+          "checks": [["Trigger model state errors", "Automatic 400 lists each invalid field", "Response"], ["Request XML", "Response returned as XML when asked", "Response headers and body"], ["Compare styles", "Trade-offs of controllers and minimal APIs recorded", "Comparison notes"]],
+          "objectives": ["Build APIs with controllers", "Use model binding and filters", "Choose an API style"]
+        },
+        {
+          "topic": "Dependency Injection Lifetimes and Service Registration",
+          "subtopics": ["The built-in service container", "Singleton, scoped and transient lifetimes", "Captive dependencies", "Registering interfaces and implementations", "Keyed services", "Options and factories as dependencies", "Validating scopes at start-up", "Using services in middleware and endpoints"],
+          "tools": ["Microsoft.Extensions.DependencyInjection", "ASP.NET Core"],
+          "lab_task": "Register services with each lifetime, log instance IDs across requests, reproduce a captive dependency bug, turn on scope validation and fix it, then use keyed services for two payment providers.",
+          "deliverable": "Dependency injection experiments and fixes",
+          "checks": [["Log instance IDs", "Lifetimes behave as expected across requests", "Log output"], ["Find the captive dependency", "Scope validation reports the problem at start-up", "Error output"], ["Use keyed services", "Correct provider chosen by key", "Test output"]],
+          "objectives": ["Register services correctly", "Choose lifetimes", "Avoid lifetime bugs"]
+        },
+        {
+          "topic": "Configuration, Options and Environments in ASP.NET Core",
+          "subtopics": ["Configuration providers and precedence", "appsettings files per environment", "Environment variables and command-line arguments", "User secrets in development", "The options pattern", "Validating options at start-up", "IOptionsSnapshot and IOptionsMonitor", "Feature flags with configuration"],
+          "tools": ["Microsoft.Extensions.Configuration", "User secrets", "ASP.NET Core"],
+          "lab_task": "Bind email and payment settings to typed options with validation, override them with environment variables, store secrets in user secrets and reload a feature flag without restarting.",
+          "deliverable": "Configuration setup with validated options",
+          "checks": [["Start with a missing setting", "App fails at start-up with a clear message", "Terminal output"], ["Override a value", "Environment variable wins over appsettings", "Endpoint output"], ["Reload a flag", "Changed flag takes effect without a restart", "Screen recording"]],
+          "objectives": ["Configure ASP.NET Core apps", "Use and validate options", "Keep secrets out of source control"]
+        },
+        {
+          "topic": "Logging with ILogger and Structured Logs",
+          "subtopics": ["ILogger and log levels", "Message templates and structured values", "Log scopes", "Configuring providers and filters", "Source-generated logging", "HTTP logging middleware", "Writing logs to Seq or files with Serilog", "Not logging sensitive data"],
+          "tools": ["Microsoft.Extensions.Logging", "Serilog", "Seq"],
+          "lab_task": "Add structured logging with message templates and scopes, source-generated log methods for hot paths, HTTP logging with redaction and a Seq sink, then query the logs.",
+          "deliverable": "Logging setup and sample queries",
+          "checks": [["Query structured values", "Logs filtered by order ID in Seq", "Seq screenshot"], ["Use log scopes", "Request ID attached to every log line in a request", "Log sample"], ["Redact data", "Passwords and tokens never logged", "Log search output"]],
+          "objectives": ["Log in a structured way", "Configure logging providers", "Protect sensitive data in logs"]
+        },
+        {
+          "topic": "EF Core with ASP.NET Core: DbContext per Request and Migrations",
+          "subtopics": ["Registering DbContext with dependency injection", "Scoped contexts and request lifetime", "Connection strings per environment", "Migrations from the CLI", "Applying migrations safely at deployment", "DbContext pooling", "Seeding development data", "Avoiding common context mistakes"],
+          "tools": ["Entity Framework Core", "SQL Server or PostgreSQL", "dotnet-ef"],
+          "lab_task": "Add EF Core to the to-do service with a scoped context, migrations, development seed data and context pooling, and fix a bug caused by sharing a context across threads.",
+          "deliverable": "Data access setup with migrations",
+          "checks": [["Apply migrations", "Database schema created from migrations", "Migration output"], ["Fix the threading bug", "No concurrent use exceptions under load", "Load test output"], ["Enable pooling", "Context pooling active with no behaviour change", "Test output"]],
+          "objectives": ["Use EF Core in web apps", "Manage context lifetimes", "Apply migrations safely"]
+        },
+        {
+          "topic": "Validation and ProblemDetails Responses",
+          "subtopics": ["Data annotations", "Built-in validation for minimal APIs", "FluentValidation as an alternative", "IProblemDetailsService", "Validation problem details", "Exception handling middleware and IExceptionHandler", "Status code pages", "Consistent error contracts"],
+          "tools": ["ASP.NET Core", "FluentValidation"],
+          "lab_task": "Validate requests with data annotations and FluentValidation, return RFC-style problem details for every error, handle unhandled exceptions with IExceptionHandler and document the error format.",
+          "deliverable": "Consistent error handling with documentation",
+          "checks": [["Send invalid data", "Validation problem details list each field", "Response"], ["Throw an exception", "Handler returns problem details without a stack trace", "Response"], ["Request a missing route", "Status code page returns problem details", "Response"]],
+          "objectives": ["Validate requests", "Return standard error responses", "Handle exceptions centrally"]
+        },
+        {
+          "topic": "OpenAPI Documents with Microsoft.AspNetCore.OpenApi and Scalar",
+          "subtopics": ["Built-in OpenAPI document generation", "Endpoint metadata for summaries and responses", "Document and operation transformers", "Security schemes in the document", "Scalar or Swagger UI for exploring APIs", "Several documents for several API groups", "Exporting documents at build time", "Generating clients from the document"],
+          "tools": ["Microsoft.AspNetCore.OpenApi", "Scalar", "Kiota or NSwag"],
+          "lab_task": "Generate OpenAPI documents for the to-do service with summaries, responses and a bearer security scheme, explore them in Scalar, export at build time and generate a client.",
+          "deliverable": "OpenAPI documents and a generated client",
+          "checks": [["Read the document", "Every endpoint documented with responses", "OpenAPI file"], ["Use Scalar", "Authorised calls work from the UI", "Screenshot"], ["Generate a client", "Generated client compiles and calls the API", "Client output"]],
+          "objectives": ["Document APIs with OpenAPI", "Customise documents", "Generate API clients"]
+        },
+        {
+          "topic": "Razor Pages for Server-Rendered Sites",
+          "subtopics": ["Pages, page models and handlers", "Razor syntax", "Layouts, partials and sections", "Model binding and validation in forms", "Tag helpers for forms and links", "Post-redirect-get", "Antiforgery tokens", "When Razor Pages fit"],
+          "tools": ["Razor Pages", "Bootstrap"],
+          "lab_task": "Build a Razor Pages site for event listings with a layout, partials, validated create and edit forms with tag helpers, post-redirect-get and antiforgery protection.",
+          "deliverable": "Razor Pages site",
+          "checks": [["Submit an invalid form", "Field errors shown next to inputs", "Screenshot"], ["Refresh after saving", "No duplicate submission thanks to post-redirect-get", "Screen recording"], ["Post without a token", "Request rejected by antiforgery", "Response"]],
+          "objectives": ["Build sites with Razor Pages", "Handle forms safely", "Use layouts and partials"]
+        },
+        {
+          "topic": "MVC Views, Tag Helpers and Layouts",
+          "subtopics": ["The MVC pattern in ASP.NET Core", "Controllers returning views", "Strongly typed views and view models", "Tag helpers and HTML helpers", "View components", "Areas for large sites", "Display and editor templates", "MVC compared with Razor Pages"],
+          "tools": ["ASP.NET Core MVC", "Razor views"],
+          "lab_task": "Build an admin area with MVC controllers and strongly typed views, a view component for a dashboard widget, custom tag helpers and editor templates.",
+          "deliverable": "MVC admin area",
+          "checks": [["Render a view component", "Dashboard widget shows live counts", "Screenshot"], ["Use a custom tag helper", "Tag helper outputs the expected markup", "Page source"], ["Organise with areas", "Admin routes separated in their own area", "Route list"]],
+          "objectives": ["Build MVC applications", "Use view models and view components", "Organise large sites"]
+        },
+        {
+          "topic": "Blazor Components and Render Modes",
+          "subtopics": ["Razor components", "Parameters, events and binding", "Static server rendering", "Interactive server and WebAssembly render modes", "Auto render mode", "Forms with EditForm and validation", "Calling APIs from components", "Choosing a render mode"],
+          "tools": ["Blazor", "ASP.NET Core"],
+          "lab_task": "Build a Blazor event booking page with components and parameters, a validated EditForm, data from the API, and compare static, server and WebAssembly render modes.",
+          "deliverable": "Blazor booking page with render mode notes",
+          "checks": [["Bind a form", "Validation errors shown in the EditForm", "Screenshot"], ["Switch render modes", "Page works in each render mode", "Screen recordings"], ["Compare modes", "Network and start-up differences recorded", "Comparison notes"]],
+          "objectives": ["Build Blazor components", "Use render modes", "Validate Blazor forms"]
+        },
+        {
+          "topic": "Cookie Authentication and ASP.NET Core Identity UI",
+          "subtopics": ["Authentication schemes", "Cookie authentication", "ASP.NET Core Identity stores", "Scaffolding Identity UI", "Password rules and lockout", "Email confirmation", "Signing out and expiry", "Securing cookies"],
+          "tools": ["ASP.NET Core Identity", "Entity Framework Core"],
+          "lab_task": "Add Identity to the Razor Pages site with registration, email confirmation, lockout, password rules and secure cookies, and protect pages for signed-in users.",
+          "deliverable": "Authenticated site",
+          "checks": [["Register and confirm", "Unconfirmed users cannot sign in", "Screenshot"], ["Fail sign-in repeatedly", "Account locked after the limit", "Screenshot"], ["Inspect cookies", "Auth cookie is HttpOnly, Secure and SameSite", "Cookie panel screenshot"]],
+          "objectives": ["Add cookie authentication", "Use ASP.NET Core Identity", "Secure sign-in"]
+        },
+        {
+          "topic": "Authorization Policies, Requirements and Handlers",
+          "subtopics": ["Roles and claims", "Policy-based authorization", "Requirements and handlers", "Resource-based authorization", "Authorizing endpoints, pages and components", "Fallback and default policies", "Showing UI by permission", "Testing authorization rules"],
+          "tools": ["ASP.NET Core authorization", "xUnit"],
+          "lab_task": "Add policies for organisers and admins, a requirement that only event owners may edit, resource-based checks in handlers and a fallback policy that protects every endpoint by default.",
+          "deliverable": "Authorization policies with tests",
+          "checks": [["Edit another owner's event", "Request denied by the resource handler", "Response"], ["Add a new endpoint", "Fallback policy protects it without extra code", "Response"], ["Run authorization tests", "Each policy tested for allowed and denied users", "Test output"]],
+          "objectives": ["Write authorization policies", "Use resource-based checks", "Protect endpoints by default"]
+        },
+        {
+          "topic": "Static Files, CORS and HTTPS Settings",
+          "subtopics": ["Serving static files", "Default files and file providers", "MapStaticAssets and fingerprinting", "CORS policies for browser clients", "HTTPS redirection and HSTS", "Development certificates", "Forwarded headers behind a proxy", "Security headers"],
+          "tools": ["ASP.NET Core", "Browser DevTools"],
+          "lab_task": "Serve static assets with fingerprinting and caching, add a CORS policy for one front-end origin, enable HTTPS redirection and HSTS, and configure forwarded headers behind a proxy.",
+          "deliverable": "Static, CORS and HTTPS configuration",
+          "checks": [["Load static assets", "Fingerprinted assets served with long cache headers", "Response headers"], ["Call from another origin", "Only the allowed origin passes CORS", "Browser console"], ["Run behind a proxy", "App sees the original scheme and client IP", "Log output"]],
+          "objectives": ["Serve static files", "Configure CORS", "Set up HTTPS correctly"]
+        },
+        {
+          "topic": "Calling Other APIs with HttpClientFactory",
+          "subtopics": ["Problems with creating HttpClient directly", "Named and typed clients", "Message handlers", "Timeouts", "Standard resilience handlers", "Authentication headers", "Testing code that uses HttpClient", "Logging outgoing calls"],
+          "tools": ["IHttpClientFactory", "Microsoft.Extensions.Http.Resilience"],
+          "lab_task": "Call a public weather API through a typed client with a message handler for headers, timeouts and the standard resilience handler, and unit-test it with a fake handler.",
+          "deliverable": "Typed HTTP client with tests",
+          "checks": [["Simulate a slow API", "Call stops at the timeout", "Log output"], ["Simulate failures", "Resilience handler retries and then fails clearly", "Test output"], ["Test with a fake handler", "Tests run without network access", "Test output"]],
+          "objectives": ["Call APIs with HttpClientFactory", "Add resilience", "Test HTTP calls"]
+        },
+        {
+          "topic": "Testing ASP.NET Core Endpoints with xUnit and WebApplicationFactory",
+          "subtopics": ["Unit tests for services", "WebApplicationFactory for in-memory hosting", "Replacing services in tests", "Test databases", "Authenticated test requests", "Testing Razor Pages and minimal APIs", "Snapshot tests for responses", "Running tests in CI"],
+          "tools": ["xUnit", "WebApplicationFactory", "Verify"],
+          "lab_task": "Write unit tests for services and in-memory integration tests for the API and Razor Pages with replaced services, a test database and an authenticated test user.",
+          "deliverable": "Test suite with CI job",
+          "checks": [["Run integration tests", "Endpoints tested through the full pipeline", "Test output"], ["Replace a service", "Test swaps the email sender for a fake", "Test output"], ["Authenticate in tests", "Protected endpoints tested as a signed-in user", "Test output"]],
+          "objectives": ["Test ASP.NET Core apps", "Host apps in tests", "Replace services in tests"]
+        },
+        {
+          "topic": "Publishing ASP.NET Core to IIS, Linux and Containers",
+          "subtopics": ["dotnet publish options", "Framework-dependent and self-contained deployments", "Hosting on IIS with the ASP.NET Core Module", "Running on Linux behind NGINX with systemd", "Container images with dotnet publish", "Health check endpoints", "Environment settings in production", "Smoke testing a deployment"],
+          "tools": ["dotnet publish", "IIS", "NGINX", "systemd", "Docker"],
+          "lab_task": "Publish the app to IIS, to a Linux server behind NGINX with systemd and as a container image built by dotnet publish, and smoke test each deployment.",
+          "deliverable": "Three deployments and a deployment guide",
+          "checks": [["Deploy to IIS", "Site runs under the ASP.NET Core Module", "Browser screenshot"], ["Deploy to Linux", "systemd restarts the app after a crash", "systemctl output"], ["Build a container", "Image built by dotnet publish runs the app", "docker run output"]],
+          "objectives": ["Publish ASP.NET Core apps", "Host on IIS, Linux and containers", "Smoke test deployments"]
+        },
+        {
+          "topic": "Beginner Capstone: Event Registration Web App and API",
+          "subtopics": ["Plan", "Build", "Test", "Publish"],
+          "tools": ["ASP.NET Core", "Razor Pages or Blazor", "Minimal APIs", "EF Core", "xUnit", "Docker"],
+          "lab_task": "Build an event registration product with a public site, an admin area, a minimal API, Identity sign-in, authorization policies, validation, tests and a container deployment, then demo it.",
+          "deliverable": "Repository, running deployment and demo recording",
+          "checks": [["Demo the product", "Registration, admin and API flows work end to end", "Demo recording"], ["Run the tests", "Unit and integration tests pass", "Test report"], ["Run the container", "Deployed container serves the site and API", "Screenshot"]],
+          "objectives": ["Combine the beginner topics in one product", "Build a complete ASP.NET Core app", "Publish it"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already build ASP.NET Core applications. Covers custom middleware and endpoint filters, rate limiting and request timeouts, output caching and HybridCache, hosted services and channels, SignalR scale-out, gRPC, token validation and the BFF pattern, Identity endpoints and passkeys, data protection and antiforgery, API versioning, health checks, metrics and tracing, resilience, Blazor forms and state, localisation, large uploads, Kestrel performance, .NET Aspire and OWASP risks.",
+      "prerequisites": ["Has built and deployed an ASP.NET Core API or site", "Comfortable with dependency injection, EF Core and authentication basics", "Writes async C# confidently"],
+      "outcomes": ["Extend the pipeline with middleware, filters, caching and limits", "Build real-time, gRPC and background features", "Secure, observe and tune ASP.NET Core applications", "Run applications with containers and .NET Aspire"],
+      "days": [
+        {
+          "topic": "Advanced Middleware: Custom Middleware, Short-Circuiting and Endpoint Filters",
+          "subtopics": ["Convention-based and factory-based middleware", "Middleware with scoped services", "Endpoint filters for minimal APIs", "Action and result filters for controllers", "Short-circuit routes", "Branching the pipeline", "Middleware for tenancy or correlation", "Testing middleware"],
+          "tools": ["ASP.NET Core", "xUnit"],
+          "lab_task": "Write factory-based middleware for correlation IDs, endpoint filters for validation and auditing, a short-circuit route for health pings and tests for each.",
+          "deliverable": "Middleware and filter library with tests",
+          "checks": [["Use scoped services", "Factory middleware gets a fresh scoped service per request", "Log output"], ["Filter an endpoint", "Endpoint filter rejects bad input before the handler", "Response"], ["Test middleware", "Middleware tested in isolation", "Test output"]],
+          "objectives": ["Write production middleware", "Use endpoint and action filters", "Test pipeline components"]
+        },
+        {
+          "topic": "Rate Limiting and Request Timeouts Middleware",
+          "subtopics": ["The rate limiting middleware", "Fixed window, sliding window, token bucket and concurrency limiters", "Partitioning limits by user or IP", "Rejection responses and retry headers", "Request timeouts middleware", "Cancellation tokens in handlers", "Testing limits", "Limits behind load balancers"],
+          "tools": ["Microsoft.AspNetCore.RateLimiting", "Request timeouts middleware", "k6"],
+          "lab_task": "Add per-user token bucket limits to write endpoints, a concurrency limiter for a slow report, request timeouts with cancellation honoured in EF Core queries and load tests that show each behaviour.",
+          "deliverable": "Limits and timeouts configuration with test results",
+          "checks": [["Exceed a limit", "429 returned with Retry-After", "Response"], ["Time out a request", "Slow query cancelled at the timeout", "Log output"], ["Load test", "Concurrency limiter caps active report requests", "k6 results"]],
+          "objectives": ["Rate-limit ASP.NET Core endpoints", "Apply request timeouts", "Honour cancellation"]
+        },
+        {
+          "topic": "Output Caching, Response Caching and HybridCache",
+          "subtopics": ["Output caching policies", "Tagging and evicting cached output", "Response caching headers", "In-memory and distributed caches", "HybridCache with stampede protection", "Redis as a distributed cache", "Cache keys and vary rules", "Measuring cache benefit"],
+          "tools": ["Output caching middleware", "HybridCache", "Redis"],
+          "lab_task": "Cache public list endpoints with tagged output caching, evict by tag on updates, cache expensive lookups with HybridCache over Redis and measure latency under load.",
+          "deliverable": "Caching configuration with measurements",
+          "checks": [["Evict by tag", "Updated data visible right after eviction", "Test output"], ["Protect against stampedes", "One factory call for many concurrent misses", "Log output"], ["Measure latency", "Cached endpoints faster under load", "Load test results"]],
+          "objectives": ["Use output caching", "Use HybridCache and Redis", "Measure caching gains"]
+        },
+        {
+          "topic": "Background Work: Hosted Services, Channels and Queues",
+          "subtopics": ["IHostedService and BackgroundService", "Scoped services inside background work", "System.Threading.Channels for in-process queues", "Graceful shutdown and cancellation", "Periodic work with PeriodicTimer", "Error handling and restarts", "When to move to an external queue", "Monitoring background work"],
+          "tools": ["BackgroundService", "System.Threading.Channels", "PeriodicTimer"],
+          "lab_task": "Build an in-process email queue with channels and a background service, a periodic clean-up job, scoped database access inside workers and graceful shutdown that drains the queue.",
+          "deliverable": "Background processing module",
+          "checks": [["Queue emails", "Requests return fast while the worker sends emails", "Timing log"], ["Stop the app", "Worker drains the queue before shutdown", "Log output"], ["Fail a job", "Error logged and the worker keeps running", "Log output"]],
+          "objectives": ["Run background work in ASP.NET Core", "Use channels for queues", "Shut down gracefully"]
+        },
+        {
+          "topic": "SignalR Hubs, Groups and Scale-Out",
+          "subtopics": ["Hubs and clients", "Strongly typed hubs", "Groups and users", "Authentication for hub connections", "Sending from outside the hub with IHubContext", "Reconnection and state", "Scale-out with Redis or Azure SignalR Service", "Testing hubs"],
+          "tools": ["ASP.NET Core SignalR", "Redis backplane", "Azure SignalR Service"],
+          "lab_task": "Build a live auction hub with strongly typed clients, groups per auction, authenticated connections and bids sent from background services, then scale to two servers with a Redis backplane.",
+          "deliverable": "Real-time auction feature",
+          "checks": [["Place a bid", "Other bidders see it instantly", "Screen recording"], ["Scale out", "Bids reach clients connected to both servers", "Test output"], ["Connect anonymously", "Hub rejects unauthenticated connections", "Client output"]],
+          "objectives": ["Build SignalR hubs", "Secure connections", "Scale SignalR"]
+        },
+        {
+          "topic": "gRPC Services in ASP.NET Core",
+          "subtopics": ["Protocol Buffers and service contracts", "Unary and streaming calls", "Deadlines and cancellation", "Interceptors", "Authentication with gRPC", "gRPC clients with the client factory", "gRPC-Web and JSON transcoding", "When to choose gRPC over REST"],
+          "tools": ["Grpc.AspNetCore", "Protocol Buffers", "grpcurl"],
+          "lab_task": "Build a pricing gRPC service with unary and server-streaming calls, deadlines, an auth interceptor and JSON transcoding, and call it from another ASP.NET Core app.",
+          "deliverable": "gRPC service, client and comparison notes",
+          "checks": [["Stream prices", "Client receives a stream of updates", "Client output"], ["Enforce a deadline", "Slow call cancelled at the deadline", "Error output"], ["Use transcoding", "Same service callable as JSON over HTTP", "curl output"]],
+          "objectives": ["Build gRPC services", "Use streaming and deadlines", "Choose gRPC or REST"]
+        },
+        {
+          "topic": "Token Validation, OpenID Connect and the BFF Pattern in ASP.NET Core",
+          "subtopics": ["JWT bearer authentication options", "Issuer, audience and signing key validation", "OpenID Connect sign-in for web apps", "Token storage risks in single-page apps", "The backend for frontend pattern", "Token refresh on the server", "Calling downstream APIs on behalf of users", "Testing authentication setups"],
+          "tools": ["Microsoft.AspNetCore.Authentication.JwtBearer", "OpenID Connect handler", "YARP", "Keycloak or Entra ID"],
+          "lab_task": "Protect an API with JWT bearer validation, add OIDC sign-in to a web app, put a single-page app behind a BFF that keeps tokens on the server and call a downstream API on behalf of the user.",
+          "deliverable": "Authentication setup with a BFF",
+          "checks": [["Use a wrong audience", "API rejects the token", "Response"], ["Inspect browser storage", "No access tokens stored in the browser", "Storage inspection"], ["Call downstream", "Downstream API receives the user's identity", "Log output"]],
+          "objectives": ["Validate tokens correctly", "Add OpenID Connect sign-in", "Protect single-page apps with a BFF"]
+        },
+        {
+          "topic": "Identity Endpoints, Two-Factor Authentication and Passkeys",
+          "subtopics": ["Identity API endpoints for SPAs and mobile apps", "Two-factor authentication with authenticator apps", "Recovery codes", "Passkeys and WebAuthn support", "External logins", "Account confirmation and recovery", "Customising Identity stores", "Auditing account events"],
+          "tools": ["ASP.NET Core Identity", "Authenticator apps", "WebAuthn-capable browser"],
+          "lab_task": "Expose Identity endpoints for a mobile client, add authenticator-app two-factor with recovery codes, enable passkey sign-in and audit account events.",
+          "deliverable": "Strong authentication features",
+          "checks": [["Sign in with two-factor", "Code from an authenticator app required", "Screen recording"], ["Sign in with a passkey", "Passkey sign-in succeeds without a password", "Screen recording"], ["Review the audit log", "Sign-in and recovery events recorded", "Audit entries"]],
+          "objectives": ["Add strong authentication", "Support passkeys", "Audit account activity"]
+        },
+        {
+          "topic": "Data Protection, Antiforgery and Secrets",
+          "subtopics": ["The Data Protection API", "Key storage and rotation", "Sharing keys across servers", "Antiforgery for forms and APIs", "Protecting values in cookies and URLs", "Secrets in Azure Key Vault", "Certificates for signing", "Common misconfigurations in web farms"],
+          "tools": ["ASP.NET Core Data Protection", "Azure Key Vault", "Redis or Blob Storage key ring"],
+          "lab_task": "Persist and share data protection keys across two servers, protect a value in a URL, add antiforgery to an API used by a browser client and move secrets to Key Vault.",
+          "deliverable": "Data protection and secrets configuration",
+          "checks": [["Run two servers", "Cookies from one server work on the other", "Screen recording"], ["Tamper with a protected value", "Tampered value rejected", "Response"], ["Read secrets", "Secrets loaded from Key Vault at start-up", "Log output"]],
+          "objectives": ["Use the Data Protection API", "Run safely in web farms", "Manage secrets"]
+        },
+        {
+          "topic": "Versioning Minimal and Controller APIs with Asp.Versioning",
+          "subtopics": ["Why and when to version", "URL, query and header versioning", "Versioning minimal APIs and controllers", "Version sets and deprecation", "OpenAPI documents per version", "Sunset policies", "Breaking change checks", "Communicating changes to clients"],
+          "tools": ["Asp.Versioning", "Microsoft.AspNetCore.OpenApi", "oasdiff"],
+          "lab_task": "Add v1 and v2 of the order endpoints for both minimal APIs and controllers, publish a document per version, deprecate v1 with sunset headers and block breaking changes in CI.",
+          "deliverable": "Versioned API with documents per version",
+          "checks": [["Call both versions", "Each version returns its own contract", "Responses"], ["Deprecate v1", "Deprecation and sunset headers returned", "Response headers"], ["Break v1 in CI", "Contract check fails the build", "CI log"]],
+          "objectives": ["Version ASP.NET Core APIs", "Document each version", "Manage deprecation"]
+        },
+        {
+          "topic": "Health Checks, Readiness and Diagnostics Endpoints",
+          "subtopics": ["Health checks middleware", "Liveness and readiness checks", "Checks for databases, caches and dependencies", "Health check UI and publishers", "Startup checks", "Diagnostics endpoints and their risks", "Health checks in orchestrators", "Testing health checks"],
+          "tools": ["ASP.NET Core health checks", "AspNetCore.Diagnostics.HealthChecks"],
+          "lab_task": "Add liveness and readiness endpoints with checks for the database, Redis and a downstream API, publish results, protect diagnostic endpoints and wire them into Docker health checks.",
+          "deliverable": "Health check configuration",
+          "checks": [["Stop the database", "Readiness fails while liveness stays healthy", "Responses"], ["Protect diagnostics", "Diagnostic endpoint requires authorisation", "Response"], ["Use in Docker", "Container marked unhealthy when readiness fails", "docker ps output"]],
+          "objectives": ["Add health checks", "Separate liveness and readiness", "Protect diagnostic endpoints"]
+        },
+        {
+          "topic": "Metrics, Tracing and Logging for ASP.NET Core Endpoints",
+          "subtopics": ["Built-in ASP.NET Core metrics", "Custom metrics with System.Diagnostics.Metrics", "Distributed tracing with ActivitySource", "OpenTelemetry exporters", "Enriching traces with endpoint data", "Correlating logs and traces", "Dashboards for endpoints", "Sampling"],
+          "tools": ["OpenTelemetry .NET", "Prometheus", "Grafana", "Jaeger or the Aspire dashboard"],
+          "lab_task": "Export ASP.NET Core metrics and traces with OpenTelemetry, add custom business metrics and spans, link logs to traces and build a dashboard of latency and errors per endpoint.",
+          "deliverable": "Telemetry setup and endpoint dashboard",
+          "checks": [["Trace a request", "Trace shows the endpoint, EF Core and HTTP client spans", "Trace screenshot"], ["Add a business metric", "Orders per minute shown on the dashboard", "Dashboard screenshot"], ["Link logs", "Log entries carry trace IDs", "Log sample"]],
+          "objectives": ["Instrument ASP.NET Core apps", "Add custom metrics and spans", "Build endpoint dashboards"]
+        },
+        {
+          "topic": "Resilience with Microsoft.Extensions.Http.Resilience and Polly",
+          "subtopics": ["Transient faults and their causes", "Retries with backoff and jitter", "Circuit breakers", "Timeouts per attempt and overall", "Hedging", "Resilience pipelines outside HTTP", "Telemetry from resilience strategies", "Chaos testing with fault injection"],
+          "tools": ["Microsoft.Extensions.Http.Resilience", "Polly", "Simmy fault injection"],
+          "lab_task": "Build resilience pipelines for two downstream APIs with retries, timeouts, a circuit breaker and hedging, inject faults and read the resilience telemetry.",
+          "deliverable": "Resilience configuration with chaos results",
+          "checks": [["Inject faults", "Retries recover from transient faults", "Test output"], ["Open the breaker", "Calls fail fast while the dependency is down", "Telemetry"], ["Use hedging", "Slow calls answered by the hedged attempt", "Timing results"]],
+          "objectives": ["Make HTTP calls resilient", "Build resilience pipelines", "Test with fault injection"]
+        },
+        {
+          "topic": "Blazor in Depth: Forms, State and Interactivity",
+          "subtopics": ["Component lifecycle", "Cascading values and parameters", "State containers and persistent component state", "Prerendering and state hand-off", "Forms with custom validation", "JavaScript interop", "Streaming rendering and enhanced navigation", "Error boundaries"],
+          "tools": ["Blazor", "ASP.NET Core"],
+          "lab_task": "Build a multi-step Blazor form with custom validation, state persisted across prerendering, a cascading theme, JavaScript interop for a chart and error boundaries.",
+          "deliverable": "Blazor feature with notes on state",
+          "checks": [["Prerender and hydrate", "No duplicate data load after prerendering", "Network log"], ["Validate a step", "Custom validator blocks invalid steps", "Screenshot"], ["Break a component", "Error boundary shows a fallback", "Screenshot"]],
+          "objectives": ["Manage Blazor state", "Build complex Blazor forms", "Use JavaScript interop safely"]
+        },
+        {
+          "topic": "Localisation and Globalisation in ASP.NET Core",
+          "subtopics": ["Cultures and request localisation", "Resource files and IStringLocalizer", "Localising data annotations", "Culture-aware formatting", "Time zones", "Localised routes", "Right-to-left layouts in Razor and Blazor", "Testing localisation"],
+          "tools": ["ASP.NET Core localisation", "Resource files"],
+          "lab_task": "Localise the site and API messages into English, Hindi and Arabic, localise validation messages, format dates and currencies per culture and test right-to-left pages.",
+          "deliverable": "Localised application",
+          "checks": [["Switch culture", "Pages and messages change language", "Screenshots"], ["Localise validation", "Validation messages appear in the selected language", "Screenshot"], ["Use Arabic", "Layout switches to right-to-left", "Screenshot"]],
+          "objectives": ["Localise ASP.NET Core apps", "Format culture-specific data", "Support right-to-left"]
+        },
+        {
+          "topic": "File Handling: Large Uploads, Streaming and Range Requests",
+          "subtopics": ["Buffered and streamed uploads", "Request size limits", "MultipartReader for large files", "Validating content type and signatures", "Uploading to Blob Storage", "Range requests for downloads and video", "Streaming responses", "Cleaning up temporary files"],
+          "tools": ["ASP.NET Core", "Azure Blob Storage or Azurite"],
+          "lab_task": "Accept multi-gigabyte uploads with streaming and MultipartReader, validate file signatures, store files in Blob Storage, serve video with range requests and stream large exports.",
+          "deliverable": "File handling endpoints",
+          "checks": [["Upload a large file", "Memory stays flat during the upload", "Memory graph"], ["Upload a disguised file", "File with a fake extension rejected", "Response"], ["Seek in a video", "Range requests return partial content", "Response headers"]],
+          "objectives": ["Handle large files", "Validate uploads", "Stream downloads"]
+        },
+        {
+          "topic": "Performance: Kestrel Tuning, Pooling and Benchmarks",
+          "subtopics": ["Measuring with load tests", "Kestrel limits and options", "Response compression", "Object and array pooling", "Avoiding allocations in hot paths", "JSON serialisation options and source generation", "Async mistakes that cost throughput", "Benchmarking with BenchmarkDotNet"],
+          "tools": ["Kestrel", "BenchmarkDotNet", "k6", "dotnet-counters"],
+          "lab_task": "Load test a hot endpoint, remove allocations with pooling and source-generated JSON, fix a sync-over-async call, tune Kestrel and compression and prove the gains.",
+          "deliverable": "Performance report with before and after results",
+          "checks": [["Benchmark serialisation", "Source-generated JSON faster with fewer allocations", "BenchmarkDotNet results"], ["Fix sync-over-async", "Thread pool starvation gone under load", "dotnet-counters output"], ["Load test", "Throughput higher at the same latency", "k6 results"]],
+          "objectives": ["Measure ASP.NET Core performance", "Reduce allocations", "Tune Kestrel"]
+        },
+        {
+          "topic": "Containers and .NET Aspire for ASP.NET Core Apps",
+          "subtopics": ["Container images with dotnet publish", "Chiseled and distroless base images", "Multi-container development", ".NET Aspire app host and service defaults", "Service discovery in Aspire", "The Aspire dashboard", "Deploying Aspire apps", "Configuration and secrets in containers"],
+          "tools": ["Docker", ".NET Aspire", "Azure Container Apps"],
+          "lab_task": "Containerise the API and site with small images, orchestrate them with Redis and PostgreSQL using .NET Aspire, use service discovery and the dashboard, and deploy to Azure Container Apps.",
+          "deliverable": "Aspire solution with deployment",
+          "checks": [["Shrink images", "Chiseled images smaller than the default", "Image sizes"], ["Use the dashboard", "Logs, traces and metrics for every resource visible", "Dashboard screenshot"], ["Deploy", "App running in Azure Container Apps", "Browser screenshot"]],
+          "objectives": ["Containerise ASP.NET Core apps", "Orchestrate with .NET Aspire", "Deploy container apps"]
+        },
+        {
+          "topic": "Securing ASP.NET Core Apps Against the OWASP Top 10",
+          "subtopics": ["Broken access control in pages and APIs", "Injection with raw SQL and EF Core", "Cross-site scripting in Razor and Blazor", "Server-side request forgery", "Security misconfiguration and headers", "Vulnerable NuGet packages", "Logging and monitoring failures", "Security testing in CI"],
+          "tools": ["OWASP ZAP", "dotnet list package --vulnerable", "Security Code Scan or Roslyn analyzers"],
+          "lab_task": "Find and fix planted issues: an IDOR, raw SQL injection, unsafe Html.Raw, an SSRF and missing headers, then scan packages and run ZAP in CI.",
+          "deliverable": "Security fixes and scan reports",
+          "checks": [["Fix the IDOR", "Users cannot open others' records", "Test output"], ["Remove XSS", "Script input rendered as text", "Test output"], ["Run ZAP in CI", "No high-risk findings remain", "ZAP report"]],
+          "objectives": ["Find OWASP risks in ASP.NET Core", "Fix them", "Automate security checks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production API and Blazor Admin Portal",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["ASP.NET Core", "Blazor", "SignalR", "Redis", "OpenTelemetry", ".NET Aspire"],
+          "lab_task": "Build a production-style API with versioning, rate limits, caching, background work and resilience, plus a Blazor admin portal with strong authentication and live updates, then present it with telemetry.",
+          "deliverable": "Repository, deployment, reports and presentation",
+          "checks": [["Demo the product", "API and admin portal work end to end with live updates", "Demo recording"], ["Show quality", "Security, performance and test reports meet targets", "Reports"], ["Defend choices", "Pipeline, caching and security choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one product", "Ship a production ASP.NET Core app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior ASP.NET Core engineers and technical leads. Covers hosting and Kestrel internals, routing internals and endpoint metadata, source generators and AOT-safe APIs, multi-tenancy, YARP and gateway patterns, advanced authorization, zero-downtime deployments, distributed sessions and caching, large-scale SignalR, Blazor at scale, certificate and token exchange security, abuse protection, testing strategy, production diagnostics, migration from MVC 5 and Web API 2, hosting at scale, API governance, AI features and incident troubleshooting.",
+      "prerequisites": ["Several years building production ASP.NET Core applications", "Strong C#, EF Core and security knowledge", "Has deployed and operated ASP.NET Core in production"],
+      "outcomes": ["Explain and extend ASP.NET Core internals", "Architect multi-tenant, secure and scalable ASP.NET Core platforms", "Diagnose and fix deep production problems", "Lead migrations and API platform decisions"],
+      "days": [
+        {
+          "topic": "ASP.NET Core Internals: Hosting, Kestrel and the Request Pipeline",
+          "subtopics": ["The generic host and WebApplication", "Kestrel connection handling and transports", "HttpContext and features", "How middleware is composed", "Server-sent events and HTTP/2 and HTTP/3 support", "Request body reading and pipes", "Reading the ASP.NET Core source", "Writing a custom server feature"],
+          "tools": ["ASP.NET Core source code", "Visual Studio debugger", "dotnet-trace"],
+          "lab_task": "Step through a request from Kestrel to an endpoint, inspect features on HttpContext, read a request body with pipes and enable HTTP/3, explaining each layer.",
+          "deliverable": "Internals notebook",
+          "checks": [["Trace a request", "Each layer from connection to endpoint identified", "Debugger notes"], ["Read with pipes", "Large body parsed with low allocations", "Benchmark results"], ["Enable HTTP/3", "Browser connects over HTTP/3", "DevTools protocol column"]],
+          "objectives": ["Explain ASP.NET Core hosting", "Work with features and pipes", "Use modern HTTP protocols"]
+        },
+        {
+          "topic": "Routing Internals and Endpoint Metadata",
+          "subtopics": ["Route matching and the DFA matcher", "Endpoint data sources", "Metadata and conventions", "Custom route constraints and parameter transformers", "Link generation", "Dynamic endpoints", "Endpoint selection policies", "Debugging routing"],
+          "tools": ["ASP.NET Core routing", "Route debugging tools"],
+          "lab_task": "Build a dynamic endpoint data source from configuration, a custom constraint and transformer, attach metadata used by middleware and debug an ambiguous match.",
+          "deliverable": "Routing extensions with notes",
+          "checks": [["Add endpoints at runtime", "Configured endpoints appear without code changes", "Route list"], ["Use metadata", "Middleware reads endpoint metadata to apply a rule", "Log output"], ["Fix ambiguity", "Ambiguous match resolved with the cause explained", "Notes"]],
+          "objectives": ["Understand routing internals", "Extend routing", "Debug route matching"]
+        },
+        {
+          "topic": "Source Generators, Request Delegate Generation and AOT-Safe APIs",
+          "subtopics": ["Why reflection limits AOT and trimming", "Request delegate generation for minimal APIs", "System.Text.Json source generation", "Configuration binding source generation", "Logging source generation", "Trimming and AOT warnings", "Writing a simple source generator", "When AOT is worth it"],
+          "tools": [".NET source generators", "Native AOT", "BenchmarkDotNet"],
+          "lab_task": "Make an API AOT-safe with request delegate generation, JSON and configuration binding generators, fix trimming warnings, write a small generator and compare start-up and memory.",
+          "deliverable": "AOT-safe API and generator",
+          "checks": [["Publish with AOT", "No trimming or AOT warnings", "Publish output"], ["Write a generator", "Generator produces the expected code at build", "Generated source"], ["Compare start-up", "Start-up time and memory compared with JIT", "Measurements"]],
+          "objectives": ["Build AOT-safe APIs", "Use and write source generators", "Decide when to use AOT"]
+        },
+        {
+          "topic": "Multi-Tenant ASP.NET Core Applications",
+          "subtopics": ["Tenancy models", "Resolving tenants from hosts, paths or tokens", "Tenant-scoped services and options", "Tenant-aware EF Core contexts", "Per-tenant authentication settings", "Tenant isolation in caches and background jobs", "Onboarding automation", "Isolation testing"],
+          "tools": ["ASP.NET Core", "EF Core", "Finbuckle.MultiTenant or a custom resolver"],
+          "lab_task": "Make the platform multi-tenant with host-based resolution, tenant-scoped options and EF Core contexts, per-tenant sign-in settings and tenant-aware caching, and prove isolation.",
+          "deliverable": "Multi-tenant platform with isolation tests",
+          "checks": [["Test isolation", "No cross-tenant data in pages, APIs or jobs", "Test output"], ["Configure sign-in per tenant", "Each tenant signs in with its own identity provider", "Screen recordings"], ["Onboard a tenant", "New tenant ready automatically", "Onboarding log"]],
+          "objectives": ["Design multi-tenant ASP.NET Core apps", "Scope services per tenant", "Prove tenant isolation"]
+        },
+        {
+          "topic": "YARP Reverse Proxy and API Gateway Patterns",
+          "subtopics": ["YARP routes and clusters", "Load balancing and health checks", "Request and response transforms", "Authentication and authorisation at the gateway", "Rate limiting and caching at the gateway", "Backends for frontends with YARP", "Strangler migrations through a proxy", "Operating a gateway"],
+          "tools": ["YARP", "ASP.NET Core", "k6"],
+          "lab_task": "Build a YARP gateway with routes to three services, health-based load balancing, header transforms, token checks and rate limits, and use it to strangle an old endpoint.",
+          "deliverable": "Gateway configuration and runbook",
+          "checks": [["Fail a backend", "Traffic moves to healthy destinations", "Load test output"], ["Check at the gateway", "Requests without tokens stopped at the gateway", "Gateway log"], ["Strangle an endpoint", "Old endpoint replaced without client changes", "Request log"]],
+          "objectives": ["Build gateways with YARP", "Apply cross-cutting rules at the edge", "Migrate through a proxy"]
+        },
+        {
+          "topic": "Advanced Authorization: Resource-Based Rules, Policy Providers and External Policy Engines",
+          "subtopics": ["Custom policy providers", "Dynamic policies from data", "Resource-based authorization at scale", "Attribute-based access control", "External engines such as OPA or OpenFGA", "Authorization in background jobs", "Auditing authorization decisions", "Testing complex rules"],
+          "tools": ["ASP.NET Core authorization", "OpenFGA or Open Policy Agent", "xUnit"],
+          "lab_task": "Implement relationship-based access for shared documents with OpenFGA, a dynamic policy provider for permissions stored in data, audit every decision and test the rules.",
+          "deliverable": "Authorization design with tests",
+          "checks": [["Share a document", "Shared users gain access and others do not", "Test output"], ["Change a permission", "New rule applies without redeploying", "Test output"], ["Audit decisions", "Allow and deny decisions recorded with reasons", "Audit log"]],
+          "objectives": ["Design complex authorization", "Use external policy engines", "Audit decisions"]
+        },
+        {
+          "topic": "Zero-Downtime Deployments and Database Changes for ASP.NET Core",
+          "subtopics": ["Rolling, blue-green and slot deployments", "Graceful shutdown and connection draining", "Backward-compatible EF Core migrations", "Expand and contract changes", "Migration bundles in pipelines", "Feature flags with Microsoft.FeatureManagement", "Version skew between instances", "Rollback plans"],
+          "tools": ["EF Core migration bundles", "Microsoft.FeatureManagement", "Azure App Service slots or Kubernetes"],
+          "lab_task": "Ship a column rename with expand and contract migrations, deploy with slots or rolling updates while load testing, hide the new behaviour behind a flag and roll back once.",
+          "deliverable": "Release plan and results",
+          "checks": [["Deploy under load", "No failed requests during deployment", "k6 results"], ["Run old and new together", "Both versions work during the rollout", "Test output"], ["Roll back", "Previous version restored without data loss", "Deployment log"]],
+          "objectives": ["Deploy without downtime", "Change schemas safely", "Release with feature flags"]
+        },
+        {
+          "topic": "Distributed Caching and Session State at Scale",
+          "subtopics": ["Session state and its costs", "Distributed session providers", "Cache topologies with Redis", "Cache consistency and invalidation messages", "Large values and serialisation", "Hot keys and partitioning", "Cache failures and fallbacks", "Monitoring caches"],
+          "tools": ["Redis", "HybridCache", "StackExchange.Redis"],
+          "lab_task": "Move session state to Redis, design cache keys and invalidation messages for a busy catalogue, handle a Redis outage with fallbacks and monitor hit rates and hot keys.",
+          "deliverable": "Caching and session architecture with test results",
+          "checks": [["Survive a cache outage", "Site keeps working with higher latency", "Load test results"], ["Invalidate across servers", "Changes visible on all servers within a second", "Test output"], ["Find hot keys", "Hot keys identified from monitoring", "Redis metrics"]],
+          "objectives": ["Design distributed caching", "Manage session state", "Survive cache failures"]
+        },
+        {
+          "topic": "Large-Scale SignalR with Azure SignalR Service",
+          "subtopics": ["Connection limits and scale units", "Serverless and default modes", "Sticky sessions and transports", "Message size and frequency limits", "Broadcasting efficiently to large groups", "Back-pressure for slow clients", "Monitoring connections and messages", "Load testing real-time systems"],
+          "tools": ["Azure SignalR Service", "ASP.NET Core SignalR", "Crankier or k6 WebSocket tests"],
+          "lab_task": "Load test a live scoreboard with 50,000 simulated connections on Azure SignalR Service, tune message batching and group design and record cost and latency.",
+          "deliverable": "Real-time scale test report",
+          "checks": [["Hold connections", "50,000 connections held at the target latency", "Load test report"], ["Tune messages", "Message volume reduced with batching", "Metrics comparison"], ["Estimate cost", "Monthly cost at the tested load calculated", "Cost estimate"]],
+          "objectives": ["Scale SignalR", "Design real-time messaging", "Load test real-time systems"]
+        },
+        {
+          "topic": "Advanced Blazor: Component Libraries, Render Mode Strategy and Performance",
+          "subtopics": ["Render mode strategy for large apps", "Building a Razor class library of components", "Virtualisation for large lists", "Reducing re-renders", "WebAssembly size and lazy loading", "Authentication across render modes", "Testing components with bUnit", "Blazor performance profiling"],
+          "tools": ["Blazor", "bUnit", "Razor class libraries"],
+          "lab_task": "Build a reusable component library, choose render modes per page for a large app, virtualise a 100,000-row grid, lazy-load WebAssembly assemblies and test components with bUnit.",
+          "deliverable": "Component library and render mode plan",
+          "checks": [["Virtualise the grid", "Scrolling stays smooth with 100,000 rows", "Performance trace"], ["Lazy-load assemblies", "Initial download smaller", "Network log"], ["Test with bUnit", "Component tests pass", "Test output"]],
+          "objectives": ["Architect large Blazor apps", "Build component libraries", "Tune Blazor performance"]
+        },
+        {
+          "topic": "Securing APIs: mTLS, Certificate Authentication and Token Exchange",
+          "subtopics": ["Certificate authentication in ASP.NET Core", "mTLS behind proxies and load balancers", "Proof-of-possession and sender-constrained tokens", "Token exchange for downstream calls", "Workload identities", "Key rotation", "Threat modelling an API platform", "Penetration test findings and fixes"],
+          "tools": ["ASP.NET Core certificate authentication", "Duende IdentityServer or Keycloak", "Microsoft Threat Modeling Tool"],
+          "lab_task": "Require client certificates for a partner API behind a proxy, exchange user tokens for downstream service tokens, rotate keys and threat model the platform.",
+          "deliverable": "Threat model and hardened API configuration",
+          "checks": [["Call without a certificate", "Partner request refused", "Response"], ["Exchange a token", "Downstream service gets a scoped token for the user", "Log output"], ["Rotate keys", "Keys rotated with no failed requests", "Availability log"]],
+          "objectives": ["Secure partner APIs with mTLS", "Use token exchange", "Threat model API platforms"]
+        },
+        {
+          "topic": "Rate Limiting and Abuse Protection at Scale",
+          "subtopics": ["Distributed rate limiting with Redis", "Limits per tenant, user, key and endpoint", "Bot and scraping detection", "Credential stuffing defences", "Edge protection with WAF and CDNs", "Quotas and billing data", "Communicating limits to clients", "Monitoring abuse"],
+          "tools": ["Redis", "ASP.NET Core rate limiting", "Azure Front Door or Cloudflare WAF"],
+          "lab_task": "Implement distributed per-tenant quotas with Redis, protect sign-in against credential stuffing, add edge WAF rules and dashboards that show abuse attempts.",
+          "deliverable": "Abuse protection design and dashboards",
+          "checks": [["Exceed a tenant quota", "Requests limited across all servers", "Test output"], ["Simulate credential stuffing", "Attack slowed and alerted", "Alert notification"], ["Block at the edge", "WAF stops the malicious pattern before the app", "WAF log"]],
+          "objectives": ["Rate-limit at scale", "Defend against abuse", "Monitor attacks"]
+        },
+        {
+          "topic": "Testing Strategy for ASP.NET Core Platforms",
+          "subtopics": ["Risk-based test strategy", "Unit, integration, contract and end-to-end tests", "Testcontainers for real dependencies", "Contract tests with Pact", "Snapshot tests with Verify", "Load and soak tests", "Mutation testing with Stryker.NET", "Quality gates in pipelines"],
+          "tools": ["xUnit", "Testcontainers", "Pact", "Verify", "Stryker.NET", "k6"],
+          "lab_task": "Assess a platform's tests, add contract and snapshot tests, run a soak test, measure mutation score on core logic and set quality gates in the pipeline.",
+          "deliverable": "Test strategy and quality gate configuration",
+          "checks": [["Break a contract", "Contract test fails before deployment", "CI log"], ["Run a soak test", "No memory growth over two hours", "Soak test report"], ["Measure mutation score", "Score reported for core modules", "Stryker report"]],
+          "objectives": ["Design test strategies", "Test with real dependencies", "Gate releases on quality"]
+        },
+        {
+          "topic": "Production Diagnostics with dotnet-counters, dotnet-trace and Dumps",
+          "subtopics": ["Diagnostics tools and when to use each", "EventPipe and runtime counters", "CPU traces and flame graphs", "Memory dumps and heap analysis", "Thread pool starvation and lock contention", "Diagnostics in containers", "dotnet-monitor for collection on demand", "Safe collection in production"],
+          "tools": ["dotnet-counters", "dotnet-trace", "dotnet-dump", "dotnet-monitor", "PerfView"],
+          "lab_task": "Collect counters, traces and dumps from a containerised app with dotnet-monitor, find a CPU hot path, a memory leak and lock contention, and fix each.",
+          "deliverable": "Diagnostics runbook and fixes",
+          "checks": [["Find the hot path", "CPU hot path identified in the trace", "Flame graph"], ["Find the leak", "Leaking type identified from the dump", "Heap analysis output"], ["Fix contention", "Lock contention gone after the fix", "Counter comparison"]],
+          "objectives": ["Diagnose production problems", "Use .NET diagnostics tools", "Collect data safely"]
+        },
+        {
+          "topic": "Migrating from ASP.NET MVC 5 and Web API 2 to ASP.NET Core",
+          "subtopics": ["Assessing .NET Framework web apps", "The .NET Upgrade Assistant", "Incremental migration with System.Web adapters", "Shared session and authentication during migration", "Replacing HTTP modules and handlers with middleware", "Moving from Web API 2 to minimal APIs or controllers", "Configuration and dependency injection changes", "Planning and tracking migration"],
+          "tools": [".NET Upgrade Assistant", "System.Web adapters", "YARP"],
+          "lab_task": "Migrate part of an MVC 5 and Web API 2 app incrementally behind YARP with shared authentication, replace an HTTP module with middleware and plan the remaining work.",
+          "deliverable": "Partly migrated application and plan",
+          "checks": [["Run side by side", "Users move between old and new pages with one sign-in", "Screen recording"], ["Replace a module", "Middleware reproduces the module's behaviour", "Test output"], ["Plan the rest", "Plan lists features, risks and order", "Migration plan"]],
+          "objectives": ["Assess legacy ASP.NET apps", "Migrate incrementally", "Plan modernisation"]
+        },
+        {
+          "topic": "Hosting at Scale: Kubernetes, Container Apps and IIS Farms",
+          "subtopics": ["Hosting options compared for large estates", "Kubernetes deployments for ASP.NET Core", "Azure Container Apps for simpler operations", "IIS farms and Application Request Routing", "Autoscaling signals", "Configuration and secrets per platform", "Cost and operations effort", "Choosing a platform"],
+          "tools": ["Kubernetes", "Azure Container Apps", "IIS", "KEDA"],
+          "lab_task": "Run the same app on Kubernetes and Container Apps with autoscaling, compare operations effort and cost with an IIS farm and write a hosting recommendation.",
+          "deliverable": "Hosting comparison and recommendation",
+          "checks": [["Autoscale", "Both platforms scale with load", "Scaling metrics"], ["Compare effort", "Operations tasks and cost compared", "Comparison table"], ["Recommend", "Recommendation covers cost, risk and skills", "Recommendation document"]],
+          "objectives": ["Compare hosting platforms", "Autoscale ASP.NET Core", "Recommend hosting"]
+        },
+        {
+          "topic": "API Platform Governance: Contracts, Deprecation and Developer Portals",
+          "subtopics": ["API design guidelines for many teams", "OpenAPI linting", "Breaking change detection", "Deprecation and sunset policies", "Developer portals and onboarding", "API keys, products and plans", "Usage analytics", "Review boards for new APIs"],
+          "tools": ["Spectral", "oasdiff", "Azure API Management or Backstage"],
+          "lab_task": "Write API guidelines as linting rules, publish APIs in a developer portal with products and keys, deprecate an endpoint with a sunset plan and report usage per consumer.",
+          "deliverable": "Governance rules and developer portal",
+          "checks": [["Lint documents", "Guideline rules pass for every API", "Lint output"], ["Publish in a portal", "Consumers find, subscribe and call an API", "Portal screenshot"], ["Report usage", "Calls per consumer reported", "Usage report"]],
+          "objectives": ["Govern API platforms", "Run developer portals", "Manage deprecation"]
+        },
+        {
+          "topic": "AI Features in ASP.NET Core with Microsoft.Extensions.AI",
+          "subtopics": ["Microsoft.Extensions.AI abstractions", "Chat clients for Azure OpenAI, OpenAI and local models", "Streaming responses to browsers", "Tool calling with .NET functions", "Retrieval with vector stores", "Middleware for logging, caching and rate limits on AI calls", "Safety and content filtering", "Evaluating AI features"],
+          "tools": ["Microsoft.Extensions.AI", "Azure OpenAI or Ollama", "Vector store"],
+          "lab_task": "Add a help assistant that streams answers, calls .NET functions for order data, grounds answers in documents from a vector store and logs cost per request.",
+          "deliverable": "AI feature with evaluation notes",
+          "checks": [["Stream answers", "Answer streams to the page", "Screen recording"], ["Call a function", "Assistant returns real order data through a tool", "Conversation log"], ["Track cost", "Cost per request reported", "Cost report"]],
+          "objectives": ["Add AI features to ASP.NET Core", "Use tools and retrieval", "Control AI cost and risk"]
+        },
+        {
+          "topic": "Troubleshooting Production ASP.NET Core Incidents",
+          "subtopics": ["Incident triage for web platforms", "Thread pool starvation", "Slow endpoints from database problems", "Memory growth and high GC time", "Socket exhaustion and HttpClient misuse", "Errors after deployments", "Evidence collection without making things worse", "Post-incident reviews"],
+          "tools": ["dotnet-monitor", "Application Insights or OpenTelemetry", "SQL Server Query Store"],
+          "lab_task": "Work through four incidents: thread pool starvation, socket exhaustion, a slow query after a release and memory growth, restore service and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by traces, dumps or plans", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot ASP.NET Core in production", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant API Platform on ASP.NET Core",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["ASP.NET Core", "YARP", "EF Core", "Redis", "OpenTelemetry", "Kubernetes or Azure Container Apps"],
+          "lab_task": "Design and build a multi-tenant API platform with a YARP gateway, advanced authorization, mTLS partner access, distributed quotas, AOT-safe services, zero-downtime releases and diagnostics runbooks, then defend it to a review panel.",
+          "deliverable": "Platform repository, runbooks and architecture defence",
+          "checks": [["Prove isolation", "No cross-tenant data in tests", "Test report"], ["Deploy under load", "Release completes with no failed requests", "Load test report"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect ASP.NET Core platforms", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}
