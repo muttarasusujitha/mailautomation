@@ -113,7 +113,7 @@
           "objectives": ["Organise code into packages", "Manage dependencies with modules", "Control visibility"]
         },
         {
-          "topic": "Reading and Writing Files",
+          "topic": "Reading and Writing Files in Go",
           "subtopics": ["os.Open and os.Create", "bufio for line reading", "io.Copy and io.Reader composition", "os.ReadFile and os.WriteFile", "Working with paths with path/filepath", "Walking directories", "encoding/csv", "Closing files with defer"],
           "tools": ["Go 1.23"],
           "lab_task": "Write a tool that reads every CSV file in a folder, validates rows, writes valid rows to one combined file and invalid rows with the reason to an errors file.",

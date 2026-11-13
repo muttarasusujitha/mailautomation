@@ -1,0 +1,573 @@
+{
+  "domain": "Apache Spark",
+  "name": "Apache Spark",
+  "category": "Data Engineering and Analytics",
+  "icon": "zap",
+  "aliases": ["Spark", "PySpark", "Apache Spark with Python", "Spark SQL", "Spark Structured Streaming", "Spark Developer", "Spark Training", "PySpark Training"],
+  "certifications": ["Databricks Certified Associate Developer for Apache Spark", "Databricks Certified Data Engineer Associate", "Cloudera Data Platform Generalist"],
+  "tools": ["Apache Spark 3.5 or 4.0", "PySpark", "Spark SQL", "Jupyter", "Spark UI", "Delta Lake", "Docker", "Databricks Free Edition or a local cluster"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For data engineers, analysts and developers new to Spark. Covers Spark architecture, set-up, RDDs, DataFrames, reading and writing data, selecting and filtering, column functions, aggregations, joins, window functions, Spark SQL, missing and messy data, nested data, user-defined functions, partitions, caching, the Spark UI, Parquet and Delta, a first streaming job and submitting applications.",
+      "prerequisites": ["Writes Python and SQL with joins and GROUP BY", "Comfortable on the command line", "Knows basic data formats such as CSV and JSON"],
+      "outcomes": ["Explain how Spark runs work across a cluster", "Load, clean, join and aggregate large data with DataFrames and Spark SQL", "Store data efficiently in Parquet and Delta", "Read the Spark UI and run Spark applications"],
+      "days": [
+        {
+          "topic": "Apache Spark Overview, Architecture and Local Setup",
+          "subtopics": ["Why Spark: data too large for one machine", "Spark compared with pandas, Hadoop MapReduce and SQL warehouses", "Driver, executors and the cluster manager", "SparkSession", "Local mode, standalone, YARN and Kubernetes", "Installing PySpark locally and with Docker", "Notebooks with Jupyter and Databricks Free Edition", "Spark versions and Spark Connect", "The course datasets: taxi trips and retail orders", "Running a first job"],
+          "tools": ["PySpark", "Docker", "Jupyter", "Databricks Free Edition"],
+          "lab_task": "Install PySpark locally and in Docker, start a SparkSession, read the taxi trip data, count rows and open the Spark UI to find the job, stages and tasks it ran.",
+          "deliverable": "Set-up notes, notebook and Spark UI screenshots",
+          "checks": [["Count the taxi trips", "Row count matches the source", "Notebook output"], ["Open the Spark UI", "Job, stages and tasks visible", "Screenshot"], ["Explain driver and executors", "Roles described correctly", "Written note"]],
+          "objectives": ["Describe Spark architecture", "Set up Spark", "Run a first job"]
+        },
+        {
+          "topic": "RDDs, Transformations and Actions",
+          "subtopics": ["Resilient distributed datasets", "Creating RDDs", "map, filter and flatMap", "reduceByKey and groupByKey", "Actions: collect, count, take and reduce", "Lazy evaluation", "Lineage and fault tolerance", "When to use RDDs today"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Count words in a large text corpus with RDDs, compare reduceByKey and groupByKey in the Spark UI and show that nothing runs until an action is called.",
+          "deliverable": "Notebook and Spark UI comparison",
+          "checks": [["Run transformations without an action", "No job in the Spark UI", "Screenshot"], ["Compare reduceByKey and groupByKey", "Less shuffle data with reduceByKey", "Spark UI stage metrics"], ["Explain lineage", "Recovery from a lost partition described", "Written note"]],
+          "objectives": ["Use RDD operations", "Understand lazy evaluation", "Know when RDDs fit"]
+        },
+        {
+          "topic": "DataFrames and Schemas",
+          "subtopics": ["DataFrames compared with RDDs", "Creating DataFrames", "Schemas: inferred and explicit", "StructType and data types", "printSchema and describe", "show, head and limit", "Converting to and from pandas", "The Catalyst optimiser in brief"],
+          "tools": ["PySpark"],
+          "lab_task": "Load orders with an inferred and an explicit schema, compare load time and types, fix a column inferred as a string and convert a small summary to pandas.",
+          "deliverable": "Notebook with both schemas and timings",
+          "checks": [["Compare load times", "Explicit schema faster", "Timing output"], ["Fix the string column", "Correct numeric type in the schema", "printSchema output"], ["Convert a summary to pandas", "Small DataFrame converted safely", "Notebook output"]],
+          "objectives": ["Create DataFrames", "Define schemas", "Move between Spark and pandas"]
+        },
+        {
+          "topic": "Reading and Writing Data Sources",
+          "subtopics": ["CSV options", "JSON and multi-line JSON", "Parquet and ORC", "JDBC sources", "Reading many files and folders", "Save modes", "Partitioned output with partitionBy", "Corrupt records and bad lines"],
+          "tools": ["PySpark", "PostgreSQL", "Parquet"],
+          "lab_task": "Read CSV, JSON and a PostgreSQL table, handle corrupt records, write the result as partitioned Parquet and read it back filtered by partition.",
+          "deliverable": "Notebook and output folders",
+          "checks": [["Read a file with corrupt lines", "Bad lines captured in a corrupt record column", "Notebook output"], ["Write with partitionBy", "Folder per partition value", "File listing"], ["Read with a partition filter", "Only the matching folder read", "Spark UI files read"]],
+          "objectives": ["Read many sources", "Write partitioned data", "Handle bad records"]
+        },
+        {
+          "topic": "Selecting, Filtering and Transforming Columns",
+          "subtopics": ["select and selectExpr", "withColumn and withColumns", "Renaming and dropping columns", "filter and where", "Column expressions", "when and otherwise", "Casting types", "Chaining transformations"],
+          "tools": ["PySpark"],
+          "lab_task": "Clean the taxi data: select needed columns, rename them, filter impossible trips, add trip duration and a fare band with when and otherwise, and write the steps as one readable chain.",
+          "deliverable": "Notebook with the transformation chain",
+          "checks": [["Filter impossible trips", "Negative fares and zero distances removed", "Row counts"], ["Add the fare band", "Bands assigned correctly for sample rows", "Notebook output"], ["Review the chain", "Readable steps with clear names", "Notebook"]],
+          "objectives": ["Transform columns", "Filter rows", "Write readable Spark code"]
+        },
+        {
+          "topic": "Built-In Functions for Strings, Dates and Numbers",
+          "subtopics": ["pyspark.sql.functions", "String functions", "Regular expressions", "Date and timestamp functions", "Time zones", "Math and rounding", "Conditional functions", "Why built-ins beat UDFs"],
+          "tools": ["PySpark"],
+          "lab_task": "Parse messy address strings with regular expressions, convert timestamps between time zones, extract hour and weekday features and round fares correctly.",
+          "deliverable": "Notebook and sample outputs",
+          "checks": [["Parse addresses", "City and postcode extracted for sample rows", "Notebook output"], ["Convert time zones", "Local times correct for three trips", "Notebook output"], ["Extract weekday", "Weekday matches a calendar check", "Notebook output"]],
+          "objectives": ["Use built-in functions", "Handle dates and time zones", "Parse text"]
+        },
+        {
+          "topic": "Aggregations and Grouping",
+          "subtopics": ["groupBy and agg", "Counting and distinct counts", "approx_count_distinct", "Multiple aggregations", "Pivot tables", "rollup and cube", "Percentiles", "Aggregation and shuffles"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Report trips and revenue by borough and hour, pivot by weekday, compute median fares and compare exact and approximate distinct driver counts with their run times.",
+          "deliverable": "Notebook and result tables",
+          "checks": [["Pivot by weekday", "One column per weekday", "Notebook output"], ["Compare distinct counts", "Approximate count close and faster", "Timing output"], ["Read the shuffle", "Shuffle stage found for the groupBy", "Spark UI"]],
+          "objectives": ["Aggregate data", "Pivot and roll up", "Understand shuffles"]
+        },
+        {
+          "topic": "Joining DataFrames",
+          "subtopics": ["Join types", "Join conditions", "Duplicate column names after joins", "Broadcast joins", "Anti and semi joins", "Joining on ranges", "Skewed join keys in brief", "Checking row counts after joins"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Join trips with zones and weather, broadcast the small zone table, find trips with no matching zone using an anti join and fix a join that duplicates rows.",
+          "deliverable": "Notebook and plans",
+          "checks": [["Broadcast the zone table", "Broadcast join in the plan", "explain() output"], ["Find unmatched trips", "Anti join returns them", "Notebook output"], ["Fix the duplicating join", "Row count matches the trips table", "Notebook output"]],
+          "objectives": ["Join DataFrames", "Use broadcast joins", "Avoid duplicate rows"]
+        },
+        {
+          "topic": "Window Functions in Spark",
+          "subtopics": ["Window specifications", "partitionBy and orderBy", "row_number, rank and dense_rank", "Running totals", "lag and lead", "Range and row frames", "Deduplicating with windows", "Window performance"],
+          "tools": ["PySpark"],
+          "lab_task": "Rank drivers by daily revenue within each borough, compute running revenue, time between a driver's trips with lag and keep only the latest record per order.",
+          "deliverable": "Notebook and results",
+          "checks": [["Rank within boroughs", "Ranks restart per borough", "Notebook output"], ["Compute time between trips", "Gaps correct for sample drivers", "Notebook output"], ["Deduplicate orders", "One latest row per order", "Row counts"]],
+          "objectives": ["Use window functions", "Deduplicate data", "Calculate running values"]
+        },
+        {
+          "topic": "Spark SQL and Temporary Views",
+          "subtopics": ["Temporary and global views", "spark.sql", "Mixing SQL and DataFrame code", "Common table expressions", "SQL functions", "Catalogs and tables", "Managed and external tables", "Choosing SQL or the DataFrame API"],
+          "tools": ["Spark SQL", "PySpark"],
+          "lab_task": "Rewrite three DataFrame reports in Spark SQL, create managed and external tables, mix SQL and Python in one pipeline and compare the physical plans.",
+          "deliverable": "SQL and Python versions and plan comparison",
+          "checks": [["Compare outputs", "SQL and DataFrame results match", "Notebook output"], ["Compare plans", "Plans equivalent", "explain() output"], ["Drop the external table", "Data files kept", "File listing"]],
+          "objectives": ["Use Spark SQL", "Create tables", "Mix SQL and Python"]
+        },
+        {
+          "topic": "Handling Missing, Duplicate and Messy Data",
+          "subtopics": ["Finding nulls", "Dropping and filling nulls", "Deduplication", "Standardising categories", "Validating ranges", "Quarantining bad rows", "Data quality summaries", "Documenting cleaning rules"],
+          "tools": ["PySpark"],
+          "lab_task": "Profile nulls and duplicates in the orders data, apply cleaning rules, send bad rows to a quarantine table with reasons and produce a quality summary.",
+          "deliverable": "Cleaning notebook, quarantine table and summary",
+          "checks": [["Count nulls by column", "Null counts reported", "Notebook output"], ["Quarantine bad rows", "Each row has a reason", "Quarantine table"], ["Reconcile counts", "Clean plus quarantined equals input", "Row counts"]],
+          "objectives": ["Clean data at scale", "Quarantine bad rows", "Report data quality"]
+        },
+        {
+          "topic": "Nested and Semi-Structured Data",
+          "subtopics": ["Structs, arrays and maps", "Reading nested JSON", "explode and posexplode", "Higher-order functions: transform, filter and aggregate", "from_json and to_json", "Flattening schemas", "The VARIANT type in Spark 4", "Writing nested data"],
+          "tools": ["PySpark"],
+          "lab_task": "Read nested order JSON with item arrays, explode items, total each order with higher-order functions without exploding, and flatten the result for reporting.",
+          "deliverable": "Notebook and flattened table",
+          "checks": [["Explode items", "One row per item", "Row counts"], ["Total with aggregate", "Same totals as the exploded version", "Notebook output"], ["Flatten the schema", "No nested columns left", "printSchema output"]],
+          "objectives": ["Work with nested data", "Use higher-order functions", "Flatten for reporting"]
+        },
+        {
+          "topic": "User-Defined Functions and pandas UDFs",
+          "subtopics": ["Python UDFs and their cost", "Registering UDFs for SQL", "pandas UDFs", "applyInPandas for grouped work", "mapInPandas", "Arrow and serialisation", "Testing UDFs", "Replacing UDFs with built-ins"],
+          "tools": ["PySpark", "pandas", "Apache Arrow"],
+          "lab_task": "Write a Python UDF, a pandas UDF and a built-in version of the same calculation, compare run times, and use applyInPandas to fit a small model per store.",
+          "deliverable": "Notebook and timing table",
+          "checks": [["Compare run times", "Built-in fastest and pandas UDF faster than Python UDF", "Timing table"], ["Run applyInPandas", "One result per store", "Notebook output"], ["Unit test the UDF logic", "Tests pass", "Test output"]],
+          "objectives": ["Write UDFs", "Use pandas UDFs", "Choose built-ins first"]
+        },
+        {
+          "topic": "Partitions, Shuffles and Parallelism",
+          "subtopics": ["What a partition is", "Default parallelism", "repartition and coalesce", "spark.sql.shuffle.partitions", "Partition sizes", "Small files problem", "Adaptive query execution in brief", "Choosing partition counts"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Measure partition sizes, change shuffle partitions for a large aggregation, fix a job that writes thousands of tiny files and record run times.",
+          "deliverable": "Notebook, Spark UI notes and timings",
+          "checks": [["Check partition sizes", "Sizes per partition reported", "Notebook output"], ["Tune shuffle partitions", "Run time improves", "Timing table"], ["Fix small files", "Output written as fewer, larger files", "File listing"]],
+          "objectives": ["Understand partitions", "Control parallelism", "Avoid small files"]
+        },
+        {
+          "topic": "Caching and Persistence",
+          "subtopics": ["When caching helps", "cache and persist", "Storage levels", "Unpersisting", "Caching in the Spark UI", "Checkpointing", "Caching compared with writing to storage", "Memory pressure from caching"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Reuse a cleaned DataFrame in three reports with and without caching, check the Storage tab, unpersist it and break a long lineage with a checkpoint.",
+          "deliverable": "Notebook and timing comparison",
+          "checks": [["Compare run times", "Faster with caching for reused data", "Timing table"], ["Open the Storage tab", "Cached DataFrame and size shown", "Screenshot"], ["Checkpoint a long lineage", "Plan shortened", "explain() output"]],
+          "objectives": ["Cache data", "Choose storage levels", "Use checkpoints"]
+        },
+        {
+          "topic": "Reading the Spark UI and Query Plans",
+          "subtopics": ["Jobs, stages and tasks tabs", "The SQL tab", "Logical and physical plans with explain", "Shuffle read and write", "Task time distribution", "Spill", "Executors tab", "Finding the slow stage"],
+          "tools": ["Spark UI", "explain()"],
+          "lab_task": "Run four slow jobs, find the slow stage in each from the Spark UI and plans, and explain whether the cause is a shuffle, skew, spill or too few tasks.",
+          "deliverable": "Diagnosis notes for each job",
+          "checks": [["Find the skewed stage", "One task much longer than others", "Spark UI screenshot"], ["Find the spill", "Spill to disk recorded", "Spark UI stage metrics"], ["Read the physical plan", "Join and exchange operators explained", "explain() output"]],
+          "objectives": ["Read the Spark UI", "Read query plans", "Find slow stages"]
+        },
+        {
+          "topic": "Parquet, Delta Lake and Table Formats",
+          "subtopics": ["Why columnar formats", "Parquet internals: row groups and statistics", "Predicate pushdown and column pruning", "Delta Lake tables", "MERGE and time travel", "Schema enforcement and evolution", "Compaction", "Iceberg and Hudi in brief"],
+          "tools": ["Parquet", "Delta Lake", "PySpark"],
+          "lab_task": "Compare CSV and Parquet for size and query speed, convert orders to Delta, upsert changes with MERGE, read an older version and compact small files.",
+          "deliverable": "Notebook, size and speed comparison and Delta history",
+          "checks": [["Compare formats", "Parquet smaller and faster", "Comparison table"], ["Run MERGE", "Updated and inserted counts correct", "Delta history"], ["Read an older version", "Data from before the MERGE", "Notebook output"]],
+          "objectives": ["Use columnar formats", "Use Delta Lake", "Upsert and time travel"]
+        },
+        {
+          "topic": "A First Look at Structured Streaming",
+          "subtopics": ["Streams as unbounded tables", "Sources: files, rate and Kafka", "Sinks", "Output modes", "Triggers", "Checkpoints", "Simple aggregations on streams", "Monitoring a stream"],
+          "tools": ["Spark Structured Streaming", "PySpark"],
+          "lab_task": "Stream order files from a folder, count orders per minute, write to a Delta table with a checkpoint, stop and restart the stream and confirm no duplicates.",
+          "deliverable": "Streaming notebook and output table",
+          "checks": [["Drop new files", "Counts update", "Output table"], ["Restart the stream", "No duplicate rows", "Row counts"], ["Check stream progress", "Input rate and batch duration shown", "Progress output"]],
+          "objectives": ["Write streaming queries", "Use checkpoints", "Monitor streams"]
+        },
+        {
+          "topic": "Packaging and Submitting Spark Applications",
+          "subtopics": ["From notebooks to applications", "Project structure for PySpark jobs", "spark-submit", "Configuration and arguments", "Packaging dependencies", "Logging", "Testing with local Spark", "Running on a cluster"],
+          "tools": ["spark-submit", "pytest", "Docker"],
+          "lab_task": "Turn the cleaning notebook into a PySpark application with arguments, logging and tests, package its dependencies and run it with spark-submit locally and on a small cluster.",
+          "deliverable": "Application repository, tests and run logs",
+          "checks": [["Run the tests", "All pass on local Spark", "pytest output"], ["Run with spark-submit", "Job completes with logs", "Driver log"], ["Pass a bad argument", "Clear error and non-zero exit", "Terminal output"]],
+          "objectives": ["Package Spark jobs", "Submit applications", "Test Spark code"]
+        },
+        {
+          "topic": "Beginner Capstone: City Taxi Analytics Pipeline",
+          "subtopics": ["Ingestion", "Cleaning and enrichment", "Reporting tables", "Running the application"],
+          "tools": ["PySpark", "Spark SQL", "Delta Lake", "spark-submit"],
+          "lab_task": "Build a Spark application that ingests a year of taxi trips, cleans and joins them with zones and weather, writes Delta reporting tables partitioned by month and passes a review of its Spark UI.",
+          "deliverable": "Application, tests, reporting tables and demo recording",
+          "checks": [["Run the full year", "Job completes and tables are written", "Driver log"], ["Reconcile totals", "Report totals match the cleaned data", "Reconciliation table"], ["Review the Spark UI", "No skewed or spilling stages left", "Screenshots"]],
+          "objectives": ["Combine the beginner topics in one pipeline", "Process large data reliably", "Explain the job's performance"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who write Spark jobs. Covers execution internals, adaptive query execution, join strategies and skew, memory and spill, configuration, data layout, Delta Lake operations, Iceberg, Structured Streaming with Kafka, watermarks, stateful streaming, slowly changing dimensions, testing, Spark on Kubernetes, EMR, Dataproc and Databricks, MLlib, GraphFrames, Spark Connect and the developer certification.",
+      "prerequisites": ["Writes PySpark DataFrame and Spark SQL jobs", "Reads the Spark UI", "Uses Parquet or Delta tables"],
+      "outcomes": ["Tune Spark jobs using plans, AQE, join strategies and memory settings", "Design table layouts and run Delta and Iceberg operations", "Build reliable stateful streaming pipelines with Kafka", "Test, deploy and run Spark on Kubernetes and cloud services"],
+      "days": [
+        {
+          "topic": "Spark Execution Internals: Catalyst, Tungsten and Stages",
+          "subtopics": ["Logical plans and analysis", "Catalyst optimisation rules", "Physical planning", "Whole-stage code generation", "Tungsten memory format", "Stage boundaries and exchanges", "Task scheduling", "Reading plans with formatted explain"],
+          "tools": ["PySpark", "explain('formatted')"],
+          "lab_task": "Trace one query from logical plan to physical plan, find which optimisation rules changed it, identify code generation stages and predict the number of stages before running it.",
+          "deliverable": "Annotated plans and predictions",
+          "checks": [["Predict stage count", "Prediction matches the Spark UI", "Spark UI"], ["Find a pushed-down filter", "Filter moved into the scan", "explain() output"], ["Identify code generation", "WholeStageCodegen stages found", "explain() output"]],
+          "objectives": ["Understand Catalyst", "Read physical plans", "Predict stages"]
+        },
+        {
+          "topic": "Adaptive Query Execution",
+          "subtopics": ["Why runtime statistics help", "Coalescing shuffle partitions", "Switching join strategies at runtime", "Skew join handling", "AQE settings", "Reading AQE plans", "Limits of AQE", "Measuring AQE benefit"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Run three queries with AQE off and on, show partitions being coalesced, a sort-merge join becoming a broadcast join and a skewed join being split.",
+          "deliverable": "Plans and timings for each query",
+          "checks": [["Compare partition counts", "Fewer partitions with AQE", "Spark UI"], ["Show the join switch", "Broadcast join chosen at runtime", "Final plan"], ["Show skew handling", "Skewed partition split", "Spark UI"]],
+          "objectives": ["Use AQE", "Read adaptive plans", "Measure gains"]
+        },
+        {
+          "topic": "Join Strategies and Handling Skew",
+          "subtopics": ["Broadcast hash join", "Shuffle hash join", "Sort-merge join", "Join hints", "Detecting skew", "Salting keys", "Splitting hot keys", "Bucketing for repeated joins"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Fix a join with one hot customer by salting, compare join hints on a medium table and bucket two tables that are joined every day.",
+          "deliverable": "Join experiments and timing table",
+          "checks": [["Salt the hot key", "Longest task time drops", "Spark UI"], ["Compare join hints", "Run time for each strategy", "Timing table"], ["Join bucketed tables", "No shuffle in the plan", "explain() output"]],
+          "objectives": ["Choose join strategies", "Fix skew", "Use bucketing"]
+        },
+        {
+          "topic": "Memory Management, Spill and Executor Sizing",
+          "subtopics": ["Unified memory model", "Execution and storage memory", "Off-heap memory and overhead", "Spill and its cost", "Out-of-memory errors on driver and executors", "Executor cores and memory sizing", "Dynamic allocation", "Garbage collection"],
+          "tools": ["Spark UI", "Spark configuration"],
+          "lab_task": "Reproduce driver and executor out-of-memory errors, fix them, size executors for a 1 TB job and compare run times with three executor shapes.",
+          "deliverable": "Error diagnosis, sizing calculation and timings",
+          "checks": [["Fix the driver OOM", "Large collect removed", "Driver log"], ["Fix the executor OOM", "Spill or partitioning change fixes it", "Executor log"], ["Compare executor shapes", "Fastest shape recorded with reasons", "Timing table"]],
+          "objectives": ["Understand Spark memory", "Fix OOM errors", "Size executors"]
+        },
+        {
+          "topic": "Configuration and Job Tuning Method",
+          "subtopics": ["Where configuration is set", "Important settings for SQL jobs", "Serialisation", "Compression codecs", "Speculative execution", "Dynamic partition pruning", "A step-by-step tuning method", "Recording tuning changes"],
+          "tools": ["Spark configuration", "Spark UI", "Spark History Server"],
+          "lab_task": "Tune a slow daily job step by step, changing one setting at a time, recording the effect of each in the History Server and keeping only changes that help.",
+          "deliverable": "Tuning log with before and after timings",
+          "checks": [["Record each change", "One setting per run with its effect", "Tuning log"], ["Use the History Server", "Past runs compared", "History Server screenshot"], ["Compare final and first runs", "Run time reduced", "Timing table"]],
+          "objectives": ["Tune methodically", "Use configuration well", "Record results"]
+        },
+        {
+          "topic": "Data Layout: Partitioning, Bucketing, Z-Ordering and Clustering",
+          "subtopics": ["Table partitioning choices", "Over-partitioning", "File sizes", "Bucketing", "Z-ordering", "Liquid clustering", "Data skipping statistics", "Measuring files read"],
+          "tools": ["Delta Lake", "PySpark"],
+          "lab_task": "Lay out a 1-billion-row events table four ways (no layout, date partitions, Z-order and liquid clustering) and compare files read and time for three common queries.",
+          "deliverable": "Layout experiments and results table",
+          "checks": [["Compare files read", "Fewest files with the best layout for each query", "Results table"], ["Over-partition a table", "Small file problem shown", "File listing"], ["Choose a layout", "Choice justified by measurements", "Decision note"]],
+          "objectives": ["Design data layout", "Use clustering", "Measure data skipping"]
+        },
+        {
+          "topic": "Delta Lake Operations at Scale",
+          "subtopics": ["MERGE performance", "Deletion vectors", "OPTIMIZE and VACUUM", "Change data feed", "Constraints and generated columns", "Concurrent writes and conflicts", "Table history and restore", "Liquid clustering maintenance"],
+          "tools": ["Delta Lake", "PySpark"],
+          "lab_task": "Speed up a slow MERGE, read the change data feed downstream, add constraints, run two writers to cause a conflict and restore a table after a bad write.",
+          "deliverable": "Notebook, timings and conflict notes",
+          "checks": [["Speed up MERGE", "Fewer files rewritten", "Delta metrics"], ["Read the change data feed", "Only changed rows returned", "Notebook output"], ["Restore the table", "Data back to the earlier version", "Delta history"]],
+          "objectives": ["Run Delta at scale", "Use change data feed", "Handle concurrent writes"]
+        },
+        {
+          "topic": "Apache Iceberg with Spark",
+          "subtopics": ["Iceberg table format", "Catalogs: Hive, REST and Glue", "Hidden partitioning", "Partition evolution", "Snapshots and time travel", "Maintenance procedures", "Iceberg and Delta compared", "Reading Iceberg from other engines"],
+          "tools": ["Apache Iceberg", "Spark", "Trino"],
+          "lab_task": "Create an Iceberg table with hidden partitioning, evolve its partition spec without rewriting data, time travel, expire snapshots and query it from Trino.",
+          "deliverable": "Notebook, snapshot history and Trino query",
+          "checks": [["Evolve partitioning", "New data uses the new spec without rewrite", "Table metadata"], ["Expire snapshots", "Old snapshots removed", "Snapshot listing"], ["Query from Trino", "Same results as Spark", "Query output"]],
+          "objectives": ["Use Iceberg", "Evolve partitions", "Share tables across engines"]
+        },
+        {
+          "topic": "Structured Streaming with Kafka Sources and Sinks",
+          "subtopics": ["Kafka as a source", "Offsets and starting positions", "Parsing Avro and JSON messages", "Schema Registry", "Writing back to Kafka", "Exactly-once with checkpoints", "foreachBatch for upserts", "Throughput settings"],
+          "tools": ["Spark Structured Streaming", "Apache Kafka", "Schema Registry"],
+          "lab_task": "Read Avro orders from Kafka with Schema Registry, enrich them, upsert into Delta with foreachBatch and write alerts back to another topic.",
+          "deliverable": "Streaming job and output samples",
+          "checks": [["Restart after a crash", "No duplicates in Delta", "Row counts"], ["Write alerts to Kafka", "Alerts on the topic", "Kafka console output"], ["Raise input rate", "Batch duration stays within the trigger", "Stream progress"]],
+          "objectives": ["Stream from Kafka", "Upsert from streams", "Write back to Kafka"]
+        },
+        {
+          "topic": "Event Time, Watermarks and Windowed Aggregations",
+          "subtopics": ["Event time and processing time", "Tumbling and sliding windows", "Session windows", "Watermarks", "Late data handling", "Output modes for windows", "State size and watermarks", "Testing windowed queries"],
+          "tools": ["Spark Structured Streaming"],
+          "lab_task": "Count orders per five-minute window by event time, send late events beyond the watermark, use session windows for user activity and test with fixed input.",
+          "deliverable": "Streaming job and test results",
+          "checks": [["Send late events", "Events beyond the watermark dropped", "Stream metrics"], ["Check window counts", "Correct for the test input", "Test output"], ["Build session windows", "Sessions end after the gap", "Output table"]],
+          "objectives": ["Use event time", "Apply watermarks", "Build windowed aggregations"]
+        },
+        {
+          "topic": "Stateful Stream Processing",
+          "subtopics": ["State stores", "RocksDB state store", "Stream-stream joins", "Deduplication with state", "Arbitrary stateful processing", "transformWithState in Spark 4", "State timeouts", "Monitoring state size"],
+          "tools": ["Spark Structured Streaming", "RocksDB"],
+          "lab_task": "Join orders and payments streams within 30 minutes, deduplicate events, track per-user state with timeouts and monitor state size.",
+          "deliverable": "Streaming jobs and state metrics",
+          "checks": [["Join streams", "Matched orders and payments output", "Output table"], ["Send duplicates", "Duplicates removed", "Row counts"], ["Watch state size", "State stays bounded by timeouts", "Stream metrics"]],
+          "objectives": ["Join streams", "Manage state", "Bound state size"]
+        },
+        {
+          "topic": "Slowly Changing Dimensions and Incremental Loads",
+          "subtopics": ["Full and incremental loads", "High-water marks", "SCD type 1 and type 2", "MERGE patterns for SCD", "Late-arriving data", "Idempotent loads", "Backfills", "Testing incremental logic"],
+          "tools": ["Delta Lake", "PySpark"],
+          "lab_task": "Load customers incrementally with a high-water mark into a type 2 dimension with MERGE, handle a late update and re-run a load to prove it is idempotent.",
+          "deliverable": "Load job, dimension table and tests",
+          "checks": [["Change a customer's address", "Old and new versions with dates", "Query result"], ["Re-run a load", "No changes on the second run", "Row counts"], ["Send a late update", "Correct history after reprocessing", "Query result"]],
+          "objectives": ["Load incrementally", "Build SCD tables", "Make loads idempotent"]
+        },
+        {
+          "topic": "Testing Spark Applications",
+          "subtopics": ["Unit tests with local Spark", "Shared SparkSession fixtures", "Comparing DataFrames", "Test data builders", "Testing streaming logic", "Property-based tests", "Integration tests with containers", "Running tests in CI"],
+          "tools": ["pytest", "chispa", "Testcontainers", "GitHub Actions"],
+          "lab_task": "Add unit tests for transformations, a streaming test with memory input, an integration test against Kafka in a container and run them all in CI.",
+          "deliverable": "Test suite and CI run",
+          "checks": [["Break a transformation", "Unit test fails", "pytest output"], ["Run the streaming test", "Expected output produced", "pytest output"], ["Run in CI", "All tests pass on the runner", "CI log"]],
+          "objectives": ["Test Spark code", "Test streams", "Run tests in CI"]
+        },
+        {
+          "topic": "Running Spark on Kubernetes",
+          "subtopics": ["Spark on Kubernetes architecture", "Driver and executor pods", "spark-submit to Kubernetes", "The Spark Operator", "Container images for Spark", "Dynamic allocation on Kubernetes", "Logs and the History Server", "Cost and scheduling"],
+          "tools": ["Kubernetes", "Spark Operator", "Docker"],
+          "lab_task": "Build a Spark image, run the capstone job on Kubernetes with the Spark Operator, turn on dynamic allocation and view the run in the History Server.",
+          "deliverable": "Image, SparkApplication manifest and run evidence",
+          "checks": [["Submit the SparkApplication", "Driver and executors run and finish", "kubectl output"], ["Watch dynamic allocation", "Executors added and removed", "Spark UI"], ["Open the History Server", "Completed run visible", "Screenshot"]],
+          "objectives": ["Run Spark on Kubernetes", "Use the Spark Operator", "Monitor runs"]
+        },
+        {
+          "topic": "Spark on Cloud Services: EMR, Dataproc and Databricks",
+          "subtopics": ["Amazon EMR and EMR Serverless", "Google Dataproc and Dataproc Serverless", "Azure and Databricks options", "Reading cloud storage securely", "Spot and preemptible workers", "Job submission per platform", "Cost comparison", "Choosing a platform"],
+          "tools": ["Amazon EMR Serverless", "Google Dataproc", "Databricks"],
+          "lab_task": "Run the same job on EMR Serverless and on one other platform, read cloud storage with roles instead of keys and compare run time and cost.",
+          "deliverable": "Job definitions, run logs and comparison",
+          "checks": [["Run on EMR Serverless", "Job succeeds reading S3 with a role", "Job log"], ["Search configuration for keys", "No access keys stored", "Configuration review"], ["Compare platforms", "Time and cost for each", "Comparison table"]],
+          "objectives": ["Run Spark in the cloud", "Use roles for storage", "Compare platforms"]
+        },
+        {
+          "topic": "Machine Learning with Spark MLlib",
+          "subtopics": ["MLlib pipelines", "Feature transformers", "Estimators", "Cross-validation in MLlib", "Model persistence", "Distributed training limits", "Scoring at scale", "MLlib compared with single-node libraries"],
+          "tools": ["Spark MLlib", "MLflow"],
+          "lab_task": "Build an MLlib pipeline to predict trip tips, tune it with cross-validation, save and reload it and score a billion rows in batch.",
+          "deliverable": "Pipeline, metrics and scoring job",
+          "checks": [["Tune with cross-validation", "Best parameters and metric reported", "Notebook output"], ["Reload the saved model", "Same predictions", "Notebook output"], ["Score at scale", "Billion-row scoring completes", "Job log"]],
+          "objectives": ["Use MLlib", "Tune models", "Score at scale"]
+        },
+        {
+          "topic": "Graph Processing with GraphFrames",
+          "subtopics": ["Graphs in Spark", "GraphFrames vertices and edges", "Motif finding", "PageRank", "Connected components", "Shortest paths", "Graph data from tables", "When to use a graph database instead"],
+          "tools": ["GraphFrames", "PySpark"],
+          "lab_task": "Build a graph of accounts and shared devices, find connected components to spot fraud rings, rank accounts with PageRank and find a motif of circular payments.",
+          "deliverable": "Notebook and findings",
+          "checks": [["Find connected components", "Rings identified", "Notebook output"], ["Run PageRank", "Most central accounts listed", "Notebook output"], ["Find circular payments", "Motif matches found", "Notebook output"]],
+          "objectives": ["Process graphs", "Find communities", "Search for patterns"]
+        },
+        {
+          "topic": "Spark Connect and Spark 4 Features",
+          "subtopics": ["Spark Connect client-server model", "Connecting from IDEs and applications", "Python data source API", "VARIANT type", "ANSI mode by default", "SQL scripting and pipe syntax", "Upgrading from Spark 3", "Compatibility checks"],
+          "tools": ["Spark 4", "Spark Connect"],
+          "lab_task": "Run jobs through Spark Connect from a laptop, write a Python data source for an internal API and upgrade a Spark 3 job, fixing ANSI mode errors.",
+          "deliverable": "Spark Connect set-up, data source and upgrade notes",
+          "checks": [["Run through Spark Connect", "Job runs on the remote server", "Client output"], ["Read from the Python data source", "API data returned as a DataFrame", "Notebook output"], ["Fix ANSI errors", "Upgraded job passes tests", "Test output"]],
+          "objectives": ["Use Spark Connect", "Use Spark 4 features", "Upgrade jobs"]
+        },
+        {
+          "topic": "Developer for Apache Spark Certification Preparation",
+          "subtopics": ["Exam topics", "Architecture questions", "DataFrame API questions", "Spark SQL questions", "Common traps", "Reading code in questions", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "Spark documentation"],
+          "lab_task": "Take a timed practice exam, review wrong answers by running the code, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Re-run wrong answers as code", "Each answer confirmed in Spark", "Notebook"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Streaming and Batch Order Analytics",
+          "subtopics": ["Streaming ingestion", "Batch dimensions", "Tuning and layout", "Deployment"],
+          "tools": ["Spark Structured Streaming", "Apache Kafka", "Delta Lake", "Spark Operator", "pytest"],
+          "lab_task": "Build order analytics with a Kafka stream joined to payments, windowed metrics with watermarks, a type 2 customer dimension, tuned layouts, tests in CI and deployment on Kubernetes, then demo a crash and recovery.",
+          "deliverable": "Repository, tests, deployment manifests and demo recording",
+          "checks": [["Crash and restart the stream", "No duplicates or lost orders", "Demo recording"], ["Run the tests in CI", "All pass", "CI log"], ["Review performance", "No skewed or spilling stages", "Spark UI screenshots"]],
+          "objectives": ["Combine the intermediate topics in one system", "Build reliable batch and streaming jobs", "Deploy and tune them"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers and Spark platform owners. Covers Spark internals, the shuffle service, cost-based optimisation, petabyte-scale tuning, Photon and native engines, advanced streaming, extending Spark, lakehouse architecture, multi-tenant platforms, observability, cost, security, migrations, Spark for AI workloads, Ray and Spark together, GPU acceleration, reliability, Spark contributions and a platform capstone.",
+      "prerequisites": ["Runs Spark jobs in production", "Tunes jobs with plans, AQE and memory settings", "Builds streaming pipelines with Kafka"],
+      "outcomes": ["Diagnose and tune Spark at very large scale", "Extend Spark and choose engines and accelerators", "Design multi-tenant, secure and observable Spark platforms", "Migrate and run Spark for analytics and AI workloads"],
+      "days": [
+        {
+          "topic": "Spark Internals: Scheduler, Shuffle and Storage",
+          "subtopics": ["DAG scheduler and task scheduler", "Shuffle write and read internals", "Sort-based shuffle", "External shuffle service", "Push-based shuffle", "Block manager", "Broadcast internals", "Fault recovery in detail"],
+          "tools": ["Spark source code", "Spark UI", "Event logs"],
+          "lab_task": "Trace a shuffle-heavy job through event logs, kill an executor mid-shuffle and explain recovery, and compare default and push-based shuffle.",
+          "deliverable": "Event log analysis and comparison",
+          "checks": [["Kill an executor", "Lost stages re-run and the job completes", "Event log"], ["Compare shuffle modes", "Shuffle read time for each", "Timing table"], ["Explain the scheduler", "Stage and task flow described correctly", "Written note"]],
+          "objectives": ["Understand Spark internals", "Explain recovery", "Compare shuffle implementations"]
+        },
+        {
+          "topic": "Cost-Based Optimisation and Statistics",
+          "subtopics": ["Table and column statistics", "ANALYZE TABLE", "Join reordering", "Histograms", "Statistics from table formats", "Plan stability", "When CBO helps", "Hints as a last resort"],
+          "tools": ["Spark SQL", "Delta or Iceberg tables"],
+          "lab_task": "Collect statistics for a star schema, show join reordering with the cost-based optimiser, compare plans with stale statistics and record when hints were still needed.",
+          "deliverable": "Plans and notes",
+          "checks": [["Turn on CBO with statistics", "Join order changes", "explain() output"], ["Use stale statistics", "Worse plan shown", "explain() output"], ["Record hint use", "Each hint justified", "Notes"]],
+          "objectives": ["Use the cost-based optimiser", "Maintain statistics", "Keep plans stable"]
+        },
+        {
+          "topic": "Tuning at Petabyte Scale",
+          "subtopics": ["Planning large jobs", "Partition pruning at scale", "Handling thousands of files", "Large shuffles", "Skew at scale", "Driver limits", "Splitting jobs", "Benchmarks for large workloads"],
+          "tools": ["Spark UI", "Event logs", "Delta or Iceberg"],
+          "lab_task": "Tune a 100 TB join between two tables, fix driver pressure from file listing, split the job into stages that can be retried and report time and cost.",
+          "deliverable": "Tuning plan, changes and results",
+          "checks": [["Fix driver pressure", "Planning time reduced", "Driver metrics"], ["Split the job", "Failed part retried alone", "Run history"], ["Report time and cost", "Both reduced after tuning", "Results table"]],
+          "objectives": ["Tune very large jobs", "Protect the driver", "Make large jobs retryable"]
+        },
+        {
+          "topic": "Native Engines: Photon, Gluten and Velox",
+          "subtopics": ["Vectorised execution", "Databricks Photon", "Apache Gluten with Velox", "Comet and DataFusion", "Which operators run natively", "Fallbacks to the JVM", "Benchmarking native engines", "Cost trade-offs"],
+          "tools": ["Photon", "Apache Gluten", "Apache DataFusion Comet"],
+          "lab_task": "Run a TPC-DS subset on standard Spark and a native engine, find operators that fall back to the JVM and estimate cost per query.",
+          "deliverable": "Benchmark results and fallback analysis",
+          "checks": [["Compare query times", "Speed-up per query recorded", "Benchmark table"], ["Find fallbacks", "Operators not run natively listed", "Plan output"], ["Estimate cost", "Cost per query for each engine", "Cost table"]],
+          "objectives": ["Understand native engines", "Benchmark them", "Weigh cost"]
+        },
+        {
+          "topic": "Advanced Streaming: Latency, Real-Time Mode and Operations",
+          "subtopics": ["Micro-batch and continuous processing", "Real-time mode in recent Spark releases", "Back-pressure and rate limits", "Checkpoint management", "Upgrading streaming jobs", "Changing state schemas", "Multiple streams per cluster", "Streaming SLOs"],
+          "tools": ["Spark Structured Streaming", "Apache Kafka"],
+          "lab_task": "Bring a stream under one-second latency, upgrade it with a changed state schema without losing state and run three streams on one cluster with fair scheduling.",
+          "deliverable": "Configuration, latency measurements and upgrade notes",
+          "checks": [["Measure latency", "Under one second at the target load", "Stream metrics"], ["Upgrade with a state change", "State kept after the upgrade", "Output check"], ["Run three streams", "Each meets its SLO", "Stream metrics"]],
+          "objectives": ["Reduce streaming latency", "Upgrade streams safely", "Operate many streams"]
+        },
+        {
+          "topic": "Extending Spark: Data Sources, Catalyst Rules and Plugins",
+          "subtopics": ["Data Source V2 API", "Python data sources", "Custom Catalyst rules", "Spark extensions", "Spark plugins for drivers and executors", "Listeners for metrics", "Packaging extensions", "Testing extensions"],
+          "tools": ["Scala or Java", "PySpark", "Spark APIs"],
+          "lab_task": "Write a data source with filter push-down, a listener that reports job metrics to Prometheus and a simple optimiser rule, and test each.",
+          "deliverable": "Extension code and tests",
+          "checks": [["Push down a filter", "Source receives the filter", "Source log"], ["Run the listener", "Job metrics in Prometheus", "Prometheus query"], ["Apply the optimiser rule", "Plan rewritten as expected", "explain() output"]],
+          "objectives": ["Extend Spark", "Write data sources", "Add listeners and rules"]
+        },
+        {
+          "topic": "Lakehouse Architecture with Spark",
+          "subtopics": ["Lakehouse layers", "Table format choice", "Catalogs: Unity Catalog, Polaris and Glue", "Batch and streaming together", "Serving data to BI and ML", "Governance in the lakehouse", "Multi-engine access", "Architecture decision records"],
+          "tools": ["Delta Lake or Iceberg", "Unity Catalog or Apache Polaris", "Trino"],
+          "lab_task": "Design a lakehouse for a retailer with Spark processing, a chosen table format and catalog, BI and ML serving and multi-engine access, and defend it in a review.",
+          "deliverable": "Architecture, decision records and review notes",
+          "checks": [["Review the format choice", "Justified with features and engines", "Decision record"], ["Trace data flows", "Batch, streaming and serving covered", "Architecture diagram"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design lakehouses", "Choose formats and catalogs", "Record decisions"]
+        },
+        {
+          "topic": "Multi-Tenant Spark Platforms",
+          "subtopics": ["Platform users and workloads", "Cluster per job compared with shared clusters", "Queues, quotas and fair scheduling", "Isolation between teams", "Job templates", "Self-service submission", "Chargeback", "Platform guardrails"],
+          "tools": ["Kubernetes", "Spark Operator", "YuniKorn or Kueue"],
+          "lab_task": "Set up queues and quotas for three teams on Kubernetes, provide job templates, stop one team using another's data and report cost by team.",
+          "deliverable": "Platform configuration, templates and cost report",
+          "checks": [["Exceed a team quota", "Jobs queued", "Scheduler status"], ["Read another team's data", "Access denied", "Job log"], ["Report cost by team", "Cost per team shown", "Cost report"]],
+          "objectives": ["Build multi-tenant platforms", "Share clusters fairly", "Report cost"]
+        },
+        {
+          "topic": "Observability for Spark Workloads",
+          "subtopics": ["Metrics from Spark", "Prometheus and Grafana for Spark", "Event logs and the History Server at scale", "Job-level SLOs", "Detecting regressions", "Data quality alongside job health", "Alerting", "Tools: Sparklens, Dataflint and others"],
+          "tools": ["Prometheus", "Grafana", "Spark History Server", "Dataflint"],
+          "lab_task": "Export Spark metrics to Prometheus, build job dashboards, alert when a daily job runs 30 percent slower than usual and analyse a run with Dataflint.",
+          "deliverable": "Dashboards, alerts and analysis",
+          "checks": [["Slow a job on purpose", "Regression alert fires", "Alert notification"], ["View the dashboard", "Executors, stages and job times shown", "Grafana screenshot"], ["Analyse a run", "Main bottleneck identified", "Dataflint report"]],
+          "objectives": ["Monitor Spark", "Detect regressions", "Analyse runs"]
+        },
+        {
+          "topic": "Cost Optimisation for Spark",
+          "subtopics": ["Where Spark money goes", "Right-sizing clusters", "Spot and preemptible capacity", "Autoscaling", "Storage and file costs", "Avoiding repeated work", "Cost per job reporting", "Cost reviews"],
+          "tools": ["Cloud billing data", "Spark event logs", "Spreadsheet"],
+          "lab_task": "Measure cost per job for ten daily jobs, cut the top three with right-sizing, spot workers and layout changes, and report monthly savings.",
+          "deliverable": "Cost report before and after",
+          "checks": [["Measure cost per job", "Ten jobs costed", "Cost report"], ["Apply changes", "Top three jobs cheaper", "Cost report"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Measure Spark cost", "Reduce cost", "Report savings"]
+        },
+        {
+          "topic": "Securing Spark Platforms",
+          "subtopics": ["Authentication and authorisation", "Encryption in transit and at rest", "Fine-grained access with catalogs", "Row and column security", "Secrets in jobs", "Network isolation", "Auditing data access", "Securing Spark Connect"],
+          "tools": ["Unity Catalog or Apache Ranger", "Kubernetes", "TLS"],
+          "lab_task": "Turn on encryption, apply row and column policies through the catalog, remove secrets from job code and audit who read a sensitive table.",
+          "deliverable": "Security configuration, policies and audit report",
+          "checks": [["Read a masked column as an analyst", "Values masked", "Query result"], ["Search jobs for secrets", "No secrets in code", "Code scan"], ["Audit access", "Reads of the sensitive table listed by user", "Audit report"]],
+          "objectives": ["Secure Spark", "Apply fine-grained access", "Audit data use"]
+        },
+        {
+          "topic": "Migrating to Spark and Between Spark Platforms",
+          "subtopics": ["Migrating from Hadoop MapReduce, Hive and Pig", "Migrating from warehouses to Spark", "Moving between EMR, Databricks and Kubernetes", "Validating outputs", "Running in parallel", "Performance after migration", "Cutover", "Retiring old jobs"],
+          "tools": ["Spark", "Hive", "Validation scripts"],
+          "lab_task": "Migrate three Hive jobs to Spark, move one Spark job from EMR to Kubernetes, validate outputs row by row and plan the cutover.",
+          "deliverable": "Migrated jobs, validation report and cutover plan",
+          "checks": [["Validate outputs", "Row counts and checksums match", "Validation report"], ["Compare performance", "Times within agreed limits", "Timing table"], ["Review the cutover plan", "Parallel run and rollback included", "Cutover plan"]],
+          "objectives": ["Migrate workloads", "Validate migrations", "Plan cutovers"]
+        },
+        {
+          "topic": "Spark for AI and LLM Data Pipelines",
+          "subtopics": ["Preparing training data at scale", "Deduplication with MinHash", "Text cleaning and filtering", "Generating embeddings in Spark", "Calling model endpoints from Spark", "Batch inference with LLMs", "Writing vector-ready tables", "Cost control for AI pipelines"],
+          "tools": ["PySpark", "Spark MLlib", "Model serving endpoint"],
+          "lab_task": "Clean and deduplicate 10 million documents with MinHash, generate embeddings in batches, run batch LLM classification through an endpoint with rate limits and write vector-ready tables.",
+          "deliverable": "Pipeline, deduplication stats and output tables",
+          "checks": [["Deduplicate", "Near-duplicates removed with counts", "Pipeline output"], ["Respect rate limits", "No throttling errors", "Endpoint logs"], ["Write vector tables", "Embeddings stored with metadata", "Table sample"]],
+          "objectives": ["Prepare AI data with Spark", "Run batch inference", "Control AI cost"]
+        },
+        {
+          "topic": "Ray and Spark Together",
+          "subtopics": ["Strengths of Ray and Spark", "RayDP and Ray on Spark", "Handing data between them", "Distributed training with Ray after Spark preparation", "Resource sharing", "Debugging mixed jobs", "Platform choices", "When to keep them separate"],
+          "tools": ["Ray", "PySpark", "Ray Train"],
+          "lab_task": "Prepare features with Spark, pass them to Ray for distributed training and tuning, and compare with doing everything in Spark MLlib.",
+          "deliverable": "Pipeline and comparison",
+          "checks": [["Hand data to Ray", "Ray reads Spark output without copies through the driver", "Job logs"], ["Train with Ray", "Model trained across workers", "Ray dashboard"], ["Compare with MLlib", "Time and model quality compared", "Comparison table"]],
+          "objectives": ["Combine Ray and Spark", "Hand off data", "Choose engines"]
+        },
+        {
+          "topic": "GPU Acceleration with RAPIDS for Spark",
+          "subtopics": ["When GPUs help Spark", "RAPIDS Accelerator for Apache Spark", "Supported operators", "Qualification and profiling tools", "GPU memory and spill", "Cluster set-up", "Cost compared with CPUs", "Mixed CPU and GPU workloads"],
+          "tools": ["RAPIDS Accelerator", "NVIDIA GPUs", "Spark"],
+          "lab_task": "Run the qualification tool on five jobs, run the best candidate on GPUs, profile it and compare time and cost with CPUs.",
+          "deliverable": "Qualification report, profile and cost comparison",
+          "checks": [["Run qualification", "Jobs ranked by expected speed-up", "Qualification report"], ["Run on GPUs", "Speed-up measured", "Timing table"], ["Compare cost", "GPU and CPU cost per run", "Cost table"]],
+          "objectives": ["Accelerate Spark with GPUs", "Qualify workloads", "Compare cost"]
+        },
+        {
+          "topic": "Reliability Engineering for Spark Pipelines",
+          "subtopics": ["Failure modes", "Retries and idempotency", "Checkpoint and state recovery", "Dependency failures", "SLOs for data freshness", "Runbooks", "Chaos tests for pipelines", "Post-incident learning"],
+          "tools": ["Spark", "Airflow", "Chaos testing tools"],
+          "lab_task": "Define freshness SLOs for three pipelines, inject storage, executor and source failures, confirm recovery within the SLO and write runbooks.",
+          "deliverable": "SLOs, chaos results and runbooks",
+          "checks": [["Inject a storage outage", "Pipeline recovers after it ends", "Run history"], ["Kill executors repeatedly", "Job completes within the SLO", "Run history"], ["Review runbooks", "Steps tested in the exercise", "Runbooks"]],
+          "objectives": ["Make pipelines reliable", "Test failures", "Write runbooks"]
+        },
+        {
+          "topic": "Troubleshooting Production Spark Failures",
+          "subtopics": ["An incident method for Spark", "Driver crashes", "Executor losses", "Shuffle fetch failures", "Skew that appears suddenly", "Schema changes upstream", "Out-of-disk on workers", "Post-incident reviews"],
+          "tools": ["Spark UI", "Event logs", "Executor logs", "Kubernetes events"],
+          "lab_task": "Diagnose five injected failures (a fetch failure storm, a new skewed key, an upstream schema change, a full worker disk and a driver crash), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the fetch failures", "Cause found and job completes", "Event log"], ["Fix the schema change", "Job handles the new schema", "Job log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose Spark failures", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Contributing to Apache Spark and the Ecosystem",
+          "subtopics": ["How the Spark project works", "Reading the codebase", "Building Spark from source", "Writing tests for Spark", "Filing good issues", "Submitting pull requests", "Spark improvement proposals", "Working with the community"],
+          "tools": ["Git", "sbt or Maven", "Spark source code"],
+          "lab_task": "Build Spark from source, run a module's tests, reproduce a known issue with a minimal example and write an issue report or small documentation fix.",
+          "deliverable": "Build log, reproduction and issue or pull request draft",
+          "checks": [["Build Spark", "Build completes", "Build log"], ["Run module tests", "Tests pass", "Test output"], ["Write the reproduction", "Minimal example shows the issue", "Reproduction code"]],
+          "objectives": ["Understand the Spark project", "Build from source", "Contribute well"]
+        },
+        {
+          "topic": "Spark Platform Strategy and Team Practices",
+          "subtopics": ["Platform choices for organisations", "Standards for jobs", "Code review for Spark", "Training engineers", "Measuring platform health", "Roadmaps", "Vendor and open source choices", "Communicating with leadership"],
+          "tools": ["Standards templates", "Roadmap template"],
+          "lab_task": "Write Spark standards for a data team, a review checklist and a 12-month platform roadmap, and present it to a role-play leadership panel.",
+          "deliverable": "Standards, checklist, roadmap and presentation",
+          "checks": [["Review the standards", "Clear rules with examples", "Standards document"], ["Review the checklist", "Common problems covered", "Checklist"], ["Present the roadmap", "Priorities linked to platform measures", "Presentation feedback"]],
+          "objectives": ["Set Spark strategy", "Write team standards", "Lead platform work"]
+        },
+        {
+          "topic": "Advanced Capstone: Petabyte-Scale Spark Platform",
+          "subtopics": ["Architecture", "Build and tune", "Operate", "Review"],
+          "tools": ["Spark", "Delta Lake or Iceberg", "Kubernetes", "Prometheus", "Unity Catalog or Ranger"],
+          "lab_task": "Design and build a Spark platform for a case company: lakehouse layout, multi-tenant scheduling, security policies, observability, cost reporting and a tuned petabyte-scale job, then run a game day with failures and present to an architecture board.",
+          "deliverable": "Architecture records, platform code, tuning results, game day report and board presentation",
+          "checks": [["Run the game day", "Pipelines recover within their SLOs", "Game day report"], ["Report cost", "Cost per team and per job", "Cost report"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Spark at very large scale", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "PMP Preparation",
+  "name": "PMP Certification Preparation",
+  "category": "Project Management",
+  "icon": "check-square",
+  "aliases": ["PMP", "PMP Exam Preparation", "PMP Exam Prep", "PMP Certification", "PMP Certification Training", "PMP Training", "PMP Boot Camp", "PMP Bootcamp", "PMI PMP", "Project Management Professional", "PMP 35 Contact Hours"],
+  "certifications": ["PMI Project Management Professional (PMP), exam based on the July 2026 Examination Content Outline", "35 contact hours of project management education are required before applying", "Related: PMI Certified Associate in Project Management (CAPM)", "Related: PMI Agile Certified Practitioner (PMI-ACP)"],
+  "tools": ["PMBOK Guide Eighth Edition", "PMP Examination Content Outline (July 2026)", "Practice question bank such as PMI Study Hall", "Excel or Google Sheets", "Flashcards", "Error log template", "Timer"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For project managers starting PMP preparation. Covers eligibility and the application, the July 2026 exam format and Examination Content Outline, the PMBOK Guide Eighth Edition, predictive, agile and hybrid approaches, life cycles and tailoring, integrated planning, scope, schedule, finance, quality, resources and procurement, stakeholders, communication, risk, team leadership, agile practices, earned value and how to read situational questions, ending with a diagnostic mock exam.",
+      "prerequisites": ["Has led or directed projects, or will soon meet PMI's experience requirement", "Has completed or is completing 35 contact hours of project management education", "Can study for several hours each week outside the sessions"],
+      "outcomes": ["Explain the exam format, domains and eligibility rules and prepare a complete application", "Apply the core concepts of predictive, agile and hybrid project management to exam questions", "Calculate earned value and schedule results used in the exam", "Answer situational questions using a repeatable method and follow a personal study plan"],
+      "days": [
+        {
+          "topic": "PMP Certification Overview: Eligibility, Application and the July 2026 Exam",
+          "subtopics": ["What the PMP certifies and who it suits", "Eligibility routes: education, project experience and 35 contact hours", "Writing project experience descriptions for the application", "The application audit and how to prepare for it", "Exam fees, PMI membership and scheduling", "The new exam from 9 July 2026: 180 questions in 240 minutes", "Optional breaks and how the clock works", "Question types including case-based sets", "Continuing certification requirements after passing", "How this course and the study plan fit together"],
+          "tools": ["PMI website and application", "Experience log template", "Study plan template"],
+          "lab_task": "Check your eligibility against the current PMI rules, write two project experience descriptions in the format the application expects, and draft a twelve-week study plan with weekly hours.",
+          "deliverable": "Eligibility check, two experience descriptions and a study plan",
+          "checks": [["Confirm eligibility", "Education, experience and contact hours are checked against current PMI rules", "Eligibility checklist"], ["Describe experience", "Each description covers objective, role, responsibilities and outcome", "Experience descriptions"], ["Plan study", "The plan has weekly hours and a target exam date", "Study plan"]],
+          "objectives": ["Understand PMP eligibility and format", "Prepare the application", "Plan your study time"]
+        },
+        {
+          "topic": "The Examination Content Outline: Domains, Tasks and Enablers",
+          "subtopics": ["Why the content outline, not a single book, defines the exam", "Domain weights: People 33%, Process 41%, Business Environment 26%", "Tasks and enablers", "What moved into Business Environment in 2026", "How questions map to tasks", "Predictive, agile and hybrid content across domains", "AI and sustainability inside scenarios", "Turning the outline into a study checklist"],
+          "tools": ["PMP Examination Content Outline (July 2026)", "Checklist template", "Highlighters or digital notes"],
+          "lab_task": "Turn the content outline into a personal checklist, rate your confidence on every task, and plan which tasks need the most study time.",
+          "deliverable": "Rated content outline checklist",
+          "checks": [["Cover every task", "Every task in the outline appears in the checklist", "Checklist"], ["Rate confidence", "Each task has a confidence rating from one to five", "Checklist"], ["Set priorities", "The lowest-rated tasks have extra study time in the plan", "Updated study plan"]],
+          "objectives": ["Read the content outline", "Map questions to domains and tasks", "Prioritise study by weakness"]
+        },
+        {
+          "topic": "PMBOK Guide Eighth Edition: Principles, Performance Domains and Focus Areas",
+          "subtopics": ["How the Eighth Edition differs from the Sixth and Seventh", "The six principles", "The seven performance domains", "The five focus areas and the processes inside them", "Tailoring as a core idea", "Models, methods and artefacts", "How the guide supports, but does not replace, the content outline", "Using the guide as a reference while studying"],
+          "tools": ["PMBOK Guide Eighth Edition", "Mind map tool", "Flashcards"],
+          "lab_task": "Build a one-page mind map that links the principles, performance domains and focus areas, and write flashcards for twenty key terms from the guide.",
+          "deliverable": "One-page mind map and twenty flashcards",
+          "checks": [["Link concepts", "The mind map shows how principles, domains and focus areas connect", "Mind map"], ["Define terms", "Flashcard definitions match the guide", "Flashcards"], ["Apply", "Five sample questions are answered using the mind map", "Answer sheet"]],
+          "objectives": ["Explain the PMBOK Guide Eighth Edition structure", "Use the guide as a reference", "Learn key terms"]
+        },
+        {
+          "topic": "Predictive, Agile and Hybrid Delivery Approaches",
+          "subtopics": ["Predictive delivery and when it fits", "Agile delivery and when it fits", "Hybrid combinations", "Factors for choosing an approach", "Iterative and incremental compared", "Roles in each approach", "How the exam signals which approach a scenario uses", "Common approach-selection questions"],
+          "tools": ["Approach selection grid", "Practice question bank", "Case studies"],
+          "lab_task": "Choose a delivery approach for six short project cases using a selection grid, justify each choice, and answer fifteen approach-selection practice questions.",
+          "deliverable": "Six approach decisions and practice results",
+          "checks": [["Choose approaches", "Each case has an approach with at least two reasons", "Selection grid"], ["Spot signals", "Scenario wording that signals the approach is highlighted", "Annotated questions"], ["Practise", "At least eleven of fifteen practice questions are correct", "Practice results"]],
+          "objectives": ["Compare delivery approaches", "Choose an approach for a scenario", "Recognise approach signals in questions"]
+        },
+        {
+          "topic": "Project Life Cycles, Phases and Tailoring",
+          "subtopics": ["Project, product and development life cycles", "Phases and phase gates", "Tailoring processes to the project", "Tailoring for size, risk and regulation", "Organisational process assets and enterprise environmental factors", "Project management offices and their types", "The project manager's sphere of influence", "Tailoring questions on the exam"],
+          "tools": ["Life cycle diagrams", "Tailoring checklist", "Practice question bank"],
+          "lab_task": "Design and justify a tailored life cycle for a regulated software project and a small marketing project, and answer fifteen tailoring and life cycle questions.",
+          "deliverable": "Two tailored life cycles and practice results",
+          "checks": [["Tailor", "Each life cycle shows phases and the reasons for tailoring choices", "Life cycle designs"], ["Explain context", "Environmental factors and process assets are identified for each case", "Case notes"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Explain life cycles and phases", "Tailor delivery to context", "Answer tailoring questions"]
+        },
+        {
+          "topic": "Integration: The Project Management Plan and Delivery Planning",
+          "subtopics": ["Project charter and authorisation", "The project management plan and its parts", "Baselines and when they change", "Integrating plans across scope, schedule and cost", "Planning delivery in iterations", "Directing and managing project work", "Managing project knowledge", "Integration questions on the exam"],
+          "tools": ["Charter template", "Project management plan outline", "Practice question bank"],
+          "lab_task": "Write a charter and an outline project management plan for a case, identify the baselines and answer fifteen integration questions with written reasoning for each.",
+          "deliverable": "Charter, plan outline and reasoned answers",
+          "checks": [["Write the charter", "The charter has objectives, high-level scope, sponsor and authority", "Charter"], ["Identify baselines", "Scope, schedule and cost baselines are defined", "Plan outline"], ["Reason answers", "Each answer cites the concept behind it", "Answer sheet"]],
+          "objectives": ["Build an integrated plan", "Explain baselines", "Answer integration questions"]
+        },
+        {
+          "topic": "Scope: Requirements, WBS and Backlogs",
+          "subtopics": ["Collecting requirements", "Scope statement and exclusions", "Work breakdown structure and WBS dictionary", "Product backlog and user stories", "Definition of done and acceptance criteria", "Validating and controlling scope", "Scope creep and gold plating", "Scope questions in predictive and agile settings"],
+          "tools": ["WBS template", "Backlog board", "Practice question bank"],
+          "lab_task": "Build a WBS for a predictive case and a prioritised backlog with acceptance criteria for an agile case, then answer fifteen scope questions.",
+          "deliverable": "WBS, backlog and practice results",
+          "checks": [["Decompose", "The WBS reaches work packages with a dictionary for three of them", "WBS"], ["Write stories", "Backlog items have acceptance criteria and a definition of done", "Backlog"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Define scope in predictive projects", "Manage backlogs in agile projects", "Control scope"]
+        },
+        {
+          "topic": "Schedule: Networks, Critical Path and Release Plans",
+          "subtopics": ["Activities, sequencing and dependencies", "Network diagrams", "Critical path, float and the forward and backward pass", "Estimating durations", "Release and iteration planning", "Velocity and burndown charts", "Schedule compression: crashing and fast tracking", "Schedule calculation questions"],
+          "tools": ["Network diagram template", "Excel or Google Sheets", "Practice question bank"],
+          "lab_task": "Draw a network for twelve activities, calculate early and late dates, float and the critical path, build a release plan from a velocity, and solve ten schedule calculation questions.",
+          "deliverable": "Network diagram with calculations, release plan and practice results",
+          "checks": [["Calculate the critical path", "Critical path and float are correct", "Calculation sheet"], ["Plan releases", "The release plan matches the stated velocity", "Release plan"], ["Solve calculations", "At least eight of ten calculation questions are correct", "Practice results"]],
+          "objectives": ["Calculate critical path and float", "Plan releases with velocity", "Compress schedules"]
+        },
+        {
+          "topic": "Cost and Finance: Estimates, Budgets and Funding Limits",
+          "subtopics": ["Estimating methods: analogous, parametric and bottom-up", "Contingency and management reserves", "Building the cost baseline", "Funding limits and reconciliation", "Financial measures: ROI, NPV, payback", "Cost control and forecasts", "Agile budgeting", "Finance questions on the exam"],
+          "tools": ["Estimating worksheet", "Excel or Google Sheets", "Practice question bank"],
+          "lab_task": "Estimate a case project with two methods, build a cost baseline with reserves, compare two projects by NPV and payback, and answer fifteen finance questions.",
+          "deliverable": "Estimate, cost baseline, project comparison and practice results",
+          "checks": [["Estimate", "Both methods are applied with stated assumptions", "Estimating worksheet"], ["Build the baseline", "Contingency is inside the baseline and management reserve outside it", "Cost baseline"], ["Compare projects", "NPV and payback are calculated correctly", "Comparison"]],
+          "objectives": ["Estimate project costs", "Build budgets with reserves", "Use financial measures"]
+        },
+        {
+          "topic": "Quality for the Exam: Planning, Assurance, Control and Cost of Quality",
+          "subtopics": ["Quality compared with grade", "Planning quality and metrics", "Managing quality and process improvement", "Controlling quality: inspection and testing", "Cost of quality: prevention, appraisal and failure", "Quality tools: cause-and-effect, Pareto and control charts", "Built-in quality in agile teams", "Quality questions on the exam"],
+          "tools": ["Quality tool templates", "Sample data sets", "Practice question bank"],
+          "lab_task": "Analyse defect data with a Pareto chart and a control chart, classify costs of quality for a case and answer fifteen quality questions.",
+          "deliverable": "Charts, cost of quality table and practice results",
+          "checks": [["Read charts", "Out-of-control points and the main defect causes are identified", "Charts"], ["Classify costs", "Each cost is classed as prevention, appraisal or failure", "Cost table"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Plan and control quality", "Use quality tools", "Explain cost of quality"]
+        },
+        {
+          "topic": "Resources and Procurement: Teams, Materials and Contracts",
+          "subtopics": ["Resource planning and the RACI chart", "Acquiring and developing the team", "Physical resources", "Resource levelling and smoothing", "Make-or-buy decisions", "Contract types: fixed price, cost reimbursable and time and materials", "Procurement documents and seller selection", "Resource and procurement questions"],
+          "tools": ["RACI template", "Contract type comparison", "Practice question bank"],
+          "lab_task": "Build a RACI for a case, make a make-or-buy decision with figures, choose contract types for three procurement scenarios and answer fifteen questions.",
+          "deliverable": "RACI, make-or-buy decision, contract choices and practice results",
+          "checks": [["Assign responsibilities", "Each activity has exactly one accountable person", "RACI"], ["Choose contracts", "Each contract type matches the scenario's risk and scope clarity", "Contract choices"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Plan resources", "Make procurement decisions", "Choose contract types"]
+        },
+        {
+          "topic": "Stakeholders: Identification, Analysis and Engagement",
+          "subtopics": ["Identifying stakeholders early", "Power, interest and influence grids", "Stakeholder register", "Engagement levels: unaware to leading", "Engagement plans", "Managing expectations", "Stakeholders in agile projects", "Stakeholder scenario questions"],
+          "tools": ["Stakeholder register template", "Power and interest grid", "Practice question bank"],
+          "lab_task": "Build a stakeholder register and power-interest grid for a case, set current and desired engagement levels and actions, and answer fifteen stakeholder questions.",
+          "deliverable": "Stakeholder register, grid, engagement plan and practice results",
+          "checks": [["Analyse", "Each stakeholder is placed on the grid with a reason", "Grid"], ["Plan engagement", "Gaps between current and desired engagement have actions", "Engagement plan"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Identify and analyse stakeholders", "Plan engagement", "Answer stakeholder questions"]
+        },
+        {
+          "topic": "Communication Planning and Information Radiators",
+          "subtopics": ["Communication needs analysis", "Communication channels formula", "Push, pull and interactive communication", "Communication management plan", "Information radiators and big visible charts", "Reporting performance", "Communication in distributed teams", "Communication questions on the exam"],
+          "tools": ["Communication plan template", "Kanban or task board", "Practice question bank"],
+          "lab_task": "Write a communication plan for a case with twelve stakeholders, calculate communication channels, design an information radiator and answer fifteen communication questions.",
+          "deliverable": "Communication plan, radiator design and practice results",
+          "checks": [["Plan communication", "Each stakeholder group has content, frequency and method", "Communication plan"], ["Calculate channels", "The channel count is calculated correctly", "Calculation"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Plan project communication", "Use information radiators", "Answer communication questions"]
+        },
+        {
+          "topic": "Risk: Identification, Analysis and Responses",
+          "subtopics": ["Risks, issues and assumptions", "Risk identification techniques", "Qualitative analysis: probability and impact", "Quantitative analysis in brief", "Responses for threats and opportunities", "Risk owners and the risk register", "Risk in agile projects", "Risk questions on the exam"],
+          "tools": ["Risk register template", "Probability and impact matrix", "Practice question bank"],
+          "lab_task": "Identify risks for a case, analyse them on a probability and impact matrix, plan responses for threats and opportunities, and answer fifteen risk questions.",
+          "deliverable": "Risk register with responses and practice results",
+          "checks": [["Analyse", "Each risk has probability, impact and an owner", "Risk register"], ["Respond", "Threats and opportunities have the correct response types", "Risk register"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Identify and analyse risks", "Plan risk responses", "Tell risks from issues"]
+        },
+        {
+          "topic": "Leading the Project Team: Vision, Servant Leadership and Empowerment",
+          "subtopics": ["Developing a shared vision", "Servant leadership", "Leadership styles in different situations", "Empowering the team and delegating decisions", "Team development stages", "Conflict management techniques", "Emotional intelligence", "Leadership scenario questions"],
+          "tools": ["Leadership style cards", "Team charter template", "Practice question bank"],
+          "lab_task": "Write a team charter and vision statement for a case team, choose leadership responses to six team situations, and answer fifteen leadership questions.",
+          "deliverable": "Team charter, vision statement, situation responses and practice results",
+          "checks": [["Set vision", "The vision statement links the team's work to the project goal", "Vision statement"], ["Respond as a servant leader", "Responses support the team rather than direct it", "Situation responses"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Lead teams", "Apply servant leadership", "Manage team conflict"]
+        },
+        {
+          "topic": "Agile Practices: Scrum Events, Kanban and User Stories",
+          "subtopics": ["Scrum roles, events and artefacts", "Kanban boards and work-in-progress limits", "User stories and estimation with story points", "Daily stand-ups and impediments", "Reviews, retrospectives and continuous improvement", "Product owner and stakeholder collaboration", "Scaling ideas in brief", "Agile practice questions on the exam"],
+          "tools": ["Scrum guide", "Kanban board", "Practice question bank"],
+          "lab_task": "Run a simulated two-iteration project with a Kanban board, estimate stories with points, hold a review and retrospective, and answer fifteen agile practice questions.",
+          "deliverable": "Board snapshots, iteration notes and practice results",
+          "checks": [["Run iterations", "Both iterations include planning, review and retrospective notes", "Iteration notes"], ["Limit work in progress", "The board shows WIP limits being respected", "Board snapshots"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Apply Scrum and Kanban", "Write and estimate user stories", "Answer agile questions"]
+        },
+        {
+          "topic": "Earned Value Management and the Formulas to Know",
+          "subtopics": ["Planned value, earned value and actual cost", "Cost and schedule variance", "Cost and schedule performance indexes", "Estimate at completion and its variants", "Estimate to complete and variance at completion", "To-complete performance index", "Interpreting results for decisions", "Earned value questions under time pressure"],
+          "tools": ["Formula sheet", "Calculator", "Practice question bank"],
+          "lab_task": "Calculate earned value results for three case projects, interpret what each result means for the project, and solve twenty earned value questions against the clock.",
+          "deliverable": "Calculations, interpretations and timed practice results",
+          "checks": [["Calculate", "All variances and indexes are correct", "Calculation sheet"], ["Interpret", "Each result is explained as ahead, behind, over or under", "Interpretations"], ["Work fast", "At least sixteen of twenty questions are correct within thirty minutes", "Timed results"]],
+          "objectives": ["Calculate earned value measures", "Interpret performance", "Solve formula questions quickly"]
+        },
+        {
+          "topic": "Reading PMP Questions: Situational Question Strategy",
+          "subtopics": ["How situational questions are built", "Finding what the question really asks", "Spotting the delivery approach in the scenario", "What a project manager should do first or next", "Eliminating answers that escalate too early or skip analysis", "Answers that break the PMI Code of Ethics", "Multiple response, matching and hotspot questions", "Keeping an error log"],
+          "tools": ["Practice question bank", "Error log template", "Question strategy card"],
+          "lab_task": "Answer thirty situational questions using the strategy card, write the reason for every wrong answer in an error log and identify your three most common error types.",
+          "deliverable": "Answered questions and an error log with three error types",
+          "checks": [["Use the method", "Every answer shows the elimination steps", "Answer sheet"], ["Log errors", "Every wrong answer has a reason in the error log", "Error log"], ["Find patterns", "Three error types are identified with examples", "Error log summary"]],
+          "objectives": ["Read situational questions accurately", "Eliminate wrong answers", "Learn from errors"]
+        },
+        {
+          "topic": "Mixed Domain Practice Set with Detailed Review",
+          "subtopics": ["Mixed questions from all three domains", "Timed practice at exam pace", "Reviewing correct answers as well as wrong ones", "Linking each question to an outline task", "Updating confidence ratings", "Adjusting the study plan", "Peer explanation of difficult questions", "Building a list of terms to revise"],
+          "tools": ["Practice question bank", "Content outline checklist", "Error log template"],
+          "lab_task": "Answer sixty mixed questions in seventy-five minutes, review every question with its outline task, update your confidence ratings and change next week's study plan.",
+          "deliverable": "Practice results, updated checklist and revised study plan",
+          "checks": [["Keep pace", "Sixty questions are answered within seventy-five minutes", "Timed results"], ["Map questions", "Each reviewed question is linked to an outline task", "Review notes"], ["Adjust the plan", "The plan changes based on the results", "Revised study plan"]],
+          "objectives": ["Practise across all domains", "Review answers in depth", "Adjust study to results"]
+        },
+        {
+          "topic": "Beginner Capstone: First Diagnostic Mock Exam and Study Plan",
+          "subtopics": ["Diagnostic mock exam", "Results by domain", "Error log analysis", "Revised study plan", "Application readiness check", "Study group commitments"],
+          "tools": ["Practice question bank", "Error log template", "Study plan template"],
+          "lab_task": "Sit a timed diagnostic mock exam of at least ninety questions, analyse results by domain and error type, and produce a revised study plan with a target exam date and a completed application draft.",
+          "deliverable": "Mock exam results, analysis, revised plan and application draft",
+          "checks": [["Sit the mock", "The mock is completed under timed conditions", "Mock exam report"], ["Analyse", "Results are broken down by domain with error types", "Analysis"], ["Plan", "The revised plan targets the weakest domain first", "Study plan"]],
+          "objectives": ["Measure readiness", "Analyse results by domain", "Plan the next stage of study"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For candidates who know the core concepts and need to reach exam standard. Works through the July 2026 content outline domain by domain with situational practice: vision and conflict, team performance, stakeholders and communication, distributed teams, knowledge transfer, integrated planning and value-based delivery, scope, schedule, finance and procurement, quality and status, closure, governance and compliance, change control, risk and issues, impediments and improvement, organisational and external change, AI and sustainability scenarios, hybrid choices and a full-length mock exam.",
+      "prerequisites": ["Has completed beginner PMP preparation or equivalent study", "Scores at least fifty percent on a diagnostic mock exam", "Has submitted or drafted the PMP application"],
+      "outcomes": ["Answer situational questions across all three domains at exam standard", "Handle Business Environment questions on governance, compliance, change and risk", "Choose and combine predictive, agile and hybrid practices in scenarios", "Complete a full-length mock exam and target remaining gaps"],
+      "days": [
+        {
+          "topic": "People Domain in Depth: Developing a Common Vision and Managing Conflict",
+          "subtopics": ["Helping the team and stakeholders share a vision", "Finding the root cause when the vision is misunderstood", "Sources of conflict in projects", "Conflict techniques: collaborate, compromise, smooth, force and withdraw", "When the project manager should step in", "Ground rules and team agreements", "Conflict in agile and hybrid teams", "Vision and conflict scenario questions"],
+          "tools": ["Content outline checklist", "Conflict technique cards", "Practice question bank"],
+          "lab_task": "Resolve four conflict scenarios by choosing and justifying a technique, write a team agreement for a hybrid team, and answer twenty People questions on vision and conflict.",
+          "deliverable": "Scenario decisions, team agreement and practice results",
+          "checks": [["Choose techniques", "Each scenario has a suitable technique with a reason", "Scenario decisions"], ["Agree ground rules", "The team agreement covers communication, decisions and conflict", "Team agreement"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Build a shared vision", "Resolve conflict in exam scenarios", "Set team ground rules"]
+        },
+        {
+          "topic": "Team Performance: Coaching, Emotional Intelligence and Recognition in Exam Scenarios",
+          "subtopics": ["Assessing team performance", "Coaching and mentoring team members", "Emotional intelligence in leadership decisions", "Recognition and rewards", "Training and skill gaps", "Self-organising teams and when to intervene", "Team performance measures", "Team performance scenario questions"],
+          "tools": ["Team assessment template", "Practice question bank", "Error log template"],
+          "lab_task": "Diagnose performance problems in three team cases, pick the project manager's best next action for each, and answer twenty team performance questions with written reasoning.",
+          "deliverable": "Case diagnoses, chosen actions and practice results",
+          "checks": [["Diagnose", "Each case identifies the cause of the performance problem", "Case diagnoses"], ["Act", "Chosen actions support and develop the team before escalating", "Chosen actions"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Improve team performance", "Coach in exam scenarios", "Choose the best next action"]
+        },
+        {
+          "topic": "Stakeholder Engagement and Communication Scenarios",
+          "subtopics": ["Engaging resistant and unaware stakeholders", "Communicating with sponsors and executives", "Changing stakeholder needs during the project", "Communication methods for different needs", "Feedback loops and confirming understanding", "Communication failures and their causes", "Stakeholder and communication tasks in the outline", "Scenario questions on engagement and communication"],
+          "tools": ["Stakeholder engagement matrix", "Communication plan template", "Practice question bank"],
+          "lab_task": "Work through five stakeholder and communication cases, decide the first action in each, update an engagement matrix and answer twenty scenario questions.",
+          "deliverable": "Case decisions, updated matrix and practice results",
+          "checks": [["Act first correctly", "The first action in each case addresses the root cause", "Case decisions"], ["Update engagement", "The matrix shows current and desired levels with actions", "Engagement matrix"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Engage stakeholders in exam scenarios", "Fix communication problems", "Choose first actions"]
+        },
+        {
+          "topic": "Virtual, Distributed and Hybrid Teams in Exam Questions",
+          "subtopics": ["Distributed and hybrid team challenges", "Time zones and asynchronous work", "Tools for collaboration", "Building trust and inclusion remotely", "Cultural differences in teams", "Co-location compared with virtual teams", "Remote team agreements", "Distributed team scenario questions"],
+          "tools": ["Team agreement template", "Collaboration tool examples", "Practice question bank"],
+          "lab_task": "Write a working agreement for a team spread across three time zones, answer twenty distributed team questions and explain the two you found hardest to a study partner.",
+          "deliverable": "Working agreement, practice results and explanations",
+          "checks": [["Agree how to work", "The agreement covers time zones, tools and response times", "Working agreement"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"], ["Explain", "Both hard questions are explained with the reasoning behind the answer", "Partner notes"]],
+          "objectives": ["Lead distributed teams", "Build inclusion across cultures", "Answer virtual team questions"]
+        },
+        {
+          "topic": "Knowledge Transfer and Lessons Learned",
+          "subtopics": ["Explicit and tacit knowledge", "Lessons learned throughout the project", "Knowledge repositories", "Transferring knowledge to operations and new team members", "Retrospectives as knowledge sharing", "Communities of practice", "Knowledge transfer tasks in the outline", "Knowledge transfer scenario questions"],
+          "tools": ["Lessons learned register", "Knowledge transfer checklist", "Practice question bank"],
+          "lab_task": "Build a lessons learned register and a knowledge transfer plan for a project handover, then answer fifteen knowledge transfer questions.",
+          "deliverable": "Lessons learned register, transfer plan and practice results",
+          "checks": [["Capture lessons", "Lessons include cause, impact and recommendation", "Lessons register"], ["Plan transfer", "The plan covers documents, sessions and owners", "Transfer plan"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Manage project knowledge", "Transfer knowledge at handover", "Answer knowledge questions"]
+        },
+        {
+          "topic": "Process Domain in Depth: Integrated Planning and Value-Based Delivery",
+          "subtopics": ["Integrated planning across all parts of the plan", "Planning delivery for predictive, agile and hybrid projects", "Value-based delivery and prioritisation", "Minimum viable product and incremental value", "Benefits and value measures in the plan", "Keeping plans aligned as things change", "Process tasks on planning and value in the outline", "Planning and value scenario questions"],
+          "tools": ["Planning templates", "Value prioritisation matrix", "Practice question bank"],
+          "lab_task": "Build an integrated delivery plan for a hybrid case that releases value early, prioritise features by value and answer twenty planning and value questions.",
+          "deliverable": "Delivery plan, prioritised features and practice results",
+          "checks": [["Integrate", "The plan aligns scope, schedule, cost and resources", "Delivery plan"], ["Deliver value early", "The first release delivers the highest-value features", "Prioritisation"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Plan delivery in an integrated way", "Prioritise for value", "Answer planning questions"]
+        },
+        {
+          "topic": "Scope and Requirements Scenarios in Agile and Predictive Projects",
+          "subtopics": ["Unclear and changing requirements", "Prioritisation methods: MoSCoW and value", "Backlog refinement", "Scope changes and the change process", "Acceptance and validation", "Requirements traceability", "Gold plating and scope creep scenarios", "Scope scenario questions"],
+          "tools": ["Traceability matrix", "Backlog board", "Practice question bank"],
+          "lab_task": "Handle four scope scenarios (unclear requirements, a new feature request, gold plating and a failed acceptance), prioritise a backlog and answer twenty scope questions.",
+          "deliverable": "Scenario responses, prioritised backlog and practice results",
+          "checks": [["Respond correctly", "Each scenario response follows the right process for the approach", "Responses"], ["Prioritise", "The backlog is ordered with stated reasons", "Backlog"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Manage scope in scenarios", "Prioritise requirements", "Handle scope changes"]
+        },
+        {
+          "topic": "Schedule Compression, Resource Levelling and Agile Velocity",
+          "subtopics": ["Crashing and fast tracking trade-offs", "Resource levelling and its effect on the critical path", "Resource smoothing", "Velocity, capacity and forecasting", "Burnup and burndown interpretation", "Schedule delays and recovery", "Schedule scenario questions", "Schedule calculations at exam speed"],
+          "tools": ["Network diagram template", "Burndown chart samples", "Practice question bank"],
+          "lab_task": "Recover a delayed schedule in a case by choosing between crashing and fast tracking with costs, forecast completion from velocity data and solve twenty schedule questions.",
+          "deliverable": "Recovery plan, forecast and practice results",
+          "checks": [["Recover the schedule", "The chosen option meets the deadline at the lowest stated cost", "Recovery plan"], ["Forecast", "The completion forecast matches the velocity data", "Forecast"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Compress schedules", "Level resources", "Forecast with velocity"]
+        },
+        {
+          "topic": "Finance and Procurement: Contracts, Make-or-Buy and Budget Control",
+          "subtopics": ["Budget control and forecasts", "Financial decisions in scenarios", "Procurement strategy", "Contract types and risk", "Managing seller performance", "Claims and disputes", "Closing procurements", "Finance and procurement scenario questions"],
+          "tools": ["Contract type comparison", "Budget tracker", "Practice question bank"],
+          "lab_task": "Handle five procurement and budget scenarios (a seller delay, a claim, a cost overrun, a contract choice and a closure), and answer twenty finance and procurement questions.",
+          "deliverable": "Scenario responses and practice results",
+          "checks": [["Manage sellers", "The seller scenario follows the contract terms", "Responses"], ["Control budget", "The overrun response uses forecasts and options", "Responses"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Control project finances", "Manage procurement scenarios", "Answer contract questions"]
+        },
+        {
+          "topic": "Quality and Project Status: Metrics, Dashboards and Reporting",
+          "subtopics": ["Quality metrics and thresholds", "Project status measures", "Dashboards and information radiators", "Variance analysis and trends", "Reporting to sponsors and governance bodies", "Quality problems in scenarios", "Status and quality tasks in the outline", "Status and quality scenario questions"],
+          "tools": ["Dashboard template", "Sample project data", "Practice question bank"],
+          "lab_task": "Build a project status dashboard from sample data with quality and schedule measures, interpret the trends and answer twenty status and quality questions.",
+          "deliverable": "Dashboard, trend notes and practice results",
+          "checks": [["Build the dashboard", "The dashboard shows status, trends and thresholds", "Dashboard"], ["Interpret", "Trend notes state what needs action", "Trend notes"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Measure project status", "Report quality and progress", "Answer status questions"]
+        },
+        {
+          "topic": "Project Closure and Transition to Operations",
+          "subtopics": ["Closing phases and projects", "Formal acceptance", "Transition and handover to operations", "Closing contracts", "Final reports and lessons learned", "Releasing resources", "Early termination of projects", "Closure scenario questions"],
+          "tools": ["Closure checklist", "Transition plan template", "Practice question bank"],
+          "lab_task": "Close a case project with a closure checklist, transition plan and final report, handle an early termination scenario and answer fifteen closure questions.",
+          "deliverable": "Closure checklist, transition plan, final report and practice results",
+          "checks": [["Close formally", "Acceptance, contracts and resources are all closed", "Closure checklist"], ["Transition", "The transition plan names receiving owners", "Transition plan"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Close projects correctly", "Transition to operations", "Handle early termination"]
+        },
+        {
+          "topic": "Business Environment in Depth: Governance and Compliance",
+          "subtopics": ["Project governance structures", "Decision rights and escalation paths", "Compliance requirements and their sources", "Auditing and evidence of compliance", "Governance in agile and hybrid projects", "Sponsors, steering committees and PMOs", "Governance and compliance tasks in the outline", "Governance and compliance scenario questions"],
+          "tools": ["Governance structure template", "Compliance register", "Practice question bank"],
+          "lab_task": "Design a governance structure and compliance register for a regulated case project, and answer twenty governance and compliance questions.",
+          "deliverable": "Governance structure, compliance register and practice results",
+          "checks": [["Define governance", "Decision rights and escalation paths are clear", "Governance structure"], ["Track compliance", "Each requirement has an owner and evidence", "Compliance register"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Establish project governance", "Manage compliance", "Answer governance questions"]
+        },
+        {
+          "topic": "Integrated Change Control and Agile Change",
+          "subtopics": ["Change requests and impact analysis", "The change control board", "Configuration management", "Change in agile projects: the backlog and the product owner", "Change in hybrid projects", "Unauthorised changes and how to respond", "Change tasks in the Business Environment domain", "Change scenario questions"],
+          "tools": ["Change request template", "Change log", "Practice question bank"],
+          "lab_task": "Process three change requests through impact analysis and a change board, handle an unauthorised change scenario and answer twenty change questions.",
+          "deliverable": "Change requests with decisions and practice results",
+          "checks": [["Analyse impact", "Each change request shows scope, schedule, cost and risk impact", "Change requests"], ["Follow the process", "Decisions are made by the right authority", "Change log"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Control changes", "Handle change in agile and hybrid projects", "Answer change questions"]
+        },
+        {
+          "topic": "Risk and Issue Management Under the 2026 Outline",
+          "subtopics": ["Risk planning and appetite", "Risk reviews and audits", "Issue logs and resolution", "Escalating risks and issues", "Contingency and fallback plans", "Risk in the Business Environment domain", "Risk and issue scenarios", "Risk and issue questions"],
+          "tools": ["Risk register", "Issue log", "Practice question bank"],
+          "lab_task": "Run a risk review for a case project, convert two occurred risks into issues with actions, escalate one correctly and answer twenty risk and issue questions.",
+          "deliverable": "Updated risk register, issue log and practice results",
+          "checks": [["Review risks", "The register shows updated ratings and owners", "Risk register"], ["Manage issues", "Occurred risks become issues with workarounds or contingency", "Issue log"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Manage risks throughout the project", "Resolve issues", "Escalate appropriately"]
+        },
+        {
+          "topic": "Impediments, Continuous Improvement and Retrospectives",
+          "subtopics": ["Identifying and removing impediments", "The project manager as an impediment remover", "Continuous improvement methods", "Retrospectives and their outcomes", "Kaizen and lean ideas", "Measuring improvement", "Improvement tasks in the outline", "Impediment and improvement scenario questions"],
+          "tools": ["Impediment board", "Retrospective formats", "Practice question bank"],
+          "lab_task": "Run a retrospective for a case team, turn its outcomes into improvement actions, clear three impediments on an impediment board and answer fifteen questions.",
+          "deliverable": "Retrospective outcomes, improvement actions and practice results",
+          "checks": [["Run the retrospective", "The retrospective produces specific improvement actions", "Retrospective notes"], ["Remove impediments", "Each impediment has an owner and a resolution", "Impediment board"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Remove impediments", "Lead continuous improvement", "Answer improvement questions"]
+        },
+        {
+          "topic": "Organisational Change and External Environment Changes",
+          "subtopics": ["Organisational change and its effect on projects", "Readiness for change", "Supporting adoption of project outcomes", "External changes: regulation, market and technology", "Assessing the impact of external change", "Adjusting plans to new conditions", "Change tasks in the outline", "Organisational and external change scenario questions"],
+          "tools": ["Change readiness assessment", "Impact assessment template", "Practice question bank"],
+          "lab_task": "Assess change readiness for a project's users, respond to a new regulation that affects the project and answer twenty organisational and external change questions.",
+          "deliverable": "Readiness assessment, impact response and practice results",
+          "checks": [["Assess readiness", "Readiness is rated for each user group", "Readiness assessment"], ["Respond to external change", "The response updates scope, risk and plan", "Impact response"], ["Practise", "At least fifteen of twenty questions are correct", "Practice results"]],
+          "objectives": ["Support organisational change", "Respond to external changes", "Answer change environment questions"]
+        },
+        {
+          "topic": "AI and Sustainability in Project Scenarios",
+          "subtopics": ["How AI appears in exam scenarios", "Using AI tools in project work responsibly", "Data privacy and ethics with AI", "Sustainability goals and project decisions", "Environmental and social impact", "Balancing sustainability with scope, cost and schedule", "Stakeholder expectations on AI and sustainability", "AI and sustainability scenario questions"],
+          "tools": ["Practice question bank", "Ethics checklist", "Sustainability impact template"],
+          "lab_task": "Decide responsibly how a case team should use AI tools for reporting and estimation, assess the sustainability impact of two design options, and answer fifteen scenario questions.",
+          "deliverable": "AI use decisions, sustainability assessment and practice results",
+          "checks": [["Use AI responsibly", "Decisions address privacy, accuracy and transparency", "AI use decisions"], ["Assess sustainability", "Both options are compared on environmental and social impact", "Assessment"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Handle AI in project scenarios", "Consider sustainability in decisions", "Answer new scenario types"]
+        },
+        {
+          "topic": "Hybrid Project Scenarios: Choosing and Combining Approaches",
+          "subtopics": ["Signals that a project needs a hybrid approach", "Combining predictive governance with agile delivery", "Hybrid planning and reporting", "Roles in hybrid teams", "Transitioning a team to agile", "Common hybrid exam traps", "Hybrid tasks across domains", "Hybrid scenario questions"],
+          "tools": ["Hybrid model examples", "Practice question bank", "Error log template"],
+          "lab_task": "Design a hybrid approach for a case with fixed regulatory milestones and changing software features, and answer twenty-five hybrid scenario questions with written reasoning.",
+          "deliverable": "Hybrid approach design and practice results",
+          "checks": [["Design the hybrid", "Fixed milestones and agile delivery are combined clearly", "Approach design"], ["Reason", "Each answer states why the other options are wrong", "Answer sheet"], ["Practise", "At least nineteen of twenty-five questions are correct", "Practice results"]],
+          "objectives": ["Combine approaches", "Plan hybrid delivery", "Answer hybrid questions"]
+        },
+        {
+          "topic": "Full-Length Timed Mock Exam and Review",
+          "subtopics": ["Exam conditions and timing", "Using the optional breaks", "Pacing checkpoints", "Marking questions for review", "Review by domain and task", "Error types and patterns", "Fatigue and concentration", "Next study priorities"],
+          "tools": ["Full-length practice exam", "Timer", "Error log template"],
+          "lab_task": "Sit a full 180-question mock exam in 240 minutes with the two optional breaks, then review every wrong answer by domain, task and error type.",
+          "deliverable": "Mock exam result, error analysis and priorities",
+          "checks": [["Complete the exam", "All 180 questions are answered within the time", "Mock exam report"], ["Analyse", "Wrong answers are grouped by domain, task and error type", "Error analysis"], ["Prioritise", "The three weakest tasks are named for the next study block", "Priority list"]],
+          "objectives": ["Practise under exam conditions", "Analyse a full mock exam", "Set study priorities"]
+        },
+        {
+          "topic": "Intermediate Capstone: Domain Gap Analysis and Targeted Practice Plan",
+          "subtopics": ["Results from all practice sets", "Domain and task gap analysis", "Error log trends", "Targeted practice plan", "Exam date decision", "Study group review"],
+          "tools": ["Error log", "Content outline checklist", "Study plan template"],
+          "lab_task": "Combine all practice results and the mock exam into a gap analysis by domain and task, build a four-week targeted practice plan and decide whether to book the exam.",
+          "deliverable": "Gap analysis, targeted plan and exam date decision",
+          "checks": [["Analyse gaps", "Every task with low scores is identified", "Gap analysis"], ["Target practice", "The plan spends most time on the weakest tasks", "Practice plan"], ["Decide", "The exam date decision is justified by the results", "Decision note"]],
+          "objectives": ["Combine intermediate preparation", "Target remaining gaps", "Decide when to sit the exam"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For candidates in the final weeks before the exam, experienced project managers aiming for a high score and candidates retaking the exam. Covers the hardest situational questions, case-based question sets, the agile mindset, complex stakeholders, procurement edge cases, calculations under time pressure, quantitative risk, ethics, benefits and value, tailoring decisions, distractors, pacing for 240 minutes, three further mock exams, domain sprints, final revision and exam-day rules.",
+      "prerequisites": ["Has completed intermediate PMP preparation or equivalent study", "Scores at least sixty-five percent on full-length mock exams", "Has an approved application or a booked exam"],
+      "outcomes": ["Score consistently above target on full-length mock exams", "Answer the hardest situational and case-based questions with a reliable method", "Manage time, energy and exam-day rules confidently", "Make an evidence-based decision on exam readiness"],
+      "days": [
+        {
+          "topic": "Hard Situational Questions: Choosing the Best of Several Right Answers",
+          "subtopics": ["Why several answers can look correct", "Ranking answers by what PMI expects a project manager to do", "Analyse before acting", "Collaborate before escalating", "Process and approach consistency", "Answers that are true but do not answer the question", "Reasoning aloud with a study partner", "Hard question practice"],
+          "tools": ["Hard question set", "Error log", "Question strategy card"],
+          "lab_task": "Answer forty of the hardest situational questions, rank all four options for ten of them with reasons, and discuss disagreements with a study partner.",
+          "deliverable": "Answers, ranked options and discussion notes",
+          "checks": [["Rank options", "Ten questions have all options ranked with reasons", "Ranking sheet"], ["Score", "At least twenty-eight of forty questions are correct", "Practice results"], ["Resolve disagreements", "Disagreements are settled with references to the outline or guide", "Discussion notes"]],
+          "objectives": ["Choose the best answer", "Rank plausible options", "Reason like an experienced project manager"]
+        },
+        {
+          "topic": "Case-Based Question Sets: Reading Long Scenarios Efficiently",
+          "subtopics": ["How case-based question sets work", "Reading the case once with purpose", "Taking short notes on key facts", "Answering several questions from one case", "Avoiding assumptions not in the case", "Time per case", "Linking case facts to the right domain", "Case-based practice"],
+          "tools": ["Case-based practice sets", "Note template", "Timer"],
+          "lab_task": "Work through four case-based question sets under time limits, take short notes on each case and review where missed facts led to wrong answers.",
+          "deliverable": "Case notes, answers and review",
+          "checks": [["Read efficiently", "Each case is completed within the time limit", "Timed results"], ["Use facts", "Wrong answers are traced to missed or assumed facts", "Review notes"], ["Score", "At least seventy-five percent of case questions are correct", "Practice results"]],
+          "objectives": ["Handle case-based questions", "Read long scenarios efficiently", "Avoid unsupported assumptions"]
+        },
+        {
+          "topic": "Agile Mindset Questions: Servant Leadership and Self-Organising Teams",
+          "subtopics": ["The agile mindset behind exam answers", "Letting the team decide", "Protecting the team from interruptions", "Product owner authority over the backlog", "Coaching rather than directing", "Agile values and principles in scenarios", "When agile answers are wrong for the scenario", "Agile mindset practice"],
+          "tools": ["Agile question set", "Agile values reference", "Error log"],
+          "lab_task": "Answer thirty agile mindset questions, flag each answer that directs the team instead of enabling it, and rewrite your reasoning for every wrong answer.",
+          "deliverable": "Answers, flagged directive answers and rewritten reasoning",
+          "checks": [["Spot directive answers", "Directive options are flagged in every question", "Annotated questions"], ["Score", "At least twenty-four of thirty questions are correct", "Practice results"], ["Rewrite reasoning", "Every wrong answer has corrected reasoning", "Error log"]],
+          "objectives": ["Answer with an agile mindset", "Support self-organising teams", "Recognise when agile does not fit"]
+        },
+        {
+          "topic": "Complex Stakeholder Scenarios: Executives, Regulators and Vendors",
+          "subtopics": ["Conflicting stakeholder priorities", "Executives who bypass the process", "Regulators and compliance demands", "Vendors and partners as stakeholders", "Stakeholders who join late", "Political and cultural complexity", "Escalation as a last resort", "Complex stakeholder practice"],
+          "tools": ["Stakeholder scenario set", "Engagement matrix", "Error log"],
+          "lab_task": "Answer twenty-five complex stakeholder questions and write the reasoning for six of them as if teaching another candidate.",
+          "deliverable": "Answers and six teaching explanations",
+          "checks": [["Score", "At least nineteen of twenty-five questions are correct", "Practice results"], ["Teach", "Each explanation covers why the right answer is best and others are not", "Explanations"], ["Log errors", "Wrong answers are added to the error log with causes", "Error log"]],
+          "objectives": ["Handle complex stakeholders", "Avoid premature escalation", "Explain reasoning clearly"]
+        },
+        {
+          "topic": "Contract and Procurement Edge Cases",
+          "subtopics": ["Ambiguous contract terms", "Seller non-performance", "Changes to contracted work", "Termination for convenience and for cause", "Claims and alternative dispute resolution", "Procurement in agile contracts", "Ethics and conflicts of interest in procurement", "Procurement edge case practice"],
+          "tools": ["Procurement question set", "Contract type reference", "Error log"],
+          "lab_task": "Answer twenty procurement edge case questions, decide the correct action in three disputed contract scenarios and check each against the contract type and terms.",
+          "deliverable": "Answers, scenario decisions and reference checks",
+          "checks": [["Score", "At least fifteen of twenty questions are correct", "Practice results"], ["Decide disputes", "Each dispute decision follows the contract terms", "Scenario decisions"], ["Avoid conflicts", "Ethical issues in procurement are identified", "Annotated scenarios"]],
+          "objectives": ["Handle procurement edge cases", "Resolve contract disputes", "Apply procurement ethics"]
+        },
+        {
+          "topic": "Earned Value and Financial Calculations Under Time Pressure",
+          "subtopics": ["The formulas that appear most", "Choosing the right estimate at completion formula", "Reading what the question gives you", "Financial measures in project selection", "Calculating quickly without errors", "Interpreting results rather than only calculating", "Time limits per calculation", "Timed calculation practice"],
+          "tools": ["Formula sheet", "Calculator", "Timed question set"],
+          "lab_task": "Solve thirty calculation questions in thirty-five minutes, recheck every wrong answer for formula choice or arithmetic error, and repeat a second set to measure improvement.",
+          "deliverable": "Two timed result sets with an error analysis",
+          "checks": [["Work fast", "Thirty questions are answered within thirty-five minutes", "Timed results"], ["Find error causes", "Each error is classed as formula choice or arithmetic", "Error analysis"], ["Improve", "The second set scores higher than the first", "Result comparison"]],
+          "objectives": ["Calculate quickly and accurately", "Choose the right formula", "Interpret results"]
+        },
+        {
+          "topic": "Risk Quantification: EMV, Decision Trees and Reserves",
+          "subtopics": ["Expected monetary value", "Decision trees", "Monte Carlo simulation in concept", "Sensitivity analysis and tornado charts", "Contingency reserves from analysis", "Risk appetite and thresholds", "Interpreting quantitative results", "Quantitative risk practice"],
+          "tools": ["Decision tree template", "Excel or Google Sheets", "Risk question set"],
+          "lab_task": "Build a decision tree for a make-or-buy risk decision, calculate EMV for a set of risks and the resulting contingency reserve, and answer fifteen quantitative risk questions.",
+          "deliverable": "Decision tree, EMV calculations and practice results",
+          "checks": [["Calculate EMV", "EMV values and the decision are correct", "Decision tree"], ["Set reserves", "Contingency is derived from the analysis", "Reserve calculation"], ["Score", "At least twelve of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Quantify risk", "Use decision trees", "Set reserves from analysis"]
+        },
+        {
+          "topic": "Ethics and the PMI Code of Ethics and Professional Conduct",
+          "subtopics": ["Responsibility, respect, fairness and honesty", "Aspirational and mandatory standards", "Conflicts of interest", "Reporting unethical behaviour", "Cultural norms compared with ethics", "Gifts, bribes and local practices", "Ethics in AI use and data handling", "Ethics scenario practice"],
+          "tools": ["PMI Code of Ethics and Professional Conduct", "Ethics question set", "Error log"],
+          "lab_task": "Answer twenty ethics scenario questions, map each answer to a value in the Code of Ethics and discuss two grey-area cases in a group.",
+          "deliverable": "Answers mapped to the Code and discussion notes",
+          "checks": [["Map to the Code", "Each answer cites the value it applies", "Mapping sheet"], ["Score", "At least seventeen of twenty questions are correct", "Practice results"], ["Discuss grey areas", "Both cases reach a reasoned conclusion", "Discussion notes"]],
+          "objectives": ["Apply the Code of Ethics", "Recognise ethical traps", "Decide grey-area cases"]
+        },
+        {
+          "topic": "Benefits Realisation and Value Measurement Scenarios",
+          "subtopics": ["Benefits and value in the exam", "Benefits management plans", "Measuring value during delivery", "Benefits after project closure", "Value in agile delivery", "When value is not being delivered", "Value and benefits tasks in the outline", "Value scenario practice"],
+          "tools": ["Benefits register", "Value measures template", "Practice question set"],
+          "lab_task": "Build a benefits register for a case, decide what to do when early releases show low value, and answer fifteen value and benefits questions.",
+          "deliverable": "Benefits register, decision and practice results",
+          "checks": [["Measure benefits", "Each benefit has a measure, owner and timing", "Benefits register"], ["Decide on value", "The decision uses value evidence", "Decision note"], ["Score", "At least twelve of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Manage benefits", "Measure value", "Answer value questions"]
+        },
+        {
+          "topic": "Tailoring Decisions in Exam Scenarios",
+          "subtopics": ["What tailoring questions test", "Tailoring for project size and complexity", "Tailoring for regulated environments", "Tailoring for team experience", "Tailoring for organisational culture", "Over-tailoring and under-tailoring", "Tailoring in the PMBOK Guide Eighth Edition", "Tailoring practice"],
+          "tools": ["Tailoring checklist", "Practice question set", "Error log"],
+          "lab_task": "Make tailoring decisions for five case projects with different constraints and answer twenty tailoring questions with written reasons.",
+          "deliverable": "Tailoring decisions and practice results",
+          "checks": [["Tailor", "Each decision addresses the case's main constraint", "Tailoring decisions"], ["Score", "At least sixteen of twenty questions are correct", "Practice results"], ["Reason", "Each answer states the factor that drove the choice", "Answer sheet"]],
+          "objectives": ["Make tailoring decisions", "Recognise tailoring factors", "Avoid over-tailoring"]
+        },
+        {
+          "topic": "Common Distractors and Trap Answers",
+          "subtopics": ["Answers that escalate too early", "Answers that skip analysis", "Answers that blame or fire people", "Answers using the wrong approach for the scenario", "Absolute words and their risk", "Process steps out of order", "True statements that do not answer the question", "Distractor spotting practice"],
+          "tools": ["Distractor checklist", "Practice question set", "Error log"],
+          "lab_task": "Label the distractor type in every wrong option of thirty questions, then answer a fresh set of thirty and compare error rates.",
+          "deliverable": "Labelled options and comparison of two sets",
+          "checks": [["Label distractors", "Every wrong option in the first set has a distractor label", "Labelled set"], ["Improve", "The second set has fewer errors than the first", "Result comparison"], ["Update the log", "Distractor types are added to the error log", "Error log"]],
+          "objectives": ["Recognise distractors", "Avoid trap answers", "Reduce errors"]
+        },
+        {
+          "topic": "Time Management Strategy for 240 Minutes",
+          "subtopics": ["Pacing per question and per section", "Checkpoints at each break", "Marking and returning to questions", "When to guess and move on", "Using the breaks to recover", "Handling long case sets", "Staying focused for four hours", "Rehearsing the timing plan"],
+          "tools": ["Timing plan template", "Timer", "Practice question set"],
+          "lab_task": "Write a personal timing plan with checkpoints, rehearse it on a ninety-question timed set and adjust the plan from the results.",
+          "deliverable": "Timing plan and rehearsal results",
+          "checks": [["Plan timing", "The plan sets checkpoints for each section and break", "Timing plan"], ["Rehearse", "The rehearsal meets each checkpoint", "Rehearsal log"], ["Adjust", "The plan changes where checkpoints were missed", "Revised timing plan"]],
+          "objectives": ["Manage exam time", "Use breaks well", "Keep pace on long sets"]
+        },
+        {
+          "topic": "Second Full-Length Mock Exam and Error Log Review",
+          "subtopics": ["Exam conditions", "Applying the timing plan", "Review by domain and task", "Comparing with the first mock", "Error log trends", "Updating priorities", "Confidence and anxiety", "Next steps"],
+          "tools": ["Full-length practice exam", "Timer", "Error log"],
+          "lab_task": "Sit a second full-length mock exam under exam conditions using your timing plan, compare results with the first mock and update the error log and priorities.",
+          "deliverable": "Second mock result, comparison and updated priorities",
+          "checks": [["Complete", "All questions are answered within the time", "Mock exam report"], ["Compare", "Results are compared by domain with the first mock", "Comparison"], ["Prioritise", "Priorities are updated from the error log", "Priority list"]],
+          "objectives": ["Measure progress", "Apply the timing plan", "Update study priorities"]
+        },
+        {
+          "topic": "Weak-Area Sprint: People Domain",
+          "subtopics": ["People tasks with the lowest scores", "Targeted reading", "Focused question sets", "Explaining concepts aloud", "Flashcards for people terms", "Retesting the weak tasks", "Recording improvement", "Closing the sprint"],
+          "tools": ["People domain question set", "Flashcards", "Error log"],
+          "lab_task": "Run a focused sprint on your three weakest People tasks with reading, forty targeted questions and a retest, and record the score change.",
+          "deliverable": "Sprint log and retest results",
+          "checks": [["Target", "The sprint covers the three weakest People tasks", "Sprint log"], ["Practise", "Forty targeted questions are completed with review", "Practice results"], ["Improve", "Retest scores are higher than before the sprint", "Retest results"]],
+          "objectives": ["Strengthen People domain weaknesses", "Practise in a focused way", "Measure improvement"]
+        },
+        {
+          "topic": "Weak-Area Sprint: Process Domain",
+          "subtopics": ["Process tasks with the lowest scores", "Targeted reading", "Focused question sets including calculations", "Worked examples", "Flashcards for process terms", "Retesting the weak tasks", "Recording improvement", "Closing the sprint"],
+          "tools": ["Process domain question set", "Formula sheet", "Error log"],
+          "lab_task": "Run a focused sprint on your three weakest Process tasks with worked examples, forty targeted questions and a retest, and record the score change.",
+          "deliverable": "Sprint log and retest results",
+          "checks": [["Target", "The sprint covers the three weakest Process tasks", "Sprint log"], ["Practise", "Forty targeted questions are completed with review", "Practice results"], ["Improve", "Retest scores are higher than before the sprint", "Retest results"]],
+          "objectives": ["Strengthen Process domain weaknesses", "Practise calculations and processes", "Measure improvement"]
+        },
+        {
+          "topic": "Weak-Area Sprint: Business Environment Domain",
+          "subtopics": ["Business Environment tasks with the lowest scores", "Governance, compliance and change review", "Risk, issues and impediments review", "Organisational and external change review", "Focused question sets", "Retesting the weak tasks", "Recording improvement", "Closing the sprint"],
+          "tools": ["Business Environment question set", "Flashcards", "Error log"],
+          "lab_task": "Run a focused sprint on your three weakest Business Environment tasks with review notes, forty targeted questions and a retest, and record the score change.",
+          "deliverable": "Sprint log and retest results",
+          "checks": [["Target", "The sprint covers the three weakest Business Environment tasks", "Sprint log"], ["Practise", "Forty targeted questions are completed with review", "Practice results"], ["Improve", "Retest scores are higher than before the sprint", "Retest results"]],
+          "objectives": ["Strengthen Business Environment weaknesses", "Review governance, change and risk", "Measure improvement"]
+        },
+        {
+          "topic": "Final Revision: Formula Sheet, Key Concepts and Last-Week Plan",
+          "subtopics": ["One-page formula sheet", "One-page concept summary by domain", "Spaced repetition with flashcards", "What not to start learning in the last week", "Sleep, energy and routine", "Light practice sets", "Reviewing the error log one last time", "Last-week plan"],
+          "tools": ["Formula sheet", "Concept summary template", "Flashcards"],
+          "lab_task": "Write your own one-page formula sheet and one-page concept summary, plan the final week day by day and complete a light practice set.",
+          "deliverable": "Formula sheet, concept summary and last-week plan",
+          "checks": [["Summarise formulas", "The formula sheet covers all formulas from the course", "Formula sheet"], ["Summarise concepts", "The summary covers each domain on one page", "Concept summary"], ["Plan the week", "The plan balances light practice and rest", "Last-week plan"]],
+          "objectives": ["Revise efficiently", "Plan the final week", "Keep energy for exam day"]
+        },
+        {
+          "topic": "Exam Day: Online Proctoring, Test Centre Rules and Breaks",
+          "subtopics": ["Online proctored compared with test centre exams", "Identification and check-in", "Room and computer requirements for online exams", "What is and is not allowed", "The tutorial and the start of the exam", "Using the optional breaks", "Technical problems during the exam", "Results and what happens next"],
+          "tools": ["PMI exam policies", "Online exam system check", "Exam day checklist"],
+          "lab_task": "Run the online system check or plan the test centre visit, write a personal exam day checklist and rehearse the first ten minutes of the exam process.",
+          "deliverable": "System check result or travel plan and an exam day checklist",
+          "checks": [["Check technology", "The system check passes or the test centre route is planned", "System check or plan"], ["Follow rules", "The checklist covers identification, room and allowed items", "Checklist"], ["Rehearse", "The rehearsal covers check-in, tutorial and first questions", "Rehearsal notes"]],
+          "objectives": ["Prepare for exam day", "Follow exam rules", "Handle problems calmly"]
+        },
+        {
+          "topic": "Third Full-Length Mock Exam Under Exam Conditions",
+          "subtopics": ["Exam rehearsal from check-in to finish", "Applying every strategy from the course", "Pacing against checkpoints", "Breaks as planned", "Review by domain", "Comparison with earlier mocks", "Readiness signals", "Final adjustments"],
+          "tools": ["Full-length practice exam", "Timer", "Exam day checklist"],
+          "lab_task": "Sit a third full-length mock exam as a full rehearsal of exam day, including check-in steps and breaks, and compare results across all mocks.",
+          "deliverable": "Third mock result and trend across all mocks",
+          "checks": [["Rehearse fully", "The rehearsal follows the exam day checklist", "Rehearsal log"], ["Keep pace", "All checkpoints in the timing plan are met", "Timing log"], ["Show the trend", "Scores are compared across all mock exams", "Trend chart"]],
+          "objectives": ["Rehearse the full exam", "Confirm pacing", "Judge readiness"]
+        },
+        {
+          "topic": "Advanced Capstone: Final Readiness Review and Exam Booking Decision",
+          "subtopics": ["Mock exam trend", "Domain readiness", "Error log closure", "Timing and stamina evidence", "Exam booking or rescheduling decision", "Personal exam day plan"],
+          "tools": ["Mock exam results", "Error log", "Readiness checklist"],
+          "lab_task": "Review all mock results, the error log and timing evidence against a readiness checklist, decide whether to sit or reschedule the exam and present the decision and exam day plan to a mentor.",
+          "deliverable": "Readiness review, decision and exam day plan",
+          "checks": [["Review evidence", "Mock results, domain scores and timing are all assessed", "Readiness review"], ["Decide", "The decision follows the readiness criteria", "Decision note"], ["Plan the day", "The exam day plan covers logistics, timing and breaks", "Exam day plan"]],
+          "objectives": ["Combine advanced preparation", "Decide on readiness with evidence", "Plan for exam day"]
+        }
+      ]
+    }
+  }
+}
