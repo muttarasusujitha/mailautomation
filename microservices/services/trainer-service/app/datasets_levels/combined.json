@@ -2139,6 +2139,154 @@
                                                             "Share security work with DevOps teams"
                                                         ]
                                      }
+                         },
+                         {
+                             "between":  [
+                                             "React",
+                                             "TypeScript"
+                                         ],
+                             "day":  {
+                                         "topic":  "Typed React: TypeScript Patterns for Components, Hooks and State",
+                                         "subtopics":  [
+                                                           "Typing props, children and events",
+                                                           "Generic components",
+                                                           "Typing hooks and context",
+                                                           "Discriminated unions for component states",
+                                                           "Typing reducers and actions",
+                                                           "Typed API clients and query hooks",
+                                                           "Strict compiler settings for React projects",
+                                                           "Common TypeScript errors in React and their fixes"
+                                                       ],
+                                         "tools":  [
+                                                       "React 19",
+                                                       "TypeScript",
+                                                       "Vite",
+                                                       "TanStack Query"
+                                                   ],
+                                         "lab_task":  "Convert a JavaScript React app to strict TypeScript with typed props, a generic table, a typed reducer, typed context and typed data hooks, fixing every error the compiler finds.",
+                                         "deliverable":  "Typed codebase and list of bugs found by the compiler",
+                                         "checks":  [
+                                                        [
+                                                            "Compile with strict mode",
+                                                            "Zero errors",
+                                                            "Compiler output"
+                                                        ],
+                                                        [
+                                                            "Pass a wrong prop type",
+                                                            "Compile error at the call site",
+                                                            "Compiler output"
+                                                        ],
+                                                        [
+                                                            "List bugs found",
+                                                            "At least two real bugs caught by types",
+                                                            "Bug list"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Type React code well",
+                                                            "Use generics and unions in components",
+                                                            "Catch bugs with the compiler"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "C#",
+                                             "Azure"
+                                         ],
+                             "day":  {
+                                         "topic":  ".NET on Azure: App Service, Functions, Managed Identity and Application Insights",
+                                         "subtopics":  [
+                                                           "Hosting choices for .NET on Azure",
+                                                           "Deploying ASP.NET Core to App Service",
+                                                           "Azure Functions in .NET isolated worker",
+                                                           "Managed identity to Azure SQL and Storage",
+                                                           "Key Vault references in configuration",
+                                                           "Application Insights for .NET",
+                                                           "Deployment slots",
+                                                           "Cost of each hosting option"
+                                                       ],
+                                         "tools":  [
+                                                       "Azure App Service",
+                                                       "Azure Functions",
+                                                       "Azure SQL",
+                                                       "Key Vault",
+                                                       "Application Insights"
+                                                   ],
+                                         "lab_task":  "Deploy an ASP.NET Core API to App Service and a Service Bus-triggered Function, connect both to Azure SQL with managed identity, read secrets through Key Vault references and monitor with Application Insights.",
+                                         "deliverable":  "Azure deployment, configuration and monitoring screenshots",
+                                         "checks":  [
+                                                        [
+                                                            "Search configuration for passwords",
+                                                            "None; managed identity and Key Vault used",
+                                                            "Configuration review"
+                                                        ],
+                                                        [
+                                                            "Send a message to Service Bus",
+                                                            "Function processes it",
+                                                            "Function log"
+                                                        ],
+                                                        [
+                                                            "Open Application Insights",
+                                                            "Requests and dependency calls traced",
+                                                            "Screenshot"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Host .NET on Azure",
+                                                            "Use managed identities",
+                                                            "Monitor .NET apps on Azure"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "C#",
+                                             "SQL"
+                                         ],
+                             "day":  {
+                                         "topic":  ".NET with SQL Server: EF Core, Dapper and Query Tuning",
+                                         "subtopics":  [
+                                                           "EF Core generated SQL",
+                                                           "Logging and reading queries",
+                                                           "Indexes for EF Core queries",
+                                                           "N+1 problems and fixes",
+                                                           "Dapper for reporting queries",
+                                                           "Transactions across calls",
+                                                           "Stored procedures from .NET",
+                                                           "Query Store for tuning"
+                                                       ],
+                                         "tools":  [
+                                                       "EF Core",
+                                                       "Dapper",
+                                                       "SQL Server",
+                                                       "Query Store"
+                                                   ],
+                                         "lab_task":  "Log the SQL from an EF Core API, fix an N+1 problem, add indexes for the slowest queries found in Query Store and rewrite one report with Dapper.",
+                                         "deliverable":  "SQL logs, index changes and timing comparison",
+                                         "checks":  [
+                                                        [
+                                                            "Fix the N+1 query",
+                                                            "Queries per request drop to one or two",
+                                                            "SQL log"
+                                                        ],
+                                                        [
+                                                            "Add indexes",
+                                                            "Slowest query time reduced",
+                                                            "Query Store screenshot"
+                                                        ],
+                                                        [
+                                                            "Compare EF Core and Dapper for the report",
+                                                            "Timings recorded",
+                                                            "Benchmark output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Use SQL Server well from .NET",
+                                                            "Tune EF Core queries",
+                                                            "Use Dapper where it fits"
+                                                        ]
+                                     }
                          }
                      ],
     "capstones":  [

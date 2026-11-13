@@ -1,0 +1,573 @@
+{
+  "domain": "Salesforce",
+  "name": "Salesforce",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "cloud",
+  "aliases": ["Salesforce CRM", "Salesforce Administration", "Salesforce Admin and Developer", "Salesforce Development", "Salesforce Platform", "Salesforce Apex", "Salesforce Lightning", "Salesforce Training", "Sales Cloud and Service Cloud"],
+  "certifications": ["Salesforce Certified Administrator", "Salesforce Certified Platform App Builder", "Salesforce Certified Platform Developer I", "Salesforce Certified Agentforce Specialist", "Salesforce Certified Application Architect"],
+  "tools": ["Salesforce Developer Edition org", "Trailhead", "Data Loader", "VS Code with Salesforce Extensions", "Salesforce CLI"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new Salesforce administrators, business analysts and users moving into admin roles. Covers CRM concepts, the Salesforce org, standard and custom objects, the security and sharing model, data management, page layouts, validation, reports and dashboards, Flow, Sales Cloud and Service Cloud processes, and Administrator exam preparation.",
+      "prerequisites": ["Understands basic business processes such as sales and customer support", "Comfortable with web applications and spreadsheets", "A free Salesforce Developer Edition org"],
+      "outcomes": ["Configure a Salesforce org with objects, fields, layouts and apps", "Set up users, profiles, permission sets and sharing", "Load and manage data and build reports and dashboards", "Automate simple processes with Flow and support Sales and Service teams"],
+      "days": [
+        {
+          "topic": "Salesforce and CRM Overview and Org Setup",
+          "subtopics": ["What CRM is and why companies use it", "Salesforce clouds: Sales, Service, Marketing, Experience", "Multi-tenant platform and releases", "Signing up for a Developer Edition org", "Lightning Experience navigation", "Setup menu and Object Manager", "Company information, fiscal year and currencies", "Trailhead for practice", "Admin role in a company", "Course project company overview"],
+          "tools": ["Salesforce Developer Edition org", "Trailhead"],
+          "lab_task": "Create a Developer Edition org, set company information, locale, fiscal year and currency, and map the course company's sales and support processes to Salesforce clouds.",
+          "deliverable": "Configured org and process map",
+          "checks": [["Open company information", "Locale, currency and fiscal year set", "Screenshot"], ["Navigate to Object Manager", "Standard objects listed", "Screenshot"], ["Review the process map", "Each process mapped to a cloud", "Diagram"]],
+          "objectives": ["Explain CRM and Salesforce", "Set up an org", "Navigate Setup"]
+        },
+        {
+          "topic": "Standard Objects and the Data Model",
+          "subtopics": ["Accounts, contacts, leads, opportunities and cases", "Records and fields", "Standard relationships", "Lookup versus master-detail relationships", "Schema Builder", "Record types in brief", "Related lists", "Data model for a sales company"],
+          "tools": ["Schema Builder", "Object Manager"],
+          "lab_task": "Draw the standard data model for the course company in Schema Builder and create sample accounts, contacts, opportunities and cases linked correctly.",
+          "deliverable": "Schema diagram and sample records",
+          "checks": [["Open an account", "Related contacts, opportunities and cases shown", "Screenshot"], ["Explain lookup versus master-detail", "Correct differences given", "Written answer"], ["View Schema Builder", "Relationships shown", "Screenshot"]],
+          "objectives": ["Explain the Salesforce data model", "Use standard objects", "Link records"]
+        },
+        {
+          "topic": "Custom Objects, Fields and Relationships",
+          "subtopics": ["When to create custom objects", "Field types", "Picklists and dependent picklists", "Formula fields", "Roll-up summary fields", "Lookup and master-detail fields", "Junction objects for many-to-many", "Field history tracking"],
+          "tools": ["Object Manager", "Schema Builder"],
+          "lab_task": "Create custom objects for Training Courses and Enrolments with a junction object, formula and roll-up fields, dependent picklists and field history tracking.",
+          "deliverable": "Custom objects and fields",
+          "checks": [["Enrol two contacts in a course", "Roll-up shows two enrolments", "Screenshot"], ["Change a tracked field", "History entry recorded", "Screenshot"], ["Pick a dependent picklist value", "Only valid values shown", "Screenshot"]],
+          "objectives": ["Build custom objects", "Use formula and roll-up fields", "Model many-to-many relationships"]
+        },
+        {
+          "topic": "Page Layouts, Record Types and Lightning App Builder",
+          "subtopics": ["Page layouts", "Compact layouts", "Record types", "Lightning record pages", "Dynamic forms", "Lightning apps and navigation", "Home pages", "Assigning pages by profile and app"],
+          "tools": ["Lightning App Builder", "Object Manager"],
+          "lab_task": "Build a Lightning app for the training team with custom record pages using dynamic forms, two record types with different layouts and a custom home page.",
+          "deliverable": "App and page configuration",
+          "checks": [["Open a course with each record type", "Different fields shown", "Screenshots"], ["Use dynamic forms", "Fields appear only when conditions are met", "Screen recording"], ["Open the app", "Navigation items as designed", "Screenshot"]],
+          "objectives": ["Design layouts and pages", "Use record types", "Build Lightning apps"]
+        },
+        {
+          "topic": "Users, Profiles, Roles and Permission Sets",
+          "subtopics": ["Creating users", "Licences", "Profiles", "Permission sets and permission set groups", "Roles and the role hierarchy", "Login hours and IP ranges", "Password policies", "Freezing and deactivating users"],
+          "tools": ["Setup: Users, Profiles, Permission Sets"],
+          "lab_task": "Create users for sales reps, a sales manager and a support agent, assign minimal profiles, add permissions with permission sets and build the role hierarchy.",
+          "deliverable": "Users, permission sets and role hierarchy",
+          "checks": [["Log in as a sales rep", "Cannot see setup or delete accounts", "Screenshot"], ["Assign a permission set", "User gains the extra permission", "Screenshot"], ["Freeze a user", "User cannot log in", "Screenshot"]],
+          "objectives": ["Manage users", "Use profiles and permission sets", "Build role hierarchies"]
+        },
+        {
+          "topic": "Security and Sharing Model",
+          "subtopics": ["Org-wide defaults", "Role hierarchy access", "Sharing rules", "Manual sharing", "Teams", "Field-level security", "Restriction rules", "Viewing who can see a record"],
+          "tools": ["Setup: Sharing Settings", "Sharing button"],
+          "lab_task": "Set opportunities to private, share them up the role hierarchy, add a sharing rule for a partner team, hide a commission field and check access for three users.",
+          "deliverable": "Sharing configuration and access tests",
+          "checks": [["Log in as one rep", "Cannot see another rep's opportunities", "Screenshot"], ["Log in as the manager", "Sees the team's opportunities", "Screenshot"], ["Open a record as a support agent", "Commission field hidden", "Screenshot"]],
+          "objectives": ["Configure record access", "Use sharing rules", "Control field access"]
+        },
+        {
+          "topic": "Data Management: Import, Export and Data Quality",
+          "subtopics": ["Data Import Wizard", "Data Loader", "Upsert with external IDs", "Exporting data", "Duplicate rules and matching rules", "Mass updates and deletes", "Recycle bin", "Data quality practices"],
+          "tools": ["Data Import Wizard", "Data Loader", "Duplicate Management"],
+          "lab_task": "Import 500 leads and accounts with the wizard and Data Loader, upsert with an external ID, block duplicates with duplicate rules and export a backup.",
+          "deliverable": "Imported data, duplicate rules and backup file",
+          "checks": [["Upsert the same file twice", "No duplicate records", "Record counts"], ["Create a duplicate lead", "Duplicate rule warns or blocks", "Screenshot"], ["Export accounts", "CSV backup with all fields", "Export file"]],
+          "objectives": ["Import and export data", "Prevent duplicates", "Keep data clean"]
+        },
+        {
+          "topic": "Validation Rules and Data Rules",
+          "subtopics": ["Why validation rules", "Formula syntax", "Common functions: ISBLANK, ISPICKVAL, PRIORVALUE", "Error messages and locations", "Cross-object validation", "Required fields and when to use them", "Testing validation rules", "Avoiding over-validation"],
+          "tools": ["Object Manager", "Formula editor"],
+          "lab_task": "Write validation rules that require a close reason for lost opportunities, stop backdated close dates and check discount limits by role, and test each.",
+          "deliverable": "Validation rules and test results",
+          "checks": [["Mark an opportunity lost without a reason", "Save blocked with a clear message", "Screenshot"], ["Set a close date in the past", "Blocked", "Screenshot"], ["Enter a discount above the limit as a rep", "Blocked, but allowed for the manager", "Screenshots"]],
+          "objectives": ["Write validation rules", "Use formula functions", "Protect data quality"]
+        },
+        {
+          "topic": "Reports and Dashboards",
+          "subtopics": ["Report types", "Tabular, summary, matrix and joined reports", "Filters and filter logic", "Grouping and summaries", "Charts", "Custom report types", "Dashboards and components", "Dashboard running user"],
+          "tools": ["Report Builder", "Dashboard Builder"],
+          "lab_task": "Build a sales pipeline report, a cases by priority report, a custom report type for enrolments and a dashboard for the sales manager.",
+          "deliverable": "Reports and dashboard",
+          "checks": [["Group pipeline by stage and owner", "Totals correct", "Report screenshot"], ["Build the custom report type", "Courses with enrolments reported", "Report screenshot"], ["Open the dashboard as a rep", "Data shown follows the running user setting", "Screenshot"]],
+          "objectives": ["Build reports", "Create dashboards", "Use custom report types"]
+        },
+        {
+          "topic": "Flow Builder Essentials: Screen and Record-Triggered Flows",
+          "subtopics": ["Process automation options", "Flow types", "Record-triggered flows", "Before-save and after-save", "Screen flows", "Decisions and assignments", "Get, create and update records", "Debugging flows"],
+          "tools": ["Flow Builder"],
+          "lab_task": "Build a record-triggered flow that creates a follow-up task when an opportunity reaches negotiation, and a screen flow that lets agents log a customer complaint.",
+          "deliverable": "Two flows and test results",
+          "checks": [["Move an opportunity to negotiation", "Task created for the owner", "Screenshot"], ["Run the screen flow", "Case created with the entered details", "Screenshot"], ["Debug the flow", "Path taken shown in debug output", "Debug screenshot"]],
+          "objectives": ["Automate with Flow", "Build record-triggered and screen flows", "Debug flows"]
+        },
+        {
+          "topic": "Approval Processes and Notifications",
+          "subtopics": ["Approval processes", "Entry criteria", "Approval steps and approvers", "Actions on approval and rejection", "Email templates", "Email alerts", "Custom notifications", "Approvals in Flow"],
+          "tools": ["Approval Processes", "Email Templates", "Flow Builder"],
+          "lab_task": "Build a discount approval process that sends large discounts to the manager, locks the record, emails the rep on approval and sends a custom notification on rejection.",
+          "deliverable": "Approval process and test results",
+          "checks": [["Submit a large discount", "Manager receives the approval request", "Screenshot"], ["Approve it", "Rep receives an email and the record unlocks", "Email and screenshot"], ["Reject one", "Custom notification sent", "Screenshot"]],
+          "objectives": ["Build approval processes", "Send notifications", "Use email templates"]
+        },
+        {
+          "topic": "Sales Cloud: Leads, Opportunities and Forecasts",
+          "subtopics": ["Lead management and assignment rules", "Lead conversion", "Opportunity stages and sales processes", "Products and price books", "Quotes", "Collaborative forecasts", "Sales path", "Sales Cloud best practices"],
+          "tools": ["Sales Cloud", "Assignment Rules", "Path"],
+          "lab_task": "Set up lead assignment rules, a sales process with path guidance, products and price books, quotes and forecasts, then take a lead to a closed-won deal.",
+          "deliverable": "Sales Cloud configuration and demo",
+          "checks": [["Create a web lead from Mumbai", "Assigned to the West region queue", "Screenshot"], ["Convert the lead", "Account, contact and opportunity created", "Screenshot"], ["Close the deal", "Forecast updated", "Forecast screenshot"]],
+          "objectives": ["Configure Sales Cloud", "Manage leads and opportunities", "Use forecasts"]
+        },
+        {
+          "topic": "Service Cloud: Cases, Queues and Knowledge",
+          "subtopics": ["Case management", "Case assignment and escalation rules", "Queues", "Email-to-case and web-to-case", "Entitlements and milestones", "Knowledge articles", "Service Console", "Case feeds"],
+          "tools": ["Service Cloud", "Service Console", "Knowledge"],
+          "lab_task": "Set up email-to-case, assignment and escalation rules, queues, an entitlement with a response milestone, knowledge articles and a Service Console app.",
+          "deliverable": "Service Cloud configuration and test cases",
+          "checks": [["Send an email to the support address", "Case created in the right queue", "Screenshot"], ["Leave a case past its milestone", "Escalation fires", "Screenshot"], ["Attach a knowledge article to a case", "Article linked", "Screenshot"]],
+          "objectives": ["Configure Service Cloud", "Route and escalate cases", "Use knowledge"]
+        },
+        {
+          "topic": "Chatter, Activities and Collaboration",
+          "subtopics": ["Tasks and events", "Activity timeline", "Email integration with Outlook and Gmail", "Chatter feeds and groups", "Files", "Notes", "Mobile app", "Slack integration in brief"],
+          "tools": ["Chatter", "Salesforce mobile app", "Outlook or Gmail integration"],
+          "lab_task": "Set up Outlook or Gmail integration, log activities on opportunities, create a Chatter group for a deal team and use the mobile app to update a record.",
+          "deliverable": "Configuration and activity history",
+          "checks": [["Log an email from Outlook or Gmail", "Email appears on the contact", "Screenshot"], ["Post to the Chatter group", "Members notified", "Screenshot"], ["Update an opportunity on mobile", "Change visible on desktop", "Screenshots"]],
+          "objectives": ["Use collaboration features", "Track activities", "Use the mobile app"]
+        },
+        {
+          "topic": "AppExchange and Managed Packages",
+          "subtopics": ["What AppExchange is", "Evaluating apps", "Installing packages in a sandbox", "Managed versus unmanaged packages", "Permissions for installed apps", "Uninstalling packages", "Security reviews", "Build versus buy"],
+          "tools": ["AppExchange", "Developer Edition org"],
+          "lab_task": "Evaluate three AppExchange apps for e-signatures, install one in the org, assign permissions, test it and write a build-or-buy recommendation.",
+          "deliverable": "Evaluation, installed app and recommendation",
+          "checks": [["Install the package", "App available to assigned users only", "Screenshot"], ["Compare apps", "Criteria applied to each", "Comparison sheet"], ["Review the recommendation", "Supported by cost and fit", "Recommendation"]],
+          "objectives": ["Use AppExchange", "Install packages safely", "Decide build or buy"]
+        },
+        {
+          "topic": "Sandboxes, Change Sets and Releases",
+          "subtopics": ["Sandbox types", "Refreshing sandboxes", "Change sets", "Deployment validation", "Release planning", "Salesforce seasonal releases", "Release notes", "Testing before production"],
+          "tools": ["Sandboxes", "Change Sets", "Release Notes"],
+          "lab_task": "Build a change in a sandbox, move it to production with a change set after validation and write a release note for users.",
+          "deliverable": "Change set, deployment record and release note",
+          "checks": [["Validate the change set", "Validation succeeds", "Deployment status"], ["Deploy", "Change visible in production", "Screenshot"], ["Review the release note", "Users understand what changed", "Release note"]],
+          "objectives": ["Use sandboxes", "Deploy with change sets", "Plan releases"]
+        },
+        {
+          "topic": "Experience Cloud Sites",
+          "subtopics": ["What Experience Cloud is", "Site templates", "Guest and authenticated users", "Sharing for external users", "Experience Builder", "Self-service portals", "Knowledge on sites", "Security for sites"],
+          "tools": ["Experience Builder", "Experience Cloud"],
+          "lab_task": "Build a customer self-service site where customers log in, view their cases, create new ones and search knowledge, with guest access locked down.",
+          "deliverable": "Site and access tests",
+          "checks": [["Log in as a customer", "Sees only their own cases", "Screenshot"], ["Browse as a guest", "No private data visible", "Screenshot"], ["Create a case from the site", "Case created and routed", "Screenshot"]],
+          "objectives": ["Build Experience Cloud sites", "Control external access", "Offer self-service"]
+        },
+        {
+          "topic": "Einstein and AI Features for Admins",
+          "subtopics": ["Einstein features in Sales and Service Cloud", "Einstein lead and opportunity scoring", "Einstein Activity Capture", "Agentforce overview", "Prompt Builder in brief", "Einstein Trust Layer", "Data needed for AI", "Measuring AI value"],
+          "tools": ["Einstein features", "Agentforce", "Prompt Builder"],
+          "lab_task": "Turn on Einstein features available in the org, build a Prompt Builder template that drafts a follow-up email from an opportunity and review what data the Trust Layer masks.",
+          "deliverable": "Configuration, prompt template and review notes",
+          "checks": [["Run the prompt template", "Draft email uses opportunity details", "Screenshot"], ["Review Trust Layer settings", "Masked data types listed", "Notes"], ["Assess value", "Expected time saved estimated", "Notes"]],
+          "objectives": ["Explain Salesforce AI features", "Build a prompt template", "Use AI safely"]
+        },
+        {
+          "topic": "Salesforce Administrator Exam Preparation",
+          "subtopics": ["Exam outline", "Configuration and setup", "Object manager and Lightning App Builder", "Sales and marketing applications", "Service and support applications", "Productivity and collaboration", "Data and analytics management", "Automation", "Practice questions", "Study plan"],
+          "tools": ["Practice question bank", "Trailhead"],
+          "lab_task": "Take a timed 60-question Administrator practice exam, review every wrong answer with Trailhead and plan final study.",
+          "deliverable": "Practice score, review notes and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a topic and Trailhead module", "Review notes"], ["Review the study plan", "Weak topics covered", "Study plan"]],
+          "objectives": ["Prepare for the Administrator exam", "Review weak areas", "Plan study"]
+        },
+        {
+          "topic": "Beginner Capstone: CRM Implementation for a Training Company",
+          "subtopics": ["Requirements and data model", "Objects, layouts and apps", "Security and sharing", "Data migration", "Automation and approvals", "Reports, dashboards and demo"],
+          "tools": ["Salesforce Developer Edition org", "Data Loader", "Flow Builder"],
+          "lab_task": "Implement Salesforce for a training company with leads to deals, courses and enrolments, secure sharing, a data import, flows and approvals, a support process and management dashboards, then demo it.",
+          "deliverable": "Configured org, data load results, dashboards and a 10-minute demo",
+          "checks": [["Take a lead to an enrolment", "Every step works with automation", "Demo"], ["Log in as a rep", "Sees only allowed data", "Screenshot"], ["Open the manager dashboard", "Pipeline and enrolments shown", "Screenshot"]],
+          "objectives": ["Combine the beginner topics in one implementation", "Configure Salesforce end to end", "Demo a CRM solution"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For administrators moving into advanced configuration and development. Covers advanced Flow, Apex, SOQL, triggers and testing, Lightning Web Components, integrations with REST APIs and platform events, security in depth, Salesforce DX and source-driven development, Experience Cloud and Service Cloud in depth, CPQ basics, Agentforce and Platform Developer I preparation.",
+      "prerequisites": ["Holds or is ready for the Administrator certification", "Configures objects, security, flows and reports", "Basic programming knowledge in any language"],
+      "outcomes": ["Build complex automation with Flow and Apex", "Build Lightning Web Components", "Integrate Salesforce with other systems", "Use source-driven development and pass Platform Developer I"],
+      "days": [
+        {
+          "topic": "Advanced Flow: Subflows, Loops and Error Handling",
+          "subtopics": ["Flow design patterns", "Subflows", "Loops and collections", "Bulkification in Flow", "Fault paths and error handling", "Scheduled flows", "Invocable actions", "Flow testing"],
+          "tools": ["Flow Builder", "Flow tests"],
+          "lab_task": "Build a scheduled flow that renews expiring contracts in bulk using subflows, collections and fault paths, and add flow tests.",
+          "deliverable": "Flows and flow tests",
+          "checks": [["Run on 500 expiring contracts", "All renewed without hitting limits", "Debug log"], ["Force an error", "Fault path logs the error and notifies the admin", "Screenshot"], ["Run flow tests", "All pass", "Test results"]],
+          "objectives": ["Build complex flows", "Bulkify flows", "Handle flow errors"]
+        },
+        {
+          "topic": "Apex Programming Essentials",
+          "subtopics": ["What Apex is and when to use it", "Developer Console and VS Code", "Variables, data types and collections", "Control flow", "Classes and methods", "sObjects", "DML statements", "Governor limits"],
+          "tools": ["VS Code with Salesforce Extensions", "Developer Console", "Salesforce CLI"],
+          "lab_task": "Write an Apex class that calculates a discount for opportunities based on account tier and updates them in bulk, staying within governor limits.",
+          "deliverable": "Apex class and run output",
+          "checks": [["Run on 200 opportunities", "Updated in one DML statement", "Debug log"], ["Check limits", "DML and SOQL counts within limits", "Debug log"], ["Run anonymous Apex", "Discounts correct", "Debug output"]],
+          "objectives": ["Write Apex", "Work with sObjects", "Respect governor limits"]
+        },
+        {
+          "topic": "SOQL and SOSL",
+          "subtopics": ["SOQL syntax", "Filtering and sorting", "Relationship queries: parent to child and child to parent", "Aggregate queries", "Dynamic SOQL", "SOQL injection prevention", "SOSL searches", "Query performance and selectivity"],
+          "tools": ["Developer Console Query Editor", "VS Code"],
+          "lab_task": "Write SOQL for accounts with open opportunities and their contacts, aggregate pipeline by owner, search across objects with SOSL and fix a dynamic query open to injection.",
+          "deliverable": "Queries, results and fix",
+          "checks": [["Query accounts with child opportunities", "Correct nested results", "Query output"], ["Aggregate pipeline by owner", "Totals match the report", "Query output"], ["Pass an injection string to the dynamic query", "Treated as text after the fix", "Test output"]],
+          "objectives": ["Query data with SOQL", "Search with SOSL", "Write safe dynamic queries"]
+        },
+        {
+          "topic": "Apex Triggers and Trigger Frameworks",
+          "subtopics": ["Trigger events and context variables", "Before and after triggers", "Bulkified triggers", "One trigger per object", "Handler classes", "Recursion control", "Order of execution", "Triggers versus Flow"],
+          "tools": ["VS Code", "Salesforce CLI"],
+          "lab_task": "Write a bulkified trigger with a handler class that keeps account totals in sync with opportunities, prevents recursion and works with a 200-record data load.",
+          "deliverable": "Trigger, handler and data load results",
+          "checks": [["Load 200 opportunities", "Account totals correct and no limit errors", "Debug log"], ["Update an opportunity twice in one transaction", "Handler runs once", "Debug log"], ["Explain order of execution", "Correct order including flows", "Written answer"]],
+          "objectives": ["Write bulkified triggers", "Use handler patterns", "Understand order of execution"]
+        },
+        {
+          "topic": "Apex Testing and Code Coverage",
+          "subtopics": ["Test classes and methods", "Test data with @TestSetup", "Test.startTest and stopTest", "Assertions", "Testing bulk operations", "Testing as different users with runAs", "Mocking callouts", "The 75 percent coverage rule and real quality"],
+          "tools": ["VS Code", "Salesforce CLI"],
+          "lab_task": "Write tests for the discount class and trigger covering bulk, negative and user permission cases, mock a callout and reach over 90 percent coverage.",
+          "deliverable": "Test classes and coverage report",
+          "checks": [["Run all tests", "Pass with over 90 percent coverage", "Test results"], ["Run as a user without permission", "Test confirms access is blocked", "Test results"], ["Break a rule", "A test fails", "Test results"]],
+          "objectives": ["Write Apex tests", "Test bulk and permission cases", "Mock callouts"]
+        },
+        {
+          "topic": "Asynchronous Apex",
+          "subtopics": ["Future methods", "Queueable Apex", "Batch Apex", "Scheduled Apex", "Chaining jobs", "Limits for async Apex", "Monitoring jobs", "Choosing an async option"],
+          "tools": ["VS Code", "Apex Jobs", "Salesforce CLI"],
+          "lab_task": "Write a Batch Apex job that recalculates scores for 100,000 accounts, schedule it nightly and chain a Queueable that sends a summary.",
+          "deliverable": "Batch, Queueable and schedule with monitoring evidence",
+          "checks": [["Run the batch on 100,000 records", "Completes within limits", "Apex Jobs screenshot"], ["Check the chained Queueable", "Summary sent after the batch", "Debug log"], ["Schedule the job", "Runs at the scheduled time", "Scheduled Jobs screenshot"]],
+          "objectives": ["Use asynchronous Apex", "Process large data volumes", "Monitor jobs"]
+        },
+        {
+          "topic": "Lightning Web Components Essentials",
+          "subtopics": ["LWC structure: HTML, JavaScript and metadata", "Data binding", "Events between components", "Lightning base components", "Wire service", "Calling Apex", "Lightning Data Service", "Deploying components"],
+          "tools": ["VS Code with Salesforce Extensions", "Salesforce CLI"],
+          "lab_task": "Build an LWC that shows an account's open opportunities with Lightning Data Service and Apex, lets users update stage inline and refreshes after changes.",
+          "deliverable": "Component and deployment",
+          "checks": [["Place the component on the account page", "Opportunities shown", "Screenshot"], ["Update a stage inline", "Record saved and list refreshed", "Screen recording"], ["Load an account with no opportunities", "Empty state message shown", "Screenshot"]],
+          "objectives": ["Build Lightning Web Components", "Use the wire service", "Call Apex from LWC"]
+        },
+        {
+          "topic": "Lightning Web Components: Communication, Navigation and Testing",
+          "subtopics": ["Parent-child communication", "Lightning Message Service", "Navigation service", "Toasts and modals", "Error handling", "Jest tests for LWC", "Accessibility in LWC", "Performance tips"],
+          "tools": ["LWC", "Jest", "Salesforce CLI"],
+          "lab_task": "Build two components that talk through Lightning Message Service, navigate to records, show toasts on errors and test them with Jest.",
+          "deliverable": "Components and Jest tests",
+          "checks": [["Select a record in one component", "Other component updates", "Screen recording"], ["Trigger a server error", "Toast shows a clear message", "Screenshot"], ["Run Jest tests", "All pass", "Test output"]],
+          "objectives": ["Connect components", "Handle errors in LWC", "Test components with Jest"]
+        },
+        {
+          "topic": "Integration with REST APIs",
+          "subtopics": ["Integration patterns overview", "Salesforce REST API", "Connected apps and OAuth", "Apex REST services", "Callouts with named credentials", "External credentials", "Handling callout errors", "Integration testing"],
+          "tools": ["Postman", "Named Credentials", "Connected Apps"],
+          "lab_task": "Expose an Apex REST service for enrolments, call it from Postman with OAuth, and make a callout to an external payment API through a named credential.",
+          "deliverable": "REST service, connected app and callout code",
+          "checks": [["Call the Apex REST service", "Enrolment created", "Postman result"], ["Call without a token", "401 returned", "Postman result"], ["Make the callout fail", "Error handled and logged", "Debug log"]],
+          "objectives": ["Integrate with REST APIs", "Secure integrations with OAuth", "Use named credentials"]
+        },
+        {
+          "topic": "Platform Events and Change Data Capture",
+          "subtopics": ["Event-driven integration", "Platform events", "Publishing from Flow and Apex", "Subscribing with triggers, Flow and external clients", "Change Data Capture", "Replay and delivery", "Pub/Sub API", "Limits and monitoring"],
+          "tools": ["Platform Events", "Change Data Capture", "Pub/Sub API"],
+          "lab_task": "Publish an order-placed platform event from Flow, subscribe in Apex and from an external client, and stream account changes with Change Data Capture.",
+          "deliverable": "Events, subscribers and stream output",
+          "checks": [["Place an order", "Event received by both subscribers", "Logs"], ["Change an account", "Change event received externally", "Client output"], ["Replay missed events", "Subscriber catches up from a replay ID", "Client output"]],
+          "objectives": ["Build event-driven integrations", "Use platform events", "Stream changes"]
+        },
+        {
+          "topic": "Security in Depth for Admins and Developers",
+          "subtopics": ["Sharing in Apex: with sharing and without sharing", "User mode and system mode", "Field-level and object security in code", "Apex managed sharing", "Shield Platform Encryption overview", "Event Monitoring overview", "Health Check", "Security review checklist"],
+          "tools": ["Health Check", "VS Code"],
+          "lab_task": "Fix an Apex class that leaks records by running without sharing, enforce field-level security in code, add Apex managed sharing and raise the Health Check score.",
+          "deliverable": "Fixed code, sharing code and Health Check report",
+          "checks": [["Run the class as a restricted user", "Only permitted records returned", "Test output"], ["Read a hidden field through Apex", "Blocked by user mode", "Test output"], ["Check Health Check", "Score improved", "Screenshot"]],
+          "objectives": ["Write secure Apex", "Share records in code", "Harden org security"]
+        },
+        {
+          "topic": "Salesforce DX and Source-Driven Development",
+          "subtopics": ["Salesforce CLI", "Scratch orgs", "Source format and projects", "Deploying and retrieving metadata", "Git for Salesforce", "Unlocked packages", "DevOps Center", "Branching strategies"],
+          "tools": ["Salesforce CLI", "Scratch orgs", "Git", "DevOps Center"],
+          "lab_task": "Move the course project into a Git repository with Salesforce DX, develop in a scratch org, package it as an unlocked package and promote changes with DevOps Center.",
+          "deliverable": "Repository, package and promotion record",
+          "checks": [["Create a scratch org from the project", "Org created with the metadata", "CLI output"], ["Install the unlocked package in a sandbox", "Installs without errors", "Install log"], ["Promote a change in DevOps Center", "Change moves through the pipeline", "Screenshot"]],
+          "objectives": ["Use Salesforce DX", "Version metadata in Git", "Package and promote changes"]
+        },
+        {
+          "topic": "Data Quality and Large Data Imports",
+          "subtopics": ["Data quality frameworks", "Duplicate management in depth", "External IDs", "Bulk API 2.0", "Data Loader command line", "Data skew", "Archiving strategies", "Data quality dashboards"],
+          "tools": ["Bulk API 2.0", "Data Loader CLI", "Duplicate Management"],
+          "lab_task": "Load 500,000 records with Bulk API 2.0, find and merge duplicates, avoid ownership skew and build a data quality dashboard.",
+          "deliverable": "Load results, duplicate clean-up and dashboard",
+          "checks": [["Load 500,000 records", "Completes with errors reported per row", "Bulk job results"], ["Merge duplicates", "Duplicate count reduced", "Before and after reports"], ["Open the dashboard", "Completeness and duplicates shown", "Screenshot"]],
+          "objectives": ["Load large data volumes", "Manage duplicates", "Measure data quality"]
+        },
+        {
+          "topic": "Service Cloud in Depth: Omni-Channel and Messaging",
+          "subtopics": ["Omni-Channel routing", "Skills-based routing", "Messaging for web and WhatsApp", "Macros and quick text", "Service console customisation", "Case swarming with Slack", "Service analytics", "Field Service overview"],
+          "tools": ["Omni-Channel", "Messaging", "Service Console"],
+          "lab_task": "Set up Omni-Channel skills-based routing across email, web chat and WhatsApp messaging, add macros and build a service analytics dashboard.",
+          "deliverable": "Routing configuration, macros and dashboard",
+          "checks": [["Send a Hindi-language chat", "Routed to an agent with the Hindi skill", "Screenshot"], ["Run a macro", "Case updated and reply sent", "Screenshot"], ["Open the dashboard", "Response and resolution times shown", "Screenshot"]],
+          "objectives": ["Route work with Omni-Channel", "Support messaging channels", "Measure service"]
+        },
+        {
+          "topic": "Experience Cloud for Partners and Customers",
+          "subtopics": ["Partner portals", "Customer accounts and person accounts", "Sharing sets and external sharing", "Lightning Web Components on sites", "Site branding", "Login and self-registration", "Site performance", "Site security"],
+          "tools": ["Experience Builder", "Experience Cloud"],
+          "lab_task": "Build a partner portal where partners register leads and see their deals, using sharing sets, a custom LWC and self-registration.",
+          "deliverable": "Portal and access tests",
+          "checks": [["Log in as partner A", "Sees only partner A's leads and deals", "Screenshot"], ["Register a lead", "Lead created and assigned", "Screenshot"], ["Self-register", "New partner user created with the right profile", "Screenshot"]],
+          "objectives": ["Build partner portals", "Share data with external users", "Add components to sites"]
+        },
+        {
+          "topic": "Salesforce CPQ and Quote-to-Cash",
+          "subtopics": ["Configure, price, quote", "Products and bundles", "Price rules and discount schedules", "Quote templates", "Approvals for quotes", "Contracts and renewals", "Revenue Cloud overview", "CPQ implementation pitfalls"],
+          "tools": ["Salesforce CPQ trial", "Quote templates"],
+          "lab_task": "Configure a product bundle with options, a volume discount schedule, a price rule and a quote template, and generate a quote PDF.",
+          "deliverable": "CPQ configuration and quote PDF",
+          "checks": [["Build a quote with the bundle", "Options and prices correct", "Quote screenshot"], ["Add 100 units", "Volume discount applied", "Quote screenshot"], ["Generate the PDF", "Template layout correct", "PDF"]],
+          "objectives": ["Configure CPQ", "Price with rules and discounts", "Generate quotes"]
+        },
+        {
+          "topic": "Marketing on Salesforce: Account Engagement and Marketing Cloud",
+          "subtopics": ["Marketing Cloud versus Account Engagement", "Syncing leads and contacts with Sales Cloud", "Campaigns and campaign influence", "Lead scoring and grading", "Email journeys", "Consent and unsubscribe handling", "Marketing reporting", "Handing leads to sales"],
+          "tools": ["Account Engagement or Marketing Cloud trial", "Sales Cloud campaigns"],
+          "lab_task": "Set up a campaign with lead scoring, an email nurture journey and consent handling, sync qualified leads to sales and report campaign influence on pipeline.",
+          "deliverable": "Campaign set-up, journey and influence report",
+          "checks": [["Score a lead past the threshold", "Lead assigned to sales", "Screenshot"], ["Unsubscribe a test contact", "No further emails sent", "Email log"], ["Report campaign influence", "Pipeline attributed to the campaign", "Report"]],
+          "objectives": ["Connect marketing and sales on Salesforce", "Score and nurture leads", "Respect consent"]
+        },
+        {
+          "topic": "Agentforce and Einstein for Builders",
+          "subtopics": ["Agentforce agents", "Topics and actions", "Using flows and Apex as agent actions", "Prompt Builder in depth", "Grounding prompts in CRM data", "Einstein Trust Layer", "Testing agents", "Rolling out AI features"],
+          "tools": ["Agentforce", "Prompt Builder", "Flow Builder"],
+          "lab_task": "Build an Agentforce service agent with a topic for order status that calls a flow action, ground a prompt in case data, test it with 20 utterances and review guardrails.",
+          "deliverable": "Agent configuration, prompt templates and test results",
+          "checks": [["Ask for an order status", "Agent calls the flow and answers correctly", "Test conversation"], ["Ask an off-topic question", "Agent declines or hands over", "Test conversation"], ["Run 20 utterances", "Success rate recorded", "Test sheet"]],
+          "objectives": ["Build Agentforce agents", "Ground prompts in CRM data", "Test AI agents"]
+        },
+        {
+          "topic": "Platform Developer I Exam Preparation",
+          "subtopics": ["Exam outline", "Developer fundamentals", "Process automation and logic", "User interface", "Testing, debugging and deployment", "Practice questions", "Time management", "Study plan"],
+          "tools": ["Practice question bank", "Trailhead"],
+          "lab_task": "Take a timed Platform Developer I practice exam, review wrong answers with Trailhead and plan final study.",
+          "deliverable": "Practice score, review notes and study plan",
+          "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a topic", "Review notes"], ["Review the study plan", "Weak topics covered", "Study plan"]],
+          "objectives": ["Prepare for Platform Developer I", "Review development topics", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Custom Sales and Service Application",
+          "subtopics": ["Requirements and design", "Data model and security", "Flows, Apex and triggers", "Lightning Web Components", "Integration and events", "Source-driven delivery and demo"],
+          "tools": ["Salesforce Developer Edition or scratch orgs", "VS Code", "Salesforce CLI", "Postman"],
+          "lab_task": "Build a custom application with flows, bulkified Apex and tests, LWCs, a REST integration, platform events, an Agentforce action and source-driven deployment, then present it.",
+          "deliverable": "Repository, package, test results and a 15-minute demo",
+          "checks": [["Load 10,000 records", "Automation runs within limits", "Debug logs"], ["Run all Apex tests", "Pass with over 85 percent coverage", "Test results"], ["Call the integration", "External system receives the event", "Logs"]],
+          "objectives": ["Combine the intermediate topics in one application", "Prove quality with tests", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers, technical architects and Salesforce leads. Covers architecture at enterprise scale, large data volumes, integration architecture with MuleSoft, security and identity architecture, multi-org strategy, advanced Apex and LWC design, DevOps and release management, Data Cloud, Agentforce at scale, performance, governance, technical debt and architect certification preparation.",
+      "prerequisites": ["Builds Apex, LWC and integrations professionally", "Holds Platform Developer I or equivalent experience", "Has led or worked on a Salesforce implementation"],
+      "outcomes": ["Architect Salesforce solutions for large enterprises", "Design integrations, security and data at scale", "Run Salesforce DevOps and governance", "Lead AI and Data Cloud initiatives and prepare for architect certifications"],
+      "days": [
+        {
+          "topic": "Salesforce Solution Architecture",
+          "subtopics": ["Architect role and decisions", "Declarative versus programmatic choices", "Org design", "Platform limits as design inputs", "Well-Architected framework for Salesforce", "Architecture decision records", "Reference architectures", "Design reviews"],
+          "tools": ["Salesforce Well-Architected", "Diagramming tool"],
+          "lab_task": "Design the Salesforce solution for a bank's sales and service operations with org design, data model, automation, integration and security, and defend it in a design review.",
+          "deliverable": "Solution architecture and decision records",
+          "checks": [["Review declarative versus code choices", "Each justified", "Decision records"], ["Review limits", "Expected volumes checked against limits", "Architecture document"], ["Defend the design", "Questions answered with evidence", "Review notes"]],
+          "objectives": ["Architect Salesforce solutions", "Use Well-Architected", "Defend design decisions"]
+        },
+        {
+          "topic": "Large Data Volumes and Performance",
+          "subtopics": ["Large data volume symptoms", "Selective queries and indexes", "Skinny tables and custom indexes", "Data skew: ownership, lookup and account", "Big Objects", "Archiving and data retention", "Query plan tool", "Performance testing"],
+          "tools": ["Query Plan Tool", "Big Objects", "Bulk API 2.0"],
+          "lab_task": "Diagnose slow list views and reports on 10 million records, make queries selective with indexes, fix account skew and archive old cases to Big Objects.",
+          "deliverable": "Diagnosis, fixes and performance comparison",
+          "checks": [["Run the query plan", "Index used after changes", "Query plan screenshot"], ["Measure report time", "Faster after the fixes", "Timing"], ["Archive old cases", "Moved to Big Objects and still queryable", "Query result"]],
+          "objectives": ["Design for large data volumes", "Fix data skew", "Archive data"]
+        },
+        {
+          "topic": "Integration Architecture and MuleSoft",
+          "subtopics": ["Integration patterns: request-reply, fire-and-forget, batch, UI update", "Choosing APIs: REST, SOAP, Bulk, Pub/Sub", "Middleware and MuleSoft", "API-led connectivity", "Error handling and retries", "Integration security", "Monitoring integrations", "Integration governance"],
+          "tools": ["MuleSoft Anypoint Platform", "Salesforce APIs", "Pub/Sub API"],
+          "lab_task": "Design integrations between Salesforce, an ERP and a data warehouse with API-led connectivity, build one MuleSoft flow that syncs orders with retries and monitor it.",
+          "deliverable": "Integration design, MuleSoft flow and monitoring",
+          "checks": [["Sync an order", "Order appears in the ERP", "MuleSoft log"], ["Make the ERP fail", "Retries and dead-letter handling work", "MuleSoft log"], ["Review the design", "Pattern chosen for each integration with reasons", "Design document"]],
+          "objectives": ["Design integration architecture", "Use MuleSoft", "Handle integration failures"]
+        },
+        {
+          "topic": "Identity and Access Architecture",
+          "subtopics": ["Single sign-on with SAML and OpenID Connect", "Salesforce as identity provider", "Just-in-time provisioning", "Multi-factor authentication", "Customer identity for Experience Cloud", "OAuth flows for integrations", "Connected app policies", "Identity for many orgs"],
+          "tools": ["Microsoft Entra ID or Okta", "Connected Apps", "Salesforce Identity"],
+          "lab_task": "Set up SSO with Entra ID or Okta and just-in-time provisioning, enforce MFA, configure customer social login for a site and pick the right OAuth flow for three integrations.",
+          "deliverable": "Identity configuration and OAuth flow decisions",
+          "checks": [["Log in through SSO for a new user", "User created with the right profile", "Screenshot"], ["Log in to the site with Google", "Customer account created", "Screenshot"], ["Review OAuth choices", "Correct flow for each integration", "Decision table"]],
+          "objectives": ["Design identity architecture", "Configure SSO", "Choose OAuth flows"]
+        },
+        {
+          "topic": "Security Architecture and Salesforce Shield",
+          "subtopics": ["Security architecture principles", "Shield Platform Encryption", "Event Monitoring", "Field Audit Trail", "Transaction security policies", "Data classification", "Compliance needs: DPDP Act, GDPR, RBI", "Security reviews for AppExchange"],
+          "tools": ["Salesforce Shield", "Event Monitoring", "Transaction Security"],
+          "lab_task": "Design encryption for sensitive fields, set up a transaction security policy that blocks large report exports, analyse event logs and document compliance controls.",
+          "deliverable": "Security design, policies and compliance record",
+          "checks": [["Export a large report", "Blocked by the policy", "Screenshot"], ["Analyse event logs", "Unusual logins identified", "Event log analysis"], ["Review the compliance record", "Each requirement mapped to a control", "Compliance document"]],
+          "objectives": ["Architect Salesforce security", "Use Shield", "Meet compliance requirements"]
+        },
+        {
+          "topic": "Multi-Org Strategy and Org Consolidation",
+          "subtopics": ["Single org versus multi-org", "Reasons for many orgs", "Salesforce to Salesforce and integration options", "Shared data and identity across orgs", "Org consolidation projects", "Org split projects", "Governance across orgs", "Cost and licensing impact"],
+          "tools": ["Diagramming tool", "Salesforce APIs"],
+          "lab_task": "Assess a company with four orgs, recommend consolidation or multi-org with reasons, and plan the data, security and automation migration for the chosen path.",
+          "deliverable": "Assessment, recommendation and migration plan",
+          "checks": [["Review the assessment", "Each org's purpose, data and users described", "Assessment"], ["Review the recommendation", "Supported by business and technical reasons", "Recommendation"], ["Review the migration plan", "Data, users and automation covered with sequence", "Plan"]],
+          "objectives": ["Choose an org strategy", "Plan consolidations", "Govern many orgs"]
+        },
+        {
+          "topic": "Advanced Apex Design Patterns",
+          "subtopics": ["Separation of concerns: service, domain and selector layers", "fflib Apex Enterprise Patterns", "Unit of work", "Dependency injection in Apex", "Platform cache", "Custom metadata for configuration", "Error handling and logging frameworks", "Apex code review standards"],
+          "tools": ["fflib Apex Common", "Platform Cache", "Custom Metadata Types"],
+          "lab_task": "Refactor trigger logic into service, domain and selector layers with a unit of work, move settings to custom metadata, add a logging framework and cache a lookup.",
+          "deliverable": "Refactored code, tests and logging evidence",
+          "checks": [["Run the tests", "All pass after the refactor", "Test results"], ["Change a setting in custom metadata", "Behaviour changes without code deployment", "Test output"], ["Read the cached value", "Fewer SOQL queries", "Debug log"]],
+          "objectives": ["Apply enterprise patterns", "Configure with metadata", "Build logging frameworks"]
+        },
+        {
+          "topic": "Advanced Lightning Web Components and UI Architecture",
+          "subtopics": ["Component architecture for large apps", "Shared libraries and modules", "State management with Lightning Message Service and stores", "Custom data tables", "Performance with lazy loading", "LWC in Experience Cloud and mobile", "Lightning Web Security", "Accessibility at scale"],
+          "tools": ["LWC", "Jest", "Lightning Web Security"],
+          "lab_task": "Build a component library with a shared state module, a virtualised custom data table for 5,000 rows and lazy-loaded tabs, and run accessibility checks.",
+          "deliverable": "Component library, tests and performance results",
+          "checks": [["Load 5,000 rows", "Table scrolls smoothly", "Screen recording"], ["Lazy-load a tab", "Tab code loaded only when opened", "Network trace"], ["Run Jest and accessibility checks", "All pass", "Test output"]],
+          "objectives": ["Architect LWC applications", "Build fast components", "Keep UIs accessible"]
+        },
+        {
+          "topic": "DevOps and Release Management at Scale",
+          "subtopics": ["Branching for Salesforce teams", "CI/CD with GitHub Actions or Copado", "Static analysis with Salesforce Code Analyzer", "Automated testing in pipelines", "Data seeding for environments", "Release trains", "Rollback strategies", "DORA metrics for Salesforce"],
+          "tools": ["Salesforce CLI", "GitHub Actions", "Salesforce Code Analyzer", "Copado or Gearset"],
+          "lab_task": "Build a pipeline that validates, runs Code Analyzer and tests, deploys to QA and UAT and promotes to production with approval, then measure DORA metrics.",
+          "deliverable": "Pipeline, release records and metrics",
+          "checks": [["Push code with a Code Analyzer violation", "Pipeline fails", "CI log"], ["Promote to production", "Approval required and deployment succeeds", "Pipeline log"], ["Report DORA metrics", "Lead time and change failure rate calculated", "Metrics sheet"]],
+          "objectives": ["Run Salesforce DevOps", "Automate quality gates", "Measure delivery"]
+        },
+        {
+          "topic": "Data Cloud and Customer 360",
+          "subtopics": ["What Data Cloud does", "Data streams and ingestion", "Data model objects and harmonisation", "Identity resolution", "Calculated insights", "Segments and activation", "Data Cloud in Flow and Agentforce", "Governance and consent"],
+          "tools": ["Salesforce Data Cloud", "Data Cloud Setup"],
+          "lab_task": "Ingest CRM and web data into Data Cloud, harmonise it, resolve identities, build a calculated insight for lifetime value and activate a segment to marketing.",
+          "deliverable": "Data Cloud configuration, unified profiles and segment",
+          "checks": [["Resolve identities", "Duplicate people merged into unified profiles", "Profile screenshot"], ["Calculate lifetime value", "Insight values correct for sample customers", "Comparison"], ["Activate the segment", "Segment available in the target", "Activation screenshot"]],
+          "objectives": ["Use Data Cloud", "Unify customer data", "Activate segments"]
+        },
+        {
+          "topic": "Agentforce at Enterprise Scale",
+          "subtopics": ["Agent design for business processes", "Topics, actions and instructions at scale", "Grounding with Data Cloud and knowledge", "Testing Center for agents", "Guardrails and Trust Layer", "Human hand-off", "Monitoring and analytics", "Change management for AI agents"],
+          "tools": ["Agentforce", "Agentforce Testing Center", "Data Cloud"],
+          "lab_task": "Design and build a sales agent and a service agent with grounded actions, run 50 tests in Testing Center, set hand-off rules and build an adoption dashboard.",
+          "deliverable": "Agents, test results and dashboard",
+          "checks": [["Run 50 test utterances", "Pass rate recorded with failures explained", "Testing Center results"], ["Ask for an action the agent may not take", "Agent hands over to a person", "Test conversation"], ["Open the dashboard", "Usage and resolution rates shown", "Screenshot"]],
+          "objectives": ["Build agents at scale", "Test and govern agents", "Measure AI adoption"]
+        },
+        {
+          "topic": "Analytics with CRM Analytics and Tableau",
+          "subtopics": ["CRM Analytics overview", "Recipes and datasets", "Dashboards and lenses", "Einstein Discovery", "Tableau with Salesforce data", "Embedding analytics in records", "Security in analytics", "Choosing reports, CRM Analytics or Tableau"],
+          "tools": ["CRM Analytics", "Tableau", "Einstein Discovery"],
+          "lab_task": "Build a CRM Analytics dashboard for pipeline trends with a recipe, embed it on the account page, and create a Tableau view of the same data for comparison.",
+          "deliverable": "Dashboards, recipe and comparison",
+          "checks": [["Open the embedded dashboard", "Filtered to the current account", "Screenshot"], ["Run the recipe", "Dataset updated", "Recipe history"], ["Compare tools", "Strengths of each stated", "Comparison"]],
+          "objectives": ["Build analytics on Salesforce data", "Embed analytics", "Choose analytics tools"]
+        },
+        {
+          "topic": "Governance, Centre of Excellence and Org Health",
+          "subtopics": ["Salesforce centre of excellence", "Design authority", "Change advisory processes", "Technical debt in orgs", "Org health checks: Optimizer and field usage", "Naming and documentation standards", "License management", "Roadmaps"],
+          "tools": ["Salesforce Optimizer", "Field Trip or similar", "Health Check"],
+          "lab_task": "Run an org health assessment with Optimizer and field usage analysis, build a technical debt backlog, write standards and set up a design authority process.",
+          "deliverable": "Health assessment, debt backlog, standards and process",
+          "checks": [["Run Optimizer", "Findings listed by priority", "Optimizer report"], ["Find unused fields", "Fields with low use listed for clean-up", "Field usage report"], ["Review the design authority process", "Clear criteria and steps", "Process document"]],
+          "objectives": ["Govern Salesforce", "Manage technical debt", "Run a centre of excellence"]
+        },
+        {
+          "topic": "Testing Strategy for Salesforce Programmes",
+          "subtopics": ["Test levels for Salesforce", "Apex unit tests at scale", "UI test automation with Provar or Playwright", "Integration testing", "Performance testing", "Test data management", "UAT for business users", "Regression for seasonal releases"],
+          "tools": ["Apex tests", "Provar or Playwright", "Data seeding tools"],
+          "lab_task": "Write a test strategy for a Salesforce programme, automate three UI journeys, seed test data automatically and run regression against a preview sandbox for the next release.",
+          "deliverable": "Test strategy, automated tests and regression results",
+          "checks": [["Run UI journeys", "Pass in the sandbox", "Test report"], ["Seed data", "Test data created automatically", "Seeding log"], ["Run regression on the preview sandbox", "Issues from the next release found or none reported", "Test report"]],
+          "objectives": ["Plan Salesforce testing", "Automate UI tests", "Test seasonal releases"]
+        },
+        {
+          "topic": "Migration to Salesforce from Legacy CRM",
+          "subtopics": ["Assessing legacy CRMs", "Data mapping and cleansing", "Migration tools and sequence", "Automation and process redesign", "User adoption", "Cut-over planning", "Reconciliation", "Hypercare"],
+          "tools": ["Data Loader", "Bulk API 2.0", "MuleSoft or ETL tool"],
+          "lab_task": "Plan the migration from a legacy CRM with 2 million records, map and clean data, run a mock migration, reconcile it and write a cut-over plan.",
+          "deliverable": "Mapping, mock migration results, reconciliation and cut-over plan",
+          "checks": [["Run the mock migration", "Records loaded with errors listed", "Load results"], ["Reconcile counts", "Counts match the source by object", "Reconciliation sheet"], ["Review the cut-over plan", "Steps, timings and rollback included", "Plan"]],
+          "objectives": ["Plan CRM migrations", "Map and clean data", "Reconcile migrations"]
+        },
+        {
+          "topic": "Industry Clouds: Financial Services and Health",
+          "subtopics": ["Industry clouds overview", "Financial Services Cloud data model", "Health Cloud data model", "Industry-specific compliance", "Customising industry clouds", "Integration with core systems", "When to use industry clouds", "Implementation pitfalls"],
+          "tools": ["Financial Services Cloud trial", "Health Cloud trial"],
+          "lab_task": "Configure Financial Services Cloud households and financial accounts for a bank scenario, compare with building the model on Sales Cloud and list compliance controls.",
+          "deliverable": "Configuration, comparison and controls list",
+          "checks": [["Create a household", "Members and accounts linked", "Screenshot"], ["Compare with a custom build", "Effort and fit compared", "Comparison"], ["List compliance controls", "Each tied to a requirement", "Controls list"]],
+          "objectives": ["Use industry clouds", "Compare with custom builds", "Address industry compliance"]
+        },
+        {
+          "topic": "Technical Leadership on Salesforce Programmes",
+          "subtopics": ["Running a Salesforce delivery team", "Estimation for Salesforce work", "Code and configuration reviews", "Working with business analysts and admins", "Managing partners and system integrators", "Mentoring developers and admins", "Stakeholder communication", "Hiring Salesforce talent"],
+          "tools": ["Jira", "Estimation templates"],
+          "lab_task": "Estimate a provided backlog of 30 Salesforce stories, review a pull request and a flow design, and write a status update for executives.",
+          "deliverable": "Estimates, review comments and status update",
+          "checks": [["Estimate the backlog", "Estimates with stated assumptions", "Estimate sheet"], ["Review the flow design", "Issues found with fixes", "Review notes"], ["Write the status update", "Clear progress, risks and decisions", "Status update"]],
+          "objectives": ["Lead Salesforce teams", "Review code and configuration", "Communicate with executives"]
+        },
+        {
+          "topic": "Architect Certification Preparation",
+          "subtopics": ["Application Architect and System Architect paths", "Technical Architect review board", "Data architecture and management designer topics", "Sharing and visibility designer topics", "Integration architecture designer topics", "Identity and access management designer topics", "Practice scenarios", "Study plan"],
+          "tools": ["Practice question bank", "Architect scenario templates"],
+          "lab_task": "Solve a timed architect scenario, present the solution to a mock review board and plan study for the designer exams.",
+          "deliverable": "Scenario solution, board feedback and study plan",
+          "checks": [["Present the scenario solution", "All requirements addressed", "Board feedback"], ["Answer board challenges", "Trade-offs explained", "Board feedback"], ["Review the study plan", "Designer exams scheduled with topics", "Study plan"]],
+          "objectives": ["Prepare for architect certifications", "Present architecture solutions", "Plan study"]
+        },
+        {
+          "topic": "Troubleshooting Production Salesforce Orgs",
+          "subtopics": ["Debug logs and log levels", "Governor limit failures", "Flow and trigger conflicts", "Integration failures", "Locking errors", "Performance problems", "Root cause analysis", "Runbooks"],
+          "tools": ["Debug logs", "Apex Exception Email", "Event Monitoring"],
+          "lab_task": "Resolve four injected issues (a governor limit failure in bulk loads, a flow and trigger conflict, a record lock error and a failed integration), find root causes and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Fix the limit failure", "Bulk load completes", "Debug log"], ["Fix the record lock error", "Updates succeed without lock errors", "Logs"], ["Write a runbook for integration failures", "Another admin can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot Salesforce production", "Read debug logs", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Salesforce Architecture",
+          "subtopics": ["Org strategy and solution architecture", "Data model at scale and Data Cloud", "Integration and identity architecture", "Security, Shield and compliance", "DevOps, governance and Agentforce", "Review board presentation"],
+          "tools": ["Salesforce", "MuleSoft", "Data Cloud", "Agentforce", "Salesforce Shield", "GitHub Actions"],
+          "lab_task": "Design and prototype an enterprise Salesforce architecture with org strategy, scaled data model, MuleSoft integrations, SSO, Shield, a DevOps pipeline, Data Cloud profiles and an Agentforce agent, then defend it to a mock review board.",
+          "deliverable": "Architecture document, prototype, pipeline and a 20-minute review board presentation",
+          "checks": [["Demo the prototype", "Integration, agent and pipeline work", "Demo"], ["Review data volumes", "Design meets stated limits", "Architecture document"], ["Answer review board questions", "Trade-offs defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one architecture", "Prove key parts with a prototype", "Defend decisions to a review board"]
+        }
+      ]
+    }
+  }
+}
