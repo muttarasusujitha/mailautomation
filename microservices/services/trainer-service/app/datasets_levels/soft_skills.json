@@ -1,0 +1,573 @@
+{
+  "domain": "Soft Skills",
+  "name": "Soft Skills and Professional Effectiveness",
+  "category": "Professional and Soft Skills",
+  "icon": "users",
+  "aliases": ["Soft Skills Training", "Communication Skills", "Communication Skills Training", "Behavioural Training", "Behavioral Training", "Professional Skills", "Workplace Skills", "Corporate Soft Skills", "Interpersonal Skills", "Business Etiquette"],
+  "certifications": ["No formal certification; assessed by observed role plays and a final presentation", "Optional: Cambridge Business English (BEC)", "Optional: Toastmasters Pathways"],
+  "tools": ["Video recording", "Feedback rubrics", "Microsoft Teams or Zoom", "Email client", "Role play scripts"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For graduates, new joiners and early-career staff. Covers communicating clearly in speech and writing, listening, email and chat etiquette, presenting, working in teams, managing time, handling feedback, phone and video calls, customer conversations, workplace etiquette and building a professional presence, practised through role plays with recorded feedback.",
+      "prerequisites": ["Working or about to start working in an organisation", "Basic English for workplace conversations", "Willing to take part in role plays and be recorded for feedback"],
+      "outcomes": ["Speak, write and listen clearly at work", "Present information confidently to a small group", "Work well in teams, manage time and handle feedback", "Behave professionally in meetings, calls and customer conversations"],
+      "days": [
+        {
+          "topic": "Soft Skills Overview and Personal Baseline",
+          "subtopics": ["Why soft skills matter in technical and business roles", "Communication, collaboration and self-management", "Emotional intelligence in simple terms", "How the course works: practice, recording and feedback", "Self-assessment of current strengths and gaps", "Setting personal learning goals", "Giving and receiving feedback in class", "Ground rules for role plays", "Keeping a learning journal", "Course project overview"],
+          "tools": ["Self-assessment questionnaire", "Learning journal", "Video recording"],
+          "lab_task": "Complete a self-assessment, record a two-minute introduction about yourself and your role, and set three measurable learning goals for the course.",
+          "deliverable": "Self-assessment, recording and three goals",
+          "checks": [["Review the goals", "Each goal is specific and measurable", "Goals sheet"], ["Watch the recording with a partner", "Two strengths and one improvement noted", "Feedback form"], ["Explain emotional intelligence", "Correct explanation with a workplace example", "Written answer"]],
+          "objectives": ["Explain why soft skills matter", "Assess your starting point", "Set learning goals"]
+        },
+        {
+          "topic": "Verbal Communication Basics: Clarity and Structure",
+          "subtopics": ["The parts of a clear message", "Knowing your audience", "Structuring with point, reason, example, point", "Plain words instead of jargon", "Speaking pace, pauses and volume", "Checking understanding", "Asking good questions", "Common filler words and how to reduce them", "Explaining technical topics to non-technical people", "Practising short explanations"],
+          "tools": ["Video recording", "Feedback rubric"],
+          "lab_task": "Explain a technical concept from your work to a non-technical partner in two minutes using point, reason, example, point, then repeat after feedback.",
+          "deliverable": "Two recordings and feedback forms",
+          "checks": [["Compare the two recordings", "Second version scores higher on the rubric", "Rubric scores"], ["Count filler words", "Fewer in the second recording", "Count sheet"], ["Ask the listener to summarise", "Summary matches the main point", "Feedback form"]],
+          "objectives": ["Speak clearly and simply", "Structure explanations", "Check understanding"]
+        },
+        {
+          "topic": "Active Listening and Asking Questions",
+          "subtopics": ["Hearing versus listening", "Signs of active listening", "Open and closed questions", "Paraphrasing and summarising", "Listening without interrupting", "Noticing emotions behind words", "Listening on calls and video", "Barriers to listening"],
+          "tools": ["Role play scripts", "Observer checklist"],
+          "lab_task": "In groups of three, take turns as speaker, listener and observer on a workplace problem, practising paraphrasing and open questions while the observer scores the listener.",
+          "deliverable": "Observer checklists for each round",
+          "checks": [["Paraphrase the speaker", "Speaker confirms the paraphrase is accurate", "Observer checklist"], ["Ask open questions", "At least three open questions used", "Observer checklist"], ["Avoid interrupting", "No interruptions recorded", "Observer checklist"]],
+          "objectives": ["Listen actively", "Ask open questions", "Paraphrase accurately"]
+        },
+        {
+          "topic": "Professional Email Writing",
+          "subtopics": ["Subject lines that work", "Opening, purpose and close", "Short paragraphs and bullet points", "Tone: polite, clear and direct", "Requests with deadlines", "Replying, reply all and CC", "Proofreading", "Common email mistakes"],
+          "tools": ["Email client", "Writing checklist"],
+          "lab_task": "Rewrite five poorly written emails (a request, a delay update, a complaint reply, a meeting follow-up and an escalation) and swap with a partner for review.",
+          "deliverable": "Original and rewritten emails with review comments",
+          "checks": [["Review subject lines", "Each says what the email is about", "Rewritten emails"], ["Review requests", "Each has a clear action and deadline", "Rewritten emails"], ["Proofread", "No spelling or grammar errors", "Partner review"]],
+          "objectives": ["Write clear emails", "Use a professional tone", "Make requests clear"]
+        },
+        {
+          "topic": "Business Writing: Reports, Updates and Chat Messages",
+          "subtopics": ["Writing for busy readers", "Status updates", "Short reports", "Writing in chat tools: Teams and Slack", "Formatting for readability", "Writing summaries", "Avoiding over-long messages", "Writing in a global team"],
+          "tools": ["Microsoft Teams or Slack", "Writing checklist"],
+          "lab_task": "Write a weekly status update, a one-page summary of a long document and three chat messages for different situations, and get peer feedback on clarity.",
+          "deliverable": "Status update, summary, chat messages and feedback",
+          "checks": [["Review the status update", "Progress, risks and next steps clear", "Peer feedback"], ["Review the summary", "Main points kept in under one page", "Peer feedback"], ["Review chat messages", "Each can be understood without extra context", "Peer feedback"]],
+          "objectives": ["Write updates and summaries", "Write well in chat tools", "Write for busy readers"]
+        },
+        {
+          "topic": "Presentation Skills: Planning and Delivery",
+          "subtopics": ["Defining the purpose and audience", "Structuring a short presentation", "Opening and closing strongly", "Slides that support the message", "Voice, eye contact and body language", "Managing nerves", "Handling questions", "Timing"],
+          "tools": ["PowerPoint", "Video recording", "Feedback rubric"],
+          "lab_task": "Prepare and deliver a five-minute presentation on a work topic with three slides, take two questions and receive rubric feedback from the group.",
+          "deliverable": "Slides, recording and rubric scores",
+          "checks": [["Time the presentation", "Within five minutes", "Recording"], ["Score with the rubric", "Opening, structure and close rated", "Rubric scores"], ["Answer two questions", "Answers clear and on topic", "Feedback form"]],
+          "objectives": ["Plan presentations", "Deliver with confidence", "Handle questions"]
+        },
+        {
+          "topic": "Teamwork and Collaboration",
+          "subtopics": ["What makes teams work", "Roles in a team", "Trust and reliability", "Sharing information", "Working across functions", "Remote and hybrid teamwork", "Recognising others' contributions", "Common team problems"],
+          "tools": ["Team exercise kit", "Miro"],
+          "lab_task": "Complete a timed team challenge, then review it together: what worked, what did not and what each person will do differently next time.",
+          "deliverable": "Challenge result and team review notes",
+          "checks": [["Complete the challenge", "Result recorded within the time limit", "Result sheet"], ["Hold the review", "Each person names one change", "Review notes"], ["Identify team roles", "Roles each person played named", "Review notes"]],
+          "objectives": ["Work well in teams", "Collaborate across functions", "Reflect on teamwork"]
+        },
+        {
+          "topic": "Time Management and Prioritisation",
+          "subtopics": ["Where time goes", "Urgent versus important", "Eisenhower matrix", "Planning a week", "Time blocking", "Saying no politely", "Managing interruptions", "Tools for tasks and calendars"],
+          "tools": ["Calendar", "Task list tool", "Time log template"],
+          "lab_task": "Log a typical day, sort tasks with the Eisenhower matrix, plan next week with time blocks and practise declining a low-priority request in a role play.",
+          "deliverable": "Time log, matrix, weekly plan and role-play notes",
+          "checks": [["Review the matrix", "Tasks placed with reasons", "Matrix"], ["Review the plan", "Focus time blocked for important work", "Calendar screenshot"], ["Decline the request", "Polite and offers an alternative", "Observer notes"]],
+          "objectives": ["Manage time", "Prioritise work", "Decline requests politely"]
+        },
+        {
+          "topic": "Giving and Receiving Feedback",
+          "subtopics": ["Why feedback matters", "The situation, behaviour, impact model", "Positive and constructive feedback", "Receiving feedback without defending", "Asking for feedback", "Feedback across levels", "Written feedback", "Acting on feedback"],
+          "tools": ["Role play scripts", "Feedback model card"],
+          "lab_task": "Give two pieces of feedback using situation, behaviour, impact in role plays, receive feedback on a recorded piece of work and write an action plan.",
+          "deliverable": "Role-play notes and action plan",
+          "checks": [["Give feedback", "Situation, behaviour and impact all included", "Observer notes"], ["Receive feedback", "Listens and asks a clarifying question without defending", "Observer notes"], ["Write the action plan", "Specific actions with dates", "Action plan"]],
+          "objectives": ["Give useful feedback", "Receive feedback well", "Act on feedback"]
+        },
+        {
+          "topic": "Meetings: Participating and Running Short Meetings",
+          "subtopics": ["Purpose and agendas", "Preparing for meetings", "Speaking up in meetings", "Keeping meetings on time", "Taking notes and actions", "Online meeting etiquette", "Following up after meetings", "When a meeting is not needed"],
+          "tools": ["Microsoft Teams or Zoom", "Meeting templates"],
+          "lab_task": "Run a 15-minute online meeting with an agenda, keep time, record decisions and actions and send a follow-up email.",
+          "deliverable": "Agenda, notes and follow-up email",
+          "checks": [["Keep to time", "Meeting ends within 15 minutes", "Recording"], ["Record actions", "Each action has an owner and date", "Meeting notes"], ["Send the follow-up", "Clear summary sent the same day", "Email"]],
+          "objectives": ["Take part in meetings well", "Run short meetings", "Follow up clearly"]
+        },
+        {
+          "topic": "Phone and Video Call Etiquette",
+          "subtopics": ["Preparing for calls", "Opening and closing calls", "Camera, sound and background", "Speaking clearly on calls", "Handling poor connections", "Calls with clients", "Voicemail and call-back messages", "Following up after calls"],
+          "tools": ["Phone", "Microsoft Teams or Zoom"],
+          "lab_task": "Make three role-play calls (a client update, a supplier chase and a missed-delivery apology) on video and phone, and review recordings against a checklist.",
+          "deliverable": "Recordings and checklist reviews",
+          "checks": [["Open the call", "Greeting, name and purpose in the first 20 seconds", "Checklist"], ["Close the call", "Next steps agreed and summarised", "Checklist"], ["Check the set-up", "Clear sound, camera at eye level and tidy background", "Checklist"]],
+          "objectives": ["Handle calls professionally", "Use video well", "Follow up after calls"]
+        },
+        {
+          "topic": "Customer Communication and Service Mindset",
+          "subtopics": ["Who the customer is: internal and external", "Understanding customer needs", "Empathy statements", "Managing expectations", "Saying no to customers", "Handling complaints", "Following through on promises", "Measuring customer satisfaction"],
+          "tools": ["Role play scripts", "Customer feedback form"],
+          "lab_task": "Handle four customer role plays including a complaint and a request you cannot meet, using empathy and clear next steps, and collect feedback from the \"customer\".",
+          "deliverable": "Role-play feedback forms",
+          "checks": [["Handle the complaint", "Customer feels heard and a next step is agreed", "Customer feedback"], ["Decline the request", "Reason and an alternative given", "Observer notes"], ["Use empathy statements", "At least two used naturally", "Observer notes"]],
+          "objectives": ["Serve customers well", "Handle complaints", "Manage expectations"]
+        },
+        {
+          "topic": "Workplace Etiquette and Professional Presence",
+          "subtopics": ["First impressions", "Dress and grooming norms", "Punctuality and reliability", "Office and remote etiquette", "Social media and personal brand", "Respecting diversity", "Introductions and networking at work", "Building a professional reputation"],
+          "tools": ["Self-assessment", "Networking scenario cards"],
+          "lab_task": "Practise introductions at a mock networking event, review your online professional profile and write a personal brand statement.",
+          "deliverable": "Networking feedback, profile changes and brand statement",
+          "checks": [["Introduce yourself", "Name, role and a clear point in under 30 seconds", "Observer notes"], ["Review your profile", "Three improvements made", "Before and after screenshots"], ["Write the brand statement", "Clear and specific", "Statement"]],
+          "objectives": ["Build professional presence", "Network at work", "Follow workplace norms"]
+        },
+        {
+          "topic": "Cross-Cultural Communication",
+          "subtopics": ["Culture and communication styles", "Direct and indirect communication", "High and low context cultures", "Working across time zones", "Language in global teams", "Avoiding stereotypes", "Inclusive language", "Building rapport across cultures"],
+          "tools": ["Case studies", "Culture dimension cards"],
+          "lab_task": "Analyse three cross-cultural misunderstandings from case studies, rewrite the messages to avoid them and practise a call with a colleague from a different working style.",
+          "deliverable": "Case analysis and rewritten messages",
+          "checks": [["Explain each misunderstanding", "Cause linked to a communication style", "Analysis"], ["Rewrite the messages", "Clear for both cultures", "Rewritten messages"], ["Run the practice call", "Agreement reached without confusion", "Observer notes"]],
+          "objectives": ["Communicate across cultures", "Use inclusive language", "Work in global teams"]
+        },
+        {
+          "topic": "Problem Solving and Decision Making",
+          "subtopics": ["Defining the problem", "Finding root causes with five whys", "Generating options", "Weighing options", "Making decisions with incomplete information", "Involving others", "Communicating decisions", "Learning from decisions"],
+          "tools": ["Problem-solving template", "Miro"],
+          "lab_task": "Solve a workplace case in teams: define the problem, find the root cause with five whys, compare three options in a decision matrix and present the recommendation.",
+          "deliverable": "Problem statement, five whys, decision matrix and recommendation",
+          "checks": [["Define the problem", "Clear and specific statement", "Problem statement"], ["Run five whys", "Root cause supported by facts from the case", "Five whys sheet"], ["Present the recommendation", "Linked to the decision matrix", "Presentation"]],
+          "objectives": ["Solve problems step by step", "Find root causes", "Make and explain decisions"]
+        },
+        {
+          "topic": "Handling Stress and Building Resilience",
+          "subtopics": ["Signs of stress", "Causes of stress at work", "Breathing and grounding techniques", "Managing workload", "Asking for help", "Recovery and rest", "Resilience habits", "Supporting colleagues"],
+          "tools": ["Self-assessment", "Resilience plan template"],
+          "lab_task": "Identify your main stress triggers, practise two techniques, role-play asking a manager for help with workload and write a personal resilience plan.",
+          "deliverable": "Trigger list, role-play notes and resilience plan",
+          "checks": [["Ask for help in the role play", "Request is clear with a suggested solution", "Observer notes"], ["Review the plan", "Specific daily and weekly habits", "Resilience plan"], ["Practise a technique", "Technique demonstrated correctly", "Trainer observation"]],
+          "objectives": ["Recognise stress", "Use coping techniques", "Ask for help"]
+        },
+        {
+          "topic": "Handling Conflict at Work",
+          "subtopics": ["Sources of conflict", "Conflict styles", "Staying calm", "Separating people from problems", "Using \"I\" statements", "Finding common ground", "When to escalate", "Repairing relationships"],
+          "tools": ["Conflict style questionnaire", "Role play scripts"],
+          "lab_task": "Identify your conflict style, then resolve two role-play disagreements with a colleague using \"I\" statements and common ground.",
+          "deliverable": "Conflict style result and role-play notes",
+          "checks": [["Use \"I\" statements", "At least two used", "Observer notes"], ["Reach an agreement", "Both sides agree a next step", "Observer notes"], ["Identify your style", "Style named with its risks", "Written note"]],
+          "objectives": ["Understand conflict styles", "Handle disagreements calmly", "Find common ground"]
+        },
+        {
+          "topic": "Interview and Career Conversation Skills",
+          "subtopics": ["Preparing for interviews", "Telling your story", "The STAR method", "Answering difficult questions", "Asking questions as a candidate", "Career conversations with a manager", "Asking for development", "Following up"],
+          "tools": ["STAR template", "Video recording"],
+          "lab_task": "Prepare five STAR stories, answer them in a recorded mock interview and hold a role-play career conversation with a manager.",
+          "deliverable": "STAR stories, recording and conversation notes",
+          "checks": [["Answer with STAR", "Situation, task, action and result clear", "Rubric scores"], ["Answer a difficult question", "Honest and positive answer", "Feedback form"], ["Hold the career conversation", "Clear development request and next step", "Observer notes"]],
+          "objectives": ["Prepare for interviews", "Use STAR", "Hold career conversations"]
+        },
+        {
+          "topic": "Using AI Assistants Responsibly at Work",
+          "subtopics": ["What AI assistants are good and bad at", "Writing and editing with AI", "Summarising meetings and documents", "Checking AI output", "Privacy and company policy", "Writing good prompts", "Keeping your own voice", "AI and professional honesty"],
+          "tools": ["Microsoft Copilot or ChatGPT", "Company AI policy"],
+          "lab_task": "Use an AI assistant to draft an email and summarise a meeting transcript, check and fix the output, and explain which information you would never paste in.",
+          "deliverable": "Drafts, corrections and a policy note",
+          "checks": [["Check the email draft", "Errors and wrong tone fixed", "Before and after drafts"], ["Check the summary", "Matches the transcript with no invented points", "Comparison"], ["Write the policy note", "Matches the company AI policy", "Note"]],
+          "objectives": ["Use AI at work responsibly", "Check AI output", "Protect information"]
+        },
+        {
+          "topic": "Beginner Capstone: Professional Skills Showcase",
+          "subtopics": ["Planning a short project", "Team collaboration", "Written proposal", "Presentation", "Handling questions", "Reflection on goals"],
+          "tools": ["PowerPoint", "Email client", "Video recording", "Feedback rubric"],
+          "lab_task": "In teams, plan a small workplace improvement, write a one-page proposal and a cover email, present it in five minutes, handle questions and reflect on your personal goals.",
+          "deliverable": "Proposal, email, presentation recording and reflection",
+          "checks": [["Review the proposal and email", "Clear, concise and professional", "Rubric scores"], ["Deliver the presentation", "On time with a strong opening and close", "Rubric scores"], ["Review goals", "Progress against each goal described with evidence", "Reflection"]],
+          "objectives": ["Combine the beginner topics in one project", "Show progress against goals", "Communicate professionally"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For professionals with a few years of experience and new team leads. Covers persuasive communication, stakeholder management, negotiation, influencing without authority, difficult conversations, presenting to senior audiences, facilitation, coaching others, emotional intelligence, managing up, cross-functional work and personal productivity at a higher level.",
+      "prerequisites": ["Has two or more years of work experience", "Communicates confidently in everyday work", "Works with people in other teams or with clients"],
+      "outcomes": ["Persuade and influence colleagues and stakeholders", "Negotiate and handle difficult conversations well", "Present to senior audiences and facilitate meetings", "Coach colleagues and manage relationships upward and across"],
+      "days": [
+        {
+          "topic": "Persuasive Communication",
+          "subtopics": ["Understanding what the audience cares about", "Building a logical case", "Using evidence and stories", "Handling objections", "Ethos, logos and pathos", "Persuasive writing", "Calls to action", "Avoiding manipulation"],
+          "tools": ["Video recording", "Persuasion rubric"],
+          "lab_task": "Build and deliver a three-minute pitch for a change at work to a sceptical panel, using evidence and a story, and handle two objections.",
+          "deliverable": "Pitch outline, recording and panel scores",
+          "checks": [["Deliver the pitch", "Clear problem, evidence and ask", "Rubric scores"], ["Handle objections", "Each answered without becoming defensive", "Panel feedback"], ["Review the call to action", "Specific and achievable", "Pitch outline"]],
+          "objectives": ["Build persuasive arguments", "Use evidence and stories", "Handle objections"]
+        },
+        {
+          "topic": "Stakeholder Management",
+          "subtopics": ["Identifying stakeholders", "Power and interest mapping", "Understanding stakeholder goals", "Communication plans for stakeholders", "Building trust", "Managing expectations", "Handling difficult stakeholders", "Reviewing relationships over time"],
+          "tools": ["Stakeholder map template", "Miro"],
+          "lab_task": "Map the stakeholders for a real or case project, plan how to engage the three most important ones and role-play a meeting with a difficult stakeholder.",
+          "deliverable": "Stakeholder map, plan and role-play notes",
+          "checks": [["Review the map", "Each stakeholder placed with a reason", "Stakeholder map"], ["Review the plan", "Specific actions for each key stakeholder", "Engagement plan"], ["Run the meeting", "Agreement or clear next step reached", "Observer notes"]],
+          "objectives": ["Map stakeholders", "Plan engagement", "Handle difficult stakeholders"]
+        },
+        {
+          "topic": "Negotiation Skills",
+          "subtopics": ["Interests versus positions", "BATNA and walk-away points", "Preparing for a negotiation", "Opening and anchoring", "Trading concessions", "Win-win outcomes", "Negotiating with clients and suppliers", "Closing and confirming agreements"],
+          "tools": ["Negotiation preparation sheet", "Role play scripts"],
+          "lab_task": "Prepare and run two negotiations (a deadline with a client and resources with another team), then compare outcomes with the rest of the group.",
+          "deliverable": "Preparation sheets, outcomes and reflection",
+          "checks": [["Prepare BATNA and interests", "Defined for both sides", "Preparation sheet"], ["Reach an agreement", "Agreement meets your key interest", "Outcome record"], ["Confirm in writing", "Clear summary email sent", "Email"]],
+          "objectives": ["Prepare negotiations", "Negotiate on interests", "Reach and confirm agreements"]
+        },
+        {
+          "topic": "Influencing Without Authority",
+          "subtopics": ["Sources of influence", "Building credibility", "Reciprocity and relationships", "Coalitions", "Framing ideas for others' goals", "Timing", "Influencing senior people", "Measuring influence"],
+          "tools": ["Influence map template", "Role play scripts"],
+          "lab_task": "Plan how to get a cross-team change adopted without authority, build a coalition map and role-play conversations with two key people.",
+          "deliverable": "Influence plan, coalition map and role-play notes",
+          "checks": [["Review the coalition map", "Allies, neutrals and blockers identified", "Map"], ["Run the conversations", "Each person agrees a next step", "Observer notes"], ["Frame for others' goals", "Benefits stated in their terms", "Observer notes"]],
+          "objectives": ["Influence without authority", "Build coalitions", "Frame ideas for others"]
+        },
+        {
+          "topic": "Difficult Conversations",
+          "subtopics": ["Why conversations become difficult", "Preparing for the conversation", "Opening without blame", "Staying calm under pressure", "Listening to the other side", "Finding a way forward", "Following up", "When to involve HR or a manager"],
+          "tools": ["Conversation planning template", "Role play scripts"],
+          "lab_task": "Prepare for and hold two difficult conversations in role plays (missed commitments by a peer and a disagreement with a client), with observer feedback.",
+          "deliverable": "Conversation plans and observer feedback",
+          "checks": [["Open the conversation", "Issue stated without blame", "Observer notes"], ["Listen to the other side", "Their view summarised accurately", "Observer notes"], ["Agree a way forward", "Specific next step agreed", "Observer notes"]],
+          "objectives": ["Prepare for difficult conversations", "Stay calm and listen", "Agree next steps"]
+        },
+        {
+          "topic": "Presenting to Senior Audiences",
+          "subtopics": ["What senior people want", "Bottom line first", "Executive summaries", "Data and charts that tell a story", "Anticipating questions", "Handling challenge", "Short and long versions", "Presenting virtually to executives"],
+          "tools": ["PowerPoint", "Video recording", "Executive rubric"],
+          "lab_task": "Turn a 20-slide update into a five-slide executive briefing with the recommendation first, present it to a mock leadership panel and handle tough questions.",
+          "deliverable": "Executive briefing, recording and panel feedback",
+          "checks": [["Review slide one", "Recommendation stated first", "Slides"], ["Present within time", "Under eight minutes", "Recording"], ["Handle tough questions", "Answers short, honest and confident", "Panel feedback"]],
+          "objectives": ["Present to executives", "Lead with the recommendation", "Handle challenge"]
+        },
+        {
+          "topic": "Facilitation Skills for Meetings and Workshops",
+          "subtopics": ["Facilitator role", "Designing a workshop", "Ice-breakers that work", "Brainstorming techniques", "Dot voting and decision methods", "Managing dominant and quiet people", "Online facilitation tools", "Closing with actions"],
+          "tools": ["Miro", "Facilitation cards"],
+          "lab_task": "Design and facilitate a 45-minute workshop to solve a team problem with brainstorming, grouping and dot voting, and close with owned actions.",
+          "deliverable": "Workshop plan, board and actions",
+          "checks": [["Review the plan", "Purpose, steps and timings clear", "Plan"], ["Facilitate the workshop", "Everyone contributes", "Observer notes"], ["Close with actions", "Each action has an owner and date", "Action list"]],
+          "objectives": ["Facilitate workshops", "Use group techniques", "Reach decisions"]
+        },
+        {
+          "topic": "Emotional Intelligence at Work",
+          "subtopics": ["Self-awareness", "Self-regulation", "Motivation", "Empathy", "Social skills", "Recognising emotions in others", "Responding instead of reacting", "Building emotional intelligence habits"],
+          "tools": ["EQ self-assessment", "Reflection journal"],
+          "lab_task": "Complete an EQ self-assessment, analyse two recent workplace situations where emotions affected outcomes and plan different responses for next time.",
+          "deliverable": "Assessment, situation analysis and plan",
+          "checks": [["Analyse the situations", "Emotions and their effects identified", "Analysis"], ["Plan different responses", "Specific alternative actions", "Plan"], ["Practise a response in a role play", "Calm, empathetic response shown", "Observer notes"]],
+          "objectives": ["Build emotional intelligence", "Manage your reactions", "Respond with empathy"]
+        },
+        {
+          "topic": "Coaching and Mentoring Colleagues",
+          "subtopics": ["Coaching versus mentoring", "The GROW model", "Powerful questions", "Listening to coach", "Supporting new joiners", "Sharing knowledge", "Coaching remotely", "Measuring progress"],
+          "tools": ["GROW template", "Role play scripts"],
+          "lab_task": "Hold two coaching conversations with the GROW model in role plays and write a 30-day mentoring plan for a new joiner.",
+          "deliverable": "Coaching notes and mentoring plan",
+          "checks": [["Use GROW", "All four stages covered", "Observer notes"], ["Ask open questions", "Most questions open", "Observer notes"], ["Review the mentoring plan", "Weekly goals and check-ins", "Plan"]],
+          "objectives": ["Coach colleagues", "Use GROW", "Mentor new joiners"]
+        },
+        {
+          "topic": "Managing Up and Working with Your Manager",
+          "subtopics": ["Understanding your manager's priorities", "Regular updates", "Bringing problems with solutions", "Disagreeing respectfully", "Asking for resources", "Managing expectations upward", "Performance conversations", "Building trust with your manager"],
+          "tools": ["One-to-one template", "Role play scripts"],
+          "lab_task": "Prepare a one-to-one agenda, role-play raising a problem with two solutions and disagreeing with a decision respectfully.",
+          "deliverable": "Agenda and role-play notes",
+          "checks": [["Raise the problem", "Problem stated with two options and a recommendation", "Observer notes"], ["Disagree respectfully", "Concern explained with evidence and support offered", "Observer notes"], ["Review the agenda", "Updates, decisions needed and support needed", "Agenda"]],
+          "objectives": ["Manage relationships upward", "Bring solutions", "Disagree well"]
+        },
+        {
+          "topic": "Working Across Functions and with Clients",
+          "subtopics": ["Understanding other functions' goals", "Shared goals", "Handovers between teams", "Client relationship basics", "Running client meetings", "Saying no to clients with alternatives", "Escalating across teams", "Building long-term relationships"],
+          "tools": ["Role play scripts", "Client meeting template"],
+          "lab_task": "Run a mock client meeting to agree scope with a client and a delivery team, handle a change request and write the meeting summary.",
+          "deliverable": "Meeting plan, role-play notes and summary",
+          "checks": [["Agree scope", "Scope and exclusions agreed", "Summary"], ["Handle the change request", "Impact explained with options", "Observer notes"], ["Write the summary", "Sent within the day with actions", "Email"]],
+          "objectives": ["Work across functions", "Run client meetings", "Handle change requests"]
+        },
+        {
+          "topic": "Business Storytelling",
+          "subtopics": ["Why stories persuade", "Story structures", "Data stories", "Customer stories", "Stories in presentations and emails", "Keeping stories short", "Practising delivery", "Ethics of storytelling"],
+          "tools": ["Story template", "Video recording"],
+          "lab_task": "Turn a set of project results into a two-minute data story with a clear message, deliver it and refine it after feedback.",
+          "deliverable": "Story outline, two recordings and feedback",
+          "checks": [["Review the structure", "Situation, challenge, action and result clear", "Story outline"], ["Compare versions", "Second version scores higher", "Rubric scores"], ["Check the data", "Numbers used accurately", "Story outline"]],
+          "objectives": ["Tell business stories", "Use data in stories", "Deliver stories well"]
+        },
+        {
+          "topic": "Decision Making and Critical Thinking",
+          "subtopics": ["Thinking traps and biases", "Separating facts from opinions", "Testing assumptions", "Structured decision tools", "Risk and uncertainty", "Group decisions", "Pre-mortems", "Reviewing decisions afterwards"],
+          "tools": ["Decision matrix", "Pre-mortem template"],
+          "lab_task": "Analyse a business decision for biases, test its assumptions, run a pre-mortem with your team and recommend whether to proceed.",
+          "deliverable": "Bias analysis, assumptions list, pre-mortem and recommendation",
+          "checks": [["Identify biases", "At least two biases named with evidence", "Analysis"], ["Test assumptions", "Each assumption rated with evidence", "Assumptions list"], ["Run the pre-mortem", "Risks and mitigations recorded", "Pre-mortem"]],
+          "objectives": ["Think critically", "Spot biases", "Make better decisions"]
+        },
+        {
+          "topic": "Personal Productivity at a Higher Level",
+          "subtopics": ["Goals and priorities for the quarter", "Deep work", "Managing email and chat overload", "Delegation basics", "Energy management", "Weekly reviews", "Tools and systems", "Avoiding burnout"],
+          "tools": ["Calendar", "Task tool", "Weekly review template"],
+          "lab_task": "Set quarterly goals, redesign your week for deep work, set email and chat rules and run your first weekly review.",
+          "deliverable": "Goals, redesigned calendar, rules and weekly review",
+          "checks": [["Review the calendar", "At least two deep work blocks a week", "Calendar screenshot"], ["Review the rules", "Clear rules for email and chat checking", "Rules"], ["Run the weekly review", "Progress and next week's priorities recorded", "Review"]],
+          "objectives": ["Work on what matters", "Protect focus time", "Review progress regularly"]
+        },
+        {
+          "topic": "Leading Without a Title: Ownership and Initiative",
+          "subtopics": ["Ownership mindset", "Taking initiative appropriately", "Following through", "Admitting mistakes", "Making others successful", "Raising the bar", "Visibility of your work", "Balancing initiative and alignment"],
+          "tools": ["Reflection journal", "Case studies"],
+          "lab_task": "Identify a problem nobody owns in your team, write a short proposal to fix it, get agreement from a stakeholder in a role play and plan the first steps.",
+          "deliverable": "Proposal, role-play notes and plan",
+          "checks": [["Review the proposal", "Problem, solution and effort clear", "Proposal"], ["Get agreement", "Stakeholder agrees in the role play", "Observer notes"], ["Review the plan", "First steps with dates", "Plan"]],
+          "objectives": ["Take ownership", "Show initiative", "Follow through"]
+        },
+        {
+          "topic": "Virtual Collaboration and Hybrid Work",
+          "subtopics": ["Hybrid working agreements", "Asynchronous communication", "Writing for remote teams", "Engaging people in online meetings", "Building relationships remotely", "Tools for collaboration", "Time zones and fairness", "Wellbeing in remote work"],
+          "tools": ["Microsoft Teams or Slack", "Miro"],
+          "lab_task": "Write hybrid working agreements for a team, run an engaging 30-minute online session with interaction tools and send an asynchronous update instead of a meeting.",
+          "deliverable": "Agreements, session recording and update",
+          "checks": [["Review agreements", "Response times and meeting rules defined", "Agreements"], ["Run the session", "Every participant interacts", "Recording"], ["Review the update", "Replaces a meeting with all needed information", "Update"]],
+          "objectives": ["Collaborate in hybrid teams", "Engage people online", "Communicate asynchronously"]
+        },
+        {
+          "topic": "Customer Experience and Handling Escalations",
+          "subtopics": ["Customer journeys", "Turning complaints into loyalty", "Escalation handling steps", "Apologising well", "Service recovery", "Communicating with angry customers", "Internal coordination during escalations", "Learning from escalations"],
+          "tools": ["Role play scripts", "Escalation template"],
+          "lab_task": "Handle a serious customer escalation in a role play, coordinate internally, write the customer update and run a short lessons-learned discussion.",
+          "deliverable": "Role-play notes, customer update and lessons learned",
+          "checks": [["Handle the angry customer", "Customer calms and agrees next steps", "Observer notes"], ["Write the customer update", "Apology, cause, fix and timeline clear", "Update"], ["Run lessons learned", "Two process improvements agreed", "Notes"]],
+          "objectives": ["Handle escalations", "Recover service", "Learn from complaints"]
+        },
+        {
+          "topic": "Professional Writing for Influence",
+          "subtopics": ["Proposals", "Business cases in brief", "Writing to persuade", "Executive summaries", "Structuring long documents", "Editing your own writing", "Writing with AI help responsibly", "Peer review"],
+          "tools": ["Word", "Writing checklist", "AI assistant"],
+          "lab_task": "Write a two-page proposal with an executive summary for a change at work, edit it to half its length without losing meaning and get peer review.",
+          "deliverable": "Proposal drafts and review comments",
+          "checks": [["Review the executive summary", "Recommendation and benefits in the first paragraph", "Proposal"], ["Compare drafts", "Shorter version keeps all key points", "Drafts"], ["Get peer review", "Reviewer understands the ask", "Review comments"]],
+          "objectives": ["Write persuasive proposals", "Edit for clarity", "Use peer review"]
+        },
+        {
+          "topic": "Assertiveness and Saying No with Confidence",
+          "subtopics": ["Passive, aggressive and assertive behaviour", "Rights and responsibilities at work", "Assertive language patterns", "Saying no without damaging relationships", "Pushing back on unrealistic deadlines", "Standing your ground under pressure", "Assertiveness with senior people", "Assertiveness across cultures"],
+          "tools": ["Assertiveness self-assessment", "Role play scripts"],
+          "lab_task": "Rate your own assertiveness, then role-play pushing back on an unrealistic deadline from a senior manager and refusing an out-of-scope client request while offering alternatives.",
+          "deliverable": "Self-assessment and role-play notes",
+          "checks": [["Push back on the deadline", "Impact explained and a realistic date proposed", "Observer notes"], ["Refuse the client request", "Clear no with an alternative offered", "Observer notes"], ["Classify sample responses", "Passive, aggressive and assertive examples labelled correctly", "Worksheet"]],
+          "objectives": ["Behave assertively", "Say no and keep relationships", "Push back on pressure"]
+        },
+        {
+          "topic": "Intermediate Capstone: Leading a Change Through Influence",
+          "subtopics": ["Choosing a change", "Stakeholder and influence plan", "Proposal", "Negotiation and difficult conversation", "Executive presentation", "Reflection"],
+          "tools": ["Stakeholder map", "PowerPoint", "Video recording", "Feedback rubric"],
+          "lab_task": "Plan a real or case change, map and engage stakeholders, write a proposal, negotiate resources, handle a difficult conversation and present to a mock leadership panel.",
+          "deliverable": "Plans, proposal, role-play notes, presentation recording and reflection",
+          "checks": [["Present to the panel", "Recommendation clear and questions handled", "Panel scores"], ["Run the negotiation", "Agreement meets key interests", "Observer notes"], ["Write the reflection", "Progress on skills described with evidence", "Reflection"]],
+          "objectives": ["Combine the intermediate topics in one change", "Influence stakeholders", "Present to leadership"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For managers, senior professionals and future leaders. Covers leadership styles, leading teams through change, high-stakes communication, executive presence, strategic thinking, coaching and developing people, managing performance, building culture and psychological safety, leading across cultures, crisis communication, ethics and personal leadership development.",
+      "prerequisites": ["Leads people, projects or important client relationships", "Has completed intermediate-level communication and influence training or equivalent experience", "Ready to work on a personal leadership plan"],
+      "outcomes": ["Lead teams through change with clarity and care", "Communicate with executive presence in high-stakes moments", "Develop people, manage performance and build healthy culture", "Think strategically and lead with integrity"],
+      "days": [
+        {
+          "topic": "Leadership Styles and Self-Awareness",
+          "subtopics": ["Leadership versus management", "Situational leadership", "Your natural style", "360-degree feedback", "Strengths and blind spots", "Values-based leadership", "Leadership presence", "Personal leadership plan"],
+          "tools": ["Leadership style assessment", "360 feedback template"],
+          "lab_task": "Complete a leadership style assessment, gather 360 feedback from five colleagues and write a personal leadership development plan.",
+          "deliverable": "Assessment, 360 summary and leadership plan",
+          "checks": [["Summarise 360 feedback", "Themes and blind spots identified", "Summary"], ["Review the plan", "Specific behaviours and measures", "Leadership plan"], ["Apply situational leadership", "Style chosen for three scenarios with reasons", "Scenario sheet"]],
+          "objectives": ["Understand your leadership style", "Use feedback for growth", "Adapt your style"]
+        },
+        {
+          "topic": "Leading Teams Through Change",
+          "subtopics": ["Why people resist change", "Change curves", "Communicating the why", "Involving the team", "Supporting people through uncertainty", "Quick wins", "Sustaining change", "Measuring adoption"],
+          "tools": ["Change plan template", "Role play scripts"],
+          "lab_task": "Plan how to lead your team through a reorganisation, write the announcement, role-play a team meeting with concerns and plan follow-up support.",
+          "deliverable": "Change plan, announcement and role-play notes",
+          "checks": [["Review the announcement", "Why, what and what happens next clear", "Announcement"], ["Handle concerns in the meeting", "Concerns acknowledged and answered honestly", "Observer notes"], ["Review the support plan", "Actions for different reactions", "Plan"]],
+          "objectives": ["Lead change", "Communicate in uncertainty", "Support people through change"]
+        },
+        {
+          "topic": "High-Stakes Communication and Executive Presence",
+          "subtopics": ["What executive presence is", "Gravitas, communication and appearance", "Speaking with authority", "Staying composed under pressure", "Concise answers", "Board and leadership meetings", "Handling hostile questions", "Media basics"],
+          "tools": ["Video recording", "Executive presence rubric"],
+          "lab_task": "Deliver a high-stakes update to a mock board with bad news and a plan, handle hostile questions and review the recording for presence.",
+          "deliverable": "Recording, rubric scores and improvement plan",
+          "checks": [["Deliver the bad news", "Clear, honest and with a plan", "Rubric scores"], ["Handle hostile questions", "Composed, concise answers", "Panel feedback"], ["Review the recording", "Three improvements identified", "Improvement plan"]],
+          "objectives": ["Show executive presence", "Communicate under pressure", "Deliver bad news well"]
+        },
+        {
+          "topic": "Strategic Thinking",
+          "subtopics": ["Seeing the bigger picture", "Linking work to strategy", "Scenario thinking", "Trends and their impact", "Prioritising strategic work", "Thinking long term and short term", "Communicating strategy", "Strategic questions for leaders"],
+          "tools": ["Strategy canvas", "Scenario template"],
+          "lab_task": "Analyse a case business with trends and scenarios, link your team's work to its strategy and present a one-page strategic plan for your area.",
+          "deliverable": "Trend and scenario analysis and strategic plan",
+          "checks": [["Build scenarios", "Two to three plausible futures with implications", "Scenario sheet"], ["Link work to strategy", "Each team priority linked to a goal", "Plan"], ["Present the plan", "Clear priorities and trade-offs", "Presentation"]],
+          "objectives": ["Think strategically", "Use scenarios", "Link team work to strategy"]
+        },
+        {
+          "topic": "Coaching for Performance and Growth",
+          "subtopics": ["Coaching as a leadership style", "Advanced questioning", "Coaching for performance problems", "Coaching high performers", "Team coaching", "Building a coaching culture", "Ethics and boundaries", "Measuring coaching impact"],
+          "tools": ["Coaching models", "Role play scripts"],
+          "lab_task": "Hold three coaching conversations (a struggling performer, a high performer and a team) in role plays and design how to build a coaching culture in your team.",
+          "deliverable": "Coaching notes and coaching culture plan",
+          "checks": [["Coach the struggling performer", "Clear plan owned by the coachee", "Observer notes"], ["Coach the team", "Team agrees a shared goal", "Observer notes"], ["Review the culture plan", "Habits, rituals and measures defined", "Plan"]],
+          "objectives": ["Coach for performance", "Coach teams", "Build a coaching culture"]
+        },
+        {
+          "topic": "Managing Performance and Accountability",
+          "subtopics": ["Setting clear expectations", "Goals and key results for people", "Regular check-ins", "Recognising good work", "Addressing underperformance", "Performance improvement plans", "Documentation", "Fairness and bias in reviews"],
+          "tools": ["Goal template", "Performance review template"],
+          "lab_task": "Write goals for two team members, hold a role-play check-in, address underperformance with a clear plan and calibrate two reviews for bias.",
+          "deliverable": "Goals, conversation notes, plan and calibration notes",
+          "checks": [["Review goals", "Specific and measurable", "Goals"], ["Address underperformance", "Expectations, support and timeline clear", "Observer notes"], ["Calibrate reviews", "Bias risks found and corrected", "Calibration notes"]],
+          "objectives": ["Manage performance", "Hold people accountable fairly", "Reduce bias in reviews"]
+        },
+        {
+          "topic": "Building Team Culture and Psychological Safety",
+          "subtopics": ["What psychological safety is", "Signs of low safety", "Leader behaviours that build safety", "Team norms", "Handling mistakes", "Inclusion", "Measuring team culture", "Rituals and recognition"],
+          "tools": ["Team culture survey", "Miro"],
+          "lab_task": "Run a psychological safety survey with a team, discuss the results, agree three norms and plan leader behaviours to improve the weakest area.",
+          "deliverable": "Survey results, norms and action plan",
+          "checks": [["Run the survey", "Results by question shown", "Survey report"], ["Agree norms", "Three norms agreed by the team", "Norms"], ["Plan leader behaviours", "Specific behaviours with frequency", "Action plan"]],
+          "objectives": ["Build psychological safety", "Agree team norms", "Measure culture"]
+        },
+        {
+          "topic": "Delegation and Empowerment",
+          "subtopics": ["Why leaders struggle to delegate", "What to delegate", "Levels of delegation", "Delegating with clarity", "Checking without micromanaging", "Developing people through delegation", "Handling delegated failures", "Empowering teams to decide"],
+          "tools": ["Delegation poker cards", "Delegation plan template"],
+          "lab_task": "List your tasks, choose five to delegate with the right level, role-play a delegation conversation and agree check-in points.",
+          "deliverable": "Delegation plan and role-play notes",
+          "checks": [["Choose tasks to delegate", "Each with a level and reason", "Delegation plan"], ["Delegate in the role play", "Outcome, limits and support clear", "Observer notes"], ["Agree check-ins", "Frequency matches the risk", "Delegation plan"]],
+          "objectives": ["Delegate effectively", "Choose delegation levels", "Empower teams"]
+        },
+        {
+          "topic": "Leading Remote, Hybrid and Global Teams",
+          "subtopics": ["Leading people you rarely see", "Trust in distributed teams", "Communication rhythms", "Fairness across locations", "Cultural differences in leadership expectations", "Remote performance management", "Team rituals online", "Wellbeing and isolation"],
+          "tools": ["Team charter template", "Microsoft Teams or Zoom"],
+          "lab_task": "Write a charter for a team across India, Europe and the US, design its communication rhythm and role-play a one-to-one with an isolated remote team member.",
+          "deliverable": "Team charter, rhythm and role-play notes",
+          "checks": [["Review the rhythm", "Fair meeting times across locations", "Schedule"], ["Hold the one-to-one", "Concerns heard and support agreed", "Observer notes"], ["Review the charter", "Values, ways of working and decisions defined", "Charter"]],
+          "objectives": ["Lead distributed teams", "Build trust remotely", "Lead across cultures"]
+        },
+        {
+          "topic": "Crisis Communication and Leadership",
+          "subtopics": ["What makes a crisis", "First hours of a crisis", "Communicating with employees, customers and the public", "Speed versus accuracy", "Spokesperson skills", "Coordinating a response team", "Recovering trust", "Lessons after a crisis"],
+          "tools": ["Crisis communication template", "Video recording"],
+          "lab_task": "Lead a simulated service outage crisis: brief the team, write customer and staff messages, give a recorded statement and run a review afterwards.",
+          "deliverable": "Messages, recorded statement and review",
+          "checks": [["Write the first customer message", "Sent within the time limit with facts only", "Message"], ["Give the statement", "Calm, clear and honest", "Recording and rubric"], ["Run the review", "Improvements agreed", "Review notes"]],
+          "objectives": ["Lead in a crisis", "Communicate quickly and accurately", "Recover trust"]
+        },
+        {
+          "topic": "Negotiation and Conflict Resolution at Senior Level",
+          "subtopics": ["Complex negotiations with many parties", "Negotiating with senior stakeholders", "Mediating between team members", "Conflict between teams", "Managing emotions in high-stakes conflict", "Finding creative solutions", "Agreements that last", "Repairing relationships after conflict"],
+          "tools": ["Mediation template", "Role play scripts"],
+          "lab_task": "Mediate a conflict between two team leads in a role play and negotiate a shared budget between three departments.",
+          "deliverable": "Mediation notes and negotiation outcome",
+          "checks": [["Mediate the conflict", "Both leads agree actions", "Observer notes"], ["Negotiate the budget", "Agreement accepted by all three", "Outcome record"], ["Write the agreement", "Clear terms and review date", "Agreement"]],
+          "objectives": ["Mediate conflicts", "Negotiate with several parties", "Make lasting agreements"]
+        },
+        {
+          "topic": "Developing Talent and Succession",
+          "subtopics": ["Identifying potential", "Development plans", "Stretch assignments", "Mentoring programmes", "Career paths", "Succession planning", "Retaining key people", "Diversity in talent pipelines"],
+          "tools": ["Nine-box grid", "Development plan template"],
+          "lab_task": "Assess a team with a nine-box grid, write development plans for two people, identify successors for your role and plan how to retain a key person.",
+          "deliverable": "Grid, development plans, succession plan and retention plan",
+          "checks": [["Place people on the grid", "Placements supported by evidence", "Grid"], ["Review development plans", "Specific experiences and support", "Plans"], ["Review the succession plan", "Ready-now and ready-later successors named", "Plan"]],
+          "objectives": ["Develop talent", "Plan succession", "Retain key people"]
+        },
+        {
+          "topic": "Ethics, Integrity and Responsible Leadership",
+          "subtopics": ["Ethical dilemmas at work", "Values and decisions", "Speaking up", "Handling pressure to cut corners", "Fairness and inclusion", "Responsible use of AI and data", "Leading by example", "Building an ethical culture"],
+          "tools": ["Ethics case studies", "Decision framework"],
+          "lab_task": "Work through four ethical dilemmas with a decision framework, role-play speaking up to a senior leader and write your personal leadership principles.",
+          "deliverable": "Dilemma decisions, role-play notes and principles",
+          "checks": [["Decide the dilemmas", "Each decision explained with values", "Decision sheet"], ["Speak up in the role play", "Concern raised clearly and respectfully", "Observer notes"], ["Write principles", "Clear and specific", "Principles"]],
+          "objectives": ["Lead with integrity", "Handle ethical dilemmas", "Build an ethical culture"]
+        },
+        {
+          "topic": "Innovation and Creative Leadership",
+          "subtopics": ["Encouraging new ideas", "Creative thinking techniques", "Design thinking for leaders", "Experiments and small bets", "Learning from failure", "Removing barriers to innovation", "Recognising ideas", "Balancing innovation and delivery"],
+          "tools": ["Design thinking toolkit", "Miro"],
+          "lab_task": "Run a design thinking session with your team on a customer problem, choose one idea to test as a small experiment and plan how to measure it.",
+          "deliverable": "Session board, chosen idea and experiment plan",
+          "checks": [["Run the session", "Problem framed from the customer's view", "Session board"], ["Choose an idea", "Choice explained", "Decision note"], ["Plan the experiment", "Measure and decision rule defined", "Experiment plan"]],
+          "objectives": ["Lead innovation", "Use design thinking", "Run small experiments"]
+        },
+        {
+          "topic": "Communicating Vision and Purpose",
+          "subtopics": ["What a vision is", "Writing a team vision", "Connecting work to purpose", "Repeating the message", "Storytelling for vision", "Engaging the team in the vision", "Aligning goals to the vision", "Measuring alignment"],
+          "tools": ["Vision template", "Video recording"],
+          "lab_task": "Write a vision for your team, deliver it as a three-minute talk, gather feedback from the group and refine it.",
+          "deliverable": "Vision statement, recordings and feedback",
+          "checks": [["Review the vision", "Clear, short and inspiring", "Vision statement"], ["Deliver the talk", "Audience can repeat the main idea", "Feedback form"], ["Refine after feedback", "Changes made based on feedback", "Before and after"]],
+          "objectives": ["Create a team vision", "Communicate purpose", "Align the team"]
+        },
+        {
+          "topic": "Wellbeing, Energy and Sustainable Leadership",
+          "subtopics": ["Leader wellbeing", "Energy management", "Boundaries", "Recognising burnout in yourself and others", "Supporting team wellbeing", "Workload decisions", "Role-modelling healthy habits", "Building resilience in teams"],
+          "tools": ["Wellbeing assessment", "Resilience plan template"],
+          "lab_task": "Assess your energy and boundaries, write a sustainable leadership plan and role-play a conversation with a team member showing signs of burnout.",
+          "deliverable": "Assessment, plan and role-play notes",
+          "checks": [["Review the plan", "Specific boundaries and habits", "Plan"], ["Hold the conversation", "Concern shown and support agreed", "Observer notes"], ["Identify burnout signs", "Signs named correctly from the case", "Notes"]],
+          "objectives": ["Lead sustainably", "Support team wellbeing", "Recognise burnout"]
+        },
+        {
+          "topic": "Building Networks and Organisational Influence",
+          "subtopics": ["Why networks matter for leaders", "Mapping your network", "Building relationships with peers and seniors", "Sponsorship versus mentorship", "Visibility of your team's work", "Influencing organisational decisions", "Giving back", "Maintaining relationships"],
+          "tools": ["Network map template", "Influence plan"],
+          "lab_task": "Map your professional network, find gaps, plan five relationship-building actions and role-play asking a senior leader to sponsor an initiative.",
+          "deliverable": "Network map, action plan and role-play notes",
+          "checks": [["Review the network map", "Gaps identified", "Map"], ["Review the action plan", "Specific actions with dates", "Plan"], ["Ask for sponsorship", "Clear request with benefits for the sponsor", "Observer notes"]],
+          "objectives": ["Build professional networks", "Gain sponsorship", "Increase organisational influence"]
+        },
+        {
+          "topic": "Leading in the Age of AI",
+          "subtopics": ["How AI changes work and roles", "Helping teams adopt AI tools", "Reskilling and upskilling", "Fears and resistance about AI", "Responsible AI use in teams", "Measuring AI's effect on work", "Human skills that matter more", "Leading hybrid human and AI teams"],
+          "tools": ["AI adoption plan template", "Company AI policy"],
+          "lab_task": "Write an AI adoption plan for your team covering training, guidelines, measures and how to address concerns, and role-play a team discussion about AI fears.",
+          "deliverable": "AI adoption plan and role-play notes",
+          "checks": [["Review the plan", "Training, rules and measures included", "Plan"], ["Hold the discussion", "Concerns heard and answered honestly", "Observer notes"], ["Define measures", "Effect on time and quality measured", "Measures"]],
+          "objectives": ["Lead AI adoption", "Address fears about AI", "Use AI responsibly in teams"]
+        },
+        {
+          "topic": "Hiring and Interviewing as a Leader",
+          "subtopics": ["Defining the role and success profile", "Structured interviews", "Behavioural and situational questions", "Scoring with rubrics", "Reducing bias in hiring", "Selling the role to candidates", "Making and explaining hiring decisions", "Onboarding new hires well"],
+          "tools": ["Interview scorecard", "Role profile template"],
+          "lab_task": "Write a success profile for a role, design a structured interview with a scorecard, interview a mock candidate with a partner and agree a hiring decision from the scores.",
+          "deliverable": "Role profile, scorecard, interview notes and decision",
+          "checks": [["Review the scorecard", "Each question linked to a competency with rating anchors", "Scorecard"], ["Run the interview", "All candidates asked the same core questions", "Interview notes"], ["Agree the decision", "Decision based on scores, with bias risks discussed", "Decision note"]],
+          "objectives": ["Hire with structure", "Reduce bias in interviews", "Onboard new hires"]
+        },
+        {
+          "topic": "Advanced Capstone: Leadership Challenge Simulation",
+          "subtopics": ["Leadership plan and vision", "Leading change and conflict", "Performance and coaching conversations", "Crisis communication", "Executive presentation", "Reflection and next steps"],
+          "tools": ["Video recording", "Feedback rubrics", "PowerPoint"],
+          "lab_task": "Lead a simulated team through a day of challenges: share a vision, announce a change, coach a struggling performer, mediate a conflict, handle a crisis and present to a mock board, then reflect on your leadership plan.",
+          "deliverable": "Recordings, rubric scores, board presentation and leadership reflection",
+          "checks": [["Deliver the vision and change announcement", "Clear and well received by the panel", "Rubric scores"], ["Handle the crisis", "Messages quick, accurate and calm", "Rubric scores"], ["Write the reflection", "Growth against the leadership plan with evidence", "Reflection"]],
+          "objectives": ["Combine the advanced topics in one simulation", "Lead under pressure", "Plan continued growth"]
+        }
+      ]
+    }
+  }
+}

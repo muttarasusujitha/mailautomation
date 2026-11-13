@@ -2287,6 +2287,400 @@
                                                             "Use Dapper where it fits"
                                                         ]
                                      }
+                         },
+                         {
+                             "between":  [
+                                             "Java",
+                                             "Spring Boot"
+                                         ],
+                             "day":  {
+                                         "topic":  "Applying Core Java Skills Inside Spring Boot Services",
+                                         "subtopics":  [
+                                                           "Where plain Java ends and Spring begins",
+                                                           "Records, sealed types and enums in Spring APIs",
+                                                           "Collections and streams in service logic",
+                                                           "Exceptions mapped to HTTP responses",
+                                                           "Immutability and thread safety in singleton beans",
+                                                           "Testing plain Java logic without the Spring context",
+                                                           "Java 21 features Spring Boot supports",
+                                                           "Keeping domain code free of framework annotations"
+                                                       ],
+                                         "tools":  [
+                                                       "JDK 21",
+                                                       "Spring Boot",
+                                                       "JUnit 5",
+                                                       "IntelliJ IDEA"
+                                                   ],
+                                         "lab_task":  "Take a plain Java order pricing library from the Java days, wrap it in a Spring Boot REST service without adding Spring annotations to the domain classes, map its exceptions to Problem Details responses and test the logic without starting Spring.",
+                                         "deliverable":  "Domain module, Spring Boot service module and tests",
+                                         "checks":  [
+                                                        [
+                                                            "Search the domain module for Spring imports",
+                                                            "None found",
+                                                            "Code search output"
+                                                        ],
+                                                        [
+                                                            "Run the domain tests",
+                                                            "Pass without a Spring context",
+                                                            "Test report"
+                                                        ],
+                                                        [
+                                                            "Call the API with an invalid order",
+                                                            "Domain exception returned as a 400 Problem Details response",
+                                                            "Postman result"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Reuse Java skills in Spring Boot",
+                                                            "Keep domain code independent",
+                                                            "Test logic without the framework"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Spring Boot",
+                                             "React"
+                                         ],
+                             "day":  {
+                                         "topic":  "Connecting a React Front End to a Spring Boot API",
+                                         "subtopics":  [
+                                                           "API contracts shared between front end and back end",
+                                                           "Generating a typed client from OpenAPI",
+                                                           "CORS during development and in production",
+                                                           "Login with JWT or OAuth2 from React",
+                                                           "Handling validation errors in forms",
+                                                           "Paging and filtering from the UI",
+                                                           "Serving the React build from Spring Boot or a CDN",
+                                                           "End-to-end tests across both"
+                                                       ],
+                                         "tools":  [
+                                                       "Spring Boot",
+                                                       "React",
+                                                       "OpenAPI Generator",
+                                                       "Playwright"
+                                                   ],
+                                         "lab_task":  "Generate a TypeScript client from the Spring Boot OpenAPI spec, build React pages for login, search with paging and a create form that shows server validation errors, and cover the main flow with a Playwright test.",
+                                         "deliverable":  "Generated client, React pages and end-to-end test",
+                                         "checks":  [
+                                                        [
+                                                            "Submit an invalid form",
+                                                            "Server field errors shown next to the right inputs",
+                                                            "Screenshot"
+                                                        ],
+                                                        [
+                                                            "Change an API field and regenerate",
+                                                            "TypeScript build fails until the UI is updated",
+                                                            "Build output"
+                                                        ],
+                                                        [
+                                                            "Run the Playwright test",
+                                                            "Login, search and create pass",
+                                                            "Test report"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Connect React to Spring Boot",
+                                                            "Share API contracts",
+                                                            "Test the full flow"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Data Analytics",
+                                             "Power BI"
+                                         ],
+                             "day":  {
+                                         "topic":  "From Analysis to Power BI: Publishing Analyst Work as Reports",
+                                         "subtopics":  [
+                                                           "Choosing what becomes a report and what stays an analysis",
+                                                           "Moving SQL logic into views or the model",
+                                                           "Reusing pandas outputs as Power BI sources",
+                                                           "Matching numbers between analysis and report",
+                                                           "Measures for the KPIs defined in the analysis",
+                                                           "Refresh schedules and gateways",
+                                                           "Documenting metric definitions in the report",
+                                                           "Handing a report over to business owners"
+                                                       ],
+                                         "tools":  [
+                                                       "Power BI Desktop",
+                                                       "Power BI Service",
+                                                       "PostgreSQL",
+                                                       "pandas"
+                                                   ],
+                                         "lab_task":  "Turn the cohort and funnel analyses into a Power BI report backed by database views, add measures that match the analysis numbers exactly, schedule refresh and write a handover note for the business owner.",
+                                         "deliverable":  "Views, Power BI report, reconciliation table and handover note",
+                                         "checks":  [
+                                                        [
+                                                            "Reconcile five KPIs",
+                                                            "Report values match the analysis",
+                                                            "Reconciliation table"
+                                                        ],
+                                                        [
+                                                            "Trigger a scheduled refresh",
+                                                            "Refresh succeeds with new data",
+                                                            "Refresh history"
+                                                        ],
+                                                        [
+                                                            "Review the handover note",
+                                                            "Definitions, sources and owner listed",
+                                                            "Handover note"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Publish analysis as reports",
+                                                            "Keep numbers consistent",
+                                                            "Hand over reports cleanly"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Data Analytics",
+                                             "Python"
+                                         ],
+                             "day":  {
+                                         "topic":  "Python Workflows for Analysts: Reproducible Notebooks and Scripts",
+                                         "subtopics":  [
+                                                           "Project layout for analysis code",
+                                                           "Virtual environments and pinned packages",
+                                                           "Moving notebook code into functions",
+                                                           "Parameters instead of edited cells",
+                                                           "Reading credentials from the environment",
+                                                           "Testing analysis functions",
+                                                           "Exporting results for stakeholders",
+                                                           "Sharing work through Git"
+                                                       ],
+                                         "tools":  [
+                                                       "Python",
+                                                       "pandas",
+                                                       "Jupyter",
+                                                       "pytest",
+                                                       "Git"
+                                                   ],
+                                         "lab_task":  "Refactor an exploratory notebook into a small package with functions, a parameterised runner notebook, pinned dependencies and tests, then have a partner reproduce the results on their machine.",
+                                         "deliverable":  "Repository, tests and reproduction notes",
+                                         "checks":  [
+                                                        [
+                                                            "Partner runs the project from the README",
+                                                            "Same results reproduced",
+                                                            "Reproduction notes"
+                                                        ],
+                                                        [
+                                                            "Run the tests",
+                                                            "All pass",
+                                                            "pytest output"
+                                                        ],
+                                                        [
+                                                            "Search the code for passwords",
+                                                            "Credentials read from the environment",
+                                                            "Code search output"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Make analysis reproducible",
+                                                            "Structure Python analysis code",
+                                                            "Share work through Git"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Databricks",
+                                             "Azure"
+                                         ],
+                             "day":  {
+                                         "topic":  "Azure Databricks with ADLS, Entra ID, Key Vault and Data Factory",
+                                         "subtopics":  [
+                                                           "Azure Databricks workspace deployment options",
+                                                           "ADLS Gen2 through Unity Catalog external locations",
+                                                           "Access connectors and managed identities",
+                                                           "Entra ID groups synced with SCIM",
+                                                           "Key Vault-backed secret scopes",
+                                                           "Triggering jobs from Azure Data Factory",
+                                                           "Private endpoints and VNet injection",
+                                                           "Costs on the Azure bill"
+                                                       ],
+                                         "tools":  [
+                                                       "Azure Databricks",
+                                                       "ADLS Gen2",
+                                                       "Microsoft Entra ID",
+                                                       "Azure Key Vault",
+                                                       "Azure Data Factory"
+                                                   ],
+                                         "lab_task":  "Connect an Azure Databricks workspace to ADLS through an access connector, sync Entra ID groups, read a secret from a Key Vault-backed scope and trigger a Databricks job from a Data Factory pipeline.",
+                                         "deliverable":  "Configuration screenshots, pipeline run and access tests",
+                                         "checks":  [
+                                                        [
+                                                            "Read a file from ADLS",
+                                                            "Read through the access connector without storage keys",
+                                                            "Notebook output"
+                                                        ],
+                                                        [
+                                                            "Run the Data Factory pipeline",
+                                                            "Databricks job runs and reports success back",
+                                                            "Pipeline run history"
+                                                        ],
+                                                        [
+                                                            "Remove a user from the Entra ID group",
+                                                            "Table access removed after sync",
+                                                            "Query error"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Integrate Databricks with Azure services",
+                                                            "Use managed identities",
+                                                            "Orchestrate from Data Factory"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Databricks",
+                                             "AWS"
+                                         ],
+                             "day":  {
+                                         "topic":  "Databricks on AWS with S3, IAM, Glue and Kinesis",
+                                         "subtopics":  [
+                                                           "Workspace deployment with cross-account IAM roles",
+                                                           "S3 storage credentials and external locations",
+                                                           "Instance profiles versus Unity Catalog credentials",
+                                                           "AWS Secrets Manager with Databricks",
+                                                           "Reading streams from Kinesis",
+                                                           "Glue Data Catalog federation",
+                                                           "PrivateLink on AWS",
+                                                           "Costs on the AWS bill"
+                                                       ],
+                                         "tools":  [
+                                                       "Databricks on AWS",
+                                                       "Amazon S3",
+                                                       "AWS IAM",
+                                                       "Amazon Kinesis",
+                                                       "AWS Glue"
+                                                   ],
+                                         "lab_task":  "Configure an S3 external location with an IAM role, stream events from Kinesis into a Delta table, federate a Glue database into Unity Catalog and tag compute so costs appear by project in AWS Cost Explorer.",
+                                         "deliverable":  "IAM policies, streaming table, federated catalog and cost report",
+                                         "checks":  [
+                                                        [
+                                                            "Read S3 without the role",
+                                                            "Access denied",
+                                                            "Notebook error"
+                                                        ],
+                                                        [
+                                                            "Send events to Kinesis",
+                                                            "Rows arrive in the Delta table",
+                                                            "Query result"
+                                                        ],
+                                                        [
+                                                            "Query a Glue table through Unity Catalog",
+                                                            "Rows returned",
+                                                            "Query result"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Integrate Databricks with AWS services",
+                                                            "Use IAM roles safely",
+                                                            "Stream from Kinesis"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Databricks",
+                                             "Power BI"
+                                         ],
+                             "day":  {
+                                         "topic":  "Power BI on Databricks SQL: Models, Modes and Performance",
+                                         "subtopics":  [
+                                                           "Connecting Power BI to SQL warehouses",
+                                                           "Import, DirectQuery and composite models",
+                                                           "Publishing semantic models from Databricks to Power BI",
+                                                           "Unity Catalog permissions in Power BI",
+                                                           "Single sign-on with Entra ID",
+                                                           "Gold table design for Power BI",
+                                                           "Query performance and warehouse sizing for reports",
+                                                           "Refresh and cost trade-offs"
+                                                       ],
+                                         "tools":  [
+                                                       "Power BI Desktop",
+                                                       "Power BI Service",
+                                                       "Databricks SQL",
+                                                       "Unity Catalog"
+                                                   ],
+                                         "lab_task":  "Build the same sales report in import and DirectQuery mode on Databricks SQL, publish a model from Unity Catalog to Power BI, check that row filters apply through single sign-on and compare refresh time, query time and cost.",
+                                         "deliverable":  "Two reports, published model and comparison table",
+                                         "checks":  [
+                                                        [
+                                                            "Open the report as a regional manager",
+                                                            "Only their region visible through single sign-on",
+                                                            "Screenshot"
+                                                        ],
+                                                        [
+                                                            "Compare modes",
+                                                            "Refresh time, query time and cost recorded for both",
+                                                            "Comparison table"
+                                                        ],
+                                                        [
+                                                            "Review query history",
+                                                            "DirectQuery queries from Power BI listed with durations",
+                                                            "Query history"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Connect Power BI to Databricks",
+                                                            "Choose storage modes",
+                                                            "Keep security consistent"
+                                                        ]
+                                     }
+                         },
+                         {
+                             "between":  [
+                                             "Soft Skills",
+                                             "Project Management"
+                                         ],
+                             "day":  {
+                                         "topic":  "Communication and Stakeholder Skills for Project Managers",
+                                         "subtopics":  [
+                                                           "Kick-off meetings that set expectations",
+                                                           "Status reports people read",
+                                                           "Escalating risks without blame",
+                                                           "Saying no to scope changes",
+                                                           "Negotiating dates and resources",
+                                                           "Running steering committee meetings",
+                                                           "Handling conflict in project teams",
+                                                           "Closing projects with honest lessons learned"
+                                                       ],
+                                         "tools":  [
+                                                       "Status report template",
+                                                       "Role play scripts",
+                                                       "Microsoft Teams or Zoom"
+                                                   ],
+                                         "lab_task":  "Run a project kick-off role play, write a red status report with a recovery plan, negotiate a date change with a sponsor and handle a scope request from a stakeholder.",
+                                         "deliverable":  "Kick-off notes, status report and role-play feedback",
+                                         "checks":  [
+                                                        [
+                                                            "Review the red status report",
+                                                            "Cause, impact and recovery plan clear",
+                                                            "Status report"
+                                                        ],
+                                                        [
+                                                            "Negotiate the date",
+                                                            "Agreed date with conditions recorded",
+                                                            "Observer notes"
+                                                        ],
+                                                        [
+                                                            "Handle the scope request",
+                                                            "Impact explained and change process followed",
+                                                            "Observer notes"
+                                                        ]
+                                                    ],
+                                         "objectives":  [
+                                                            "Communicate as a project manager",
+                                                            "Escalate and negotiate well",
+                                                            "Manage stakeholders"
+                                                        ]
+                                     }
                          }
                      ],
     "capstones":  [
