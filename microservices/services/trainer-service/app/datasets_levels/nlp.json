@@ -1,0 +1,573 @@
+{
+  "domain": "Natural Language Processing",
+  "name": "Natural Language Processing",
+  "category": "Data Science and Machine Learning",
+  "icon": "message-square",
+  "aliases": ["NLP", "NLP Training", "Text Analytics", "Text Mining", "Computational Linguistics", "NLP Engineer", "Language AI"],
+  "certifications": ["No single standard certification; assessed by projects", "Optional: Hugging Face course certificates", "Optional: Google Cloud Professional Machine Learning Engineer"],
+  "tools": ["Python", "Jupyter", "spaCy", "NLTK", "scikit-learn", "Hugging Face Transformers", "sentence-transformers", "PyTorch"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and data scientists new to NLP. Covers text data and its problems, Python text handling, regular expressions, tokenisation, normalisation, spaCy pipelines, part-of-speech tagging, named entities, bag of words and TF-IDF, text classification, evaluation, sentiment analysis, word embeddings, topic modelling, text similarity, keyword extraction, Indian languages and responsible NLP.",
+      "prerequisites": ["Writes Python with lists, dictionaries and functions", "Has used pandas", "Basic machine learning ideas such as training and testing are helpful"],
+      "outcomes": ["Clean and tokenise text in English and Indian languages", "Build classic NLP pipelines with spaCy and scikit-learn", "Classify text, find entities and topics and measure results", "Use embeddings for similarity and explain NLP risks"],
+      "days": [
+        {
+          "topic": "NLP Overview, Applications and Environment Setup",
+          "subtopics": ["What NLP is and where it is used", "Tasks: classification, extraction, search, translation and generation", "Rule-based, statistical and neural approaches", "Large language models and classic NLP together", "Installing Python, Jupyter, spaCy and NLTK", "Downloading language models", "GPU options for later days", "Course datasets: product reviews, support tickets and news", "Project folder structure", "Choosing an approach for a business problem"],
+          "tools": ["Python", "Jupyter", "spaCy", "NLTK"],
+          "lab_task": "Set up the environment, load the three course datasets, look at examples from each and choose an approach for five business problems with reasons.",
+          "deliverable": "Environment set-up and an approach table",
+          "checks": [["Load the datasets", "Row counts and samples shown", "Notebook"], ["Run a spaCy model", "Tokens and entities shown for a sentence", "Notebook output"], ["Choose approaches", "Approach justified for each problem", "Approach table"]],
+          "objectives": ["Describe NLP", "Set up tools", "Choose approaches"]
+        },
+        {
+          "topic": "Working with Text Data in Python",
+          "subtopics": ["Strings and Unicode", "Encodings and mojibake", "Reading text files, CSV and JSON", "pandas string methods", "Text length and statistics", "Duplicates and near duplicates", "Language detection", "Exploring a text dataset"],
+          "tools": ["Python", "pandas", "langdetect or fastText"],
+          "lab_task": "Load support tickets with mixed encodings, fix broken characters, measure text lengths, detect languages and remove duplicates.",
+          "deliverable": "Cleaned dataset and exploration notebook",
+          "checks": [["Fix encodings", "No broken characters in samples", "Notebook output"], ["Detect languages", "Language per ticket recorded", "Notebook output"], ["Remove duplicates", "Duplicate count reported", "Notebook output"]],
+          "objectives": ["Handle text in Python", "Fix encoding problems", "Explore text data"]
+        },
+        {
+          "topic": "Regular Expressions for Text Processing",
+          "subtopics": ["Regex syntax", "Character classes and quantifiers", "Groups and named groups", "Finding and replacing", "Extracting emails, phone numbers and IDs", "Regex for Indian formats: PIN codes and mobile numbers", "Performance and readability", "When not to use regex"],
+          "tools": ["Python re module", "regex101"],
+          "lab_task": "Extract order IDs, emails, Indian mobile numbers and PIN codes from tickets, mask personal data and test patterns against tricky examples.",
+          "deliverable": "Regex patterns, tests and masked text",
+          "checks": [["Extract mobile numbers", "All valid numbers found and invalid ones skipped", "Test output"], ["Mask personal data", "Emails and numbers masked", "Sample output"], ["Test tricky examples", "Patterns pass all test cases", "Test output"]],
+          "objectives": ["Write regular expressions", "Extract structured data", "Mask personal data"]
+        },
+        {
+          "topic": "Tokenisation and Text Normalisation",
+          "subtopics": ["Tokens, sentences and words", "Tokenisers in NLTK and spaCy", "Lowercasing and punctuation", "Stop words", "Stemming", "Lemmatisation", "Handling emojis, hashtags and URLs", "Subword tokenisation in brief"],
+          "tools": ["NLTK", "spaCy"],
+          "lab_task": "Tokenise reviews with NLTK and spaCy, compare stemming and lemmatisation, decide which stop words to keep for sentiment and handle emojis.",
+          "deliverable": "Normalisation pipeline and comparison",
+          "checks": [["Compare tokenisers", "Differences on contractions and URLs recorded", "Comparison"], ["Compare stemming and lemmatisation", "Examples of each shown", "Notebook output"], ["Keep negation words", "\"not\" kept for sentiment", "Pipeline code"]],
+          "objectives": ["Tokenise text", "Normalise text", "Choose stop words carefully"]
+        },
+        {
+          "topic": "spaCy Pipelines",
+          "subtopics": ["spaCy models and languages", "The pipeline: tokenizer, tagger, parser and NER", "Doc, Token and Span objects", "Processing many texts with nlp.pipe", "Disabling components for speed", "Custom pipeline components", "Matcher and PhraseMatcher", "Saving and loading pipelines"],
+          "tools": ["spaCy"],
+          "lab_task": "Process 50,000 reviews with nlp.pipe, disable unneeded components, add a custom component that flags product names with PhraseMatcher and save the pipeline.",
+          "deliverable": "Pipeline code, timings and saved pipeline",
+          "checks": [["Compare speeds", "Faster with nlp.pipe and disabled components", "Timing output"], ["Run the custom component", "Product names flagged", "Notebook output"], ["Load the saved pipeline", "Same results", "Notebook output"]],
+          "objectives": ["Use spaCy pipelines", "Process text efficiently", "Add custom components"]
+        },
+        {
+          "topic": "Part-of-Speech Tagging and Dependency Parsing",
+          "subtopics": ["Parts of speech", "Fine and coarse tags", "Dependency parsing", "Noun chunks", "Finding subjects and objects", "Visualising parses with displaCy", "Using grammar for extraction", "Parsing errors"],
+          "tools": ["spaCy", "displaCy"],
+          "lab_task": "Extract product features and the words describing them from reviews using noun chunks and dependency relations, and visualise five parses.",
+          "deliverable": "Extraction code and examples",
+          "checks": [["Extract feature-opinion pairs", "Pairs correct for sample reviews", "Notebook output"], ["Visualise parses", "Relations shown", "displaCy screenshots"], ["Find parsing errors", "Two errors explained", "Notes"]],
+          "objectives": ["Tag parts of speech", "Parse dependencies", "Extract with grammar"]
+        },
+        {
+          "topic": "Named Entity Recognition",
+          "subtopics": ["Entity types", "Pretrained NER models", "Evaluating NER", "Rule-based entities with EntityRuler", "Combining rules and models", "Entity linking in brief", "Domain-specific entities", "Annotating entities"],
+          "tools": ["spaCy", "EntityRuler", "Label Studio"],
+          "lab_task": "Find people, companies and places in news, add rule-based entities for product codes, annotate 100 sentences and measure precision and recall.",
+          "deliverable": "NER pipeline, annotations and evaluation",
+          "checks": [["Run pretrained NER", "Entities found in news", "Notebook output"], ["Add product code rules", "Codes recognised", "Notebook output"], ["Evaluate", "Precision and recall per type", "Evaluation table"]],
+          "objectives": ["Recognise entities", "Add rules", "Evaluate NER"]
+        },
+        {
+          "topic": "Bag of Words and TF-IDF Features",
+          "subtopics": ["Vectorising text", "Bag of words", "N-grams", "TF-IDF", "Vocabulary size and min_df", "Sparse matrices", "Feature inspection", "Limits of bag of words"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Build count and TF-IDF features for tickets with unigrams and bigrams, tune vocabulary settings and list the top words per ticket category.",
+          "deliverable": "Feature code and top-word lists",
+          "checks": [["Build TF-IDF features", "Matrix shape and sparsity reported", "Notebook output"], ["Add bigrams", "Useful phrases appear in top features", "Notebook output"], ["List top words per category", "Words make sense for each category", "Lists"]],
+          "objectives": ["Vectorise text", "Use TF-IDF", "Inspect features"]
+        },
+        {
+          "topic": "Text Classification with Classic Machine Learning",
+          "subtopics": ["Classification tasks", "Train and test splits for text", "Naive Bayes", "Logistic regression", "Linear SVM", "Pipelines with vectorisers", "Class imbalance", "Saving models"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Classify support tickets into categories with Naive Bayes, logistic regression and a linear SVM in pipelines, handle imbalance and save the best model.",
+          "deliverable": "Models, comparison and saved pipeline",
+          "checks": [["Compare models", "Scores on the same test set", "Comparison table"], ["Handle imbalance", "Recall for small categories improves", "Classification report"], ["Reload the pipeline", "Same predictions", "Notebook output"]],
+          "objectives": ["Classify text", "Compare models", "Handle imbalance"]
+        },
+        {
+          "topic": "Evaluating NLP Models",
+          "subtopics": ["Accuracy, precision, recall and F1", "Macro and micro averages", "Confusion matrices", "Error analysis", "Cross-validation for text", "Data leakage in text tasks", "Human evaluation", "Choosing metrics for the business"],
+          "tools": ["scikit-learn", "pandas"],
+          "lab_task": "Evaluate the ticket classifier with macro and micro F1, read the confusion matrix, review 30 errors and find a leakage problem caused by template text.",
+          "deliverable": "Evaluation report and error analysis",
+          "checks": [["Report macro and micro F1", "Both reported and explained", "Evaluation report"], ["Review errors", "Error types grouped", "Error analysis"], ["Find the leakage", "Cause found and score corrected", "Notes"]],
+          "objectives": ["Evaluate NLP models", "Analyse errors", "Avoid leakage"]
+        },
+        {
+          "topic": "Sentiment Analysis",
+          "subtopics": ["Sentiment tasks", "Lexicon-based sentiment with VADER", "Machine learning sentiment", "Aspect-based sentiment", "Sarcasm and negation", "Pretrained sentiment models", "Domain differences", "Reporting sentiment"],
+          "tools": ["VADER", "scikit-learn", "Hugging Face pipelines"],
+          "lab_task": "Compare VADER, a trained classifier and a pretrained transformer on product reviews, test negation and sarcasm examples and report sentiment by product feature.",
+          "deliverable": "Comparison, test cases and report",
+          "checks": [["Compare methods", "Scores on the same labelled set", "Comparison table"], ["Test negation", "Failures listed per method", "Test results"], ["Report by feature", "Sentiment per feature shown", "Report"]],
+          "objectives": ["Analyse sentiment", "Compare methods", "Report aspects"]
+        },
+        {
+          "topic": "Word Embeddings",
+          "subtopics": ["Distributional meaning", "Word2Vec", "GloVe and fastText", "Training embeddings on your own data", "Similarity and analogies", "Visualising embeddings", "Embeddings for classification", "Bias in embeddings"],
+          "tools": ["gensim", "fastText", "Matplotlib"],
+          "lab_task": "Train Word2Vec on tickets, compare with pretrained fastText vectors, find similar words, visualise clusters and check for gender bias.",
+          "deliverable": "Trained embeddings, visualisation and bias check",
+          "checks": [["Find similar words", "Sensible neighbours for product terms", "Notebook output"], ["Visualise clusters", "Related words grouped", "Plot"], ["Check bias", "Biased associations found and noted", "Bias notes"]],
+          "objectives": ["Use word embeddings", "Train embeddings", "Spot bias"]
+        },
+        {
+          "topic": "Topic Modelling",
+          "subtopics": ["What topic models find", "LDA", "NMF", "Choosing the number of topics", "Coherence scores", "Labelling topics", "BERTopic in brief", "Using topics in reports"],
+          "tools": ["gensim", "scikit-learn", "BERTopic"],
+          "lab_task": "Find topics in support tickets with LDA and NMF, choose the number of topics with coherence, label them and compare with BERTopic.",
+          "deliverable": "Topic models, labels and comparison",
+          "checks": [["Choose the number of topics", "Coherence scores shown", "Plot"], ["Label topics", "Each topic named with examples", "Topic list"], ["Compare with BERTopic", "Differences described", "Comparison notes"]],
+          "objectives": ["Model topics", "Evaluate topics", "Label and report topics"]
+        },
+        {
+          "topic": "Text Similarity, Deduplication and Search",
+          "subtopics": ["Cosine similarity", "Jaccard and MinHash", "Near-duplicate detection", "Sentence embeddings", "Semantic search", "Indexing with FAISS", "Evaluating search", "Use cases: FAQ matching and duplicate tickets"],
+          "tools": ["sentence-transformers", "FAISS", "datasketch"],
+          "lab_task": "Find duplicate tickets with MinHash, build semantic search over FAQs with sentence embeddings and FAISS and evaluate it with 30 test questions.",
+          "deliverable": "Deduplication results, search index and evaluation",
+          "checks": [["Find duplicates", "Near-duplicate pairs found", "Notebook output"], ["Search FAQs", "Right FAQ in the top three for most questions", "Evaluation table"], ["Compare with TF-IDF search", "Semantic search better on paraphrases", "Comparison"]],
+          "objectives": ["Measure similarity", "Deduplicate text", "Build semantic search"]
+        },
+        {
+          "topic": "Keyword Extraction and Summarisation",
+          "subtopics": ["Keyword extraction with TF-IDF", "RAKE and YAKE", "KeyBERT", "Extractive summarisation", "Abstractive summarisation in brief", "Evaluating summaries with ROUGE", "Summaries for long documents", "Using summaries in products"],
+          "tools": ["YAKE", "KeyBERT", "sumy", "Hugging Face pipelines"],
+          "lab_task": "Extract keywords from news with YAKE and KeyBERT, build an extractive summariser, compare with a pretrained abstractive model and score both with ROUGE.",
+          "deliverable": "Keyword lists, summaries and ROUGE scores",
+          "checks": [["Compare keyword methods", "Differences on sample articles", "Comparison"], ["Score summaries", "ROUGE for both methods", "Score table"], ["Review summaries by hand", "Factual errors noted", "Review notes"]],
+          "objectives": ["Extract keywords", "Summarise text", "Evaluate summaries"]
+        },
+        {
+          "topic": "NLP for Indian Languages and Multilingual Text",
+          "subtopics": ["Scripts and Unicode for Indian languages", "Transliteration", "Code-mixed text such as Hinglish", "Tokenisation for Indic scripts", "Indic NLP Library and iNLTK", "Multilingual models such as IndicBERT and MuRIL", "Translation with IndicTrans2", "Evaluating multilingual systems"],
+          "tools": ["Indic NLP Library", "IndicTrans2", "Hugging Face models"],
+          "lab_task": "Normalise Hindi and Tamil text, transliterate Hinglish reviews, translate tickets to English and classify sentiment with a multilingual model.",
+          "deliverable": "Pipeline and evaluation",
+          "checks": [["Transliterate Hinglish", "Readable Devanagari or Latin output", "Notebook output"], ["Translate tickets", "Meaning kept in sample checks", "Review notes"], ["Classify multilingual sentiment", "Scores per language reported", "Evaluation table"]],
+          "objectives": ["Process Indian languages", "Handle code-mixed text", "Use multilingual models"]
+        },
+        {
+          "topic": "Information Extraction from Documents",
+          "subtopics": ["Extraction tasks", "Templates and rules", "Extracting from PDFs", "Tables in documents", "Relation extraction in brief", "OCR for scanned documents", "Validating extracted data", "Human review"],
+          "tools": ["pdfplumber", "Tesseract OCR", "spaCy"],
+          "lab_task": "Extract invoice number, date, vendor and total from 50 PDF invoices, including scanned ones with OCR, validate the values and route uncertain ones for review.",
+          "deliverable": "Extraction pipeline and accuracy report",
+          "checks": [["Extract fields", "Accuracy per field reported", "Accuracy report"], ["Handle scanned invoices", "OCR text extracted", "Notebook output"], ["Route uncertain results", "Low-confidence invoices sent for review", "Review queue"]],
+          "objectives": ["Extract information", "Use OCR", "Validate extractions"]
+        },
+        {
+          "topic": "Building a Simple Chatbot and Intent Classifier",
+          "subtopics": ["Intents and entities", "Training intent classifiers", "Slot filling", "Dialogue flows", "Fallback handling", "Rasa or a simple framework", "Testing conversations", "When to use an LLM instead"],
+          "tools": ["Rasa or a custom Python bot", "scikit-learn"],
+          "lab_task": "Build a bot for order status and returns with intent classification, slot filling for order numbers, a fallback and conversation tests.",
+          "deliverable": "Bot code and test conversations",
+          "checks": [["Ask for order status", "Intent recognised and order number captured", "Conversation log"], ["Ask something unknown", "Fallback response", "Conversation log"], ["Run conversation tests", "All pass", "Test output"]],
+          "objectives": ["Classify intents", "Fill slots", "Handle fallbacks"]
+        },
+        {
+          "topic": "Responsible NLP: Bias, Privacy and Harm",
+          "subtopics": ["Bias in language data", "Toxicity and harmful content", "Personal data in text", "Redaction with Presidio", "Fairness checks for classifiers", "Dataset documentation", "Model cards for NLP", "Legal duties for text data"],
+          "tools": ["Microsoft Presidio", "Fairness checks", "Model card template"],
+          "lab_task": "Redact personal data from tickets with Presidio, test the classifier for unfair errors across dialects and write a model card.",
+          "deliverable": "Redacted data, fairness results and model card",
+          "checks": [["Redact personal data", "Names, phones and emails removed", "Sample output"], ["Test fairness", "Error rates compared across groups", "Fairness report"], ["Write the model card", "Use, limits and risks documented", "Model card"]],
+          "objectives": ["Protect privacy in text", "Check fairness", "Document NLP models"]
+        },
+        {
+          "topic": "Beginner Capstone: Support Ticket Intelligence",
+          "subtopics": ["Data and cleaning", "Classification and extraction", "Search and topics", "Report"],
+          "tools": ["spaCy", "scikit-learn", "sentence-transformers", "FAISS"],
+          "lab_task": "Build a ticket system that cleans and redacts tickets, classifies them, extracts order numbers, finds duplicates, suggests FAQ answers with semantic search and reports topics and sentiment, then demo it.",
+          "deliverable": "Pipeline, evaluation report and demo recording",
+          "checks": [["Classify new tickets", "F1 above the agreed target", "Evaluation report"], ["Suggest FAQs", "Right answer in the top three for most tickets", "Evaluation table"], ["Present the report", "Topics and sentiment explained", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one system", "Solve a real text problem", "Present results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data scientists and engineers building NLP systems. Covers neural networks for text, recurrent models, attention, the transformer architecture, tokenisers, pretrained encoders, fine-tuning for classification, token classification and question answering, sentence embeddings, retrieval, LLM prompting for NLP tasks, structured extraction with LLMs, evaluation, data annotation, efficient models, serving, multilingual transformers, speech in brief and production monitoring.",
+      "prerequisites": ["Builds classic NLP pipelines with spaCy and scikit-learn", "Writes PyTorch or is ready to learn it", "Understands evaluation metrics for classification"],
+      "outcomes": ["Fine-tune and evaluate transformer models for core NLP tasks", "Build embedding-based retrieval and use LLMs for NLP tasks well", "Create labelled data and make models efficient", "Serve and monitor NLP models in production"],
+      "days": [
+        {
+          "topic": "Neural Networks for Text with PyTorch",
+          "subtopics": ["Tensors and autograd", "Embedding layers", "Feed-forward text classifiers", "Training loops", "Batching and padding", "Dropout and early stopping", "GPU training", "Comparing with classic models"],
+          "tools": ["PyTorch", "Jupyter"],
+          "lab_task": "Build a neural ticket classifier with an embedding layer in PyTorch, train it on a GPU with early stopping and compare with the TF-IDF baseline.",
+          "deliverable": "Training code, curves and comparison",
+          "checks": [["Train the model", "Validation loss falls then stops improving", "Training curve"], ["Use early stopping", "Training stops at the best epoch", "Training log"], ["Compare with the baseline", "Scores on the same test set", "Comparison table"]],
+          "objectives": ["Build neural text models", "Train with PyTorch", "Compare with baselines"]
+        },
+        {
+          "topic": "Recurrent Networks and Sequence Models",
+          "subtopics": ["Sequences in language", "RNNs", "LSTMs and GRUs", "Bidirectional models", "Sequence labelling", "Vanishing gradients", "Why transformers replaced RNNs", "When RNNs are still useful"],
+          "tools": ["PyTorch"],
+          "lab_task": "Train a bidirectional LSTM for named entities on a small dataset, compare it with the spaCy model and explain its weaknesses on long sentences.",
+          "deliverable": "Model, evaluation and notes",
+          "checks": [["Train the LSTM", "Entity F1 reported", "Evaluation table"], ["Compare with spaCy", "Scores compared", "Comparison table"], ["Test long sentences", "Errors on long inputs explained", "Notes"]],
+          "objectives": ["Understand sequence models", "Train LSTMs", "Compare architectures"]
+        },
+        {
+          "topic": "Attention and the Transformer Architecture",
+          "subtopics": ["Attention mechanisms", "Self-attention", "Multi-head attention", "Positional encoding", "Encoder and decoder blocks", "Encoder-only, decoder-only and encoder-decoder models", "Scaling and compute", "Reading model cards"],
+          "tools": ["PyTorch", "Hugging Face Transformers"],
+          "lab_task": "Implement scaled dot-product attention, visualise attention weights in a pretrained model and map BERT, GPT and T5 to their architectures.",
+          "deliverable": "Attention code, visualisations and architecture notes",
+          "checks": [["Implement attention", "Output matches the library version", "Notebook output"], ["Visualise attention", "Heads shown for a sentence", "Visualisation"], ["Map architectures", "Each model placed correctly", "Architecture notes"]],
+          "objectives": ["Explain attention", "Understand transformers", "Choose architectures"]
+        },
+        {
+          "topic": "Tokenisers for Transformers",
+          "subtopics": ["Subword tokenisation: BPE, WordPiece and SentencePiece", "Vocabulary and special tokens", "Padding, truncation and attention masks", "Tokenising pairs", "Training a tokeniser", "Tokenisers for Indian languages", "Token counts and cost", "Common tokenisation bugs"],
+          "tools": ["Hugging Face Tokenizers"],
+          "lab_task": "Compare how three tokenisers split English and Hindi text, train a tokeniser on support tickets and fix a truncation bug that cuts off labels.",
+          "deliverable": "Comparison, trained tokeniser and fix",
+          "checks": [["Compare tokenisers", "Token counts per language recorded", "Comparison table"], ["Train a tokeniser", "Domain terms kept as fewer tokens", "Notebook output"], ["Fix truncation", "Important text no longer cut", "Test output"]],
+          "objectives": ["Understand tokenisers", "Train tokenisers", "Avoid tokenisation bugs"]
+        },
+        {
+          "topic": "Fine-Tuning Transformers for Text Classification",
+          "subtopics": ["Pretrained encoders: BERT, RoBERTa and DeBERTa", "The Trainer API", "Hyperparameters for fine-tuning", "Class imbalance", "Evaluation during training", "Saving and sharing models", "Small and distilled models", "Comparing with classic baselines"],
+          "tools": ["Hugging Face Transformers", "Trainer", "Datasets"],
+          "lab_task": "Fine-tune DeBERTa and DistilBERT to classify tickets, tune learning rate and epochs, handle imbalance and compare with the classic baseline.",
+          "deliverable": "Fine-tuned models, metrics and comparison",
+          "checks": [["Fine-tune the model", "F1 above the classic baseline", "Evaluation table"], ["Compare model sizes", "Speed and accuracy for both", "Comparison table"], ["Reload the model", "Same predictions", "Notebook output"]],
+          "objectives": ["Fine-tune encoders", "Tune training", "Compare model sizes"]
+        },
+        {
+          "topic": "Token Classification: NER with Transformers",
+          "subtopics": ["Token classification", "BIO tagging", "Aligning labels with subword tokens", "Fine-tuning for NER", "Evaluation with seqeval", "Domain NER", "Nested and overlapping entities", "Combining with rules"],
+          "tools": ["Hugging Face Transformers", "seqeval"],
+          "lab_task": "Fine-tune a transformer for product and order entities, fix label alignment for subwords, evaluate with seqeval and add rules for codes.",
+          "deliverable": "NER model and evaluation",
+          "checks": [["Align labels", "Subword labels correct", "Test output"], ["Evaluate with seqeval", "Entity-level F1 reported", "Evaluation report"], ["Add rules", "Code entities found reliably", "Notebook output"]],
+          "objectives": ["Fine-tune NER", "Align labels", "Combine models and rules"]
+        },
+        {
+          "topic": "Question Answering and Reading Comprehension",
+          "subtopics": ["Extractive question answering", "SQuAD-style datasets", "Fine-tuning for QA", "Long documents and sliding windows", "No-answer questions", "Evaluation: exact match and F1", "Generative QA compared with extractive", "QA over company documents"],
+          "tools": ["Hugging Face Transformers", "Datasets"],
+          "lab_task": "Fine-tune an extractive QA model on policy documents, handle long documents with sliding windows and unanswerable questions, and evaluate with exact match and F1.",
+          "deliverable": "QA model and evaluation",
+          "checks": [["Answer from a long document", "Correct span found across windows", "Notebook output"], ["Ask an unanswerable question", "Model returns no answer", "Notebook output"], ["Evaluate", "Exact match and F1 reported", "Evaluation table"]],
+          "objectives": ["Build QA models", "Handle long text", "Evaluate QA"]
+        },
+        {
+          "topic": "Sentence Embeddings and Retrieval",
+          "subtopics": ["Sentence embedding models", "Bi-encoders and cross-encoders", "Fine-tuning embeddings with sentence-transformers", "Hard negatives", "Vector databases", "Re-ranking", "Evaluation: recall at k and MRR", "Multilingual embeddings"],
+          "tools": ["sentence-transformers", "FAISS or Qdrant", "Cross-encoders"],
+          "lab_task": "Fine-tune an embedding model on FAQ pairs with hard negatives, add a cross-encoder re-ranker and measure recall at 5 and MRR before and after.",
+          "deliverable": "Fine-tuned model, retrieval pipeline and evaluation",
+          "checks": [["Fine-tune embeddings", "Recall at 5 improves", "Evaluation table"], ["Add the re-ranker", "MRR improves", "Evaluation table"], ["Search in Hindi", "Relevant English FAQ found", "Notebook output"]],
+          "objectives": ["Build retrieval", "Fine-tune embeddings", "Re-rank results"]
+        },
+        {
+          "topic": "Using LLMs for NLP Tasks",
+          "subtopics": ["Zero-shot and few-shot prompting", "Prompting for classification and extraction", "Choosing between fine-tuned models and LLMs", "Cost and latency", "Consistency and temperature", "Local open models with Ollama", "Hosted APIs", "Evaluating LLM outputs against labels"],
+          "tools": ["OpenAI or Azure OpenAI", "Ollama", "Python"],
+          "lab_task": "Classify tickets with zero-shot and few-shot prompts on a hosted and a local model, compare accuracy, cost and latency with the fine-tuned classifier.",
+          "deliverable": "Prompts, results and comparison",
+          "checks": [["Run few-shot prompts", "Accuracy reported", "Evaluation table"], ["Compare cost and latency", "Per-ticket cost and time for each", "Comparison table"], ["Write the recommendation", "Approach chosen with reasons", "Recommendation"]],
+          "objectives": ["Use LLMs for NLP", "Compare with fine-tuning", "Weigh cost and quality"]
+        },
+        {
+          "topic": "Structured Extraction with LLMs",
+          "subtopics": ["Extracting fields as JSON", "Schemas with pydantic", "Function calling and structured outputs", "Validation and retries", "Long documents", "Confidence and review", "Measuring field accuracy", "Privacy in extraction"],
+          "tools": ["LLM API", "pydantic", "Instructor or native structured outputs"],
+          "lab_task": "Extract invoice fields into a pydantic schema with an LLM, validate and retry on errors, measure field accuracy against the rule-based extractor and redact data before sending.",
+          "deliverable": "Extraction code and accuracy comparison",
+          "checks": [["Validate output", "Invalid JSON retried until valid", "Log"], ["Compare accuracy", "Field accuracy for both methods", "Comparison table"], ["Redact before sending", "No personal data in requests", "Request log"]],
+          "objectives": ["Extract with LLMs", "Validate outputs", "Protect data"]
+        },
+        {
+          "topic": "Evaluating NLP Systems",
+          "subtopics": ["Test sets that reflect use", "Slices and subgroups", "Robustness tests", "Behavioural testing with CheckList", "Human evaluation design", "Inter-annotator agreement", "Statistical significance between models", "Evaluation reports"],
+          "tools": ["CheckList", "Python", "Annotation tool"],
+          "lab_task": "Build slice and robustness tests for the classifier, run behavioural tests for negation and typos, run a small human evaluation and test whether two models really differ.",
+          "deliverable": "Test suite, human evaluation and evaluation report",
+          "checks": [["Run robustness tests", "Failures listed by type", "Test results"], ["Measure agreement", "Cohen's kappa reported", "Agreement report"], ["Test significance", "p-value for the model difference", "Evaluation report"]],
+          "objectives": ["Evaluate thoroughly", "Test behaviour", "Run human evaluation"]
+        },
+        {
+          "topic": "Data Annotation and Labelling Workflows",
+          "subtopics": ["Annotation guidelines", "Annotation tools", "Quality control", "Active learning for text", "Weak supervision with labelling functions", "Synthetic data from LLMs", "Annotation cost", "Dataset versioning"],
+          "tools": ["Label Studio or Argilla", "Snorkel", "DVC"],
+          "lab_task": "Write guidelines, label 300 tickets with two annotators, add weak labels with labelling functions, generate synthetic examples for a rare class and version the dataset.",
+          "deliverable": "Guidelines, labelled data and comparison",
+          "checks": [["Measure agreement", "Agreement above the target after guideline fixes", "Agreement report"], ["Add weak labels", "Coverage and accuracy of labelling functions reported", "Snorkel output"], ["Add synthetic data", "Rare class F1 changes measured", "Evaluation table"]],
+          "objectives": ["Annotate data", "Use weak supervision", "Generate synthetic data carefully"]
+        },
+        {
+          "topic": "Efficient NLP Models: Distillation, Quantisation and ONNX",
+          "subtopics": ["Why efficiency matters", "Knowledge distillation", "Quantisation", "Pruning", "ONNX export", "ONNX Runtime and Optimum", "CPU inference", "Measuring speed and accuracy"],
+          "tools": ["Hugging Face Optimum", "ONNX Runtime"],
+          "lab_task": "Distil the ticket classifier, quantise it, export to ONNX and compare latency on CPU and accuracy with the original.",
+          "deliverable": "Optimised models and comparison",
+          "checks": [["Compare latency", "Faster on CPU after optimisation", "Benchmark table"], ["Compare accuracy", "Loss within the agreed limit", "Evaluation table"], ["Run ONNX inference", "Same predictions as PyTorch on samples", "Notebook output"]],
+          "objectives": ["Make models efficient", "Use quantisation and distillation", "Serve on CPU"]
+        },
+        {
+          "topic": "Text Generation and Decoding Strategies",
+          "subtopics": ["How language models generate text", "Greedy search and beam search", "Temperature, top-k and top-p sampling", "Repetition penalties", "Stop sequences and length control", "Constrained decoding", "Evaluating generated text", "Choosing settings per task"],
+          "tools": ["Hugging Face Transformers", "Open language model"],
+          "lab_task": "Generate product descriptions with greedy, beam and sampling settings, compare fluency, variety and factual errors, and force valid JSON with constrained decoding.",
+          "deliverable": "Generation outputs, comparison and settings guide",
+          "checks": [["Compare decoding settings", "Fluency and variety rated for each", "Comparison table"], ["Force JSON output", "All outputs parse as valid JSON", "Validation output"], ["Count factual errors", "Errors per setting recorded", "Review notes"]],
+          "objectives": ["Control text generation", "Choose decoding settings", "Constrain outputs"]
+        },
+        {
+          "topic": "Machine Translation Systems",
+          "subtopics": ["Neural machine translation", "Pretrained translation models: NLLB, MarianMT and IndicTrans2", "Fine-tuning for a domain", "Glossaries and terminology", "Evaluation: BLEU, chrF and COMET", "Human review of translations", "Translation with LLMs compared with dedicated models", "Serving translation"],
+          "tools": ["Hugging Face Transformers", "sacreBLEU", "COMET"],
+          "lab_task": "Translate support articles from English to Hindi with NLLB and IndicTrans2, fine-tune on a small domain set, apply a glossary and compare automatic and human scores.",
+          "deliverable": "Translations, fine-tuned model and evaluation",
+          "checks": [["Compare models", "BLEU, chrF and COMET for each", "Evaluation table"], ["Apply the glossary", "Product terms translated consistently", "Sample output"], ["Run human review", "Ratings recorded for samples", "Review sheet"]],
+          "objectives": ["Build translation systems", "Evaluate translation", "Control terminology"]
+        },
+        {
+          "topic": "Serving NLP Models",
+          "subtopics": ["Model APIs with FastAPI", "Batching requests", "Text Generation Inference and vLLM in brief", "Hugging Face Inference Endpoints", "Containers", "GPU and CPU choices", "Caching results", "Load testing"],
+          "tools": ["FastAPI", "Docker", "Locust"],
+          "lab_task": "Serve the classifier and NER models in one FastAPI service with batching and caching, containerise it and load test it.",
+          "deliverable": "Service, Dockerfile and load test results",
+          "checks": [["Send a batch", "Batched predictions returned", "API response"], ["Load test", "p95 latency at the target rate", "Locust report"], ["Repeat a request", "Served from cache", "Response headers or logs"]],
+          "objectives": ["Serve NLP models", "Batch and cache", "Load test services"]
+        },
+        {
+          "topic": "Multilingual Transformers for Indian Languages",
+          "subtopics": ["Multilingual models: XLM-R, MuRIL and IndicBERT", "Cross-lingual transfer", "Fine-tuning on Indian language data", "Translation models: IndicTrans2", "Speech-to-text for Indian languages in brief", "Evaluating per language", "Data scarcity", "Code-mixed text with transformers"],
+          "tools": ["Hugging Face Transformers", "MuRIL or IndicBERT", "IndicTrans2"],
+          "lab_task": "Fine-tune MuRIL for sentiment on Hindi and Tamil reviews, test cross-lingual transfer from English and compare with translate-then-classify.",
+          "deliverable": "Models and per-language evaluation",
+          "checks": [["Fine-tune MuRIL", "F1 per language reported", "Evaluation table"], ["Test transfer", "English-trained model score on Hindi", "Evaluation table"], ["Compare with translation", "Better approach per language chosen", "Comparison"]],
+          "objectives": ["Use multilingual models", "Transfer across languages", "Handle low-resource languages"]
+        },
+        {
+          "topic": "Speech and Text: ASR and Text-to-Speech in Brief",
+          "subtopics": ["Speech recognition", "Whisper", "Diarisation", "Transcripts to NLP pipelines", "Text-to-speech", "Call centre analytics", "Accuracy for accents and languages", "Privacy for recordings"],
+          "tools": ["Whisper", "pyannote", "Python"],
+          "lab_task": "Transcribe call recordings with Whisper, split speakers, classify call reasons from transcripts and measure word error rate for two accents.",
+          "deliverable": "Transcripts, classifications and error rates",
+          "checks": [["Transcribe calls", "Transcripts produced", "Output files"], ["Measure word error rate", "WER per accent reported", "Evaluation table"], ["Classify call reasons", "Reasons assigned from transcripts", "Notebook output"]],
+          "objectives": ["Transcribe speech", "Analyse calls", "Measure accuracy"]
+        },
+        {
+          "topic": "Monitoring NLP Models in Production",
+          "subtopics": ["What changes in text over time", "Vocabulary and topic drift", "Embedding drift", "Prediction distribution monitoring", "Delayed labels", "Feedback loops from users", "Retraining triggers", "Dashboards"],
+          "tools": ["Evidently", "Prometheus", "Grafana"],
+          "lab_task": "Monitor the classifier for text and prediction drift, simulate a new product launch that changes vocabulary, detect it and trigger retraining with new labels.",
+          "deliverable": "Monitoring set-up, drift report and retraining record",
+          "checks": [["Simulate the launch", "Drift detected", "Drift report"], ["Collect feedback", "User corrections stored", "Feedback table"], ["Retrain", "New model handles new vocabulary", "Evaluation table"]],
+          "objectives": ["Monitor NLP models", "Detect drift", "Retrain with feedback"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multilingual Customer Insight Platform",
+          "subtopics": ["Data and labels", "Models", "Retrieval and extraction", "Serving and monitoring"],
+          "tools": ["Hugging Face Transformers", "sentence-transformers", "FastAPI", "Evidently"],
+          "lab_task": "Build a multilingual platform that classifies and extracts entities from tickets in English, Hindi and Tamil, retrieves answers with fine-tuned embeddings, serves optimised models and monitors drift, then present results.",
+          "deliverable": "Models, service, dashboards and presentation",
+          "checks": [["Run the per-language evaluation", "Each language meets its target", "Evaluation report"], ["Load test the service", "Latency within the target", "Load test report"], ["Present results", "Trade-offs and next steps clear", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Deliver multilingual NLP", "Operate it in production"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior NLP engineers and researchers. Covers pretraining and continued pretraining, parameter-efficient fine-tuning, instruction tuning, preference optimisation, long-context models, advanced retrieval, knowledge graphs, information extraction at scale, LLM evaluation, safety and red teaming, guardrails, low-resource languages, model compression, NLP system design, serving at scale, privacy, regulation, research methods and leading NLP teams.",
+      "prerequisites": ["Fine-tunes and evaluates transformer models", "Builds retrieval systems and uses LLM APIs", "Serves models in production"],
+      "outcomes": ["Adapt and align language models for specific domains", "Build advanced retrieval, extraction and knowledge systems", "Evaluate, secure and govern language systems", "Design NLP systems at scale and lead NLP work"],
+      "days": [
+        {
+          "topic": "Pretraining and Continued Pretraining of Language Models",
+          "subtopics": ["Pretraining objectives", "Data collection and cleaning at scale", "Deduplication and filtering", "Continued pretraining on domain text", "Tokeniser extension", "Compute planning", "Measuring domain adaptation", "When pretraining is worth it"],
+          "tools": ["Hugging Face Transformers", "Datasets", "Accelerate"],
+          "lab_task": "Continue pretraining a small model on legal or medical text, extend its tokeniser with domain terms and measure perplexity and downstream task gains.",
+          "deliverable": "Training run, tokeniser changes and evaluation",
+          "checks": [["Measure perplexity", "Lower on domain text after training", "Evaluation table"], ["Measure downstream gains", "Task score improves", "Evaluation table"], ["Estimate compute", "Hours and cost recorded", "Compute notes"]],
+          "objectives": ["Understand pretraining", "Adapt models to domains", "Plan compute"]
+        },
+        {
+          "topic": "Parameter-Efficient Fine-Tuning: LoRA and QLoRA",
+          "subtopics": ["Why parameter-efficient methods", "LoRA", "QLoRA", "Adapters and prompt tuning", "Choosing ranks and target modules", "Merging adapters", "Serving many adapters", "Evaluation of adapted models"],
+          "tools": ["PEFT", "bitsandbytes", "TRL"],
+          "lab_task": "Fine-tune an open 7B model with QLoRA for ticket triage, compare ranks, merge the adapter and serve several adapters on one base model.",
+          "deliverable": "Adapters, comparison and serving set-up",
+          "checks": [["Compare ranks", "Quality and memory per rank", "Comparison table"], ["Merge the adapter", "Same outputs as before merging", "Test output"], ["Serve two adapters", "Requests routed to the right adapter", "Server log"]],
+          "objectives": ["Fine-tune efficiently", "Tune LoRA settings", "Serve adapters"]
+        },
+        {
+          "topic": "Instruction Tuning and Dataset Design",
+          "subtopics": ["Instruction datasets", "Data quality over quantity", "Synthetic instruction data", "Chat templates", "Multi-task instruction tuning", "Contamination checks", "Evaluating instruction following", "Licensing of training data"],
+          "tools": ["TRL", "Datasets", "Argilla"],
+          "lab_task": "Build an instruction dataset for support tasks with human and synthetic examples, check contamination with test sets, tune a model and evaluate instruction following.",
+          "deliverable": "Dataset, contamination report and evaluation",
+          "checks": [["Check contamination", "No test items in training data", "Contamination report"], ["Evaluate instruction following", "Score on held-out instructions", "Evaluation table"], ["Review licences", "All data sources allowed", "Licence notes"]],
+          "objectives": ["Build instruction data", "Tune models", "Avoid contamination"]
+        },
+        {
+          "topic": "Preference Optimisation: RLHF, DPO and Related Methods",
+          "subtopics": ["Why preference tuning", "Reward models", "RLHF with PPO in outline", "Direct preference optimisation", "Collecting preference data", "Avoiding reward hacking", "Measuring helpfulness and harmlessness", "Costs and risks"],
+          "tools": ["TRL", "Argilla"],
+          "lab_task": "Collect preference pairs for support answers, train with DPO, compare with the instruction-tuned model on helpfulness and safety and look for reward hacking.",
+          "deliverable": "Preference data, DPO model and comparison",
+          "checks": [["Train with DPO", "Preferred answers chosen more often", "Evaluation table"], ["Check safety", "Harmful outputs not increased", "Safety evaluation"], ["Look for reward hacking", "Signs recorded or ruled out", "Notes"]],
+          "objectives": ["Apply preference tuning", "Use DPO", "Watch for reward hacking"]
+        },
+        {
+          "topic": "Long-Context Models and Document Understanding",
+          "subtopics": ["Context length limits", "Position methods for long context", "Retrieval compared with long context", "Chunking strategies", "Document structure and layout models", "Long-document summarisation", "Needle-in-a-haystack tests", "Cost of long context"],
+          "tools": ["Long-context models", "LayoutLM or Docling", "Evaluation scripts"],
+          "lab_task": "Compare long-context prompting with retrieval for contract questions, run needle-in-a-haystack tests and parse document layout before chunking.",
+          "deliverable": "Comparison, tests and parsing pipeline",
+          "checks": [["Run haystack tests", "Recall by position recorded", "Test results"], ["Compare approaches", "Accuracy and cost for each", "Comparison table"], ["Parse layout", "Sections and tables kept", "Parsed output"]],
+          "objectives": ["Work with long documents", "Compare long context and retrieval", "Use layout information"]
+        },
+        {
+          "topic": "Advanced Retrieval: Hybrid, Multi-Vector and Query Rewriting",
+          "subtopics": ["Sparse and dense retrieval together", "ColBERT and multi-vector retrieval", "Query rewriting and expansion", "HyDE", "Re-ranking at scale", "Retrieval for multilingual collections", "Evaluating retrieval pipelines", "Latency budgets"],
+          "tools": ["BM25", "ColBERT", "Vector database", "Cross-encoders"],
+          "lab_task": "Build hybrid retrieval with BM25 and dense vectors, add ColBERT, query rewriting and re-ranking, and measure each step's effect on quality and latency.",
+          "deliverable": "Retrieval pipeline and ablation table",
+          "checks": [["Run the ablation", "Contribution of each step measured", "Ablation table"], ["Meet the latency budget", "p95 under the target", "Benchmark"], ["Test multilingual queries", "Recall reported per language", "Evaluation table"]],
+          "objectives": ["Build advanced retrieval", "Measure each component", "Meet latency targets"]
+        },
+        {
+          "topic": "Knowledge Graphs and NLP",
+          "subtopics": ["Knowledge graphs", "Entity and relation extraction for graphs", "Entity resolution", "Graph databases", "GraphRAG", "Querying graphs with natural language", "Keeping graphs current", "When graphs help"],
+          "tools": ["Neo4j", "spaCy or an LLM", "GraphRAG tools"],
+          "lab_task": "Extract companies, people and relations from news into Neo4j, resolve duplicate entities, answer multi-hop questions with GraphRAG and compare with plain retrieval.",
+          "deliverable": "Graph, resolution results and comparison",
+          "checks": [["Resolve entities", "Duplicates merged", "Graph query"], ["Answer multi-hop questions", "Correct answers using graph paths", "Evaluation table"], ["Compare with plain retrieval", "Better on multi-hop questions", "Comparison"]],
+          "objectives": ["Build knowledge graphs", "Resolve entities", "Use GraphRAG"]
+        },
+        {
+          "topic": "Information Extraction at Scale",
+          "subtopics": ["Extraction pipelines for millions of documents", "Combining rules, models and LLMs", "Cost control", "Confidence and human review", "Schema evolution", "Monitoring extraction quality", "Batch processing with Spark", "Auditability"],
+          "tools": ["Spark NLP or PySpark", "LLM API", "Review tools"],
+          "lab_task": "Design an extraction pipeline for two million documents that uses rules first, a small model next and an LLM only when needed, with review queues and quality monitoring.",
+          "deliverable": "Pipeline design, cost model and quality dashboard",
+          "checks": [["Route by difficulty", "Share handled by each stage reported", "Pipeline stats"], ["Estimate cost", "Cost per thousand documents", "Cost model"], ["Monitor quality", "Field accuracy tracked over time", "Dashboard"]],
+          "objectives": ["Extract at scale", "Route by difficulty", "Control cost"]
+        },
+        {
+          "topic": "Evaluating LLMs and Language Systems",
+          "subtopics": ["Benchmarks and their limits", "Task-specific evaluation sets", "LLM-as-judge and its biases", "Pairwise comparisons", "Calibration", "Hallucination measurement", "Evaluation pipelines in CI", "Reporting evaluation honestly"],
+          "tools": ["lm-evaluation-harness", "Ragas or DeepEval", "promptfoo"],
+          "lab_task": "Build an evaluation suite for a support assistant with task tests, hallucination checks and pairwise judging, test judge bias and run it in CI for every change.",
+          "deliverable": "Evaluation suite, bias analysis and CI runs",
+          "checks": [["Test judge bias", "Position and length bias measured", "Bias analysis"], ["Measure hallucination", "Rate reported on the test set", "Evaluation report"], ["Run in CI", "Regressions block changes", "CI log"]],
+          "objectives": ["Evaluate language systems", "Measure hallucination", "Automate evaluation"]
+        },
+        {
+          "topic": "Safety, Red Teaming and Adversarial Attacks",
+          "subtopics": ["Harm categories", "Jailbreaks and prompt injection", "Adversarial text attacks on classifiers", "Red teaming methods", "Automated red teaming", "Measuring attack success", "Mitigations", "Reporting findings"],
+          "tools": ["garak", "PyRIT", "TextAttack"],
+          "lab_task": "Red-team a support assistant for jailbreaks and prompt injection, attack the classifier with TextAttack, apply mitigations and re-measure attack success.",
+          "deliverable": "Red team report and mitigation results",
+          "checks": [["Run jailbreak tests", "Attack success rate measured", "Test results"], ["Attack the classifier", "Robustness drop measured", "TextAttack output"], ["Re-test after mitigations", "Success rate lower", "Test results"]],
+          "objectives": ["Red-team language systems", "Attack classifiers", "Mitigate weaknesses"]
+        },
+        {
+          "topic": "Guardrails and Content Moderation Systems",
+          "subtopics": ["Moderation needs", "Classifier-based moderation", "LLM-based moderation", "Input and output guardrails", "Topic and policy rules", "Latency and cost of guardrails", "Appeals and human review", "Measuring moderation quality"],
+          "tools": ["Llama Guard or similar", "NeMo Guardrails", "Custom classifiers"],
+          "lab_task": "Build input and output guardrails for an assistant, a moderation classifier for user comments with human review and measure precision, recall and latency.",
+          "deliverable": "Guardrails, moderation system and evaluation",
+          "checks": [["Send harmful input", "Blocked by the guardrail", "Logs"], ["Measure moderation", "Precision and recall reported", "Evaluation table"], ["Measure latency", "Added latency recorded", "Benchmark"]],
+          "objectives": ["Build guardrails", "Moderate content", "Balance safety and speed"]
+        },
+        {
+          "topic": "NLP for Low-Resource and Indian Languages at Scale",
+          "subtopics": ["Data collection for low-resource languages", "Community and government datasets such as Bhashini", "Transfer and multilingual training", "Script and dialect variation", "Evaluation without large test sets", "Speech and text together", "Building language technology responsibly", "Deploying for many languages"],
+          "tools": ["IndicTrans2", "AI4Bharat models", "Bhashini resources"],
+          "lab_task": "Build a ticket classifier for five Indian languages with transfer learning and limited labels, evaluate per language and dialect and plan data collection for the weakest.",
+          "deliverable": "Models, per-language evaluation and data plan",
+          "checks": [["Evaluate per language", "Scores for all five languages", "Evaluation table"], ["Find the weakest language", "Cause and data plan defined", "Data plan"], ["Test dialects", "Errors by dialect recorded", "Notes"]],
+          "objectives": ["Build for low-resource languages", "Transfer knowledge", "Plan data collection"]
+        },
+        {
+          "topic": "Model Compression and Edge NLP",
+          "subtopics": ["Compression goals", "Distillation of large models", "Quantisation to 4 and 8 bits", "Small language models", "Running models on phones and browsers", "WebGPU and ONNX in browsers", "Accuracy trade-offs", "Privacy benefits on device"],
+          "tools": ["llama.cpp", "ONNX Runtime Web", "Transformers.js"],
+          "lab_task": "Distil an assistant into a small model, quantise it, run it on a laptop CPU and in a browser and compare quality, speed and memory.",
+          "deliverable": "Compressed models and comparison",
+          "checks": [["Run in the browser", "Model answers offline", "Screenshot"], ["Compare quality", "Quality drop measured", "Evaluation table"], ["Compare memory", "Memory use for each version", "Benchmark"]],
+          "objectives": ["Compress language models", "Run on devices", "Weigh trade-offs"]
+        },
+        {
+          "topic": "NLP System Design",
+          "subtopics": ["Requirements for language systems", "Choosing rules, models or LLMs", "Pipelines and fallbacks", "Latency and cost budgets", "Data flywheels", "Human in the loop", "Design documents", "Design reviews"],
+          "tools": ["Design document template", "Architecture diagrams"],
+          "lab_task": "Write a design document for a multilingual email triage system with routing between rules, a small model and an LLM, cost budgets and a feedback loop, and defend it.",
+          "deliverable": "Design document and review notes",
+          "checks": [["Review routing", "Each path justified by cost and accuracy", "Design document"], ["Review budgets", "Latency and cost targets met by design", "Design document"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design NLP systems", "Budget cost and latency", "Plan feedback loops"]
+        },
+        {
+          "topic": "Serving Language Models at Scale",
+          "subtopics": ["Serving engines: vLLM, TGI and TensorRT-LLM", "Continuous batching", "KV cache and memory", "Speculative decoding", "Autoscaling GPU servers", "Routing between models", "Caching prompts and responses", "Cost per million tokens"],
+          "tools": ["vLLM", "TensorRT-LLM", "Kubernetes"],
+          "lab_task": "Serve an open model with vLLM and TensorRT-LLM, turn on speculative decoding, add prompt caching and a router to a smaller model, and compare cost per million tokens.",
+          "deliverable": "Serving set-ups and cost comparison",
+          "checks": [["Compare engines", "Throughput and latency for each", "Benchmark table"], ["Turn on speculative decoding", "Latency lower", "Benchmark"], ["Route easy requests", "Cost lower with quality kept", "Comparison"]],
+          "objectives": ["Serve LLMs at scale", "Speed up generation", "Reduce cost"]
+        },
+        {
+          "topic": "Privacy-Preserving NLP",
+          "subtopics": ["Personal data in text and models", "Training data memorisation", "Differential privacy for text models", "Federated learning for keyboards and devices", "Redaction pipelines at scale", "Membership inference tests", "Deleting data from models", "Privacy reviews"],
+          "tools": ["Presidio", "Opacus", "Membership inference tools"],
+          "lab_task": "Test a fine-tuned model for memorised personal data, retrain with redacted data and differential privacy, and compare utility and leakage.",
+          "deliverable": "Leakage tests, retrained model and comparison",
+          "checks": [["Test memorisation", "Leaked strings found before the fix", "Test results"], ["Retrain with privacy", "Leakage lower", "Test results"], ["Compare utility", "Task score change recorded", "Evaluation table"]],
+          "objectives": ["Protect privacy in NLP", "Test for leakage", "Train with privacy"]
+        },
+        {
+          "topic": "Regulation, Governance and Documentation for Language AI",
+          "subtopics": ["EU AI Act duties for language systems", "India's AI and data rules", "Copyright and training data", "Transparency and disclosure", "Documentation: model cards and data statements", "Incident reporting", "Audits of language systems", "Governance processes"],
+          "tools": ["Model card and data statement templates", "Governance checklists"],
+          "lab_task": "Classify three language systems under the EU AI Act, write data statements and model cards, and run a governance review of one system.",
+          "deliverable": "Classifications, documentation and review report",
+          "checks": [["Classify systems", "Risk category with reasons", "Classification table"], ["Write data statements", "Sources, languages and limits documented", "Data statements"], ["Run the review", "Findings and actions recorded", "Review report"]],
+          "objectives": ["Apply regulation", "Document language AI", "Govern systems"]
+        },
+        {
+          "topic": "Research Methods in NLP",
+          "subtopics": ["Reading papers efficiently", "Reproducing results", "Experimental design", "Baselines and ablations", "Statistical testing", "Writing up results", "Contributing to open source and datasets", "Moving research into products"],
+          "tools": ["arXiv", "Papers with Code", "Weights & Biases"],
+          "lab_task": "Reproduce a recent NLP paper's main result, run an ablation, test significance and write a short report on whether to adopt the method.",
+          "deliverable": "Reproduction code, ablation and report",
+          "checks": [["Reproduce the result", "Close to the paper or gaps explained", "Results table"], ["Run the ablation", "Each component's effect measured", "Ablation table"], ["Write the report", "Adoption recommendation with evidence", "Report"]],
+          "objectives": ["Read research", "Reproduce results", "Recommend methods"]
+        },
+        {
+          "topic": "Leading NLP Teams and Products",
+          "subtopics": ["Team structure for language AI", "Hiring and skills", "Roadmaps", "Working with product and legal teams", "Measuring product value", "Managing model and data risk", "Communicating with executives", "Building a data flywheel"],
+          "tools": ["Roadmap template", "Metrics templates"],
+          "lab_task": "Write a 12-month roadmap for a language AI product team with hiring, data, model and evaluation plans and value measures, and present it to a role-play executive team.",
+          "deliverable": "Roadmap and presentation",
+          "checks": [["Review the roadmap", "Milestones with measures", "Roadmap"], ["Review risks", "Model and data risks with owners", "Risk list"], ["Present to executives", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Lead NLP teams", "Plan products", "Communicate value"]
+        },
+        {
+          "topic": "Advanced Capstone: Domain Language Assistant",
+          "subtopics": ["Adaptation", "Retrieval and knowledge", "Safety and evaluation", "Serving and governance"],
+          "tools": ["PEFT", "DPO", "Hybrid retrieval", "Guardrails", "vLLM", "Evaluation suite"],
+          "lab_task": "Build a domain assistant for a regulated industry: adapt an open model with QLoRA and DPO, add hybrid retrieval and a knowledge graph, guardrails and red teaming, an evaluation suite in CI, serving at a cost target and governance documentation, then present to a review board.",
+          "deliverable": "Models, retrieval system, evaluation reports, serving set-up and board presentation",
+          "checks": [["Run the evaluation suite", "Quality and safety targets met", "Evaluation report"], ["Run the red team", "Attack success below the target", "Red team report"], ["Present to the board", "Design, cost and risk choices defended", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one assistant", "Build trustworthy language AI", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}
