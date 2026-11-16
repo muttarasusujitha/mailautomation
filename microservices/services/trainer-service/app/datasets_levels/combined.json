@@ -18658,6 +18658,1302 @@
           "Tune storage for Linux workloads"
         ]
       }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Turning Offensive Findings into Defensive Improvements",
+        "subtopics": [
+          "Reading a penetration test as a defender",
+          "Prioritising findings by risk",
+          "Mapping findings to controls",
+          "Closing gaps across people, process and technology",
+          "Verifying fixes with retests",
+          "Feeding findings into risk registers",
+          "Tracking remediation to closure",
+          "Measuring defensive improvement"
+        ],
+        "tools": [
+          "Penetration test report",
+          "Risk register",
+          "Control framework"
+        ],
+        "lab_task": "Take a lab penetration test report and build a defensive improvement plan that maps each finding to a control, owner and retest.",
+        "deliverable": "Defensive improvement plan from offensive findings",
+        "checks": [
+          [
+            "Map",
+            "Each finding maps to a control and owner",
+            "Plan"
+          ],
+          [
+            "Prioritise",
+            "Findings are ranked by risk",
+            "Ranked list"
+          ],
+          [
+            "Verify",
+            "Retests confirm fixes",
+            "Retest record"
+          ]
+        ],
+        "objectives": [
+          "Read offensive findings as a defender",
+          "Map findings to controls",
+          "Verify remediation"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "Penetration Testing"
+      ],
+      "day": {
+        "topic": "Running a Structured Penetration Test Engagement End to End",
+        "subtopics": [
+          "The penetration testing lifecycle",
+          "Scoping and rules of engagement",
+          "Methodology selection",
+          "Recon, exploitation and post-exploitation flow",
+          "Evidence collection",
+          "Risk rating findings",
+          "Report structure",
+          "Retesting and sign-off"
+        ],
+        "tools": [
+          "Kali Linux",
+          "Methodology guide",
+          "Report template"
+        ],
+        "lab_task": "Run a structured engagement against a lab target following a methodology from scope to report and retest.",
+        "deliverable": "Structured engagement with a report",
+        "checks": [
+          [
+            "Scope",
+            "The engagement stays in scope",
+            "Activity log"
+          ],
+          [
+            "Execute",
+            "The methodology phases are followed",
+            "Evidence"
+          ],
+          [
+            "Report",
+            "Findings are rated and reported",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Follow a penetration testing methodology",
+          "Collect evidence",
+          "Report and retest"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "Python"
+      ],
+      "day": {
+        "topic": "Scripting Offensive Tools in Python",
+        "subtopics": [
+          "Why testers script",
+          "Automating reconnaissance",
+          "Parsing scan output",
+          "Building a simple scanner",
+          "Interacting with web applications",
+          "Handling credentials safely",
+          "Reusable tooling and modules",
+          "Testing scripts safely"
+        ],
+        "tools": [
+          "Python",
+          "Requests and socket libraries",
+          "Lab targets"
+        ],
+        "lab_task": "Build a small Python tool that automates a recon and enumeration step against a lab target and parses the results.",
+        "deliverable": "Python offensive tool",
+        "checks": [
+          [
+            "Automate",
+            "The tool performs the recon step",
+            "Output"
+          ],
+          [
+            "Parse",
+            "Results are parsed into a usable form",
+            "Output"
+          ],
+          [
+            "Reuse",
+            "The code is modular and documented",
+            "Code"
+          ]
+        ],
+        "objectives": [
+          "Script offensive tasks in Python",
+          "Automate recon",
+          "Build reusable tooling"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Attacking and Hardening Kubernetes Clusters",
+        "subtopics": [
+          "The Kubernetes attack surface",
+          "Exposed API servers and dashboards",
+          "Over-permissive service accounts",
+          "Container escape paths",
+          "Secrets exposure",
+          "Lateral movement in a cluster",
+          "Hardening against each attack",
+          "Detection in the cluster"
+        ],
+        "tools": [
+          "kubectl",
+          "A lab cluster",
+          "kube-hunter or similar"
+        ],
+        "lab_task": "Attack a deliberately vulnerable lab cluster, document the path to the node and then harden the cluster against the same attack.",
+        "deliverable": "Cluster attack and hardening record",
+        "checks": [
+          [
+            "Attack",
+            "A path to the node or another pod is proven",
+            "Proof"
+          ],
+          [
+            "Harden",
+            "Hardening blocks the repeat attack",
+            "Retest"
+          ],
+          [
+            "Detect",
+            "The attack would now be detected",
+            "Detection notes"
+          ]
+        ],
+        "objectives": [
+          "Attack Kubernetes clusters",
+          "Harden clusters",
+          "Detect cluster attacks"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Cloud Penetration Testing on AWS Within the Rules",
+        "subtopics": [
+          "AWS testing policy and permission",
+          "Enumerating accounts and services",
+          "Exposed storage and secrets",
+          "Over-privileged roles",
+          "Privilege escalation paths",
+          "Metadata service abuse",
+          "Staying within provider rules",
+          "Reporting cloud findings"
+        ],
+        "tools": [
+          "Pacu or ScoutSuite",
+          "AWS CLI",
+          "A lab AWS account"
+        ],
+        "lab_task": "Enumerate a lab AWS account, escalate privileges through an over-permissive role within the rules and report the misconfiguration.",
+        "deliverable": "AWS penetration test findings",
+        "checks": [
+          [
+            "Enumerate",
+            "Accounts and roles are enumerated",
+            "Output"
+          ],
+          [
+            "Escalate",
+            "Privilege escalation is proven",
+            "Proof"
+          ],
+          [
+            "Report",
+            "The fix is reported",
+            "Findings"
+          ]
+        ],
+        "objectives": [
+          "Test AWS within the rules",
+          "Escalate cloud privileges",
+          "Report cloud risks"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "OWASP"
+      ],
+      "day": {
+        "topic": "Exploiting the OWASP Top 10 and Mapping Fixes",
+        "subtopics": [
+          "The OWASP Top 10",
+          "Broken access control",
+          "Injection and cross-site scripting",
+          "Insecure design",
+          "Security misconfiguration",
+          "Mapping findings to OWASP categories",
+          "Secure coding fixes",
+          "Verifying fixes"
+        ],
+        "tools": [
+          "Burp Suite",
+          "OWASP Juice Shop",
+          "OWASP Top 10"
+        ],
+        "lab_task": "Exploit four OWASP Top 10 flaws in a lab application, map each to its category and the secure coding fix, and verify the fix.",
+        "deliverable": "OWASP findings with mapped fixes",
+        "checks": [
+          [
+            "Exploit",
+            "Four Top 10 flaws are exploited",
+            "Proof"
+          ],
+          [
+            "Map",
+            "Each maps to a category and fix",
+            "Mapping"
+          ],
+          [
+            "Verify",
+            "A fix is verified",
+            "Retest"
+          ]
+        ],
+        "objectives": [
+          "Exploit the OWASP Top 10",
+          "Map findings to categories",
+          "Verify secure fixes"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "SOC Analyst"
+      ],
+      "day": {
+        "topic": "Purple Teaming: Attacks Meet Detections",
+        "subtopics": [
+          "Purple team goals",
+          "Running attacker techniques with defenders watching",
+          "Mapping techniques to ATT&CK",
+          "Measuring what the SOC detects",
+          "Closing detection gaps together",
+          "Tuning detections",
+          "Repeating to show improvement",
+          "Documenting coverage"
+        ],
+        "tools": [
+          "A command-and-control framework",
+          "A lab SIEM",
+          "ATT&CK"
+        ],
+        "lab_task": "Run a set of attacker techniques while the SOC watches, record what was detected and build two new detections to close gaps.",
+        "deliverable": "Purple team exercise record",
+        "checks": [
+          [
+            "Run",
+            "Techniques are run and mapped to ATT&CK",
+            "Run log"
+          ],
+          [
+            "Measure",
+            "Detection of each technique is recorded",
+            "Results"
+          ],
+          [
+            "Close",
+            "Two detection gaps are closed",
+            "Before-and-after"
+          ]
+        ],
+        "objectives": [
+          "Run purple team exercises",
+          "Measure detection",
+          "Close detection gaps"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "The Attacker and Defender View of Linux Hosts",
+        "subtopics": [
+          "Linux from an attacker's view",
+          "Enumeration and privilege escalation paths",
+          "Common misconfigurations",
+          "Hardening Linux against the paths",
+          "Logging that catches attackers",
+          "Least privilege and sudo",
+          "Service hardening",
+          "Verifying the hardening"
+        ],
+        "tools": [
+          "Kali Linux",
+          "A lab Linux host",
+          "LinPEAS"
+        ],
+        "lab_task": "Escalate privileges on a lab Linux host, then harden it so the same path fails and the attempt is logged.",
+        "deliverable": "Linux attack and hardening record",
+        "checks": [
+          [
+            "Escalate",
+            "Privilege escalation succeeds first",
+            "Proof"
+          ],
+          [
+            "Harden",
+            "The path fails after hardening",
+            "Retest"
+          ],
+          [
+            "Log",
+            "The attempt is logged",
+            "Log entry"
+          ]
+        ],
+        "objectives": [
+          "Attack Linux hosts",
+          "Harden Linux",
+          "Log attacker activity"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CompTIA Security+",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "From Security+ Concepts to Real Security Work",
+        "subtopics": [
+          "Mapping exam concepts to the job",
+          "Control categories in practice",
+          "Risk concepts applied",
+          "Security operations in practice",
+          "Where theory meets reality",
+          "Building a home or work lab",
+          "Continuing from Security+",
+          "A practical study-to-work plan"
+        ],
+        "tools": [
+          "Security+ objectives",
+          "A lab",
+          "Study notes"
+        ],
+        "lab_task": "Take five Security+ concepts and show each working in a lab or real scenario, then write a plan to apply them at work.",
+        "deliverable": "Concepts-to-practice record",
+        "checks": [
+          [
+            "Apply",
+            "Each concept is shown working",
+            "Evidence"
+          ],
+          [
+            "Relate",
+            "The job relevance is explained",
+            "Notes"
+          ],
+          [
+            "Plan",
+            "A study-to-work plan is written",
+            "Plan"
+          ]
+        ],
+        "objectives": [
+          "Apply Security+ concepts",
+          "Bridge theory and practice",
+          "Plan career application"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CompTIA Security+",
+        "CCNA Networking"
+      ],
+      "day": {
+        "topic": "Securing the Network: Security+ Meets Networking",
+        "subtopics": [
+          "Network fundamentals for security",
+          "Secure network design",
+          "Segmentation and zones",
+          "Firewalls and access control lists",
+          "Secure protocols and ports",
+          "Wireless security",
+          "Monitoring network traffic",
+          "Common network attacks and defences"
+        ],
+        "tools": [
+          "A network lab",
+          "Packet capture",
+          "Study notes"
+        ],
+        "lab_task": "Design and configure a small secure network in the lab with segmentation, access control lists and secure protocols, and verify it.",
+        "deliverable": "Secure network configuration",
+        "checks": [
+          [
+            "Segment",
+            "The network is segmented",
+            "Configuration"
+          ],
+          [
+            "Filter",
+            "Access control lists enforce the policy",
+            "Tests"
+          ],
+          [
+            "Verify",
+            "Secure protocols are confirmed",
+            "Capture"
+          ]
+        ],
+        "objectives": [
+          "Combine security and networking",
+          "Segment networks",
+          "Apply network security controls"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CompTIA Security+",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Hardening Linux for Security+ Topics",
+        "subtopics": [
+          "Linux security model",
+          "Accounts and permissions",
+          "Hardening baselines",
+          "Secure configuration",
+          "Logging and auditing",
+          "Host firewall",
+          "Patch management",
+          "Verifying hardening"
+        ],
+        "tools": [
+          "A lab Linux host",
+          "CIS Benchmark",
+          "Study notes"
+        ],
+        "lab_task": "Harden a lab Linux host against a baseline covering accounts, permissions, logging and the firewall, and verify the result.",
+        "deliverable": "Hardened Linux host",
+        "checks": [
+          [
+            "Harden",
+            "The host meets the baseline",
+            "Check"
+          ],
+          [
+            "Log",
+            "Auditing captures key events",
+            "Log"
+          ],
+          [
+            "Verify",
+            "A configuration check confirms hardening",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Apply Linux security",
+          "Harden a host",
+          "Verify hardening"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CompTIA Security+",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Identity and Access Control for Security+",
+        "subtopics": [
+          "Identity concepts on the exam",
+          "Authentication factors",
+          "Access control models",
+          "Least privilege in practice",
+          "Account management",
+          "Privileged access",
+          "Single sign-on and federation",
+          "Common identity weaknesses"
+        ],
+        "tools": [
+          "A lab directory",
+          "Study notes",
+          "Identity tools"
+        ],
+        "lab_task": "Configure accounts with least privilege and an access control model in a lab directory and explain how it maps to Security+ objectives.",
+        "deliverable": "Identity configuration mapped to objectives",
+        "checks": [
+          [
+            "Configure",
+            "Accounts follow least privilege",
+            "Review"
+          ],
+          [
+            "Model",
+            "An access control model is applied",
+            "Configuration"
+          ],
+          [
+            "Map",
+            "The setup maps to exam objectives",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Apply identity concepts",
+          "Use access control models",
+          "Map to exam objectives"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CompTIA Security+",
+        "Cloud Security"
+      ],
+      "day": {
+        "topic": "Cloud Security Concepts for Security+",
+        "subtopics": [
+          "Cloud models and shared responsibility",
+          "Cloud security controls",
+          "Identity in the cloud",
+          "Storage and network security",
+          "Misconfiguration risks",
+          "Logging and monitoring in the cloud",
+          "Cloud security posture",
+          "Mapping to exam objectives"
+        ],
+        "tools": [
+          "A lab cloud account",
+          "Study notes",
+          "Cloud tools"
+        ],
+        "lab_task": "Secure a lab cloud environment by fixing misconfigurations and enabling logging, and map the work to Security+ cloud objectives.",
+        "deliverable": "Cloud hardening mapped to objectives",
+        "checks": [
+          [
+            "Fix",
+            "Misconfigurations are fixed",
+            "Configuration"
+          ],
+          [
+            "Monitor",
+            "Logging is enabled",
+            "Evidence"
+          ],
+          [
+            "Map",
+            "Work maps to exam objectives",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Apply cloud security concepts",
+          "Fix cloud misconfigurations",
+          "Map to exam objectives"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "ELK Stack"
+      ],
+      "day": {
+        "topic": "Building SOC Detections in the Elastic Stack",
+        "subtopics": [
+          "Elastic Security for the SOC",
+          "Ingesting logs with Elastic Agent",
+          "Writing detection rules",
+          "Triaging alerts in Elastic",
+          "Timelines and investigations",
+          "Dashboards for the SOC",
+          "Tuning detections",
+          "Mapping to ATT&CK"
+        ],
+        "tools": [
+          "Elastic Security",
+          "Elastic Agent",
+          "ATT&CK"
+        ],
+        "lab_task": "Ingest lab logs into Elastic, write two detection rules, triage the alerts in a timeline and tune out a false positive.",
+        "deliverable": "Elastic detections and triage record",
+        "checks": [
+          [
+            "Ingest",
+            "Logs flow into Elastic",
+            "Search"
+          ],
+          [
+            "Detect",
+            "Rules fire on seeded activity",
+            "Alerts"
+          ],
+          [
+            "Tune",
+            "A false positive is removed",
+            "Rule change"
+          ]
+        ],
+        "objectives": [
+          "Build detections in Elastic",
+          "Triage in timelines",
+          "Tune Elastic detections"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "Splunk"
+      ],
+      "day": {
+        "topic": "SOC Monitoring and Searching in Splunk",
+        "subtopics": [
+          "Splunk for security monitoring",
+          "Search Processing Language basics",
+          "Building searches for detection",
+          "Correlation searches",
+          "Dashboards and alerts",
+          "Splunk Enterprise Security concepts",
+          "Tuning noisy searches",
+          "Mapping to ATT&CK"
+        ],
+        "tools": [
+          "Splunk",
+          "Lab data",
+          "ATT&CK"
+        ],
+        "lab_task": "Write Splunk searches to detect brute force and suspicious process activity in lab data, turn them into alerts and build a dashboard.",
+        "deliverable": "Splunk detections and dashboard",
+        "checks": [
+          [
+            "Search",
+            "Searches detect the seeded activity",
+            "Results"
+          ],
+          [
+            "Alert",
+            "Searches become alerts",
+            "Alerts"
+          ],
+          [
+            "Visualise",
+            "A dashboard shows key events",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Monitor with Splunk",
+          "Write detection searches",
+          "Build Splunk dashboards"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "SIEM"
+      ],
+      "day": {
+        "topic": "Running the SIEM Detection Lifecycle in the SOC",
+        "subtopics": [
+          "The SIEM in the SOC",
+          "Onboarding log sources",
+          "Correlation and detection rules",
+          "Alerting and triage",
+          "Enrichment and context",
+          "Tuning and false positives",
+          "Metrics from the SIEM",
+          "Content management"
+        ],
+        "tools": [
+          "A lab SIEM",
+          "Log sources",
+          "ATT&CK"
+        ],
+        "lab_task": "Onboard a log source to a lab SIEM, build a correlation rule, triage its alerts and report detection metrics.",
+        "deliverable": "SIEM detection lifecycle record",
+        "checks": [
+          [
+            "Onboard",
+            "The source is parsed and searchable",
+            "Search"
+          ],
+          [
+            "Detect",
+            "The correlation rule fires",
+            "Alert"
+          ],
+          [
+            "Measure",
+            "Detection metrics are reported",
+            "Metrics"
+          ]
+        ],
+        "objectives": [
+          "Run the SIEM lifecycle",
+          "Onboard sources",
+          "Report detection metrics"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Connecting SOC Operations to the Security Programme",
+        "subtopics": [
+          "The SOC in the security programme",
+          "Feeding incidents into risk",
+          "Controls that the SOC relies on",
+          "Reporting to security leadership",
+          "Linking detections to threats",
+          "Lessons learned into controls",
+          "Metrics for leadership",
+          "Continuous improvement"
+        ],
+        "tools": [
+          "Risk register",
+          "SOC metrics",
+          "Study notes"
+        ],
+        "lab_task": "Take two lab incidents and show how they feed risk, controls and leadership reporting in the wider security programme.",
+        "deliverable": "SOC-to-programme linkage record",
+        "checks": [
+          [
+            "Feed",
+            "Incidents feed the risk register",
+            "Register"
+          ],
+          [
+            "Improve",
+            "Lessons become control changes",
+            "Change records"
+          ],
+          [
+            "Report",
+            "Leadership reporting is produced",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Link the SOC to the programme",
+          "Feed incidents into risk",
+          "Report to leadership"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Detecting and Responding to Identity Attacks in the SOC",
+        "subtopics": [
+          "Identity as a top signal",
+          "Sign-in and audit logs",
+          "Detecting credential attacks",
+          "Token theft and session hijacking",
+          "Privileged account monitoring",
+          "Responding to account compromise",
+          "Revoking sessions and credentials",
+          "Hardening after an incident"
+        ],
+        "tools": [
+          "Lab identity logs",
+          "A lab SIEM",
+          "Study notes"
+        ],
+        "lab_task": "Detect a seeded account compromise in the SOC, confirm it and run containment by revoking sessions and resetting credentials.",
+        "deliverable": "Identity incident detection and response",
+        "checks": [
+          [
+            "Detect",
+            "The compromise is detected",
+            "Alert"
+          ],
+          [
+            "Confirm",
+            "The attack is confirmed",
+            "Evidence"
+          ],
+          [
+            "Contain",
+            "Sessions and credentials are revoked",
+            "Action record"
+          ]
+        ],
+        "objectives": [
+          "Detect identity attacks",
+          "Confirm compromise",
+          "Contain identity incidents"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "Python"
+      ],
+      "day": {
+        "topic": "Automating SOC Enrichment and Response with Python",
+        "subtopics": [
+          "Where Python helps the SOC",
+          "Calling threat intelligence APIs",
+          "Enriching alerts automatically",
+          "Parsing logs and artefacts",
+          "Simple response actions",
+          "Safety and guardrails",
+          "Scheduling and logging",
+          "Testing SOC scripts"
+        ],
+        "tools": [
+          "Python",
+          "Threat intelligence APIs",
+          "A lab SIEM"
+        ],
+        "lab_task": "Write a Python script that enriches a SOC alert with threat intelligence and reputation data and records the result, with a guardrail.",
+        "deliverable": "Python SOC enrichment script",
+        "checks": [
+          [
+            "Enrich",
+            "Alerts gain context automatically",
+            "Output"
+          ],
+          [
+            "Guard",
+            "A guardrail limits the script",
+            "Code"
+          ],
+          [
+            "Log",
+            "Actions are logged",
+            "Log"
+          ]
+        ],
+        "objectives": [
+          "Automate SOC tasks with Python",
+          "Enrich alerts",
+          "Add guardrails"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SOC Analyst",
+        "Palo Alto Firewalls"
+      ],
+      "day": {
+        "topic": "Using Firewall Logs for Detection and Response",
+        "subtopics": [
+          "Firewall logs as a SOC source",
+          "Threat, URL and traffic logs",
+          "Detecting command and control",
+          "Detecting data exfiltration",
+          "Correlating firewall and endpoint data",
+          "Automated containment with dynamic groups",
+          "Tuning firewall-based detections",
+          "Reporting firewall findings"
+        ],
+        "tools": [
+          "PAN-OS logs",
+          "A lab SIEM",
+          "Dynamic address groups"
+        ],
+        "lab_task": "Ingest firewall logs into the SOC, detect beaconing and exfiltration, and contain the host automatically with a dynamic address group.",
+        "deliverable": "Firewall-driven detection and containment",
+        "checks": [
+          [
+            "Detect",
+            "Beaconing and exfiltration are detected",
+            "Alerts"
+          ],
+          [
+            "Correlate",
+            "Firewall and endpoint data line up",
+            "Analysis"
+          ],
+          [
+            "Contain",
+            "The host is contained automatically",
+            "Group membership"
+          ]
+        ],
+        "objectives": [
+          "Use firewall logs for detection",
+          "Correlate sources",
+          "Automate containment"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CISSP Preparation",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Applying CISSP Domains to a Security Programme",
+        "subtopics": [
+          "The eight domains in practice",
+          "Governance and risk in the programme",
+          "Asset and data protection",
+          "Architecture and operations",
+          "Mapping domains to real controls",
+          "Using the manager mindset at work",
+          "Gaps between theory and practice",
+          "A domain-to-practice map"
+        ],
+        "tools": [
+          "CISSP domains",
+          "Control framework",
+          "Study notes"
+        ],
+        "lab_task": "Map each CISSP domain to real controls in a scenario security programme and note where practice differs from the exam view.",
+        "deliverable": "Domain-to-practice map",
+        "checks": [
+          [
+            "Map",
+            "Each domain maps to real controls",
+            "Map"
+          ],
+          [
+            "Apply",
+            "The manager mindset is applied",
+            "Notes"
+          ],
+          [
+            "Note",
+            "Theory-practice gaps are noted",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Apply CISSP domains",
+          "Map domains to controls",
+          "Use the manager mindset at work"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CISSP Preparation",
+        "IAM"
+      ],
+      "day": {
+        "topic": "CISSP Identity and Access Management in Depth",
+        "subtopics": [
+          "The identity and access domain",
+          "Identity lifecycle",
+          "Authentication and federation",
+          "Access control models",
+          "Privileged access",
+          "Identity governance",
+          "Identity in the cloud",
+          "Domain exam practice"
+        ],
+        "tools": [
+          "CISSP study guide",
+          "Identity concepts",
+          "Practice questions"
+        ],
+        "lab_task": "Study the identity and access domain, design identity for a scenario and answer a set of domain exam questions, reviewing misses.",
+        "deliverable": "Identity domain study and practice",
+        "checks": [
+          [
+            "Design",
+            "Identity for the scenario is designed",
+            "Design"
+          ],
+          [
+            "Practise",
+            "Domain questions are answered",
+            "Scores"
+          ],
+          [
+            "Review",
+            "Misses are reviewed",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Master the identity domain",
+          "Design identity",
+          "Practise domain questions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CISSP Preparation",
+        "Cloud Security"
+      ],
+      "day": {
+        "topic": "CISSP Security Architecture Meets Cloud Security",
+        "subtopics": [
+          "Secure design principles in the cloud",
+          "Shared responsibility",
+          "Cloud security models",
+          "Cloud data protection",
+          "Cloud identity and access",
+          "Cloud risk and governance",
+          "Mapping to CISSP domains",
+          "Domain exam practice"
+        ],
+        "tools": [
+          "CISSP study guide",
+          "Cloud security concepts",
+          "Practice questions"
+        ],
+        "lab_task": "Apply CISSP architecture principles to a cloud scenario and answer domain questions that link architecture and cloud security.",
+        "deliverable": "Architecture and cloud study record",
+        "checks": [
+          [
+            "Apply",
+            "Principles apply to the cloud scenario",
+            "Notes"
+          ],
+          [
+            "Link",
+            "Architecture and cloud security are linked",
+            "Mapping"
+          ],
+          [
+            "Practise",
+            "Domain questions are answered",
+            "Scores"
+          ]
+        ],
+        "objectives": [
+          "Link CISSP architecture and cloud",
+          "Apply secure design",
+          "Practise domain questions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CISSP Preparation",
+        "GRC (Governance, Risk and Compliance)"
+      ],
+      "day": {
+        "topic": "CISSP Risk and Governance with GRC Tools",
+        "subtopics": [
+          "Governance, risk and compliance for CISSP",
+          "Risk management process",
+          "Control frameworks",
+          "Compliance and audit",
+          "Policies and standards",
+          "Third-party risk",
+          "Mapping GRC work to CISSP domains",
+          "Domain exam practice"
+        ],
+        "tools": [
+          "GRC concepts",
+          "Risk register",
+          "Practice questions"
+        ],
+        "lab_task": "Run a risk and governance exercise for a scenario using GRC practices and map it to the CISSP governance and risk domain.",
+        "deliverable": "Risk and governance study record",
+        "checks": [
+          [
+            "Assess",
+            "Risk is assessed for the scenario",
+            "Register"
+          ],
+          [
+            "Map",
+            "GRC work maps to the domain",
+            "Mapping"
+          ],
+          [
+            "Practise",
+            "Domain questions are answered",
+            "Scores"
+          ]
+        ],
+        "objectives": [
+          "Link CISSP and GRC",
+          "Run risk and governance",
+          "Practise domain questions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CISSP Preparation",
+        "Cloud Security"
+      ],
+      "day": {
+        "topic": "CISSP Operations and Cloud Monitoring",
+        "subtopics": [
+          "Security operations for CISSP",
+          "Monitoring and detection",
+          "Incident management",
+          "Cloud operations security",
+          "Logging and evidence",
+          "Recovery and resilience",
+          "Mapping to CISSP domains",
+          "Domain exam practice"
+        ],
+        "tools": [
+          "CISSP study guide",
+          "Cloud monitoring",
+          "Practice questions"
+        ],
+        "lab_task": "Apply the CISSP operations domain to a cloud scenario with monitoring and incident management and answer domain questions.",
+        "deliverable": "Operations domain study record",
+        "checks": [
+          [
+            "Apply",
+            "Operations concepts apply to the scenario",
+            "Notes"
+          ],
+          [
+            "Monitor",
+            "Cloud monitoring is designed",
+            "Design"
+          ],
+          [
+            "Practise",
+            "Domain questions are answered",
+            "Scores"
+          ]
+        ],
+        "objectives": [
+          "Master the operations domain",
+          "Apply operations to the cloud",
+          "Practise domain questions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "CompTIA Security+",
+        "SOC Analyst"
+      ],
+      "day": {
+        "topic": "From Security+ to the SOC Analyst Path",
+        "subtopics": [
+          "How Security+ leads to a SOC role",
+          "Monitoring and detection basics",
+          "The alert queue",
+          "Triage fundamentals in practice",
+          "Tools a new analyst uses",
+          "Skills to build next",
+          "A learning path to CySA+ and SC-200",
+          "Practice for the move"
+        ],
+        "tools": [
+          "A lab SIEM",
+          "Study notes",
+          "Practice bank"
+        ],
+        "lab_task": "Use Security+ knowledge to triage lab alerts like a tier 1 analyst and write a learning path from Security+ to a SOC role.",
+        "deliverable": "SOC readiness record and learning path",
+        "checks": [
+          [
+            "Triage",
+            "Alerts are triaged with reasons",
+            "Tickets"
+          ],
+          [
+            "Relate",
+            "Security+ topics map to SOC tasks",
+            "Notes"
+          ],
+          [
+            "Plan",
+            "A learning path is written",
+            "Plan"
+          ]
+        ],
+        "objectives": [
+          "Move from Security+ to the SOC",
+          "Triage like an analyst",
+          "Plan the SOC path"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Ethical Hacking",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Threat-Informed Testing with ATT&CK",
+        "subtopics": [
+          "Threat-informed defence",
+          "Choosing techniques to emulate",
+          "Mapping tests to ATT&CK",
+          "Running emulated techniques",
+          "Measuring detection and prevention",
+          "Feeding results to defenders",
+          "Prioritising by real threats",
+          "Reporting the emulation"
+        ],
+        "tools": [
+          "MITRE ATT&CK",
+          "A command-and-control framework",
+          "A lab SIEM"
+        ],
+        "lab_task": "Emulate a small set of ATT&CK techniques from a real threat against the lab, measure detection and report to the defenders.",
+        "deliverable": "Threat-informed test record",
+        "checks": [
+          [
+            "Emulate",
+            "Techniques are run and mapped",
+            "Run log"
+          ],
+          [
+            "Measure",
+            "Detection and prevention are measured",
+            "Results"
+          ],
+          [
+            "Report",
+            "The defenders get actionable results",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Run threat-informed tests",
+          "Map to ATT&CK",
+          "Feed defenders"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -25906,6 +27202,358 @@
           "Combine Nutanix and Kubernetes skills",
           "Deliver a container platform",
           "Prove upgrades"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Ethical Hacking",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Attack and Defend the Lab Company",
+        "subtopics": [
+          "Scoped attack",
+          "Findings and risk",
+          "Defensive remediation",
+          "Retest and report"
+        ],
+        "tools": [
+          "Kali Linux",
+          "Risk register",
+          "Report template"
+        ],
+        "lab_task": "Run a scoped attack on the lab company, turn the findings into a prioritised defensive remediation plan, retest and report to both sides.",
+        "deliverable": "Attack and defence capstone with a report",
+        "checks": [
+          [
+            "Attack",
+            "A scoped attack produces findings",
+            "Evidence"
+          ],
+          [
+            "Defend",
+            "Findings are remediated and retested",
+            "Retest record"
+          ],
+          [
+            "Report",
+            "Both offensive and defensive views are reported",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Combine offensive and defensive skills",
+          "Remediate findings",
+          "Report to both sides"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Ethical Hacking",
+        "SOC Analyst"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Purple Team Exercise with Measured Improvement",
+        "subtopics": [
+          "Attack plan and detections",
+          "Running the exercise",
+          "Measuring detection",
+          "Closing gaps and retesting"
+        ],
+        "tools": [
+          "A command-and-control framework",
+          "A lab SIEM",
+          "ATT&CK"
+        ],
+        "lab_task": "Plan and run a purple team exercise against the lab, measure what the SOC detects, close gaps with new detections and show improvement on a second run.",
+        "deliverable": "Purple team capstone with before-and-after results",
+        "checks": [
+          [
+            "Run",
+            "The exercise runs within scope",
+            "Run log"
+          ],
+          [
+            "Measure",
+            "Detection is measured both rounds",
+            "Results"
+          ],
+          [
+            "Improve",
+            "Detection improves on the second run",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Combine offensive and SOC skills",
+          "Measure detection",
+          "Show measurable improvement"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "CompTIA Security+",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Security Plan and Exam Readiness",
+        "subtopics": [
+          "Controls and architecture",
+          "Identity and data protection",
+          "Monitoring and response",
+          "Practice exam"
+        ],
+        "tools": [
+          "A lab",
+          "SIEM",
+          "Practice exam platform"
+        ],
+        "lab_task": "Produce a security plan for a scenario company covering controls, identity, data protection and monitoring, then take a timed Security+ practice exam.",
+        "deliverable": "Security plan and practice exam result",
+        "checks": [
+          [
+            "Cover",
+            "The plan covers every domain area",
+            "Plan"
+          ],
+          [
+            "Justify",
+            "Control choices are justified",
+            "Plan"
+          ],
+          [
+            "Practise",
+            "A timed practice exam is scored",
+            "Score"
+          ]
+        ],
+        "objectives": [
+          "Combine Security+ knowledge",
+          "Produce a security plan",
+          "Measure exam readiness"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SOC Analyst",
+        "ELK Stack"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: A Monitored Shift on the Elastic Stack",
+        "subtopics": [
+          "Detections and dashboards",
+          "Triage and investigation",
+          "Incident handling",
+          "Metrics and reporting"
+        ],
+        "tools": [
+          "Elastic Security",
+          "Elastic Agent",
+          "Ticketing system"
+        ],
+        "lab_task": "Work a simulated SOC shift on Elastic: run detections, triage the queue, investigate and handle an incident and report shift metrics.",
+        "deliverable": "Monitored shift record with metrics",
+        "checks": [
+          [
+            "Detect",
+            "Detections surface the seeded activity",
+            "Alerts"
+          ],
+          [
+            "Handle",
+            "An incident is investigated and handled",
+            "Investigation"
+          ],
+          [
+            "Report",
+            "Shift metrics are reported",
+            "Metrics"
+          ]
+        ],
+        "objectives": [
+          "Combine SOC and Elastic skills",
+          "Work a monitored shift",
+          "Report shift results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SOC Analyst",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: SOC Operations in the Security Programme",
+        "subtopics": [
+          "Monitoring and detection",
+          "Incident handling",
+          "Feeding risk and controls",
+          "Leadership reporting"
+        ],
+        "tools": [
+          "A lab SIEM",
+          "Risk register",
+          "Study notes"
+        ],
+        "lab_task": "Run a simulated incident in the SOC and show the full path from detection through response to feeding risk, controls and leadership reporting.",
+        "deliverable": "SOC-to-programme capstone record",
+        "checks": [
+          [
+            "Handle",
+            "The incident is detected and handled",
+            "Record"
+          ],
+          [
+            "Feed",
+            "It feeds risk and controls",
+            "Register and changes"
+          ],
+          [
+            "Report",
+            "Leadership reporting is produced",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Combine SOC and programme skills",
+          "Handle an incident",
+          "Report to leadership"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "CISSP Preparation",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: CISSP Identity Domain Mastery and Practice",
+        "subtopics": [
+          "Identity design for a scenario",
+          "Access control and governance",
+          "Domain exam practice",
+          "Weak-area review"
+        ],
+        "tools": [
+          "CISSP study guide",
+          "Identity concepts",
+          "Practice bank"
+        ],
+        "lab_task": "Design identity and access for a scenario to CISSP depth, then take a focused identity-domain practice set and review every miss.",
+        "deliverable": "Identity domain mastery record",
+        "checks": [
+          [
+            "Design",
+            "The identity design is CISSP-level",
+            "Design"
+          ],
+          [
+            "Practise",
+            "The domain practice set is scored",
+            "Scores"
+          ],
+          [
+            "Review",
+            "Misses are reviewed and closed",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Master the identity domain",
+          "Design identity",
+          "Close domain gaps"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "CISSP Preparation",
+        "Cloud Security"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: CISSP Architecture and Cloud Scenario",
+        "subtopics": [
+          "Secure design for a cloud scenario",
+          "Architecture and operations",
+          "Domain exam practice",
+          "Weak-area review"
+        ],
+        "tools": [
+          "CISSP study guide",
+          "Cloud security concepts",
+          "Practice bank"
+        ],
+        "lab_task": "Apply CISSP architecture and operations to a cloud scenario, then take a focused practice set linking the two domains and review misses.",
+        "deliverable": "Architecture and cloud mastery record",
+        "checks": [
+          [
+            "Design",
+            "The cloud design applies CISSP principles",
+            "Design"
+          ],
+          [
+            "Practise",
+            "The practice set is scored",
+            "Scores"
+          ],
+          [
+            "Review",
+            "Misses are reviewed and closed",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Master architecture and operations",
+          "Apply to the cloud",
+          "Close domain gaps"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Ethical Hacking",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Cloud Red Team on AWS Within the Rules",
+        "subtopics": [
+          "Scoped cloud test",
+          "Enumeration and escalation",
+          "Impact and evidence",
+          "Reporting and hardening"
+        ],
+        "tools": [
+          "Pacu and AWS CLI",
+          "A lab AWS account",
+          "Report template"
+        ],
+        "lab_task": "Run a scoped red team test of a lab AWS account within the rules, chain a misconfiguration to impact, and report findings with hardening.",
+        "deliverable": "Cloud red team capstone with a report",
+        "checks": [
+          [
+            "Enumerate",
+            "The account is enumerated",
+            "Output"
+          ],
+          [
+            "Escalate",
+            "A chain to impact is proven",
+            "Evidence"
+          ],
+          [
+            "Report",
+            "Findings and hardening are reported",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Combine offensive and AWS skills",
+          "Test the cloud within the rules",
+          "Report cloud risk"
         ]
       }
     }
