@@ -257,6 +257,8 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
+          build-args: |
+            VITE_GOOGLE_CLIENT_ID=${{ matrix.image == 'frontend' && secrets.VITE_GOOGLE_CLIENT_ID || '' }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
 

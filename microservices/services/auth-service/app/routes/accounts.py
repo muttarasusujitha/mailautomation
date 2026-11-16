@@ -339,6 +339,7 @@ async def google_login(payload: GoogleCredential, request: Request, response: Re
     await rate_limit(db, request, 'google', maximum=20)
     settings = get_settings()
     if not settings.GOOGLE_CLIENT_ID:
+        logger.error('Google sign-in is unavailable: GOOGLE_CLIENT_ID is not configured')
         raise HTTPException(503, 'Google sign-in is not configured')
     try:
         from google.oauth2.id_token import verify_oauth2_token
@@ -346,10 +347,13 @@ async def google_login(payload: GoogleCredential, request: Request, response: Re
         info = await asyncio.to_thread(verify_oauth2_token, payload.credential, GoogleRequest(), settings.GOOGLE_CLIENT_ID)
         if info.get('email_verified') is not True:
             raise ValueError('Unverified email')
-    except Exception:
+    except Exception as error:
+        # Never log the credential itself; it is a bearer token.
+        logger.warning('Google OIDC credential verification failed (%s)', type(error).__name__)
         raise HTTPException(401, 'Google credential could not be verified')
     user = await _resolve_social_user(db, info, payload.desired_role)
     if not user:
+        logger.warning('Google OIDC verified, but no eligible account was found')
         raise HTTPException(403, await _social_login_denial(db, info, payload.desired_role, 'Google'))
     session = await issue_session(db, request, response, user)
     if user.get('role') == 'trainer':
