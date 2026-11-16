@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from app.config import get_settings
 from shared.database.service import get_db
 from shared.generation_mode import application_ai_enabled
+from shared.document_amounts import calculate_document
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -71,7 +72,7 @@ class InvoiceGenerateRequest(BaseModel):
     due_date: Optional[str] = ""
     invoice_type: Optional[str] = ""
     tax_type: Optional[str] = ""
-    gst_rate: float = 18.0
+    gst_rate: Optional[float] = None
     additional_notes: Optional[str] = ""
     company_name: Optional[str] = ""
     company_address: Optional[str] = ""
@@ -99,6 +100,15 @@ async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDa
     req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     trainer = await db["trainers"].find_one({"trainer_id": payload.trainer_id}, {"_id": 0}) or {}
 
+    if not req:
+        raise HTTPException(404, "Requirement not found")
+    try:
+        totals = calculate_document(payload.items, payload.total_amount, payload.gst_rate,
+            description=f"{payload.training_domain or req.get('technology_needed') or 'Training'} services",
+            duration=payload.duration or req.get('duration_days') or 0, day_rate=payload.day_rate)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
     doc = {
         "po_id": po_id,
         "po_number": payload.client_po_number or po_id,
@@ -117,10 +127,12 @@ async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDa
         "duration": payload.duration or str(req.get("duration_days", "")),
         "mode": payload.mode or req.get("mode", ""),
         "day_rate": payload.day_rate,
-        "total_amount": payload.total_amount,
+        "total_amount": totals["subtotal"],
+        "grand_total": totals["grand_total"],
+        "commercials": {k: v for k, v in totals.items() if k != "items"},
         "gst_rate": payload.gst_rate,
         "payment_terms": payload.payment_terms or "",
-        "items": payload.items,
+        "items": totals["items"],
         "notes": payload.notes,
         "company_name": payload.company_name or "",
         "company_address": payload.company_address or "",
@@ -164,9 +176,15 @@ async def download_po_pdf(po_id: str, db: AsyncIOMotorDatabase = Depends(get_db)
                 "mode": doc.get("mode", ""),
                 "payment_terms": doc.get("payment_terms", ""),
                 "total_amount": doc.get("total_amount", 0),
+                "gst_rate": doc.get("gst_rate", 0),
+                "company_name": doc.get("company_name", ""),
+                "company_address": doc.get("company_address", ""),
                 "items": doc.get("items", []),
                 "notes": doc.get("notes", ""),
             })
+        r.raise_for_status()
+        if not r.content.startswith(b"%PDF-"):
+            raise ValueError("Document service did not return a PDF")
         return Response(content=r.content, media_type="application/pdf",
                         headers={"Content-Disposition": f"attachment; filename={po_id}.pdf"})
     except Exception as exc:
@@ -209,6 +227,9 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
                 "mode": doc.get("mode", ""),
                 "payment_terms": doc.get("payment_terms", ""),
                 "total_amount": doc.get("total_amount", 0),
+                "gst_rate": doc.get("gst_rate", 0),
+                "company_name": doc.get("company_name", ""),
+                "company_address": doc.get("company_address", ""),
                 "items": doc.get("items", []),
                 "notes": doc.get("notes", ""),
             })
@@ -288,36 +309,23 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
 
     inv_id = f"INV-{uuid.uuid4().hex[:10].upper()}"
     now = datetime.utcnow()
-    items = list(po.get("items") or [])
-    subtotal = sum(
-        float(item.get("amount") or (float(item.get("quantity") or 0) * float(item.get("rate") or 0)))
-        for item in items
-    )
-    if subtotal <= 0:
-        subtotal = float(po.get("total_amount") or 0)
-    if subtotal <= 0:
-        try:
-            days = float(po.get("duration") or 0)
-            rate = float(po.get("day_rate") or 0)
-        except (TypeError, ValueError):
-            days, rate = 0.0, 0.0
-        if days > 0 and rate > 0:
-            subtotal = round(days * rate, 2)
-            items = [{
-                "description": f"{po.get('training_domain') or 'Training'} Training",
-                "hsn_sac": "999293",
-                "quantity": days,
-                "rate": rate,
-                "amount": subtotal,
-            }]
+    try:
+        totals = calculate_document(po.get("items"), po.get("total_amount"),
+            payload.gst_rate if payload.gst_rate is not None else po.get("gst_rate", 0),
+            description=f"{po.get('training_domain') or 'Training'} Training",
+            duration=po.get('duration'), day_rate=po.get('day_rate'))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    items = totals['items']
+    subtotal = totals['subtotal']
     def issuer_value(key: str) -> str:
         return str(getattr(payload, key, "") or po.get(key) or "").strip()
 
     company_name = issuer_value("company_name") or "BEULIX SOLUTIONS PRIVATE LIMITED"
     company_gst = issuer_value("company_gst") or str(payload.gst_number or "").strip()
-    gst_rate = payload.gst_rate if payload.gst_rate is not None else float(po.get("gst_rate") or 18)
-    gst_amount = round(subtotal * gst_rate / 100, 2)
-    grand_total = round(subtotal + gst_amount, 2)
+    gst_rate = totals['gst_rate']
+    gst_amount = totals['gst_amount']
+    grand_total = totals['grand_total']
     invoice = {
         "invoice_id": inv_id,
         "invoice_number": payload.invoice_number or inv_id,

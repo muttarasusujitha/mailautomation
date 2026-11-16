@@ -62,7 +62,7 @@ export default function LabCost() {
     monitoring_gb: '',
     k8s_worker_nodes: '',
     contingency_percent: 10,
-    tax_percent: 0,
+    tax_percent: '',
     lab_package: 'standard',
     quote_validity_days: 7,
   })
@@ -258,6 +258,9 @@ export default function LabCost() {
       return toast.error('Hours, participants, and validity must be positive')
     }
 
+    if (form.tax_percent === '' || !Number.isFinite(Number(form.tax_percent)) || Number(form.tax_percent) < 0 || Number(form.tax_percent) > 100) {
+      return toast.error('Confirm the tax percentage; enter 0 if no tax applies')
+    }
     setGenerating(true)
     try {
       const usageDefaults = { disk_gb_per_node: form.cloud_provider === 'azure' ? 32 : 20, storage_gb: 0, egress_gb: 0, build_minutes: 0, monitoring_gb: 0, k8s_worker_nodes: 0 }
@@ -429,7 +432,7 @@ export default function LabCost() {
           <Field label="Participants"><input type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
           <Field label="USD to INR"><p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">Fetched from the published USD/INR rate when the workbook is generated.</p></Field>
           <Field label="Contingency %"><input type="number" min="0" max="100" value={form.contingency_percent} onChange={event => update('contingency_percent', event.target.value)} /></Field>
-          <Field label="Tax / GST %"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>
+          <Field label="Tax / GST % (confirm, or enter 0)"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>
           <Field label="Quote validity (days)"><input type="number" min="1" value={form.quote_validity_days} onChange={event => update('quote_validity_days', event.target.value)} /></Field>
         </div>
         {pricingProfile.status !== 'idle' && <div className={`mt-4 flex gap-3 rounded-lg border p-3 text-sm ${pricingProfile.status === 'ready' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : pricingProfile.status === 'missing' ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>

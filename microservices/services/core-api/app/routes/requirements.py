@@ -1642,8 +1642,8 @@ async def generate_invoice_from_requirement_po(
             items = [{
                 "description": f"{payload.course_name or payload.technology or doc.get('technology_needed') or 'Training'} Training",
                 "hsn_sac": "999293",
-                "quantity": duration,
-                "rate": round(amount / duration, 2),
+                "quantity": 1,
+                "rate": amount,
                 "amount": amount,
             }]
 
