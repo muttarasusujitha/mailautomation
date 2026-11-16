@@ -19954,6 +19954,774 @@
           "Feed defenders"
         ]
       }
+    },
+    {
+      "between": [
+        "SAP MM",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "MM and FI Together: Procure-to-Pay Postings in the Universal Journal",
+        "subtopics": [
+          "Valuation and account determination seen from finance",
+          "Goods receipt and invoice postings in the Universal Journal",
+          "GR/IR clearing and month-end reconciliation",
+          "Price differences and the material ledger",
+          "Commitments and budget checks for purchases",
+          "Supplier payments after invoice verification",
+          "Period-end tasks shared by MM and FI",
+          "Who owns which settings in a project"
+        ],
+        "tools": [
+          "SAP GUI OBYC, MIGO, MIRO and F110",
+          "Manage Journal Entries app",
+          "GR/IR reconciliation apps"
+        ],
+        "lab_task": "Run a purchase order through goods receipt, an invoice with a price difference and payment, follow every posting in the Universal Journal and reconcile GR/IR at period end with the finance checklist.",
+        "deliverable": "Posting trail, GR/IR reconciliation and a shared closing checklist",
+        "checks": [
+          [
+            "Post the goods receipt",
+            "Inventory and GR/IR lines appear in the Universal Journal",
+            "Journal entry"
+          ],
+          [
+            "Post the invoice with a price difference",
+            "Difference posts to the account set by price control",
+            "Journal entry"
+          ],
+          [
+            "Run the payment",
+            "Supplier item is cleared",
+            "Payment document"
+          ]
+        ],
+        "objectives": [
+          "Explain procure-to-pay postings",
+          "Reconcile GR/IR with finance",
+          "Share closing tasks between MM and FI"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP SD",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "SD and FI Together: Billing, Revenue and Receivables in the Universal Journal",
+        "subtopics": [
+          "Revenue account determination seen from finance",
+          "Billing documents in the Universal Journal",
+          "Cost of goods sold from goods issue",
+          "Receivables, incoming payments and dunning",
+          "Credit management shared by sales and finance",
+          "Handing revenue recognition to finance",
+          "Margin analysis from billing",
+          "Period-end checks shared by SD and FI"
+        ],
+        "tools": [
+          "SAP GUI VKOA, VF01 and F-28",
+          "Manage Journal Entries app",
+          "Manage Credit Accounts app"
+        ],
+        "lab_task": "Bill a delivered order, follow revenue, tax and receivable postings into the Universal Journal and margin analysis, post the customer payment and reconcile billing with finance at period end.",
+        "deliverable": "Posting trail, margin report and a period-end reconciliation",
+        "checks": [
+          [
+            "Bill the order",
+            "Revenue, tax and receivable lines are posted",
+            "Journal entry"
+          ],
+          [
+            "Check margin analysis",
+            "Revenue and cost of goods sold appear for the order",
+            "Margin report"
+          ],
+          [
+            "Post the customer payment",
+            "Customer item is cleared",
+            "Clearing document"
+          ]
+        ],
+        "objectives": [
+          "Explain order-to-cash postings",
+          "Reconcile billing with finance",
+          "Share credit and closing work"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP MM",
+        "SAP SD"
+      ],
+      "day": {
+        "topic": "MM and SD Together: Third-Party Orders, Stock Transfers and Availability",
+        "subtopics": [
+          "Third-party orders from sales to purchasing",
+          "Individual purchase orders for customer orders",
+          "Stock transport orders that supply customer deliveries",
+          "Availability checks that count purchase orders",
+          "Returns to suppliers after customer returns",
+          "Shared material master views",
+          "Supplier and customer consignment compared",
+          "Document flow across MM and SD"
+        ],
+        "tools": [
+          "SAP GUI VA01, ME21N, MIGO, VL01N and VF01"
+        ],
+        "lab_task": "Run a third-party order end to end, a stock transport order that supplies a customer delivery in another plant and a customer return that leads to a return to the supplier, tracing each document flow.",
+        "deliverable": "Three document flows with their postings",
+        "checks": [
+          [
+            "Save the third-party order",
+            "A purchase requisition is created",
+            "Document flow"
+          ],
+          [
+            "Confirm an order that depends on a stock transport order",
+            "Confirmed date uses the planned receipt",
+            "Schedule lines"
+          ],
+          [
+            "Return the goods to the supplier",
+            "Return delivery and supplier credit are posted",
+            "Documents"
+          ]
+        ],
+        "objectives": [
+          "Link purchasing and sales processes",
+          "Trace cross-module document flows",
+          "Explain shared master data"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP MM",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Procurement in the S/4HANA Data Model: MATDOC, Business Partner and Fiori Roles",
+        "subtopics": [
+          "Where MM sits in the S/4HANA process map",
+          "The MATDOC table and stock calculation",
+          "Suppliers as business partners",
+          "Purchasing business roles and Fiori apps",
+          "Embedded analytics for procurement",
+          "MM simplification items in conversions",
+          "Clean core rules for procurement extensions",
+          "Fit-to-standard workshops for procurement"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP Fiori apps reference library",
+          "Simplification Item Catalog"
+        ],
+        "lab_task": "Map procurement onto the S/4HANA process map of the model company, read stock through a released CDS view, and list the MM simplification items and Fiori roles a conversion would change.",
+        "deliverable": "Process map, CDS query result and a conversion impact list",
+        "checks": [
+          [
+            "Query stock through the released CDS view",
+            "Result matches the stock overview",
+            "Comparison"
+          ],
+          [
+            "Map the procurement processes",
+            "Each process has its S/4HANA apps and owner",
+            "Process map"
+          ],
+          [
+            "List the conversion impacts",
+            "Each simplification item has an action",
+            "Impact list"
+          ]
+        ],
+        "objectives": [
+          "Place MM in S/4HANA",
+          "Explain the procurement data model",
+          "Plan procurement in conversions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP SD",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Sales in the S/4HANA Data Model: Status Fields, Pricing Tables and Fiori Roles",
+        "subtopics": [
+          "Where SD sits in the S/4HANA process map",
+          "Simplified sales document tables and status fields",
+          "Pricing results in PRCD_ELEMENTS",
+          "Customers as business partners",
+          "Sales business roles and Fiori apps",
+          "SAP Credit Management and condition contracts",
+          "SD simplification items in conversions",
+          "Fit-to-standard workshops for sales"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP Fiori apps reference library",
+          "Simplification Item Catalog"
+        ],
+        "lab_task": "Map order to cash onto the S/4HANA process map of the model company, read order status and pricing through released CDS views, and list the SD simplification items and Fiori roles a conversion would change.",
+        "deliverable": "Process map, CDS query results and a conversion impact list",
+        "checks": [
+          [
+            "Query order status through a released CDS view",
+            "Status matches the sales order",
+            "Comparison"
+          ],
+          [
+            "Map the sales processes",
+            "Each process has its S/4HANA apps and owner",
+            "Process map"
+          ],
+          [
+            "List the conversion impacts",
+            "Each simplification item has an action",
+            "Impact list"
+          ]
+        ],
+        "objectives": [
+          "Place SD in S/4HANA",
+          "Explain the sales data model",
+          "Plan sales in conversions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP Fiori",
+        "SAP ABAP"
+      ],
+      "day": {
+        "topic": "Fiori Elements on RAP: From CDS Annotations to a Deployed App",
+        "subtopics": [
+          "RAP business objects behind Fiori elements apps",
+          "Service definitions and OData V4 service bindings",
+          "UI annotations in CDS metadata extensions",
+          "Draft, actions and side effects end to end",
+          "Generating the app from the service binding with SAP Fiori tools",
+          "Deploying the app to the ABAP repository",
+          "Launchpad content for the new app",
+          "Splitting work between ABAP and UI developers"
+        ],
+        "tools": [
+          "ABAP Development Tools (Eclipse)",
+          "SAP Fiori tools",
+          "SAP Business Application Studio"
+        ],
+        "lab_task": "Build a RAP business object with draft and an action, annotate it in a metadata extension, generate a Fiori elements app from the service binding, deploy it and add it to a launchpad space.",
+        "deliverable": "RAP object, annotations, deployed app and launchpad tile",
+        "checks": [
+          [
+            "Preview the service binding",
+            "List report and object page show the annotations",
+            "Screenshot"
+          ],
+          [
+            "Run the action from the app",
+            "Status changes and side effects refresh the page",
+            "Screenshot"
+          ],
+          [
+            "Open the deployed tile",
+            "App runs from the launchpad",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build Fiori apps on RAP",
+          "Annotate CDS for Fiori elements",
+          "Deploy and publish RAP-based apps"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP Fiori",
+        "SAP BTP"
+      ],
+      "day": {
+        "topic": "Fiori Apps on SAP BTP: CAP Services, HTML5 Repository and Work Zone",
+        "subtopics": [
+          "CAP services as Fiori back ends",
+          "Fiori elements on CAP with annotations in CDS",
+          "Approuter and destinations",
+          "HTML5 application repository",
+          "MTA deployment of app and service",
+          "SAP Build Work Zone sites",
+          "Roles and role collections",
+          "Monitoring apps on SAP BTP"
+        ],
+        "tools": [
+          "SAP Business Application Studio",
+          "CAP (Node.js)",
+          "SAP Build Work Zone",
+          "Cloud MTA Build Tool"
+        ],
+        "lab_task": "Build a CAP service with a Fiori elements UI, deploy both in one MTA to Cloud Foundry, publish the app in a Work Zone site and assign roles.",
+        "deliverable": "MTA project, deployed app and service, Work Zone site and role set-up",
+        "checks": [
+          [
+            "Deploy the MTA",
+            "Service and app run on SAP BTP",
+            "Deployment log"
+          ],
+          [
+            "Open the app from Work Zone",
+            "App loads data from the CAP service",
+            "Screenshot"
+          ],
+          [
+            "Remove the role collection",
+            "Access is denied",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build Fiori apps on CAP",
+          "Deploy apps to SAP BTP",
+          "Publish apps with roles"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP Fiori",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Fiori in S/4HANA Projects: Business Roles, App Activation and Adoption",
+        "subtopics": [
+          "SAP business roles for S/4HANA",
+          "Activating apps with task lists",
+          "Spaces and pages per business role",
+          "My Home and personalisation",
+          "SAP GUI transactions as tiles during the move",
+          "The SAP Fiori apps recommendations report",
+          "Adaptations that survive upgrades",
+          "Measuring adoption"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP GUI STC01",
+          "Manage Launchpad Spaces app",
+          "SAP Fiori apps recommendations report"
+        ],
+        "lab_task": "Activate the purchasing and sales business roles in S/4HANA, build spaces for them, add SAP GUI tiles for two missing apps and run the apps recommendations report for the key users.",
+        "deliverable": "Activated roles, spaces, tiles and the recommendations report",
+        "checks": [
+          [
+            "Log on with each role",
+            "Spaces with working apps appear",
+            "Screenshot"
+          ],
+          [
+            "Open a SAP GUI tile",
+            "Transaction runs in the browser",
+            "Screenshot"
+          ],
+          [
+            "Run the recommendations report",
+            "Apps are proposed for the most used transactions",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Roll out Fiori in S/4HANA",
+          "Activate business roles",
+          "Plan adoption"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP BW/4HANA",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "From S/4HANA to BW/4HANA: CDS Extraction, ODP and the Embedded Analytics Boundary",
+        "subtopics": [
+          "Released extraction CDS views in S/4HANA",
+          "ODP and delta for CDS views",
+          "BW/4HANA content for S/4HANA sources",
+          "What stays in embedded analytics",
+          "Harmonising data from several S/4HANA systems",
+          "Reconciling BW totals with S/4HANA",
+          "Authorisations across both systems",
+          "Load impact on S/4HANA"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP BW/4HANA Modeling Tools",
+          "SAP GUI ODQMON"
+        ],
+        "lab_task": "Load sales and stock from S/4HANA with extraction CDS views and delta, reconcile totals with S/4HANA reports and decide which of five reports stay in embedded analytics.",
+        "deliverable": "Data flows, reconciliation and report platform decisions",
+        "checks": [
+          [
+            "Load the delta after a change in S/4HANA",
+            "Only the changed records arrive",
+            "Request monitor"
+          ],
+          [
+            "Reconcile revenue",
+            "BW and S/4HANA totals match",
+            "Reconciliation"
+          ],
+          [
+            "Review the report decisions",
+            "Each report has a platform and a reason",
+            "Decision list"
+          ]
+        ],
+        "objectives": [
+          "Extract S/4HANA data into BW",
+          "Reconcile BW with S/4HANA",
+          "Split reporting between BW and S/4HANA"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP BW/4HANA",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Finance Analytics in BW/4HANA: Universal Journal Extraction and Plan Data",
+        "subtopics": [
+          "Extracting the Universal Journal with CDS views",
+          "G/L, profit centre and cost centre data in BW",
+          "Currency translation and fiscal periods",
+          "Finance hierarchies from S/4HANA",
+          "Plan data for budgets and forecasts",
+          "Reconciling with finance reports",
+          "Finance authorisations in BW",
+          "Month-end load timing"
+        ],
+        "tools": [
+          "SAP BW/4HANA Modeling Tools",
+          "SAP S/4HANA",
+          "SAP Analysis for Microsoft Office"
+        ],
+        "lab_task": "Load Universal Journal data and the profit centre hierarchy into BW, build a P&L query with actual and plan in group currency and reconcile it with the S/4HANA financial statement.",
+        "deliverable": "Finance data flow, P&L query and a reconciliation",
+        "checks": [
+          [
+            "Run the P&L query",
+            "Actual and plan are shown by profit centre",
+            "Query output"
+          ],
+          [
+            "Reconcile with S/4HANA",
+            "Totals match for the period",
+            "Reconciliation"
+          ],
+          [
+            "Run the query as a controller of one company",
+            "Only that company's data is shown",
+            "Query output"
+          ]
+        ],
+        "objectives": [
+          "Model finance data in BW",
+          "Combine actual and plan",
+          "Reconcile finance analytics"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP BW/4HANA",
+        "SAP MM"
+      ],
+      "day": {
+        "topic": "Procurement and Inventory Analytics in BW/4HANA: Spend, Delivery and Stock",
+        "subtopics": [
+          "Purchasing and inventory extraction CDS views",
+          "Spend by supplier, material group and contract",
+          "Delivery performance from order and receipt dates",
+          "Stock on date with inventory DataStore objects",
+          "Slow-moving and obsolete stock",
+          "Combining purchasing and finance values",
+          "KPIs for buyers and stores",
+          "Reconciling with MM reports"
+        ],
+        "tools": [
+          "SAP BW/4HANA Modeling Tools",
+          "SAP S/4HANA",
+          "SAP Analytics Cloud"
+        ],
+        "lab_task": "Load purchase orders, goods receipts and stock movements into BW, report spend, on-time delivery and stock on date, and reconcile each KPI with MM reports.",
+        "deliverable": "Procurement data flows, KPI story and reconciliations",
+        "checks": [
+          [
+            "Report spend by supplier",
+            "Totals match the purchase order values",
+            "Comparison"
+          ],
+          [
+            "Report on-time delivery",
+            "Rate matches a manual check of ten orders",
+            "Check sheet"
+          ],
+          [
+            "Report stock at month end",
+            "Stock matches MB5B",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Model procurement analytics",
+          "Model stock analytics",
+          "Reconcile KPIs with MM"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP BW/4HANA",
+        "SAP SD"
+      ],
+      "day": {
+        "topic": "Sales Analytics in BW/4HANA: Orders, Deliveries, Billing and Margins",
+        "subtopics": [
+          "Sales order, delivery and billing extraction CDS views",
+          "Order intake, backlog and billed revenue",
+          "Delivery performance against confirmed dates",
+          "Margins from billing and cost of goods sold",
+          "Customer and product hierarchies",
+          "Currency translation for group reporting",
+          "KPIs for sales managers",
+          "Reconciling with SD reports"
+        ],
+        "tools": [
+          "SAP BW/4HANA Modeling Tools",
+          "SAP S/4HANA",
+          "SAP Analytics Cloud"
+        ],
+        "lab_task": "Load sales orders, deliveries and billing documents into BW, report order intake, backlog, on-time delivery and margin, and reconcile each KPI with SD reports.",
+        "deliverable": "Sales data flows, KPI story and reconciliations",
+        "checks": [
+          [
+            "Report billed revenue",
+            "Totals match the billing documents",
+            "Comparison"
+          ],
+          [
+            "Report the backlog",
+            "Open order value matches VA05",
+            "Comparison"
+          ],
+          [
+            "Report margin by customer",
+            "Margin matches margin analysis",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Model sales analytics",
+          "Report order-to-cash KPIs",
+          "Reconcile KPIs with SD"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP BW/4HANA",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Power BI on SAP BW/4HANA: Connectors, BW Queries and Governance",
+        "subtopics": [
+          "Power BI connectors for SAP Business Warehouse",
+          "Application server and message server connections",
+          "BW queries as the semantic layer",
+          "BW variables as Power BI parameters",
+          "Import or DirectQuery for BW data",
+          "Analysis authorisations and single sign-on",
+          "Performance and refresh limits",
+          "When SAP Analytics Cloud is the better choice"
+        ],
+        "tools": [
+          "Power BI Desktop",
+          "SAP Business Warehouse connector for Power BI",
+          "SAP BW/4HANA"
+        ],
+        "lab_task": "Connect Power BI to the BW sales query, build a report with a month parameter mapped to the BW variable, compare import and DirectQuery and check that analysis authorisations still apply.",
+        "deliverable": "Power BI report, connection settings and an authorisation test",
+        "checks": [
+          [
+            "Refresh the report",
+            "Data matches the BW query",
+            "Comparison"
+          ],
+          [
+            "Change the month parameter",
+            "BW variable is applied to the query",
+            "Screenshot"
+          ],
+          [
+            "Open the report as a regional user",
+            "Only the region's data is shown",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Connect Power BI to BW",
+          "Use BW queries in Power BI",
+          "Keep BW security in Power BI"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP SD",
+        "Salesforce"
+      ],
+      "day": {
+        "topic": "Salesforce and SAP SD: Opportunity to Order Integration",
+        "subtopics": [
+          "Front office in Salesforce and order management in SAP",
+          "Replicating accounts, products and prices",
+          "Quote in Salesforce, sales order in S/4HANA",
+          "Availability and price checks from Salesforce",
+          "Order status and invoices back in Salesforce",
+          "Integration options: SAP Integration Suite and MuleSoft",
+          "Error handling and duplicates",
+          "Data ownership between the two systems"
+        ],
+        "tools": [
+          "Salesforce Sales Cloud",
+          "SAP S/4HANA",
+          "SAP Integration Suite"
+        ],
+        "lab_task": "Replicate customers and prices from S/4HANA to Salesforce, turn a closed opportunity into a sales order in S/4HANA through an integration flow, and show the order and invoice status in Salesforce.",
+        "deliverable": "Integration flows, test documents in both systems and an error log",
+        "checks": [
+          [
+            "Close the opportunity",
+            "Sales order is created in S/4HANA",
+            "Sales order"
+          ],
+          [
+            "Bill the order",
+            "Invoice status appears in Salesforce",
+            "Screenshot"
+          ],
+          [
+            "Send the same opportunity twice",
+            "Duplicate order is rejected",
+            "Message monitor"
+          ]
+        ],
+        "objectives": [
+          "Integrate Salesforce with SAP SD",
+          "Keep customer and price data in sync",
+          "Handle integration errors"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP MM",
+        "SAP ABAP"
+      ],
+      "day": {
+        "topic": "ABAP for Procurement: BAdIs, Released APIs and Purchasing Checks",
+        "subtopics": [
+          "Extension points in purchasing",
+          "BAdIs for purchase requisitions and orders",
+          "Released APIs for purchasing documents",
+          "Custom checks with messages",
+          "Custom fields in purchasing documents",
+          "Testing purchasing extensions",
+          "Extensions in mass runs",
+          "Clean core rules for procurement code"
+        ],
+        "tools": [
+          "ABAP Development Tools (Eclipse)",
+          "SAP GUI ME21N",
+          "ABAP Test Cockpit"
+        ],
+        "lab_task": "Implement a BAdI check that blocks orders above a buyer's limit, add a custom field through key user extensibility, read orders through a released API in a report and test with ABAP Unit.",
+        "deliverable": "BAdI implementation, custom field, report and test results",
+        "checks": [
+          [
+            "Save an order above the buyer's limit",
+            "Check blocks it with a clear message",
+            "Error message"
+          ],
+          [
+            "Run the report",
+            "Orders are read through the released API",
+            "Report output"
+          ],
+          [
+            "Run ATC with clean core checks",
+            "No findings remain",
+            "ATC result"
+          ]
+        ],
+        "objectives": [
+          "Extend purchasing with ABAP",
+          "Use released purchasing APIs",
+          "Test procurement extensions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SAP SD",
+        "SAP ABAP"
+      ],
+      "day": {
+        "topic": "ABAP for Sales: Pricing Routines, BAdIs and Released Sales APIs",
+        "subtopics": [
+          "Extension points in sales",
+          "Requirement and formula routines in pricing",
+          "Copy control routines",
+          "BAdIs for sales documents",
+          "Released APIs for sales orders",
+          "Classic SD user exits and their replacements",
+          "Testing sales extensions",
+          "Clean core rules for sales code"
+        ],
+        "tools": [
+          "ABAP Development Tools (Eclipse)",
+          "SAP GUI VOFM and VA01",
+          "ABAP Test Cockpit"
+        ],
+        "lab_task": "Write a pricing requirement routine that grants a discount only to new customers, a BAdI check for missing delivery instructions and a report that creates orders through a released API, with ABAP Unit tests.",
+        "deliverable": "Routine, BAdI implementation, API report and test results",
+        "checks": [
+          [
+            "Create an order for a new customer",
+            "Discount is applied",
+            "Pricing analysis"
+          ],
+          [
+            "Save an order without delivery instructions",
+            "Check blocks the save",
+            "Error message"
+          ],
+          [
+            "Create an order through the released API",
+            "Order is created",
+            "API response"
+          ]
+        ],
+        "objectives": [
+          "Extend sales with ABAP",
+          "Write pricing routines",
+          "Use released sales APIs"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -27554,6 +28322,517 @@
           "Combine offensive and AWS skills",
           "Test the cloud within the rules",
           "Report cloud risk"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP MM",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Procure to Pay and Period-End Close for the Model Company",
+        "subtopics": [
+          "Supplier, material and account set-up",
+          "Purchasing, receipt and invoice with exceptions",
+          "Payment run and GR/IR clearing",
+          "Inventory valuation and period-end close",
+          "Reconciliation evidence",
+          "Walkthrough and questions"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP GUI",
+          "SAP Fiori launchpad"
+        ],
+        "lab_task": "Run a month of procurement for the model company, with orders, receipts, invoices with price differences, blocked invoices, a payment run, GR/IR clearing and inventory valuation, then close the period and present the reconciliation.",
+        "deliverable": "Document trail, closing checklist, reconciliations and a 15-minute walkthrough",
+        "checks": [
+          [
+            "Reconcile GR/IR at month end",
+            "Open balance is explained item by item",
+            "Reconciliation"
+          ],
+          [
+            "Reconcile stock value with the inventory accounts",
+            "Values agree",
+            "Reconciliation"
+          ],
+          [
+            "Answer questions on the postings",
+            "Each posting is explained correctly",
+            "Walkthrough"
+          ]
+        ],
+        "objectives": [
+          "Combine MM and FI in one process",
+          "Close a period with evidence",
+          "Explain procure-to-pay postings"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP SD",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Order to Cash and Receivables Close for the Model Company",
+        "subtopics": [
+          "Customer, pricing and credit set-up",
+          "Orders, deliveries and billing with exceptions",
+          "Payments, dunning and credit decisions",
+          "Revenue and margin reporting",
+          "Period-end reconciliation",
+          "Walkthrough and questions"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP GUI",
+          "SAP Fiori launchpad"
+        ],
+        "lab_task": "Run a month of sales for the model company, with orders, credit blocks, deliveries, invoices, a return, payments and dunning, then report revenue and margin and present the period-end reconciliation.",
+        "deliverable": "Document trail, margin report, reconciliations and a 15-minute walkthrough",
+        "checks": [
+          [
+            "Reconcile billing with revenue accounts",
+            "Totals agree for the period",
+            "Reconciliation"
+          ],
+          [
+            "Run dunning for overdue customers",
+            "Dunning letters are created for the right items",
+            "Dunning log"
+          ],
+          [
+            "Answer questions on the postings",
+            "Each posting is explained correctly",
+            "Walkthrough"
+          ]
+        ],
+        "objectives": [
+          "Combine SD and FI in one process",
+          "Close receivables with evidence",
+          "Explain order-to-cash postings"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP MM",
+        "SAP SD"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Buy, Stock and Sell for a Trading Company",
+        "subtopics": [
+          "Material, supplier and customer set-up",
+          "Purchasing and stock for sales demand",
+          "Third-party and stock transfer scenarios",
+          "Deliveries, billing and returns",
+          "Stock and margin evidence",
+          "Walkthrough and questions"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP GUI",
+          "SAP Fiori launchpad"
+        ],
+        "lab_task": "Run a trading company for a month: plan and buy stock for forecast demand, fulfil orders from stock, by third party and from another plant, handle a customer return sent back to the supplier, and present stock and margin results.",
+        "deliverable": "Document flows, stock report, margin report and a 15-minute walkthrough",
+        "checks": [
+          [
+            "Show the document flow of each scenario",
+            "All documents are linked",
+            "Document flows"
+          ],
+          [
+            "Reconcile stock",
+            "Book and physical stock agree",
+            "Stock report"
+          ],
+          [
+            "Report margin by scenario",
+            "Margins are calculated and explained",
+            "Margin report"
+          ]
+        ],
+        "objectives": [
+          "Combine MM and SD in one business",
+          "Run special procurement for sales",
+          "Explain stock and margin results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP MM",
+        "SAP SD",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Logistics and Finance for the Model Company",
+        "subtopics": [
+          "Organisation and master data across modules",
+          "Procure to pay with exceptions",
+          "Order to cash with exceptions",
+          "Inventory valuation and margin",
+          "Period-end close and reconciliations",
+          "Walkthrough and questions"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP GUI",
+          "SAP Fiori launchpad"
+        ],
+        "lab_task": "Run a month of logistics and finance for the model company: buy, receive and pay, sell, deliver and collect, value stock, report margins and close the period with reconciliations for GR/IR, stock and receivables.",
+        "deliverable": "End-to-end document trail, closing checklist, reconciliations and a 20-minute walkthrough",
+        "checks": [
+          [
+            "Reconcile GR/IR, stock and receivables",
+            "All three reconcile at period end",
+            "Reconciliations"
+          ],
+          [
+            "Trace one material from purchase to sale",
+            "Cost and revenue postings are linked",
+            "Document trail"
+          ],
+          [
+            "Answer questions across modules",
+            "Integration points explained correctly",
+            "Walkthrough"
+          ]
+        ],
+        "objectives": [
+          "Combine MM, SD and FI",
+          "Close a period across modules",
+          "Explain integration points"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP S/4HANA",
+        "SAP MM",
+        "SAP SD",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: S/4HANA Logistics and Finance Implementation",
+        "subtopics": [
+          "Fit-to-standard for procurement, sales and finance",
+          "Configuration of the core processes",
+          "Data migration and test scripts",
+          "Integrated process tests",
+          "Cutover plan",
+          "Steering committee presentation"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP GUI SPRO",
+          "Migrate Your Data - Migration Cockpit app",
+          "SAP Cloud ALM"
+        ],
+        "lab_task": "Implement procure to pay, order to cash and record to report for a new company code: run fit-to-standard, configure the processes, load master data and open items, run integrated tests, write the cutover plan and present to a mock steering committee.",
+        "deliverable": "Configuration workbook, migration logs, test evidence, cutover plan and a 20-minute presentation",
+        "checks": [
+          [
+            "Run the integrated test scripts",
+            "All scripts pass with evidence",
+            "Test log"
+          ],
+          [
+            "Reconcile migrated open items",
+            "Counts and values match the source",
+            "Reconciliation"
+          ],
+          [
+            "Present to the steering committee",
+            "Go-live readiness defended with evidence",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine S/4HANA, MM, SD and FI",
+          "Prove implementation readiness",
+          "Lead an integrated rollout"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP Fiori",
+        "SAP ABAP"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: RAP Business Object with a Fiori Elements App and Launchpad Role",
+        "subtopics": [
+          "Requirements and data model",
+          "RAP business object with draft and actions",
+          "Fiori elements app with annotations and an extension",
+          "Tests in ABAP Unit and OPA5",
+          "Deployment, role and launchpad space",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "ABAP Development Tools (Eclipse)",
+          "SAP Fiori tools",
+          "SAP Business Application Studio"
+        ],
+        "lab_task": "Build a supplier complaint app: a RAP business object with draft, validations and an action, a Fiori elements app with annotations and one custom column, ABAP Unit and OPA5 tests, deployment and a launchpad space with a role, then present it.",
+        "deliverable": "ABAP and UI repositories, test reports, deployed app and a 15-minute demo",
+        "checks": [
+          [
+            "Create a complaint in the app",
+            "Draft, validation and action work end to end",
+            "Demo"
+          ],
+          [
+            "Run ABAP Unit and OPA5 tests",
+            "All tests pass",
+            "Test reports"
+          ],
+          [
+            "Open the app as the business role",
+            "App appears in the space and runs",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Combine ABAP and Fiori in one app",
+          "Test across layers",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP Fiori",
+        "SAP BTP"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Fiori Extension App on SAP BTP with Work Zone",
+        "subtopics": [
+          "Requirements and extension design",
+          "CAP service with S/4HANA integration",
+          "Fiori elements and freestyle UI",
+          "Security, roles and Work Zone site",
+          "Tests and pipeline deployment",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "SAP Business Application Studio",
+          "CAP (Node.js)",
+          "SAP Build Work Zone",
+          "SAP Continuous Integration and Delivery"
+        ],
+        "lab_task": "Build a side-by-side extension that lets buyers review supplier quotes: a CAP service reading S/4HANA data, a Fiori elements UI with a freestyle chart page, roles, a Work Zone site and a pipeline that tests and deploys it, then present it.",
+        "deliverable": "Repository, pipeline run, Work Zone site and a 15-minute demo",
+        "checks": [
+          [
+            "Review a quote in the app",
+            "S/4HANA data is shown and the decision is saved",
+            "Demo"
+          ],
+          [
+            "Run the pipeline",
+            "Tests pass and the app is deployed",
+            "Pipeline log"
+          ],
+          [
+            "Open the site as a user without the role",
+            "Access is denied",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Combine Fiori and SAP BTP in one extension",
+          "Secure and publish the app",
+          "Defend design decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP Fiori",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Role-Based Fiori Launchpad for an S/4HANA Rollout",
+        "subtopics": [
+          "Role analysis for the rollout",
+          "Business roles, spaces and pages",
+          "App activation and gaps",
+          "Adaptations and custom tiles",
+          "Adoption plan and KPIs",
+          "Steering committee presentation"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP Fiori launchpad",
+          "SAP Fiori apps recommendations report"
+        ],
+        "lab_task": "Design and build the launchpad for an S/4HANA rollout with three roles: analyse their transactions, activate business roles, build spaces, close gaps with adaptations or SAP GUI tiles, write the adoption plan and present it.",
+        "deliverable": "Role mapping, configured launchpad, adoption plan and a 15-minute presentation",
+        "checks": [
+          [
+            "Log on with each role",
+            "Each role's space works with no broken tiles",
+            "Screenshots"
+          ],
+          [
+            "Review the gap list",
+            "Each gap has an app, adaptation or GUI tile",
+            "Gap list"
+          ],
+          [
+            "Present the adoption plan",
+            "KPIs and phases defended",
+            "Presentation"
+          ]
+        ],
+        "objectives": [
+          "Combine Fiori and S/4HANA rollout work",
+          "Close app gaps",
+          "Plan adoption"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP BW/4HANA",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: S/4HANA Sales and Inventory Analytics in BW/4HANA",
+        "subtopics": [
+          "Requirements and platform split",
+          "Extraction from S/4HANA with delta",
+          "Sales and inventory models",
+          "Queries, story and authorisations",
+          "Reconciliation with S/4HANA",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP BW/4HANA",
+          "SAP Analytics Cloud"
+        ],
+        "lab_task": "Build sales and inventory analytics for the model company: extraction CDS views with delta, an inventory model, sales and stock queries, a story with regional authorisations and an automatic reconciliation with S/4HANA, then present it.",
+        "deliverable": "Data flows, story, reconciliation and a 15-minute demo",
+        "checks": [
+          [
+            "Run the nightly chain",
+            "Loads and the reconciliation pass",
+            "Process chain monitor"
+          ],
+          [
+            "Compare stock and revenue with S/4HANA",
+            "Values match",
+            "Reconciliation"
+          ],
+          [
+            "Open the story as a regional user",
+            "Only the region's data is shown",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Combine S/4HANA and BW/4HANA",
+          "Prove analytics numbers",
+          "Defend platform decisions"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP BW/4HANA",
+        "SAP FICO"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Finance Data Mart with Actual, Plan and Group Currency",
+        "subtopics": [
+          "Finance data model and hierarchies",
+          "Universal Journal extraction",
+          "Budget planning model",
+          "P&L and cost centre queries",
+          "Reconciliation and authorisations",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "SAP S/4HANA",
+          "SAP BW/4HANA",
+          "SAP Analysis for Microsoft Office"
+        ],
+        "lab_task": "Build a finance data mart: Universal Journal extraction, profit and cost centre hierarchies, a budget planning model, P&L and cost centre queries in group currency, company-level authorisations and a reconciliation with S/4HANA, then present it.",
+        "deliverable": "Finance data mart, planning model, reconciliation and a 15-minute demo",
+        "checks": [
+          [
+            "Run the P&L for the month",
+            "Actual, plan and variance are shown in group currency",
+            "Query output"
+          ],
+          [
+            "Reconcile with the S/4HANA financial statement",
+            "Totals match",
+            "Reconciliation"
+          ],
+          [
+            "Plan next year's budget",
+            "Planning sequence completes",
+            "Query output"
+          ]
+        ],
+        "objectives": [
+          "Combine FI and BW in one data mart",
+          "Plan and report finance",
+          "Prove finance numbers"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SAP SD",
+        "Salesforce"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Opportunity to Cash Across Salesforce and SAP",
+        "subtopics": [
+          "Process and data ownership design",
+          "Customer, product and price replication",
+          "Opportunity to sales order integration",
+          "Status and invoice feedback",
+          "Error handling and monitoring",
+          "Demo and design defence"
+        ],
+        "tools": [
+          "Salesforce Sales Cloud",
+          "SAP S/4HANA",
+          "SAP Integration Suite"
+        ],
+        "lab_task": "Build opportunity to cash across Salesforce and SAP: replicate customers and prices, create sales orders from closed opportunities, return order, delivery and invoice status to Salesforce, handle errors and present the solution.",
+        "deliverable": "Integration flows, test evidence in both systems and a 15-minute demo",
+        "checks": [
+          [
+            "Close an opportunity",
+            "Order, delivery and invoice follow in SAP",
+            "Documents"
+          ],
+          [
+            "Check Salesforce after billing",
+            "Order and invoice status are shown",
+            "Screenshot"
+          ],
+          [
+            "Break the price replication",
+            "Error is caught and fixed with the runbook",
+            "Message monitor"
+          ]
+        ],
+        "objectives": [
+          "Combine Salesforce and SAP SD in one process",
+          "Run reliable integration",
+          "Defend data ownership"
         ]
       }
     }
