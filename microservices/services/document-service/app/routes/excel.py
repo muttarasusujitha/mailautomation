@@ -689,7 +689,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     assumptions_ws["B16"] = as_number("contingency_percent", 10, 0) / 100
     # India is the default billing context for the approved regional rate
     # card. A caller may still supply a validated exemption/different rate.
-    assumptions_ws["B17"] = as_number("tax_percent", 18, 0) / 100
+    assumptions_ws["B17"] = as_number("tax_percent", 0, 0) / 100
     package = str(values.get("lab_package") or "standard").strip().lower()
     assumptions_ws["B18"] = package.title() if package in {"basic", "standard", "advanced"} else "Standard"
     assumptions_ws["B19"] = as_positive_int("quote_validity_days", 7)
@@ -1070,7 +1070,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     workbook["Client Estimate"]["B13"] = "=B12/Assumptions!B9"
     workbook["Client Estimate"]["A17"] = (
         "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "
-        "India GST defaults to 18%. VM profile rate rows marked as template fallback must be replaced with a current provider SKU rate and URL before client approval."
+        "Tax uses the supplied percentage; 0% means no tax has been included. VM profile rate rows marked as template fallback must be replaced with a current provider SKU rate and URL before client approval."
     )
     request_summary = values.get("request_summary")
     if isinstance(request_summary, dict) and request_summary:

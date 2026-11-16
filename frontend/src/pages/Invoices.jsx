@@ -61,8 +61,8 @@ function defaultItem(item = {}) {
   return {
     description: `${item.domain || req.technology || req.technology_needed || 'Training'} Training`,
     hsn_sac: po.hsn_sac || '999293',
-    quantity: qty,
-    rate: amount && qty ? Math.round(amount / qty) : '',
+    quantity: amount ? 1 : qty,
+    rate: amount || '',
   }
 }
 
@@ -80,8 +80,8 @@ function initialForm(item = {}) {
     client_po_number: po.client_po_number || req.client_po_number || '',
     client_pan: po.client_pan || req.client_pan || '',
     client_gstin: po.client_gstin || '',
-    tax_type: Number(po.gst_rate ?? 18) ? 'cgst_sgst' : 'none',
-    items: [defaultItem(item)],
+    tax_type: item.invoice?.tax_type || (Number(po.gst_rate ?? 18) ? 'cgst_sgst' : 'none'),
+    items: (item.invoice?.items?.length ? item.invoice.items : po.items?.length ? po.items : [defaultItem(item)]).map(row => ({ ...row })),
     notes: '',
   }
 }

@@ -53,3 +53,26 @@ def test_invoice_uses_day_rate_and_duration_when_the_total_is_blank():
     assert invoice["bank_account_no"] == "000111222333"
     assert invoice["bank_ifsc"] == "TEST0001234"
     assert invoice["company_name_full"] == "BEULIX SOLUTIONS PRIVATE LIMITED"
+
+
+def test_saved_invoice_recomputes_stale_amount_and_inherits_zero_tax():
+    db = {'purchase_orders': _Collection({'po_id': 'PO-2', 'gst_rate': 0,
+          'items': [{'description': 'Training', 'quantity': 3, 'rate': 100, 'amount': 9000}]}),
+          'invoices': _Collection(), 'requirements': _Collection()}
+    result = asyncio.run(generate_invoice_from_po('PO-2', InvoiceGenerateRequest(), db))
+    saved = db['invoices'].inserted[0]
+    assert result['invoice']['commercials']['grand_total'] == 300
+    assert saved['items'][0]['amount'] == 300
+    assert saved['gst_rate'] == 0
+
+
+def test_po_persists_calculated_total_not_submitted_total():
+    from app.routes.purchase_orders import generate_purchase_order, POGenerateRequest
+    db = {'requirements': _Collection({'requirement_id': 'REQ-1'}),
+          'trainers': _Collection({'trainer_id': 'T-1', 'name': 'Trainer'}),
+          'purchase_orders': _Collection()}
+    payload = POGenerateRequest(requirement_id='REQ-1', trainer_id='T-1', gst_rate=0,
+        total_amount=9000, items=[{'description': 'Training', 'quantity': 2, 'rate': 100, 'amount': 9000}])
+    result = asyncio.run(generate_purchase_order(payload, db))
+    assert result['purchase_order']['total_amount'] == 200
+    assert db['purchase_orders'].inserted[0]['items'][0]['amount'] == 200

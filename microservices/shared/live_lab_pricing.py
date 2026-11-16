@@ -127,7 +127,10 @@ def automatic_pricing_selections(toc=None, assumptions=None):
         selections['Disk'] = {'meter_id': 'ed9e91d2-0f0c-4d55-b3dd-7f69d4708b22'}
         if any(float(day.get('vm_qty') or 0) > 0 or
                float(day.get('k8s_worker_nodes') or 0) > 0 for day in mappings):
-            assumptions['disk_gb_per_node'] = 32
+            # Preserve explicit sizing until the final (possibly custom) SKU
+            # is selected. refresh_rates enforces 32 GiB for the P4 meter.
+            if assumptions.get('disk_gb_per_node') is None:
+                assumptions['disk_gb_per_node'] = 32
         if uses_storage:
             selections['Storage'] = {
                 'meter_id': '5c7a80d0-80f2-45f7-9135-4b4ac42adf49',
