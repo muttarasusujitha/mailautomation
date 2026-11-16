@@ -12884,6 +12884,1370 @@
           "Publish server images"
         ]
       }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Docker"
+      ],
+      "day": {
+        "topic": "GitLab CI with Docker: Image Builds, Registry and Scanning",
+        "subtopics": [
+          "Docker-in-Docker services with TLS",
+          "Rootless builds with Buildah",
+          "Logging in to the GitLab container registry with predefined CI_REGISTRY values",
+          "Tags from the commit SHA and Git tags",
+          "Layer caching through the registry",
+          "The Container Scanning template",
+          "Cleanup policies for the registry",
+          "Pushing only from protected branches"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "Docker",
+          "GitLab container registry",
+          "Container Scanning"
+        ],
+        "lab_task": "Build an application image in GitLab CI with Docker-in-Docker, cache layers in the registry, scan it with Container Scanning and push tagged images only from the default branch.",
+        "deliverable": "Pipeline, scan report and tagged images in the registry",
+        "checks": [
+          [
+            "Run a merge request pipeline",
+            "The image is built and scanned but not pushed",
+            "Job logs"
+          ],
+          [
+            "Merge to the default branch",
+            "The image is pushed with SHA and version tags",
+            "Registry page"
+          ],
+          [
+            "Rebuild with the cache",
+            "The cached build is faster than the first build",
+            "Timing table"
+          ]
+        ],
+        "objectives": [
+          "Build images in GitLab CI",
+          "Scan images in the pipeline",
+          "Publish images safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "GitLab CI to Kubernetes: Agent for Kubernetes, Environments and Rollbacks",
+        "subtopics": [
+          "Installing the GitLab agent for Kubernetes",
+          "The CI/CD workflow with the agent's kubecontext",
+          "The GitOps workflow with Flux and the agent",
+          "Environments and deployment tracking",
+          "Review apps per merge request",
+          "Protected environments and approvals",
+          "Rolling back to an earlier deployment",
+          "The dashboard for Kubernetes in GitLab"
+        ],
+        "tools": [
+          "GitLab agent for Kubernetes",
+          "GitLab CI/CD",
+          "kubectl",
+          "Flux"
+        ],
+        "lab_task": "Install the GitLab agent in a cluster, deploy the application from CI through the agent's context, create review apps for merge requests and roll back a bad release from the environment page.",
+        "deliverable": "Agent configuration, environments and rollback record",
+        "checks": [
+          [
+            "Deploy from CI",
+            "The application deploys through the agent with no cluster token stored in CI",
+            "Pipeline and agent logs"
+          ],
+          [
+            "Open a merge request",
+            "A review app is created and stopped on merge",
+            "Environment list"
+          ],
+          [
+            "Roll back",
+            "The earlier release is restored from the environment page",
+            "Deployment history"
+          ]
+        ],
+        "objectives": [
+          "Connect GitLab to Kubernetes securely",
+          "Track environments",
+          "Roll back releases"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "GitLab CI for Terraform: Merge Request Plans, Managed State and Applies",
+        "subtopics": [
+          "GitLab-managed Terraform state as a backend",
+          "The OpenTofu CI/CD component that replaced GitLab's Terraform templates",
+          "Plans in merge requests with the report widget",
+          "Manual applies from the default branch",
+          "OIDC to cloud providers instead of stored keys",
+          "Policy checks before apply",
+          "Drift detection with scheduled pipelines",
+          "State locking and state versions"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "OpenTofu CI/CD component or Terraform",
+          "GitLab-managed Terraform state"
+        ],
+        "lab_task": "Run plans in merge requests with the plan summary in the widget, keep state in GitLab-managed state, apply manually from the default branch and detect drift with a scheduled pipeline.",
+        "deliverable": "Infrastructure pipeline with state and a drift report",
+        "checks": [
+          [
+            "Open a merge request",
+            "The plan summary appears in the merge request",
+            "Merge request widget"
+          ],
+          [
+            "Apply from the default branch",
+            "The apply runs only after manual approval",
+            "Pipeline record"
+          ],
+          [
+            "Change a resource by hand",
+            "The scheduled pipeline reports drift",
+            "Drift job log"
+          ]
+        ],
+        "objectives": [
+          "Run infrastructure as code in GitLab CI",
+          "Use managed state",
+          "Detect drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "AWS"
+      ],
+      "day": {
+        "topic": "GitLab CI on AWS: OIDC Roles, Autoscaling Runners and Deploys",
+        "subtopics": [
+          "ID tokens in GitLab CI with the id_tokens keyword",
+          "An IAM OIDC identity provider for GitLab",
+          "Role trust policies scoped to project and branch",
+          "Assuming roles with the AWS CLI",
+          "Runners on EC2 with the docker-autoscaler executor",
+          "Pushing images to Amazon ECR",
+          "Deploying to Amazon ECS or EKS",
+          "Least-privilege deploy roles"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "AWS IAM",
+          "Amazon ECR",
+          "GitLab Runner docker-autoscaler"
+        ],
+        "lab_task": "Replace stored AWS keys with OIDC role assumption scoped to the default branch, push an image to ECR and deploy it to ECS or EKS, running jobs on autoscaling runners in your account.",
+        "deliverable": "Keyless AWS pipeline and runner configuration",
+        "checks": [
+          [
+            "Remove stored keys",
+            "No AWS access keys remain in CI settings",
+            "Settings review"
+          ],
+          [
+            "Run from another branch",
+            "Role assumption is denied outside the default branch",
+            "Job log"
+          ],
+          [
+            "Deploy",
+            "The image is in ECR and the service runs the new version",
+            "Pipeline and AWS console"
+          ]
+        ],
+        "objectives": [
+          "Authenticate to AWS without stored keys",
+          "Run GitLab runners on AWS",
+          "Deploy to AWS from GitLab"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Azure"
+      ],
+      "day": {
+        "topic": "GitLab CI with Azure: Workload Identity Federation and App Deploys",
+        "subtopics": [
+          "ID tokens and federated credentials in Microsoft Entra ID",
+          "App registrations or user-assigned managed identities",
+          "Signing in with the Azure CLI and a federated token",
+          "Scoping role assignments",
+          "Pushing images to Azure Container Registry",
+          "Deploying to App Service, Container Apps or AKS",
+          "Runners on Azure virtual machines",
+          "Auditing sign-ins from pipelines"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "Microsoft Entra ID",
+          "Azure CLI",
+          "Azure Container Registry"
+        ],
+        "lab_task": "Create a federated credential for the project's default branch, sign in from GitLab CI without a client secret, push an image to ACR and deploy it to Azure Container Apps.",
+        "deliverable": "Secretless Azure pipeline",
+        "checks": [
+          [
+            "Sign in",
+            "The pipeline signs in with a federated token and no client secret",
+            "Job log"
+          ],
+          [
+            "Deploy",
+            "The new image runs in Container Apps",
+            "Revision list"
+          ],
+          [
+            "Audit",
+            "Pipeline sign-ins appear in the Entra sign-in logs",
+            "Sign-in log"
+          ]
+        ],
+        "objectives": [
+          "Use workload identity federation from GitLab",
+          "Deploy to Azure",
+          "Audit pipeline access"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Git"
+      ],
+      "day": {
+        "topic": "Git Workflows in GitLab: Protected Branches, Approval Rules and Merge Trains",
+        "subtopics": [
+          "Branching strategies and GitLab Flow",
+          "Protected branches and tags",
+          "Merge request approval rules and Code Owners",
+          "Merge request pipelines and merged results pipelines",
+          "Merge trains",
+          "Squash and fast-forward merge settings",
+          "Signed commits and push rules",
+          "Resolving conflicts in merge requests"
+        ],
+        "tools": [
+          "Git",
+          "GitLab",
+          "CODEOWNERS"
+        ],
+        "lab_task": "Protect the default branch, require Code Owner approval, turn on merged results pipelines and merge trains, and show two merge requests merging in order without breaking the branch.",
+        "deliverable": "Repository settings and a merge train record",
+        "checks": [
+          [
+            "Push to the default branch",
+            "Direct pushes are rejected",
+            "Push output"
+          ],
+          [
+            "Open a merge request",
+            "Code Owner approval is required",
+            "Merge request page"
+          ],
+          [
+            "Queue two merge requests",
+            "Both merge in order with passing pipelines",
+            "Merge train history"
+          ]
+        ],
+        "objectives": [
+          "Apply Git workflows in GitLab",
+          "Enforce reviews",
+          "Keep the default branch green"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "Moving Jenkins Pipelines to GitLab CI: Mapping, Migration and Cutover",
+        "subtopics": [
+          "Mapping Jenkinsfile stages, agents and post blocks to .gitlab-ci.yml",
+          "Shared libraries compared with includes and CI/CD components",
+          "Credentials as masked and protected CI/CD settings",
+          "Plugins and their GitLab equivalents",
+          "Running Jenkins and GitLab side by side",
+          "Triggering Jenkins jobs from GitLab during migration",
+          "Cutover plan and rollback",
+          "Pipeline time before and after"
+        ],
+        "tools": [
+          "Jenkins",
+          "GitLab CI/CD",
+          "Jenkinsfile",
+          ".gitlab-ci.yml"
+        ],
+        "lab_task": "Convert a declarative Jenkinsfile with a shared library, credentials and parallel stages to GitLab CI, run both pipelines on a week of commits and plan the cutover.",
+        "deliverable": "Converted pipeline, comparison and cutover plan",
+        "checks": [
+          [
+            "Convert",
+            "Every Jenkins stage has a GitLab job with the same result",
+            "Mapping table"
+          ],
+          [
+            "Compare",
+            "Both pipelines produce the same artefacts",
+            "Artefact comparison"
+          ],
+          [
+            "Cut over",
+            "The cutover plan includes a rollback step",
+            "Cutover plan"
+          ]
+        ],
+        "objectives": [
+          "Map Jenkins concepts to GitLab CI",
+          "Migrate pipelines safely",
+          "Plan a cutover"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "GitHub Actions"
+      ],
+      "day": {
+        "topic": "GitHub Actions and GitLab CI Compared: Workflow Mapping and Migration",
+        "subtopics": [
+          "Workflows and jobs compared with pipelines and stages",
+          "Actions compared with CI/CD components",
+          "Runners on both platforms",
+          "Secrets, OIDC and environments on both platforms",
+          "Matrix jobs and parallel:matrix",
+          "Caches and artefacts",
+          "The GitHub importer and CI/CD for external repositories",
+          "Choosing a platform for an organisation"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "GitLab CI/CD",
+          "GitLab GitHub importer"
+        ],
+        "lab_task": "Port a GitHub Actions workflow that uses a matrix, caching, OIDC and environments to GitLab CI, and write a comparison of features, cost and effort.",
+        "deliverable": "Ported pipeline and comparison report",
+        "checks": [
+          [
+            "Port",
+            "The GitLab pipeline runs the same matrix and checks",
+            "Pipeline run"
+          ],
+          [
+            "Secure",
+            "Both pipelines use OIDC instead of stored keys",
+            "Configuration review"
+          ],
+          [
+            "Compare",
+            "The report compares features, cost and migration effort",
+            "Comparison report"
+          ]
+        ],
+        "objectives": [
+          "Map GitHub Actions to GitLab CI",
+          "Port workflows",
+          "Compare CI platforms"
+        ]
+      }
+    },
+    {
+      "between": [
+        "GitLab CI",
+        "Helm"
+      ],
+      "day": {
+        "topic": "GitLab CI for Helm Charts: Lint, Test, Package and Publish to the Registry",
+        "subtopics": [
+          "Linting charts with helm lint and chart-testing",
+          "Unit tests with helm-unittest",
+          "Install tests in kind inside CI",
+          "Packaging and versioning charts",
+          "Publishing to the GitLab package registry or an OCI registry",
+          "Signing charts",
+          "Deploying chart releases through the agent",
+          "Release notes from merge requests"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "Helm 4",
+          "chart-testing",
+          "GitLab package registry"
+        ],
+        "lab_task": "Build a chart pipeline in GitLab CI that lints, unit-tests and install-tests a chart in kind, packages it with a new version and publishes it to the GitLab package registry.",
+        "deliverable": "Chart pipeline and published chart",
+        "checks": [
+          [
+            "Lint and test",
+            "Lint, unit and install tests pass in CI",
+            "Job logs"
+          ],
+          [
+            "Publish",
+            "The new chart version is in the registry",
+            "Registry page"
+          ],
+          [
+            "Install from the registry",
+            "The published chart installs in a clean cluster",
+            "helm install output"
+          ]
+        ],
+        "objectives": [
+          "Test charts in GitLab CI",
+          "Publish charts",
+          "Install published charts"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Helm",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Helm Releases on Kubernetes Clusters: Namespaces, Ownership and Server-Side Apply",
+        "subtopics": [
+          "How Helm talks to the API server",
+          "Release records stored as Secrets in each namespace",
+          "Server-side apply and field ownership in Helm 4",
+          "Conflicts with kubectl edits and other controllers",
+          "CRDs and Helm",
+          "RBAC for Helm users and CI service accounts",
+          "Waiting for readiness",
+          "Cleaning up failed releases"
+        ],
+        "tools": [
+          "Helm 4",
+          "kubectl",
+          "kind"
+        ],
+        "lab_task": "Install a release with Helm 4, change a field with kubectl, upgrade and inspect the field managers, install a chart with CRDs and give a CI service account the least RBAC that can deploy the release.",
+        "deliverable": "Release experiments and CI RBAC",
+        "checks": [
+          [
+            "Inspect",
+            "Field managers show which tool owns each field",
+            "kubectl output"
+          ],
+          [
+            "Upgrade",
+            "The upgrade handles the manual change as documented",
+            "Upgrade output"
+          ],
+          [
+            "Restrict",
+            "The CI account can deploy only to its namespace",
+            "Permission test"
+          ]
+        ],
+        "objectives": [
+          "Understand Helm on the API server",
+          "Handle field ownership",
+          "Grant least privilege"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Helm",
+        "Docker"
+      ],
+      "day": {
+        "topic": "From Docker Images to Helm Releases: Tags, Digests and Values",
+        "subtopics": [
+          "Image references in values",
+          "Tags compared with digests",
+          "appVersion and image tag defaults",
+          "Private registries and image pull secrets",
+          "Multi-architecture images",
+          "Updating image versions automatically",
+          "Testing a new image with helm upgrade",
+          "Rolling back when an image fails"
+        ],
+        "tools": [
+          "Docker",
+          "Helm 4",
+          "Container registry"
+        ],
+        "lab_task": "Build and push an image, deploy it with a chart that pins the image by digest from values, upgrade to a broken image and roll back.",
+        "deliverable": "Chart values with digest pinning and a rollback record",
+        "checks": [
+          [
+            "Pin",
+            "The release runs the image by digest",
+            "Pod spec"
+          ],
+          [
+            "Upgrade",
+            "The broken image fails readiness and the failure is detected",
+            "Upgrade output"
+          ],
+          [
+            "Roll back",
+            "Rollback restores the working image",
+            "helm history output"
+          ]
+        ],
+        "objectives": [
+          "Connect image builds to chart releases",
+          "Pin images safely",
+          "Roll back image changes"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Helm",
+        "GitHub Actions"
+      ],
+      "day": {
+        "topic": "GitHub Actions for Helm Charts: Chart Testing, OCI Publishing and Release Automation",
+        "subtopics": [
+          "The chart-testing action for lint and install",
+          "kind clusters in workflows",
+          "helm-unittest in CI",
+          "Publishing to GitHub Container Registry as OCI artefacts",
+          "chart-releaser for GitHub Pages repositories",
+          "Signing charts with cosign",
+          "Version bumps on pull requests",
+          "Promoting chart versions to environments"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "Helm 4",
+          "chart-testing",
+          "chart-releaser"
+        ],
+        "lab_task": "Build a workflow that lints and install-tests changed charts in kind, publishes new versions to GHCR as OCI artefacts, signs them and fails pull requests that change a chart without a version bump.",
+        "deliverable": "Chart workflow and a published, signed chart",
+        "checks": [
+          [
+            "Open a pull request without a version bump",
+            "The workflow fails with a version message",
+            "Workflow run"
+          ],
+          [
+            "Merge",
+            "The chart is published to GHCR and signed",
+            "Package page and cosign output"
+          ],
+          [
+            "Install",
+            "The signed chart installs from GHCR",
+            "helm install output"
+          ]
+        ],
+        "objectives": [
+          "Test charts in GitHub Actions",
+          "Publish charts as OCI artefacts",
+          "Enforce chart versioning"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Helm",
+        "OpenShift"
+      ],
+      "day": {
+        "topic": "Helm Charts on OpenShift: Routes, Security Context Constraints and the Developer Console",
+        "subtopics": [
+          "Helm in the OpenShift developer console",
+          "HelmChartRepository and ProjectHelmChartRepository resources",
+          "Routes instead of Ingress in charts",
+          "Running under the restricted-v2 SCC",
+          "Arbitrary user IDs in chart defaults",
+          "Capability checks for OpenShift APIs in templates",
+          "Red Hat certified Helm charts",
+          "Releasing charts to OpenShift with GitOps"
+        ],
+        "tools": [
+          "Helm CLI",
+          "OpenShift",
+          "oc CLI",
+          "OpenShift GitOps"
+        ],
+        "lab_task": "Adapt a community chart to run on OpenShift under restricted-v2 with a Route, publish it through a project Helm chart repository and install it from the developer console.",
+        "deliverable": "OpenShift-ready chart and a console installation",
+        "checks": [
+          [
+            "Install",
+            "Pods run under restricted-v2 without extra privileges",
+            "Pod SCC annotation"
+          ],
+          [
+            "Expose",
+            "The application is reachable through a Route",
+            "Route URL"
+          ],
+          [
+            "Console",
+            "The chart appears in the developer console catalog",
+            "Screenshot"
+          ]
+        ],
+        "objectives": [
+          "Adapt charts for OpenShift",
+          "Use OpenShift chart repositories",
+          "Release charts on OpenShift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Helm",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Terraform and Helm Together: The Helm Provider, Hand-Offs and Drift",
+        "subtopics": [
+          "When Terraform should install charts",
+          "The Terraform Helm provider and helm_release",
+          "Passing outputs into chart values",
+          "Cluster bootstrap compared with application releases",
+          "Handing over to GitOps after bootstrap",
+          "Drift between Terraform state and Helm releases",
+          "Provider authentication to new clusters",
+          "Destroy order and stuck releases"
+        ],
+        "tools": [
+          "Terraform or OpenTofu",
+          "Terraform Helm provider",
+          "Helm 4",
+          "Argo CD or Flux"
+        ],
+        "lab_task": "Create a cluster with Terraform, bootstrap ingress and Argo CD with helm_release resources that take values from Terraform outputs, then hand application charts over to GitOps.",
+        "deliverable": "Bootstrap stack and hand-off design",
+        "checks": [
+          [
+            "Bootstrap",
+            "Terraform installs the platform charts with values from outputs",
+            "Apply output"
+          ],
+          [
+            "Hand off",
+            "Application charts are managed by GitOps and not by Terraform",
+            "Repository layout"
+          ],
+          [
+            "Destroy",
+            "The stack destroys cleanly without stuck releases",
+            "Destroy output"
+          ]
+        ],
+        "objectives": [
+          "Combine Terraform and Helm",
+          "Separate bootstrap from releases",
+          "Avoid drift between tools"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "From Kubernetes to OpenShift: What Changes for Workloads and Administrators",
+        "subtopics": [
+          "Projects compared with namespaces",
+          "Routes compared with Ingress and the Gateway API",
+          "Security context constraints compared with Pod Security Admission",
+          "Arbitrary user IDs and image changes",
+          "Operators and the Operator Lifecycle Manager",
+          "Cluster version and machine config operators",
+          "oc compared with kubectl",
+          "Moving manifests between both platforms"
+        ],
+        "tools": [
+          "OpenShift",
+          "Kubernetes",
+          "oc CLI",
+          "kubectl"
+        ],
+        "lab_task": "Move a Kubernetes application with Ingress, a container that runs as root and a Pod Security label to OpenShift, record every change it needs and make the manifests run on both platforms.",
+        "deliverable": "Portable manifests and a change log",
+        "checks": [
+          [
+            "Move",
+            "The application runs on OpenShift",
+            "oc get pods output"
+          ],
+          [
+            "Record",
+            "Each change is listed with its reason",
+            "Change log"
+          ],
+          [
+            "Port",
+            "The same manifests run on both platforms",
+            "Rollout output from both clusters"
+          ]
+        ],
+        "objectives": [
+          "Compare Kubernetes and OpenShift",
+          "Adapt workloads for OpenShift",
+          "Keep manifests portable"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Docker Images on OpenShift: Non-Root Users, Arbitrary UIDs and Builds",
+        "subtopics": [
+          "Why images that run as root fail",
+          "Group-writable directories for the root group",
+          "Arbitrary UIDs and the restricted-v2 SCC",
+          "Ports above 1024",
+          "Docker strategy builds compared with Source-to-Image",
+          "Pushing images to the internal registry",
+          "Image streams for Docker Hub images",
+          "Rate limits and mirrored registries"
+        ],
+        "tools": [
+          "Docker or Podman",
+          "OpenShift",
+          "oc CLI",
+          "Internal image registry"
+        ],
+        "lab_task": "Take three Docker Hub images that fail on OpenShift, fix their Dockerfiles for arbitrary UIDs and unprivileged ports, build them with a Docker strategy build and import one through an image stream.",
+        "deliverable": "Fixed Dockerfiles and running workloads",
+        "checks": [
+          [
+            "Diagnose",
+            "Each failure is linked to its cause",
+            "Notes"
+          ],
+          [
+            "Fix",
+            "All three images run under restricted-v2",
+            "Pod status"
+          ],
+          [
+            "Build",
+            "A Docker strategy build pushes to the internal registry",
+            "Build log"
+          ]
+        ],
+        "objectives": [
+          "Prepare Docker images for OpenShift",
+          "Build images on the cluster",
+          "Use image streams"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "Ansible"
+      ],
+      "day": {
+        "topic": "Ansible for OpenShift: kubernetes.core, redhat.openshift and Day-Two Automation",
+        "subtopics": [
+          "The kubernetes.core and redhat.openshift collections",
+          "Authenticating to the cluster from Ansible",
+          "Creating projects, quotas and RBAC with modules",
+          "Applying manifests and templates with k8s modules",
+          "Waiting for operators and resources",
+          "Event-Driven Ansible for cluster alerts",
+          "Ansible Automation Platform on OpenShift",
+          "Idempotency checks for cluster tasks"
+        ],
+        "tools": [
+          "Ansible",
+          "kubernetes.core collection",
+          "redhat.openshift collection",
+          "Event-Driven Ansible"
+        ],
+        "lab_task": "Write a playbook that onboards a team project with quota, limits, RBAC and a pipeline, run it twice to show no changes on the second run and trigger a remediation from an alert with Event-Driven Ansible.",
+        "deliverable": "Onboarding playbook and alert remediation rulebook",
+        "checks": [
+          [
+            "Onboard",
+            "The team project is created with quota and RBAC",
+            "oc output"
+          ],
+          [
+            "Repeat",
+            "The second run reports no changes",
+            "Playbook output"
+          ],
+          [
+            "React",
+            "An alert triggers the rulebook and the remediation runs",
+            "Event-Driven Ansible log"
+          ]
+        ],
+        "objectives": [
+          "Automate OpenShift with Ansible",
+          "Keep cluster tasks idempotent",
+          "React to cluster events"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "RHCOS Nodes for Linux Administrators: Machine Config, Debug Pods and Logs",
+        "subtopics": [
+          "Red Hat Enterprise Linux CoreOS as an image-based host",
+          "Why direct SSH changes are discouraged",
+          "MachineConfig objects for files, units and kernel arguments",
+          "oc debug node and chroot /host",
+          "Journal and kubelet logs with oc adm node-logs",
+          "CRI-O and crictl on nodes",
+          "Node tuning with the Node Tuning Operator",
+          "Updates through the Machine Config Operator"
+        ],
+        "tools": [
+          "OpenShift",
+          "oc CLI",
+          "Machine Config Operator",
+          "crictl"
+        ],
+        "lab_task": "Debug a node with oc debug, read kubelet and CRI-O logs with oc adm node-logs, then apply a MachineConfig that adds a chrony configuration and watch the pool roll it out.",
+        "deliverable": "Node debugging notes and a rolled-out MachineConfig",
+        "checks": [
+          [
+            "Debug",
+            "Node logs are read without SSH",
+            "Command output"
+          ],
+          [
+            "Configure",
+            "The MachineConfig rolls out to all workers",
+            "Machine config pool status"
+          ],
+          [
+            "Verify",
+            "chrony uses the new servers on every node",
+            "chronyc output"
+          ]
+        ],
+        "objectives": [
+          "Administer RHCOS nodes the OpenShift way",
+          "Debug nodes safely",
+          "Change node configuration declaratively"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "Jenkins with OpenShift: Kubernetes Agents, Builds and Moving to Tekton",
+        "subtopics": [
+          "Running Jenkins on OpenShift",
+          "Jenkins agents as pods with the Kubernetes plugin",
+          "Triggering OpenShift builds from Jenkins",
+          "Service accounts and tokens for deployments",
+          "Promoting images between projects",
+          "Red Hat's move from Jenkins to OpenShift Pipelines",
+          "Converting a Jenkins pipeline to Tekton",
+          "Running both during migration"
+        ],
+        "tools": [
+          "Jenkins",
+          "OpenShift",
+          "Kubernetes plugin",
+          "OpenShift Pipelines"
+        ],
+        "lab_task": "Run Jenkins with pod agents on OpenShift, build and promote an image between projects, then convert the same pipeline to OpenShift Pipelines and compare the two.",
+        "deliverable": "Jenkins pipeline, Tekton pipeline and comparison",
+        "checks": [
+          [
+            "Build",
+            "Jenkins pod agents build and promote the image",
+            "Jenkins log"
+          ],
+          [
+            "Convert",
+            "The Tekton pipeline produces the same image and rollout",
+            "PipelineRun log"
+          ],
+          [
+            "Compare",
+            "Run time and maintenance effort are compared",
+            "Comparison table"
+          ]
+        ],
+        "objectives": [
+          "Run Jenkins on OpenShift",
+          "Promote images between projects",
+          "Plan a move to Tekton"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Red Hat OpenShift Service on AWS: Hosted Control Planes, STS Roles and Networking",
+        "subtopics": [
+          "ROSA with hosted control planes",
+          "Account roles, operator roles and the OIDC configuration",
+          "Creating clusters with the rosa CLI",
+          "VPCs, subnets and PrivateLink clusters",
+          "Machine pools and autoscaling",
+          "IAM roles for workloads",
+          "Billing through AWS and joint support from Red Hat and AWS",
+          "Upgrades and maintenance windows"
+        ],
+        "tools": [
+          "rosa CLI",
+          "AWS IAM",
+          "Amazon VPC",
+          "OpenShift console"
+        ],
+        "lab_task": "Create a ROSA cluster with hosted control planes in an existing VPC, add an autoscaling machine pool and give a workload an IAM role through its service account.",
+        "deliverable": "ROSA cluster with a machine pool and a workload role",
+        "checks": [
+          [
+            "Create",
+            "The cluster is ready with hosted control planes",
+            "rosa describe cluster output"
+          ],
+          [
+            "Scale",
+            "The machine pool scales with demand",
+            "Machine pool events"
+          ],
+          [
+            "Access",
+            "The workload reads from S3 with its IAM role",
+            "Application log"
+          ]
+        ],
+        "objectives": [
+          "Run OpenShift on AWS",
+          "Use STS roles",
+          "Scale machine pools"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Azure Red Hat OpenShift: Virtual Networks, Entra ID Sign-In and Operations",
+        "subtopics": [
+          "What Microsoft and Red Hat manage in ARO",
+          "Creating a cluster with az aro create",
+          "Virtual networks and subnets for control plane and workers",
+          "Private clusters and egress",
+          "Microsoft Entra ID as an identity provider",
+          "Azure storage classes for disks and files",
+          "Monitoring with Azure Monitor",
+          "Upgrades and support"
+        ],
+        "tools": [
+          "Azure CLI",
+          "Azure Red Hat OpenShift",
+          "Microsoft Entra ID",
+          "Azure Monitor"
+        ],
+        "lab_task": "Create an ARO cluster in a prepared virtual network, configure Entra ID sign-in for the console, run an application with Azure Disk storage and send metrics to Azure Monitor.",
+        "deliverable": "ARO cluster with Entra ID sign-in and a running application",
+        "checks": [
+          [
+            "Create",
+            "The cluster is created in the prepared subnets",
+            "az aro show output"
+          ],
+          [
+            "Sign in",
+            "Users sign in to the console with Entra ID",
+            "Login test"
+          ],
+          [
+            "Store",
+            "The application keeps data on an Azure Disk volume",
+            "PVC status"
+          ]
+        ],
+        "objectives": [
+          "Run OpenShift on Azure",
+          "Connect Entra ID",
+          "Use Azure storage and monitoring"
+        ]
+      }
+    },
+    {
+      "between": [
+        "OpenShift",
+        "VMware vSphere"
+      ],
+      "day": {
+        "topic": "vSphere to OpenShift Virtualization: Planning and Running Migrations with MTV",
+        "subtopics": [
+          "Inventory and migration waves",
+          "Providers in the Migration Toolkit for Virtualization",
+          "Network and storage mappings",
+          "Cold and warm migration",
+          "Guest operating system changes and drivers",
+          "Validation and cutover",
+          "Rollback planning",
+          "Licensing and support considerations"
+        ],
+        "tools": [
+          "Migration Toolkit for Virtualization",
+          "VMware vSphere",
+          "OpenShift Virtualization"
+        ],
+        "lab_task": "Add vSphere as a provider in MTV, map networks and storage, run a cold migration of one VM and a warm migration of another, and validate both after cutover.",
+        "deliverable": "Migration plan and two migrated VMs",
+        "checks": [
+          [
+            "Map",
+            "Network and storage mappings cover both VMs",
+            "Mapping configuration"
+          ],
+          [
+            "Migrate",
+            "Cold and warm migrations complete",
+            "Migration plan status"
+          ],
+          [
+            "Validate",
+            "Both VMs run their applications after cutover",
+            "Validation checklist"
+          ]
+        ],
+        "objectives": [
+          "Plan VM migrations to OpenShift",
+          "Run cold and warm migrations",
+          "Validate migrated VMs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Platform Engineering",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Kubernetes as the Platform Substrate: Tenancy, APIs and Guardrails for Product Teams",
+        "subtopics": [
+          "What product teams should and should not see of Kubernetes",
+          "Namespaces, quotas and network policies as products",
+          "Custom resources as platform APIs",
+          "Admission policies as guardrails",
+          "GitOps controllers per cluster or per fleet",
+          "Cluster add-ons as platform services",
+          "Cluster upgrades that do not disrupt teams",
+          "Measuring Kubernetes exposure in developer surveys"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Kyverno",
+          "Argo CD",
+          "Crossplane or kro"
+        ],
+        "lab_task": "Hide raw Kubernetes from one product team behind a namespace request, a platform API and admission guardrails, and count how many Kubernetes concepts the team still needs.",
+        "deliverable": "Team-facing platform layer on Kubernetes",
+        "checks": [
+          [
+            "Request",
+            "The team gets a namespace and an app environment through a platform API",
+            "API request and status"
+          ],
+          [
+            "Guard",
+            "Unsafe manifests are rejected with guidance",
+            "Admission messages"
+          ],
+          [
+            "Measure",
+            "Kubernetes concepts the team must know are counted before and after",
+            "Survey result"
+          ]
+        ],
+        "objectives": [
+          "Build a platform layer on Kubernetes",
+          "Apply guardrails",
+          "Reduce cognitive load"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Platform Engineering",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Terraform Modules Behind Portal Templates: Self-Service Infrastructure with Guardrails",
+        "subtopics": [
+          "Module design for self-service",
+          "Template forms mapped to module inputs",
+          "Pull requests to an infrastructure repository",
+          "Plans shown to requesters",
+          "Policy checks with OPA or Sentinel",
+          "Cost estimates before apply",
+          "Ownership tags and catalog registration",
+          "Updates and teardown"
+        ],
+        "tools": [
+          "Backstage Scaffolder",
+          "Terraform or OpenTofu",
+          "OPA or Sentinel",
+          "Infracost"
+        ],
+        "lab_task": "Build a portal template whose form maps to a Terraform module, opens a pull request, shows the plan and cost estimate to the requester, applies after policy checks and registers the resource in the catalog.",
+        "deliverable": "Self-service infrastructure request with guardrails",
+        "checks": [
+          [
+            "Request",
+            "The form opens a pull request with the module inputs",
+            "Pull request"
+          ],
+          [
+            "Guard",
+            "A request that breaks policy is blocked with a reason",
+            "Policy check output"
+          ],
+          [
+            "Register",
+            "The applied resource appears in the catalog with its owner and cost",
+            "Catalog entry"
+          ]
+        ],
+        "objectives": [
+          "Offer Terraform modules through a portal",
+          "Apply policy and cost checks",
+          "Keep ownership data"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Platform Engineering",
+        "GitHub Actions"
+      ],
+      "day": {
+        "topic": "GitHub Actions as a Platform Product: Reusable Workflows, Rulesets and Runner Pools",
+        "subtopics": [
+          "Reusable workflows owned by the platform team",
+          "Composite actions for common steps",
+          "Rulesets that require workflows to pass",
+          "Organisation runner groups and larger runners",
+          "Actions Runner Controller on Kubernetes",
+          "Versioning and releasing shared workflows",
+          "Usage metrics for workflows",
+          "Supporting teams that need exceptions"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "Actions Runner Controller",
+          "Repository rulesets"
+        ],
+        "lab_task": "Publish a versioned reusable workflow, require it through an organisation ruleset, run it on an autoscaling runner pool with Actions Runner Controller and report adoption across repositories.",
+        "deliverable": "Platform-owned workflows, ruleset and runner pool",
+        "checks": [
+          [
+            "Require",
+            "Repositories cannot merge until the platform workflow passes",
+            "Ruleset test"
+          ],
+          [
+            "Scale",
+            "Runner pods scale with queued jobs",
+            "Runner metrics"
+          ],
+          [
+            "Report",
+            "Workflow adoption across repositories is reported",
+            "Usage report"
+          ]
+        ],
+        "objectives": [
+          "Offer CI as a platform product on GitHub",
+          "Enforce shared workflows",
+          "Run runner pools"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Platform Engineering",
+        "GitLab CI"
+      ],
+      "day": {
+        "topic": "GitLab CI/CD Components and the CI/CD Catalog as Golden Paths",
+        "subtopics": [
+          "CI/CD components and inputs",
+          "Publishing components to the CI/CD Catalog",
+          "Versioning components with semantic tags",
+          "Pipeline execution policies for required jobs",
+          "Project templates for new services",
+          "Instance runners as a platform service",
+          "Measuring component use",
+          "Retiring old templates and includes"
+        ],
+        "tools": [
+          "GitLab CI/CD components",
+          "CI/CD Catalog",
+          "Pipeline execution policies"
+        ],
+        "lab_task": "Publish a versioned build-and-deploy component to the CI/CD Catalog, use it from a project template for new services and enforce a security scan job with a pipeline execution policy.",
+        "deliverable": "Golden path built from GitLab components",
+        "checks": [
+          [
+            "Publish",
+            "The component appears in the CI/CD Catalog with a version",
+            "Catalog page"
+          ],
+          [
+            "Create",
+            "A new service from the project template uses the component",
+            "Pipeline file"
+          ],
+          [
+            "Enforce",
+            "The security scan runs in every project pipeline",
+            "Pipeline run"
+          ]
+        ],
+        "objectives": [
+          "Build golden paths in GitLab",
+          "Version shared components",
+          "Enforce required jobs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Platform Engineering",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Internal Platforms on AWS: Account Vending, Control Tower and Service Catalog",
+        "subtopics": [
+          "Multi-account structure with AWS Organizations",
+          "Account vending with Control Tower Account Factory",
+          "Account Factory for Terraform",
+          "Guardrails with service control policies",
+          "AWS Service Catalog products",
+          "Golden paths that create accounts and services",
+          "Cost allocation tags and budgets",
+          "Connecting AWS resources to the developer portal"
+        ],
+        "tools": [
+          "AWS Control Tower",
+          "AWS Organizations",
+          "AWS Service Catalog",
+          "Account Factory for Terraform"
+        ],
+        "lab_task": "Vend a team account through Account Factory for Terraform with guardrails and a budget, publish a Service Catalog product for a standard service and link both to the team in the portal catalog.",
+        "deliverable": "Team account vending and a service product",
+        "checks": [
+          [
+            "Vend",
+            "A new team account is created with guardrails and a budget",
+            "Account details"
+          ],
+          [
+            "Guard",
+            "A denied action is blocked by a service control policy",
+            "Error output"
+          ],
+          [
+            "Link",
+            "The account and product appear under the team in the portal",
+            "Catalog entries"
+          ]
+        ],
+        "objectives": [
+          "Build platform capabilities on AWS",
+          "Vend accounts with guardrails",
+          "Connect AWS to the portal"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Platform Engineering",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Internal Platforms on Azure: Landing Zones, Deployment Environments and Dev Box",
+        "subtopics": [
+          "Azure landing zones and management groups",
+          "Subscription vending",
+          "Azure Policy as guardrails",
+          "Azure Deployment Environments and dev centers",
+          "Environment definitions from infrastructure as code",
+          "Microsoft Dev Box for developer workstations",
+          "Cost management per team",
+          "Connecting Azure resources to the developer portal"
+        ],
+        "tools": [
+          "Azure Deployment Environments",
+          "Microsoft Dev Box",
+          "Azure Policy",
+          "Bicep or Terraform"
+        ],
+        "lab_task": "Vend a team subscription under a landing zone with policies, publish an environment definition in Azure Deployment Environments, let a developer create an environment from it and track its cost.",
+        "deliverable": "Team subscription and self-service environments",
+        "checks": [
+          [
+            "Vend",
+            "The team subscription inherits landing zone policies",
+            "Policy compliance view"
+          ],
+          [
+            "Create",
+            "A developer creates an environment from the definition",
+            "Environment details"
+          ],
+          [
+            "Cost",
+            "Environment cost is visible per team",
+            "Cost analysis"
+          ]
+        ],
+        "objectives": [
+          "Build platform capabilities on Azure",
+          "Offer self-service environments",
+          "Track team cost"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -18564,6 +19928,366 @@
           "Combine Python and MCP",
           "Build production-ready servers",
           "Demonstrate real use"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "GitLab CI",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: GitLab Pipeline to Kubernetes with Environments and Scans",
+        "subtopics": [
+          "Build, test and scan stages",
+          "Agent-based deployments",
+          "Review apps and protected environments",
+          "Rollback and audit"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "GitLab agent for Kubernetes",
+          "Container Scanning",
+          "kubectl"
+        ],
+        "lab_task": "Deliver the course application from merge request to production on Kubernetes through GitLab with build, test and scan stages, review apps per merge request, protected production with approval and a rehearsed rollback.",
+        "deliverable": "Working delivery pipeline with environments and evidence",
+        "checks": [
+          [
+            "Deliver",
+            "A merge request reaches production after approval",
+            "Pipeline and environment history"
+          ],
+          [
+            "Protect",
+            "Vulnerable images are blocked before production",
+            "Scan report"
+          ],
+          [
+            "Recover",
+            "A bad release is rolled back within minutes",
+            "Rollback record"
+          ]
+        ],
+        "objectives": [
+          "Combine GitLab CI and Kubernetes skills",
+          "Deliver safely to production",
+          "Recover from bad releases"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "GitLab CI",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Infrastructure Delivery with GitLab CI and Terraform",
+        "subtopics": [
+          "Merge request plans and policy checks",
+          "Managed state and protected applies",
+          "Keyless cloud access",
+          "Drift detection"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "OpenTofu CI/CD component or Terraform",
+          "GitLab-managed Terraform state"
+        ],
+        "lab_task": "Deliver a three-environment infrastructure stack through GitLab with plans in merge requests, policy checks, managed state, keyless cloud access, approved applies and scheduled drift detection.",
+        "deliverable": "Infrastructure delivery pipeline with evidence",
+        "checks": [
+          [
+            "Plan",
+            "Every change shows a plan and a policy result before merge",
+            "Merge request"
+          ],
+          [
+            "Apply",
+            "Production applies need approval and use no stored keys",
+            "Pipeline record"
+          ],
+          [
+            "Detect",
+            "Drift is reported within a day",
+            "Drift job log"
+          ]
+        ],
+        "objectives": [
+          "Combine GitLab CI and Terraform skills",
+          "Govern infrastructure changes",
+          "Keep environments in their declared state"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "GitLab CI",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Container Delivery Pipeline in GitLab",
+        "subtopics": [
+          "Image builds and caching",
+          "Scanning and signing",
+          "Registry policies",
+          "Release tags"
+        ],
+        "tools": [
+          "GitLab CI/CD",
+          "Docker",
+          "GitLab container registry",
+          "cosign"
+        ],
+        "lab_task": "Build a GitLab pipeline for the course application that builds, caches, scans, signs and publishes images with release tags, applies registry cleanup and deploys only the signed image.",
+        "deliverable": "Container pipeline with signed images",
+        "checks": [
+          [
+            "Build",
+            "Images build with caching on every merge request",
+            "Pipeline runs"
+          ],
+          [
+            "Sign",
+            "Released images are signed and verified before deployment",
+            "Verification output"
+          ],
+          [
+            "Clean",
+            "Registry cleanup removes old development tags",
+            "Cleanup policy log"
+          ]
+        ],
+        "objectives": [
+          "Combine GitLab CI and Docker skills",
+          "Ship signed images",
+          "Keep the registry tidy"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Helm",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Packaged Application Releases with Helm on Kubernetes",
+        "subtopics": [
+          "Application and dependency charts",
+          "Tests and values schema",
+          "Server-side apply and RBAC",
+          "Upgrades and rollbacks"
+        ],
+        "tools": [
+          "Helm 4",
+          "kubectl",
+          "kind",
+          "OCI registry"
+        ],
+        "lab_task": "Package the course application and its database as charts with tests and a values schema, release them to two namespaces with least-privilege accounts and rehearse an upgrade and a rollback.",
+        "deliverable": "Charts, releases and upgrade evidence",
+        "checks": [
+          [
+            "Package",
+            "Charts pass lint, schema and tests",
+            "Test output"
+          ],
+          [
+            "Release",
+            "Releases run in two namespaces with least-privilege accounts",
+            "helm list output"
+          ],
+          [
+            "Upgrade",
+            "An upgrade and a rollback complete without downtime",
+            "Availability log"
+          ]
+        ],
+        "objectives": [
+          "Combine Helm and Kubernetes skills",
+          "Release packaged applications",
+          "Upgrade without downtime"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "OpenShift",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Portable Workloads Across Kubernetes and OpenShift",
+        "subtopics": [
+          "Portable manifests and charts",
+          "Security settings that pass on both platforms",
+          "Ingress and Routes",
+          "One delivery repository for both targets"
+        ],
+        "tools": [
+          "Kubernetes",
+          "OpenShift",
+          "Helm",
+          "Argo CD"
+        ],
+        "lab_task": "Deliver the course application to a Kubernetes cluster and an OpenShift cluster from one repository with shared charts, platform overlays for Ingress and Routes, and security settings that pass on both.",
+        "deliverable": "One repository delivered to both platforms",
+        "checks": [
+          [
+            "Deliver",
+            "The application runs on both clusters from one repository",
+            "Sync status"
+          ],
+          [
+            "Secure",
+            "Pods pass restricted Pod Security and the restricted-v2 SCC",
+            "Admission results"
+          ],
+          [
+            "Expose",
+            "Users reach the application through Ingress and a Route",
+            "URLs"
+          ]
+        ],
+        "objectives": [
+          "Combine Kubernetes and OpenShift skills",
+          "Keep workloads portable",
+          "Meet both security models"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "OpenShift",
+        "Ansible"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Automated OpenShift Operations with Ansible",
+        "subtopics": [
+          "Team onboarding playbooks",
+          "Operator installation and configuration",
+          "Event-driven remediation",
+          "Idempotency and reporting"
+        ],
+        "tools": [
+          "Ansible",
+          "redhat.openshift collection",
+          "Event-Driven Ansible",
+          "OpenShift"
+        ],
+        "lab_task": "Automate OpenShift day-two work with Ansible by onboarding teams, installing and configuring an operator, remediating a node alert with Event-Driven Ansible and reporting every run.",
+        "deliverable": "Playbooks, rulebooks and run reports",
+        "checks": [
+          [
+            "Onboard",
+            "Three teams are onboarded by one playbook",
+            "Playbook output"
+          ],
+          [
+            "Install",
+            "The operator is installed and configured",
+            "Operator status"
+          ],
+          [
+            "Remediate",
+            "The alert is remediated without manual steps",
+            "Rulebook log"
+          ]
+        ],
+        "objectives": [
+          "Combine OpenShift and Ansible skills",
+          "Automate day-two operations",
+          "React to cluster events"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Platform Engineering",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Internal Developer Platform on a Kubernetes Fleet",
+        "subtopics": [
+          "Platform APIs and tenancy",
+          "Golden paths and GitOps",
+          "Guardrails and supply chain checks",
+          "Platform metrics"
+        ],
+        "tools": [
+          "Backstage",
+          "Kubernetes",
+          "Argo CD",
+          "Crossplane or kro",
+          "Kyverno"
+        ],
+        "lab_task": "Run the course platform on two Kubernetes clusters with platform APIs for environments and databases, golden paths delivered by GitOps, admission guardrails and a scorecard of delivery metrics.",
+        "deliverable": "Fleet-backed platform with a demo and scorecard",
+        "checks": [
+          [
+            "Self-serve",
+            "A team gets an environment and a database on either cluster without a ticket",
+            "Timed demo"
+          ],
+          [
+            "Guard",
+            "Unsafe or unsigned workloads are rejected",
+            "Admission logs"
+          ],
+          [
+            "Measure",
+            "The scorecard shows delivery metrics for both clusters",
+            "Scorecard"
+          ]
+        ],
+        "objectives": [
+          "Combine platform engineering and Kubernetes skills",
+          "Offer self-service on a fleet",
+          "Measure the platform"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Platform Engineering",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Self-Service Infrastructure Platform with Terraform Modules",
+        "subtopics": [
+          "Module catalogue",
+          "Portal requests and pull requests",
+          "Policy and cost checks",
+          "Ownership and lifecycle"
+        ],
+        "tools": [
+          "Backstage",
+          "Terraform or OpenTofu",
+          "OPA or Sentinel",
+          "Infracost"
+        ],
+        "lab_task": "Offer three infrastructure products as Terraform modules through portal templates with policy and cost checks, ownership in the catalog and teardown, and report request lead time.",
+        "deliverable": "Self-service infrastructure products with metrics",
+        "checks": [
+          [
+            "Request",
+            "Teams create all three products from the portal",
+            "Request records"
+          ],
+          [
+            "Guard",
+            "Requests outside policy or budget are blocked",
+            "Check results"
+          ],
+          [
+            "Measure",
+            "Request lead time is reported",
+            "Metrics"
+          ]
+        ],
+        "objectives": [
+          "Combine platform engineering and Terraform skills",
+          "Offer infrastructure products",
+          "Report request lead time"
         ]
       }
     }

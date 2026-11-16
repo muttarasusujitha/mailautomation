@@ -3,7 +3,7 @@
   "name": "MLOps: Machine Learning Operations",
   "category": "Data Science and Machine Learning",
   "icon": "refresh-cw",
-  "aliases": ["MLOps Engineering", "MLOps Engineer", "Machine Learning Operations", "ML Ops", "ML Platform Engineering", "MLOps Training", "MLOps on Azure", "MLOps on AWS", "MLOps on GCP", "Model Deployment and Monitoring"],
+  "aliases": ["MLOps Engineering", "MLOps Engineer", "Machine Learning Operations", "ML Ops", "ML Platform Engineering", "ML Platform Engineer", "ML Platform Engineers", "MLOps Platform Engineering", "MLOps Training", "MLOps on Azure", "MLOps on AWS", "MLOps on GCP", "Model Deployment and Monitoring"],
   "certifications": ["AWS Certified Machine Learning Engineer - Associate", "Microsoft Certified: Azure Data Scientist Associate (DP-100)", "Google Cloud Professional Machine Learning Engineer", "Databricks Certified Machine Learning Professional"],
   "tools": ["Python", "Git", "Docker", "MLflow", "DVC", "FastAPI", "GitHub Actions", "Kubernetes", "Prometheus and Grafana"],
   "review_status": "unreviewed",

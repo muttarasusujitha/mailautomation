@@ -1,0 +1,573 @@
+{
+  "domain": "Helm",
+  "name": "Helm Charts and Release Management",
+  "category": "DevOps and CI/CD",
+  "icon": "boxes",
+  "aliases": ["Helm Charts", "Helm Chart Development", "Helm Chart Templates", "Helm 4", "Helm 3", "Helm Package Manager", "Helmfile", "Helm Releases", "Writing Helm Charts"],
+  "certifications": ["No official Helm certification; assessed by charts, tests and release pipelines", "Certified Kubernetes Application Developer (CKAD) covers Helm use", "Certified Cloud Native Platform Engineer (CNPE) covers GitOps delivery with Helm"],
+  "tools": ["Helm 4", "kubectl", "kind or minikube", "chart-testing (ct)", "helm-unittest", "Helmfile", "OCI registry", "Argo CD or Flux"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and operations engineers who deploy applications to Kubernetes and want to package them with Helm. Covers charts, releases and repositories, installing, upgrading and rolling back releases, public charts and OCI registries, values, chart structure, Go templates and Sprig functions, control flow, named templates, built-in objects, dependencies, hooks and tests, debugging templates, values schemas, packaging and publishing, secrets, server-side apply and readiness in Helm 4 and Helm in CI pipelines.",
+      "prerequisites": ["Deploys applications to Kubernetes with kubectl and YAML", "Understands Deployments, Services, ConfigMaps and Secrets", "Comfortable with the command line"],
+      "outcomes": ["Install, upgrade and roll back releases with public and private charts", "Write charts with templates, helpers, dependencies, hooks and value schemas", "Debug, test, package and publish charts to OCI registries", "Deploy charts from CI pipelines with Helm 4 behaviour such as server-side apply"],
+      "days": [
+        {
+          "topic": "Helm Overview: Charts, Releases and Repositories",
+          "subtopics": ["Why plain YAML gets hard to manage", "What Helm does: package, configure and release", "Charts, values and templates", "Releases and revisions", "Repositories and OCI registries", "Where release history is stored", "Helm 4 and what changed from Helm 3", "Helm compared with Kustomize", "Helm in GitOps workflows", "Course project overview: a web application with a database"],
+          "tools": ["Helm 4", "kubectl", "Artifact Hub"],
+          "lab_task": "Install a public chart, list the release and its revisions, read the generated manifests with helm get manifest and explain how chart, values and release relate.",
+          "deliverable": "First release with an explanation of Helm concepts",
+          "checks": [["Install", "The release is deployed and running", "helm list output"], ["Inspect", "The generated manifests are retrieved", "helm get manifest output"], ["Explain", "Chart, values, release and revision are explained correctly", "Notes"]],
+          "objectives": ["Explain Helm concepts", "Install a first chart", "Inspect releases"]
+        },
+        {
+          "topic": "Helm and Local Cluster Setup with kind or minikube",
+          "subtopics": ["Installing Helm", "Checking Helm and kubectl versions", "Creating a local cluster with kind or minikube", "kubeconfig contexts", "Namespaces for releases", "Shell completion", "Helm environment variables and cache folders", "Access tokens for private registries", "Choosing a local or shared cluster", "Checking the setup with a test chart"],
+          "tools": ["Helm 4", "kind or minikube", "kubectl"],
+          "lab_task": "Install Helm, create a local kind or minikube cluster, set up a namespace and context, enable shell completion and install a test chart.",
+          "deliverable": "Working local Helm environment",
+          "checks": [["Install", "helm version shows Helm 4", "Terminal output"], ["Connect", "The cluster and namespace are reachable", "kubectl output"], ["Test", "The test chart installs and runs", "helm status output"]],
+          "objectives": ["Set up Helm", "Create a local cluster", "Prepare namespaces and contexts"]
+        },
+        {
+          "topic": "Installing, Upgrading and Rolling Back Releases",
+          "subtopics": ["helm install and release names", "helm upgrade and --install", "Revisions and history", "helm rollback", "helm uninstall and keeping history", "Atomic upgrades", "Waiting for resources", "Upgrade failures and what Helm records"],
+          "tools": ["Helm 4", "kubectl", "Course chart"],
+          "lab_task": "Install the course chart, upgrade it twice with new values, break an upgrade on purpose, roll back to the last good revision and review the history.",
+          "deliverable": "Release history with a rollback",
+          "checks": [["Upgrade", "Two upgrades create new revisions", "helm history output"], ["Fail safely", "The broken upgrade is recorded as failed", "helm history output"], ["Roll back", "The rollback restores the working version", "helm status output"]],
+          "objectives": ["Manage release lifecycles", "Roll back failed upgrades", "Read release history"]
+        },
+        {
+          "topic": "Finding and Using Public Charts: Artifact Hub and OCI Registries",
+          "subtopics": ["Artifact Hub", "Classic chart repositories", "OCI registries for charts", "Pulling and inspecting charts", "Pinning chart versions", "Reading chart documentation and values", "Judging chart quality and maintenance", "Mirroring charts for private use"],
+          "tools": ["Artifact Hub", "Helm 4", "OCI registry"],
+          "lab_task": "Choose a chart for a database from Artifact Hub, inspect its values and maintainers, install a pinned version from an OCI registry and mirror it to a private registry.",
+          "deliverable": "Assessed, pinned and mirrored chart",
+          "checks": [["Assess", "Chart maintenance and security notes are recorded", "Assessment notes"], ["Pin", "The installed version is pinned", "Command history"], ["Mirror", "The chart is pulled from the private registry", "helm pull output"]],
+          "objectives": ["Find public charts", "Use OCI registries", "Assess chart quality"]
+        },
+        {
+          "topic": "Values: Overriding Defaults with Files and --set",
+          "subtopics": ["values.yaml defaults", "Values files per environment", "--set, --set-string and --set-file", "Merge order of values", "Lists and nested values", "helm get values", "Keeping values in version control", "Avoiding secrets in values files"],
+          "tools": ["Helm 4", "Values files", "Git"],
+          "lab_task": "Deploy the course chart to dev and prod with separate values files, override one setting with --set, show the merge order and store the values files in Git.",
+          "deliverable": "Environment values files and merge explanation",
+          "checks": [["Override", "Dev and prod releases use their own values", "helm get values output"], ["Merge", "The merge order is shown with an example", "Notes"], ["Version", "Values files are committed to Git", "Repository"]],
+          "objectives": ["Configure charts with values", "Understand merge order", "Manage values in Git"]
+        },
+        {
+          "topic": "Chart Structure: Chart.yaml, values.yaml and templates",
+          "subtopics": ["Creating a chart with helm create", "Chart.yaml fields", "Chart and application versions", "The templates folder", "NOTES.txt", ".helmignore", "Chart types: application and library", "Cleaning up the generated starter chart"],
+          "tools": ["Helm 4", "Text editor", "Course application"],
+          "lab_task": "Create a chart for the course application, clean up the starter files, set chart and app versions, write NOTES.txt and install it.",
+          "deliverable": "Clean application chart",
+          "checks": [["Create", "The chart installs the course application", "helm status output"], ["Version", "Chart and app versions are set correctly", "Chart.yaml"], ["Guide", "NOTES.txt prints useful access steps", "Install output"]],
+          "objectives": ["Structure Helm charts", "Version charts", "Write install notes"]
+        },
+        {
+          "topic": "Writing Templates with Go Templates",
+          "subtopics": ["Template actions and delimiters", "Accessing values", "Whitespace control", "Quoting and types", "indent and nindent", "toYaml for nested values", "Comments in templates", "Rendering templates locally"],
+          "tools": ["Helm 4", "helm template", "Course chart"],
+          "lab_task": "Template the Deployment, Service and ConfigMap from values, use toYaml and nindent for resources and labels, and render the chart locally to check the output.",
+          "deliverable": "Templated manifests",
+          "checks": [["Template", "Manifests render from values", "helm template output"], ["Format", "Rendered YAML is valid and indented", "kubectl dry run"], ["Reuse", "Nested values are rendered with toYaml", "Template files"]],
+          "objectives": ["Write Go templates", "Control whitespace", "Render templates locally"]
+        },
+        {
+          "topic": "Template Functions and Pipelines with Sprig",
+          "subtopics": ["Functions and pipelines", "default and required", "String functions", "Lists and dictionaries", "Type conversion", "Date and encoding functions", "The fail function", "Choosing readable functions"],
+          "tools": ["Helm 4", "Sprig functions", "Course chart"],
+          "lab_task": "Use default, required and fail to validate values, build labels with string functions and generate a config file from a dictionary of settings.",
+          "deliverable": "Templates using functions and validation",
+          "checks": [["Validate", "Missing required values stop the install with a clear message", "Install output"], ["Build", "Labels and config files render correctly", "helm template output"], ["Simplify", "Pipelines are readable", "Code review"]],
+          "objectives": ["Use template functions", "Validate values in templates", "Build values into config"]
+        },
+        {
+          "topic": "Control Flow: if, with and range in Templates",
+          "subtopics": ["if and else", "Empty and false values", "with for scope", "range over lists and maps", "Variables in templates", "Optional resources", "Loops that create many objects", "Avoiding deeply nested logic"],
+          "tools": ["Helm 4", "Course chart"],
+          "lab_task": "Make the Ingress optional, loop over a list of extra environment variables and over a map of sidecars, and render the chart with three different values files.",
+          "deliverable": "Templates with conditions and loops",
+          "checks": [["Condition", "The Ingress renders only when enabled", "helm template output"], ["Loop", "Lists and maps render the expected items", "helm template output"], ["Test values", "Three values files render correctly", "Render outputs"]],
+          "objectives": ["Use conditions in templates", "Loop over values", "Keep logic readable"]
+        },
+        {
+          "topic": "Named Templates and _helpers.tpl",
+          "subtopics": ["define and include", "Why include beats template", "Common helpers: names, labels and selectors", "Passing context to helpers", "Helpers that return YAML", "Naming conventions", "Sharing helpers across templates", "Testing helper output"],
+          "tools": ["Helm 4", "_helpers.tpl", "Course chart"],
+          "lab_task": "Move names, labels and selectors into helpers, pass context correctly and use them across all templates, then show that one label change applies everywhere.",
+          "deliverable": "Helpers file and refactored templates",
+          "checks": [["Define", "Helpers exist for names, labels and selectors", "_helpers.tpl"], ["Reuse", "All templates use the helpers", "Template files"], ["Prove", "One label change appears in every resource", "helm template output"]],
+          "objectives": ["Write named templates", "Share helpers", "Pass template context"]
+        },
+        {
+          "topic": "Release Information and Built-In Objects",
+          "subtopics": [".Release and its fields", ".Chart and .Capabilities", ".Values and .Files", ".Template", "Using the namespace and release name", "Detecting API versions with Capabilities", "Reading files into ConfigMaps", "Upgrade-aware templates"],
+          "tools": ["Helm 4", "Course chart"],
+          "lab_task": "Use release name and namespace in resources, load a config file with .Files, and switch an API version based on .Capabilities.",
+          "deliverable": "Templates using built-in objects",
+          "checks": [["Use release data", "Resources include release name and namespace", "helm template output"], ["Load files", "The config file appears in the ConfigMap", "helm template output"], ["Adapt", "The API version follows cluster capabilities", "Render outputs"]],
+          "objectives": ["Use built-in objects", "Load files into charts", "Adapt to cluster versions"]
+        },
+        {
+          "topic": "Chart Dependencies and Subcharts",
+          "subtopics": ["Dependencies in Chart.yaml", "helm dependency update and build", "Conditions and tags for dependencies", "Passing values to subcharts", "Global values", "Aliases for dependencies", "Lock files", "When to use a dependency"],
+          "tools": ["Helm 4", "Database chart", "Course chart"],
+          "lab_task": "Add a database chart as a dependency with a condition, pass values to it, share a global value and lock dependency versions.",
+          "deliverable": "Chart with a locked dependency",
+          "checks": [["Depend", "The database subchart installs with the app", "helm status output"], ["Configure", "Subchart values come from the parent", "helm get values output"], ["Lock", "Chart.lock pins the dependency", "Chart.lock"]],
+          "objectives": ["Use chart dependencies", "Configure subcharts", "Lock versions"]
+        },
+        {
+          "topic": "Hooks: Pre-Install, Post-Upgrade and Tests",
+          "subtopics": ["What hooks are for", "Hook types", "Hook weights and order", "Hook delete policies", "Database migration jobs as hooks", "helm test", "Risks of hooks", "Alternatives to hooks"],
+          "tools": ["Helm 4", "Kubernetes Jobs", "Course chart"],
+          "lab_task": "Add a pre-upgrade migration job and a test pod, order hooks with weights, set delete policies and run helm test after an upgrade.",
+          "deliverable": "Chart with hooks and tests",
+          "checks": [["Migrate", "The migration job runs before upgrade", "Job logs"], ["Order", "Hooks run in the planned order", "Event list"], ["Test", "helm test passes after upgrade", "helm test output"]],
+          "objectives": ["Use Helm hooks", "Run chart tests", "Manage hook risks"]
+        },
+        {
+          "topic": "Debugging Templates: template, lint and --dry-run",
+          "subtopics": ["helm lint", "helm template with --debug", "--dry-run on the client and the server", "Showing only one template", "Reading template error messages", "Common mistakes: nil pointers, indentation and types", "Comparing rendered output across changes", "A debugging routine"],
+          "tools": ["Helm 4", "helm lint", "helm template"],
+          "lab_task": "Fix five broken templates using lint, template and server-side dry runs, and compare rendered output before and after a change with a diff.",
+          "deliverable": "Fixed templates and debugging notes",
+          "checks": [["Lint", "helm lint passes after fixes", "Lint output"], ["Diagnose", "Each error has a recorded cause", "Notes"], ["Compare", "Rendered output differences are shown", "Diff output"]],
+          "objectives": ["Debug Helm templates", "Use dry runs", "Compare rendered output"]
+        },
+        {
+          "topic": "Values Schema Validation with values.schema.json",
+          "subtopics": ["Why validate values", "JSON Schema for values", "Required fields and types", "Enums and patterns", "Nested objects", "Schema errors during install", "Generating schemas", "Documenting values with the schema"],
+          "tools": ["Helm 4", "JSON Schema", "Course chart"],
+          "lab_task": "Write a values schema for the course chart with required fields, types and enums, and show that bad values are rejected before anything is deployed.",
+          "deliverable": "Values schema with rejection tests",
+          "checks": [["Write", "The schema covers key values", "values.schema.json"], ["Reject", "Bad values fail before deployment", "Install output"], ["Document", "Schema descriptions explain each value", "Schema file"]],
+          "objectives": ["Validate chart values", "Write JSON Schemas", "Prevent bad releases"]
+        },
+        {
+          "topic": "Packaging and Publishing Charts to OCI Registries",
+          "subtopics": ["helm package", "Version bumps", "helm registry login", "helm push to OCI registries", "Installing from oci:// references", "Classic repositories and index files", "Chart provenance in brief", "Release notes for charts"],
+          "tools": ["Helm 4", "OCI registry such as Harbor or a cloud registry", "Course chart"],
+          "lab_task": "Package the course chart, push two versions to an OCI registry and install the older version from the registry by reference.",
+          "deliverable": "Published chart versions",
+          "checks": [["Package", "Chart archives are created with versions", "Package output"], ["Push", "Both versions are in the registry", "Registry listing"], ["Install", "The older version installs from oci://", "helm status output"]],
+          "objectives": ["Package charts", "Publish to OCI registries", "Install from registries"]
+        },
+        {
+          "topic": "Managing Secrets with Helm Charts",
+          "subtopics": ["Why secrets in values files are dangerous", "Kubernetes Secrets from charts", "Referencing existing secrets", "External Secrets Operator", "Sealed Secrets", "The helm-secrets plugin in brief", "Rotating secrets without redeploying", "Auditing secrets in charts"],
+          "tools": ["Helm 4", "External Secrets Operator or Sealed Secrets", "Course chart"],
+          "lab_task": "Change the chart to reference an existing secret, deliver the database password through External Secrets or Sealed Secrets and rotate it without a chart upgrade.",
+          "deliverable": "Chart with external secret handling",
+          "checks": [["Remove", "No secret values remain in values files", "Repository review"], ["Deliver", "The application reads the externally managed secret", "Pod logs"], ["Rotate", "Rotation works without a chart upgrade", "Rotation log"]],
+          "objectives": ["Handle secrets with Helm", "Use external secret tools", "Rotate secrets safely"]
+        },
+        {
+          "topic": "Server-Side Apply and Readiness in Helm 4",
+          "subtopics": ["Three-way merge in Helm 3", "Server-side apply in Helm 4", "Field ownership and conflicts", "Upgrades of releases made with Helm 3", "Readiness checks and wait strategies", "Timeouts", "Interplay with other controllers", "Choosing apply modes"],
+          "tools": ["Helm 4", "kubectl", "Course chart"],
+          "lab_task": "Install a release with server-side apply, change a field with kubectl, upgrade and observe the ownership conflict, then use readiness waiting to catch a failing rollout.",
+          "deliverable": "Server-side apply experiment and notes",
+          "checks": [["Apply", "The release uses server-side apply", "Managed fields output"], ["Conflict", "The ownership conflict is shown and explained", "Upgrade output"], ["Wait", "The failing rollout is detected by waiting", "Upgrade output"]],
+          "objectives": ["Understand server-side apply in Helm", "Handle field ownership", "Wait for ready releases"]
+        },
+        {
+          "topic": "Helm in a CI Pipeline",
+          "subtopics": ["Lint and template in CI", "Packaging and pushing on tags", "Deploying from CI with helm upgrade --install", "Credentials for clusters and registries", "Environments and approvals", "Rollback on failure", "Recording deployed versions", "Pipeline examples for GitHub Actions, GitLab CI and Jenkins"],
+          "tools": ["GitHub Actions, GitLab CI or Jenkins", "Helm 4", "OCI registry"],
+          "lab_task": "Build a pipeline that lints and renders the chart on every change, publishes it on tags and deploys to staging with automatic rollback on failure.",
+          "deliverable": "Chart pipeline with deployment",
+          "checks": [["Check", "Lint and render run on every change", "Pipeline run"], ["Publish", "Tags publish the chart", "Registry listing"], ["Deploy safely", "A failed deployment rolls back", "Pipeline log"]],
+          "objectives": ["Run Helm in CI", "Publish charts automatically", "Deploy with rollback"]
+        },
+        {
+          "topic": "Beginner Capstone: Chart for a Web Application and Database",
+          "subtopics": ["Templates and helpers", "Dependency and secrets", "Hooks and tests", "Schema and publishing"],
+          "tools": ["Helm 4", "kind or minikube", "OCI registry", "CI pipeline"],
+          "lab_task": "Build a complete chart for the course web application and its database with helpers, a dependency, external secrets, a migration hook, tests and a values schema, publish it and deploy it from CI.",
+          "deliverable": "Published chart and pipeline deployment",
+          "checks": [["Build", "The chart installs, upgrades and rolls back", "helm history output"], ["Validate", "Schema and tests pass", "Test output"], ["Deliver", "CI publishes and deploys the chart", "Pipeline run"]],
+          "objectives": ["Combine beginner Helm skills", "Package a real application", "Deploy it automatically"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who maintain charts used by several teams or environments. Covers chart design patterns, library charts, umbrella charts, chart testing with ct and helm-unittest, environment values, Helmfile, GitOps with Argo CD and Flux, post-rendering with Kustomize, Helm 4 plugins, safe chart upgrades, CRDs and operators, secure defaults, chart signing, documentation, release strategies, multi-cluster and managed Kubernetes deployments, migrating from Helm 3 and troubleshooting failed releases.",
+      "prerequisites": ["Writes charts with templates, helpers, dependencies and hooks", "Publishes charts to a registry", "Deploys charts from CI"],
+      "outcomes": ["Design reusable, tested and documented charts and chart libraries", "Deliver charts across environments and clusters with Helmfile and GitOps", "Ship charts with secure defaults, signatures and safe upgrade paths", "Migrate to Helm 4 and troubleshoot failed releases"],
+      "days": [
+        {
+          "topic": "Chart Design Patterns for Reusable Applications",
+          "subtopics": ["Values design for consumers", "Sensible defaults", "Feature toggles in values", "Extending charts with extra resources", "Labels, annotations and naming standards", "Backwards-compatible values changes", "Chart versioning rules", "Reviewing a chart's interface"],
+          "tools": ["Helm 4", "Chart review checklist", "Course chart"],
+          "lab_task": "Redesign the course chart's values for three consuming teams, add toggles and extension points, keep old values working and review the interface with a checklist.",
+          "deliverable": "Redesigned chart interface with review",
+          "checks": [["Design", "Values are grouped and documented for consumers", "values.yaml"], ["Extend", "Teams can add extra resources without forking", "Template files"], ["Stay compatible", "Old values files still render", "Render test"]],
+          "objectives": ["Design chart interfaces", "Keep charts compatible", "Review chart design"]
+        },
+        {
+          "topic": "Library Charts for Shared Templates",
+          "subtopics": ["Library chart type", "Shared templates for common resources", "Overridable defaults", "Using a library from application charts", "Versioning library changes", "Testing libraries", "Library charts compared with starters", "Rolling out library updates"],
+          "tools": ["Helm 4", "Library chart", "Two application charts"],
+          "lab_task": "Build a library chart for Deployments, Services and probes, use it in two application charts and roll out a library change with a version bump.",
+          "deliverable": "Library chart used by two applications",
+          "checks": [["Share", "Both applications render resources from the library", "helm template output"], ["Override", "Applications override library defaults", "Render outputs"], ["Version", "The library update is versioned and adopted", "Chart.lock files"]],
+          "objectives": ["Build library charts", "Share templates across charts", "Version shared code"]
+        },
+        {
+          "topic": "Umbrella Charts for Multi-Service Applications",
+          "subtopics": ["Umbrella chart structure", "Subchart values and globals", "Enabling and disabling services", "Shared configuration across services", "Ordering and readiness", "When umbrellas become too big", "Upgrading parts of an umbrella", "Alternatives to umbrellas"],
+          "tools": ["Helm 4", "Multi-service application", "Course charts"],
+          "lab_task": "Package a three-service application as an umbrella chart with globals and toggles, upgrade one service's subchart and judge whether separate releases would be better.",
+          "deliverable": "Umbrella chart with a partial upgrade",
+          "checks": [["Package", "All services deploy from the umbrella", "helm status output"], ["Upgrade", "One subchart upgrades without changing the others", "Diff output"], ["Judge", "The umbrella versus separate releases decision is justified", "Notes"]],
+          "objectives": ["Build umbrella charts", "Share global values", "Decide on release boundaries"]
+        },
+        {
+          "topic": "Chart Testing with ct, helm-unittest and Kind",
+          "subtopics": ["Testing levels for charts", "Unit tests with helm-unittest", "Snapshot tests", "chart-testing lint and install", "Testing upgrades", "Ephemeral clusters with kind in CI", "Test values files", "Test coverage of templates"],
+          "tools": ["helm-unittest", "chart-testing (ct)", "kind", "CI pipeline"],
+          "lab_task": "Write unit tests and snapshots for the chart, run ct lint and install tests on kind in CI and add an upgrade test from the previous chart version.",
+          "deliverable": "Chart test suite in CI",
+          "checks": [["Unit test", "helm-unittest tests pass", "Test output"], ["Install test", "ct installs the chart on kind", "Pipeline log"], ["Upgrade test", "Upgrading from the previous version passes", "Pipeline log"]],
+          "objectives": ["Test charts", "Run chart tests in CI", "Test upgrades"]
+        },
+        {
+          "topic": "Environment-Specific Values and Overlays",
+          "subtopics": ["Layered values files", "Environment, region and tenant layers", "Keeping differences small", "Secrets by environment", "Promotion between environments", "Comparing environment configuration", "Avoiding drift between environments", "Documenting differences"],
+          "tools": ["Helm 4", "Values files", "Diff tooling"],
+          "lab_task": "Organise values into base, environment and region layers, promote a change from staging to production and produce a diff of what differs between environments.",
+          "deliverable": "Layered values and environment diff",
+          "checks": [["Layer", "Values layers merge in the planned order", "Render outputs"], ["Promote", "The change moves from staging to production", "Git history"], ["Compare", "The environment diff is small and explained", "Diff output"]],
+          "objectives": ["Manage environment values", "Promote changes", "Control environment drift"]
+        },
+        {
+          "topic": "Helmfile for Managing Many Releases",
+          "subtopics": ["Why manage many releases together", "helmfile.yaml structure", "Environments in Helmfile", "Release dependencies with needs", "Diffs before apply", "Secrets with Helmfile", "Selecting releases with labels", "Helmfile in CI"],
+          "tools": ["Helmfile", "helm-diff plugin", "Helm 4"],
+          "lab_task": "Describe five releases in a Helmfile with environments and dependencies, review diffs before applying and apply only the releases with one label from CI.",
+          "deliverable": "Helmfile for five releases",
+          "checks": [["Describe", "All releases are defined with environments", "helmfile.yaml"], ["Review", "Diffs are shown before apply", "Diff output"], ["Select", "Label selection applies only chosen releases", "Pipeline log"]],
+          "objectives": ["Manage releases with Helmfile", "Review diffs", "Apply selectively"]
+        },
+        {
+          "topic": "GitOps with Helm: Argo CD and Flux",
+          "subtopics": ["Helm in GitOps controllers", "Argo CD Helm applications", "Flux HelmRelease and sources", "Values in Git", "Automatic image updates", "Sync waves and hooks in GitOps", "Rollback in GitOps", "Choosing Argo CD or Flux"],
+          "tools": ["Argo CD", "Flux", "Helm 4", "Git"],
+          "lab_task": "Deploy the chart with Argo CD and with Flux from the same Git repository, update values through a merge request and roll back by reverting the commit.",
+          "deliverable": "GitOps deployments with Argo CD and Flux",
+          "checks": [["Deploy", "Both controllers sync the chart", "Sync status"], ["Change", "A values change reaches the cluster through Git", "Git history"], ["Roll back", "Reverting restores the previous release", "Sync history"]],
+          "objectives": ["Deliver charts with GitOps", "Compare Argo CD and Flux", "Roll back through Git"]
+        },
+        {
+          "topic": "Post-Rendering and Kustomize with Helm",
+          "subtopics": ["What post-rendering is", "Post-renderers as plugins in Helm 4", "Kustomize patches on rendered charts", "Adding labels and sidecars without forking", "Patching third-party charts", "Testing post-rendered output", "Limits of post-rendering", "Kustomize's own Helm support"],
+          "tools": ["Helm 4", "Kustomize", "Third-party chart"],
+          "lab_task": "Patch a third-party chart with a Kustomize post-renderer to add labels, a sidecar and resource limits, without forking the chart, and test the result.",
+          "deliverable": "Post-renderer setup and tests",
+          "checks": [["Patch", "Rendered resources include the patches", "Render output"], ["Avoid forks", "The original chart is used unchanged", "Chart source"], ["Test", "Tests confirm the patched output", "Test output"]],
+          "objectives": ["Use post-rendering", "Patch charts with Kustomize", "Avoid forking charts"]
+        },
+        {
+          "topic": "Helm 4 Plugins: Wasm Runtime and OCI Installation",
+          "subtopics": ["The Helm plugin system", "Plugin types in Helm 4", "The WebAssembly runtime and permissions", "Installing plugins from OCI", "Common plugins: diff, secrets and unittest", "Plugin security", "Pinning plugin versions", "Plugins in CI images"],
+          "tools": ["Helm 4", "helm-diff", "OCI registry"],
+          "lab_task": "Install pinned plugins from OCI, review a Wasm plugin's declared permissions, and build a CI image with the same plugins.",
+          "deliverable": "Plugin setup and CI image",
+          "checks": [["Install", "Plugins install from OCI with pinned versions", "helm plugin list output"], ["Review", "The Wasm plugin's permissions are recorded", "Review notes"], ["Package", "The CI image contains the same plugins", "Image build log"]],
+          "objectives": ["Use Helm plugins", "Review plugin permissions", "Standardise plugins in CI"]
+        },
+        {
+          "topic": "Upgrading Charts Safely: Breaking Changes and Migrations",
+          "subtopics": ["What counts as a breaking change", "Renamed values and deprecation messages", "Immutable fields such as selectors", "Resource renames and adoption", "Upgrade notes in NOTES.txt", "Testing upgrade paths", "Major version bumps", "Communicating with chart users"],
+          "tools": ["Helm 4", "chart-testing", "Changelog"],
+          "lab_task": "Make a breaking chart change safely with a deprecated value alias, a resource adoption step and upgrade notes, and test the upgrade path from two old versions.",
+          "deliverable": "Breaking change with tested upgrade path",
+          "checks": [["Deprecate", "Old values still work with a warning", "Install output"], ["Adopt", "Renamed resources are adopted without downtime", "Upgrade log"], ["Test", "Upgrades from two old versions pass", "Test output"]],
+          "objectives": ["Release breaking changes safely", "Test upgrade paths", "Communicate changes"]
+        },
+        {
+          "topic": "CRDs and Operators in Helm Charts",
+          "subtopics": ["How Helm treats CRDs", "The crds folder and its limits", "Upgrading CRDs", "Separate CRD charts", "Installing operators with Helm", "Custom resources in templates", "Ordering CRDs and resources", "Deleting CRDs safely"],
+          "tools": ["Helm 4", "Operator chart", "kubectl"],
+          "lab_task": "Install an operator with its CRDs from a separate chart, deploy custom resources from the application chart and upgrade the CRDs safely.",
+          "deliverable": "CRD and operator deployment with upgrade",
+          "checks": [["Install", "CRDs and the operator install first", "Install order"], ["Use", "Custom resources deploy from the app chart", "kubectl output"], ["Upgrade", "CRDs upgrade without losing resources", "Upgrade log"]],
+          "objectives": ["Handle CRDs with Helm", "Install operators", "Upgrade CRDs safely"]
+        },
+        {
+          "topic": "Security Defaults in Charts: Pod Security, RBAC and Network Policies",
+          "subtopics": ["Secure security contexts by default", "Pod Security Standards", "Least-privilege RBAC", "Network policies in charts", "Service accounts and tokens", "Image pull policies and digests"],
+          "tools": ["Helm 4", "Kubernetes Pod Security admission", "Kubesec or similar"],
+          "lab_task": "Add restricted security contexts, least-privilege RBAC, network policies and digest-pinned images to the chart and pass a restricted Pod Security namespace.",
+          "deliverable": "Chart with secure defaults",
+          "checks": [["Restrict", "Pods run in a restricted namespace", "kubectl events"], ["Limit", "RBAC grants only needed permissions", "Role review"], ["Isolate", "Network policies allow only required traffic", "Connectivity tests"]],
+          "objectives": ["Ship secure chart defaults", "Apply least privilege", "Pass Pod Security standards"]
+        },
+        {
+          "topic": "Signing and Verifying Charts",
+          "subtopics": ["Why sign charts", "Helm provenance files", "Signing OCI charts with cosign", "Verifying before install", "Keys and keyless signing", "Verification in GitOps controllers", "Policy that requires signatures", "Key management"],
+          "tools": ["cosign", "Helm 4", "OCI registry"],
+          "lab_task": "Sign the published chart with cosign, verify it before install, and configure a policy so unsigned charts cannot be installed in the cluster.",
+          "deliverable": "Signed chart and enforcement policy",
+          "checks": [["Sign", "The chart signature is in the registry", "cosign verify output"], ["Verify", "Install fails for an unsigned chart under the policy", "Install output"], ["Manage keys", "Key or keyless identity handling is documented", "Notes"]],
+          "objectives": ["Sign charts", "Verify before install", "Enforce signed charts"]
+        },
+        {
+          "topic": "Chart Documentation and helm-docs",
+          "subtopics": ["What chart users need to know", "README structure", "helm-docs from comments", "Documenting values", "Examples and recipes", "Changelogs", "Artifact Hub metadata", "Keeping docs in sync with CI"],
+          "tools": ["helm-docs", "Artifact Hub metadata", "CI pipeline"],
+          "lab_task": "Generate chart documentation from values comments with helm-docs, add examples and a changelog, and fail CI when docs are out of date.",
+          "deliverable": "Generated docs with CI check",
+          "checks": [["Generate", "The README lists all values", "README"], ["Explain", "Examples cover common setups", "README"], ["Enforce", "CI fails on outdated docs", "Pipeline run"]],
+          "objectives": ["Document charts", "Generate docs", "Keep docs current"]
+        },
+        {
+          "topic": "Release Strategies with Helm: Canary and Blue-Green",
+          "subtopics": ["Deployment strategies for Helm releases", "Blue-green with two releases", "Canary with Argo Rollouts", "Traffic shifting with service meshes or ingress", "Health checks and analysis", "Rollback on failed analysis", "Database changes during releases", "Choosing a strategy"],
+          "tools": ["Helm 4", "Argo Rollouts", "Ingress controller"],
+          "lab_task": "Deliver a new version as a canary with Argo Rollouts and as a blue-green switch with two releases, and roll back on a failed health analysis.",
+          "deliverable": "Two release strategies with rollback",
+          "checks": [["Canary", "Traffic shifts in steps", "Rollout status"], ["Switch", "Blue-green switches traffic between releases", "Service endpoints"], ["Roll back", "The failed analysis triggers rollback", "Rollout events"]],
+          "objectives": ["Use release strategies with Helm", "Shift traffic safely", "Roll back automatically"]
+        },
+        {
+          "topic": "Multi-Cluster Deployments with Helm",
+          "subtopics": ["Why deploy to many clusters", "Cluster-specific values", "Argo CD ApplicationSets for clusters", "Flux for fleets", "Order of rollout across clusters", "Pausing a rollout", "Version drift between clusters", "Reporting fleet versions"],
+          "tools": ["Argo CD ApplicationSets or Flux", "Helm 4", "Several clusters"],
+          "lab_task": "Roll out a chart to three clusters in waves with cluster-specific values, pause after the first wave on a failed check and report versions across the fleet.",
+          "deliverable": "Multi-cluster rollout with version report",
+          "checks": [["Roll out", "Clusters update in waves", "Sync history"], ["Pause", "The rollout stops after the failed check", "Controller status"], ["Report", "Fleet versions are reported", "Version report"]],
+          "objectives": ["Deploy to many clusters", "Roll out in waves", "Track fleet versions"]
+        },
+        {
+          "topic": "Helm with Cloud Kubernetes Services: EKS, AKS and GKE",
+          "subtopics": ["Cloud registries for charts", "Workload identity for applications", "Cloud load balancers from charts", "Storage classes per cloud", "Cloud-specific values files", "Add-ons delivered as charts", "Upgrades of managed clusters", "Costs of chart defaults"],
+          "tools": ["Amazon EKS, Azure AKS or Google GKE", "Cloud container registry", "Helm 4"],
+          "lab_task": "Deploy the chart to a managed Kubernetes service with workload identity, a cloud load balancer and the right storage class, using a cloud-specific values file.",
+          "deliverable": "Cloud deployment with cloud values",
+          "checks": [["Deploy", "The chart runs on the managed service", "helm status output"], ["Integrate", "Workload identity and load balancer work", "Application logs"], ["Configure", "Cloud specifics live in one values file", "Values file"]],
+          "objectives": ["Deploy charts to managed Kubernetes", "Use cloud integrations", "Keep cloud settings separate"]
+        },
+        {
+          "topic": "Migrating from Helm 3 to Helm 4",
+          "subtopics": ["What changed in Helm 4", "Breaking changes for users", "Server-side apply for existing releases", "Plugin and post-renderer changes", "CI image updates", "Testing charts with Helm 4", "Rollout plan for teams", "Supporting both versions during transition"],
+          "tools": ["Helm 3", "Helm 4", "chart-testing"],
+          "lab_task": "Test the chart library with Helm 4, fix two compatibility issues, upgrade a release first created with Helm 3 and write a migration plan for teams.",
+          "deliverable": "Compatibility fixes and migration plan",
+          "checks": [["Test", "Charts pass tests under Helm 4", "Test output"], ["Upgrade", "The old release upgrades cleanly", "Upgrade log"], ["Plan", "The migration plan covers CI, plugins and teams", "Migration plan"]],
+          "objectives": ["Migrate to Helm 4", "Fix compatibility issues", "Plan team migration"]
+        },
+        {
+          "topic": "Troubleshooting Failed Releases",
+          "subtopics": ["Release states: deployed, failed and pending", "Stuck pending releases", "Failed hooks", "Resource conflicts and ownership", "Timeouts and readiness", "Recovering release history"],
+          "tools": ["Helm 4", "kubectl", "Release history"],
+          "lab_task": "Diagnose and fix five failed releases (a stuck pending upgrade, a failed hook, an ownership conflict, a readiness timeout and a corrupted history entry) and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Fix", "All five releases recover", "helm status output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot Helm releases", "Recover stuck releases", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Intermediate Capstone: Tested Chart Library and GitOps Delivery",
+          "subtopics": ["Library and application charts", "Tests and docs in CI", "Signing and publishing", "GitOps delivery to environments", "Upgrade path testing"],
+          "tools": ["Helm 4", "helm-unittest and ct", "cosign", "Argo CD or Flux"],
+          "lab_task": "Build a library chart and two application charts with tests, docs and signatures, publish them and deliver them to staging and production with GitOps, including a tested upgrade.",
+          "deliverable": "Chart library, pipelines and GitOps setup",
+          "checks": [["Test", "All charts pass unit, install and upgrade tests", "Pipeline runs"], ["Secure", "Charts are signed and verified on install", "Verification output"], ["Deliver", "GitOps promotes the charts across environments", "Sync history"]],
+          "objectives": ["Combine intermediate Helm skills", "Build a tested chart library", "Deliver charts with GitOps"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers who run Helm-based delivery for an organisation. Covers golden chart strategy, internal chart catalogues, policy as code for charts, supply chain security, advanced templating, writing plugins, the Helm SDK, Helm-based operators, large-scale release management with ApplicationSets, server-side apply ownership at scale, release storage, performance of large charts, multi-tenant clusters, compliance and audit, disaster recovery, alternatives such as Kustomize and Timoni, contributing upstream, governing third-party charts and troubleshooting complex deployments.",
+      "prerequisites": ["Maintains chart libraries and GitOps delivery for several teams", "Strong Kubernetes and CI/CD skills", "Comfortable reading Go code"],
+      "outcomes": ["Set chart standards and run an internal chart catalogue for many teams", "Secure and govern charts with policies, signatures and supply chain checks", "Extend Helm with plugins, the SDK and operators", "Operate Helm delivery at scale with good recovery, performance and auditability"],
+      "days": [
+        {
+          "topic": "Chart Platform Strategy: Golden Charts for an Organisation",
+          "subtopics": ["Why organisations standardise charts", "Golden charts and their scope", "Ownership and support", "Flexibility compared with control", "Versioning and deprecation policy", "Adoption paths for teams", "Measuring adoption and drift", "Platform roadmap for charts"],
+          "tools": ["Chart catalogue", "Adoption dashboard", "Strategy template"],
+          "lab_task": "Write a golden chart strategy for an organisation with ownership, flexibility rules, versioning policy and adoption measures, and present it to role-played team leads.",
+          "deliverable": "Golden chart strategy and presentation notes",
+          "checks": [["Define", "Scope, ownership and versioning policy are set", "Strategy document"], ["Balance", "Rules for team flexibility are clear", "Strategy document"], ["Present", "Team leads accept or request changes", "Presentation notes"]],
+          "objectives": ["Set chart strategy", "Define golden charts", "Plan adoption"]
+        },
+        {
+          "topic": "Building an Internal Chart Repository and Catalogue",
+          "subtopics": ["Registry choices for internal charts", "Catalogues with search and metadata", "Access control", "Mirroring public charts", "Retention and cleanup", "Promotion between registries", "Self-hosting Artifact Hub", "Usage reporting"],
+          "tools": ["Harbor or a cloud registry", "Self-hosted Artifact Hub", "Helm 4"],
+          "lab_task": "Build an internal chart catalogue with access control, mirrored public charts, promotion from testing to approved and usage reporting.",
+          "deliverable": "Internal chart catalogue",
+          "checks": [["Control", "Teams see only charts they may use", "Access test"], ["Promote", "Charts move from testing to approved", "Registry history"], ["Report", "Usage by team is reported", "Usage report"]],
+          "objectives": ["Run an internal chart catalogue", "Mirror and promote charts", "Report usage"]
+        },
+        {
+          "topic": "Policy as Code for Charts: Kyverno, OPA and Conftest",
+          "subtopics": ["Where policies run: CI, admission and GitOps", "Conftest on rendered manifests", "Kyverno policies in clusters", "OPA Gatekeeper", "Policy exceptions", "Testing policies", "Warn and enforce modes", "Reporting violations"],
+          "tools": ["Conftest", "Kyverno or OPA Gatekeeper", "CI pipeline"],
+          "lab_task": "Enforce resource limits, approved registries and required labels with Conftest in CI and Kyverno in the cluster, roll out in warn mode then enforce, and report violations by team.",
+          "deliverable": "Policies with rollout and violation report",
+          "checks": [["Check in CI", "Conftest fails non-compliant charts", "Pipeline run"], ["Enforce", "Kyverno blocks non-compliant resources", "Admission events"], ["Report", "Violations are reported by team", "Report"]],
+          "objectives": ["Apply policy as code to charts", "Enforce in CI and clusters", "Roll out policies safely"]
+        },
+        {
+          "topic": "Supply Chain Security for Charts: Provenance, SBOMs and Scanning",
+          "subtopics": ["Supply chain threats for charts", "Scanning charts for misconfigurations", "Scanning images referenced by charts", "SBOMs for chart contents", "Provenance and attestations", "Verifying everything at deploy time"],
+          "tools": ["Trivy", "cosign", "SBOM tools", "Admission controller"],
+          "lab_task": "Scan charts and their images, attach SBOMs and provenance attestations, and block deployment of charts that fail scanning or verification.",
+          "deliverable": "Supply chain checks with a deploy gate",
+          "checks": [["Scan", "Chart and image scans run in CI", "Scan reports"], ["Attest", "SBOMs and attestations are attached", "Registry metadata"], ["Block", "Failing charts cannot deploy", "Admission log"]],
+          "objectives": ["Secure the chart supply chain", "Attach SBOMs and attestations", "Verify at deploy time"]
+        },
+        {
+          "topic": "Advanced Templating: Complex Values, tpl and lookup",
+          "subtopics": ["tpl for values containing templates", "lookup for existing cluster objects", "Risks of lookup in dry runs and GitOps", "Deep merges of values", "Generating many resources from data", "Recursive helpers", "Performance of heavy templates", "Keeping complex charts maintainable"],
+          "tools": ["Helm 4", "Course chart library", "helm-unittest"],
+          "lab_task": "Use tpl for user-provided templated values, generate resources from a data structure, use lookup safely with a GitOps fallback and test all of it with unit tests.",
+          "deliverable": "Advanced templates with tests",
+          "checks": [["Template", "tpl and generated resources render correctly", "Test output"], ["Look up", "lookup works with a fallback for dry runs", "Render outputs"], ["Test", "Unit tests cover the advanced templates", "Test report"]],
+          "objectives": ["Use advanced templating", "Use lookup safely", "Keep complex charts tested"]
+        },
+        {
+          "topic": "Writing Helm Plugins",
+          "subtopics": ["When a plugin is the right tool", "Plugin manifest and types", "Subprocess and Wasm plugins", "Declaring permissions", "Distributing plugins through OCI", "Testing plugins", "Versioning and compatibility", "Documenting plugins"],
+          "tools": ["Helm 4 plugin system", "Go or a Wasm-capable language", "OCI registry"],
+          "lab_task": "Write a Helm plugin that checks charts against company standards, package it for OCI distribution with declared permissions and use it in CI.",
+          "deliverable": "Company standards plugin",
+          "checks": [["Build", "The plugin reports standards violations", "Plugin output"], ["Distribute", "The plugin installs from OCI", "Install log"], ["Use", "CI runs the plugin on every chart", "Pipeline run"]],
+          "objectives": ["Write Helm plugins", "Distribute plugins", "Enforce standards with plugins"]
+        },
+        {
+          "topic": "Helm SDK: Using Helm as a Go Library",
+          "subtopics": ["Helm's Go packages", "Action configuration", "Installing and upgrading from code", "Rendering charts in tools", "Release storage from code", "Error handling", "Building internal tools on the SDK", "Keeping up with SDK changes"],
+          "tools": ["Go", "Helm SDK", "Kubernetes client"],
+          "lab_task": "Write a Go tool that renders charts, installs a release and reports release status across namespaces using the Helm SDK.",
+          "deliverable": "Go tool built on the Helm SDK",
+          "checks": [["Render", "The tool renders charts from code", "Tool output"], ["Install", "The tool installs and upgrades a release", "Release status"], ["Report", "Release status is listed across namespaces", "Tool output"]],
+          "objectives": ["Use the Helm SDK", "Build internal tools", "Manage releases from code"]
+        },
+        {
+          "topic": "Operators Built on Helm Charts",
+          "subtopics": ["Helm-based operators", "Operator SDK Helm operators", "Mapping custom resources to values", "Reconciliation behaviour", "When Helm operators fit", "Limits compared with Go operators", "Upgrading Helm operators", "Testing operators"],
+          "tools": ["Operator SDK", "Helm 4", "kind"],
+          "lab_task": "Build a Helm-based operator from the course chart, create custom resources that set values, and show reconciliation after a manual change.",
+          "deliverable": "Helm-based operator with tests",
+          "checks": [["Build", "The operator deploys and watches its resource", "Operator logs"], ["Map", "Custom resource fields become chart values", "Rendered resources"], ["Reconcile", "Manual changes are reverted", "Operator logs"]],
+          "objectives": ["Build Helm-based operators", "Map resources to values", "Understand reconciliation"]
+        },
+        {
+          "topic": "Large-Scale Release Management with Argo CD ApplicationSets",
+          "subtopics": ["Generators: clusters, Git and matrices", "Templates for applications", "Progressive syncs across applications", "Many teams and many clusters", "Ownership with projects", "Performance of large Argo CD setups", "Notifications", "Auditing changes"],
+          "tools": ["Argo CD ApplicationSets", "Helm 4", "Several clusters"],
+          "lab_task": "Generate applications for three teams across three clusters with a matrix generator, roll them out progressively and audit who changed what.",
+          "deliverable": "ApplicationSet configuration and audit report",
+          "checks": [["Generate", "Applications are generated for all teams and clusters", "Argo CD view"], ["Roll out", "Progressive sync updates in order", "Sync history"], ["Audit", "Changes are traced to commits and authors", "Audit report"]],
+          "objectives": ["Manage releases at scale", "Use ApplicationSets", "Audit delivery changes"]
+        },
+        {
+          "topic": "Drift, Ownership and Server-Side Apply Conflicts",
+          "subtopics": ["Who owns which fields", "Drift from manual changes", "Controllers that change Helm-managed objects", "Force conflicts and their risks", "Detecting drift with diffs", "Policies against manual changes", "Resolving ownership deliberately", "Communicating ownership rules"],
+          "tools": ["Helm 4", "kubectl managed fields", "helm-diff"],
+          "lab_task": "Create drift with manual changes and a competing controller, detect it with diffs, resolve ownership on purpose and add a policy against manual edits.",
+          "deliverable": "Drift analysis and ownership rules",
+          "checks": [["Detect", "Drift is found by diffs", "Diff output"], ["Resolve", "Ownership conflicts are resolved deliberately", "Upgrade log"], ["Prevent", "The policy blocks manual edits", "Admission events"]],
+          "objectives": ["Manage field ownership", "Detect drift", "Prevent manual changes"]
+        },
+        {
+          "topic": "State and History Management: Release Secrets and Storage Drivers",
+          "subtopics": ["How Helm stores releases", "Secrets, ConfigMaps and SQL storage drivers", "History limits", "Release size limits", "Backing up release state", "Moving releases between namespaces", "Cleaning old history", "Security of release data"],
+          "tools": ["Helm 4", "kubectl", "Backup tooling"],
+          "lab_task": "Inspect release secrets, set history limits, back up and restore release state for a namespace and test the SQL storage driver for large releases.",
+          "deliverable": "Release state management plan with tests",
+          "checks": [["Inspect", "Release records are decoded and explained", "Notes"], ["Back up", "Release state restores in a new cluster", "Restore log"], ["Limit", "History limits keep storage small", "kubectl output"]],
+          "objectives": ["Manage Helm release state", "Back up releases", "Control release history"]
+        },
+        {
+          "topic": "Performance of Large Charts and Big Releases",
+          "subtopics": ["Where time goes in render and apply", "Large numbers of resources", "Template performance", "Chart caching in Helm 4", "API server load during upgrades", "Splitting big releases", "Measuring render and apply time", "Targets for release time"],
+          "tools": ["Helm 4", "Profiling notes", "Large chart"],
+          "lab_task": "Measure render and apply time for a chart with hundreds of resources, speed up templates, split the release and show the improvement.",
+          "deliverable": "Performance measurements and improvements",
+          "checks": [["Measure", "Render and apply times are recorded", "Timing table"], ["Improve", "Template and release changes reduce time", "Timing comparison"], ["Protect", "API server load stays acceptable", "Cluster metrics"]],
+          "objectives": ["Measure Helm performance", "Speed up large charts", "Split big releases"]
+        },
+        {
+          "topic": "Multi-Tenant Clusters and Chart Isolation",
+          "subtopics": ["Tenants and namespaces", "RBAC for Helm users", "Restricting chart sources per tenant", "Quotas and limits from charts", "Shared and tenant-owned charts", "Tenant onboarding with charts", "Preventing cross-tenant access", "Auditing tenant releases"],
+          "tools": ["Helm 4", "Kubernetes RBAC", "Policy engine"],
+          "lab_task": "Onboard two tenants with charts that create namespaces, quotas and RBAC, restrict each tenant to approved chart sources and prove neither can affect the other.",
+          "deliverable": "Tenant onboarding charts and isolation tests",
+          "checks": [["Onboard", "Tenant namespaces, quotas and RBAC are created by charts", "kubectl output"], ["Restrict", "Unapproved chart sources are blocked", "Policy events"], ["Isolate", "Cross-tenant changes fail", "Test output"]],
+          "objectives": ["Run Helm in multi-tenant clusters", "Isolate tenants", "Onboard tenants with charts"]
+        },
+        {
+          "topic": "Compliance and Audit for Helm Deployments",
+          "subtopics": ["Evidence of what was deployed", "Release history as evidence", "Git history as evidence", "Approvals before production releases", "Retention of records", "Separation of duties", "Audit queries", "Preparing for auditors"],
+          "tools": ["Git", "Argo CD or Flux audit logs", "Helm release history"],
+          "lab_task": "Produce audit evidence for a production release from Git, GitOps logs and Helm history, enforce separation of duties and answer a role-played auditor's questions.",
+          "deliverable": "Audit evidence pack",
+          "checks": [["Trace", "The release traces to an approved change", "Evidence pack"], ["Separate", "Authors cannot approve their own production releases", "Approval rules"], ["Answer", "Auditor questions are answered from records", "Audit notes"]],
+          "objectives": ["Produce deployment evidence", "Separate duties", "Support audits"]
+        },
+        {
+          "topic": "Disaster Recovery for Helm-Managed Workloads",
+          "subtopics": ["What must be recoverable", "Rebuilding clusters from Git", "Release state and secrets", "Persistent data", "Recovery order for charts", "Testing recovery", "Recovery time objectives", "Runbooks"],
+          "tools": ["GitOps controller", "Velero or cloud backups", "Helm 4"],
+          "lab_task": "Rebuild a cluster's Helm-managed workloads from Git and backups in a new cluster, measure recovery time and update the runbook.",
+          "deliverable": "Recovery drill results and runbook",
+          "checks": [["Rebuild", "Workloads return in the new cluster", "Recovery log"], ["Measure", "Recovery time is compared with the objective", "Drill report"], ["Improve", "The runbook is updated", "Runbook"]],
+          "objectives": ["Plan disaster recovery", "Rebuild from Git", "Test recovery"]
+        },
+        {
+          "topic": "Helm Alternatives and Complements: Kustomize, Timoni and CDK8s",
+          "subtopics": ["Where Helm fits and where it struggles", "Kustomize overlays", "Timoni and CUE-based packages", "CDK8s for code-defined manifests", "Mixing tools in one platform", "Migration costs", "Choosing tools for teams", "Avoiding tool sprawl"],
+          "tools": ["Kustomize", "Timoni", "CDK8s", "Helm 4"],
+          "lab_task": "Package the same application with Helm, Kustomize and one of Timoni or CDK8s, compare readability, testing and upgrades, and write a tool choice guide.",
+          "deliverable": "Three packages and a tool guide",
+          "checks": [["Package", "The application deploys with all three tools", "Deployment outputs"], ["Compare", "Readability, testing and upgrades are compared", "Comparison"], ["Guide", "The guide states when to use each tool", "Tool guide"]],
+          "objectives": ["Compare packaging tools", "Mix tools carefully", "Choose tools for teams"]
+        },
+        {
+          "topic": "Contributing to Charts and to Helm",
+          "subtopics": ["How Helm and chart projects work", "Reporting issues well", "Minimal reproductions", "Pull requests to charts", "Helm improvement proposals", "Company contribution policies", "Maintaining forks and their costs", "Benefits of contributing"],
+          "tools": ["GitHub", "Helm repository", "Chart repositories"],
+          "lab_task": "Reproduce an issue in a public chart with a minimal example, fix it in a fork with tests and prepare a pull request that follows the project's guide.",
+          "deliverable": "Reproduction, fix and pull request draft",
+          "checks": [["Reproduce", "The minimal example shows the issue", "Example repository"], ["Fix", "The fix has tests", "Test output"], ["Prepare", "The pull request draft follows the contribution guide", "Pull request draft"]],
+          "objectives": ["Contribute upstream", "Reproduce issues", "Follow contribution processes"]
+        },
+        {
+          "topic": "Governance of Third-Party Charts",
+          "subtopics": ["Risks of public charts", "Vetting criteria", "Mirroring and pinning", "Overrides for security settings", "Monitoring upstream changes", "Upgrade reviews", "Retiring unsupported charts", "An approval process"],
+          "tools": ["Vetting checklist", "Internal registry", "Renovate"],
+          "lab_task": "Vet three public charts, approve one with pinned and mirrored versions and security overrides, and review an upstream upgrade raised by Renovate.",
+          "deliverable": "Vetting reports and an upgrade review",
+          "checks": [["Vet", "Each chart has a completed checklist", "Vetting reports"], ["Approve", "The approved chart is pinned, mirrored and hardened", "Registry and values"], ["Review", "The upgrade review records risks and decision", "Review notes"]],
+          "objectives": ["Govern third-party charts", "Pin and mirror charts", "Review upstream changes"]
+        },
+        {
+          "topic": "Troubleshooting Complex Helm Deployments",
+          "subtopics": ["Failures across Helm, GitOps and Kubernetes layers", "Hooks and ordering in large releases", "Ownership and drift problems", "Registry and authentication issues", "Performance problems", "Reading events, logs and history together"],
+          "tools": ["Helm 4", "Argo CD or Flux", "kubectl"],
+          "lab_task": "Diagnose four complex failures (a GitOps sync loop, a hook deadlock, a registry authentication failure and an API server overload), fix them and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Fix", "All deployments recover", "Status outputs"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot complex deployments", "Read signals across layers", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Chart Platform for an Organisation",
+          "subtopics": ["Golden charts and catalogue", "Policies and supply chain checks", "Large-scale GitOps delivery", "Recovery and audit", "Leadership presentation"],
+          "tools": ["Helm 4", "Internal registry", "Kyverno or OPA", "Argo CD ApplicationSets", "cosign"],
+          "lab_task": "Build a chart platform for three teams with golden charts, an internal catalogue, policies, signed charts, ApplicationSet delivery, audit evidence and a recovery drill, and present it to engineering leadership.",
+          "deliverable": "Chart platform, evidence and presentation",
+          "checks": [["Enable", "Teams deliver with golden charts from the catalogue", "Usage evidence"], ["Secure", "Policies and signatures are enforced", "Security review"], ["Win support", "Leadership approves the platform", "Presentation notes"]],
+          "objectives": ["Combine advanced Helm skills", "Run a chart platform", "Present to leadership"]
+        }
+      ]
+    }
+  }
+}
