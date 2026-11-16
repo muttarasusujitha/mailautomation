@@ -17251,6 +17251,1413 @@
           "Audit tool use"
         ]
       }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "AWS"
+      ],
+      "day": {
+        "topic": "VM-Series and Cloud NGFW on AWS: Gateway Load Balancer and Transit Inspection",
+        "subtopics": [
+          "Inspection models on AWS",
+          "Gateway Load Balancer with VM-Series",
+          "Cloud NGFW for AWS as a managed service",
+          "Transit Gateway for centralised inspection",
+          "Inbound, outbound and east-west flows",
+          "Auto scaling and bootstrap",
+          "AWS tags in firewall policy",
+          "Cost of inspection on AWS"
+        ],
+        "tools": [
+          "VM-Series",
+          "Cloud NGFW for AWS",
+          "AWS Gateway Load Balancer",
+          "AWS Transit Gateway"
+        ],
+        "lab_task": "Inspect inbound, outbound and east-west traffic for two VPCs through Gateway Load Balancer and VM-Series, use AWS tags in rules and compare with Cloud NGFW.",
+        "deliverable": "Inspected AWS network with a comparison",
+        "checks": [
+          [
+            "Inspect",
+            "All three flow types pass through the firewalls",
+            "Firewall traffic logs"
+          ],
+          [
+            "Tag",
+            "Rules match workloads by AWS tag",
+            "Policy view"
+          ],
+          [
+            "Compare",
+            "VM-Series and Cloud NGFW are compared on cost and control",
+            "Comparison notes"
+          ]
+        ],
+        "objectives": [
+          "Secure AWS traffic with Palo Alto",
+          "Use Gateway Load Balancer",
+          "Choose cloud firewall models"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Palo Alto Cloud NGFW for Azure: Virtual WAN Hubs and VNet Inspection",
+        "subtopics": [
+          "Cloud NGFW for Azure",
+          "Deploying in a Virtual WAN hub",
+          "Deploying in a virtual network",
+          "Routing intent and route tables",
+          "Policy with local rulestacks or Panorama",
+          "Azure tags and service tags",
+          "Logging to Azure Monitor",
+          "VM-Series on Azure compared"
+        ],
+        "tools": [
+          "Cloud NGFW for Azure",
+          "Azure Virtual WAN",
+          "Panorama",
+          "Azure Monitor"
+        ],
+        "lab_task": "Deploy Cloud NGFW in a Virtual WAN hub, route spoke and internet traffic through it with routing intent, apply rules and send logs to Azure Monitor.",
+        "deliverable": "Inspected Azure hub network",
+        "checks": [
+          [
+            "Route",
+            "Spoke and internet traffic pass through the firewall",
+            "Effective routes and logs"
+          ],
+          [
+            "Apply",
+            "Rules allow and block as designed",
+            "Traffic logs"
+          ],
+          [
+            "Log",
+            "Firewall logs arrive in Azure Monitor",
+            "Log query"
+          ]
+        ],
+        "objectives": [
+          "Secure Azure traffic with Palo Alto",
+          "Use routing intent",
+          "Log to Azure Monitor"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "CCNA Networking"
+      ],
+      "day": {
+        "topic": "Placing Palo Alto Firewalls in Campus and Data Centre Networks",
+        "subtopics": [
+          "Where firewalls sit in campus designs",
+          "Layer 3 firewall with switch trunks",
+          "Routing between the firewall and core switches",
+          "Virtual wire in front of existing networks",
+          "High availability with switch redundancy",
+          "VLANs, zones and subinterfaces",
+          "Spanning tree and loop risks",
+          "Change windows for inserting firewalls"
+        ],
+        "tools": [
+          "PAN-OS firewall",
+          "Cisco switches and routers",
+          "Packet captures"
+        ],
+        "lab_task": "Insert a firewall between the campus core and the internet edge with trunks, subinterfaces and OSPF, then add a virtual wire in front of a legacy segment.",
+        "deliverable": "Firewall insertion design with tests",
+        "checks": [
+          [
+            "Insert",
+            "Traffic flows through the firewall with routing intact",
+            "Traceroute"
+          ],
+          [
+            "Segment",
+            "VLAN subinterfaces map to zones",
+            "Interface table"
+          ],
+          [
+            "Bridge",
+            "The virtual wire passes traffic transparently",
+            "Traffic log"
+          ]
+        ],
+        "objectives": [
+          "Place firewalls in networks",
+          "Integrate with switching and routing",
+          "Insert firewalls safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Firewall Data for Security Operations: Threat Logs, Hunting and Containment",
+        "subtopics": [
+          "What firewall logs tell responders",
+          "Threat, URL and WildFire logs in investigations",
+          "Hunting with firewall data",
+          "External dynamic lists from threat intelligence",
+          "Automatic containment with dynamic address groups",
+          "Correlation with endpoint data",
+          "Playbooks for common incidents",
+          "Measuring detection and response"
+        ],
+        "tools": [
+          "PAN-OS logs",
+          "SIEM",
+          "Dynamic address groups",
+          "External dynamic lists"
+        ],
+        "lab_task": "Hunt for a seeded intrusion in firewall logs, block its indicators with an external dynamic list and contain the host automatically from a SIEM alert.",
+        "deliverable": "Hunt record with automated containment",
+        "checks": [
+          [
+            "Hunt",
+            "The intrusion is traced in the logs",
+            "Hunt notes"
+          ],
+          [
+            "Block",
+            "Indicators are blocked through the list",
+            "Traffic log"
+          ],
+          [
+            "Contain",
+            "The host is contained by tag",
+            "Dynamic group membership"
+          ]
+        ],
+        "objectives": [
+          "Use firewall data in security operations",
+          "Hunt with logs",
+          "Automate containment"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "IAM"
+      ],
+      "day": {
+        "topic": "User-ID from the Identity Provider: Cloud Identity Engine, SAML and Dynamic User Groups",
+        "subtopics": [
+          "Identity sources for firewall policy",
+          "Cloud Identity Engine with Entra ID or Okta",
+          "SAML authentication for GlobalProtect and admins",
+          "Group-based rules",
+          "Dynamic user groups for risky users",
+          "Identity risk signals in policy",
+          "Troubleshooting user mapping",
+          "Keeping identity data current"
+        ],
+        "tools": [
+          "Cloud Identity Engine",
+          "Microsoft Entra ID or Okta",
+          "GlobalProtect",
+          "Dynamic user groups"
+        ],
+        "lab_task": "Connect the Cloud Identity Engine to the identity provider, use SAML for GlobalProtect, write group rules and restrict a user flagged as risky through a dynamic user group.",
+        "deliverable": "Identity-driven firewall policy",
+        "checks": [
+          [
+            "Map",
+            "Users and groups from the identity provider appear on the firewall",
+            "User-ID mappings"
+          ],
+          [
+            "Sign in",
+            "GlobalProtect uses SAML with MFA",
+            "Authentication log"
+          ],
+          [
+            "Restrict",
+            "The risky user is restricted at once",
+            "Traffic log"
+          ]
+        ],
+        "objectives": [
+          "Drive firewall policy from identity",
+          "Use SAML",
+          "Restrict risky users"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Palo Alto Firewalls as Code with Terraform: Objects, Rules and Panorama Pushes",
+        "subtopics": [
+          "The PAN-OS Terraform provider",
+          "Managing objects and rules",
+          "Device groups and templates as code",
+          "Commits and pushes from pipelines",
+          "Importing existing configuration",
+          "Plans as change reviews",
+          "Drift from manual changes",
+          "Testing rule changes"
+        ],
+        "tools": [
+          "Terraform",
+          "PAN-OS provider",
+          "Panorama",
+          "CI pipeline"
+        ],
+        "lab_task": "Manage address objects and a rule section in a Panorama device group with Terraform, push through a pipeline after review and detect a manual change.",
+        "deliverable": "Firewall configuration as code with a pipeline",
+        "checks": [
+          [
+            "Plan",
+            "The plan shows the rule changes for review",
+            "Plan output"
+          ],
+          [
+            "Push",
+            "Changes are committed and pushed by the pipeline",
+            "Pipeline run"
+          ],
+          [
+            "Detect",
+            "The manual change shows as drift",
+            "Plan output"
+          ]
+        ],
+        "objectives": [
+          "Manage firewalls with Terraform",
+          "Review rule changes",
+          "Detect drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "CN-Series and Kubernetes Network Policy: Layered Pod Traffic Controls",
+        "subtopics": [
+          "Kubernetes network policies",
+          "What network policies cannot see",
+          "CN-Series for application-layer inspection",
+          "Labels in firewall rules",
+          "Inspecting egress from pods",
+          "Threat prevention for pod traffic",
+          "Performance and placement",
+          "Choosing controls for each risk"
+        ],
+        "tools": [
+          "Kubernetes",
+          "CN-Series",
+          "Network policies",
+          "Panorama"
+        ],
+        "lab_task": "Combine Kubernetes network policies with CN-Series inspection, block a test exploit between namespaces and control pod egress by application.",
+        "deliverable": "Layered pod traffic controls",
+        "checks": [
+          [
+            "Restrict",
+            "Network policies limit pod connections",
+            "Connection tests"
+          ],
+          [
+            "Inspect",
+            "CN-Series blocks the test exploit",
+            "Threat log"
+          ],
+          [
+            "Control",
+            "Pod egress is allowed by application only",
+            "Traffic log"
+          ]
+        ],
+        "objectives": [
+          "Secure pod traffic in layers",
+          "Use labels in firewall rules",
+          "Control egress from clusters"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Palo Alto Firewalls",
+        "SD-WAN"
+      ],
+      "day": {
+        "topic": "Palo Alto Branches with SD-WAN: Prisma SD-WAN, NGFW SD-WAN and Prisma Access",
+        "subtopics": [
+          "Branch options from Palo Alto",
+          "SD-WAN on PAN-OS firewalls",
+          "Prisma SD-WAN with ION devices",
+          "Sending branch traffic to Prisma Access",
+          "Path selection for SaaS and voice",
+          "Security at the branch or in the cloud",
+          "Management in Strata Cloud Manager",
+          "Choosing a branch design"
+        ],
+        "tools": [
+          "PAN-OS SD-WAN",
+          "Prisma SD-WAN",
+          "Prisma Access",
+          "Strata Cloud Manager"
+        ],
+        "lab_task": "Build one branch with PAN-OS SD-WAN and one with Prisma SD-WAN, send internet traffic to Prisma Access and compare path choices and security.",
+        "deliverable": "Two branch designs with a comparison",
+        "checks": [
+          [
+            "Build",
+            "Both branches pass traffic over two links",
+            "Status views"
+          ],
+          [
+            "Protect",
+            "Internet traffic is inspected in Prisma Access",
+            "Security logs"
+          ],
+          [
+            "Compare",
+            "The designs are compared for the course company",
+            "Comparison notes"
+          ]
+        ],
+        "objectives": [
+          "Design Palo Alto branches",
+          "Combine SD-WAN and SASE",
+          "Choose branch security placement"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "CCNA Networking"
+      ],
+      "day": {
+        "topic": "From Classic WAN Routing to SD-WAN: OSPF, BGP and Overlays for CCNA Engineers",
+        "subtopics": [
+          "Classic WAN designs with MPLS and routers",
+          "What stays the same with SD-WAN",
+          "What changes: overlays and central policy",
+          "OSPF and BGP at the SD-WAN edge",
+          "Mapping VRFs to SD-WAN segments",
+          "Troubleshooting with familiar tools",
+          "Cisco certification paths into SD-WAN",
+          "Common mistakes when moving from routers"
+        ],
+        "tools": [
+          "Cisco routers",
+          "Cisco Catalyst SD-WAN",
+          "Lab routing tools"
+        ],
+        "lab_task": "Convert a router-based branch to a Catalyst SD-WAN edge, keep OSPF to the LAN and BGP to the data centre and map two VRFs to segments.",
+        "deliverable": "Converted branch with routing evidence",
+        "checks": [
+          [
+            "Convert",
+            "The branch works on the SD-WAN edge",
+            "Reachability tests"
+          ],
+          [
+            "Route",
+            "OSPF and BGP peerings are up",
+            "Routing status"
+          ],
+          [
+            "Segment",
+            "VRFs map to SD-WAN segments",
+            "Segment tables"
+          ]
+        ],
+        "objectives": [
+          "Move from routers to SD-WAN",
+          "Keep routing working",
+          "Map VRFs to segments"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "AWS"
+      ],
+      "day": {
+        "topic": "SD-WAN to AWS: Cloud WAN, Transit Gateway Connect and Virtual Edges",
+        "subtopics": [
+          "Connecting branches to AWS",
+          "Virtual SD-WAN edges in a VPC",
+          "Transit Gateway Connect with GRE and BGP",
+          "AWS Cloud WAN core networks",
+          "Segments into AWS",
+          "Routing limits and summarisation",
+          "Data transfer costs",
+          "High availability for cloud edges"
+        ],
+        "tools": [
+          "AWS Transit Gateway",
+          "AWS Cloud WAN",
+          "Virtual SD-WAN edges"
+        ],
+        "lab_task": "Connect virtual edges to a Transit Gateway with Connect attachments, carry two segments to separate VPCs and test failover between two edges.",
+        "deliverable": "Branch-to-AWS connectivity with failover test",
+        "checks": [
+          [
+            "Connect",
+            "BGP over Connect attachments is up",
+            "Transit Gateway status"
+          ],
+          [
+            "Segment",
+            "Each segment reaches only its VPC",
+            "Reachability tests"
+          ],
+          [
+            "Fail",
+            "Traffic moves to the second edge",
+            "Test record"
+          ]
+        ],
+        "objectives": [
+          "Connect SD-WAN to AWS",
+          "Carry segments into AWS",
+          "Make cloud edges resilient"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "Azure"
+      ],
+      "day": {
+        "topic": "SD-WAN to Azure: Virtual WAN Hubs, Network Virtual Appliances and Route Propagation",
+        "subtopics": [
+          "Azure Virtual WAN for branch connectivity",
+          "SD-WAN appliances in the hub",
+          "BGP peering with the hub",
+          "Route tables and propagation",
+          "Routing intent with security",
+          "Connecting spokes",
+          "Monitoring Virtual WAN",
+          "Cost of Virtual WAN"
+        ],
+        "tools": [
+          "Azure Virtual WAN",
+          "SD-WAN appliance in the hub",
+          "Azure Monitor"
+        ],
+        "lab_task": "Deploy an SD-WAN appliance in a Virtual WAN hub, peer it with BGP, propagate branch routes to spokes and check effective routes.",
+        "deliverable": "Branch-to-Azure connectivity",
+        "checks": [
+          [
+            "Peer",
+            "BGP sessions with the hub are up",
+            "Hub status"
+          ],
+          [
+            "Propagate",
+            "Spokes learn branch routes",
+            "Effective routes"
+          ],
+          [
+            "Reach",
+            "Branches reach spoke workloads",
+            "Connection tests"
+          ]
+        ],
+        "objectives": [
+          "Connect SD-WAN to Azure",
+          "Use Virtual WAN hubs",
+          "Control route propagation"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "GCP"
+      ],
+      "day": {
+        "topic": "SD-WAN to Google Cloud: Network Connectivity Center and Router Appliances",
+        "subtopics": [
+          "Network Connectivity Center",
+          "Router appliance spokes",
+          "Cloud Router and BGP",
+          "Hybrid spokes for VPN and Interconnect",
+          "Global routing in Google Cloud",
+          "Segments and VPCs",
+          "High availability",
+          "Cost of cloud connectivity"
+        ],
+        "tools": [
+          "Network Connectivity Center",
+          "Cloud Router",
+          "Virtual SD-WAN edges"
+        ],
+        "lab_task": "Register virtual edges as router appliance spokes, peer with Cloud Router, reach workloads in two regions and test edge failover.",
+        "deliverable": "Branch-to-Google Cloud connectivity",
+        "checks": [
+          [
+            "Peer",
+            "Cloud Router sessions are up",
+            "NCC status"
+          ],
+          [
+            "Reach",
+            "Branches reach both regions",
+            "Connection tests"
+          ],
+          [
+            "Fail",
+            "Traffic moves to the second appliance",
+            "Test record"
+          ]
+        ],
+        "objectives": [
+          "Connect SD-WAN to Google Cloud",
+          "Use Network Connectivity Center",
+          "Make cloud edges resilient"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "Microsoft 365 Administration"
+      ],
+      "day": {
+        "topic": "Microsoft 365 over SD-WAN: Optimise Endpoints, Local Breakout and Teams Quality",
+        "subtopics": [
+          "Microsoft 365 connectivity principles",
+          "Optimize, Allow and Default endpoint categories",
+          "Local breakout for Microsoft 365",
+          "Avoiding proxies and inspection for Optimize traffic",
+          "Teams media and its ports",
+          "Measuring Teams call quality",
+          "Network connectivity tests",
+          "Working with Microsoft 365 admins"
+        ],
+        "tools": [
+          "SD-WAN policies",
+          "Microsoft 365 network connectivity test",
+          "Teams admin center"
+        ],
+        "lab_task": "Break out Optimize endpoints locally at a branch, keep Teams media off the proxy, run the connectivity test and compare call quality before and after.",
+        "deliverable": "Microsoft 365 tuned branch with call quality results",
+        "checks": [
+          [
+            "Break out",
+            "Optimize traffic leaves locally",
+            "Flow records"
+          ],
+          [
+            "Bypass",
+            "Teams media skips the proxy",
+            "Traffic logs"
+          ],
+          [
+            "Improve",
+            "Call quality improves",
+            "Teams call quality report"
+          ]
+        ],
+        "objectives": [
+          "Optimise Microsoft 365 over SD-WAN",
+          "Use endpoint categories",
+          "Improve Teams quality"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "SD-WAN Sites as Code with Terraform: Branch Templates and Policy Changes",
+        "subtopics": [
+          "Terraform providers for SD-WAN platforms",
+          "Sites, devices and variables as code",
+          "Configuration groups or templates in code",
+          "Policy changes as pull requests",
+          "Plans as change reviews",
+          "State and drift",
+          "Bulk site creation from data",
+          "Rolling back from Git"
+        ],
+        "tools": [
+          "Terraform",
+          "SD-WAN provider",
+          "Git",
+          "CI pipeline"
+        ],
+        "lab_task": "Create three branch sites from a data file with Terraform, change an application policy through a reviewed pull request and roll back a bad change.",
+        "deliverable": "SD-WAN configuration as code",
+        "checks": [
+          [
+            "Create",
+            "Three sites are created from data",
+            "Apply output"
+          ],
+          [
+            "Review",
+            "The policy change shows in the plan before apply",
+            "Pull request"
+          ],
+          [
+            "Roll back",
+            "The bad change is reverted from Git",
+            "Rollback record"
+          ]
+        ],
+        "objectives": [
+          "Manage SD-WAN with Terraform",
+          "Review policy changes",
+          "Roll back safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SD-WAN",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python for SD-WAN APIs: Inventory, Health Reports and Bulk Changes",
+        "subtopics": [
+          "SD-WAN controller APIs",
+          "Authentication and sessions",
+          "Pulling device and tunnel inventory",
+          "Health reports from statistics APIs",
+          "Bulk changes with dry runs",
+          "Rate limits and paging",
+          "Scheduling reports",
+          "Testing scripts against a sandbox"
+        ],
+        "tools": [
+          "Python",
+          "SD-WAN APIs",
+          "DevNet sandbox"
+        ],
+        "lab_task": "Write Python that pulls the device inventory, builds a daily tunnel health report and makes a dry-run bulk change against the sandbox.",
+        "deliverable": "Python SD-WAN tools",
+        "checks": [
+          [
+            "Pull",
+            "The inventory matches the controller",
+            "Script output"
+          ],
+          [
+            "Report",
+            "The health report lists down tunnels",
+            "Report"
+          ],
+          [
+            "Change",
+            "The dry run lists changes without applying them",
+            "Script output"
+          ]
+        ],
+        "objectives": [
+          "Use SD-WAN APIs from Python",
+          "Report fabric health",
+          "Change safely in bulk"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Windows Server on Azure: Azure Arc, Domain Controllers in Azure and Hybrid Networking",
+        "subtopics": [
+          "Windows Server workloads on Azure",
+          "Domain controllers in Azure virtual networks",
+          "Hybrid networking for AD replication",
+          "Azure Arc for on-premises servers",
+          "Azure Update Manager and hotpatching",
+          "Azure Backup for Windows servers",
+          "Licensing with Azure Hybrid Benefit",
+          "Cost and sizing"
+        ],
+        "tools": [
+          "Azure Virtual Machines",
+          "Azure Arc",
+          "Azure Backup",
+          "Azure Update Manager"
+        ],
+        "lab_task": "Add a domain controller in Azure with a site and replication over a VPN, onboard on-premises servers to Arc and back up a server with Azure Backup.",
+        "deliverable": "Hybrid Windows estate across Azure and on premises",
+        "checks": [
+          [
+            "Replicate",
+            "The Azure domain controller replicates with on premises",
+            "repadmin output"
+          ],
+          [
+            "Manage",
+            "On-premises servers appear in Azure Arc",
+            "Arc server list"
+          ],
+          [
+            "Back up",
+            "The server backup completes and restores",
+            "Backup and restore records"
+          ]
+        ],
+        "objectives": [
+          "Run Windows Server with Azure",
+          "Extend AD to Azure",
+          "Manage servers through Arc"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Active Directory and Entra ID Together: Hybrid Identity, Tiering and Identity Attacks",
+        "subtopics": [
+          "Hybrid identity designs",
+          "Sync with Cloud Sync or Connect Sync",
+          "Seamless SSO and Kerberos",
+          "Tiered administration across AD and Entra ID",
+          "Protecting sync servers as tier 0",
+          "Attack paths from AD to the cloud",
+          "Conditional Access for hybrid users",
+          "Monitoring hybrid identity"
+        ],
+        "tools": [
+          "Active Directory",
+          "Microsoft Entra Cloud Sync",
+          "Conditional Access",
+          "BloodHound"
+        ],
+        "lab_task": "Sync users to Entra ID, protect the sync server as tier 0, find an attack path from AD to a cloud admin role and close it.",
+        "deliverable": "Hardened hybrid identity",
+        "checks": [
+          [
+            "Sync",
+            "Users sync and sign in with SSO",
+            "Sign-in test"
+          ],
+          [
+            "Protect",
+            "The sync server is restricted to tier 0 admins",
+            "Access tests"
+          ],
+          [
+            "Close",
+            "The AD-to-cloud attack path is closed",
+            "Analysis before and after"
+          ]
+        ],
+        "objectives": [
+          "Run hybrid identity",
+          "Protect sync infrastructure",
+          "Close hybrid attack paths"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "PowerShell"
+      ],
+      "day": {
+        "topic": "PowerShell for Active Directory at Scale: Bulk Changes, Reports and Safe Automation",
+        "subtopics": [
+          "The ActiveDirectory module",
+          "Bulk user and group changes from CSV",
+          "Stale account reports",
+          "Group membership audits",
+          "WhatIf and confirmation for safety",
+          "Logging changes",
+          "Scheduled reports",
+          "Testing scripts with Pester"
+        ],
+        "tools": [
+          "PowerShell",
+          "ActiveDirectory module",
+          "Pester"
+        ],
+        "lab_task": "Write scripts that bulk-update user attributes from a CSV with WhatIf, report stale accounts and privileged group members weekly and test them with Pester.",
+        "deliverable": "Tested AD automation scripts",
+        "checks": [
+          [
+            "Change",
+            "Bulk updates apply after a WhatIf review",
+            "Script logs"
+          ],
+          [
+            "Report",
+            "Stale and privileged reports are correct",
+            "Report files"
+          ],
+          [
+            "Test",
+            "Pester tests pass",
+            "Pester output"
+          ]
+        ],
+        "objectives": [
+          "Automate Active Directory with PowerShell",
+          "Report on accounts",
+          "Change safely in bulk"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Mixed Windows and Linux Estates: Domain Join, DNS, SMB and Shared Monitoring",
+        "subtopics": [
+          "Joining Linux servers to Active Directory",
+          "SSSD and Kerberos",
+          "Linux in AD-integrated DNS",
+          "SMB shares for Linux clients",
+          "Samba file servers",
+          "Shared administration groups",
+          "Monitoring both platforms together",
+          "Patch processes for both"
+        ],
+        "tools": [
+          "realmd and SSSD",
+          "AD-integrated DNS",
+          "Samba",
+          "Monitoring tool"
+        ],
+        "lab_task": "Join two Linux servers to the domain, let AD groups log in and use sudo, mount a Windows share from Linux and monitor both platforms in one view.",
+        "deliverable": "Integrated mixed estate",
+        "checks": [
+          [
+            "Join",
+            "Linux servers are domain members",
+            "realm list output"
+          ],
+          [
+            "Log in",
+            "AD users log in with their groups",
+            "Login tests"
+          ],
+          [
+            "Mount",
+            "Linux mounts the Windows share with Kerberos",
+            "Mount output"
+          ]
+        ],
+        "objectives": [
+          "Integrate Linux with Active Directory",
+          "Share files across platforms",
+          "Monitor mixed estates"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "Microsoft 365 Administration"
+      ],
+      "day": {
+        "topic": "Active Directory to Microsoft 365: Sync, Licensing Groups and Exchange Hybrid",
+        "subtopics": [
+          "Preparing AD for Microsoft 365",
+          "User principal names and domains",
+          "Directory sync for Microsoft 365",
+          "Group-based licensing",
+          "Exchange hybrid and mailbox moves",
+          "Retiring the last Exchange server",
+          "Password writeback",
+          "Hybrid troubleshooting"
+        ],
+        "tools": [
+          "Active Directory",
+          "Microsoft Entra Cloud Sync",
+          "Microsoft 365 admin center",
+          "Exchange admin center"
+        ],
+        "lab_task": "Fix UPN suffixes, sync users, assign licences by group, move a mailbox in an Exchange hybrid setup and plan retirement of the last Exchange server.",
+        "deliverable": "Directory ready for Microsoft 365 with a mailbox move",
+        "checks": [
+          [
+            "Prepare",
+            "UPNs match the email domain",
+            "User list"
+          ],
+          [
+            "License",
+            "Group-based licensing assigns the right plans",
+            "Licence report"
+          ],
+          [
+            "Move",
+            "The mailbox moves without data loss",
+            "Migration report"
+          ]
+        ],
+        "objectives": [
+          "Connect AD to Microsoft 365",
+          "Use group-based licensing",
+          "Move mailboxes"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Defending Active Directory: Detection, Hardening and Incident Response",
+        "subtopics": [
+          "How attackers use Active Directory",
+          "Event IDs that matter",
+          "Detecting Kerberoasting and DCSync",
+          "Defender for Identity",
+          "Hardening quick wins",
+          "Responding to a compromised domain admin",
+          "Resetting the KRBTGT account",
+          "Lessons for the security team"
+        ],
+        "tools": [
+          "Microsoft Defender for Identity",
+          "Event logs",
+          "PingCastle or Purple Knight"
+        ],
+        "lab_task": "Detect a seeded Kerberoasting and DCSync attempt, apply hardening quick wins, respond to a compromised admin and reset KRBTGT safely.",
+        "deliverable": "Detections, hardening and response record",
+        "checks": [
+          [
+            "Detect",
+            "Both attacks raise alerts",
+            "Alerts"
+          ],
+          [
+            "Harden",
+            "The assessment score improves",
+            "Assessment before and after"
+          ],
+          [
+            "Respond",
+            "The admin is contained and KRBTGT is reset twice",
+            "Response log"
+          ]
+        ],
+        "objectives": [
+          "Detect AD attacks",
+          "Harden AD quickly",
+          "Respond to AD compromise"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "VMware vSphere"
+      ],
+      "day": {
+        "topic": "Windows Server on vSphere and Hyper-V: VM Sizing, Clustering and Migration",
+        "subtopics": [
+          "Sizing Windows VMs",
+          "Virtual hardware choices",
+          "Windows failover clusters on hypervisors",
+          "Domain controllers on virtual machines",
+          "Time sync for virtual domain controllers",
+          "Moving VMs between vSphere and Hyper-V",
+          "Licensing Windows on hypervisors",
+          "Performance checks"
+        ],
+        "tools": [
+          "VMware vSphere",
+          "Hyper-V",
+          "Windows Server"
+        ],
+        "lab_task": "Size a Windows SQL VM on vSphere, protect virtual domain controllers from snapshot rollback problems and migrate a VM from vSphere to Hyper-V.",
+        "deliverable": "Virtualised Windows guidance with a migration",
+        "checks": [
+          [
+            "Size",
+            "The VM meets its performance target",
+            "Performance data"
+          ],
+          [
+            "Protect",
+            "Domain controller settings avoid rollback problems",
+            "Configuration review"
+          ],
+          [
+            "Migrate",
+            "The VM runs on Hyper-V after migration",
+            "VM status"
+          ]
+        ],
+        "objectives": [
+          "Run Windows on hypervisors",
+          "Protect virtual domain controllers",
+          "Migrate between hypervisors"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Windows Server and Active Directory",
+        "Nutanix"
+      ],
+      "day": {
+        "topic": "Windows Server on Nutanix AHV: VirtIO Drivers, Clustering and Domain Controller Safety",
+        "subtopics": [
+          "Windows guests on AHV",
+          "VirtIO drivers and Nutanix Guest Tools",
+          "Windows failover clusters with Volumes",
+          "Domain controllers on AHV",
+          "Application-consistent snapshots with VSS",
+          "Sysprep templates",
+          "Licensing Windows on AHV",
+          "Performance tuning"
+        ],
+        "tools": [
+          "Nutanix AHV",
+          "Nutanix Guest Tools",
+          "Nutanix Volumes",
+          "Windows Server"
+        ],
+        "lab_task": "Build a Windows template with VirtIO drivers, run a two-node Windows cluster on Nutanix Volumes and take VSS-consistent snapshots of a domain controller.",
+        "deliverable": "Windows workloads on AHV with tests",
+        "checks": [
+          [
+            "Template",
+            "Deployed VMs have drivers and guest tools",
+            "VM details"
+          ],
+          [
+            "Cluster",
+            "The Windows cluster fails over on AHV",
+            "Cluster events"
+          ],
+          [
+            "Snapshot",
+            "Domain controller snapshots are application-consistent",
+            "Snapshot details"
+          ]
+        ],
+        "objectives": [
+          "Run Windows Server on AHV",
+          "Cluster Windows on Nutanix",
+          "Protect domain controllers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Nutanix",
+        "VMware vSphere"
+      ],
+      "day": {
+        "topic": "VMware vSphere to Nutanix AHV: Feature Mapping, Move and Operations Changes",
+        "subtopics": [
+          "Mapping vSphere features to Nutanix",
+          "vCenter and Prism Central compared",
+          "DRS and HA compared with ADS and AHV HA",
+          "vSAN compared with the Distributed Storage Fabric",
+          "NSX compared with Flow",
+          "Migrating with Nutanix Move",
+          "Changes for operations teams",
+          "Training the team"
+        ],
+        "tools": [
+          "VMware vSphere",
+          "Nutanix AHV",
+          "Nutanix Move",
+          "Feature mapping sheet"
+        ],
+        "lab_task": "Map the course estate's vSphere features to Nutanix, migrate three VMs with Move and write the runbook changes for the operations team.",
+        "deliverable": "Feature map, migrated VMs and runbook changes",
+        "checks": [
+          [
+            "Map",
+            "Every used vSphere feature has a Nutanix equivalent or a gap",
+            "Feature map"
+          ],
+          [
+            "Migrate",
+            "Three VMs run on AHV",
+            "Migration report"
+          ],
+          [
+            "Update",
+            "Runbooks reflect the new tools",
+            "Runbook changes"
+          ]
+        ],
+        "objectives": [
+          "Map vSphere to Nutanix",
+          "Migrate with Move",
+          "Prepare operations teams"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Nutanix",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Kubernetes on Nutanix: NKP, CSI Storage and Flow Networking",
+        "subtopics": [
+          "Kubernetes options on Nutanix",
+          "Nutanix Kubernetes Platform clusters",
+          "The Nutanix CSI driver",
+          "Files and Objects for Kubernetes workloads",
+          "Load balancing for services",
+          "Network policies and Flow",
+          "Upgrades",
+          "Monitoring clusters"
+        ],
+        "tools": [
+          "Nutanix Kubernetes Platform",
+          "Nutanix CSI driver",
+          "kubectl"
+        ],
+        "lab_task": "Create an NKP cluster, run a stateful app on Nutanix volumes and an app on a Nutanix Files share, expose a service and upgrade the cluster.",
+        "deliverable": "Kubernetes workloads on Nutanix storage",
+        "checks": [
+          [
+            "Create",
+            "The cluster is healthy",
+            "kubectl output"
+          ],
+          [
+            "Store",
+            "Apps use block and file storage from Nutanix",
+            "PVC status"
+          ],
+          [
+            "Upgrade",
+            "The upgrade completes with apps running",
+            "Upgrade log"
+          ]
+        ],
+        "objectives": [
+          "Run Kubernetes on Nutanix",
+          "Use Nutanix storage for pods",
+          "Upgrade clusters safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Nutanix",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Nutanix Cloud Clusters on AWS: Bare-Metal Nodes, VPC Networking and Disaster Recovery",
+        "subtopics": [
+          "Nutanix Cloud Clusters on AWS",
+          "Bare-metal instance types",
+          "VPC and subnet design",
+          "Connecting to on-premises clusters",
+          "Disaster recovery to AWS",
+          "Hibernate and resume",
+          "Native AWS services next to the cluster",
+          "Cost of cloud clusters"
+        ],
+        "tools": [
+          "Nutanix Cloud Clusters",
+          "AWS VPC",
+          "Prism Central"
+        ],
+        "lab_task": "Plan an NC2 cluster on AWS with VPC networking, connect it to Prism Central, replicate VMs from on premises and run a test failover.",
+        "deliverable": "Cloud cluster plan with DR test",
+        "checks": [
+          [
+            "Plan",
+            "Instance types and networking are chosen",
+            "Design document"
+          ],
+          [
+            "Connect",
+            "The cloud cluster is managed from Prism Central",
+            "Cluster list"
+          ],
+          [
+            "Test",
+            "The test failover runs on AWS",
+            "Test report"
+          ]
+        ],
+        "objectives": [
+          "Run Nutanix on AWS",
+          "Design VPC networking",
+          "Use AWS for disaster recovery"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Nutanix",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Nutanix Cloud Clusters on Azure: Bare-Metal Nodes, Flow Gateway and Hybrid Operations",
+        "subtopics": [
+          "Nutanix Cloud Clusters on Azure",
+          "Bare-metal nodes and regions",
+          "Flow Gateway for networking",
+          "Delegated subnets",
+          "Connecting to on-premises clusters",
+          "Disaster recovery to Azure",
+          "Azure services next to the cluster",
+          "Cost of cloud clusters"
+        ],
+        "tools": [
+          "Nutanix Cloud Clusters",
+          "Azure virtual networks",
+          "Prism Central"
+        ],
+        "lab_task": "Plan an NC2 cluster on Azure with Flow Gateway networking, connect it to Prism Central, move two VMs and reach an Azure service from them.",
+        "deliverable": "Azure cloud cluster plan with moved VMs",
+        "checks": [
+          [
+            "Plan",
+            "Nodes and networking are chosen",
+            "Design document"
+          ],
+          [
+            "Move",
+            "Two VMs run on the cloud cluster",
+            "VM list"
+          ],
+          [
+            "Reach",
+            "VMs reach the Azure service",
+            "Connection test"
+          ]
+        ],
+        "objectives": [
+          "Run Nutanix on Azure",
+          "Design Flow Gateway networking",
+          "Operate hybrid clusters"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Nutanix",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Nutanix Infrastructure as Code with Terraform: VMs, Subnets and Categories",
+        "subtopics": [
+          "The Nutanix Terraform provider",
+          "Subnets, images and VMs as code",
+          "Categories for policy",
+          "Protection policies as code",
+          "Modules for standard VMs",
+          "State and drift",
+          "Pipelines with plan review",
+          "Secrets for the provider"
+        ],
+        "tools": [
+          "Terraform",
+          "Nutanix provider",
+          "CI pipeline"
+        ],
+        "lab_task": "Build a module for standard VMs with categories, apply subnets, VMs and a protection policy through a pipeline and detect a manual change.",
+        "deliverable": "Nutanix infrastructure as code",
+        "checks": [
+          [
+            "Build",
+            "The module creates VMs with categories",
+            "Apply output"
+          ],
+          [
+            "Protect",
+            "The protection policy covers the new VMs",
+            "Policy view"
+          ],
+          [
+            "Detect",
+            "The manual change shows as drift",
+            "Plan output"
+          ]
+        ],
+        "objectives": [
+          "Manage Nutanix with Terraform",
+          "Standardise VMs",
+          "Detect drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Nutanix",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Linux VMs on AHV: Cloud-Init, Guest Tools and Storage Tuning",
+        "subtopics": [
+          "Linux guests on AHV",
+          "Cloud-init customisation",
+          "Nutanix Guest Tools on Linux",
+          "Disk layout and file systems",
+          "Volume groups for Linux databases",
+          "Multipath for iSCSI",
+          "Monitoring Linux guests",
+          "Performance tuning"
+        ],
+        "tools": [
+          "Nutanix AHV",
+          "cloud-init",
+          "Nutanix Volumes",
+          "Linux tools"
+        ],
+        "lab_task": "Deploy Linux VMs with cloud-init, install guest tools, attach a volume group with multipath for a database and tune the file system.",
+        "deliverable": "Tuned Linux VMs on AHV",
+        "checks": [
+          [
+            "Deploy",
+            "VMs boot with their cloud-init settings",
+            "VM consoles"
+          ],
+          [
+            "Attach",
+            "The database uses the multipath volume",
+            "Multipath output"
+          ],
+          [
+            "Tune",
+            "Storage tests improve after tuning",
+            "Before-and-after results"
+          ]
+        ],
+        "objectives": [
+          "Run Linux on AHV",
+          "Use cloud-init",
+          "Tune storage for Linux workloads"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -24140,6 +25547,365 @@
           "Combine IAM and security skills",
           "Defend against identity attacks",
           "Learn from exercises"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Palo Alto Firewalls",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Inspected Cloud Network on AWS with Palo Alto",
+        "subtopics": [
+          "Centralised inspection",
+          "Tag-based policy",
+          "Threat prevention",
+          "Logging and cost"
+        ],
+        "tools": [
+          "VM-Series or Cloud NGFW",
+          "AWS Gateway Load Balancer",
+          "AWS Transit Gateway",
+          "Panorama"
+        ],
+        "lab_task": "Deliver an inspected AWS network for three VPCs with centralised inspection, tag-based rules, threat prevention, central logging and a cost estimate.",
+        "deliverable": "Inspected AWS network with evidence",
+        "checks": [
+          [
+            "Inspect",
+            "Every flow passes through inspection",
+            "Firewall logs"
+          ],
+          [
+            "Protect",
+            "Test threats are blocked",
+            "Threat log"
+          ],
+          [
+            "Cost",
+            "Monthly cost is estimated",
+            "Cost model"
+          ]
+        ],
+        "objectives": [
+          "Combine Palo Alto and AWS skills",
+          "Inspect cloud traffic",
+          "Report cost"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Palo Alto Firewalls",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Firewall-Backed Detection and Containment",
+        "subtopics": [
+          "Threat prevention and logging",
+          "SIEM integration",
+          "Hunting and indicators",
+          "Automated containment"
+        ],
+        "tools": [
+          "PAN-OS firewalls",
+          "SIEM",
+          "External dynamic lists",
+          "Dynamic address groups"
+        ],
+        "lab_task": "Run an attack exercise against the lab network and show firewall prevention, SIEM detection, a threat hunt and automated containment of the infected host.",
+        "deliverable": "Exercise record with detections and containment",
+        "checks": [
+          [
+            "Prevent",
+            "Known threats are blocked",
+            "Threat log"
+          ],
+          [
+            "Detect",
+            "The SIEM raises alerts from firewall data",
+            "SIEM alerts"
+          ],
+          [
+            "Contain",
+            "The infected host is contained automatically",
+            "Containment log"
+          ]
+        ],
+        "objectives": [
+          "Combine firewall and security skills",
+          "Detect and contain threats",
+          "Learn from exercises"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SD-WAN",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Branch-to-Azure SD-WAN with Cloud Security",
+        "subtopics": [
+          "Branch overlays",
+          "Virtual WAN hub integration",
+          "Segments into Azure",
+          "Security and monitoring"
+        ],
+        "tools": [
+          "SD-WAN platform",
+          "Azure Virtual WAN",
+          "Azure Firewall or a partner firewall",
+          "Azure Monitor"
+        ],
+        "lab_task": "Connect three branches to Azure through Virtual WAN with BGP, carry two segments, inspect traffic with routing intent and monitor the path end to end.",
+        "deliverable": "Branch-to-Azure network with evidence",
+        "checks": [
+          [
+            "Connect",
+            "Branches reach their Azure workloads",
+            "Connection tests"
+          ],
+          [
+            "Segment",
+            "Segments stay separate into Azure",
+            "Reachability tests"
+          ],
+          [
+            "Inspect",
+            "Traffic is inspected in the hub",
+            "Firewall logs"
+          ]
+        ],
+        "objectives": [
+          "Combine SD-WAN and Azure skills",
+          "Connect branches to Azure",
+          "Keep segments separate"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SD-WAN",
+        "CCNA Networking"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Campus and Branch Network with SD-WAN",
+        "subtopics": [
+          "Campus routing and switching",
+          "Branch SD-WAN edges",
+          "Routing between campus and overlay",
+          "Failover tests"
+        ],
+        "tools": [
+          "Cisco switches and routers",
+          "Cisco Catalyst SD-WAN",
+          "Network emulator"
+        ],
+        "lab_task": "Build a campus with VLANs and OSPF and two SD-WAN branches, connect them with BGP at the hub and test transport and edge failures.",
+        "deliverable": "Working campus and branch network",
+        "checks": [
+          [
+            "Route",
+            "Campus and branches reach each other",
+            "Route tables and tests"
+          ],
+          [
+            "Steer",
+            "Applications follow SD-WAN policy",
+            "Flow records"
+          ],
+          [
+            "Survive",
+            "Failures do not stop critical traffic",
+            "Test record"
+          ]
+        ],
+        "objectives": [
+          "Combine CCNA and SD-WAN skills",
+          "Join campus and overlay",
+          "Prove resilience"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Windows Server and Active Directory",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hybrid Windows Estate with Azure Arc",
+        "subtopics": [
+          "AD across on premises and Azure",
+          "Arc management and patching",
+          "Backup and recovery",
+          "Monitoring and security"
+        ],
+        "tools": [
+          "Windows Server",
+          "Azure Arc",
+          "Azure Backup",
+          "Azure Monitor"
+        ],
+        "lab_task": "Run a hybrid Windows estate with a domain controller in Azure, Arc-managed on-premises servers, hotpatching, Azure Backup, monitoring and Defender for Servers.",
+        "deliverable": "Hybrid estate with evidence",
+        "checks": [
+          [
+            "Replicate",
+            "AD replicates across sites",
+            "repadmin output"
+          ],
+          [
+            "Patch",
+            "Servers are patched through Azure",
+            "Update history"
+          ],
+          [
+            "Recover",
+            "A server is restored from Azure Backup",
+            "Restore record"
+          ]
+        ],
+        "objectives": [
+          "Combine Windows Server and Azure skills",
+          "Run a hybrid estate",
+          "Prove recovery"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Windows Server and Active Directory",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Hardened Hybrid Identity from Active Directory to Entra ID",
+        "subtopics": [
+          "Hybrid sync and SSO",
+          "Tiering and tier 0 protection",
+          "Attack path removal",
+          "Monitoring and response"
+        ],
+        "tools": [
+          "Active Directory",
+          "Microsoft Entra ID",
+          "BloodHound",
+          "Defender for Identity"
+        ],
+        "lab_task": "Deliver hybrid identity with sync and SSO, tiered administration, a protected sync server, removed attack paths and detections for common AD attacks.",
+        "deliverable": "Hardened hybrid identity with evidence",
+        "checks": [
+          [
+            "Sign in",
+            "Users sign in to cloud apps with SSO",
+            "Sign-in tests"
+          ],
+          [
+            "Harden",
+            "No attack path leads to tier 0",
+            "Analysis report"
+          ],
+          [
+            "Detect",
+            "Seeded attacks raise alerts",
+            "Alerts"
+          ]
+        ],
+        "objectives": [
+          "Combine Windows Server and IAM skills",
+          "Harden hybrid identity",
+          "Detect identity attacks"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Nutanix",
+        "VMware vSphere"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: VMware to Nutanix Migration Wave",
+        "subtopics": [
+          "Assessment and feature mapping",
+          "Network extension",
+          "Migration with Move",
+          "Validation and decommissioning"
+        ],
+        "tools": [
+          "VMware vSphere",
+          "Nutanix Move",
+          "Flow Virtual Networking",
+          "Prism Central"
+        ],
+        "lab_task": "Run a migration wave of ten VMs from vSphere to AHV with a feature map, subnet extension, Move cutovers, application validation and host decommissioning.",
+        "deliverable": "Completed migration wave with evidence",
+        "checks": [
+          [
+            "Plan",
+            "The wave plan covers every VM",
+            "Wave plan"
+          ],
+          [
+            "Migrate",
+            "All VMs keep their addresses and run",
+            "Migration report"
+          ],
+          [
+            "Validate",
+            "Applications pass their checks",
+            "Validation checklist"
+          ]
+        ],
+        "objectives": [
+          "Combine VMware and Nutanix skills",
+          "Run a migration wave",
+          "Validate migrated apps"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Nutanix",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Kubernetes Platform on Nutanix",
+        "subtopics": [
+          "NKP clusters",
+          "Persistent storage",
+          "Networking and security",
+          "Upgrades and monitoring"
+        ],
+        "tools": [
+          "Nutanix Kubernetes Platform",
+          "Nutanix CSI driver",
+          "Flow Network Security",
+          "kubectl"
+        ],
+        "lab_task": "Deliver a Kubernetes platform on Nutanix with NKP clusters, persistent storage, network policies, monitoring and a tested upgrade for two application teams.",
+        "deliverable": "Kubernetes platform with evidence",
+        "checks": [
+          [
+            "Run",
+            "Both teams run their apps",
+            "Workload list"
+          ],
+          [
+            "Store",
+            "Stateful apps keep data through restarts",
+            "Data checks"
+          ],
+          [
+            "Upgrade",
+            "The platform upgrades without app downtime",
+            "Upgrade log"
+          ]
+        ],
+        "objectives": [
+          "Combine Nutanix and Kubernetes skills",
+          "Deliver a container platform",
+          "Prove upgrades"
         ]
       }
     }
