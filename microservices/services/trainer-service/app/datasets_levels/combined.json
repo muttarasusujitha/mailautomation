@@ -20722,9 +20722,1055 @@
           "Use released sales APIs"
         ]
       }
+    },
+    {
+      "between": [
+        "Power Apps",
+        "Power Automate"
+      ],
+      "day": {
+        "topic": "Calling Cloud Flows from Canvas and Model-Driven Apps: Parameters, Responses and Licensing",
+        "subtopics": [
+          "The When Power Apps calls a flow (V2) trigger and its text, number, yes/no, date, email and file inputs",
+          "Passing a collection as JSON text and reading it with Parse JSON",
+          "Running a flow with FlowName.Run() and using the record it returns",
+          "Respond to a Power App or flow and the 120-second response limit",
+          "Respond-first patterns for long work: write the result to Dataverse and refresh the app",
+          "Failures: a Catch scope that returns a status and message, read with IfError and Notify",
+          "Model-driven apps: the When a row is selected trigger and custom page dialogs that call flows",
+          "Run-only user connections, flows in the context of an app and associating flows with the app"
+        ],
+        "tools": [
+          "Power Apps Studio",
+          "Power Automate",
+          "Microsoft Dataverse connector",
+          "Command designer",
+          "Monitor in Power Apps"
+        ],
+        "lab_task": "Build a Travel Request canvas app that sends the trip header and three itinerary legs as JSON to a cloud flow, which prices the legs, saves the request in Dataverse and returns the total and a status within 120 seconds; force a failure with a £6,000 leg and show the flow's message with IfError, run the same flow from the model-driven app through a custom page dialog, and associate the nightly reminder flow with the app.",
+        "deliverable": "Two apps calling one flow, run history for a success and a failure, and the flow-to-app association",
+        "checks": [
+          [
+            "Submit a trip with three legs from the canvas app",
+            "App shows the total cost and status returned by the flow",
+            "Screenshot and flow run history"
+          ],
+          [
+            "Submit a trip that includes a £6,000 leg",
+            "Flow returns a failure status and the app shows its message",
+            "Monitor trace of the call"
+          ],
+          [
+            "Run the custom page dialog on a request in the model-driven app",
+            "Same flow runs for the selected row and updates its status",
+            "Flow run and updated Dataverse row"
+          ]
+        ],
+        "objectives": [
+          "Call cloud flows from canvas and model-driven apps",
+          "Return results and failures to the app",
+          "Decide how flows started from apps are licensed"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Apps",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Custom Pages and Embedded Canvas Apps Inside Dynamics 365 Sales and Customer Service",
+        "subtopics": [
+          "Extending Sales Hub and Copilot Service workspace: site maps, forms and commands, or a copy of the app",
+          "Your solution layer over Microsoft's managed Dynamics 365 solutions, and what updates do to it",
+          "Custom pages as full pages, centred or side dialogs with navigateTo, and side panes with Xrm.App.sidePanes",
+          "Passing the record ID to a custom page and reading it with Param() and LookUp()",
+          "Embedded canvas apps on main forms with ModelDrivenFormIntegration.Item, RefreshForm and SaveForm",
+          "Adding embedded canvas apps in the classic form designer, and modern controls in custom pages",
+          "One security model for both: security roles, column security and record access on shared tables",
+          "Restricted tables such as Case, Entitlement and Knowledge Article, and who needs a Dynamics 365 licence to write to them"
+        ],
+        "tools": [
+          "Power Apps app designer",
+          "Custom page designer",
+          "Classic form designer",
+          "Command designer",
+          "Dynamics 365 Sales Hub",
+          "Copilot Service workspace"
+        ],
+        "lab_task": "Add a Warranty Check command to the case form in Copilot Service workspace that opens a custom page dialog showing the customer's registered products and warranty end dates, embed a canvas app on the Sales Hub account form that lists open cases and refreshes the form after an edit, keep both in a Contoso Extensions solution, and list which users need a Customer Service licence to update cases through them.",
+        "deliverable": "Custom page, embedded canvas app, solution layer evidence and a licence list for case updates",
+        "checks": [
+          [
+            "Open a case and select Warranty Check",
+            "Dialog shows the customer's registered products with warranty end dates",
+            "Case screenshot with the dialog"
+          ],
+          [
+            "Change a case status in the embedded app on the account form",
+            "Account form refreshes and shows the new case status",
+            "Screen recording"
+          ],
+          [
+            "Open the solution layers of the account form",
+            "Contoso Extensions layer sits above Microsoft's managed layers",
+            "Solution layers screenshot"
+          ]
+        ],
+        "objectives": [
+          "Extend first-party Dynamics 365 apps with custom pages",
+          "Embed canvas apps that work with the host form",
+          "Keep extensions upgrade-safe and correctly licensed"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Apps",
+        "SharePoint"
+      ],
+      "day": {
+        "topic": "SharePoint as a Power Apps Back End: List Schema, Permissions and the Move to Dataverse",
+        "subtopics": [
+          "Designing lists for an app: one list per entity, lookup columns and the 12-lookup-column threshold",
+          "Indexed columns, the 5,000-item view threshold and column types that keep filters delegable",
+          "Patching choice, person and lookup columns from Power Fx",
+          "Saving photos and files from the app into a document library with metadata through a flow",
+          "Why app users can also edit the list in the browser, and what item-level permissions change",
+          "Unique permissions per item: the 50,000 limit, the 5,000 recommendation and why per-item sharing does not scale",
+          "List version history as the app's audit trail, and its limits",
+          "Moving to Dataverse: a decision scorecard, licence cost and copying lists with a dataflow"
+        ],
+        "tools": [
+          "Power Apps Studio",
+          "Microsoft Lists",
+          "SharePoint list settings",
+          "Power Automate",
+          "Dataflows in Power Apps"
+        ],
+        "lab_task": "Build a Facilities Requests back end with Requests, Sites and Assets lists and a Photos library, connect a canvas app that patches choice, person and lookup columns and saves photos to the library through a flow, limit requesters to their own items, then score the design against Dataverse for 40,000 requests a year and copy the Sites list into a Dataverse table with a dataflow.",
+        "deliverable": "List and library schema, a working app, a permission test and a Dataverse scorecard",
+        "checks": [
+          [
+            "Submit a request with a photo from the app",
+            "Item holds the right choice, person and lookup values and the photo is in the library with the request ID",
+            "List item and library screenshots"
+          ],
+          [
+            "Open the Requests list in the browser as a second requester",
+            "Only that requester's own items are listed",
+            "Browser screenshot"
+          ],
+          [
+            "Score the design for 40,000 requests a year",
+            "Scorecard gives a stay or move decision with the deciding criteria",
+            "Completed scorecard"
+          ]
+        ],
+        "objectives": [
+          "Design SharePoint lists and libraries for an app",
+          "Close the gap between app and list permissions",
+          "Decide with evidence when to move to Dataverse"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Automate",
+        "SharePoint"
+      ],
+      "day": {
+        "topic": "Document Lifecycle Flows on SharePoint: Approval, Publishing, Retention Labels and Versions",
+        "subtopics": [
+          "Choosing one approval system per library: built-in approvals, content approval or a flow",
+          "Approving with Set content approval status and the file's ETag",
+          "Publishing a major version with Check out file and Check in file",
+          "Trigger conditions on a status column so metadata updates do not retrigger the flow",
+          "Applying a retention label from a flow as the last step, and why a record label then blocks edits",
+          "Running a flow at the end of a retention period with the Microsoft 365 compliance connector",
+          "Version limits and version history reports for libraries that flows update often",
+          "Publishing a PDF copy to a read-only library with the source metadata"
+        ],
+        "tools": [
+          "Power Automate",
+          "SharePoint connector",
+          "Microsoft 365 compliance connector",
+          "Microsoft Purview",
+          "SharePoint library settings"
+        ],
+        "lab_task": "In a Procedures library, build flows that send each draft through two review stages, check the approved draft in as a major version and set its content approval status to Approved, write the approver and approval date to columns without retriggering, publish a PDF copy to a read-only Published Procedures library with a five-year label that marks it as a record, and configure an end-of-retention flow that asks the records manager to confirm disposal.",
+        "deliverable": "Flows with run history, version history of a published procedure and a retention test log",
+        "checks": [
+          [
+            "Approve a draft procedure",
+            "File is published as version 1.0 with the approver and date columns filled",
+            "Version history"
+          ],
+          [
+            "Update the approver column from the flow",
+            "Flow does not run again because of its trigger condition",
+            "Run history showing one run"
+          ],
+          [
+            "Try to edit the published PDF that carries the record label",
+            "Edit is blocked while the label is applied",
+            "Library screenshot and error message"
+          ]
+        ],
+        "objectives": [
+          "Control document approval and publishing from flows",
+          "Apply retention and record labels in the right order",
+          "Keep version history under control"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Apps",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Write-Back from Power BI Reports with the Power Apps Visual and Translytical Task Flows",
+        "subtopics": [
+          "Adding the Power Apps visual in Power BI Desktop and choosing fields for PowerBIIntegration.Data",
+          "Creating a new app from the visual compared with choosing an existing app",
+          "How slicers and cross-filtering reach the app, and the 1,000-row limit",
+          "Writing back to Dataverse or SQL with Patch from the visual",
+          "Showing the change: PowerBIIntegration.Refresh() with DirectQuery, and import models that wait for the next refresh",
+          "Sharing the app with report viewers and the Power Apps licences they need",
+          "Translytical task flows: a data function button that calls a Fabric user data function",
+          "Choosing between the two by capacity, licences, audit trail and the number of rows changed"
+        ],
+        "tools": [
+          "Power BI Desktop",
+          "Power BI service",
+          "Power Apps visual for Power BI",
+          "Power Apps Studio",
+          "Microsoft Dataverse",
+          "Fabric user data functions"
+        ],
+        "lab_task": "Add a Power Apps visual to a DirectQuery Account Forecast report so managers can change an account's forecast category and comment, refresh the report from the app after saving, share the app with three viewers, then rebuild the comment write-back as a translytical task flow into a Fabric SQL database and compare the two on licences, capacity and audit.",
+        "deliverable": "Report with an embedded app, a working translytical task flow and a one-page comparison",
+        "checks": [
+          [
+            "Change an account's forecast category in the visual",
+            "Dataverse row changes and the report shows the new category after the refresh",
+            "Record and report screenshots"
+          ],
+          [
+            "Cross-filter the report to 1,200 accounts",
+            "CountRows(PowerBIIntegration.Data) stops at 1,000",
+            "Count label in the app"
+          ],
+          [
+            "Submit a comment with the data function button",
+            "A new row is added to the comments table in the Fabric SQL database",
+            "SQL query result"
+          ]
+        ],
+        "objectives": [
+          "Embed an app in a Power BI report",
+          "Write data back from a report and show the change",
+          "Choose between the Power Apps visual and translytical task flows"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Automate",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Driving Flows from Power BI: Data Alerts, Activator Rules, Refreshes and Page Exports",
+        "subtopics": [
+          "Dashboard tile alerts on cards, KPIs and gauges with the When a data driven alert is triggered trigger",
+          "Fabric Activator rules created with Set alert in a report that start a Power Automate flow",
+          "The Power Automate visual: a report button that sends the filtered rows to a flow",
+          "Refreshing a semantic model after an upstream load and waiting for the result in a Do until loop",
+          "Refresh limits: eight a day on shared capacity, including scheduled refreshes",
+          "Export To File for Power BI Reports with page names, bookmarks and a report-level filter per recipient",
+          "Export To File for Paginated Reports with parameters for statement-style output",
+          "Retry policies, run-after branches and an owner alert when a refresh or export fails"
+        ],
+        "tools": [
+          "Power Automate",
+          "Power BI service",
+          "Fabric Activator",
+          "Power Automate visual for Power BI",
+          "HTTP with Microsoft Entra ID connector"
+        ],
+        "lab_task": "For the Branch Performance report, build a flow that refreshes the semantic model after the nightly load, waits until the refresh succeeds and emails each of six regional managers a PDF of their region's page, an Activator rule that starts a flow when branch margin falls below 18%, and a report button that creates a Planner task for each branch the user selects.",
+        "deliverable": "Three flows with run history, six regional PDFs and a failure test log",
+        "checks": [
+          [
+            "Write the nightly load completion row",
+            "Refresh runs once and the six PDFs are sent only after it succeeds",
+            "Flow run history and refresh history"
+          ],
+          [
+            "Lower one branch's margin to 17% in the test data and refresh",
+            "Activator rule fires and its flow posts the branch to the Teams channel",
+            "Activator history and Teams message"
+          ],
+          [
+            "Select three branches and press the report button",
+            "Three Planner tasks are created with the branch names",
+            "Planner board screenshot"
+          ]
+        ],
+        "objectives": [
+          "Start flows from Power BI alerts and report buttons",
+          "Run refreshes and exports in the right order",
+          "Work within refresh limits and handle failures"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Apps",
+        "Microsoft Copilot"
+      ],
+      "day": {
+        "topic": "Packaging a Copilot Studio Agent with a Power Apps Solution and Grounding It on Dataverse",
+        "subtopics": [
+          "Creating the agent inside the app's solution with its environment variables and connection references",
+          "Dataverse knowledge on the app's tables: up to 15 tables per source, with synonyms and a glossary",
+          "Authenticate with Microsoft so answers follow each user's security roles",
+          "Dataverse search indexing for the selected tables and checking index status",
+          "Agent tools that create or update rows in the app's tables after the user confirms",
+          "Setting the agent as the default agent in the model-driven app's Microsoft Copilot pane",
+          "Canvas apps after the Copilot control, which cannot be added to new apps since 2 February 2026",
+          "Testing as users in two security roles and moving the solution through a pipeline"
+        ],
+        "tools": [
+          "Microsoft Copilot Studio",
+          "Power Apps solutions",
+          "Microsoft Dataverse",
+          "Microsoft Copilot in Power Apps",
+          "Pipelines in Power Platform"
+        ],
+        "lab_task": "In a Fleet Maintenance solution, create a Maintenance Assistant agent grounded on the Vehicle, Work Order and Part tables with a glossary entry that defines 'job card' as a work order, set it as the default agent in the workshop model-driven app, add a tool that creates a work order after the user confirms, test 20 questions as a mechanic and as a workshop manager, and deploy the solution to test with a pipeline.",
+        "deliverable": "Solution with app and agent, a 20-question test sheet for two roles and the pipeline run",
+        "checks": [
+          [
+            "As the workshop manager, ask which vans have had a job card open for more than 7 days",
+            "Agent lists the matching work orders from Dataverse",
+            "Test sheet and transcript"
+          ],
+          [
+            "Ask the same question as a mechanic who sees only their own work orders",
+            "Agent returns only that mechanic's work orders",
+            "Transcript compared with the mechanic's view in the app"
+          ],
+          [
+            "Deploy the solution to test with the pipeline",
+            "App, agent and knowledge arrive together and the agent answers in test",
+            "Pipeline run history and test transcript"
+          ]
+        ],
+        "objectives": [
+          "Package an agent with the app it supports",
+          "Ground the agent on the app's Dataverse data",
+          "Prove that answers respect app security"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Power Automate",
+        "Microsoft Copilot"
+      ],
+      "day": {
+        "topic": "Flows as Agent Tools: Inputs, Outputs, the 100-Second Limit and Human Approvals",
+        "subtopics": [
+          "The When an agent calls the flow trigger and the Respond to the agent action",
+          "Input and output names and descriptions that the orchestrator uses to fill and read values",
+          "Responding within 100 seconds and continuing after Respond to the agent for up to 30 days",
+          "Asynchronous responses for long flows and the 1 MB limit on data returned to the agent",
+          "Request for information: pausing the flow to collect missing details from a named person",
+          "Multistage approvals with AI and human stages, and where a person must make the final decision",
+          "Which connections a flow tool runs with, and keeping agent and flow in one solution",
+          "Agent flows billed in Copilot Credits compared with cloud flows under Power Automate licences"
+        ],
+        "tools": [
+          "Microsoft Copilot Studio",
+          "Power Automate",
+          "Agent flow designer",
+          "Approvals connector",
+          "Microsoft Outlook"
+        ],
+        "lab_task": "Give an Employee Services agent a Request Equipment tool: an agent flow that takes item, cost centre and reason, checks the catalogue price, replies to the agent within 100 seconds with a reference number, then asks the line manager for the delivery site with Request for information and runs a two-stage approval in which an AI stage checks the equipment policy and a budget holder approves anything over £1,000; test 10 requests.",
+        "deliverable": "Agent with the flow tool, 10 test conversations and their approval records",
+        "checks": [
+          [
+            "Ask for a £300 monitor without giving a cost centre",
+            "Agent asks for the cost centre before it calls the tool, then gives a reference number",
+            "Transcript and flow run"
+          ],
+          [
+            "Request a £1,400 laptop",
+            "AI stage passes it to the budget holder, who approves it",
+            "Approval history"
+          ],
+          [
+            "Add a two-minute delay before Respond to the agent",
+            "Tool call times out, and moving the response earlier fixes it",
+            "Activity map and run history"
+          ]
+        ],
+        "objectives": [
+          "Design flow inputs and outputs that an agent can fill",
+          "Keep tool calls within the response limits",
+          "Add human steps where policy requires them"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Salesforce",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Salesforce and Dynamics 365 Compared for CRM Migration: Data Model, Security and Records",
+        "subtopics": [
+          "Objects to tables: Account, Contact, Lead, Opportunity and Case against account, contact, lead, opportunity and incident, and where Person Accounts go",
+          "Picklists, record types and lookup or master-detail fields against choices, forms, business process flows and 1:N relationships",
+          "Security for migration: mapping profiles, roles and sharing rules to security roles, business units and teams",
+          "Automation inventory: Flow, Apex triggers and leftover Process Builder against Power Automate, business rules and plug-ins",
+          "Activities, notes and files: Task, Event and ContentVersion against activities, notes and file storage",
+          "Dynamics 365 Activate (preview): Salesforce discovery, object and user mapping, and verified loads",
+          "Load order and Salesforce 18-character IDs as alternate keys for reruns",
+          "Closing records: WinOpportunity and CloseIncident in place of status updates"
+        ],
+        "tools": [
+          "Dynamics 365 Activate (preview)",
+          "Salesforce Schema Builder",
+          "Salesforce Data Loader",
+          "Power Apps maker portal",
+          "Power Platform admin center"
+        ],
+        "lab_task": "Assess a Salesforce org with 8,000 accounts, 20,000 contacts, 3,500 opportunities and 12,000 cases, map its objects, picklists, profiles, roles and sharing rules to Dynamics 365 Sales and Customer Service, list each Flow and Apex trigger with its replacement, then migrate a 10% sample in dependency order with the Salesforce ID as an alternate key and reconcile counts and closed statuses.",
+        "deliverable": "Mapping workbook, automation replacement list and a reconciled sample load",
+        "checks": [
+          [
+            "Load the sample a second time",
+            "Records update through the alternate key and no duplicates appear",
+            "Record counts before and after"
+          ],
+          [
+            "Migrate a closed-won opportunity and a resolved case",
+            "Both arrive closed, with their close dates and resolution records",
+            "Opportunity close and case resolution records"
+          ],
+          [
+            "Compare a sales rep's visible accounts in both systems",
+            "Rep sees the same accounts in Salesforce and Dynamics 365",
+            "Access comparison sheet"
+          ]
+        ],
+        "objectives": [
+          "Compare the Salesforce and Dynamics 365 data and security models",
+          "Plan a replacement for each automation",
+          "Migrate and reconcile core CRM records"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Salesforce Admin",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Salesforce Admin to Dynamics 365 Admin: Security, Sharing and Automation Side by Side",
+        "subtopics": [
+          "Users and licences: Salesforce Setup against Microsoft Entra ID, the Microsoft 365 admin center and the Power Platform admin center",
+          "Profiles, permission sets and permission set groups against security roles and Microsoft Entra group teams",
+          "Role hierarchy against business units and manager or position hierarchy security",
+          "Org-wide defaults and sharing rules against access levels, access teams and record sharing",
+          "Field-level security against column security profiles",
+          "Troubleshooting access: the Sharing Hierarchy in Salesforce against Check access in Dynamics 365",
+          "Record-triggered flows in Flow Builder against Dataverse-triggered cloud flows and business rules",
+          "Sandboxes and change sets against environments, solutions and pipelines, and three releases a year against two release waves"
+        ],
+        "tools": [
+          "Salesforce Setup",
+          "Flow Builder",
+          "Power Platform admin center",
+          "Microsoft 365 admin center",
+          "Security role editor",
+          "Power Automate"
+        ],
+        "lab_task": "Configure the same access for a 12-person, two-region sales team in a Salesforce org and a Dynamics 365 Sales environment: permission sets against security roles, the role hierarchy against business units, a sharing rule against an access team, field-level security against a column security profile, and a deal escalation as a record-triggered flow and as a cloud flow, then test both with the same three users.",
+        "deliverable": "Side-by-side configuration workbook and access test results from both systems",
+        "checks": [
+          [
+            "Open a North region deal as a South region rep in both systems",
+            "Access is denied in both until the deal is shared with the rep",
+            "Screenshots from both systems"
+          ],
+          [
+            "View the deal's margin field as a rep",
+            "Field is hidden in Salesforce and masked in Dynamics 365",
+            "Field screenshots from both systems"
+          ],
+          [
+            "Raise a deal above £50,000",
+            "Escalation runs in both systems and notifies the regional manager",
+            "Notification emails and cloud flow run history"
+          ]
+        ],
+        "objectives": [
+          "Map Salesforce admin tasks to Dynamics 365",
+          "Configure the same security and sharing on both platforms",
+          "Rebuild an automation on the other platform"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Microsoft Dynamics 365",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Dynamics 365 and S/4HANA Coexistence: Process Split, Master Data Ownership and Interfaces",
+        "subtopics": [
+          "Coexistence patterns: Dynamics 365 Sales and Customer Service in front of S/4HANA, and two-tier ERP with Dynamics 365 subsidiaries",
+          "Splitting lead to cash: opportunity and quote in Dynamics 365, sales order, delivery and billing in S/4HANA",
+          "Master data ownership for business partner, product, price and credit limit, field by field",
+          "Business partner replication with API_BUSINESS_PARTNER and the BusinessPartner Changed event",
+          "Sales order creation and status return with API_SALES_ORDER_SRV",
+          "Intercompany between a Dynamics 365 Finance subsidiary and S/4HANA with ORDERS05 and INVOIC02 IDocs",
+          "Middleware choices: SAP Integration Suite, Azure Logic Apps or the Power Platform SAP ERP and SAP OData connectors",
+          "Key mapping, monitoring and reconciliation reports across both systems"
+        ],
+        "tools": [
+          "SAP Integration Suite",
+          "SAP Business Accelerator Hub",
+          "Dynamics 365 Sales",
+          "Dataverse Web API",
+          "Power Automate SAP ERP connector",
+          "SAP GUI transaction BP"
+        ],
+        "lab_task": "For a manufacturer that runs Dynamics 365 Sales and Customer Service with S/4HANA, map lead to cash across both systems, write a master data ownership matrix for customer, contact, product, price and credit limit, design five interfaces with API, direction, trigger and error route, and prove one: create a business partner in S/4HANA and show the account appear in Dataverse with the BP number as an alternate key.",
+        "deliverable": "Process map, ownership matrix, interface catalogue and a working business partner replication",
+        "checks": [
+          [
+            "Create a business partner in S/4HANA with transaction BP",
+            "Matching account appears in Dynamics 365 with the BP number",
+            "Account record and integration message log"
+          ],
+          [
+            "Try to change the account's credit limit in Dynamics 365",
+            "Field is read-only because S/4HANA owns it",
+            "Form screenshot and ownership matrix"
+          ],
+          [
+            "Review the interface catalogue",
+            "Each of the five interfaces has an owner, trigger, API and error route",
+            "Interface catalogue"
+          ]
+        ],
+        "objectives": [
+          "Map processes across Dynamics 365 and S/4HANA",
+          "Assign master data ownership by field",
+          "Design and test cross-system interfaces"
+        ]
+      }
     }
   ],
   "capstones": [
+    {
+      "applies_to": [
+        "Power Apps",
+        "Power Automate"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Capital Expenditure Requests and Approvals for a Hospital Trust",
+        "subtopics": [
+          "Dataverse tables, security roles and one solution with environment variables",
+          "Canvas app where requesters draft, submit and withdraw requests with quotes",
+          "Model-driven app and custom page dialog for finance reviewers",
+          "Approval flows by amount band with reminders, escalation and delegation",
+          "Flow called from the app that checks the budget code and returns the remaining budget",
+          "Pipeline deployment, licence plan and a demo to the finance director"
+        ],
+        "tools": [
+          "Power Apps",
+          "Power Automate",
+          "Microsoft Dataverse",
+          "Approvals app in Teams",
+          "Pipelines in Power Platform"
+        ],
+        "lab_task": "Deliver capital expenditure requests for a hospital trust: requesters raise requests with quotes in a canvas app, a flow called from the app checks the budget code and returns the remaining budget, approvals go to the department head up to £10,000, add the finance director from £10,000 to £50,000 and the capital committee above £50,000, reviewers work in a model-driven app, and the solution reaches test through a pipeline with a licence plan for 400 requesters.",
+        "deliverable": "Managed solution in test, approval evidence for three amount bands, a licence plan and a 15-minute demo",
+        "checks": [
+          [
+            "Submit a £4,000 request",
+            "Only the department head approves and the app shows Approved",
+            "Approval history and app screenshot"
+          ],
+          [
+            "Submit a £75,000 request",
+            "Department head, finance director and capital committee approve in that order",
+            "Approval history"
+          ],
+          [
+            "Enter a budget code that does not exist",
+            "Flow returns an error and the app blocks submission",
+            "Monitor trace and app message"
+          ]
+        ],
+        "objectives": [
+          "Combine an app and flows in one request process",
+          "Route approvals by policy",
+          "Deploy and license the solution"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Apps",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Warranty Claims Extension for Dynamics 365 Customer Service",
+        "subtopics": [
+          "Warranty Claim and Registered Product tables related to Case and Account in one solution",
+          "Custom page dialog on the case form in Copilot Service workspace for warranty checks",
+          "Tablet canvas app where warehouse inspectors record returned units on the same claim",
+          "Security roles, column security on claim values and licence checks for restricted tables",
+          "Managed solution checked with solution checker and tested with early access updates in a sandbox",
+          "Demo of a claim from case to approved replacement"
+        ],
+        "tools": [
+          "Dynamics 365 Customer Service",
+          "Copilot Service workspace",
+          "Power Apps",
+          "Custom page designer",
+          "Solution checker",
+          "Power Platform admin center"
+        ],
+        "lab_task": "For an appliance maker, add warranty claims to Dynamics 365 Customer Service: Warranty Claim and Registered Product tables linked to cases and accounts, a custom page dialog that checks warranty dates and claim history from the case, a tablet canvas app where warehouse inspectors record the condition and photos of returned units against the claim, column security on claim values, and a managed solution that passes solution checker and works with early access updates turned on in a sandbox.",
+        "deliverable": "Managed solution, 10 test claims across both apps, a solution checker report and a demo",
+        "checks": [
+          [
+            "Open a case for an appliance 20 months into a 24-month warranty",
+            "Dialog shows the warranty as valid with the product's claim history",
+            "Case screenshot with the dialog"
+          ],
+          [
+            "Record an inspection as a warehouse inspector",
+            "The case shows the claim's condition and photos",
+            "Claim record and case timeline"
+          ],
+          [
+            "Run solution checker on the managed solution",
+            "No critical issues are reported",
+            "Solution checker report"
+          ]
+        ],
+        "objectives": [
+          "Extend Dynamics 365 Customer Service with Power Apps",
+          "Share Dataverse tables between first-party and custom apps",
+          "Ship an upgrade-safe, correctly licensed extension"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Automate",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Order-to-Invoice Automation Across Dynamics 365 Sales and Supply Chain",
+        "subtopics": [
+          "Process map and flow inventory in one solution with connection references",
+          "Flow on opportunity win that creates the sales order through data entities",
+          "Credit limit check with an approval for orders over the limit",
+          "Sales invoice posted business event that updates the opportunity and emails the customer",
+          "Error log table, retries and Teams alerts for failed runs",
+          "Run evidence for 10 orders and a handover demo"
+        ],
+        "tools": [
+          "Power Automate",
+          "Dynamics 365 Sales",
+          "Dynamics 365 Supply Chain Management",
+          "Fin & Ops Apps connector",
+          "Microsoft Dataverse connector",
+          "Business events catalogue"
+        ],
+        "lab_task": "For a wholesaler, automate order to invoice: when an opportunity is won in Dynamics 365 Sales, a flow creates the sales order in Supply Chain Management through the sales order header and line data entities, orders that take the customer over the credit limit wait for the credit controller's approval, the sales invoice posted business event writes the invoice number to the opportunity and emails the invoice, and every failure is logged in an error table with a Teams alert.",
+        "deliverable": "Solution with five flows, run history for 10 test orders and the error log",
+        "checks": [
+          [
+            "Win an opportunity for a customer within the credit limit",
+            "Sales order with matching lines is created in Supply Chain Management",
+            "Sales order number on the opportunity"
+          ],
+          [
+            "Win an opportunity that takes the customer over the credit limit",
+            "Order waits for the credit controller's approval before it is created",
+            "Approval history"
+          ],
+          [
+            "Post the sales invoice in Supply Chain Management",
+            "Opportunity shows the invoice number and the customer receives the email",
+            "Business event flow run and sent email"
+          ]
+        ],
+        "objectives": [
+          "Automate one process across Dynamics 365 CRM and ERP apps",
+          "Use Dataverse triggers and business events together",
+          "Build flows that fail safely and are easy to support"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Apps",
+        "Power Automate",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Returns and Repairs Across Customer Service and Supply Chain Management",
+        "subtopics": [
+          "Return authorisation custom page dialog on the case in Copilot Service workspace",
+          "Tablet canvas app for goods-in inspection with photos and condition codes",
+          "Flows that create return orders in Supply Chain Management and credit notes after inspection",
+          "Repair quote approval for out-of-warranty units with customer notification",
+          "Security roles, licences and one solution deployed through a pipeline",
+          "End-to-end test of three return paths and a client demo"
+        ],
+        "tools": [
+          "Dynamics 365 Customer Service",
+          "Dynamics 365 Supply Chain Management",
+          "Power Apps",
+          "Power Automate",
+          "Microsoft Dataverse",
+          "Pipelines in Power Platform"
+        ],
+        "lab_task": "For a medical device distributor, run returns end to end: a service representative authorises a return from the case with a custom page, a flow creates the return order in Supply Chain Management and writes the RMA number to the case, goods-in staff inspect the unit in a tablet canvas app, and flows then issue a credit note for in-warranty faults or send an out-of-warranty repair quote for customer approval; test 12 returns across the three paths and deploy through a pipeline.",
+        "deliverable": "Deployed solution, evidence for 12 returns across three paths and a 20-minute client demo",
+        "checks": [
+          [
+            "Authorise a return on a case",
+            "Return order is created in Supply Chain Management and its RMA number shows on the case",
+            "Case and return order screenshots"
+          ],
+          [
+            "Inspect an in-warranty unit as faulty",
+            "Credit note is posted and the case is resolved",
+            "Credit note and case resolution"
+          ],
+          [
+            "Inspect an out-of-warranty unit",
+            "Repair quote is sent and the case waits for the customer's answer",
+            "Quote email and case status"
+          ]
+        ],
+        "objectives": [
+          "Combine apps, flows and Dynamics 365 in one service process",
+          "Keep CRM and ERP records in step",
+          "Deploy a supportable, licensed solution"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Apps",
+        "SharePoint"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Safety Incident Reporting on SharePoint for a Construction Firm",
+        "subtopics": [
+          "Lists for incidents, sites and corrective actions with indexed columns",
+          "Mobile canvas app for site supervisors with photo attachments",
+          "Custom list form and formatted views for the safety team",
+          "Item-level permissions, and the Override List Behaviors permission for the safety team",
+          "App on the safety site's home page through the Power Apps web part",
+          "Delegation test at 10,000 incidents and a Dataverse readiness note"
+        ],
+        "tools": [
+          "Power Apps",
+          "SharePoint Online",
+          "Microsoft Lists",
+          "Power Apps web part",
+          "List view formatting"
+        ],
+        "lab_task": "For a construction firm with 25 sites, build safety incident reporting on SharePoint: Incidents, Sites and Corrective Actions lists, a mobile canvas app where supervisors log an incident with photos in under two minutes, a custom list form and formatted views for the safety team, item-level permissions so supervisors see only their own reports, and the app on the safety site's home page; load 10,000 test incidents and prove the main screens still find the right records.",
+        "deliverable": "Working app and site, a permission test, a 10,000-item delegation test and a Dataverse readiness note",
+        "checks": [
+          [
+            "Log an incident with two photos on a phone",
+            "Item has both attachments with the site and severity set",
+            "List item screenshot and timing"
+          ],
+          [
+            "Open the Incidents list as a second supervisor",
+            "Only that supervisor's incidents are shown",
+            "Browser screenshot"
+          ],
+          [
+            "Search from the app for an incident near row 9,800",
+            "Incident is found with no delegation warning",
+            "App and App checker screenshots"
+          ]
+        ],
+        "objectives": [
+          "Build a business app on SharePoint data",
+          "Protect confidential list data",
+          "Prove the design holds at volume"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Automate",
+        "SharePoint"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Policy Document Lifecycle for a Housing Association",
+        "subtopics": [
+          "Policies library with a content type, review date and owner columns, and version limits",
+          "Review and approval flow that publishes major versions",
+          "PDF copies published to the policy hub with their metadata",
+          "Annual review reminders with escalation to the governance team",
+          "Record label on published policies and an end-of-retention flow for superseded ones",
+          "Run evidence, flow ownership and handover"
+        ],
+        "tools": [
+          "Power Automate",
+          "SharePoint Online",
+          "Microsoft Purview",
+          "Microsoft 365 compliance connector",
+          "Approvals app in Teams",
+          "Word Online (Business) connector"
+        ],
+        "lab_task": "For a housing association with 140 policies, run the policy lifecycle on SharePoint: authors draft in a Policies library, a flow sends each draft to two reviewers and the policy owner, publishes a major version and a PDF copy to the policy hub with its metadata, applies a seven-year record label, reminds owners 30 days before the annual review date and escalates after 14 days, and an end-of-retention flow asks the records manager to confirm disposal of superseded policies.",
+        "deliverable": "Library and flows in a solution, run evidence for five policies and a governance handover note",
+        "checks": [
+          [
+            "Approve a draft policy",
+            "Version 1.0 is published and a PDF with the same metadata appears in the policy hub",
+            "Version history and hub screenshot"
+          ],
+          [
+            "Run the reminder flow in test with shortened delays",
+            "Owner receives the reminder and the governance team the escalation",
+            "Reminder and escalation emails"
+          ],
+          [
+            "Try to delete a published policy PDF",
+            "Deletion is blocked by the record label",
+            "Error message and label in the details pane"
+          ]
+        ],
+        "objectives": [
+          "Automate a document lifecycle on SharePoint",
+          "Apply records controls from flows",
+          "Hand over flows that others can support"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Apps",
+        "Power Automate",
+        "SharePoint"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Contract Request and Renewal Solution for an In-House Legal Team",
+        "subtopics": [
+          "Requests and Counterparties lists and a Contracts library with content types",
+          "Canvas app for business requesters and a work queue screen for lawyers",
+          "Flow that drafts the contract from a Word template and files it with metadata",
+          "Legal review and approval that publishes the signed copy as a major version",
+          "Renewal reminders 90 days before expiry and a retention label on signed contracts",
+          "Item-level permissions on requests, a legal-only library and sharing the signed copy with the requester"
+        ],
+        "tools": [
+          "Power Apps",
+          "Power Automate",
+          "SharePoint Online",
+          "Word Online (Business) connector",
+          "Approvals app in Teams",
+          "Microsoft Purview"
+        ],
+        "lab_task": "For an in-house legal team, build contract requests: business users request an NDA or supplier agreement in a canvas app, a flow drafts it from a Word template into the Contracts library with counterparty, value and expiry metadata, a lawyer reviews and approves it from the app's work queue, the signed copy is published as a major version with a retention label and shared with the requester, and owners are reminded 90 days before expiry; run 15 test requests and show that requesters see only their own requests.",
+        "deliverable": "One solution with app, flows and site, evidence from 15 test requests and a demo to the general counsel",
+        "checks": [
+          [
+            "Request an NDA in the app",
+            "Draft with the counterparty's name is filed in the Contracts library within two minutes",
+            "Library item and flow run"
+          ],
+          [
+            "Approve the contract from the lawyer's work queue",
+            "Signed copy is version 1.0, shared with the requester, and the request shows Approved",
+            "Version history, sharing details and app screenshot"
+          ],
+          [
+            "Set a test contract to expire in 90 days",
+            "Contract owner receives the renewal reminder",
+            "Reminder email and flow run"
+          ]
+        ],
+        "objectives": [
+          "Combine an app, flows and SharePoint in one legal process",
+          "Generate and control documents from flows",
+          "Restrict contract data by role"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Apps",
+        "Power Automate",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Customer Complaints Tracking and Reporting for a Water Utility",
+        "subtopics": [
+          "Dataverse complaint tables and a canvas app for contact centre staff",
+          "Routing and escalation flows for complaints without a response",
+          "DirectQuery complaints report with volumes, ageing and root causes",
+          "Power Apps visual in the report for recording root causes",
+          "Activator rule that starts a flow, and a monthly regulator pack exported as PDF",
+          "Licence plan, test evidence and a demo to the customer services director"
+        ],
+        "tools": [
+          "Power Apps",
+          "Power Automate",
+          "Power BI",
+          "Microsoft Dataverse",
+          "Power Apps visual for Power BI",
+          "Fabric Activator"
+        ],
+        "lab_task": "For a water utility, deliver complaints handling: contact centre staff log complaints in a canvas app, flows route them by category and escalate any complaint without a response after five working days to a team leader, a DirectQuery Power BI report shows volumes, ageing and root causes, managers record root causes through a Power Apps visual on the report, an Activator rule starts a flow when weekly volume rises 20% above the four-week average, and a flow exports the monthly regulator pages as PDF on the first working day.",
+        "deliverable": "Solution, report and flows with evidence from 50 test complaints and one regulator pack",
+        "checks": [
+          [
+            "Leave a test complaint without a response for five working days, using shortened test timers",
+            "Team leader receives the escalation and the complaint shows Escalated",
+            "Flow run and complaint record"
+          ],
+          [
+            "Record a root cause in the report's Power Apps visual",
+            "Root cause chart updates after the refresh",
+            "Report screenshots before and after"
+          ],
+          [
+            "Raise weekly volume 25% above the four-week average in test data",
+            "Activator rule fires and the flow notifies the customer services director",
+            "Activator history and notification"
+          ]
+        ],
+        "objectives": [
+          "Combine an app, flows and reports in one complaints process",
+          "Write back from reports and act on alerts",
+          "Produce regulator reporting with evidence"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Power Apps",
+        "Power Automate",
+        "Microsoft Copilot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: New Starter Onboarding for a Retail Group with a Companion Agent",
+        "subtopics": [
+          "Dataverse onboarding tables and a model-driven app for HR coordinators",
+          "Onboarding flows for accounts, equipment and induction places with manager approval",
+          "Copilot Studio agent grounded on the onboarding tables and the HR policy site",
+          "Flow tools the agent calls, with Request for information for missing details",
+          "One solution with security roles, a pipeline and a Copilot Credits estimate",
+          "Test conversations, run evidence and a demo to the HR director"
+        ],
+        "tools": [
+          "Power Apps",
+          "Power Automate",
+          "Microsoft Copilot Studio",
+          "Microsoft Dataverse",
+          "Microsoft Teams",
+          "Pipelines in Power Platform"
+        ],
+        "lab_task": "For a retail group hiring 60 people a month, build onboarding: HR coordinators track each new starter's tasks in a model-driven app, flows request the account, laptop and induction place and get the hiring manager's approval for non-standard equipment, and a Copilot Studio agent in Teams and in the app answers new starters' questions from the onboarding tables and the HR policy site and books induction slots through a flow tool; test 25 conversations and deploy everything in one solution.",
+        "deliverable": "One solution holding app, flows and agent, 25 test conversations and onboarding run evidence",
+        "checks": [
+          [
+            "Ask the agent 'When is my induction?' as a new starter",
+            "Agent answers with that starter's own induction date",
+            "Transcript and onboarding record"
+          ],
+          [
+            "Ask the agent to book an induction slot",
+            "Flow books the slot within 100 seconds and the app shows the booking",
+            "Activity map, flow run and app record"
+          ],
+          [
+            "Request a non-standard laptop",
+            "Hiring manager approves before the order task is created",
+            "Approval history"
+          ]
+        ],
+        "objectives": [
+          "Combine an app, flows and an agent in one employee process",
+          "Ground the agent on the app's data with the right access",
+          "Ship and support the solution as one unit"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Salesforce Admin",
+        "Microsoft Dynamics 365"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Running Salesforce and Dynamics 365 Side by Side After an Acquisition",
+        "subtopics": [
+          "Five personas with matching access in permission sets and security roles",
+          "Joiner, mover and leaver runbook for users and licences in both systems",
+          "Lead assignment and case escalation rebuilt to behave the same",
+          "Salesforce Health Check and Power Platform admin center security recommendations",
+          "Release calendars, sandbox and environment refreshes and change control for both",
+          "Consolidation recommendation for a mock steering group"
+        ],
+        "tools": [
+          "Salesforce Setup",
+          "Salesforce Health Check",
+          "Power Platform admin center",
+          "Microsoft 365 admin center",
+          "Flow Builder",
+          "Power Automate"
+        ],
+        "lab_task": "After a group buys a rival, run both CRMs for 300 users: define five personas and give each the same access in Salesforce and Dynamics 365, write and test a joiner, mover and leaver runbook in both, rebuild lead assignment and case escalation so they behave the same, fix the top five findings from Salesforce Health Check and the Power Platform admin center security recommendations, and present a consolidation recommendation with a migration outline to a mock steering group.",
+        "deliverable": "Persona access matrix, tested runbook, health findings log and a consolidation recommendation",
+        "checks": [
+          [
+            "Move a test user from Sales to Service in both systems with the runbook",
+            "User's access matches the Service persona in both systems",
+            "Access matrix and screenshots"
+          ],
+          [
+            "Create the same web lead in both systems",
+            "Both systems assign it to the same regional owner",
+            "Lead records from both systems"
+          ],
+          [
+            "Present the consolidation recommendation",
+            "Steering group records a decision with costs, risks and a migration outline",
+            "Slide deck and decision log"
+          ]
+        ],
+        "objectives": [
+          "Administer Salesforce and Dynamics 365 to one standard",
+          "Keep access and automation consistent across both",
+          "Recommend a consolidation path with evidence"
+        ]
+      }
+    },
     {
       "applies_to": [
         "SAP MM",
