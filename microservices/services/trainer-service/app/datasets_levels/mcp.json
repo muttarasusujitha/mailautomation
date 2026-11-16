@@ -1,0 +1,573 @@
+{
+  "domain": "MCP",
+  "name": "Model Context Protocol (MCP)",
+  "category": "Generative AI and Agents",
+  "icon": "link-2",
+  "aliases": ["Model Context Protocol", "MCP Servers", "MCP Server Development", "Building MCP Servers", "MCP Clients", "MCP Integration", "Model Context Protocol Servers", "MCP for AI Agents", "MCP Development", "Remote MCP Servers"],
+  "certifications": ["No official MCP certification; assessed by working servers and clients, test suites and a security review", "Optional: vendor courses on building MCP servers"],
+  "tools": ["MCP Python SDK", "MCP TypeScript SDK", "MCP Inspector", "An MCP host such as Claude Desktop or VS Code", "Docker", "OAuth 2.1 authorization server such as Keycloak"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who connect AI assistants and agents to tools and data. Covers what MCP is, hosts, clients and servers, JSON-RPC messages, setting up the SDKs and MCP Inspector, using existing servers in AI hosts, building tool servers in Python and TypeScript, tool design and schemas, structured output and errors, resources and prompts, the stdio and Streamable HTTP transports, testing, wrapping REST APIs and databases, asking users for input with multi round-trip requests, building a simple client, security essentials and packaging servers, following the 2026-07-28 specification.",
+      "prerequisites": ["Writes Python or TypeScript", "Has called a REST API and used an AI assistant", "Understands JSON"],
+      "outcomes": ["Explain how MCP hosts, clients and servers work together", "Build MCP servers in Python and TypeScript with well-designed tools, resources and prompts", "Run servers over stdio and Streamable HTTP and test them with MCP Inspector", "Apply security essentials such as least privilege and protection against prompt injection"],
+      "days": [
+        {
+          "topic": "MCP Overview: Hosts, Clients and Servers",
+          "subtopics": ["The problem MCP solves: one way to connect models to tools and data", "Hosts, clients and servers", "Tools, resources and prompts", "Local and remote servers", "MCP compared with plain function calling", "Where MCP is used: assistants, IDEs and agents", "The specification and its versions", "The 2026-07-28 revision in brief: a stateless core", "SDKs: TypeScript, Python, Go and C#", "Course project overview: an MCP server for a company's order system"],
+          "tools": ["MCP specification site", "An MCP host", "Course project brief"],
+          "lab_task": "Connect an AI host to two public example servers, list the tools, resources and prompts each offers, call one tool from the host and draw the host, client and server roles for what happened.",
+          "deliverable": "Capability list and a role diagram",
+          "checks": [["Connect", "Both servers appear in the host with their capabilities", "Screenshots"], ["Call", "A tool call completes and its result appears in the conversation", "Screenshot"], ["Explain", "The diagram shows host, client and server roles correctly", "Diagram"]],
+          "objectives": ["Explain the MCP architecture", "Name MCP primitives", "Use servers from a host"]
+        },
+        {
+          "topic": "JSON-RPC Messages and the MCP Request Lifecycle",
+          "subtopics": ["JSON-RPC 2.0 requests, responses and errors", "Methods such as tools/list and tools/call", "Request metadata in _meta", "Protocol version on every request", "Optional capability discovery with server/discover", "Results and error objects", "Notifications", "Reading raw traffic"],
+          "tools": ["MCP Inspector", "JSON viewer", "Example server"],
+          "lab_task": "Capture the raw messages for listing and calling a tool with MCP Inspector, label each field including _meta and the protocol version, and trigger and read one error response.",
+          "deliverable": "Annotated message capture",
+          "checks": [["Capture", "List and call messages are captured", "Message log"], ["Label", "Each field is labelled with its purpose", "Annotated capture"], ["Read errors", "The error response is explained", "Notes"]],
+          "objectives": ["Read MCP messages", "Explain the request lifecycle", "Interpret errors"]
+        },
+        {
+          "topic": "Development Environment Setup: SDKs, Inspector and an MCP Host",
+          "subtopics": ["Python with uv or pip", "Node.js and npm for TypeScript", "Installing the official SDKs", "MCP Inspector", "Configuring a host to launch a local server", "Host configuration files", "Logs from hosts and servers", "Environment variables and secrets for servers", "Project layout for a server", "Checking the setup with an example server"],
+          "tools": ["Python", "Node.js", "MCP SDKs", "MCP Inspector", "An MCP host"],
+          "lab_task": "Install both SDKs and MCP Inspector, run an example server, connect it to Inspector and to an AI host, and find the log files for each.",
+          "deliverable": "Working environment with connected example server",
+          "checks": [["Install", "Both SDKs and Inspector run", "Terminal output"], ["Connect", "The example server works in Inspector and the host", "Screenshots"], ["Find logs", "Host and server logs are located", "Notes"]],
+          "objectives": ["Set up MCP development tools", "Configure hosts", "Find logs"]
+        },
+        {
+          "topic": "Using Existing MCP Servers in AI Hosts",
+          "subtopics": ["Finding servers: the MCP Registry and vendor catalogues", "Reading what a server can do before installing", "Installing local servers", "Connecting to remote servers", "Permissions and approval prompts", "Choosing trusted servers", "Removing servers you no longer use", "Productive uses: files, issues, documents and databases"],
+          "tools": ["An MCP host", "MCP Registry", "Example servers"],
+          "lab_task": "Choose three servers from a registry, review their permissions and publishers, install two in a host and complete one real task that uses both.",
+          "deliverable": "Server review notes and a completed task",
+          "checks": [["Review", "Publisher, permissions and data access are recorded", "Review notes"], ["Install", "Two servers work in the host", "Screenshots"], ["Use", "The task uses tools from both servers", "Conversation export"]],
+          "objectives": ["Find and assess MCP servers", "Install servers safely", "Use servers for real tasks"]
+        },
+        {
+          "topic": "Building a First Tool Server in Python",
+          "subtopics": ["The server object in the Python SDK", "Declaring tools with type hints", "Docstrings as descriptions", "Returning results", "Running the server", "Testing with Inspector", "Connecting to a host", "Common mistakes"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "An MCP host"],
+          "lab_task": "Build a Python server with three tools for the course order system (find order, list recent orders, get order status), test each in Inspector and use them from a host.",
+          "deliverable": "Python MCP server with three tools",
+          "checks": [["Build", "All three tools appear in tools/list", "Inspector screenshot"], ["Test", "Each tool returns correct results", "Inspector results"], ["Use", "The host calls the tools to answer a question", "Conversation export"]],
+          "objectives": ["Build a Python MCP server", "Declare tools", "Test with Inspector"]
+        },
+        {
+          "topic": "Tool Design: Names, Descriptions and Input Schemas",
+          "subtopics": ["How models choose tools", "Clear tool names", "Descriptions that explain when to use a tool", "Input schemas with JSON Schema", "Required and optional parameters", "Enums and formats", "Small focused tools compared with large ones", "Annotations such as read-only hints"],
+          "tools": ["MCP Python SDK", "JSON Schema", "An MCP host"],
+          "lab_task": "Rewrite three poorly designed tools with clear names, descriptions and schemas, add read-only annotations and compare how often the model picks the right tool before and after.",
+          "deliverable": "Redesigned tools with selection results",
+          "checks": [["Redesign", "Names, descriptions and schemas are improved", "Code diff"], ["Annotate", "Read-only tools carry the right annotation", "Tool listing"], ["Compare", "Correct tool selection rises on the test prompts", "Results table"]],
+          "objectives": ["Design tools for models", "Write input schemas", "Use tool annotations"]
+        },
+        {
+          "topic": "Structured Tool Output and Error Results",
+          "subtopics": ["Text and structured content", "Output schemas", "Returning images and files", "Tool errors compared with protocol errors", "Error messages models can act on", "Partial results", "Large results and pagination", "Validating outputs"],
+          "tools": ["MCP Python SDK", "JSON Schema", "MCP Inspector"],
+          "lab_task": "Add output schemas and structured content to the order tools, return helpful tool errors for missing orders and bad input, and paginate a large result.",
+          "deliverable": "Tools with structured output and error handling",
+          "checks": [["Structure", "Results match their output schemas", "Inspector results"], ["Handle errors", "Tool errors explain what to do next", "Inspector results"], ["Paginate", "Large results are returned in pages", "Inspector results"]],
+          "objectives": ["Return structured output", "Design tool errors", "Handle large results"]
+        },
+        {
+          "topic": "Resources: URIs, Templates and Reading Data",
+          "subtopics": ["What resources are for", "Resource URIs", "Resource templates with parameters", "MIME types", "Listing and reading resources", "Resources compared with tools", "Choosing what to expose as resources", "Keeping resources small"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "An MCP host"],
+          "lab_task": "Expose the order system's product catalogue and policy documents as resources and a resource template for single products, and read them from Inspector and a host.",
+          "deliverable": "Server with resources and a template",
+          "checks": [["List", "Resources and the template are listed", "Inspector screenshot"], ["Read", "Resources return the right content and MIME types", "Inspector results"], ["Choose", "Notes explain why each item is a resource or a tool", "Notes"]],
+          "objectives": ["Expose resources", "Use resource templates", "Choose between resources and tools"]
+        },
+        {
+          "topic": "Prompts: Reusable Templates Offered by Servers",
+          "subtopics": ["What server prompts are", "Prompt arguments", "Prompts that include resources", "Prompts as user-chosen actions in hosts", "Argument completion", "Versioning prompts", "Prompts compared with host instructions", "Good prompt design for servers"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "An MCP host"],
+          "lab_task": "Add two prompts to the server (summarise an order history, draft a delay apology) with arguments and argument completion, and use them from a host.",
+          "deliverable": "Server prompts with completion",
+          "checks": [["Define", "Prompts are listed with arguments", "Inspector screenshot"], ["Complete", "Argument completion suggests valid values", "Inspector results"], ["Use", "The host runs both prompts", "Conversation export"]],
+          "objectives": ["Offer prompts from servers", "Add argument completion", "Design reusable prompts"]
+        },
+        {
+          "topic": "Building an MCP Server in TypeScript",
+          "subtopics": ["The TypeScript SDK", "Registering tools with schemas", "Validation with Zod", "Resources and prompts in TypeScript", "Running with Node.js", "Building and bundling", "Testing with Inspector", "Python and TypeScript compared"],
+          "tools": ["MCP TypeScript SDK", "Zod", "Node.js", "MCP Inspector"],
+          "lab_task": "Rebuild the order server in TypeScript with Zod-validated tools, a resource and a prompt, test it in Inspector and compare the code with the Python version.",
+          "deliverable": "TypeScript MCP server and comparison",
+          "checks": [["Build", "Tools, resource and prompt work in TypeScript", "Inspector results"], ["Validate", "Invalid input is rejected by schema validation", "Inspector results"], ["Compare", "Differences from the Python version are noted", "Comparison note"]],
+          "objectives": ["Build servers in TypeScript", "Validate input with Zod", "Compare SDKs"]
+        },
+        {
+          "topic": "The stdio Transport for Local Servers",
+          "subtopics": ["How stdio works", "Hosts launching servers as processes", "Logging to standard error, not standard output", "Environment variables for configuration", "Working directories and paths", "Process lifetime", "Debugging stdio servers", "When stdio is the right choice"],
+          "tools": ["MCP SDKs", "An MCP host", "Terminal"],
+          "lab_task": "Configure the server to run over stdio from a host with environment-based configuration, break it by writing logs to standard output, observe the failure and fix it.",
+          "deliverable": "Working stdio configuration and a fixed logging bug",
+          "checks": [["Configure", "The host launches the server with its configuration", "Host configuration"], ["Break and fix", "The logging bug is shown and fixed", "Logs"], ["Explain", "Notes state when stdio fits", "Notes"]],
+          "objectives": ["Run servers over stdio", "Configure local servers", "Debug stdio problems"]
+        },
+        {
+          "topic": "Streamable HTTP for Remote Servers",
+          "subtopics": ["How Streamable HTTP works", "The MCP endpoint", "MCP-Protocol-Version, Mcp-Method and Mcp-Name headers", "Streaming responses", "Origin validation", "Binding to localhost during development", "Deprecation of the old HTTP with SSE transport", "Choosing local or remote"],
+          "tools": ["MCP SDKs", "curl", "MCP Inspector"],
+          "lab_task": "Run the server over Streamable HTTP, send a request with curl including the required headers, reject a request with a bad Origin and connect Inspector to the remote endpoint.",
+          "deliverable": "Remote server with header and Origin checks",
+          "checks": [["Serve", "The server answers requests over HTTP", "curl output"], ["Use headers", "Requests carry the required headers", "Request log"], ["Protect", "A bad Origin receives 403", "curl output"]],
+          "objectives": ["Run servers over HTTP", "Use MCP headers", "Validate Origin"]
+        },
+        {
+          "topic": "Testing Servers with MCP Inspector and Automated Tests",
+          "subtopics": ["Manual testing with Inspector", "Unit testing tool functions", "In-memory client tests with the SDKs", "Testing schemas and errors", "Snapshot tests for tool listings", "Testing with a real model", "Continuous integration for servers", "A test checklist"],
+          "tools": ["MCP Inspector", "pytest or Vitest", "MCP SDK client"],
+          "lab_task": "Write unit tests for the tool logic and in-memory client tests for listing and calling tools, add a snapshot of the tool listing and run the tests in CI.",
+          "deliverable": "Automated test suite in CI",
+          "checks": [["Unit test", "Tool logic tests pass", "Test output"], ["Protocol test", "Client tests list and call tools", "Test output"], ["Run in CI", "Tests run on every push", "Pipeline run"]],
+          "objectives": ["Test MCP servers", "Automate protocol tests", "Run tests in CI"]
+        },
+        {
+          "topic": "Wrapping a REST API as an MCP Server",
+          "subtopics": ["Choosing which endpoints become tools", "Mapping API parameters to schemas", "Authentication to the API", "Handling API errors and rate limits", "Summarising large responses", "Read and write tools", "Confirmation for changes", "Keeping the wrapper thin"],
+          "tools": ["MCP SDK", "HTTP client", "Course REST API"],
+          "lab_task": "Wrap five endpoints of the course REST API as tools, handle authentication, rate limits and errors, and require confirmation before the one tool that changes data.",
+          "deliverable": "API wrapper server",
+          "checks": [["Map", "Five endpoints work as tools", "Inspector results"], ["Handle errors", "API errors and rate limits produce useful tool errors", "Inspector results"], ["Confirm", "The write tool asks for confirmation", "Conversation export"]],
+          "objectives": ["Wrap APIs as MCP servers", "Handle API errors", "Protect write actions"]
+        },
+        {
+          "topic": "Database Access Through MCP: Read-Only Queries and Safety",
+          "subtopics": ["Why databases need care", "Read-only database users", "Predefined queries compared with free SQL", "Parameterised queries", "Limiting rows and columns", "Hiding personal data", "Explaining schemas to models", "Logging queries"],
+          "tools": ["MCP SDK", "PostgreSQL or SQLite", "Database client"],
+          "lab_task": "Build a database server with read-only credentials, predefined parameterised queries and a schema resource, limit results, mask personal data and log every query.",
+          "deliverable": "Safe database server",
+          "checks": [["Restrict", "The database user cannot write", "Permission test"], ["Parameterise", "Queries are parameterised and row-limited", "Code review"], ["Protect data", "Personal fields are masked in results", "Inspector results"]],
+          "objectives": ["Expose databases safely", "Use read-only access", "Protect personal data"]
+        },
+        {
+          "topic": "Asking the User for Input with Multi Round-Trip Requests",
+          "subtopics": ["When a tool needs more from the user", "Input-required results", "Elicitation requests and schemas", "Clients collecting answers", "Retrying with input responses", "Confirmations for risky actions", "What not to ask for: passwords and secrets", "How this replaced older server-initiated requests"],
+          "tools": ["MCP SDKs", "An MCP host or test client", "MCP Inspector"],
+          "lab_task": "Change the cancel-order tool to return an input-required result that asks for a reason and confirmation, complete the round trip from a client and refuse to ask for secrets.",
+          "deliverable": "Tool using multi round-trip input",
+          "checks": [["Ask", "The tool returns an input-required result with a schema", "Message log"], ["Complete", "The client retries with input responses and the tool completes", "Message log"], ["Protect", "No request asks for secrets", "Code review"]],
+          "objectives": ["Use multi round-trip requests", "Ask users for input safely", "Confirm risky actions"]
+        },
+        {
+          "topic": "Building a Simple MCP Client",
+          "subtopics": ["What clients do", "Connecting to a server", "Listing and calling tools", "Passing tools to a model", "Handling tool results", "Handling input-required results", "Connecting to several servers", "Error handling in clients"],
+          "tools": ["MCP SDK client", "LLM API", "Python or TypeScript"],
+          "lab_task": "Build a command-line client that connects to the order server, gives its tools to a model, runs a tool-using conversation and handles one input-required result.",
+          "deliverable": "Command-line MCP client",
+          "checks": [["Connect", "The client lists the server's tools", "Terminal output"], ["Converse", "The model calls tools through the client", "Terminal output"], ["Handle input", "The client completes an input-required round trip", "Terminal output"]],
+          "objectives": ["Build MCP clients", "Connect models to tools", "Handle round trips"]
+        },
+        {
+          "topic": "Security Essentials: Prompt Injection, Tool Poisoning and Least Privilege",
+          "subtopics": ["Prompt injection through tool results", "Tool poisoning in descriptions", "Least privilege for credentials", "Confirmation for consequential actions", "Local server risks", "Secrets handling", "Reviewing third-party servers", "Logging for security"],
+          "tools": ["MCP SDK", "Security checklist", "Test prompts"],
+          "lab_task": "Show a prompt injection hidden in a tool result, add defences such as output labelling and confirmation, reduce the server's credentials to least privilege and complete a security checklist.",
+          "deliverable": "Security fixes and checklist",
+          "checks": [["Demonstrate", "The injection effect is shown before the fix", "Conversation export"], ["Defend", "Defences reduce the effect", "Retest results"], ["Restrict", "Credentials have only the needed permissions", "Permission review"]],
+          "objectives": ["Recognise MCP security risks", "Apply least privilege", "Defend against injection"]
+        },
+        {
+          "topic": "Packaging, Configuring and Sharing Servers",
+          "subtopics": ["Packaging Python servers", "Packaging Node.js servers", "Container images", "Configuration and secrets", "Documentation for users", "Publishing to a registry", "Versioning servers", "Release notes"],
+          "tools": ["uv or npm", "Docker", "MCP Registry"],
+          "lab_task": "Package the server as a Python package and a container image, document its configuration and tools, version it and prepare a registry entry.",
+          "deliverable": "Packaged server with documentation",
+          "checks": [["Package", "The package and image install and run", "Install logs"], ["Document", "The README covers tools, configuration and permissions", "README"], ["Version", "The release has a version and notes", "Release notes"]],
+          "objectives": ["Package MCP servers", "Document servers", "Prepare servers for sharing"]
+        },
+        {
+          "topic": "Beginner Capstone: Business Data MCP Server Used from an AI Host",
+          "subtopics": ["Tools, resources and prompts", "Tests", "Security checks", "Packaging", "Demonstration"],
+          "tools": ["MCP SDK", "MCP Inspector", "An MCP host", "Docker"],
+          "lab_task": "Build an MCP server for a business data source of your choice with well-designed tools, resources and prompts, tests, security checks and packaging, and demonstrate it answering real questions in a host.",
+          "deliverable": "Server, tests, package and demonstration",
+          "checks": [["Build", "Tools, resources and prompts work", "Inspector results"], ["Test", "Automated tests pass", "Test output"], ["Demonstrate", "The host answers three real questions with the server", "Demonstration recording"]],
+          "objectives": ["Combine beginner MCP skills", "Build a useful server", "Demonstrate it in a host"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who build MCP servers and now run them remotely for teams. Covers stateless server design with explicit handles, protocol versions and discovery, OAuth 2.1 authorization, client ID metadata documents and issuer validation, the Tasks extension for long-running work, subscriptions, cacheable lists, header-based routing and gateways, deployment, observability, evaluating tool use, MCP in agent frameworks, composing many servers, Go and C# SDKs, the MCP Apps extension, migrating from earlier versions, versioning tools, conformance testing and load testing.",
+      "prerequisites": ["Has built MCP servers with tools, resources and prompts", "Comfortable with HTTP, JSON and one of Python or TypeScript", "Understands OAuth at a high level"],
+      "outcomes": ["Design stateless remote servers that scale and keep state in explicit handles", "Secure remote servers with OAuth 2.1 and current authorization rules", "Use extensions, subscriptions, caching and gateways in production", "Deploy, observe, evaluate and version servers used by agents and teams"],
+      "days": [
+        {
+          "topic": "Stateless Server Design and Explicit State Handles",
+          "subtopics": ["Why the protocol core became stateless", "No handshake and no session header", "Requests that carry their own context", "Servers behind round-robin load balancers", "Explicit handles minted by tools", "Storing state outside the server process", "Expiring and validating handles", "Designing multi-step workflows without sessions"],
+          "tools": ["MCP SDK", "Redis or a database", "Load balancer"],
+          "lab_task": "Build a shopping-cart workflow where a tool mints a cart handle that the model passes to later tools, store cart state in Redis and run two server instances behind a load balancer.",
+          "deliverable": "Stateless multi-step workflow on two instances",
+          "checks": [["Mint handles", "The cart handle is created and passed between tools", "Message log"], ["Scale", "Requests succeed on either instance", "Load balancer log"], ["Expire", "Expired or forged handles are rejected", "Test output"]],
+          "objectives": ["Design stateless servers", "Use explicit state handles", "Scale across instances"]
+        },
+        {
+          "topic": "Protocol Versions, Capability Discovery and _meta",
+          "subtopics": ["Protocol version negotiation without a handshake", "The MCP-Protocol-Version header", "Client information and capabilities in _meta", "server/discover for clients that want capabilities first", "Handling unsupported versions", "Feature detection in servers", "Backwards compatibility", "The deprecation policy and its twelve-month window"],
+          "tools": ["MCP SDK", "MCP Inspector", "Test client"],
+          "lab_task": "Make the server read client capabilities from _meta, answer server/discover, reject an unsupported protocol version with a clear error and adapt one feature to client capabilities.",
+          "deliverable": "Version-aware server with tests",
+          "checks": [["Discover", "server/discover returns the server's capabilities", "Message log"], ["Reject", "Unsupported versions get a clear error", "Test output"], ["Adapt", "Behaviour changes with client capabilities", "Test output"]],
+          "objectives": ["Handle protocol versions", "Use capability discovery", "Plan for deprecations"]
+        },
+        {
+          "topic": "Authorization with OAuth 2.1 for Remote Servers",
+          "subtopics": ["Why remote servers need authorization", "MCP servers as OAuth resource servers", "Protected resource metadata", "Authorization server discovery", "Authorization code flow with PKCE", "Scopes for tools", "Validating access tokens", "Never passing tokens through to other services"],
+          "tools": ["Keycloak or a hosted identity provider", "MCP SDK", "MCP Inspector"],
+          "lab_task": "Protect the remote server with OAuth 2.1, publish protected resource metadata, require scopes per tool, validate tokens and connect from Inspector through the full authorization flow.",
+          "deliverable": "OAuth-protected remote server",
+          "checks": [["Publish metadata", "Clients discover the authorization server from the metadata", "Request log"], ["Validate", "Invalid or expired tokens are rejected", "Test output"], ["Scope", "Tools require their scopes", "Test output"]],
+          "objectives": ["Secure remote servers with OAuth", "Use scopes for tools", "Validate tokens"]
+        },
+        {
+          "topic": "Client ID Metadata Documents, Issuer Validation and Token Handling",
+          "subtopics": ["Client registration approaches", "Client ID metadata documents", "Deprecation of dynamic client registration", "Issuer validation against mix-up attacks", "Credentials bound to their issuer", "Redirects for desktop and command-line clients", "Token storage in clients", "Refresh and revocation"],
+          "tools": ["Identity provider", "MCP SDK client", "Test harness"],
+          "lab_task": "Register a client with a client ID metadata document, validate the issuer before redeeming a code, store tokens safely and show that a mixed-up issuer is rejected.",
+          "deliverable": "Client authorization implementation with tests",
+          "checks": [["Register", "The client authenticates with a metadata document", "Request log"], ["Validate issuer", "A mismatched issuer is rejected", "Test output"], ["Store safely", "Tokens are kept out of logs and plain files", "Code review"]],
+          "objectives": ["Implement current client authorization", "Validate issuers", "Handle tokens safely"]
+        },
+        {
+          "topic": "Long-Running Work with the Tasks Extension",
+          "subtopics": ["Why some tools take minutes or hours", "The Tasks extension", "Creating tasks from tool calls", "Polling with tasks/get", "Updating tasks with tasks/update", "Cancellation and timeouts", "Storing task state", "Showing progress to users"],
+          "tools": ["MCP SDK with the Tasks extension", "Background job queue", "Test client"],
+          "lab_task": "Turn a slow report-generation tool into a task, store its state in a job queue, poll it from a client, update it with a cancellation and show progress to the user.",
+          "deliverable": "Task-based long-running tool",
+          "checks": [["Create", "The tool call returns a task", "Message log"], ["Poll", "tasks/get reports progress and completion", "Message log"], ["Cancel", "Cancellation through tasks/update stops the job", "Test output"]],
+          "objectives": ["Use the Tasks extension", "Run long operations", "Report progress and cancel"]
+        },
+        {
+          "topic": "Change Notifications and Subscriptions",
+          "subtopics": ["Why clients need to know about changes", "The subscriptions/listen stream", "Opting in per notification type", "Tool and resource list changes", "Resource updates", "Reconnecting after drops", "Notifications in stateless deployments", "Avoiding notification storms"],
+          "tools": ["MCP SDK", "Test client", "Message broker"],
+          "lab_task": "Publish resource update and tool list change notifications through subscriptions/listen, let a client opt in to one type, reconnect after a dropped stream and rate-limit bursts.",
+          "deliverable": "Subscription support with tests",
+          "checks": [["Notify", "Clients receive opted-in notifications only", "Message log"], ["Reconnect", "The client recovers after a dropped stream", "Test output"], ["Limit", "Bursts are rate-limited", "Test output"]],
+          "objectives": ["Implement subscriptions", "Notify clients of changes", "Handle reconnects"]
+        },
+        {
+          "topic": "Caching List Results with TTL Hints",
+          "subtopics": ["Why tool catalogues should be cached", "ttlMs and cacheScope in list results", "Deterministic ordering", "Stable lists and prompt caching in models", "When lists change", "Client cache behaviour", "Testing caching", "Measuring the effect"],
+          "tools": ["MCP SDK", "Test client", "Metrics"],
+          "lab_task": "Add cache hints and deterministic ordering to tools/list and resources/list, make the client honour them and measure the reduction in list calls over a day of simulated use.",
+          "deliverable": "Cache-aware lists with measurements",
+          "checks": [["Hint", "List results carry TTL and scope hints", "Message log"], ["Order", "Lists are returned in a stable order", "Test output"], ["Measure", "List calls drop with caching", "Metrics"]],
+          "objectives": ["Use cache hints", "Keep tool lists stable", "Reduce unnecessary requests"]
+        },
+        {
+          "topic": "Header-Based Routing, Gateways and Rate Limits",
+          "subtopics": ["Mcp-Method and Mcp-Name headers", "Routing without parsing bodies", "MCP gateways in front of many servers", "Per-tool authorization at the gateway", "Rate limiting by method and tool", "Web application firewalls for MCP", "Audit logging at the gateway", "Gateway products and open-source options"],
+          "tools": ["API gateway or reverse proxy", "MCP servers", "Rate limiting configuration"],
+          "lab_task": "Put two MCP servers behind a gateway that routes by headers, rate-limits one expensive tool, blocks a forbidden tool for one client group and logs every call.",
+          "deliverable": "Gateway configuration with tests",
+          "checks": [["Route", "Requests reach the right server by header", "Gateway logs"], ["Limit", "The expensive tool is rate-limited", "Test output"], ["Block", "The forbidden tool is blocked for the client group", "Test output"]],
+          "objectives": ["Route MCP traffic with headers", "Rate-limit tools", "Control access at gateways"]
+        },
+        {
+          "topic": "Deploying Remote Servers: Containers, Serverless and Edge Platforms",
+          "subtopics": ["Deployment options for remote servers", "Containers on Kubernetes or managed services", "Serverless functions for stateless servers", "Edge platforms", "Secrets management", "Health checks", "Zero-downtime releases", "Choosing a platform"],
+          "tools": ["Docker", "Kubernetes or a container service", "Serverless platform"],
+          "lab_task": "Deploy the stateless server to a container service and to a serverless platform, add health checks and secrets, release a new version without downtime and compare the two platforms.",
+          "deliverable": "Two deployments and a comparison",
+          "checks": [["Deploy", "The server works on both platforms", "Endpoint tests"], ["Release", "A new version deploys without failed requests", "Release log"], ["Compare", "Cost, latency and effort are compared", "Comparison"]],
+          "objectives": ["Deploy remote servers", "Release without downtime", "Choose deployment platforms"]
+        },
+        {
+          "topic": "Observability for MCP Servers: Logs, Traces and Metrics",
+          "subtopics": ["What to log for each request", "Structured logs with method and tool names", "Tracing tool calls into back-end services", "Metrics: calls, errors, latency and cost", "Dashboards", "Alerts", "Privacy in logs", "Debugging from production data"],
+          "tools": ["OpenTelemetry", "Grafana or a monitoring service", "MCP SDK"],
+          "lab_task": "Add structured logs, traces and metrics to the server, build a dashboard of calls, errors and latency per tool and alert when one tool's error rate rises.",
+          "deliverable": "Instrumented server with dashboard and alert",
+          "checks": [["Log", "Logs include method, tool and outcome without personal data", "Log sample"], ["Trace", "Tool calls are traced into back-end services", "Trace view"], ["Alert", "A rising error rate triggers the alert", "Alert test"]],
+          "objectives": ["Observe MCP servers", "Trace tool calls", "Alert on tool errors"]
+        },
+        {
+          "topic": "Evaluating Tool Use: Do Models Call Your Tools Correctly?",
+          "subtopics": ["Why tool design must be tested with models", "Test sets of user requests", "Measuring tool choice and argument accuracy", "Unnecessary and missing tool calls", "Testing across several models", "Improving descriptions and schemas from results", "Regression tests for tool changes", "Reporting results"],
+          "tools": ["MCP SDK client", "Several LLM APIs", "Evaluation scripts"],
+          "lab_task": "Build a test set of forty requests, measure tool choice and argument accuracy across three models, improve two tool descriptions and show the gain.",
+          "deliverable": "Tool-use evaluation and improvements",
+          "checks": [["Measure", "Tool choice and argument accuracy are reported per model", "Results table"], ["Improve", "Two description changes raise accuracy", "Comparison"], ["Protect", "The test set runs as a regression check", "Pipeline run"]],
+          "objectives": ["Evaluate tool use by models", "Improve tools from evidence", "Prevent regressions"]
+        },
+        {
+          "topic": "MCP in Agent Frameworks: LangGraph, OpenAI Agents SDK and Others",
+          "subtopics": ["How agent frameworks consume MCP servers", "Adapters for LangChain and LangGraph", "The OpenAI Agents SDK and MCP", "Microsoft and other frameworks", "Tool filtering for agents", "Human approval in agent loops", "Error handling in agents", "Choosing a framework"],
+          "tools": ["LangGraph", "OpenAI Agents SDK", "MCP servers"],
+          "lab_task": "Connect the order server to an agent built in LangGraph and to one built with the OpenAI Agents SDK, filter tools per agent, add an approval step and compare the two setups.",
+          "deliverable": "Two agents using the same server",
+          "checks": [["Connect", "Both agents call the server's tools", "Run logs"], ["Filter", "Each agent sees only its allowed tools", "Configuration"], ["Approve", "Write actions wait for human approval", "Run logs"]],
+          "objectives": ["Use MCP in agent frameworks", "Filter tools for agents", "Add human approval"]
+        },
+        {
+          "topic": "Composing Many Servers: Namespacing and Tool Selection",
+          "subtopics": ["Hosts with many servers", "Name collisions between tools", "Namespacing strategies", "Too many tools and model confusion", "Tool selection and routing", "Context budget for tool definitions", "Grouping servers by task", "Measuring the effect of more tools"],
+          "tools": ["MCP SDK client", "Several MCP servers", "Evaluation scripts"],
+          "lab_task": "Connect a client to five servers with overlapping tool names, resolve collisions with namespaces, add task-based tool selection and measure accuracy as the tool count grows.",
+          "deliverable": "Multi-server client with selection results",
+          "checks": [["Resolve", "Name collisions are resolved", "Tool listing"], ["Select", "Task-based selection limits tools per request", "Run logs"], ["Measure", "Accuracy by tool count is reported", "Results chart"]],
+          "objectives": ["Compose many servers", "Avoid tool collisions", "Manage tool counts"]
+        },
+        {
+          "topic": "MCP Servers in Go and C#",
+          "subtopics": ["The Go SDK", "The C# SDK and .NET hosting", "Typed tools in each language", "Performance characteristics", "Deploying Go and .NET servers", "Testing in each language", "Choosing a language for a team", "Keeping servers consistent across languages"],
+          "tools": ["MCP Go SDK", "MCP C# SDK", "MCP Inspector"],
+          "lab_task": "Build the order-status tool in Go and C#, test both with Inspector and the shared test set, and compare code size, performance and deployment.",
+          "deliverable": "Go and C# servers with comparison",
+          "checks": [["Build", "Both servers pass the shared tests", "Test output"], ["Measure", "Latency and memory are compared", "Benchmark results"], ["Recommend", "A language choice for the team is justified", "Recommendation"]],
+          "objectives": ["Build servers in Go and C#", "Compare SDKs", "Choose languages for teams"]
+        },
+        {
+          "topic": "Interactive Interfaces with the MCP Apps Extension",
+          "subtopics": ["Why some tools need interfaces", "The MCP Apps extension", "Declaring user interface resources", "Rendering in hosts that support apps", "Communication between the interface and the server", "Security of embedded interfaces", "Fallbacks for hosts without app support", "Good use cases"],
+          "tools": ["MCP SDK with MCP Apps support", "A host that supports MCP Apps", "HTML and JavaScript"],
+          "lab_task": "Add an interactive order-tracking interface to the server with the MCP Apps extension, show it in a supporting host and provide a text fallback for other hosts.",
+          "deliverable": "Server with an app interface and fallback",
+          "checks": [["Declare", "The interface resource is declared and listed", "Tool listing"], ["Render", "The interface works in a supporting host", "Screenshot"], ["Fall back", "Other hosts receive a useful text result", "Conversation export"]],
+          "objectives": ["Use the MCP Apps extension", "Build tool interfaces", "Provide fallbacks"]
+        },
+        {
+          "topic": "Migrating Servers from Earlier Specification Versions",
+          "subtopics": ["Changes from 2025-11-25 to 2026-07-28", "Removing handshake and session dependencies", "Moving server-initiated requests to multi round-trip requests", "Replacing deprecated roots, sampling and logging", "Adding required HTTP headers", "Updating authorization flows", "Supporting old and new clients during transition", "Migration testing"],
+          "tools": ["MCP SDKs", "Migration notes", "Test clients"],
+          "lab_task": "Migrate a server written for the 2025-11-25 specification to 2026-07-28, remove session dependencies, replace a server-initiated elicitation with a round trip and test with old and new clients.",
+          "deliverable": "Migrated server with test results",
+          "checks": [["Remove sessions", "The server works without session headers", "Test output"], ["Replace requests", "Elicitation works through a round trip", "Message log"], ["Support clients", "Old and new clients are handled as planned", "Test output"]],
+          "objectives": ["Migrate servers between versions", "Replace deprecated features", "Support transitions"]
+        },
+        {
+          "topic": "Versioning and Deprecating Tools Without Breaking Clients",
+          "subtopics": ["Why tool changes break agents", "Compatible and breaking changes", "Adding parameters safely", "Versioned tool names", "Deprecation notices in descriptions", "Telemetry on old tool use", "Removal timelines", "Communicating with users"],
+          "tools": ["MCP SDK", "Usage metrics", "Changelog"],
+          "lab_task": "Change a tool's output in a breaking way using a versioned tool, mark the old tool deprecated, track its use and remove it after a simulated notice period.",
+          "deliverable": "Versioned tools with deprecation record",
+          "checks": [["Version", "Old and new tools work side by side", "Tool listing"], ["Track", "Use of the deprecated tool is measured", "Metrics"], ["Remove", "The old tool is removed after notice", "Changelog"]],
+          "objectives": ["Version tools", "Deprecate safely", "Communicate changes"]
+        },
+        {
+          "topic": "Testing at the Protocol Level: Conformance and Contract Tests",
+          "subtopics": ["Why protocol conformance matters", "Conformance test suites", "Contract tests between clients and servers", "Testing error codes and edge cases", "Fuzzing inputs", "Testing several clients", "Tests for each specification version supported", "CI gates for conformance"],
+          "tools": ["Conformance test tools", "MCP SDK clients", "Fuzzing library"],
+          "lab_task": "Run conformance tests against the server, add contract tests for two client applications, fuzz tool inputs and make conformance a CI gate.",
+          "deliverable": "Conformance and contract test suite",
+          "checks": [["Conform", "Conformance results are reported and failures fixed", "Test report"], ["Contract", "Contract tests pass for both clients", "Test output"], ["Gate", "CI blocks a change that breaks conformance", "Pipeline run"]],
+          "objectives": ["Test protocol conformance", "Write contract tests", "Gate releases on conformance"]
+        },
+        {
+          "topic": "Performance and Load Testing of Remote Servers",
+          "subtopics": ["Latency budgets for tool calls", "Load patterns from agents", "Load testing with k6 or Locust", "Bottlenecks in back-end calls", "Caching and connection pools", "Autoscaling stateless servers", "Timeouts for slow tools", "Reporting performance"],
+          "tools": ["k6 or Locust", "Monitoring dashboard", "MCP server"],
+          "lab_task": "Load test the remote server with realistic agent traffic, find the slowest tool's bottleneck, add caching and a timeout and show the improvement under the same load.",
+          "deliverable": "Load test results and improvements",
+          "checks": [["Test", "Latency and errors are recorded under load", "Load test report"], ["Find bottlenecks", "The slow tool's cause is identified", "Analysis"], ["Improve", "Latency improves after changes", "Comparison"]],
+          "objectives": ["Load test MCP servers", "Find bottlenecks", "Scale stateless servers"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure Remote MCP Server for a Team",
+          "subtopics": ["Stateless design with handles", "OAuth 2.1 and scopes", "Tasks and subscriptions", "Gateway, observability and deployment", "Tool-use evaluation", "Handover"],
+          "tools": ["MCP SDK", "Identity provider", "Gateway", "Container platform", "Monitoring tools"],
+          "lab_task": "Build and deploy a remote MCP server for a team with stateless handles, OAuth scopes, a task-based tool, a gateway, dashboards, a tool-use evaluation in CI and handover documentation.",
+          "deliverable": "Deployed server, tests, dashboards and handover notes",
+          "checks": [["Secure", "Only authorised users reach scoped tools", "Test output"], ["Operate", "Dashboards and alerts work in the deployment", "Dashboard"], ["Evaluate", "The tool-use evaluation runs in CI", "Pipeline run"]],
+          "objectives": ["Combine intermediate MCP skills", "Run a secure remote server", "Hand over to a team"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For architects, platform engineers and security leads who run MCP across an organisation. Covers enterprise MCP architecture, enterprise managed authorization, threat modelling, defending against injection through tool results, sandboxing, multi-tenant servers, governance of third-party servers, data protection and audit, building hosts and clients, writing extensions, large tool catalogues, human oversight, scaling, cost and token efficiency, reliability, platform operations, contributing to the specification, interoperability with other agent protocols and troubleshooting.",
+      "prerequisites": ["Has deployed and secured remote MCP servers", "Understands OAuth, identity and API gateways", "Responsible for AI platforms, integration or security"],
+      "outcomes": ["Design an enterprise MCP platform with registries, gateways, identity and policy", "Threat-model and defend MCP deployments, including injection and supply chain risks", "Build hosts, clients and extensions and keep large tool catalogues usable", "Operate MCP at scale with governance, audit and reliability"],
+      "days": [
+        {
+          "topic": "Enterprise MCP Architecture: Registries, Gateways and Policy",
+          "subtopics": ["Building blocks of an enterprise MCP platform", "Internal registries of approved servers", "Gateways for routing and policy", "Identity integration", "Policy engines for tool access", "Network zones for local and remote servers", "Reference architectures", "Architecture decision records"],
+          "tools": ["Architecture diagram tool", "Gateway", "Policy engine such as OPA"],
+          "lab_task": "Design an enterprise MCP architecture with a registry, gateway, identity provider and policy engine for three business units, and record the key decisions.",
+          "deliverable": "Architecture design and decision records",
+          "checks": [["Design", "All building blocks and data flows are shown", "Architecture diagram"], ["Decide", "Key choices have decision records", "Decision records"], ["Review", "A role-played security architect accepts the design or lists changes", "Review notes"]],
+          "objectives": ["Design enterprise MCP platforms", "Use registries and gateways", "Record architecture decisions"]
+        },
+        {
+          "topic": "Enterprise Managed Authorization and Identity Integration",
+          "subtopics": ["Why organisations want central control of MCP access", "The Enterprise Managed Authorization extension", "Single sign-on for MCP clients", "Mapping groups and roles to tool scopes", "Token exchange to back-end services", "Revoking access centrally", "Auditing who used which tool", "User experience for employees"],
+          "tools": ["Enterprise identity provider", "MCP SDK", "Gateway"],
+          "lab_task": "Configure central authorization for an MCP platform so employees sign in once, groups map to tool scopes, back-end access uses token exchange and an administrator can revoke access centrally.",
+          "deliverable": "Central authorization setup with tests",
+          "checks": [["Sign in", "Employees access servers with single sign-on", "Test log"], ["Map roles", "Group membership controls tool scopes", "Test output"], ["Revoke", "Central revocation blocks access immediately", "Test output"]],
+          "objectives": ["Integrate MCP with enterprise identity", "Map roles to scopes", "Revoke access centrally"]
+        },
+        {
+          "topic": "Threat Modelling MCP Deployments",
+          "subtopics": ["Assets, actors and trust boundaries", "Threats: injection, poisoning, confused deputy and data exfiltration", "Rug pulls and tool definition changes", "Cross-server shadowing", "Local server threats", "Supply chain threats", "Rating and prioritising threats", "Mitigation plans"],
+          "tools": ["Threat modelling template", "Architecture diagram", "OWASP guidance for LLM applications"],
+          "lab_task": "Threat-model the enterprise MCP architecture, rate the top ten threats and write mitigations with owners for each.",
+          "deliverable": "Threat model with mitigations",
+          "checks": [["Model", "Trust boundaries and threats are documented", "Threat model"], ["Prioritise", "The top ten threats are rated", "Threat model"], ["Mitigate", "Each top threat has an owner and mitigation", "Mitigation plan"]],
+          "objectives": ["Threat-model MCP", "Prioritise MCP threats", "Plan mitigations"]
+        },
+        {
+          "topic": "Defending Against Prompt Injection Through Tool Results",
+          "subtopics": ["How tool results reach the model", "Indirect prompt injection from documents and web pages", "Marking untrusted content", "Limiting what models can do after reading untrusted data", "Separating read and write capabilities", "Confirmation and policy checks for actions", "Detection and filtering approaches", "Testing defences with attack sets"],
+          "tools": ["Attack prompt sets", "MCP client and servers", "Policy engine"],
+          "lab_task": "Build an attack set of injected documents, measure how often an agent takes forbidden actions, add layered defences and show the reduction.",
+          "deliverable": "Attack results and defence evaluation",
+          "checks": [["Attack", "The baseline success rate of attacks is measured", "Results table"], ["Defend", "Layered defences are implemented", "Configuration"], ["Measure", "Attack success falls after defences", "Comparison"]],
+          "objectives": ["Defend against indirect injection", "Separate read and write powers", "Test defences"]
+        },
+        {
+          "topic": "Sandboxing and Isolation for Local and Remote Servers",
+          "subtopics": ["Risks of servers running on user machines", "Containers and sandboxes for local servers", "File system and network restrictions", "Isolation between remote servers", "Secrets isolation", "Resource limits", "Running untrusted servers", "Verifying isolation"],
+          "tools": ["Docker", "Sandboxing tools", "Network policies"],
+          "lab_task": "Run a local server in a sandbox with file and network restrictions, isolate two remote servers with network policies and prove that a compromised server cannot reach the other.",
+          "deliverable": "Sandboxed and isolated servers with tests",
+          "checks": [["Restrict", "The sandboxed server cannot read outside its folder", "Test output"], ["Isolate", "Remote servers cannot reach each other", "Network test"], ["Limit", "Resource limits stop a runaway server", "Test output"]],
+          "objectives": ["Sandbox MCP servers", "Isolate servers", "Verify isolation"]
+        },
+        {
+          "topic": "Multi-Tenant MCP Servers",
+          "subtopics": ["One server for many customers", "Tenant identification from tokens", "Data isolation per tenant", "Per-tenant configuration and tools", "Rate limits and quotas per tenant", "Noisy neighbours", "Testing tenant isolation", "Tenant onboarding"],
+          "tools": ["MCP SDK", "Identity provider", "Database with tenant isolation"],
+          "lab_task": "Turn the order server into a multi-tenant server with tenant-aware tokens, data isolation, per-tenant quotas and tests proving one tenant cannot see another's data.",
+          "deliverable": "Multi-tenant server with isolation tests",
+          "checks": [["Identify", "Tenants are identified from validated tokens", "Test output"], ["Isolate", "Cross-tenant data access fails", "Test output"], ["Limit", "Per-tenant quotas are enforced", "Test output"]],
+          "objectives": ["Build multi-tenant servers", "Isolate tenant data", "Enforce quotas"]
+        },
+        {
+          "topic": "Governance of Third-Party Servers: Vetting, Allow-Lists and Supply Chain",
+          "subtopics": ["Risks of third-party servers", "Vetting criteria", "Code review and provenance", "Signed packages and pinned versions", "Allow-lists in hosts and gateways", "Monitoring changes to tool definitions", "Removing risky servers", "A server approval process"],
+          "tools": ["Vetting checklist", "Package signing tools", "Gateway allow-lists"],
+          "lab_task": "Vet three third-party servers against a checklist, approve one with pinned versions, detect a change in its tool definitions and run the removal process for a risky server.",
+          "deliverable": "Vetting reports, approval and change detection",
+          "checks": [["Vet", "Each server has a completed checklist", "Vetting reports"], ["Pin", "The approved server is pinned and allow-listed", "Configuration"], ["Detect", "A tool definition change triggers review", "Alert log"]],
+          "objectives": ["Govern third-party servers", "Control the supply chain", "Detect definition changes"]
+        },
+        {
+          "topic": "Data Protection, Audit Trails and Compliance for MCP",
+          "subtopics": ["Personal data flowing through tools", "Data minimisation in tool design", "Audit trails of tool calls", "Retention of logs and results", "Regulatory duties such as GDPR and India's DPDP Act", "Records for AI regulation", "Access reviews", "Evidence for auditors"],
+          "tools": ["Audit logging", "Data classification guide", "Compliance checklist"],
+          "lab_task": "Map personal data flowing through three servers, minimise what tools return, set up tamper-evident audit trails and answer a role-played auditor's questions from the evidence.",
+          "deliverable": "Data map, audit trail and audit notes",
+          "checks": [["Map", "Personal data flows are documented", "Data map"], ["Minimise", "Tools return less personal data after changes", "Comparison"], ["Evidence", "Auditor questions are answered from logs", "Audit notes"]],
+          "objectives": ["Protect data in MCP", "Keep audit trails", "Support compliance"]
+        },
+        {
+          "topic": "Building MCP Hosts and Clients for Products",
+          "subtopics": ["When a product should host MCP", "Client architecture in a host", "Connecting to many servers safely", "Permission prompts and user consent", "Displaying tool calls and results", "Handling input-required results in the interface", "Supporting extensions", "Testing hosts with many servers"],
+          "tools": ["MCP SDK client", "Web or desktop application framework", "Test servers"],
+          "lab_task": "Add MCP client support to a product's assistant with server management, consent prompts, visible tool calls, input-required handling and support for one extension.",
+          "deliverable": "Host integration with tests",
+          "checks": [["Connect", "The product connects to several servers", "Test output"], ["Consent", "Users approve servers and consequential actions", "Screenshots"], ["Show", "Tool calls and results are visible to users", "Screenshots"]],
+          "objectives": ["Build MCP hosts", "Design consent and visibility", "Support extensions in clients"]
+        },
+        {
+          "topic": "Writing an MCP Extension",
+          "subtopics": ["The extensions framework", "When an extension is the right tool", "Naming and namespacing extensions", "Declaring support in capabilities", "Designing extension methods", "Compatibility with clients that do not support it", "Documenting an extension", "Proposing an extension to the community"],
+          "tools": ["MCP SDKs", "Specification documents", "Test clients"],
+          "lab_task": "Design and implement a small extension for a company need, such as cost reporting on tool results, declare it in capabilities and show graceful behaviour with a client that lacks it.",
+          "deliverable": "Working extension with documentation",
+          "checks": [["Design", "The extension has a namespaced name and documented methods", "Extension document"], ["Declare", "Supporting clients detect the extension", "Message log"], ["Degrade", "Clients without support still work", "Test output"]],
+          "objectives": ["Write MCP extensions", "Keep compatibility", "Document extensions"]
+        },
+        {
+          "topic": "Large Tool Catalogues: Search, Lazy Loading and Context Budgets",
+          "subtopics": ["Why hundreds of tools hurt models", "Context cost of tool definitions", "Tool search and retrieval", "Lazy loading of tool groups", "Meta-tools for discovery", "Measuring accuracy and cost with large catalogues", "Prompt caching and stable lists", "Designing catalogues for agents"],
+          "tools": ["MCP gateway", "Embedding search", "Evaluation scripts"],
+          "lab_task": "Build tool search over a catalogue of two hundred tools, load tools on demand, and compare accuracy, latency and token cost with sending all tools every time.",
+          "deliverable": "Tool search implementation and comparison",
+          "checks": [["Search", "Relevant tools are found for test requests", "Search results"], ["Load lazily", "Only selected tools are sent to the model", "Request log"], ["Compare", "Accuracy and token cost are compared", "Results table"]],
+          "objectives": ["Manage large tool catalogues", "Implement tool search", "Control context cost"]
+        },
+        {
+          "topic": "Human Approval and Oversight for Consequential Tools",
+          "subtopics": ["Classifying tools by consequence", "Approval flows for writes, payments and deletions", "Policy-based approval rules", "Approvals through round trips and interfaces", "Separation of duties", "Audit of approvals", "Timeouts and escalation", "Measuring friction and safety"],
+          "tools": ["Policy engine", "MCP SDK", "Approval interface"],
+          "lab_task": "Classify the platform's tools by consequence, implement policy-based approvals for high-risk tools with separation of duties and audit, and measure approval times.",
+          "deliverable": "Tool classification, approval flows and measurements",
+          "checks": [["Classify", "Every tool has a consequence level", "Tool register"], ["Approve", "High-risk tools require the right approver", "Test output"], ["Audit", "Approvals are recorded and reviewed", "Audit log"]],
+          "objectives": ["Add human oversight", "Design approval policies", "Balance safety and friction"]
+        },
+        {
+          "topic": "Scaling Remote Servers Behind Load Balancers",
+          "subtopics": ["Capacity planning for agent traffic", "Horizontal scaling of stateless servers", "Shared state stores for handles and tasks", "Connection management for streaming", "Autoscaling signals", "Multi-region deployment", "Failover", "Load test validation"],
+          "tools": ["Kubernetes or a container service", "Redis or a database", "Load testing tool"],
+          "lab_task": "Scale the server across regions with shared state for handles and tasks, autoscale on load, fail over one region and validate with a load test.",
+          "deliverable": "Scaled deployment with failover evidence",
+          "checks": [["Scale", "The server scales out under load", "Metrics"], ["Fail over", "Traffic moves to the healthy region", "Failover log"], ["Validate", "The load test meets targets", "Load test report"]],
+          "objectives": ["Scale MCP servers", "Share state safely", "Fail over across regions"]
+        },
+        {
+          "topic": "Cost and Token Efficiency in MCP Integrations",
+          "subtopics": ["Where MCP costs come from", "Tool definitions in every request", "Large tool results", "Summarising and truncating results", "Caching results", "Choosing models per task", "Cost attribution to teams", "Cost dashboards"],
+          "tools": ["Usage metrics", "Cost model", "MCP gateway"],
+          "lab_task": "Measure tokens and cost per conversation for an agent using the platform, cut cost with smaller definitions, summarised results and caching, and attribute costs to teams.",
+          "deliverable": "Cost analysis, savings and attribution",
+          "checks": [["Measure", "Tokens and cost per conversation are recorded", "Metrics"], ["Save", "Savings from three changes are measured", "Comparison"], ["Attribute", "Costs are attributed by team", "Dashboard"]],
+          "objectives": ["Measure MCP costs", "Reduce token use", "Attribute costs"]
+        },
+        {
+          "topic": "Reliability Engineering for MCP: Timeouts, Retries and Idempotency",
+          "subtopics": ["Failure modes in tool calls", "Timeouts at each layer", "Safe retries", "Idempotency keys for write tools", "Circuit breakers for back-end services", "Graceful degradation", "Service level objectives for tools", "Chaos testing"],
+          "tools": ["MCP SDK", "Fault injection tool", "Monitoring tools"],
+          "lab_task": "Add timeouts, idempotency keys and circuit breakers to write tools, inject back-end failures and show that retries do not create duplicate orders.",
+          "deliverable": "Reliable write tools with chaos results",
+          "checks": [["Protect", "Retries never create duplicate orders", "Test output"], ["Break circuits", "Circuit breakers open on failing back ends", "Metrics"], ["Meet objectives", "Tool objectives are met during injected faults or gaps are reported", "Report"]],
+          "objectives": ["Engineer reliable tools", "Use idempotency", "Test with fault injection"]
+        },
+        {
+          "topic": "MCP Platform Operations: Onboarding, Support and Lifecycle",
+          "subtopics": ["Onboarding teams that publish servers", "Templates and guidelines for server authors", "Support processes", "Platform service levels", "Server lifecycle from proposal to retirement", "Upgrading the platform to new spec versions", "Communicating changes", "Measuring platform adoption"],
+          "tools": ["Platform documentation", "Server template", "Ticketing system"],
+          "lab_task": "Write the operating model for an internal MCP platform with onboarding, templates, support, service levels, lifecycle rules and an upgrade plan for the next spec version.",
+          "deliverable": "Platform operating model",
+          "checks": [["Onboard", "A new team can publish a server from the guide", "Onboarding test"], ["Support", "Support and service levels are defined", "Operating model"], ["Upgrade", "The spec upgrade plan has steps and dates", "Upgrade plan"]],
+          "objectives": ["Operate an MCP platform", "Support server authors", "Plan upgrades"]
+        },
+        {
+          "topic": "Contributing to MCP: Specification Enhancement Proposals and SDKs",
+          "subtopics": ["How the specification evolves", "Specification Enhancement Proposals", "Working groups and governance", "Reading and commenting on proposals", "Contributing to SDKs", "Reporting interoperability issues", "Company policies for open-source contribution", "Benefits of contributing"],
+          "tools": ["GitHub", "Specification repository", "SDK repositories"],
+          "lab_task": "Review an open enhancement proposal, write a structured comment from your company's experience, reproduce an SDK issue with a minimal example and prepare a pull request draft.",
+          "deliverable": "Proposal comment, reproduction and pull request draft",
+          "checks": [["Review", "The comment is specific and evidence-based", "Comment draft"], ["Reproduce", "The minimal example shows the issue", "Example repository"], ["Prepare", "The pull request draft follows the contribution guide", "Pull request draft"]],
+          "objectives": ["Take part in MCP governance", "Contribute to SDKs", "Follow contribution processes"]
+        },
+        {
+          "topic": "Interoperability: MCP Alongside Agent-to-Agent Protocols and Function Calling",
+          "subtopics": ["MCP for tools and data", "Agent-to-agent protocols such as A2A", "Native function calling in model APIs", "Combining protocols in one system", "Bridging between protocols", "Avoiding duplicate integrations", "Choosing the right protocol for each connection", "Future-proofing integrations"],
+          "tools": ["MCP SDK", "A2A SDK", "LLM API with function calling"],
+          "lab_task": "Build a small system where a coordinator agent talks to a specialist agent over an agent-to-agent protocol and both use tools over MCP, and document why each connection uses its protocol.",
+          "deliverable": "Multi-protocol system and design notes",
+          "checks": [["Connect", "Agent and tool connections work end to end", "Run logs"], ["Justify", "Each connection's protocol choice is explained", "Design notes"], ["Avoid duplication", "No integration is built twice", "Code review"]],
+          "objectives": ["Combine MCP with other protocols", "Choose protocols per connection", "Avoid duplicate integrations"]
+        },
+        {
+          "topic": "Troubleshooting MCP Integrations",
+          "subtopics": ["Connection and transport failures", "Authorization failures", "Version and header mismatches", "Tool selection problems", "Gateway and proxy issues", "Reading logs and traces across layers"],
+          "tools": ["MCP Inspector", "Gateway logs", "Tracing tools"],
+          "lab_task": "Diagnose five broken integrations (a missing header, an issuer mismatch, an unsupported version, a gateway timeout and a poorly described tool), fix them and write a troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Fix", "All five integrations work", "Test output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot MCP integrations", "Read logs across layers", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise MCP Platform",
+          "subtopics": ["Architecture and identity", "Registry, gateway and policy", "Security and threat model", "Governance and audit", "Operations and scale", "Leadership presentation"],
+          "tools": ["Gateway", "Policy engine", "Enterprise identity provider", "Monitoring tools", "MCP SDKs"],
+          "lab_task": "Build an enterprise MCP platform for three teams with a registry, gateway, central authorization, policy-based approvals, threat model, audit trails and operations plan, and present it to engineering and security leaders.",
+          "deliverable": "Platform, threat model, governance pack and presentation",
+          "checks": [["Secure", "Threat mitigations and approvals are in place", "Security review"], ["Operate", "Teams publish and use servers through the platform", "Usage evidence"], ["Win support", "Leaders approve the platform or set conditions", "Presentation notes"]],
+          "objectives": ["Combine advanced MCP skills", "Build an enterprise MCP platform", "Present to engineering and security leaders"]
+        }
+      ]
+    }
+  }
+}

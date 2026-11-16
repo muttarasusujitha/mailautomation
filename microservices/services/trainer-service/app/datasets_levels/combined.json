@@ -11629,6 +11629,1261 @@
           "Work with SAP teams"
         ]
       }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Python"
+      ],
+      "day": {
+        "topic": "Statistical Analysis in Python: SciPy, statsmodels and Reproducible Notebooks",
+        "subtopics": [
+          "Choosing between SciPy, statsmodels and pingouin",
+          "Tidy data in pandas for statistical models",
+          "Formula-based models with statsmodels",
+          "Reading model summaries correctly",
+          "Writing reusable analysis functions",
+          "Testing statistical code with known answers",
+          "Seeds, versions and reproducible notebooks",
+          "Turning notebooks into reports"
+        ],
+        "tools": [
+          "Python",
+          "pandas",
+          "SciPy",
+          "statsmodels",
+          "Jupyter"
+        ],
+        "lab_task": "Refactor a messy statistics notebook into reusable functions with tests that check results against known textbook answers, pin the environment and render a parameterised report.",
+        "deliverable": "Tested analysis module and rendered report",
+        "checks": [
+          [
+            "Refactor",
+            "Analysis steps are reusable functions",
+            "Code review"
+          ],
+          [
+            "Test",
+            "Functions reproduce known textbook results",
+            "Test output"
+          ],
+          [
+            "Reproduce",
+            "A peer renders the same report from the pinned environment",
+            "Peer note"
+          ]
+        ],
+        "objectives": [
+          "Use Python's statistics libraries well",
+          "Test statistical code",
+          "Make analyses reproducible"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Data Science"
+      ],
+      "day": {
+        "topic": "Statistical Rigour in Data Science Projects: From Exploration to Defensible Claims",
+        "subtopics": [
+          "Separating exploration from confirmation",
+          "Holding out data for confirmatory tests",
+          "Effect sizes and intervals in every claim",
+          "Multiple comparisons in exploratory work",
+          "Leakage between exploration and evaluation",
+          "Checking assumptions before modelling",
+          "Writing claims that match the evidence",
+          "Peer review of analyses"
+        ],
+        "tools": [
+          "Python",
+          "statsmodels",
+          "Jupyter",
+          "Review checklist"
+        ],
+        "lab_task": "Take an exploratory data science analysis, split exploratory and confirmatory data, re-test its three main claims with corrections and intervals, and rewrite the conclusions to match the evidence.",
+        "deliverable": "Re-tested claims and revised conclusions",
+        "checks": [
+          [
+            "Split",
+            "Confirmatory tests use data not seen in exploration",
+            "Notebook"
+          ],
+          [
+            "Re-test",
+            "Claims are re-tested with intervals and corrections",
+            "Results table"
+          ],
+          [
+            "Rewrite",
+            "Conclusions match the strength of the evidence",
+            "Revised report"
+          ]
+        ],
+        "objectives": [
+          "Bring rigour to data science work",
+          "Separate exploration and confirmation",
+          "Make defensible claims"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Statistics Behind Machine Learning: Bias, Variance, Uncertainty and Model Comparison",
+        "subtopics": [
+          "Bias and variance in model error",
+          "Sampling variation in evaluation metrics",
+          "Confidence intervals for metrics",
+          "Paired comparisons of models",
+          "Cross-validation variance",
+          "Calibration and probability outputs",
+          "Regression as a statistical model and a predictor",
+          "When a simple statistical model is enough"
+        ],
+        "tools": [
+          "scikit-learn",
+          "statsmodels",
+          "SciPy"
+        ],
+        "lab_task": "Compare a logistic regression and a gradient boosting model on the same data with bootstrap intervals and a paired test, check calibration and decide whether the extra complexity is justified.",
+        "deliverable": "Statistical model comparison and decision",
+        "checks": [
+          [
+            "Quantify",
+            "Metric intervals are reported for both models",
+            "Notebook output"
+          ],
+          [
+            "Compare",
+            "The paired comparison result is reported",
+            "Notebook output"
+          ],
+          [
+            "Decide",
+            "The decision weighs complexity against measured gains",
+            "Decision note"
+          ]
+        ],
+        "objectives": [
+          "Apply statistics to machine learning",
+          "Compare models with uncertainty",
+          "Choose models wisely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Advanced Excel"
+      ],
+      "day": {
+        "topic": "Statistics in Excel: Analysis ToolPak, Regression and Hypothesis Tests",
+        "subtopics": [
+          "Statistical functions in Excel",
+          "The Analysis ToolPak",
+          "Descriptive statistics and histograms",
+          "t-tests and ANOVA in Excel",
+          "Regression with LINEST and the ToolPak",
+          "Confidence intervals with formulas",
+          "Checking Excel results in Python",
+          "Excel limits for statistics"
+        ],
+        "tools": [
+          "Microsoft Excel",
+          "Analysis ToolPak",
+          "Python for checks"
+        ],
+        "lab_task": "Run descriptive statistics, a t-test, an ANOVA and a regression in Excel on a sales dataset, check the results in Python and note where Excel needs care.",
+        "deliverable": "Excel workbook with checked results",
+        "checks": [
+          [
+            "Analyse",
+            "Each analysis is completed in Excel",
+            "Workbook"
+          ],
+          [
+            "Verify",
+            "Excel results match Python within rounding",
+            "Comparison"
+          ],
+          [
+            "Caution",
+            "Excel limits are noted",
+            "Notes"
+          ]
+        ],
+        "objectives": [
+          "Do statistics in Excel",
+          "Verify results",
+          "Know Excel's limits"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Statistical Measures in Power BI: Distributions, Trends and Significance in DAX",
+        "subtopics": [
+          "Percentiles and medians in DAX",
+          "Standard deviation and variability measures",
+          "Distribution visuals",
+          "Trend lines and forecasting visuals",
+          "Confidence intervals as measures",
+          "Showing significance carefully in reports",
+          "Python and R visuals in Power BI",
+          "Avoiding misleading statistical visuals"
+        ],
+        "tools": [
+          "Power BI Desktop",
+          "DAX",
+          "Python visual (optional)"
+        ],
+        "lab_task": "Add median, percentile, variability and confidence interval measures to a sales report, build a distribution visual and label a regional comparison with its uncertainty.",
+        "deliverable": "Power BI report with statistical measures",
+        "checks": [
+          [
+            "Measure",
+            "Statistical measures return correct values",
+            "Measure checks"
+          ],
+          [
+            "Visualise",
+            "Distribution and interval visuals are clear",
+            "Report screenshot"
+          ],
+          [
+            "Label",
+            "Uncertainty is shown for the regional comparison",
+            "Report screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build statistical measures in Power BI",
+          "Show uncertainty in reports",
+          "Avoid misleading visuals"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Product Management"
+      ],
+      "day": {
+        "topic": "Experiment Statistics for Product Teams: Reading A/B Test Results Correctly",
+        "subtopics": [
+          "What a product manager must know about tests",
+          "Minimum detectable effect and test duration",
+          "Primary and guardrail metrics",
+          "Reading intervals instead of only p-values",
+          "Peeking and early stopping",
+          "Segment results and false discoveries",
+          "Novelty effects",
+          "Making ship decisions from results"
+        ],
+        "tools": [
+          "Experiment results",
+          "Spreadsheet",
+          "Statistics notebook"
+        ],
+        "lab_task": "Review five A/B test readouts with a product team, spot peeking, underpowered tests and segment fishing, and make a ship, iterate or stop decision for each.",
+        "deliverable": "Reviewed readouts with decisions",
+        "checks": [
+          [
+            "Spot problems",
+            "Peeking, power and segment problems are found",
+            "Review notes"
+          ],
+          [
+            "Read intervals",
+            "Decisions use intervals and guardrails",
+            "Decision log"
+          ],
+          [
+            "Decide",
+            "Each decision is justified",
+            "Decision log"
+          ]
+        ],
+        "objectives": [
+          "Read experiment results correctly",
+          "Avoid common test mistakes",
+          "Make ship decisions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Statistics for Data Science",
+        "Data Analytics"
+      ],
+      "day": {
+        "topic": "From Descriptive Dashboards to Statistical Evidence for Analysts",
+        "subtopics": [
+          "When a dashboard difference is real",
+          "Sampling variation in business metrics",
+          "Simple tests for analysts",
+          "Intervals for rates and averages",
+          "Seasonality and noise in trends",
+          "Control charts for metrics",
+          "Writing findings with uncertainty",
+          "Knowing when to call a statistician"
+        ],
+        "tools": [
+          "Excel or Google Sheets",
+          "Python or a BI tool",
+          "Control chart template"
+        ],
+        "lab_task": "Take three dashboard claims such as a sales drop, test whether each is beyond normal variation with intervals and a control chart and rewrite the findings.",
+        "deliverable": "Tested dashboard claims and rewritten findings",
+        "checks": [
+          [
+            "Test",
+            "Each claim is tested against normal variation",
+            "Analysis"
+          ],
+          [
+            "Chart",
+            "A control chart shows the metric's limits",
+            "Chart"
+          ],
+          [
+            "Rewrite",
+            "Findings state uncertainty plainly",
+            "Findings note"
+          ]
+        ],
+        "objectives": [
+          "Add statistical evidence to analytics",
+          "Separate signal from noise",
+          "Report findings with uncertainty"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI for Business",
+        "Microsoft Copilot"
+      ],
+      "day": {
+        "topic": "Rolling Out Microsoft 365 Copilot to Business Teams: Use Cases, Training and Measures",
+        "subtopics": [
+          "Choosing first teams and use cases",
+          "Data readiness in SharePoint and OneDrive",
+          "Licensing and pilot groups",
+          "Role-based training for Copilot",
+          "Prompt libraries for each team",
+          "Copilot usage reports",
+          "Measuring time saved and quality",
+          "Expanding after the pilot"
+        ],
+        "tools": [
+          "Microsoft 365 Copilot",
+          "Microsoft 365 admin center usage reports",
+          "Survey tool"
+        ],
+        "lab_task": "Plan a Copilot pilot for two business teams with use cases, data readiness checks, training and prompt libraries, and build the measurement plan from usage reports and surveys.",
+        "deliverable": "Copilot pilot plan with measures",
+        "checks": [
+          [
+            "Choose",
+            "Teams and use cases are chosen with reasons",
+            "Pilot plan"
+          ],
+          [
+            "Prepare data",
+            "Oversharing risks are checked before rollout",
+            "Readiness checklist"
+          ],
+          [
+            "Measure",
+            "Usage and value measures are defined",
+            "Measurement plan"
+          ]
+        ],
+        "objectives": [
+          "Roll out Copilot to business teams",
+          "Prepare data and training",
+          "Measure Copilot value"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI for Business",
+        "Prompt Engineering"
+      ],
+      "day": {
+        "topic": "Prompt Patterns for Business Users: Templates, Libraries and Quality Checks",
+        "subtopics": [
+          "Prompt patterns that suit business tasks",
+          "Templates with placeholders",
+          "Building a team prompt library",
+          "Examples and output formats",
+          "Quality checks for prompt outputs",
+          "Version control for shared prompts",
+          "Prompts for different AI assistants",
+          "Retiring prompts that no longer work"
+        ],
+        "tools": [
+          "Approved AI assistant",
+          "Shared prompt library",
+          "Quality rubric"
+        ],
+        "lab_task": "Build a team prompt library of ten templates for common business tasks, test each against a quality rubric in two assistants and record versions and owners.",
+        "deliverable": "Tested team prompt library",
+        "checks": [
+          [
+            "Build",
+            "Ten templates have placeholders and formats",
+            "Prompt library"
+          ],
+          [
+            "Test",
+            "Each template is rated in two assistants",
+            "Test log"
+          ],
+          [
+            "Own",
+            "Every template has a version and owner",
+            "Library metadata"
+          ]
+        ],
+        "objectives": [
+          "Apply prompt patterns at work",
+          "Build prompt libraries",
+          "Check prompt quality"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI for Business",
+        "Leadership and People Management"
+      ],
+      "day": {
+        "topic": "Leading Teams Through AI Adoption: Fears, Skills and New Ways of Working",
+        "subtopics": [
+          "What employees worry about with AI",
+          "Honest conversations about jobs",
+          "Setting expectations for AI use",
+          "Coaching people who resist",
+          "Recognising good AI use",
+          "Redesigning roles with the team",
+          "Fairness in AI-related performance expectations",
+          "Keeping human judgement visible"
+        ],
+        "tools": [
+          "Team survey",
+          "Conversation guide",
+          "Team charter template"
+        ],
+        "lab_task": "Survey a team's concerns about AI, hold two role-played conversations with a worried and a resistant employee and write a team agreement on how AI will be used.",
+        "deliverable": "Survey summary, conversation notes and team agreement",
+        "checks": [
+          [
+            "Listen",
+            "Survey results identify the main concerns",
+            "Survey summary"
+          ],
+          [
+            "Talk honestly",
+            "Conversations address job concerns without false promises",
+            "Role play notes"
+          ],
+          [
+            "Agree",
+            "The team agreement sets expectations and limits",
+            "Team agreement"
+          ]
+        ],
+        "objectives": [
+          "Lead people through AI change",
+          "Address fears honestly",
+          "Agree team norms for AI"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI for Business",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Business and Engineering Teams Together on Generative AI Projects",
+        "subtopics": [
+          "Translating business needs into AI requirements",
+          "What engineers need from business owners",
+          "Evaluation sets owned by the business",
+          "Acceptance criteria for AI features",
+          "Risk reviews with both teams",
+          "Cost and latency trade-offs explained",
+          "Release decisions together",
+          "Feedback loops after launch"
+        ],
+        "tools": [
+          "Requirements template",
+          "Evaluation set template",
+          "Risk review checklist"
+        ],
+        "lab_task": "Run a joint workshop where a business owner and an engineer turn a support use case into requirements, an evaluation set, acceptance criteria and a risk review.",
+        "deliverable": "Joint requirements and evaluation pack",
+        "checks": [
+          [
+            "Translate",
+            "Requirements are written in business and technical terms",
+            "Requirements"
+          ],
+          [
+            "Evaluate",
+            "The business owns an evaluation set with expected answers",
+            "Evaluation set"
+          ],
+          [
+            "Accept",
+            "Acceptance criteria and risks are agreed",
+            "Workshop notes"
+          ]
+        ],
+        "objectives": [
+          "Bridge business and engineering on AI",
+          "Write AI acceptance criteria",
+          "Share evaluation ownership"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI for Business",
+        "Agentic AI"
+      ],
+      "day": {
+        "topic": "Agents for Business Processes: Use Cases, Oversight and Risk",
+        "subtopics": [
+          "What business agents can do",
+          "Processes that suit agents",
+          "Levels of autonomy",
+          "Human approval points",
+          "Measuring agent performance",
+          "Risks of agents acting in systems",
+          "Accountability for agent outcomes",
+          "Starting small with agents"
+        ],
+        "tools": [
+          "Agent use case template",
+          "Autonomy framework",
+          "Risk checklist"
+        ],
+        "lab_task": "Assess three business processes for agent use, choose an autonomy level and approval points for one, and write the oversight and measurement plan.",
+        "deliverable": "Agent assessment and oversight plan",
+        "checks": [
+          [
+            "Assess",
+            "Each process is rated for agent suitability",
+            "Assessment"
+          ],
+          [
+            "Control",
+            "Approval points and limits are defined",
+            "Oversight plan"
+          ],
+          [
+            "Measure",
+            "Agent performance measures are set",
+            "Oversight plan"
+          ]
+        ],
+        "objectives": [
+          "Evaluate agents for business processes",
+          "Set autonomy and oversight",
+          "Measure agent value"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Generative AI for Business",
+        "Project Management"
+      ],
+      "day": {
+        "topic": "Running Generative AI Projects: Plans, Risks and Benefits Tracking",
+        "subtopics": [
+          "How AI projects differ from software projects",
+          "Iterative planning with evaluation milestones",
+          "Risks specific to AI projects",
+          "Stakeholders and governance",
+          "Benefits tracking",
+          "Vendor management for AI",
+          "Change and training workstreams",
+          "Closing and handing over AI projects"
+        ],
+        "tools": [
+          "Project plan template",
+          "Risk register",
+          "Benefits register"
+        ],
+        "lab_task": "Build a project plan for a generative AI rollout with evaluation milestones, an AI risk register, a benefits register and change workstreams, and review it with a role-played sponsor.",
+        "deliverable": "AI project plan with registers",
+        "checks": [
+          [
+            "Plan",
+            "Milestones include evaluation gates",
+            "Project plan"
+          ],
+          [
+            "Manage risk",
+            "AI-specific risks have owners",
+            "Risk register"
+          ],
+          [
+            "Track benefits",
+            "Benefits have measures and owners",
+            "Benefits register"
+          ]
+        ],
+        "objectives": [
+          "Manage generative AI projects",
+          "Track AI-specific risks",
+          "Measure benefits"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "PyTorch"
+      ],
+      "day": {
+        "topic": "Custom Training Loops for LLM Fine-Tuning in Plain PyTorch",
+        "subtopics": [
+          "Why write a loop instead of using a trainer",
+          "Loading models and tokenizers",
+          "Collating chat data with masks",
+          "Adapters with PEFT in a custom loop",
+          "Mixed precision and gradient accumulation",
+          "Evaluation inside the loop",
+          "Saving adapters and checkpoints",
+          "Comparing with the TRL trainer"
+        ],
+        "tools": [
+          "PyTorch",
+          "Transformers",
+          "PEFT"
+        ],
+        "lab_task": "Write a custom PyTorch training loop that fine-tunes a small model with LoRA, masks prompt tokens, uses bf16 and gradient accumulation, and matches the TRL trainer's results.",
+        "deliverable": "Custom training loop and comparison",
+        "checks": [
+          [
+            "Train",
+            "The custom loop trains with masked loss",
+            "Training logs"
+          ],
+          [
+            "Optimise",
+            "Mixed precision and accumulation work",
+            "Configuration"
+          ],
+          [
+            "Compare",
+            "Results match the TRL run within tolerance",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Fine-tune LLMs in plain PyTorch",
+          "Control training details",
+          "Compare with trainer libraries"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Choosing Between Prompting, RAG and Fine-Tuning in Generative AI Products",
+        "subtopics": [
+          "What each approach changes",
+          "Quality, cost and latency trade-offs",
+          "Data needs for each approach",
+          "Combining retrieval with fine-tuning",
+          "Maintenance and model updates",
+          "Evaluating options on the same test set",
+          "Decision records",
+          "Revisiting the choice later"
+        ],
+        "tools": [
+          "LLM API",
+          "Evaluation scripts",
+          "Decision template"
+        ],
+        "lab_task": "Build a prompted version, a RAG version and a fine-tuned version of one feature, evaluate all three on the same test set with cost and latency and record the decision.",
+        "deliverable": "Three implementations with evaluation and decision",
+        "checks": [
+          [
+            "Build",
+            "All three versions answer the test set",
+            "Evaluation outputs"
+          ],
+          [
+            "Compare",
+            "Quality, cost and latency are compared",
+            "Results table"
+          ],
+          [
+            "Decide",
+            "The decision record justifies the choice",
+            "Decision record"
+          ]
+        ],
+        "objectives": [
+          "Compare prompting, RAG and fine-tuning",
+          "Evaluate options fairly",
+          "Record design decisions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "RAG Pipelines"
+      ],
+      "day": {
+        "topic": "Fine-Tuned Retrievers and Generators in RAG Systems",
+        "subtopics": [
+          "Where fine-tuning helps a RAG system",
+          "Embedding model fine-tuning for the domain",
+          "Reranker fine-tuning",
+          "Training generators to use retrieved context",
+          "Teaching models to say when context is missing",
+          "Evaluating retrieval and answers separately",
+          "Keeping knowledge in the index, not the weights",
+          "Costs and maintenance"
+        ],
+        "tools": [
+          "Sentence Transformers",
+          "TRL",
+          "RAG evaluation tools"
+        ],
+        "lab_task": "Fine-tune an embedding model and a generator for a RAG system, train the generator to refuse when context is missing, and measure retrieval and answer quality against the base system.",
+        "deliverable": "Fine-tuned RAG components with evaluation",
+        "checks": [
+          [
+            "Improve retrieval",
+            "Recall improves with the fine-tuned embeddings",
+            "Results table"
+          ],
+          [
+            "Improve answers",
+            "Grounded answer quality improves",
+            "Results table"
+          ],
+          [
+            "Refuse",
+            "Missing-context questions are refused correctly",
+            "Test results"
+          ]
+        ],
+        "objectives": [
+          "Fine-tune RAG components",
+          "Ground answers in context",
+          "Evaluate RAG parts separately"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "MLOps"
+      ],
+      "day": {
+        "topic": "Operating Fine-Tuned LLMs: Registries, Evaluation Gates and Retraining Pipelines",
+        "subtopics": [
+          "Versioning datasets, adapters and models",
+          "Model registries for LLMs",
+          "Automated evaluation gates",
+          "Deployment with rollback",
+          "Monitoring quality and drift in production",
+          "Feedback data for retraining",
+          "Retraining pipelines",
+          "Cost tracking"
+        ],
+        "tools": [
+          "MLflow or Weights & Biases",
+          "CI pipeline",
+          "vLLM"
+        ],
+        "lab_task": "Build a pipeline that trains an adapter, runs evaluation gates, registers the model, deploys it with rollback and schedules retraining from feedback data.",
+        "deliverable": "Fine-tuning pipeline with gates and rollback",
+        "checks": [
+          [
+            "Version",
+            "Data, adapter and model versions are linked",
+            "Registry entry"
+          ],
+          [
+            "Gate",
+            "A model failing evaluation is not deployed",
+            "Pipeline run"
+          ],
+          [
+            "Roll back",
+            "Rollback restores the previous model",
+            "Rollback log"
+          ]
+        ],
+        "objectives": [
+          "Operate fine-tuned LLMs",
+          "Gate deployments on evaluation",
+          "Automate retraining"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "Natural Language Processing"
+      ],
+      "day": {
+        "topic": "From Classic NLP Fine-Tuning to LLM Instruction Tuning",
+        "subtopics": [
+          "Fine-tuning encoders for classification",
+          "Instruction tuning decoders for the same task",
+          "Data needs compared",
+          "Accuracy, cost and latency compared",
+          "Structured output from LLMs",
+          "When a small encoder is better",
+          "Combining both in one system",
+          "Evaluating on the same test set"
+        ],
+        "tools": [
+          "Hugging Face Transformers",
+          "TRL",
+          "scikit-learn metrics"
+        ],
+        "lab_task": "Solve one text classification task by fine-tuning an encoder and by instruction-tuning a small LLM, compare accuracy, cost and latency and recommend one.",
+        "deliverable": "Two fine-tuned models and a recommendation",
+        "checks": [
+          [
+            "Train",
+            "Both models are trained on the same data",
+            "Training logs"
+          ],
+          [
+            "Compare",
+            "Accuracy, cost and latency are compared",
+            "Results table"
+          ],
+          [
+            "Recommend",
+            "The recommendation is justified",
+            "Recommendation note"
+          ]
+        ],
+        "objectives": [
+          "Compare encoder and LLM fine-tuning",
+          "Match models to tasks",
+          "Evaluate fairly"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Fine-Tuning on AWS: SageMaker Training Jobs and Bedrock Custom Models",
+        "subtopics": [
+          "Options on AWS for fine-tuning",
+          "SageMaker training jobs with Hugging Face containers",
+          "Spot instances for training",
+          "Data in Amazon S3",
+          "Bedrock custom model fine-tuning",
+          "Deploying fine-tuned models",
+          "IAM and data protection",
+          "Cost comparison"
+        ],
+        "tools": [
+          "Amazon SageMaker",
+          "Amazon Bedrock",
+          "Amazon S3",
+          "AWS IAM"
+        ],
+        "lab_task": "Fine-tune a model with a SageMaker training job on spot instances and with Bedrock custom model fine-tuning, deploy both and compare quality, cost and effort.",
+        "deliverable": "Two AWS fine-tuning runs and comparison",
+        "checks": [
+          [
+            "Train",
+            "Both jobs complete with data from S3",
+            "Job details"
+          ],
+          [
+            "Protect",
+            "IAM roles follow least privilege",
+            "IAM policy"
+          ],
+          [
+            "Compare",
+            "Quality, cost and effort are compared",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Fine-tune models on AWS",
+          "Use SageMaker and Bedrock",
+          "Control cost and access"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Fine-Tuning LLMs",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Fine-Tuning on Azure AI Foundry: Managed Jobs, Deployments and Evaluation",
+        "subtopics": [
+          "Fine-tuning options in Azure AI Foundry",
+          "Preparing data in Azure storage",
+          "Supervised and preference fine-tuning jobs",
+          "Deploying fine-tuned models",
+          "Evaluation in Azure AI Foundry",
+          "Networking and data protection",
+          "Cost of training and hosting",
+          "Comparing with self-hosted training"
+        ],
+        "tools": [
+          "Azure AI Foundry",
+          "Azure Storage",
+          "Azure role-based access control"
+        ],
+        "lab_task": "Run a managed fine-tuning job in Azure AI Foundry, deploy the result, evaluate it on the test set and compare cost and quality with a self-hosted run.",
+        "deliverable": "Azure fine-tuning run and comparison",
+        "checks": [
+          [
+            "Train",
+            "The managed job completes",
+            "Job details"
+          ],
+          [
+            "Evaluate",
+            "The deployed model is scored on the test set",
+            "Evaluation results"
+          ],
+          [
+            "Compare",
+            "Cost and quality are compared with self-hosting",
+            "Comparison"
+          ]
+        ],
+        "objectives": [
+          "Fine-tune models on Azure",
+          "Deploy and evaluate",
+          "Compare managed and self-hosted"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MCP",
+        "Agentic AI"
+      ],
+      "day": {
+        "topic": "Giving Agents Tools Through MCP: Server Choice, Permissions and Oversight",
+        "subtopics": [
+          "Agents as MCP clients",
+          "Choosing servers for an agent",
+          "Filtering tools per agent",
+          "Scopes and credentials for agents",
+          "Approval for consequential tools",
+          "Handling input-required results in agent loops",
+          "Logging agent tool use",
+          "Evaluating agent tool use"
+        ],
+        "tools": [
+          "Agent framework with MCP support",
+          "MCP servers",
+          "Policy configuration"
+        ],
+        "lab_task": "Give an agent tools from two MCP servers with filtered tools, scoped credentials and approval for write actions, then evaluate its tool use on twenty tasks.",
+        "deliverable": "Agent with governed MCP tools and evaluation",
+        "checks": [
+          [
+            "Filter",
+            "The agent sees only allowed tools",
+            "Configuration"
+          ],
+          [
+            "Approve",
+            "Write actions wait for approval",
+            "Run logs"
+          ],
+          [
+            "Evaluate",
+            "Task success and tool errors are measured",
+            "Results table"
+          ]
+        ],
+        "objectives": [
+          "Connect agents to MCP",
+          "Govern agent tool access",
+          "Evaluate agent tool use"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MCP",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python Engineering for MCP Servers: Packaging, Typing and Testing",
+        "subtopics": [
+          "Project layout for a Python server",
+          "Type hints that become tool schemas",
+          "Pydantic models for inputs and outputs",
+          "Async code in servers",
+          "Packaging with uv and pyproject.toml",
+          "Unit and protocol tests with pytest",
+          "Linting and type checks",
+          "Publishing releases"
+        ],
+        "tools": [
+          "MCP Python SDK",
+          "uv",
+          "pytest",
+          "Ruff",
+          "mypy"
+        ],
+        "lab_task": "Turn a single-file Python MCP server into a typed package with Pydantic models, async tools, pytest protocol tests, lint and type checks, and publish a release.",
+        "deliverable": "Packaged and tested Python server",
+        "checks": [
+          [
+            "Type",
+            "Tool schemas come from typed models",
+            "Tool listing"
+          ],
+          [
+            "Test",
+            "Protocol tests pass in CI",
+            "Pipeline run"
+          ],
+          [
+            "Publish",
+            "The release installs from the package",
+            "Install log"
+          ]
+        ],
+        "objectives": [
+          "Engineer Python MCP servers",
+          "Type tools with Pydantic",
+          "Test and package servers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MCP",
+        "LangChain"
+      ],
+      "day": {
+        "topic": "Using MCP Servers from LangChain and LangGraph Agents",
+        "subtopics": [
+          "MCP adapters for LangChain",
+          "Loading MCP tools into agents",
+          "Several servers in one agent",
+          "Tool filtering and naming",
+          "State in LangGraph and handles in MCP",
+          "Human-in-the-loop with LangGraph",
+          "Tracing tool calls with LangSmith",
+          "Testing agents that use MCP"
+        ],
+        "tools": [
+          "LangChain MCP adapters",
+          "LangGraph",
+          "LangSmith",
+          "MCP servers"
+        ],
+        "lab_task": "Load tools from two MCP servers into a LangGraph agent, add a human approval node for write tools, trace runs in LangSmith and test the agent on ten scenarios.",
+        "deliverable": "LangGraph agent using MCP with traces",
+        "checks": [
+          [
+            "Load",
+            "Tools from both servers are available to the agent",
+            "Run logs"
+          ],
+          [
+            "Approve",
+            "The approval node pauses write actions",
+            "Trace"
+          ],
+          [
+            "Test",
+            "Scenario results are recorded",
+            "Test results"
+          ]
+        ],
+        "objectives": [
+          "Use MCP in LangChain agents",
+          "Add human approval",
+          "Trace MCP tool calls"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MCP",
+        "Microsoft Copilot"
+      ],
+      "day": {
+        "topic": "Connecting Copilot Studio Agents to MCP Servers",
+        "subtopics": [
+          "MCP support in Copilot Studio",
+          "Connecting a remote MCP server",
+          "Authentication for Copilot connections",
+          "Choosing which tools to expose",
+          "Testing in Copilot Studio",
+          "Publishing agents to Microsoft 365",
+          "Governance in the Power Platform admin center",
+          "Monitoring usage"
+        ],
+        "tools": [
+          "Microsoft Copilot Studio",
+          "Remote MCP server",
+          "Power Platform admin center"
+        ],
+        "lab_task": "Connect a Copilot Studio agent to a remote MCP server with authentication, expose two tools, test the agent and publish it to a pilot group with governance settings.",
+        "deliverable": "Copilot Studio agent using an MCP server",
+        "checks": [
+          [
+            "Connect",
+            "The agent calls the MCP server's tools",
+            "Test log"
+          ],
+          [
+            "Secure",
+            "Authentication and tool exposure follow policy",
+            "Configuration"
+          ],
+          [
+            "Publish",
+            "The agent is available to the pilot group",
+            "Publishing record"
+          ]
+        ],
+        "objectives": [
+          "Connect Copilot agents to MCP",
+          "Secure connections",
+          "Govern published agents"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MCP",
+        "REST API Design"
+      ],
+      "day": {
+        "topic": "Designing APIs That Become Good MCP Tools",
+        "subtopics": [
+          "What makes an API easy to wrap as tools",
+          "Task-oriented operations compared with CRUD",
+          "Clear names and descriptions in OpenAPI",
+          "Consistent errors models can act on",
+          "Pagination and filtering for model use",
+          "Idempotency for write operations",
+          "Generating tool definitions from OpenAPI",
+          "Reviewing APIs for agent use"
+        ],
+        "tools": [
+          "OpenAPI description",
+          "MCP SDK",
+          "API review checklist"
+        ],
+        "lab_task": "Review an API for agent use, add task-oriented operations and clearer descriptions, generate tool definitions from OpenAPI and compare model tool-use accuracy before and after.",
+        "deliverable": "Revised API description and tool-use comparison",
+        "checks": [
+          [
+            "Review",
+            "Agent-use problems are listed",
+            "Review notes"
+          ],
+          [
+            "Improve",
+            "Operations and descriptions are revised",
+            "OpenAPI diff"
+          ],
+          [
+            "Compare",
+            "Tool-use accuracy improves",
+            "Results table"
+          ]
+        ],
+        "objectives": [
+          "Design APIs for agents",
+          "Generate tools from OpenAPI",
+          "Measure tool-use accuracy"
+        ]
+      }
+    },
+    {
+      "between": [
+        "MCP",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Packaging and Running MCP Servers in Containers",
+        "subtopics": [
+          "Why run servers in containers",
+          "Small images for Python and Node.js servers",
+          "stdio servers in containers for local hosts",
+          "Remote servers as container services",
+          "Secrets and configuration in containers",
+          "File system and network restrictions",
+          "Health checks",
+          "Publishing images"
+        ],
+        "tools": [
+          "Docker",
+          "MCP SDKs",
+          "Container registry"
+        ],
+        "lab_task": "Build small images for a stdio server and a remote server, run the stdio one from a host through Docker with restricted file and network access, and publish both images.",
+        "deliverable": "Two server images and host configuration",
+        "checks": [
+          [
+            "Build",
+            "Both images run their servers",
+            "Run logs"
+          ],
+          [
+            "Restrict",
+            "The containerised stdio server cannot reach blocked paths",
+            "Test output"
+          ],
+          [
+            "Publish",
+            "Images are published with tags",
+            "Registry listing"
+          ]
+        ],
+        "objectives": [
+          "Containerise MCP servers",
+          "Restrict container access",
+          "Publish server images"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -16949,6 +18204,366 @@
           "Combine planning and LoadRunner delivery",
           "Turn plans into scenarios",
           "Report against objectives"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Statistics for Data Science",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Statistical Analysis Package in Python",
+        "subtopics": [
+          "Analysis question",
+          "Reusable statistical functions",
+          "Tests against known results",
+          "Reproducible report"
+        ],
+        "tools": [
+          "Python",
+          "SciPy",
+          "statsmodels",
+          "pytest",
+          "Jupyter"
+        ],
+        "lab_task": "Build a small Python package that runs a full statistical analysis for a business question, with tested functions, a reproducible environment and a generated report.",
+        "deliverable": "Analysis package, tests and report",
+        "checks": [
+          [
+            "Build",
+            "The package runs the full analysis",
+            "Run output"
+          ],
+          [
+            "Test",
+            "Functions match known results",
+            "Test output"
+          ],
+          [
+            "Report",
+            "The report regenerates from the package",
+            "Report files"
+          ]
+        ],
+        "objectives": [
+          "Combine statistics and Python",
+          "Package analyses",
+          "Make results reproducible"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Statistics for Data Science",
+        "Machine Learning"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Statistically Validated Predictive Model",
+        "subtopics": [
+          "Problem and baseline",
+          "Model training",
+          "Uncertainty in metrics",
+          "Calibration",
+          "Decision recommendation"
+        ],
+        "tools": [
+          "scikit-learn",
+          "statsmodels",
+          "SciPy"
+        ],
+        "lab_task": "Build a predictive model and a simple statistical baseline, compare them with intervals and paired tests, check calibration and recommend which to deploy.",
+        "deliverable": "Models, statistical comparison and recommendation",
+        "checks": [
+          [
+            "Compare",
+            "Models are compared with uncertainty",
+            "Results table"
+          ],
+          [
+            "Calibrate",
+            "Calibration is checked and fixed if needed",
+            "Calibration chart"
+          ],
+          [
+            "Recommend",
+            "The recommendation follows the evidence",
+            "Recommendation note"
+          ]
+        ],
+        "objectives": [
+          "Combine statistics and machine learning",
+          "Validate models statistically",
+          "Recommend with evidence"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Generative AI for Business",
+        "Microsoft Copilot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Copilot Adoption Programme for a Business Unit",
+        "subtopics": [
+          "Use cases and pilot",
+          "Data readiness",
+          "Training and prompt libraries",
+          "Measures and expansion plan"
+        ],
+        "tools": [
+          "Microsoft 365 Copilot",
+          "Usage reports",
+          "Training plan template"
+        ],
+        "lab_task": "Design and simulate a Copilot adoption programme for a business unit with use cases, data checks, training, prompt libraries, measured pilot results and an expansion recommendation.",
+        "deliverable": "Adoption programme and pilot results",
+        "checks": [
+          [
+            "Prepare",
+            "Data readiness is checked before rollout",
+            "Readiness checklist"
+          ],
+          [
+            "Measure",
+            "Pilot results are measured against baselines",
+            "Results"
+          ],
+          [
+            "Recommend",
+            "Expansion is justified by results",
+            "Recommendation"
+          ]
+        ],
+        "objectives": [
+          "Combine business AI adoption and Copilot",
+          "Run a measured pilot",
+          "Plan expansion"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Generative AI for Business",
+        "Prompt Engineering"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Prompt Library and AI Workflows for a Business Team",
+        "subtopics": [
+          "Team task analysis",
+          "Prompt templates",
+          "Workflows with checks",
+          "Quality measurement"
+        ],
+        "tools": [
+          "Approved AI assistant",
+          "Prompt library",
+          "Quality rubric"
+        ],
+        "lab_task": "Build a prompt library and three AI-assisted workflows for a business team, test them on real tasks with a quality rubric and present time saved and quality results.",
+        "deliverable": "Prompt library, workflows and results",
+        "checks": [
+          [
+            "Build",
+            "Templates and workflows cover the team's main tasks",
+            "Library and workflows"
+          ],
+          [
+            "Test",
+            "Quality is scored on real tasks",
+            "Rubric scores"
+          ],
+          [
+            "Present",
+            "Time saved and quality are reported",
+            "Presentation notes"
+          ]
+        ],
+        "objectives": [
+          "Combine prompting and business adoption",
+          "Build team workflows",
+          "Show measured value"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Fine-Tuning LLMs",
+        "Generative AI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Generative AI Product with a Fine-Tuned Model",
+        "subtopics": [
+          "Use case and baselines",
+          "Fine-tuned model",
+          "Product integration",
+          "Evaluation and launch decision"
+        ],
+        "tools": [
+          "TRL or Unsloth",
+          "vLLM",
+          "LLM API",
+          "Evaluation scripts"
+        ],
+        "lab_task": "Build a generative AI feature, compare a prompted baseline with a fine-tuned model, integrate the better option into the product and make a launch decision from evaluation results.",
+        "deliverable": "Feature, models, evaluation and launch decision",
+        "checks": [
+          [
+            "Compare",
+            "Baseline and fine-tuned model are evaluated equally",
+            "Results table"
+          ],
+          [
+            "Integrate",
+            "The chosen model serves the feature",
+            "Demo"
+          ],
+          [
+            "Decide",
+            "The launch decision follows the evaluation",
+            "Decision note"
+          ]
+        ],
+        "objectives": [
+          "Combine fine-tuning and product building",
+          "Choose models with evidence",
+          "Launch AI features"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Fine-Tuning LLMs",
+        "MLOps"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Fine-Tuned Model Operated in Production",
+        "subtopics": [
+          "Training pipeline",
+          "Evaluation gates",
+          "Deployment and monitoring",
+          "Retraining from feedback"
+        ],
+        "tools": [
+          "MLflow or Weights & Biases",
+          "CI pipeline",
+          "vLLM",
+          "Monitoring tools"
+        ],
+        "lab_task": "Operate a fine-tuned model through a full lifecycle: pipeline training, evaluation gates, deployment with monitoring, feedback collection and one retraining cycle.",
+        "deliverable": "Operated model with lifecycle evidence",
+        "checks": [
+          [
+            "Gate",
+            "Releases pass evaluation gates",
+            "Pipeline runs"
+          ],
+          [
+            "Monitor",
+            "Production quality is monitored",
+            "Dashboard"
+          ],
+          [
+            "Retrain",
+            "One retraining cycle completes",
+            "Pipeline run"
+          ]
+        ],
+        "objectives": [
+          "Combine fine-tuning and MLOps",
+          "Operate custom models",
+          "Retrain from feedback"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "MCP",
+        "Agentic AI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Agent with Secure MCP Tooling",
+        "subtopics": [
+          "Agent design",
+          "MCP servers and permissions",
+          "Approvals and logging",
+          "Evaluation"
+        ],
+        "tools": [
+          "Agent framework",
+          "MCP servers",
+          "Identity provider",
+          "Evaluation scripts"
+        ],
+        "lab_task": "Build an agent that completes a business workflow through MCP servers with scoped permissions, approvals for consequential actions, full logging and an evaluation on realistic tasks.",
+        "deliverable": "Agent, servers, logs and evaluation",
+        "checks": [
+          [
+            "Secure",
+            "Permissions and approvals work as designed",
+            "Test output"
+          ],
+          [
+            "Log",
+            "Every tool call is logged",
+            "Logs"
+          ],
+          [
+            "Evaluate",
+            "Task success meets the target or gaps are reported",
+            "Evaluation report"
+          ]
+        ],
+        "objectives": [
+          "Combine agents and MCP",
+          "Secure agent tools",
+          "Evaluate agent workflows"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "MCP",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Python MCP Server for a Business System",
+        "subtopics": [
+          "Tool, resource and prompt design",
+          "Typed package",
+          "Tests and CI",
+          "Deployment and use from a host"
+        ],
+        "tools": [
+          "MCP Python SDK",
+          "uv",
+          "pytest",
+          "Docker",
+          "An MCP host"
+        ],
+        "lab_task": "Build a typed, tested Python MCP server for a business system, package and deploy it, and demonstrate it answering real questions from an AI host.",
+        "deliverable": "Server package, tests, deployment and demonstration",
+        "checks": [
+          [
+            "Build",
+            "Tools, resources and prompts work",
+            "Inspector results"
+          ],
+          [
+            "Test",
+            "CI tests pass",
+            "Pipeline run"
+          ],
+          [
+            "Demonstrate",
+            "The host answers real questions with the server",
+            "Demonstration recording"
+          ]
+        ],
+        "objectives": [
+          "Combine Python and MCP",
+          "Build production-ready servers",
+          "Demonstrate real use"
         ]
       }
     }

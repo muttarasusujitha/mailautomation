@@ -176,6 +176,12 @@ def _listed(norm, start, end):
     return fits(before, True) and fits(after, False)
 
 
+def _ends_ai_name(before):
+    """True when the word before an "AI ..." phrase forms a name such as "agentic ai"."""
+    words = before.split()
+    return bool(words) and f"{words[-1]} ai" in _catalog()
+
+
 def _mentions(text, include_weak):
     """[(start, end, domain, alias)] for non-overlapping catalog phrases, longest first."""
     norm = _norm(text)
@@ -189,6 +195,11 @@ def _mentions(text, include_weak):
             if any(taken[match.start():match.end()]):
                 continue
             if alias in _LIST_ONLY_ALIASES and not _listed(norm, match.start(), match.end()):
+                continue
+            if alias.startswith("ai for ") and _ends_ai_name(norm[:match.start()]):
+                # "Agentic AI for business leaders" and "Azure AI for business" keep Agentic
+                # AI and Azure AI: an "AI for ..." alias does not take the "AI" that ends
+                # another technology's name.
                 continue
             for index in range(match.start(), match.end()):
                 taken[index] = True
