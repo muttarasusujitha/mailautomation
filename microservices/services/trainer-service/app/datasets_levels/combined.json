@@ -22251,9 +22251,1268 @@
           "Find knowledge gaps for practitioners who work with both"
         ]
       }
+    },
+    {
+      "between": [
+        "Flutter",
+        "React Native"
+      ],
+      "day": {
+        "topic": "Flutter and React Native: Choosing with Measurements and Moving an App Between Them",
+        "subtopics": [
+          "Concept map for developers moving across: widgets and components, setState and useState, Riverpod and Zustand, go_router and Expo Router",
+          "Rendering compared: Flutter drawing every pixel with Impeller against React Native's Fabric renderer creating native views",
+          "Native access compared: Pigeon and FFIgen or JNIgen interop, stable since Flutter 3.50, against Turbo Modules and Expo Modules",
+          "Over-the-air fixes: Shorebird code push against EAS Update, and what each may change after store review",
+          "Measuring both builds the same way: cold start with adb shell am start -W and the Instruments App Launch template, frame times and download size",
+          "Team factors: Dart and TypeScript skills, code shared with a web app, and native SDKs the app already wraps",
+          "Moving in either direction: screen by screen with Flutter add-to-app or React Native brownfield, or a full rewrite",
+          "What must carry over unchanged: application and bundle IDs, signing keys, deep link domains, stored sessions and analytics event names"
+        ],
+        "tools": [
+          "Flutter 3.50 and Dart 3.14",
+          "React Native 0.88 with Expo SDK 58",
+          "Flutter DevTools",
+          "React Native DevTools",
+          "Android Studio Profiler and Perfetto",
+          "Xcode Instruments"
+        ],
+        "lab_task": "Build the same product list (500 items with images), product detail and basket screens in Flutter and in React Native against one mock API, measure both release builds on the same Android phone and iPhone for cold start, scroll frame times and download size, then score both frameworks for a client with six TypeScript developers, a 30-screen React Native app and three native SDKs, and write a plan for whichever move the score supports.",
+        "deliverable": "Two prototype builds, a measurement sheet, a weighted scorecard and a move plan",
+        "checks": [
+          [
+            "Run the basket journey in both prototypes against the mock API",
+            "Both builds show the same basket total and send the same four analytics events",
+            "Screen recordings and mock API log"
+          ],
+          [
+            "Start each Android build 10 times from cold with adb shell am start -W",
+            "Median and 90th percentile start-up times are recorded for both builds",
+            "Measurement sheet"
+          ],
+          [
+            "Score both frameworks for the client",
+            "The scorecard names one framework and links every weighted score to a measurement or a team fact",
+            "Scorecard and move plan"
+          ]
+        ],
+        "objectives": [
+          "Compare Flutter and React Native with measurements from the same screens",
+          "Map concepts between the two for developers moving across",
+          "Plan a move between them that keeps users, data and store listings"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Flutter",
+        "Android Development"
+      ],
+      "day": {
+        "topic": "Flutter and Android Development: Kotlin Platform Code and Flutter Screens in an Existing App",
+        "subtopics": [
+          "Host build choices: the module as a Gradle subproject through include_flutter.groovy in settings.gradle.kts, or AARs from flutter build aar in a local Maven repository",
+          "abiFilters limited to armeabi-v7a, arm64-v8a and x86_64 so the host never crashes on a missing libflutter.so",
+          "A FlutterEngine pre-warmed in the Application class and kept in FlutterEngineCache",
+          "Showing Flutter with FlutterActivity.withCachedEngine() or a FlutterFragment in a FragmentContainerView next to Compose UI",
+          "Kotlin host APIs from Pigeon with suspend functions, @TaskQueue for background work and an @EventChannelApi for status updates",
+          "Sharing Hilt-provided repositories and the signed-in session with the Flutter screen",
+          "Android 16 rules for apps targeting API 36: predictive back by default, shouldAutomaticallyHandleOnBackPressed and edge-to-edge insets",
+          "Debugging both sides: the Android Studio debugger on Kotlin, flutter attach for Dart, and engine memory in the Android Studio Profiler"
+        ],
+        "tools": [
+          "Android Studio",
+          "Flutter 3.50",
+          "Pigeon",
+          "Jetpack Compose",
+          "Hilt",
+          "flutter build aar",
+          "flutter attach"
+        ],
+        "lab_task": "Add a Flutter 'Track my repair' screen to an existing Kotlin and Compose home-appliance service app: use the module as AARs from a local Maven repository, pre-warm and cache the engine at start-up, show the screen in a FlutterFragment with the cached engine, read the signed-in customer and repair jobs from a Hilt repository through a Pigeon host API with suspend functions, push status changes through a Pigeon event channel and make predictive back return to the native screen.",
+        "deliverable": "Host app with the embedded Flutter screen, the Pigeon definition, a start-up timing log and a back-navigation recording",
+        "checks": [
+          [
+            "Open the repair screen 10 times with the cached engine and 10 times with a new engine",
+            "Time to the first Flutter frame is recorded for both and the cached engine is faster",
+            "Timing log"
+          ],
+          [
+            "Change a repair job's status in the Kotlin repository while the Flutter screen is open",
+            "The Flutter screen shows the new status within one second",
+            "Screen recording"
+          ],
+          [
+            "Swipe back from the Flutter screen on an Android 16 phone",
+            "The predictive back animation previews the native screen and back returns to it",
+            "Screen recording"
+          ]
+        ],
+        "objectives": [
+          "Embed Flutter screens in an existing Android app",
+          "Write Kotlin platform code for Flutter with Pigeon",
+          "Handle start-up, lifecycle and back navigation across the boundary"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Flutter",
+        "iOS Development"
+      ],
+      "day": {
+        "topic": "Flutter and iOS Development: Swift Platform Code and Flutter Screens in an Existing App",
+        "subtopics": [
+          "FlutterNativeIntegration from flutter build swift-package --platform ios, added to the host as a local Swift package",
+          "Build settings and scripts: FLUTTER_SWIFT_PACKAGE_OUTPUT, FLUTTER_BUILD_MODE and the flutter_integration.sh prebuild and assemble steps",
+          "Letting Xcode rebuild Dart changes with FLUTTER_APPLICATION_PATH and ENABLE_USER_SCRIPT_SANDBOXING=NO",
+          "A FlutterEngine pre-warmed in an @Observable FlutterAppDelegate subclass of a SwiftUI app",
+          "FlutterSceneDelegate and the UIScene life cycle that apps built with Xcode 27 must adopt",
+          "FlutterViewController in SwiftUI through UIViewControllerRepresentable and in UIKit navigation controllers",
+          "Swift host APIs from Pigeon with async methods and PigeonError, sharing the Keychain session and an existing Swift SDK",
+          "Debugging both sides: Xcode breakpoints in Swift, flutter attach for Dart and Flutter's LLDB init file on iOS 26 and later devices"
+        ],
+        "tools": [
+          "Xcode 27",
+          "Flutter 3.50",
+          "Pigeon",
+          "SwiftUI",
+          "Swift Package Manager",
+          "flutter attach"
+        ],
+        "lab_task": "Add a Flutter energy-usage screen to an existing SwiftUI utility app: build the module with flutter build swift-package, pre-warm the engine in a FlutterAppDelegate subclass that assigns FlutterSceneDelegate, present the screen from a NavigationStack, read 24 months of meter readings from the app's Swift SDK and the Keychain session through a Pigeon host API with async methods, and build and run the app with Xcode 27 on an iOS 27 device.",
+        "deliverable": "Host app with the embedded Flutter screen, the Pigeon definition and an Xcode 27 build and launch log",
+        "checks": [
+          [
+            "Build with Xcode 27 and launch on an iOS 27 device",
+            "The app starts with the scene life cycle and opens the Flutter screen",
+            "Build log and screen recording"
+          ],
+          [
+            "Expire the Keychain session while the Flutter screen is open",
+            "The host API returns a PigeonError and the native sign-in screen appears",
+            "Screen recording and device log"
+          ],
+          [
+            "Change a Dart file and rebuild from Xcode without running flutter build swift-package again",
+            "The change appears in the Flutter screen",
+            "Build log and screenshot"
+          ]
+        ],
+        "objectives": [
+          "Embed Flutter screens in an existing iOS app with Swift Package Manager",
+          "Write Swift platform code for Flutter with Pigeon",
+          "Keep a hybrid app working with the UIScene life cycle"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Flutter",
+        "GitHub Actions"
+      ],
+      "day": {
+        "topic": "Flutter and GitHub Actions: Build, Test, Sign and Release Workflows from a Version Tag",
+        "subtopics": [
+          "One workflow from a v* tag to both stores: test, build, sign and upload jobs linked with needs, with the build name from the tag and the build number from the run number",
+          "Runner choice and cost: Linux runners at $0.006 a minute for analysis, tests and Android, and macOS runners at $0.062 only for iOS jobs",
+          "Caching the Flutter SDK and pub packages with subosito/flutter-action, Gradle with gradle/actions/setup-gradle, and Swift packages",
+          "Golden tests on one Linux image, and integration tests on an Android emulator with reactivecircus/android-emulator-runner and on an iOS simulator",
+          "Signing material as production environment secrets: the upload keystore, the App Store Connect API key and the distribution certificate",
+          "A protected production environment with required reviewers and a deployment rule that only allows v* tags",
+          "Uploads: Google Play through r0adkll/upload-google-play with status inProgress and a userFraction, and TestFlight external groups through fastlane pilot",
+          "Build provenance for the AAB and IPA with actions/attest-build-provenance, checked with gh attestation verify, and the GitHub plans that allow it in private repositories"
+        ],
+        "tools": [
+          "GitHub Actions",
+          "subosito/flutter-action",
+          "reactivecircus/android-emulator-runner",
+          "r0adkll/upload-google-play",
+          "fastlane pilot",
+          "actions/attest-build-provenance",
+          "GitHub CLI"
+        ],
+        "lab_task": "For a Flutter app with staging and prod flavours, build a release workflow that starts on a v* tag, runs analysis, unit, golden and emulator integration tests, builds and signs the Android App Bundle on Linux and the IPA on macOS, waits for approval in the production environment, uploads to Google Play production at a 10% staged rollout and to a TestFlight external group, attests both files and uses no more than 25 macOS minutes per release.",
+        "deliverable": "Release workflow, one run from tag to both stores, attestation verification output and a runner minutes report",
+        "checks": [
+          [
+            "Push the tag v2.4.0",
+            "The workflow stops at the production environment until a reviewer approves",
+            "Workflow run page"
+          ],
+          [
+            "Approve the release",
+            "Play Console shows 2.4.0 at 10% rollout and TestFlight shows the build for the external group",
+            "Play Console and App Store Connect screenshots"
+          ],
+          [
+            "Run gh attestation verify on the downloaded AAB",
+            "Verification passes and names the workflow and commit that built it",
+            "Command output"
+          ]
+        ],
+        "objectives": [
+          "Build a Flutter release pipeline from tag to both stores",
+          "Protect signing secrets and production uploads with environments",
+          "Keep macOS runner cost down and prove where each build came from"
+        ]
+      }
+    },
+    {
+      "between": [
+        "React Native",
+        "React"
+      ],
+      "day": {
+        "topic": "React Native and React: Sharing Logic, API Hooks and Design Tokens Between Web and Mobile",
+        "subtopics": [
+          "Workspace layout: apps/web on Vite or Next.js, apps/mobile on Expo, and packages for domain rules, the API client, tokens and translations",
+          "What to share and what not to: rules, schemas, query hooks and stores, but not DOM or native components",
+          "One React version: React Native 0.88 needs React 19.3, shared packages list react as a peer dependency, and duplicate copies are caught",
+          "package.json exports with a react-native condition, and .native.ts files for code that differs by platform",
+          "Metro and Vite resolving the same TypeScript workspace packages without a separate build step",
+          "Design tokens in Style Dictionary built to CSS custom properties for web and a typed theme object for React Native",
+          "A typed API client and TanStack Query hooks used by both apps, with token storage injected per platform",
+          "Testing shared packages once with Vitest while each app keeps its own component tests"
+        ],
+        "tools": [
+          "pnpm workspaces",
+          "Turborepo",
+          "Vite 8",
+          "Expo SDK 58",
+          "Style Dictionary 5",
+          "TanStack Query 5",
+          "Vitest"
+        ],
+        "lab_task": "Take an existing React web app for appointment booking and its separate React Native app, move the booking rules, Zod schemas, API client, query hooks and brand tokens into four workspace packages used by both apps, align both apps on React 19.3 and remove at least 1,500 lines of duplicated code while both apps keep passing their tests.",
+        "deliverable": "Monorepo with both apps on shared packages, a duplication report before and after, and test runs for both apps",
+        "checks": [
+          [
+            "Change the latest bookable start time in the domain package from 21:00 to 20:00",
+            "Web and mobile both reject a 20:30 booking after one change",
+            "Test output and screenshots"
+          ],
+          [
+            "Run pnpm why react in the workspace",
+            "Only React 19.3 is installed for both apps and the shared packages",
+            "Command output"
+          ],
+          [
+            "Change the primary colour token and rebuild the tokens",
+            "The web CSS variable and the mobile theme value change together",
+            "Token build output and screenshots"
+          ]
+        ],
+        "objectives": [
+          "Share logic and tokens between React web and React Native apps",
+          "Keep platform-specific code where it belongs",
+          "Avoid version and bundling problems in a shared workspace"
+        ]
+      }
+    },
+    {
+      "between": [
+        "React Native",
+        "TypeScript"
+      ],
+      "day": {
+        "topic": "React Native and TypeScript: Typed Routes, Native Module Specs and Validated API Clients",
+        "subtopics": [
+          "Typed routes in Expo Router: generated route types, Href, typed useLocalSearchParams, and npx expo customize tsconfig.json to generate them in CI",
+          "Route parameters arrive as strings: parsing ids and enums before screens use them",
+          "Codegen specs in TypeScript: the types Codegen accepts, and CodegenTypes.Int32 and CodegenTypes.EventEmitter from the react-native root",
+          "Expo Modules types: requireNativeModule with a typed interface, and expo-type-information generating TypeScript from Swift modules",
+          "API types from OpenAPI with openapi-typescript and openapi-fetch, and Zod 4 schemas where responses cannot be trusted",
+          "Typed TanStack Query keys and queryOptions shared between screens",
+          "Typed configuration with app.config.ts and EXPO_PUBLIC_ environment variables",
+          "Type checks in CI with tsc --noEmit from TypeScript 7, because Metro and Babel strip types without checking them"
+        ],
+        "tools": [
+          "TypeScript 7",
+          "Expo SDK 58 and Expo Router",
+          "React Native Codegen",
+          "openapi-typescript and openapi-fetch",
+          "Zod 4",
+          "TanStack Query 5"
+        ],
+        "lab_task": "In a field service app, turn on typed routes and type the parameters of the job, site and asset screens, write a Codegen spec for a label printer module with an Int32 copies argument and a status event, generate API types from the service's OpenAPI file and validate two untrusted responses with Zod, then add a CI job that fails on any type error.",
+        "deliverable": "Typed app branch, the printer module spec, the generated API types and a CI run with the type check",
+        "checks": [
+          [
+            "Link to /job/12 instead of /jobs/12",
+            "tsc reports that the href is not a known route",
+            "tsc output"
+          ],
+          [
+            "Return a job with the status 'paused', which the schema does not allow, from the mock API",
+            "Zod rejects the response and the screen shows the out-of-date data message",
+            "Test output and screenshot"
+          ],
+          [
+            "Pass a string as the copies argument of the printer module",
+            "The type check fails against the Codegen spec",
+            "CI log"
+          ]
+        ],
+        "objectives": [
+          "Type navigation, native modules and API data in React Native",
+          "Combine generated types with runtime validation",
+          "Block merges that break types"
+        ]
+      }
+    },
+    {
+      "between": [
+        "React Native",
+        "Android Development"
+      ],
+      "day": {
+        "topic": "React Native and Android Development: Wrapping Kotlin SDKs and Compose Views",
+        "subtopics": [
+          "Wrap or rewrite: when an existing Kotlin SDK and Compose screens owned by the Android team should stay native",
+          "A Kotlin Turbo Module over the SDK: the generated spec class, Promise results, events and registration through BaseReactPackage",
+          "Coroutines in a module: a module-owned CoroutineScope on Dispatchers.IO, cancelled in invalidate()",
+          "Activity results and runtime permissions from a module with ActivityEventListener and PermissionAwareActivity",
+          "A Compose view as a Fabric native component through ComposeView, or as a custom component through Expo UI's Jetpack Compose extension API",
+          "Lifecycle: LifecycleEventListener to release the camera and the SDK when the app moves to the background",
+          "Build alignment with the React Native app: AGP 9 support since React Native 0.87, R8 keep rules and 16 KB-aligned native libraries for Google Play",
+          "Debugging and tests: the Android Studio debugger on Kotlin while Metro serves JavaScript, Logcat filtered on ReactNativeJS, and JUnit tests with a fake SDK"
+        ],
+        "tools": [
+          "Android Studio",
+          "Kotlin",
+          "Jetpack Compose",
+          "React Native 0.88 Codegen",
+          "Expo Modules API",
+          "APK Analyzer"
+        ],
+        "lab_task": "Wrap the warehouse team's Kotlin barcode SDK, built on CameraX and ML Kit, and its Compose scan-preview screen for a React Native stock-count app: a Turbo Module with startScan(), stopScan() and a scanned event, the camera permission requested from the module, a native component that hosts the Compose preview with torch and frame-colour props, and the camera released in the background; scan 50 labels and record missed scans and memory use.",
+        "deliverable": "Turbo Module and native component in the app, JUnit results and a log of the 50-label scan",
+        "checks": [
+          [
+            "Deny the camera permission at the first scan",
+            "startScan() rejects with a permission error that the JavaScript screen shows",
+            "Screen recording and Logcat"
+          ],
+          [
+            "Send the app to the background during a scan and return",
+            "The camera is released in the background and the preview restarts on return",
+            "Logcat lifecycle lines"
+          ],
+          [
+            "Open the release APK in APK Analyzer",
+            "Every native library from the SDK is 16 KB aligned",
+            "APK Analyzer screenshot"
+          ]
+        ],
+        "objectives": [
+          "Expose existing Kotlin code to React Native screens",
+          "Handle permissions, threads and lifecycle in Android modules",
+          "Ship wrapped native code that meets current Google Play rules"
+        ]
+      }
+    },
+    {
+      "between": [
+        "React Native",
+        "iOS Development"
+      ],
+      "day": {
+        "topic": "React Native and iOS Development: Wrapping Swift SDKs and SwiftUI Views",
+        "subtopics": [
+          "Wrap or rewrite: when an existing Swift SDK and SwiftUI screens owned by the iOS team should stay native",
+          "Two routes: an Expo module in pure Swift, which calls JSI directly since Expo SDK 56, or a Turbo Module with an Objective-C++ entry point",
+          "Swift concurrency in modules: AsyncFunction with async/await, @MainActor for UIKit work, and a cancel() function that stops the running Task",
+          "A SwiftUI view in a native component: UIHostingController inside a Fabric component view, or Expo UI's Host with a custom SwiftUI component",
+          "Presenting the SDK's own view controllers from a module and finding the presenter under the UIScene life cycle that React Native 0.88 supports",
+          "Packaging: podspecs today, React Native 0.87's experimental Swift Package Manager support, and CocoaPods trunk turning read-only on 2 December 2026",
+          "Privacy manifests: the SDK's PrivacyInfo.xcprivacy and its required-reason APIs in the app's privacy report",
+          "Debugging and tests: Xcode breakpoints in Swift while Metro serves JavaScript, and Swift Testing with a fake SDK"
+        ],
+        "tools": [
+          "Xcode 27",
+          "Swift",
+          "SwiftUI",
+          "Expo Modules API",
+          "React Native 0.88 Codegen",
+          "Instruments"
+        ],
+        "lab_task": "Wrap a bank's Swift identity-verification SDK and its SwiftUI document-capture view for a React Native onboarding app: an Expo module with an async verify() that returns a typed result and a cancel() that the screen calls when it unmounts, a native view that hosts the SwiftUI capture screen with guide-frame and flash props, the SDK's privacy manifest carried into the app's privacy report, and a build with Xcode 27; run 20 verifications and record failures and memory use.",
+        "deliverable": "Expo module and native view in the app, Swift Testing results, the Xcode privacy report and a log of 20 runs",
+        "checks": [
+          [
+            "Leave the screen halfway through a verification",
+            "cancel() stops the Swift task and verify() rejects with a cancellation error",
+            "Xcode console and app log"
+          ],
+          [
+            "Generate the privacy report from the archive in Xcode's Organizer",
+            "The SDK's required-reason APIs appear in the app's report",
+            "Privacy report PDF"
+          ],
+          [
+            "Rotate the device on the capture view",
+            "The SwiftUI view resizes inside the React Native layout without clipping",
+            "Screenshots in both orientations"
+          ]
+        ],
+        "objectives": [
+          "Expose existing Swift code to React Native screens",
+          "Use Swift concurrency safely across the module boundary",
+          "Package iOS native code for current Xcode and App Store rules"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Mockito",
+        "Java"
+      ],
+      "day": {
+        "topic": "Mockito and Java: Class Design for Test Doubles with Injection, Seams and Clocks",
+        "subtopics": [
+          "Constructor injection without a framework: a composition root in main() and no static getInstance() calls",
+          "Interfaces only at boundaries the team owns, such as payments, messaging and storage",
+          "Values stay real: records, enums and sealed interfaces are built in tests, not mocked",
+          "Small functional seams: InstantSource, Supplier<UUID> and RandomGenerator passed in and faked with lambdas",
+          "Keeping new, static calls and System.getenv() out of business methods with factories and configuration records",
+          "Returning results instead of hiding side effects, so tests assert on values rather than verify() calls",
+          "Final classes and Mockito 5's inline mock maker: when making a class mockable is the wrong fix",
+          "Measuring the result: mocks per test, mockStatic uses and the PIT mutation score before and after"
+        ],
+        "tools": [
+          "Java 25",
+          "Mockito 5.24",
+          "JUnit Jupiter 6.1",
+          "AssertJ",
+          "PIT",
+          "IntelliJ IDEA"
+        ],
+        "lab_task": "Redesign a 350-line draft ParkingChargeService before it is merged. It calls LocalDateTime.now(), new TariffClient(), UUID.randomUUID(), System.getenv(\"VAT_RATE\") and a static SmsGateway.send(). Introduce constructor injection, an InstantSource, a Supplier<UUID>, a VatRate record and a Notifier interface, replace its 14 tests that need mockStatic and mockConstruction with tests that use at most two mocks each, and compare PIT mutation scores before and after.",
+        "deliverable": "Redesigned service, the new test class and PIT reports from before and after",
+        "checks": [
+          [
+            "Search the new tests for mockStatic and mockConstruction",
+            "No uses remain",
+            "Search output"
+          ],
+          [
+            "Charge a stay from 23:30 to 00:30 with a fixed InstantSource",
+            "The charge is split between the evening and overnight tariffs",
+            "Test report"
+          ],
+          [
+            "Run PIT before and after the redesign",
+            "The mutation score rises and each surviving mutant has a written reason",
+            "PIT reports"
+          ]
+        ],
+        "objectives": [
+          "Design Java classes that are easy to test with doubles",
+          "Choose between mocks, fakes and real values",
+          "Show the testability gain with measurements"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Mockito",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Mockito and Spring Boot: A Test Plan Across Unit, Slice and Integration Tests",
+        "subtopics": [
+          "Assigning each component a layer: plain Mockito tests for rules, slices for controllers, repositories and clients, and a few @SpringBootTest journeys",
+          "Choosing the double per boundary: a Mockito mock, @MockitoBean, @TestBean, a hand-written fake or a WireMock stub",
+          "A context budget: what goes into the context cache key, and aligning bean overrides, profiles and properties across test classes",
+          "Cache statistics at DEBUG for org.springframework.test.context.cache, and spring.test.context.cache.maxSize with its default of 32",
+          "Context pausing in Spring Framework 7 for scheduled jobs and Kafka listeners, and spring.test.context.cache.pause",
+          "Real infrastructure where mocks hide risk: PostgreSQL and Kafka in Testcontainers with @ServiceConnection",
+          "Splitting the run: Surefire for unit and slice tests on every pull request, Failsafe for *IT tests",
+          "A risk matrix that names the layer proving each rule, query, error path and message"
+        ],
+        "tools": [
+          "Spring Boot 4.1",
+          "Mockito 5.24",
+          "JUnit Jupiter 6.1",
+          "Testcontainers 2",
+          "WireMock",
+          "Maven Surefire and Failsafe"
+        ],
+        "lab_task": "For a Spring Boot 4.1 parcel-tracking service with 3 controllers, 6 services, 4 repositories, 2 REST clients, a Kafka listener and a scheduled job, write a one-page test plan that gives every component a layer and a test double, implement one test per layer, then cut the suite from 11 application contexts to at most 4 and record the suite time before and after.",
+        "deliverable": "Test plan with a risk matrix, one test per layer and context statistics from before and after",
+        "checks": [
+          [
+            "Run the suite with the cache category at DEBUG before and after the changes",
+            "The context count drops from 11 to 4 or fewer",
+            "Build logs with cache statistics"
+          ],
+          [
+            "Break the delayed-parcels query in the repository",
+            "The @DataJpaTest against PostgreSQL fails and the Mockito unit tests still pass",
+            "Test report"
+          ],
+          [
+            "Review the plan with the team",
+            "Every component has one layer, one test double and a reason",
+            "Signed-off test plan"
+          ]
+        ],
+        "objectives": [
+          "Plan tests per layer for a Spring Boot service",
+          "Choose the right test double at each boundary",
+          "Keep a Spring test suite fast with a context budget"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Mockito",
+        "TestNG"
+      ],
+      "day": {
+        "topic": "Mockito and TestNG: MockitoTestNGListener, Data Providers and Parallel-Safe Mocks",
+        "subtopics": [
+          "mockito-testng 0.5.3 and @Listeners(MockitoTestNGListener.class) in place of hand-written openMocks calls",
+          "Strict stubs by default, and @MockitoSettings(strictness = ...) from org.mockito.testng",
+          "One test-class instance for all methods in TestNG: a MockitoSession per test method and restored @InjectMocks fields",
+          "Why stubbing in @BeforeClass is not supported, and moving shared stubbing to @BeforeMethod",
+          "Data providers with mocks: per-row stubbing, and creating mocks in the test rather than in the provider",
+          "Parallel runs: the listener keeps one session per test instance, so parallel=\"methods\" shares it; use parallel=\"classes\" or @Factory instances",
+          "mockStatic and mockConstruction in TestNG: try-with-resources and closing on the thread that opened them",
+          "Retries with IRetryAnalyzer and cacheDataForTestRetries = false, which TestNG 7.12 fixed so retried rows get fresh data"
+        ],
+        "tools": [
+          "TestNG 7.12",
+          "mockito-testng 0.5.3",
+          "Mockito 5.24",
+          "Maven Surefire",
+          "IntelliJ IDEA"
+        ],
+        "lab_task": "Convert a 60-test TestNG suite for a FreightQuoteService that calls MockitoAnnotations.openMocks by hand to MockitoTestNGListener, move stubbing out of @BeforeClass, drive 12 tariff rows through a @DataProvider with per-row stubs, run the suite with parallel=\"methods\" and 4 threads to expose the tests that share mocks, then make it pass 20 runs in a row with parallel=\"classes\".",
+        "deliverable": "Converted suite, logs from 20 parallel runs and a short note on the shared-mock failures",
+        "checks": [
+          [
+            "Leave one stub that no test uses",
+            "The test fails with UnnecessaryStubbingException",
+            "Surefire report"
+          ],
+          [
+            "Run with parallel=\"methods\" and 4 threads five times",
+            "Tests that share mock fields fail in some runs",
+            "Logs from the five runs"
+          ],
+          [
+            "Run with parallel=\"classes\" 20 times",
+            "All 60 tests pass in every run",
+            "Run log"
+          ]
+        ],
+        "objectives": [
+          "Run Mockito in TestNG suites with the listener",
+          "Combine data providers and mocks safely",
+          "Run mocked TestNG suites in parallel without shared state"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Robot Framework",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Robot Framework and Selenium: Translating WebDriver Java Code into SeleniumLibrary Keywords",
+        "subtopics": [
+          "WebDriver calls to keywords: findElement with click, sendKeys and getText to Click Element, Input Text and Get Text",
+          "Locators: By.id, By.cssSelector and By.xpath to id:, css: and xpath:, chained locators with >>, and Add Location Strategy",
+          "WebDriverWait and ExpectedConditions to Wait Until Element Is Visible, Wait Until Page Contains Element and Set Selenium Timeout",
+          "ChromeOptions and RemoteWebDriver to Open Browser with options= and remote_url= for Selenium Grid 4",
+          "Actions, JavascriptExecutor, frames and windows to Drag And Drop, Execute JavaScript, Select Frame and Switch Window",
+          "Gaps in the library: SeleniumLibrary plugins, and Get Library Instance to reach the WebDriver object from a Python keyword",
+          "Evidence: Register Keyword To Run On Failure with Capture Page Screenshot and EMBED, in place of TestNG listeners and ExtentReports",
+          "Version pins: SeleniumLibrary 6.9 is tested with Selenium 4.29 to 4.44 and Robot Framework 7.4.2, while Selenium is at 4.52 and Robot Framework at 7.5"
+        ],
+        "tools": [
+          "SeleniumLibrary 6.9",
+          "Robot Framework 7.5",
+          "Selenium Grid 4 in Docker",
+          "Selenium Java",
+          "Python keyword libraries",
+          "VS Code with RobotCode"
+        ],
+        "lab_task": "Translate a 25-test Selenium Java pack for a car insurance quote site, with WebDriverWait helpers, an Actions drag-and-drop, a JavascriptExecutor date picker, an iframe payment form and a second window, into SeleniumLibrary resource files and keywords; add a Python plugin keyword that throttles the network through Chrome's DevTools protocol, run both packs on Selenium Grid 4 in Docker with Chrome and Firefox, and match every assertion.",
+        "deliverable": "Robot suite with the plugin keyword and a parity report for both packs on Chrome and Firefox",
+        "checks": [
+          [
+            "Run both packs against the same build on Grid 4",
+            "All 25 tests have the same result in Java and Robot Framework",
+            "Parity report"
+          ],
+          [
+            "Make the payment test fail inside the iframe",
+            "log.html shows the embedded screenshot at the failing keyword",
+            "log.html"
+          ],
+          [
+            "Run the quote test with the throttling keyword set to a slow 3G profile",
+            "The page loads more slowly and the wait keywords still pass",
+            "Robot log with keyword timings"
+          ]
+        ],
+        "objectives": [
+          "Translate Selenium Java code into SeleniumLibrary keywords",
+          "Fill library gaps with Python keywords and plugins",
+          "Prove the translated suite matches the original"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Robot Framework",
+        "Playwright"
+      ],
+      "day": {
+        "topic": "Robot Framework and Playwright: Browser Library and Playwright Test Side by Side on One App",
+        "subtopics": [
+          "How the Browser library drives Playwright: Python keywords calling a Node.js process over gRPC, with Browser 21 tested on Playwright 1.64.1 while Playwright Test is on 1.65",
+          "One object model: New Browser, New Context and New Page against the browser, context and page fixtures",
+          "Locators side by side: Get Element By Role, css= and >> chains against getByRole, getByTestId and chained locators",
+          "Retrying assertions: Get Text with == and Set Retry Assertions For against expect() web-first assertions",
+          "Shared traces: trace.zip files from New Context tracing= and from trace: 'on-first-retry', opened in the same Trace Viewer",
+          "Clock control in both: Set Time and Advance Clock against page.clock",
+          "Parallel runs: Pabot processes with --testlevelsplit against Playwright workers and --shard",
+          "Choosing per team: keyword suites for testers and business readers, TypeScript tests for developers, judged on run time, flaky runs and upkeep"
+        ],
+        "tools": [
+          "Browser library 21",
+          "Playwright Test 1.65",
+          "Pabot",
+          "Playwright Trace Viewer",
+          "VS Code with RobotCode and the Playwright extension"
+        ],
+        "lab_task": "Automate the same 12 scenarios on the trainer's booking app, including an API-seeded booking, a file upload and a date picker driven by a frozen clock, once with the Browser library and once with Playwright Test; run each suite 10 times with 4 processes or workers, record wall time, flaky runs and lines of code, open one failing trace from each in the Trace Viewer, and recommend a tool for a QA team and for a product team.",
+        "deliverable": "Two suites for the same app, a 10-run comparison sheet and a one-page recommendation",
+        "checks": [
+          [
+            "Run both suites 10 times with 4 processes or workers",
+            "Both pass all 12 scenarios and each run's wall time is recorded",
+            "Comparison sheet and run logs"
+          ],
+          [
+            "Open the trace of a failed booking test from each suite",
+            "Both traces open in the same Trace Viewer with a DOM snapshot for each action",
+            "Trace Viewer screenshots"
+          ],
+          [
+            "Set the clock to 30 November 2026 23:58 and advance it 3 minutes in both suites",
+            "The date picker moves to December in both",
+            "Test output"
+          ]
+        ],
+        "objectives": [
+          "Compare the Browser library with Playwright Test on one application",
+          "Use Playwright traces and clock control from both tools",
+          "Recommend a tool for each team with evidence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Robot Framework",
+        "Appium"
+      ],
+      "day": {
+        "topic": "Robot Framework and Appium: AppiumLibrary Suites on a Pool of Real Devices and Emulators",
+        "subtopics": [
+          "A device inventory as a Pabot value set file: appium:udid, the platform version and unique appium:systemPort, appium:wdaLocalPort and appium:mjpegServerPort values",
+          "Acquire Value Set in Suite Setup so each Pabot process takes one free device, and Release Value Set in Suite Teardown",
+          "Pinning server and drivers together: Appium 3 with UiAutomator2 8 and XCUITest 12, or Appium 4, released on 15 November 2026, with UiAutomator2 9 and XCUITest 13",
+          "Real iPhones: WebDriverAgent signing with appium:xcodeOrgId and appium:updatedWDABundleId, or a preinstalled WebDriverAgent with appium:usePreinstalledWDA",
+          "Real Android phones: adb authorisation, Stay awake in developer options, and Execute Adb Shell with --allow-insecure=uiautomator2:adb_shell",
+          "Device clouds from the same suites: bstack:options or sauce:options capabilities in variable files and uploaded app IDs",
+          "The same suites per platform with pabot --argumentfile1 android.args --argumentfile2 ios.args",
+          "Evidence per device: Start Screen Recording and Stop Screen Recording, Expect Element and Expect Text from AppiumLibrary 3.2, and device details in log.html"
+        ],
+        "tools": [
+          "AppiumLibrary 3.2",
+          "Appium server with UiAutomator2 and XCUITest drivers",
+          "Pabot and PabotLib",
+          "Android emulators and iOS simulators",
+          "Real Android and iOS phones",
+          "BrowserStack or Sauce Labs"
+        ],
+        "lab_task": "Run a 25-test AppiumLibrary suite for a pharmacy click-and-collect app on a pool of 2 Android emulators, 1 iOS simulator, 1 real Android phone, 1 real iPhone and 2 cloud devices from one Pabot command: list the 7 devices in a value set file, give each process a free device, record the screen for every failed test, and report the pass rate and duration per device.",
+        "deliverable": "Device inventory file, argument files, one combined report and a pass rate and duration table per device",
+        "checks": [
+          [
+            "Start the pool run with 7 processes",
+            "Each device serves one process at a time and no two sessions use the same port",
+            "Combined report and Appium server logs"
+          ],
+          [
+            "Make the collection-code test fail on the real iPhone",
+            "log.html links the screen recording and screenshot from that device",
+            "log.html"
+          ],
+          [
+            "Unplug the real Android phone during the run",
+            "Tests on that phone fail with session errors and the other devices finish their tests",
+            "Report and console output"
+          ]
+        ],
+        "objectives": [
+          "Run AppiumLibrary suites across real devices, emulators and clouds",
+          "Give parallel processes their own devices safely",
+          "Collect evidence per device for failures"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Robot Framework",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "Robot Framework and Jenkins: Sharded Pabot Runs on Kubernetes Agents with Combined Reports",
+        "subtopics": [
+          "Splitting a long regression into parallel stages with pabot --shard 1/4 to 4/4, one Kubernetes pod per shard",
+          "Pod templates for Robot runs: an image with the Browser library and its browsers, /dev/shm as a memory-backed emptyDir, and CPU and memory per Pabot process",
+          "Test data per shard: a separate value set file for each shard, because every pabot run starts its own PabotLib",
+          "Ordering by history: --suitesfrom with the last build's output.xml so failed and long suites start first",
+          "Collecting results: stash and unstash per shard, rebot to combine the shard outputs, and rebot --merge after the rerun stage",
+          "Smaller artefacts: --no-rebot inside shards, and --removekeywords passed with --flattenkeywords for large logs",
+          "Credentials: withCredentials into environment variables that Robot Framework 7.4 and later read as Secret variables",
+          "Gates and housekeeping: the robot step's passThreshold, unstableThreshold and countSkippedTests, and a Build Discarder for large outputs"
+        ],
+        "tools": [
+          "Jenkins LTS",
+          "Robot Framework plugin 6.4",
+          "Kubernetes plugin",
+          "Pabot 5.2",
+          "rebot",
+          "Browser library container image"
+        ],
+        "lab_task": "Turn a 900-test nightly Robot suite that takes 3 hours on one agent into a declarative Jenkinsfile with four parallel shard stages on Kubernetes pods, each running pabot --shard i/4 with 4 processes, test accounts per shard, a rerun stage for failed tests, one combined log.html and report.html published with passThreshold 98 and unstableThreshold 95, and a total time under 35 minutes.",
+        "deliverable": "Jenkinsfile, pod template, a nightly run with the combined report and a before-and-after duration comparison",
+        "checks": [
+          [
+            "Run the nightly pipeline",
+            "Four shard stages run in parallel and the combined report lists each of the 900 tests once",
+            "Stage view and report.html"
+          ],
+          [
+            "Make 3 tests fail on their first run only",
+            "The rerun stage passes them and the merged log marks them as re-executed",
+            "Merged log.html"
+          ],
+          [
+            "Break a test data file so the pass rate falls to 96%",
+            "The robot step marks the build unstable",
+            "Build status and Robot results page"
+          ]
+        ],
+        "objectives": [
+          "Shard Robot Framework runs across Jenkins agents",
+          "Combine and publish results from parallel stages",
+          "Gate builds on Robot results while keeping credentials out of logs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Robot Framework",
+        "Power Automate"
+      ],
+      "day": {
+        "topic": "Robot Framework and Power Automate: The Same RPA Task Built in Both and When to Use Each",
+        "subtopics": [
+          "The task: a supplier portal, statement PDFs, an Excel ledger, a Windows order app and a summary email",
+          "Web steps: desktop flow browser actions through the Edge extension against Browser library keywords",
+          "Documents: Extract tables from PDF and the Excel actions against RPA.PDF and RPA.Excel.Files",
+          "Windows app steps: UI elements and selectors in desktop flows against FlaUILibrary locators",
+          "Secrets: Power Automate credentials in Azure Key Vault against Robot Framework Secret variables filled from the scheduler's credential store",
+          "Unattended runs: a machine group with a Process licence at about $150 per bot per month against a Windows agent started by Jenkins or Task Scheduler",
+          "Failures and evidence: On block error and run history against TRY/EXCEPT, screenshots and log.html",
+          "When to use each: who owns the process, how often it changes, Microsoft 365 connections, Linux or Windows hosts and yearly cost"
+        ],
+        "tools": [
+          "Power Automate for desktop",
+          "Power Automate cloud flows",
+          "Robot Framework 7.5",
+          "RPA Framework",
+          "Browser library",
+          "FlaUILibrary"
+        ],
+        "lab_task": "Build the same supplier statement check twice, as a Power Automate desktop flow started by a scheduled cloud flow and as a Robot Framework task suite: sign in to the trainer's supplier portal, download 20 statements, read each total from its PDF, compare it with ledger.xlsx, enter the 4 expected mismatches in the WinForms order app and email a summary; then rename one portal field, fix both builds and record build hours, run time, fix time and yearly cost for each.",
+        "deliverable": "Both builds, run logs for the same 20 statements, a change-effort record and a cost and fit comparison",
+        "checks": [
+          [
+            "Run both builds on the same 20 statements",
+            "Both report the same 4 mismatches and send the same summary",
+            "Summary emails and run logs"
+          ],
+          [
+            "Rename the portal's Amount field to Total",
+            "Both builds fail at the same step and each fix time is recorded",
+            "Failure screenshots and change log"
+          ],
+          [
+            "Run the desktop flow unattended on the machine group",
+            "The run completes with no user signed in and appears in run history",
+            "Desktop flow run details"
+          ]
+        ],
+        "objectives": [
+          "Build the same RPA task in Power Automate and Robot Framework",
+          "Compare build, run and change effort with measurements",
+          "Decide which tool fits each kind of process"
+        ]
+      }
     }
   ],
   "capstones": [
+    {
+      "applies_to": [
+        "Flutter",
+        "Android Development",
+        "iOS Development"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Flutter Claims Module Inside an Insurer's Native Android and iOS Apps",
+        "subtopics": [
+          "A Flutter module with one Pigeon API for the session, claim status events and photo upload",
+          "Android host: the Kotlin and Compose app with a cached engine and AARs from a local Maven repository",
+          "iOS host: the Swift and SwiftUI app with FlutterNativeIntegration and FlutterSceneDelegate",
+          "Native services reused from both hosts in Kotlin and Swift: the document scanner and the secure token store",
+          "Tests across the boundary: Flutter integration tests with Espresso and XCUITest journeys in the hosts",
+          "Release plan: matching versions, size and start-up budgets, and staged rollouts in both stores"
+        ],
+        "tools": [
+          "Flutter 3.50",
+          "Pigeon",
+          "Android Studio",
+          "Xcode 27",
+          "flutter build aar",
+          "flutter build swift-package",
+          "Play Console and App Store Connect"
+        ],
+        "lab_task": "For a motor insurer with existing Kotlin and Swift apps, add a Flutter claim module with photo capture, a damage form and a claim tracker to both: share the signed-in session and each host's document scanner through one Pigeon API, pre-warm the engine so the first claim frame appears in under 400 ms on a mid-range phone, keep each app's download size increase within a 15 MB budget, and submit the same claim from both apps to the claims API.",
+        "deliverable": "Both host apps with the embedded module, the Pigeon definition, test results from both platforms and a release plan",
+        "checks": [
+          [
+            "Submit a claim with three photos from the Android app and from the iOS app",
+            "The claims API receives two claims, each with the native user ID and three photos",
+            "API log and claim records"
+          ],
+          [
+            "Open the claim screen 10 times after a cold start on each phone",
+            "Median time to the first Flutter frame is under 400 ms on both",
+            "Timing logs from both platforms"
+          ],
+          [
+            "Use the system back gesture on Android and the swipe-back gesture on iOS from the first claim step",
+            "Each app returns to its native policy screen",
+            "Screen recordings"
+          ]
+        ],
+        "objectives": [
+          "Embed one Flutter module in native Android and iOS apps",
+          "Share native services with Flutter through typed platform code",
+          "Release a hybrid app within size and start-up budgets"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Flutter",
+        "React Native"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Framework Decision and Pilot Rebuild for a Grocery Delivery App",
+        "subtopics": [
+          "Baseline of the current React Native app: screens, native modules, start-up time, crash-free sessions and team skills",
+          "The basket, delivery-slot and payment screens rebuilt in Flutter against the same API, analytics events and design tokens",
+          "Both apps measured on the same phones: cold start, frame times, download size and a screen reader pass",
+          "Routes compared over 18 months: stay on React Native, move screen by screen, or rewrite",
+          "Continuity: stored sessions, app IDs, signing keys and a staged rollout plan",
+          "Decision record and a presentation to the client's product board"
+        ],
+        "tools": [
+          "Flutter 3.50",
+          "React Native 0.88 with Expo SDK 58",
+          "Flutter DevTools",
+          "React Native DevTools",
+          "Perfetto",
+          "Xcode Instruments"
+        ],
+        "lab_task": "For a grocery delivery company with a 35-screen React Native 0.88 app and four developers, rebuild the basket, delivery-slot and payment screens in Flutter 3.50 against the same API, measure both apps on a Pixel 8a and an iPhone 14 for cold start, frame times on a 300-item list, download size and a TalkBack and VoiceOver pass, cost three routes over 18 months, and present a decision with a pilot plan.",
+        "deliverable": "Flutter pilot slice, a measurement report for both apps, a costed route comparison and a decision record",
+        "checks": [
+          [
+            "Run the same checkout journey in both apps with one test account",
+            "Both apps create the same order and send the same analytics events",
+            "Order records and analytics debug view"
+          ],
+          [
+            "Scroll the 300-item list for 30 seconds in each app on the Pixel 8a",
+            "Frame times and dropped frames are recorded for both apps",
+            "Perfetto traces and measurement sheet"
+          ],
+          [
+            "Present the decision to the client's product board",
+            "Each recommendation traces to a measurement or a cost line",
+            "Decision record and slides"
+          ]
+        ],
+        "objectives": [
+          "Compare Flutter and React Native with measurements from one product",
+          "Cost and plan a route between the two frameworks",
+          "Defend a framework decision to a client"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "React Native",
+        "React"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Shared Booking Platform for a Gym Chain on Web and Mobile",
+        "subtopics": [
+          "A monorepo with a React web app, an Expo app and shared packages for rules, the API client, tokens and translations",
+          "Shared booking rules and TanStack Query hooks tested once",
+          "Design tokens for two brands built into CSS variables and a React Native theme",
+          "Screens that stay platform-specific: web timetables with keyboard use, mobile gestures and notifications",
+          "One CI pipeline that type-checks, tests and builds both apps on every pull request",
+          "Release plan for web deploys, store builds and EAS Update"
+        ],
+        "tools": [
+          "pnpm workspaces",
+          "Turborepo",
+          "Vite 8",
+          "Expo SDK 58",
+          "TanStack Query 5",
+          "Style Dictionary 5",
+          "GitHub Actions"
+        ],
+        "lab_task": "For a gym chain with 40 sites and two brands, build class booking for members as a React web app and an Expo app from one monorepo: shared booking rules for waitlists, a 12-hour cancellation window and peak-time limits, one typed API client with query hooks, tokens for both brands, and platform-specific timetable screens; show that a rule changed once changes both apps and that CI for both finishes in under 10 minutes.",
+        "deliverable": "Monorepo with both apps, shared packages with tests, CI runs and a release plan",
+        "checks": [
+          [
+            "Change the cancellation window from 12 to 6 hours in the shared rules package",
+            "Both apps allow cancelling a class 7 hours before it starts",
+            "Pull request diff and screenshots from both apps"
+          ],
+          [
+            "Switch the build to the second brand's tokens",
+            "Web and mobile show the second brand's colours and type with no component changes",
+            "Screenshots from both apps"
+          ],
+          [
+            "Open a pull request that breaks a shared type",
+            "CI fails the type check for both apps",
+            "CI run log"
+          ]
+        ],
+        "objectives": [
+          "Share logic and tokens between React web and React Native apps",
+          "Keep platform-specific screens where they help users",
+          "Run one pipeline for web and mobile"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "React Native",
+        "TypeScript"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Strictly Typed Field Inspection App for a Housing Association",
+        "subtopics": [
+          "Strict tsconfig, the Strict TypeScript API and type-check gates in CI",
+          "Typed Expo Router routes with validated route parameters",
+          "An API client generated from OpenAPI with runtime validation of responses",
+          "A typed native module spec for a Bluetooth damp meter in Kotlin and Swift",
+          "A typed offline queue and inspection form state",
+          "Type coverage report and a review of the remaining casts"
+        ],
+        "tools": [
+          "TypeScript 7",
+          "Expo SDK 58 and Expo Router",
+          "React Native Codegen",
+          "openapi-typescript",
+          "Zod 4",
+          "type-coverage"
+        ],
+        "lab_task": "For a housing association whose surveyors inspect 2,000 homes a month, build an Expo app with typed routes for property, room and defect screens, an API client generated from the association's OpenAPI file and checked with Zod at runtime, a typed native module for a Bluetooth damp meter, and an offline queue whose items are a discriminated union; finish with zero tsc errors, no explicit any and at least 98% type coverage.",
+        "deliverable": "Typed app repository, CI type-check results, the damp meter module spec and a type coverage report",
+        "checks": [
+          [
+            "Rename the route parameter propertyId to homeId",
+            "tsc lists every link that still passes the old name",
+            "tsc output"
+          ],
+          [
+            "Return a defect without a severity from the mock API",
+            "Runtime validation rejects it and the app shows a sync error for that item",
+            "Screenshot and app log"
+          ],
+          [
+            "Pass a reading in the wrong unit type to the damp meter module",
+            "The call does not compile against the module spec",
+            "tsc output from CI"
+          ]
+        ],
+        "objectives": [
+          "Type routes, native modules and API data from end to end",
+          "Combine compile-time types with runtime validation",
+          "Enforce type safety in CI"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Mockito",
+        "Java"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Testable Fare Calculation Library for a Regional Rail Operator",
+        "subtopics": [
+          "Library design with records, a sealed FareResult and constructor-injected collaborators",
+          "Seams for time, tariff data, railcard checks and audit events",
+          "Unit tests with Mockito only at boundaries and real value objects everywhere else",
+          "Edge cases: the 09:30 peak boundary, railcard discounts, daily caps and the October clock change",
+          "Mutation testing with PIT and coverage gates in the build",
+          "Design review and a handover guide for the rail operator's developers"
+        ],
+        "tools": [
+          "Java 25",
+          "Mockito 5.24",
+          "JUnit Jupiter 6.1",
+          "AssertJ",
+          "PIT",
+          "JaCoCo"
+        ],
+        "lab_task": "Build a Java 25 fare library for a regional rail operator that prices single, return and capped daily journeys with peak times, three railcards and a daily cap that resets at 04:30: inject an InstantSource, a TariffRepository and an AuditPublisher, return a sealed FareResult, and test it with no more than two mocks per test, no mockStatic and a PIT mutation score of at least 85%.",
+        "deliverable": "Library source, test suite, PIT and JaCoCo reports and a one-page design note",
+        "checks": [
+          [
+            "Price weekday journeys starting at 09:29 and at 09:30",
+            "The first is charged the peak fare and the second the off-peak fare",
+            "Test report"
+          ],
+          [
+            "Search the test code for mockStatic and mockConstruction",
+            "Neither appears in the tests",
+            "Search output"
+          ],
+          [
+            "Run PIT on the pricing package",
+            "The mutation score is 85% or higher",
+            "PIT report"
+          ]
+        ],
+        "objectives": [
+          "Design a Java library for test doubles from the start",
+          "Test pricing rules with Mockito at the boundaries",
+          "Prove test strength with mutation testing"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Mockito",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Layered Test Suite for a Pharmacy Prescription Service",
+        "subtopics": [
+          "A test plan that gives every component a layer and a test double",
+          "Mockito unit tests for prescription rules and stock decisions",
+          "Web, JPA and REST client slices, with @MockitoBean only where the plan says",
+          "Component tests with PostgreSQL and Kafka in Testcontainers and WireMock for the supplier's stock API",
+          "A context budget, suite time limits and CI stages",
+          "Coverage, mutation score and a risk list for the pharmacy team"
+        ],
+        "tools": [
+          "Spring Boot 4.1",
+          "Mockito 5.24",
+          "JUnit Jupiter 6.1",
+          "Testcontainers 2",
+          "WireMock",
+          "PIT"
+        ],
+        "lab_task": "For a Spring Boot 4.1 service that receives electronic prescriptions, checks stock with a supplier API and publishes dispensing events, write the test plan and build the suite: rules in plain Mockito tests, controller, repository and client slices, three component tests with PostgreSQL, Kafka and WireMock, no more than 5 application contexts in the whole suite, and a pull request stage under 4 minutes.",
+        "deliverable": "Test plan, test suite, a CI run with context statistics, and coverage and mutation reports",
+        "checks": [
+          [
+            "Submit a prescription for a controlled drug without a prescriber number",
+            "The controller slice test gets a 400 response with a problem detail naming the field",
+            "Test report"
+          ],
+          [
+            "Run the suite with org.springframework.test.context.cache at DEBUG",
+            "The cache statistics show 5 or fewer contexts",
+            "Build log"
+          ],
+          [
+            "Make the WireMock stock stub return 503 in a component test",
+            "The prescription is marked as awaiting stock and no dispensing event is published",
+            "Component test output"
+          ]
+        ],
+        "objectives": [
+          "Plan tests per layer for a Spring Boot service",
+          "Apply Mockito and Spring test doubles where each fits",
+          "Keep the suite fast and trustworthy"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Robot Framework",
+        "Selenium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Moving a Car Rental Booking Portal's Selenium Pack to Robot Framework",
+        "subtopics": [
+          "Inventory and wave plan for the Selenium Java and TestNG pack",
+          "Page classes translated into resource files and SeleniumLibrary keywords",
+          "Runs on Selenium Grid 4 in Docker with Chrome, Firefox and Edge",
+          "Parity runs of both packs on the same builds",
+          "A CI job that publishes log.html and report.html",
+          "Retirement sign-off and a keyword style guide"
+        ],
+        "tools": [
+          "SeleniumLibrary 6.9",
+          "Robot Framework 7.5",
+          "Selenium Grid 4",
+          "Selenium Java and TestNG",
+          "Jenkins or GitHub Actions"
+        ],
+        "lab_task": "Move a car rental company's 80-test Selenium Java booking-portal pack to Robot Framework with SeleniumLibrary: translate 12 page classes into resource files, add plugin keywords for the two features SeleniumLibrary lacks, run both packs against the same 5 nightly builds on Selenium Grid 4 with Chrome, Firefox and Edge, explain every difference in results, and get sign-off to retire the Java pack.",
+        "deliverable": "Robot suite, a parity report for 5 builds, the CI job and a signed retirement request",
+        "checks": [
+          [
+            "Run both packs on the same nightly build",
+            "All 80 tests match, or each difference has a logged cause",
+            "Parity report"
+          ],
+          [
+            "Change one locator in a resource file",
+            "Every test that uses that page passes with no other edits",
+            "Commit diff and run log"
+          ],
+          [
+            "Present the retirement request",
+            "The product owner signs off retiring the Java pack",
+            "Signed retirement request"
+          ]
+        ],
+        "objectives": [
+          "Move a Selenium Java pack to SeleniumLibrary",
+          "Prove parity before retiring a suite",
+          "Hand over a keyword suite the client can maintain"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Robot Framework",
+        "Appium"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Device-Pool Regression Suite for a Parcel Courier's Driver App",
+        "subtopics": [
+          "Screen keywords shared by Android and iOS",
+          "A device pool of emulators, real phones and cloud devices",
+          "Parallel runs with Pabot value sets",
+          "Evidence per device: recordings, screenshots and device details in log.html",
+          "A nightly schedule with device health checks",
+          "Coverage matrix and handover"
+        ],
+        "tools": [
+          "AppiumLibrary 3.2",
+          "Appium with UiAutomator2 and XCUITest",
+          "Pabot and PabotLib",
+          "Appium Inspector",
+          "BrowserStack or Sauce Labs"
+        ],
+        "lab_task": "For a parcel courier's driver app, build a 30-test AppiumLibrary suite covering sign-in, the route list, parcel scanning with manual entry on emulators, proof-of-delivery photos and failed-delivery reasons, and run it on 2 Android emulators, 1 iOS simulator, 2 real phones and 2 cloud devices in one Pabot run of under 25 minutes, with a screen recording for every failure.",
+        "deliverable": "Suite repository, the device inventory file, a combined report from one pool run and a coverage matrix",
+        "checks": [
+          [
+            "Start the pool run with 7 devices",
+            "Each device runs its share of tests and none runs two sessions at once",
+            "Combined report and Appium logs"
+          ],
+          [
+            "Make a proof-of-delivery test fail",
+            "log.html contains the recording and screenshot from that device",
+            "log.html"
+          ],
+          [
+            "Run the device health check with one phone at 10% battery",
+            "The phone is left out of the pool and the run continues on the others",
+            "Health check log and report"
+          ]
+        ],
+        "objectives": [
+          "Run AppiumLibrary suites across a mixed device pool",
+          "Collect evidence per device",
+          "Plan device coverage for a client"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Robot Framework",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Pull Request and Nightly Robot Pipelines for an Online Retailer",
+        "subtopics": [
+          "A multibranch pipeline with a smoke stage on pull requests and a full nightly regression",
+          "Sharded Pabot runs on Kubernetes agent pods",
+          "Credentials, Secret variables and test data per shard",
+          "Reruns, one combined report and pass thresholds",
+          "Notifications, trend graphs and a flaky test list",
+          "Runbook and handover to the retailer's QA team"
+        ],
+        "tools": [
+          "Jenkins LTS",
+          "Robot Framework plugin",
+          "Kubernetes plugin",
+          "Pabot",
+          "Browser library",
+          "rebot"
+        ],
+        "lab_task": "For an online retailer, build a Jenkins multibranch pipeline that runs a 40-test smoke suite on every pull request in under 8 minutes and a 1,200-test nightly regression in four shards on Kubernetes pods in under 40 minutes, with test accounts per shard, one rerun of failures, a combined report published with passThreshold 99 and unstableThreshold 95, and a chat message with the result and a link to the report.",
+        "deliverable": "Jenkinsfile, pod templates, pull request and nightly runs with reports, and a runbook",
+        "checks": [
+          [
+            "Open a pull request that breaks the basket page",
+            "The smoke stage fails within 8 minutes and the pull request cannot be merged",
+            "Pull request status and stage log"
+          ],
+          [
+            "Run the nightly regression",
+            "Four shards finish and one report lists all 1,200 tests",
+            "Report and stage view"
+          ],
+          [
+            "Search every log.html for the test account password",
+            "The password appears in no log",
+            "Search results"
+          ]
+        ],
+        "objectives": [
+          "Design Jenkins pipelines for Robot Framework suites",
+          "Scale runs with sharding and keep results in one report",
+          "Protect secrets and gate merges on results"
+        ]
+      }
+    },
     {
       "applies_to": [
         "Rust",
